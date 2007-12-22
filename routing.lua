@@ -253,6 +253,7 @@ local map_walker
 local function RouteUpdateRoutine(self)
   map_walker = self:CreateWorldMapWalker()
   local minimap_dodad = self:CreateMipmapDodad()
+  local swap_table = {}
   local distance, extra, route, new_distance, new_extra, new_route, shuffle, insert, point = 0, 0, self.route, 0, 0, {}, {}, 0, nil
   local recheck_pos, new_recheck_pos, new_local_minima = 1, 99999, true
   
@@ -272,7 +273,9 @@ local function RouteUpdateRoutine(self)
     local original_size = #route
     
     -- Remove any waypoints if needed.
-    for obj, _ in pairs(self.to_remove) do
+    while true do
+      local obj = next(self.to_remove)
+      if not obj then break end
       self.to_remove[obj] = nil
       
       for i, o in ipairs(route) do
@@ -303,10 +306,13 @@ local function RouteUpdateRoutine(self)
       obj:DoneRouting()
     end
     
-    for obj, _ in pairs(self.to_add) do
+    while true do
+      local obj = next(self.to_add)
+      if not obj then break end
+      self.to_add[obj] = nil
+      
       if obj:Known() then
         obj:PrepareRouting()
-        self.to_add[obj] = nil
         
         if #route == 0 then
           insert, distance, extra = self:InsertObjectiveIntoRoute(route, 0, 0, obj)
@@ -324,8 +330,12 @@ local function RouteUpdateRoutine(self)
           
           insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, obj)
         end
+      else
+        swap_table[obj] = true
       end
     end
+    
+    self.to_add, swap_table = swap_table, self.to_add
     
     -- If size decreased, all the old indexes need to be reset.
     if #route < original_size then

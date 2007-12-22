@@ -126,7 +126,7 @@ function QuestHelper:PurgeItemFromQuest(quest, item_name, item_object)
     local item_data = quest.item[item_name]
     if item_data then
       quest.item[item_name] = nil
-      if not next(quest.item) then quest.item = nil end
+      if not next(quest.item, nil) then quest.item = nil end
       
       if item_data.pos then
         for i, pos in ipairs(item_data.pos) do

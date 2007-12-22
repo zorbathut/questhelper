@@ -14,18 +14,12 @@ function QuestHelper:GetQuestLogObjective(quest_index, objective_index)
     if start then
       wanted = string.sub(wanted, 1, start-1)
       verb = "Slay"
-    else
-      start = string.find(wanted, "s%sCollected$", -11)
-      if start then
-        wanted = string.sub(wanted, 1, start-1)
-        verb = "Collect"
-      end
     end
   elseif category == "item" then
     verb = "Acquire"
   end
   
-  return category, verb or "<VERB>", wanted or text, tonumber(have) or have, tonumber(need) or need
+  return category, verb, wanted or text, tonumber(have) or have, tonumber(need) or need
 end
 
 function QuestHelper:GetQuestLevel(quest_name)
@@ -157,7 +151,11 @@ function QuestHelper:ScanQuestLog()
               lo.objective.item = wanted
             end
             
-            lo.reason = verb.." "..self:HighlightText(wanted).." for quest "..self:HighlightText(title).."."
+            if verb then
+              lo.reason = verb.." "..self:HighlightText(wanted).." for quest "..self:HighlightText(title).."."
+            else
+              lo.reason = self:HighlightText(wanted).." for quest "..self:HighlightText(title).."."
+            end
             
             lo.category = category
             lo.wanted = wanted
