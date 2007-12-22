@@ -148,6 +148,8 @@ function QuestHelper:CreateWorldMapWalker()
   walker.points = {}
   walker.origin = {}
   walker.frame = self
+  walker.map_dodads = {}
+  walker.used_map_dodads = 0
   walker.spare_tables = {}
   
   function walker:OnUpdate(elapsed)
@@ -202,7 +204,7 @@ function QuestHelper:CreateWorldMapWalker()
   end
   
   function walker:RouteChanged()
-    if QuestHelper.Astrolabe.WorldMapVisible then
+    if self.frame.Astrolabe.WorldMapVisible then
       local points = self.points
       local cur = self.frame.pos
       local spare_tables = self.spare_tables
@@ -229,6 +231,23 @@ function QuestHelper:CreateWorldMapWalker()
         t[1], t[2] = convertLocationToScreen(cur, c, z)
         
         table.insert(points, t)
+      end
+      
+      if self.frame.route_sane then
+        for i = 1, #self.frame.route do
+          local dodad = self.map_dodads[i]
+          if not dodad then
+            self.map_dodads[i] = self.frame:CreateWorldMapDodad(self.frame.route[i], i)
+          else
+            self.map_dodads[i]:SetObjective(self.frame.route[i], i)
+          end
+        end
+        
+        for i = #self.frame.route+1,self.used_map_dodads do
+          self.map_dodads[i]:SetObjective(nil, 0)
+        end
+        
+        self.used_map_dodads = #self.frame.route
       end
     end
   end

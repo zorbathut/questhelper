@@ -379,6 +379,8 @@ function QuestHelper:OnEvent(event)
                   end_zone, distance = zone, d
                 end
               end
+              
+              npc_objective:DoneRouting()
             end
           end
           if end_zone and distance > 5 then

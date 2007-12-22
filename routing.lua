@@ -255,6 +255,253 @@ QuestHelper.route_sane = true
 local function RouteUpdateRoutine(self)
   map_walker = self:CreateWorldMapWalker()
   local minimap_dodad = self:CreateMipmapDodad()
+  local distance, extra, route, new_distance, new_extra, new_route, shuffle, insert, point = 0, 0, self.route, 0, 0, {}, {}, 0, nil
+  local recheck_pos, new_recheck_pos, new_local_minima = 1, 99999, true
+  
+  while true do
+    for i,o in ipairs(route) do
+      if not o:Known() then
+        -- Objective was probably made to depend on an objective that we don't know about yet.
+        -- We add it to both lists, because although we need to remove it, we need it added again when we can.
+        -- This creats an inconsistancy, but it'll get fixed in the removal loop before anything has a chance to
+        -- explode from it.
+        
+        self.to_remove[o] = true
+        self.to_add[o] = true
+      end
+    end
+    
+    local original_size = #route
+    
+    -- Remove any waypoints if needed.
+    for obj, _ in pairs(self.to_remove) do
+      self.to_remove[obj] = nil
+      
+      for i, o in ipairs(route) do
+        if o == obj then
+          if i == 1 then
+            if #route == 1 then
+              minimap_dodad:SetObjective(nil)
+            else
+              minimap_dodad:SetObjective(route[2])
+            end
+          end
+          
+          if recheck_pos > i then recheck_pos = recheck_pos - 1 end
+          
+          distance, extra = self:RemoveIndexFromRoute(route, distance, extra, i)
+          break
+        end
+      end
+      
+      for i, o in ipairs(new_route) do
+        if o == obj then
+          if new_recheck_pos > i then new_recheck_pos = new_recheck_pos - 1 end
+          new_distance, new_extra = self:RemoveIndexFromRouteSOP(new_route, new_distance, new_extra, i)
+          break
+        end
+      end
+      
+      obj:DoneRouting()
+    end
+    
+    for obj, _ in pairs(self.to_add) do
+      if obj:Known() then
+        obj:PrepareRouting()
+        self.to_add[obj] = nil
+        
+        if #route == 0 then
+          insert, distance, extra = self:InsertObjectiveIntoRoute(route, 0, 0, obj)
+          insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, 0, 0, obj)
+          
+          minimap_dodad:SetObjective(obj)
+        else
+          self:CalcObjectiveIJ(route, obj)
+          
+          insert, distance, extra = self:InsertObjectiveIntoRoute(route, distance, extra, obj)
+          
+          if insert == 1 then
+            minimap_dodad:SetObjective(obj)
+          end
+          
+          insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, obj)
+        end
+      end
+    end
+    
+    -- If size decreased, all the old indexes need to be reset.
+    if #route < original_size then
+      for i=1,#route do
+        shuffle[i] = i
+      end
+    end
+    
+    -- Append new indexes to shuffle.
+    for i=original_size+1,#route do
+      shuffle[i] = i
+    end
+    
+    if #route > 0 then
+      if recheck_pos > #route then recheck_pos = 1 end
+      if new_recheck_pos > #route then
+        new_recheck_pos = 1
+        if new_local_minima then
+          -- Start try something new, we can't seem to get what we have to be any better.
+          
+          for i=1,#route-1 do -- Shuffling the order we'll add the nodes in.
+            local r = math.random(i, #route)
+            if r ~= i then
+              shuffle[i], shuffle[r] = shuffle[r], shuffle[i]
+            end
+          end
+          
+          while #new_route > 0 do
+            table.remove(new_route)
+          end
+          
+          point = route[shuffle[1]]
+          insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, 0, 0, point)
+          
+          -- Set up the i/j values for all the other points, based on the first point.
+          for i=2,#route do
+            local p = route[shuffle[i]]
+            if p.before[point] then p.i, p.j = 1, 1
+            elseif p.after[point] then p.i, p.j = 2, 2
+            else p.i, p.j = 1, 2
+            end
+          end
+          
+          -- Insert the rest of the points.
+          for i=2,#route do
+            point = route[shuffle[i]]
+            insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point)
+            
+            for j=i+1,#route do
+              local p = route[shuffle[j] ]
+              if p.before[point] then p.j = insert
+              elseif p.after[point] then p.i, p.j = insert+1, p.j + 1
+              elseif p.j > insert then
+                p.j = p.j + 1
+                if p.i > insert then p.i = p.i + 1 end
+              end
+            end
+          end
+        end
+        new_local_minima = true
+      end
+      
+      point = route[recheck_pos]
+      self.route_sane = false
+      distance, extra = self:RemoveIndexFromRoute(route, distance, extra, recheck_pos)
+      self:CalcObjectiveIJ(route, point)
+      insert, distance, extra = self:InsertObjectiveIntoRoute(route, distance, extra, point)
+      
+      if insert == 1 or recheck_pos == 1 then
+        minimap_dodad:SetObjective(route[1])
+      end
+      
+      self.route_sane = true
+      
+      point = new_route[new_recheck_pos]
+      local old_distance = new_distance
+      new_distance, new_extra = self:RemoveIndexFromRouteSOP(new_route, new_distance, new_extra, new_recheck_pos)
+      self:CalcObjectiveIJ(new_route, point)
+      insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point)
+      
+      if new_distance + 0.001 < old_distance then
+        new_local_minima = false
+      end
+      
+      recheck_pos = recheck_pos + 1
+      new_recheck_pos = new_recheck_pos + 1
+    end
+    
+    if new_distance+new_extra+0.001 < distance+extra then
+      for i, node in ipairs(route) do
+        node.len = node.nel
+        node.pos, node.sop = node.sop, node.pos
+      end
+      
+      route, new_route = new_route, route
+      distance, new_distance = new_distance, distance
+      extra, new_extra = new_extra, extra
+      
+      self.route = route
+      
+      minimap_dodad:SetObjective(route[1])
+      
+      for i=1,#route-1 do -- Shuffling the order we'll add the nodes in.
+        local r = math.random(i, #route)
+        if r ~= i then
+          shuffle[i], shuffle[r] = shuffle[r], shuffle[i]
+        end
+      end
+      
+      while #new_route > 0 do
+        table.remove(new_route)
+      end
+      
+      point = route[shuffle[1]]
+      insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, 0, 0, point)
+      
+      -- Set up the i/j values for all the other points, based on the first point.
+      for i=2,#route do
+        local p = route[shuffle[i]]
+        if p.before[point] then p.i, p.j = 1, 1
+        elseif p.after[point] then p.i, p.j = 2, 2
+        else p.i, p.j = 1, 2
+        end
+      end
+      
+      -- Insert the rest of the points.
+      for i=2,#route do
+        point = route[shuffle[i]]
+        insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point)
+        
+        for j=i+1,#route do
+          local p = route[shuffle[j] ]
+          if p.before[point] then p.j = insert
+          elseif p.after[point] then p.i, p.j = insert+1, p.j + 1
+          elseif p.j > insert then
+            p.j = p.j + 1
+            if p.i > insert then p.i = p.i + 1 end
+          end
+        end
+      end
+      
+      recheck_pos = new_recheck_pos
+      new_recheck_pos = 1
+      new_local_minima = true
+    end
+    
+    -- Thats enough work for now, we'll continue next frame.
+    if route_pass > 0 then
+      route_pass = route_pass - 1
+    end
+    
+    map_walker:RouteChanged()
+    
+    call_count = 0
+    coroutine.yield()
+  end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+local function __OLD__RouteUpdateRoutine(self)
+  map_walker = self:CreateWorldMapWalker()
+  local minimap_dodad = self:CreateMipmapDodad()
   local waypoint_icons = {}
   local distance, extra, route, new_route, shuffle, insert, point = 0, 0, self.route, {}, {}, 0, nil
   

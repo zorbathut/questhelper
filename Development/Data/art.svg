@@ -418,9 +418,9 @@
      objecttolerance="10"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.2337656"
-     inkscape:cx="103.39693"
-     inkscape:cy="182.11499"
+     inkscape:zoom="2.4675312"
+     inkscape:cx="53.420573"
+     inkscape:cy="107.69431"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      width="256px"
@@ -630,5 +630,16 @@
        d="M 221,183 C 226.76904,183 232.68613,179.6012 236,175 C 240.11727,169.28332 228,164 220,164 C 210.92864,164 207.82404,170.89442 213,174 C 218,177 238.42772,176.96534 244,170 C 248,165 245.88457,158.44267 242,155 C 236.56583,150.18402 228.03612,146 221,146 C 215,146 204,148 204,152 C 204,158.67313 215.024,160 219,160 C 225,160 233,158 237.48818,154.55197 C 240.92368,151.91266 243,142 238,139 C 232.17954,135.50772 220,136 214,138 C 207.7644,140.07853 224,146 222,143 C 219.23947,138.8592 230,140 234,141 C 239.95604,142.48901 237,151 231.32026,153.32441 C 225.26881,155.80094 214.58349,157.58349 210,153 C 208,151 216,150 221,150 C 228.33988,150 240.64433,155.86599 242,164 C 243,170 218,177 216,170 C 215.23764,167.33174 226.05597,168.13012 230,171 C 233.76235,173.73768 227.46697,179.92554 219.56579,180.82229 C 218,181 218,183 221,183 z "
        id="path3235"
        sodipodi:nodetypes="csssssssssssssssssssss" />
+    <path
+       sodipodi:type="arc"
+       style="opacity:1;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="MenuSelected"
+       sodipodi:cx="94.5"
+       sodipodi:cy="150.5"
+       sodipodi:rx="22.5"
+       sodipodi:ry="11.5"
+       d="M 117 150.5 A 22.5 11.5 0 1 1  72,150.5 A 22.5 11.5 0 1 1  117 150.5 z"
+       transform="matrix(1.0222223,0,0,2.0000002,-0.600005,-141.00003)"
+       inkscape:label="" />
   </g>
 </svg>

@@ -122,6 +122,7 @@ end
 
 
 local function DummyPrepareRouting(self)
+  self.setup_count = self.setup_count + 1
   if not self.setup then
     if self.o.pos then for i, p in ipairs(self.o.pos) do
       self:AddLoc(unpack(p))
@@ -136,6 +137,7 @@ local function DummyPrepareRouting(self)
 end
 
 local function ItemPrepareRouting(self)
+  self.setup_count = self.setup_count + 1
   if not self.setup then
     if self.o.vendor then for i, npc in ipairs(self.o.vendor) do
       local n = self.qh:GetObjective("monster", npc)
@@ -529,17 +531,10 @@ local function ComputeTravelTime2(self, pos1, pos2)
 end
 
 local function DoneRouting(self)
-  if self.setup then
-    -- TODO: Don't waste memory by through everything away and creating new.
-    self.setup = false
-    self.qh.prepared_objectives[self] = nil
-    
-    self.d = {}
-    self.p = {}
-    self.nm = {}
-    self.nm2 = {}
-    self.nl = {}
-  end
+  assert(self.setup_count > 0)
+  assert(self.setup)
+  
+  self.setup_count = self.setup_count - 1
 end
 
 function QuestHelper:NewObjectiveObject()
@@ -562,8 +557,10 @@ function QuestHelper:NewObjectiveObject()
     TravelTime=ComputeTravelTime,
     TravelTime2=ComputeTravelTime2,
     
-    auto_ignore = false,
-    user_ignore = false,
+    auto_ignore=false,
+    user_ignore=nil, -- When nil, will use auto_ignore, when false, will ignore, when true, won't ignore.
+    
+    setup_count=0,
     
     icon_id=12,
     icon_bg=14,

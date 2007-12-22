@@ -347,8 +347,21 @@ end
 
 function QuestHelper:ResetPathing()
   -- Objectives may include cached information that depends on the world graph.
-  for o in pairs(self.prepared_objectives) do
-    o:DoneRouting()
+  local i = 1
+  while i <= #self.prepared_objectives do
+    local o = self.prepared_objectives[i]
+    o.setup = false
+    o.d = {}
+    o.p = {}
+    o.nm = {}
+    o.nm2 = {}
+    o.nl = {}
+    
+    if o.setup_count == 0 then
+      table.remove(self.prepared_objectives, i)
+    else
+      i = i + 1
+    end
   end
   
   self.world_graph:SetHeuristic(nil_heuristic)
@@ -470,8 +483,6 @@ function QuestHelper:ResetPathing()
             end
           end
           
-          -- Because the nodes aren't linked together yet, we need to remove this objective. Trying to use the
-          -- objective in pathfinding at this point would be bad.
           npc_objective:DoneRouting()
         end
       end
@@ -499,8 +510,6 @@ function QuestHelper:ResetPathing()
             end
           end
           
-          -- Because the nodes aren't linked together yet, we need to remove this objective. Trying to use the
-          -- objective in pathfinding at this point would be bad.
           npc_objective:DoneRouting()
         end
       end
@@ -583,9 +592,9 @@ function QuestHelper:ResetPathing()
   -- TODO: heuristic returns NaNs, fix this.
   --self.world_graph:SetHeuristic(heuristic)
   
-  -- Route objectives are expected to be routable.
-  for i, obj in ipairs(self.route) do
+  for i, obj in ipairs(self.prepared_objectives) do
     obj:PrepareRouting()
+    obj.setup_count = obj.setup_count - 1 -- Don't want to increase it, just set it up.
     
     -- Make sure positions still contain the correct distances to other nodes in the zone, as
     -- the order may have changed, they may have been moved, and some may have been added or removed.
