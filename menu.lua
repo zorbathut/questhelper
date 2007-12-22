@@ -16,6 +16,7 @@ function QuestHelper:ReleaseMenu(menu)
   menu.func = nil
   menu.func_arg = nil
   menu.parent = nil
+  menu.auto_release = nil
   menu:SetParent(nil)
   menu:SetScript("OnUpdate", nil)
   
@@ -71,6 +72,10 @@ function QuestHelper:CreateMenu()
         if self.func then
           self.func(unpack(self.func_arg))
         end
+        if auto_release then
+          QuestHelper:ReleaseMenu(self)
+          return
+        end
       end
     end
     
@@ -118,7 +123,10 @@ function QuestHelper:CreateMenu()
     end
   end
   
-  function menu:ShowAtCursor()
+  function menu:ShowAtCursor(auto_release)
+    auto_release = auto_release == "nil" and true or auto_release
+    self.auto_release = auto_release
+    
     local x, y = GetCursorPosition()
     
     --self:SetParent(QuestHelper.Astrolabe.WorldMapVisible and WorldMapDetailFrame or UIParent)

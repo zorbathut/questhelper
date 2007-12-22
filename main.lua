@@ -560,5 +560,52 @@ function QuestHelper:OnUpdate()
   end
 end
 
+function QuestHelper:SlashCommand(input)
+  local _, _, command, argument = string.find(input, "^%s*([^%s]-)%s+(.-)%s*$")
+  if not command then
+    command, argument = input, ""
+  end
+  
+  command = string.upper(command)
+  
+  if command == "HIDDEN" then
+    self:ShowHidden()
+  elseif command == "FIND" then
+    self:PerformSearch(argument)
+  else
+    if command ~= "HELP" then
+      self:TextOut("I'm not sure what you're asking.")
+    end
+    
+    argument = string.upper(argument)
+    
+    if argument == "HIDDEN" then
+      DEFAULT_CHAT_FRAME:AddMessage("HIDDEN", 1.0, 0.8, 0.4)
+      DEFAULT_CHAT_FRAME:AddMessage("  Compiles a list of objectives that QuestHelper is hiding from you.", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("  Depending on the reason, you can also unhide the objective.", 1.0, 0.6, 0.2)
+    elseif argument == "HELP" then
+      DEFAULT_CHAT_FRAME:AddMessage("HELP", 1.0, 0.8, 0.4)
+      DEFAULT_CHAT_FRAME:AddMessage("  Get information about a QuestHelper command.", 1.0, 0.6, 0.2)
+    elseif argument == "FIND" then
+      DEFAULT_CHAT_FRAME:AddMessage("FIND", 1.0, 0.8, 0.4)
+      DEFAULT_CHAT_FRAME:AddMessage("  Search for an item, location, or npc. Examples: ", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("    /qh find item rune of teleport", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("    /qh find npc bragok", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("    /qh find loc stormwind 50 60", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("  Omiting the search category will search all categories.", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("  You can also search using the commands /find and /qhfind.", 1.0, 0.6, 0.2)
+    else
+      DEFAULT_CHAT_FRAME:AddMessage("Available Commands:", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("  help", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("  find", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("  hidden", 1.0, 0.6, 0.2)
+    end
+  end
+end
+
 QuestHelper:RegisterEvent("VARIABLES_LOADED")
 QuestHelper:SetScript("OnEvent", QuestHelper.OnEvent)
+
+SLASH_QuestHelper1 = "/qh"
+SLASH_QuestHelper2 = "/questhelper"
+SlashCmdList["QuestHelper"] = function (text) QuestHelper:SlashCommand(text) end

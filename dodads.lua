@@ -234,7 +234,7 @@ function QuestHelper:CreateWorldMapWalker()
         table.insert(points, t)
       end
       
-      if self.frame.route_sane then
+      if not self.frame.limbo_node then
         for i = 1, #self.frame.route do
           local dodad = self.map_dodads[i]
           if not dodad then
@@ -526,7 +526,6 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
         item:SetFunction(function (obj) obj.user_ignore = true QuestHelper:ForceRouteUpdate() end, self.objective)
       end
       
-      menu:SetCloseFunction(QuestHelper.ReleaseMenu, QuestHelper, menu)
       menu:ShowAtCursor()
     end
   end
