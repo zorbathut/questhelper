@@ -115,7 +115,7 @@ function QuestHelper:ScanQuestLog()
       
       local ignored = party_levels[math.min(5, math.max(1, players or (qtype and 5) or 1))]+3 < level
       
-      quest.auto_ignore = ignored
+      -- quest.auto_ignore = ignored
       
       if self.quest_giver and self.quest_giver[title] then
         quest.o.start = self.quest_giver[title]

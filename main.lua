@@ -568,7 +568,9 @@ function QuestHelper:SlashCommand(input)
   
   command = string.upper(command)
   
-  if command == "HIDDEN" then
+  if command == "NAG" then
+    self:Nag()
+  elseif command == "HIDDEN" then
     self:ShowHidden()
   elseif command == "FIND" then
     self:PerformSearch(argument)
@@ -579,7 +581,10 @@ function QuestHelper:SlashCommand(input)
     
     argument = string.upper(argument)
     
-    if argument == "HIDDEN" then
+    if argument == "NAG" then
+      DEFAULT_CHAT_FRAME:AddMessage("NAG", 1.0, 0.8, 0.4)
+      DEFAULT_CHAT_FRAME:AddMessage("  Tells you if you have anything that's missing from the static database.", 1.0, 0.6, 0.2)
+    elseif argument == "HIDDEN" then
       DEFAULT_CHAT_FRAME:AddMessage("HIDDEN", 1.0, 0.8, 0.4)
       DEFAULT_CHAT_FRAME:AddMessage("  Compiles a list of objectives that QuestHelper is hiding from you.", 1.0, 0.6, 0.2)
       DEFAULT_CHAT_FRAME:AddMessage("  Depending on the reason, you can also unhide the objective.", 1.0, 0.6, 0.2)
@@ -599,6 +604,7 @@ function QuestHelper:SlashCommand(input)
       DEFAULT_CHAT_FRAME:AddMessage("  help", 1.0, 0.6, 0.2)
       DEFAULT_CHAT_FRAME:AddMessage("  find", 1.0, 0.6, 0.2)
       DEFAULT_CHAT_FRAME:AddMessage("  hidden", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("  nag", 1.0, 0.6, 0.2)
     end
   end
 end

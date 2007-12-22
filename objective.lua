@@ -1,5 +1,5 @@
 local function ObjectiveCouldBeFirst(self)
-  if self.auto_ignore or self.user_ignore then
+  if (self.user_ignore == nil and self.auto_ignore) or self.user_ignore then
     return false
   end
   
