@@ -5,11 +5,13 @@ local max_msg_size = 256-4-1-1 -- To allow room for "QHpr\t" ... "\0"
 local max_chunk_size = max_msg_size - 2 -- To allow room for prefix of "x:"
 
 function QuestHelper:SendData(data,name)
-  --[[if name then
-    self:TextOut("SENT/"..name..":|cff00ff00"..data.."|r")
-  else
-    self:TextOut("SENT:|cff00ff00"..data.."|r")
-  end]]
+  if QuestHelper_Pref.comm then
+    if name then
+      self:TextOut("SENT/"..name..":|cff00ff00"..data.."|r")
+    else
+      self:TextOut("SENT/PARTY:|cff00ff00"..data.."|r")
+    end
+  end
   
   if string.len(data) > max_msg_size then
     -- Large pieces of data are broken into pieces.
@@ -75,6 +77,9 @@ end
       Sent to new users, letting them know we know nothing about them. VERSION is the communication they are using.
       Both clients normally send a syn: and bother respond to the other with hello:. If one client just reloaded,
       this will just be a syn: from the reloading client and a hello: from the existing client.
+      
+      As a special case, syn:0 indicates that the user has turned off objective sharing. Don't need to reply with
+      hello in this case. You can, but of course, they won't see or care.
     
     hello:<VERSION>
       Sent in response to syn: VERSION is the communication version they are using.
@@ -109,9 +114,12 @@ end
 local shared_objectives = {}
 local users = {}
 local spare_users = {}
+local shared_users = 0
 
 local function CreateUser(name)
-  --QuestHelper:TextOut("Created user: "..name)
+  if QuestHelper_Pref.comm then
+    QuestHelper:TextOut("Created user: "..name)
+  end
   
   user = table.remove(spare_users)
   if not user then
@@ -158,7 +166,9 @@ local function ReleaseUser(user)
     obj.peer[user] = nil
   end
   
-  --QuestHelper:TextOut("Released user: "..user.name)
+  if QuestHelper_Pref.comm then
+    QuestHelper:TextOut("Released user: "..user.name)
+  end
   
   user.name=nil
   user.xmsg=nil
@@ -172,7 +182,7 @@ function QuestHelper:DoShareObjective(objective)
   for i = 1, #shared_objectives do assert(objective ~= shared_objectives[i]) end -- Just testing.
   
   assert(objective.peer == nil)
-  objective.peer = {}
+  objective.peer = self:CreateTable()
   
   for name, user in pairs(users) do
     -- Peers know nothing about this objective.
@@ -206,6 +216,7 @@ function QuestHelper:DoUnshareObjective(objective)
         objective.peer[user] = nil
       end
       
+      self:ReleaseTable(objective.peer)
       objective.peer = nil
       
       if need_announce then
@@ -221,190 +232,253 @@ function QuestHelper:DoUnshareObjective(objective)
 end
 
 function QuestHelper:HandleRemoteData(data, name)
-  local user = users[name]
-  if not user then
-    user = CreateUser(name)
-    users[name] = user
-  end
-  
-  local _, _, message_type, message_data = string.find(data, "^(.-):(.*)$")
-  
-  if message_type == "x" then
-    if user.version ~= 0 then
-      --self:TextOut("RECV/"..name..":<chunk>")
-      user.xmsg = (user.xmsg or "")..message_data
-    else
-      --self:TextOut("RECV/"..name..":<ignored chunk>")
+  if QuestHelper_Pref.share then
+    local user = users[name]
+    if not user then
+      user = CreateUser(name)
+      users[name] = user
     end
-    return
-  elseif message_type == "X" then
-    if user.version ~= 0 then
-      --self:TextOut("RECV/"..name..":<chunk end>")
-      _, _, message_type, message_data = string.find((user.xmsg or "")..message_data, "^(.-):(.*)$")
-      user.xmsg = nil
-    else
-      --self:TextOut("RECV/"..name..":<ignored chunk end>")
+    
+    local _, _, message_type, message_data = string.find(data, "^(.-):(.*)$")
+    
+    if message_type == "x" then
+      if user.version > 0 then
+        --self:TextOut("RECV/"..name..":<chunk>")
+        user.xmsg = (user.xmsg or "")..message_data
+      else
+        --self:TextOut("RECV/"..name..":<ignored chunk>")
+      end
       return
-    end
-  end
-  
-  --self:TextOut("RECV/"..name..":|cff00ff00"..data.."|r")
-  
-  if message_type == "syn" then
-    -- User has just noticed us. Is either new, or reloaded their UI.
-    
-    user.version = tonumber(message_data) or 0
-    
-    for i, obj in ipairs(shared_objectives) do -- User apparently knows nothing about us.
-      assert(obj.peer)
-      obj.peer[user] = 0
+    elseif message_type == "X" then
+      if user.version > 0 then
+        --self:TextOut("RECV/"..name..":<chunk end>")
+        _, _, message_type, message_data = string.find((user.xmsg or "")..message_data, "^(.-):(.*)$")
+        user.xmsg = nil
+      else
+        --self:TextOut("RECV/"..name..":<ignored chunk end>")
+        return
+      end
     end
     
-    for id, obj in pairs(user.obj) do -- And apparently all their objective ids are now null and void.
-      self:SetObjectiveProgress(obj, user.name, nil, nil)
-      self:RemoveObjectiveWatch(obj, SharedObjectiveReason(user, obj))
-      user.obj[id] = nil
+    if QuestHelper_Pref.comm then
+      self:TextOut("RECV/"..name..":|cff00ff00"..data.."|r")
     end
     
-    -- Say hello to the new user.
-    self:SendData("hello:"..comm_version, name)
-  elseif message_type == "hello" then
-    user.version = tonumber(message_data) or 0
-    
-    if user.version > comm_version then
-      self:TextOut(self:HighlightText(name).." is using a newer protocol version. It might be time to upgrade.")
-    elseif user.version < comm_version then
-      self:TextOut(self:HighlightText(name).." is using an older protocol version.")
-    end
-    
-  elseif message_type == "id" then
-    local list = GetList(message_data)
-    local id, cat, what = tonumber(list[1]), list[2], list[3]
-    if id and cat and what and not user.obj[id] then
-      user.obj[id] = self:GetObjective(UnescapeString(cat), UnescapeString(what))
-      self:AddObjectiveWatch(user.obj[id], SharedObjectiveReason(user, user.obj[id]))
-    end
-  elseif message_type == "dep" then
-    local list = GetList(message_data)
-    local id = tonumber(list[1])
-    local obj = id and user.obj[id]
-    if obj and obj.cat == "quest" then
-      for i = 2, #list do
-        local depid = tonumber(list[i])
-        local depobj = depid and user.obj[depid]
-        if depobj and depobj.cat ~= "quest" then
-          self:ObjectiveObjectDependsOn(obj, depobj)
+    if message_type == "syn" then
+      -- User has just noticed us. Is either new, or reloaded their UI.
+      
+      local new_version = tonumber(message_data) or 0
+      
+      if new_version == 0 and user.version > 0 then
+        shared_users = shared_users - 1
+      elseif new_version > 0 and user.version == 0 then
+        shared_users = shared_users + 1
+      end
+      
+      self.sharing = shared_users > 0
+      user.version = new_version
+      
+      for i, obj in ipairs(shared_objectives) do -- User apparently knows nothing about us.
+        assert(obj.peer)
+        obj.peer[user] = 0
+      end
+      
+      for id, obj in pairs(user.obj) do -- And apparently all their objective ids are now null and void.
+        self:SetObjectiveProgress(obj, user.name, nil, nil)
+        self:RemoveObjectiveWatch(obj, SharedObjectiveReason(user, obj))
+        user.obj[id] = nil
+      end
+      
+      -- Say hello to the new user.
+      if user.version > 0 then
+        self:SendData("hello:"..comm_version, name)
+      end
+    elseif message_type == "hello" then
+      local new_version = tonumber(message_data) or 0
+      
+      if new_version == 0 and user.version > 0 then
+        shared_users = shared_users - 1
+      elseif new_version > 0 and user.version == 0 then
+        shared_users = shared_users + 1
+      end
+      
+      self.sharing = shared_users > 0
+      user.version = new_version
+      
+      if user.version > comm_version then
+        self:TextOut(self:HighlightText(name).." is using a newer protocol version. It might be time to upgrade.")
+      elseif user.version < comm_version then
+        self:TextOut(self:HighlightText(name).." is using an older protocol version.")
+      end
+      
+    elseif message_type == "id" then
+      local list = GetList(message_data)
+      local id, cat, what = tonumber(list[1]), list[2], list[3]
+      if id and cat and what and not user.obj[id] then
+        user.obj[id] = self:GetObjective(UnescapeString(cat), UnescapeString(what))
+        self:AddObjectiveWatch(user.obj[id], SharedObjectiveReason(user, user.obj[id]))
+      end
+    elseif message_type == "dep" then
+      local list = GetList(message_data)
+      local id = tonumber(list[1])
+      local obj = id and user.obj[id]
+      if obj and obj.cat == "quest" then
+        for i = 2, #list do
+          local depid = tonumber(list[i])
+          local depobj = depid and user.obj[depid]
+          if depobj and depobj.cat ~= "quest" then
+            self:ObjectiveObjectDependsOn(obj, depobj)
+            
+            if depobj.cat == "item" then
+              if not depobj.quest then
+                depobj.quest = obj
+              end
+            end
+          end
         end
       end
-    end
-  elseif message_type == "upd" then
-    local _, _, id, priority, have, need = string.find(message_data, "^(%d+):(%d+):([^:]*):(.*)")
-    id, priority = tonumber(id), tonumber(priority)
-    
-    if id and priority and have and need then
-      local obj = user.obj[id]
-      if obj then
-        have, need = UnescapeString(have), UnescapeString(need)
-        have, need = tonumber(have) or have, tonumber(need) or need
-        if have == "" or need == "" then have, need = nil, nil end
-        self:SetObjectivePriority(obj, priority)
-        self:SetObjectiveProgress(obj, user.name, have, need)
+    elseif message_type == "upd" then
+      local _, _, id, priority, have, need = string.find(message_data, "^(%d+):(%d+):([^:]*):(.*)")
+      id, priority = tonumber(id), tonumber(priority)
+      
+      if id and priority and have and need then
+        local obj = user.obj[id]
+        if obj then
+          have, need = UnescapeString(have), UnescapeString(need)
+          have, need = tonumber(have) or have, tonumber(need) or need
+          if have == "" or need == "" then have, need = nil, nil end
+          self:SetObjectivePriority(obj, priority)
+          self:SetObjectiveProgress(obj, user.name, have, need)
+        end
       end
+    elseif message_type == "rem" then
+      local id = tonumber(message_data)
+      local obj = id and user.obj[id]
+      if obj then
+        self:SetObjectiveProgress(obj, name, nil, nil)
+        self:RemoveObjectiveWatch(obj, SharedObjectiveReason(user, obj))
+        user.obj[id] = nil
+      end
+    else
+      self:TextOut("Unknown message type '"..message_type.."' from '"..name.."'.")
     end
-  elseif message_type == "rem" then
-    local id = tonumber(message_data)
-    local obj = id and user.obj[id]
-    if obj then
-      self:SetObjectiveProgress(obj, name, nil, nil)
-      self:RemoveObjectiveWatch(obj, SharedObjectiveReason(user, obj))
-      user.obj[id] = nil
-    end
-  else
-    self:TextOut("Unknown message type '"..message_type.."' from '"..name.."'.")
   end
 end
 
 function QuestHelper:PumpCommMessages()
-  local best_level, best_count, best_obj = 3, 255, nil
-  
-  for i, o in pairs(shared_objectives) do
-    local level, count = 255, 0
+  if shared_users > 0 and QuestHelper_Pref.share then
+    local best_level, best_count, best_obj = 3, 255, nil
     
-    for u, l in pairs(o.peer) do
-      if u.version > 0 then
-        level = math.min(l, level)
-        count = count + 1
+    for i, o in pairs(shared_objectives) do
+      local level, count = 255, 0
+      
+      for u, l in pairs(o.peer) do
+        if u.version > 0 then
+          level = math.min(l, level)
+          count = count + 1
+        end
+      end
+      
+      if level < best_level or (level == best_level and count > best_count) then
+        best_level, best_count, best_obj = level, count, o
       end
     end
     
-    if level < best_level or (level == best_level and count > best_count) then
-      best_level, best_count, best_obj = level, count, o
-    end
-  end
-  
-  if best_obj then
-    if best_level == 0 then
-      self:SendData("id:"..best_obj.id..":"..EscapeString(best_obj.cat)..":"..EscapeString(best_obj.obj))
-      best_level = 1
-    elseif best_level == 1 then
-      if next(best_obj.after, nil) then
-        local data, meaningful = "dep:"..best_obj.id, false
-        for o in pairs(best_obj.after) do
-          if o.peer then
-            data = data .. ":" .. o.id
-            meaningful = true
+    if best_obj then
+      if best_level == 0 then
+        self:SendData("id:"..best_obj.id..":"..EscapeString(best_obj.cat)..":"..EscapeString(best_obj.obj))
+        best_level = 1
+      elseif best_level == 1 then
+        if next(best_obj.after, nil) then
+          local data, meaningful = "dep:"..best_obj.id, false
+          for o in pairs(best_obj.after) do
+            if o.peer then
+              data = data .. ":" .. o.id
+              meaningful = true
+            end
+          end
+          if meaningful then
+            self:SendData(data)
           end
         end
-        if meaningful then
-          self:SendData(data)
+        best_level = 2
+      elseif best_level == 2 then
+        local prog = best_obj.progress and best_obj.progress[UnitName("player")]
+        if prog then
+          self:SendData("upd:"..best_obj.id..":"..best_obj.priority..":"..EscapeString(prog[1])..":"..EscapeString(prog[2]))
+        else
+          self:SendData("upd:"..best_obj.id..":"..best_obj.priority.."::")
+        end
+        best_level = 3
+      end
+      
+      for u in pairs(best_obj.peer) do -- All peers have just seen this.
+        if u.version > 0 then
+          best_obj.peer[u] = math.max(best_obj.peer[u], best_level)
         end
       end
-      best_level = 2
-    elseif best_level == 2 then
-      local prog = best_obj.progress and best_obj.progress[UnitName("player")]
-      if prog then
-        self:SendData("upd:"..best_obj.id..":"..best_obj.priority..":"..EscapeString(prog[1])..":"..EscapeString(prog[2]))
-      else
-        self:SendData("upd:"..best_obj.id..":"..best_obj.priority.."::")
-      end
-      best_level = 3
-    end
-    
-    for u in pairs(best_obj.peer) do -- All peers have just seen this.
-      best_obj.peer[u] = math.max(best_obj.peer[u], best_level)
     end
   end
 end
 
 function QuestHelper:HandlePartyChange()
-  for name, user in pairs(users) do
-    user.seen = false
-  end
-  
-  for i = 1,4 do
-    if UnitExists("party"..i) then
-      local name = UnitName("party"..i)
-      if name ~= UNKNOWNOBJECT then
-        local user = users[name]
-        if not user then
-          user = CreateUser(name)
-          users[name] = user
+  if QuestHelper_Pref.share then
+    for name, user in pairs(users) do
+      user.seen = false
+    end
+    
+    for i = 1,4 do
+      if UnitExists("party"..i) then
+        local name = UnitName("party"..i)
+        if name ~= UNKNOWNOBJECT then
+          local user = users[name]
+          if not user then
+            user = CreateUser(name)
+            users[name] = user
+          end
+          
+          if not user.syn_req then
+            self:SendData("syn:"..comm_version, name)
+            user.syn_req = true
+          end
+          
+          user.seen = true
         end
-        
-        if not user.syn_req then
-          self:SendData("syn:"..comm_version, name)
-          user.syn_req = true
-        end
-        
-        user.seen = true
       end
     end
+    
+    local count = 0
+    
+    for name, user in pairs(users) do
+      if not user.seen then
+        ReleaseUser(user)
+        users[name] = nil
+      elseif user.version > 0 then
+        count = count + 1
+      end
+    end
+    
+    shared_users = count
+    self.sharing = count > 0
   end
-  
-  for name, user in pairs(users) do
-    if not user.seen then
+end
+
+function QuestHelper:EnableSharing()
+  if not QuestHelper_Pref.share then
+    QuestHelper_Pref.share = true
+    self:HandlePartyChange()
+  end
+end
+
+function QuestHelper:DisableSharing()
+  if QuestHelper_Pref.share then
+    QuestHelper_Pref.share = false
+    for name, user in pairs(users) do
+      if user.version > 0 then self:SendData("syn:0", name) end
       ReleaseUser(user)
       users[name] = nil
     end
+    shared_users = 0
+    self.sharing = false
   end
 end

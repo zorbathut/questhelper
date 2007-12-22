@@ -63,28 +63,23 @@ function QuestHelper:ScanQuestLog()
     self.party_levels = party_levels
   end
   
-  party_levels[1] = UnitLevel("player")
+  
+  local level_average = UnitLevel("player")
+  local users = 1
   
   for n=1,4 do
-    party_levels[n+1] = UnitLevel("party"..n)
+    local level = UnitLevel("party"..n)
     
-    if not party_levels[n+1] or party_levels[n+1] <= 0 then
-      local sum = 0
-      for m = 1,n do
-        sum = sum + party_levels[m]
-      end
-      party_levels[n+1] = sum/n*3/5
+    if level and level > 0 then
+      level_average = level_average + level
+      users = users + 1
     end
   end
   
-  table.sort(party_levels, function(a, b) return a > b end)
+  level_average = level_average / users
   
-  for n = 5,1,-1 do
-    local sum = 0
-    for m = 1,n do
-      sum = sum + party_levels[m]
-    end
-    party_levels[n] = sum/n
+  for n = 1,5 do
+    party_levels[n] = level_average+15-15*math.pow(n/users, 0.4)
   end
   
   for i, quest in pairs(quests) do
@@ -107,7 +102,7 @@ function QuestHelper:ScanQuestLog()
       local lq = quests[quest]
       local is_new = false
       
-      local ignored = party_levels[math.min(5, math.max(1, players or (qtype and 5) or 1))]+3 < level
+      local ignored = party_levels[math.min(5, math.max(1, players or (qtype and 5) or 1))]+QuestHelper_Pref.level < level
       
       if self.quest_giver and self.quest_giver[title] then
         quest.o.start = self.quest_giver[title]
@@ -155,7 +150,6 @@ function QuestHelper:ScanQuestLog()
             if category == "item" then
               -- So the objective knows in what context we're getting the item.
               lo.objective.quest = quest
-              lo.objective.item = wanted
             end
             
             if verb then

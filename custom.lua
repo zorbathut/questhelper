@@ -88,7 +88,6 @@ search_frame:SetPoint("CENTER", UIParent, "CENTER")
 search_frame:Hide()
 
 search_frame.results = {}
-search_frame.spare_tables = {}
 
 function search_frame:SetText(text)
   self.text:SetText(text)
@@ -159,8 +158,12 @@ function search_frame:ShowResults()
   local menu = QuestHelper:CreateMenu()
   QuestHelper:CreateMenuTitle(menu, "Search Results")
   
-  for i, r in ipairs(self.results) do
-    self:CreateResultItem(r, menu)
+  if #self.results == 0 then
+    QuestHelper:CreateMenuItem(menu, "There aren't any!")
+  else
+    for i, r in ipairs(self.results) do
+      self:CreateResultItem(r, menu)
+    end
   end
   
   menu:ShowAtCursor()
@@ -169,7 +172,7 @@ end
 
 function search_frame:ClearResults()
   while #self.results > 0 do
-    table.insert(self.spare_tables, table.remove(self.results))
+    QuestHelper:ReleaseTable(table.remove(self.results))
   end
 end
 
@@ -195,9 +198,10 @@ function search_frame:AddResult(cat, what, w)
     end
     
     if #r >= 20 then
-      table.insert(self.spare_tables, table.remove(r, 20))
+      QuestHelper:ReleaseTable(table.remove(r, 20))
     end
-    local obj = table.remove(self.spare_tables) or {}
+    
+    local obj = QuestHelper:CreateTable()
     obj.cat = cat
     obj.what = what
     obj.w = w
@@ -206,6 +210,13 @@ function search_frame:AddResult(cat, what, w)
 end
 
 function search_frame:SearchRoutine(input)
+  if input == "" then
+    for obj in pairs(QuestHelper.user_objectives) do
+      self:AddResult(obj.cat, obj.obj, 0)
+    end
+    return
+  end
+  
   input = string.upper(input)
   local _, _, command, argument = string.find(input, "^%s*([^%s]-)%s+(.-)%s*$")
   

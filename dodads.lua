@@ -11,6 +11,10 @@ local function convertLocationToScreen(p, c, z)
   return QuestHelper.Astrolabe:TranslateWorldMapPosition(p[1].c, 0, p[3]/QuestHelper.continent_scales_x[p[1].c], p[4]/QuestHelper.continent_scales_y[p[1].c], c, z)
 end
 
+local function convertNodeToScreen(n, c, z)
+  return QuestHelper.Astrolabe:TranslateWorldMapPosition(n.c, 0, n.x/QuestHelper.continent_scales_x[n.c], n.y/QuestHelper.continent_scales_y[n.c], c, z)
+end
+
 local function ClampLine(x1, y1, x2, y2)
   if x1 and y1 and x2 and y2 then
     local x_div, y_div = (x2-x1), (y2-y1)
@@ -65,11 +69,10 @@ local function ClampLine(x1, y1, x2, y2)
   end
 end
 
-local function pushPath(list, path, spare_tables, c, z)
+local function pushPath(list, path, c, z)
   if path then
-    pushPath(list, path.p, spare_tables, c, z)
-    local t = table.remove(spare_tables)
-    if not t then t = {} end
+    pushPath(list, path.p, c, z)
+    local t = QuestHelper:CreateTable()
     t[1], t[2] = QuestHelper.Astrolabe:TranslateWorldMapPosition(path.c, 0, path.x/QuestHelper.continent_scales_x[path.c], path.y/QuestHelper.continent_scales_y[path.c], c, z)
     table.insert(list, t)
   end
@@ -150,7 +153,6 @@ function QuestHelper:CreateWorldMapWalker()
   walker.frame = self
   walker.map_dodads = {}
   walker.used_map_dodads = 0
-  walker.spare_tables = {}
   
   function walker:OnUpdate(elapsed)
     local points = self.points
@@ -200,35 +202,30 @@ function QuestHelper:CreateWorldMapWalker()
     while #self.dots > out do
       QuestHelper:ReleaseTexture(table.remove(self.dots))
     end
-    
-    self.used_dots = out
   end
   
   function walker:RouteChanged()
     if self.frame.Astrolabe.WorldMapVisible then
       local points = self.points
       local cur = self.frame.pos
-      local spare_tables = self.spare_tables
       
-      while #points > 0 do table.insert(spare_tables, table.remove(points)) end
+      while #points > 0 do self.frame:ReleaseTable(table.remove(points)) end
       
       local travel_time = 0.0
       
-      local w, h = WorldMapDetailFrame:GetWidth(), -WorldMapDetailFrame:GetHeight()
       local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
       
       for i, obj in pairs(self.frame.route) do
         local path, d = self.frame:ComputeRoute(cur, obj.pos)
         
-        pushPath(points, path, spare_tables, c, z)
+        pushPath(points, path, c, z)
         
         travel_time = travel_time + d
         obj.travel_time = travel_time
         
         cur = obj.pos
         
-        local t = table.remove(spare_tables)
-        if not t then t = {} end
+        local t = self.frame:CreateTable()
         t[1], t[2] = convertLocationToScreen(cur, c, z)
         
         table.insert(points, t)
@@ -736,7 +733,7 @@ function QuestHelper:CreateMipmapDodad()
   return icon
 end
 
---[[function QuestHelper:CreateWorldGraphWalker()
+function QuestHelper:CreateWorldGraphWalker()
   local walker = CreateFrame("Button", nil, WorldMapButton)
   walker:SetWidth(0)
   walker:SetHeight(0)
@@ -744,102 +741,82 @@ end
   walker:Show()
   
   walker.phase = 0.0
-  walker.nodes = {}
-  walker.used_nodes = 0
+  walker.dots = {}
+  walker.points = {}
+  walker.origin = {}
   walker.frame = self
   
-  QuestHelper_Dump = {}
-  
-  for c, z1list in pairs(QuestHelper_ZoneTransition) do
-    for z1, z2list in pairs(z1list) do
-      for z2, poslist in pairs(z2list) do
-        for i, pos in ipairs(poslist) do
-          table.insert(QuestHelper_Dump, string.format("{%d, %d, %d, %.3f, %.3f}, -- %s <--> %s", c, z1, z2, pos[3], pos[4], select(z1, GetMapZones(c)), select(z2, GetMapZones(c))))
+  function walker:OnUpdate(elapsed)
+    local points = self.points
+    
+    self.phase = (self.phase + elapsed * 0.66)%1
+    
+    local w, h = WorldMapDetailFrame:GetWidth(), -WorldMapDetailFrame:GetHeight()
+    local remainder, out = self.phase, 0
+    
+    for i, line in ipairs(points) do
+      local x1, y1, x2, y2 = ClampLine(unpack(line))
+      
+      if x1 then
+        local len = math.sqrt((x1-x2)*(x1-x2)*16/9+(y1-y2)*(y1-y2))
+        
+        if len > 0.0001 then
+          local interval = .06/len
+          local p = remainder*interval
+          
+          while p < 1 do
+            out = out + 1
+            local dot = self.dots[out]
+            if not dot then
+              dot = QuestHelper:GetDotTexture(self)
+              dot:SetDrawLayer("BACKGROUND")
+              self.dots[out] = dot
+            end
+            
+            dot:ClearAllPoints()
+            dot:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x1*w*(1-p)+x2*w*p, y1*h*(1-p)+y2*h*p)
+            
+            p = p + interval
+          end
+          
+          remainder = (p-1)/interval
         end
       end
     end
+    
+    while #self.dots > out do
+      QuestHelper:ReleaseTexture(table.remove(self.dots))
+    end
   end
   
-  function walker:OnUpdate(elapsed)
-    local w, h = WorldMapDetailFrame:GetWidth(), -WorldMapDetailFrame:GetHeight()
-    local pc, pz = GetCurrentMapContinent(), GetCurrentMapZone()
-    
-    --QuestHelper_ZoneTransition = QuestHelper_StaticData.enUS.zone_transition
-    
-    local count = 0
-    for c, z1list in pairs(QuestHelper_ZoneTransition) do
-      for z1, z2list in pairs(z1list) do
-        for z2, poslist in pairs(z2list) do
-          for i, pos in ipairs(poslist) do
-            count = count + 1
-            
-            local node = self.nodes[count]
-            if not node then
-              node = CreateFrame("Button", nil, WorldMapButton)
-              node:SetFrameStrata("FULLSCREEN_DIALOG")
-              node:SetWidth(10)
-              node:SetHeight(10)
-              
-              node.dot = node:CreateTexture()
-              node.dot:SetTexture("Interface\\Minimap\\ObjectIcons")
-              node.dot:SetTexCoord(0.280, 0.35, 0.09, 0.36)
-              node.dot:SetVertexColor(0,0,0,1)
-              node.dot:SetAllPoints()
-              node.dot:Show()
-              
-              node:SetScript("OnEnter", function (self) QuestHelper.tooltip:Show()
-              QuestHelper.tooltip:SetOwner(self, "ANCHOR_CURSOR")
-              QuestHelper.tooltip:SetText(self.text) end)
-              node:SetScript("OnLeave", function (self) QuestHelper.tooltip:Hide() end)
-              
-              function node:OnClick()
-                local menu = QuestHelper:CreateMenu()
-                QuestHelper:CreateMenuTitle(menu, "Delete node: "..self.text)
-                
-                local item
-                
-                item = QuestHelper:CreateMenuItem(menu, "Yes.")
-                item:SetFunction(function (c, z1, z2, i) QuestHelper:TextOut(string.format("Asked to delete %d,%d,%d,%d", c, z1, z2, i)) table.remove(QuestHelper_ZoneTransition[c][z1][z2], i) end, self.c, self.z1, self.z2, self.i)
-                
-                item = QuestHelper:CreateMenuItem(menu, "No, WTF?! NO!")
-                item:SetFunction(function () end)
-                
-                menu:SetCloseFunction(QuestHelper.ReleaseMenu, QuestHelper, menu)
-                menu:ShowAtCursor()
-              end
-              
-              node:SetScript("OnClick", node.OnClick)
-              node:RegisterForClicks("RightButtonUp")
-              
-              self.nodes[count] = node
-            end 
-            
-            node.c, node.z1, node.z2, node.i = c, z1, z2, i
-            
-            node:ClearAllPoints()
-            
-            local x, y = self.frame.Astrolabe:TranslateWorldMapPosition(pos[1], pos[2], pos[3], pos[4], pc, pz)
-            
-            if x and y then
-              node:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x*w, y*h)
-              node:Show()
-              node.text = select(z1, GetMapZones(c)).." to "..select(z2, GetMapZones(c))
-            else
-              node:Hide()
-            end
+  function walker:GraphChanged()
+    if self.frame.Astrolabe.WorldMapVisible then
+      local points = self.points
+      local cur = self.frame.pos
+      
+      while #points > 0 do self.frame:ReleaseTable(table.remove(points)) end
+      
+      local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+      
+      for i, node in ipairs(self.frame.world_graph.nodes) do
+        local x1, y1 = convertNodeToScreen(node, c, z)
+        for dest in pairs(node.n) do
+          local t = self.frame:CreateTable()
+          t[1], t[2], t[3], t[4] = ClampLine(x1, y1, convertNodeToScreen(dest, c, z))
+          if t[1] and t[2] and t[3] and t[4] then
+            table.insert(points, t)
+          else
+            self.frame:ReleaseTable(t)
           end
         end
       end
     end
-    
-    for i = count+1,self.used_nodes do
-      self.nodes[i]:Hide()
-    end
-    
-    self.used_nodes = #self.frame.world_graph.nodes
   end
   
+  walker:SetScript("OnEvent", walker.GraphChanged)
   walker:RegisterEvent("WORLD_MAP_UPDATE")
   
   walker:SetScript("OnUpdate", walker.OnUpdate)
-end]]
+  
+  return walker
+end

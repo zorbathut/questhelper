@@ -369,6 +369,16 @@ local function RouteUpdateRoutine(self)
       end
     end
     
+    for obj in pairs(swap_table) do
+      -- If one of the objectives were were considering adding was removed, it would be in both lists.
+      -- That would be bad. We can't remove it because we haven't actually added it yet, so
+      -- handle that special case here.
+      if self.to_remove[obj] then
+        self.to_remove[obj] = nil
+        self.to_add[obj] = nil
+      end
+    end
+    
     self.to_add, swap_table = swap_table, self.to_add
     
     -- If size decreased, all the old indexes need to be reset.

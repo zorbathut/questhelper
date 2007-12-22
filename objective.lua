@@ -23,7 +23,6 @@ local function DefaultObjectiveKnown(self)
     return false
   end
   
-  
   for i, j in pairs(self.after) do
     if i.watched and not i:Known() then -- Need to know how to do everything before this objective.
       return false
@@ -37,7 +36,7 @@ local function ObjectiveReason(self, short)
   local reason, rc = nil, 0
   if self.reasons then
     for r, c in pairs(self.reasons) do
-      if c > rc then
+      if not reason or c > rc or (c == rc and r > reason) then
         reason, rc = r, c
       end
     end
@@ -83,7 +82,7 @@ local function ItemKnown(self)
   
   if self.quest then
     local item=self.quest.o.item
-    item = item and item[self.item]
+    item = item and item[self.obj]
     
     if item then 
       if item.pos then
@@ -99,7 +98,7 @@ local function ItemKnown(self)
     end
     
     item=self.quest.fb.item
-    item = item and item[self.item]
+    item = item and item[self.obj]
     if item then 
       if item.pos then
         return true
@@ -118,12 +117,24 @@ local function ItemKnown(self)
 end
 
 local function ObjectiveAppendPositions(self, objective, weight, why)
+  local high = 0
+  
   if self.o.pos then for i, p in ipairs(self.o.pos) do
-    objective:AddLoc(p[1], p[2], p[3], p[4], p[5]*weight, why)
+    high = math.max(high, p[5])
   end end
   
   if self.fb.pos then for i, p in ipairs(self.fb.pos) do
-    objective:AddLoc(p[1], p[2], p[3], p[4], p[5]*weight, why)
+    high = math.max(high, p[5])
+  end end
+  
+  high = weight/high
+  
+  if self.o.pos then for i, p in ipairs(self.o.pos) do
+    objective:AddLoc(p[1], p[2], p[3], p[4], p[5]*high, why)
+  end end
+  
+  if self.fb.pos then for i, p in ipairs(self.fb.pos) do
+    objective:AddLoc(p[1], p[2], p[3], p[4], p[5]*high, why)
   end end
 end
 
@@ -184,7 +195,7 @@ local function ItemAppendPositions(self, objective, weight, why)
   if self.quest then
     local item_list=self.quest.o.item
     if item_list then
-      local data = item_list[self.item]
+      local data = item_list[self.obj]
       if data and data.drop then
         for monster, count in pairs(data.drop) do
           local m = self.qh:GetObjective("monster", monster)
@@ -199,7 +210,7 @@ local function ItemAppendPositions(self, objective, weight, why)
     
     item_list=self.quest.fb.item
     if item_list then 
-      local data = item_list[self.item]
+      local data = item_list[self.obj]
       if data and data.drop then
         for monster, count in pairs(data.drop) do
           local m = self.qh:GetObjective("monster", monster)
@@ -536,7 +547,7 @@ local function ComputeTravelTime2(self, pos1, pos2)
 end
 
 local function DoneRouting(self)
-  assert(self.setup_count > 0)
+  assert(self.setup_count > 0) -- TODO: This assertion has failed on me when quickly joining and leaving a party.
   assert(self.setup)
   
   self.setup_count = self.setup_count - 1
@@ -603,9 +614,9 @@ function QuestHelper:NewObjectiveObject()
     nm={}, -- Maps nodes to their nearest zone/list/x/y position.
     nm2={}, -- Maps nodes to their nears position, but dynamically set in TravelTime2.
     nl={}, -- List of all the nodes we need to consider.
-    location={nil,nil,0,0,nil}, -- Will be set to the best position for the node.
-    pos={nil,nil,0,0,nil}, -- Zone node list, distance list, x, y, reason.
-    sop={nil,nil,0,0,nil}
+    location=nil, -- Will be set to the best position for the node.
+    pos=nil, -- Zone node list, distance list, x, y, reason.
+    sop=nil
    }
 end
 
@@ -713,10 +724,10 @@ end
 
 function QuestHelper:AppendItemObjectiveDrop(item_object, item_name, monster_name, count)
   local quest = self:ItemIsForQuest(item_object, item_name)
-  if quest then
+  if quest and not item_object.o.vendor and not item_object.o.drop and not item_object.o.pos then
     self:AppendQuestDrop(quest, item_name, monster_name, count)
   else
-    if not item_object.o.drop and not item_object.pos then
+    if not item_object.o.drop and not item_object.o.pos then
       self:PurgeQuestItem(item_object, item_name)
     end
     self:AppendObjectiveDrop(item_object, monster_name, count)
@@ -725,10 +736,10 @@ end
 
 function QuestHelper:AppendItemObjectivePosition(item_object, item_name, c, z, x, y)
   local quest = self:ItemIsForQuest(item_object, item_name)
-  if quest then
+  if quest and not item_object.o.vendor and not item_object.o.drop and not item_object.o.pos then
     self:AppendQuestPosition(quest, item_name, c, z, x, y)
   else
-    if not item_object.o.drop and not item_object.pos then
+    if not item_object.o.vendor and not item_object.o.drop and not item_object.o.pos then
       -- Just learned that this item doesn't depend on a quest to drop, remove any quest references to it.
       self:PurgeQuestItem(item_object, item_name)
     end
@@ -809,20 +820,23 @@ function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
   
   self:CreateMenuItem(menu, "Priority"):SetSubmenu(submenu)
   
-  submenu = self:CreateMenu("Sharing")
-  local item = self:CreateMenuItem(submenu, "Enable")
-  local tex = self:GetIconTexture(item, 10)
-  if not obj.want_share then tex:SetVertexColor(1, 1, 1, 0) end
-  item:AddTexture(tex, true)
-  item:SetFunction(obj.Share, obj)
   
-  local item = self:CreateMenuItem(submenu, "Disable")
-  local tex = self:GetIconTexture(item, 10)
-  if obj.want_share then tex:SetVertexColor(1, 1, 1, 0) end
-  item:AddTexture(tex, true)
-  item:SetFunction(obj.Unshare, obj)
-  
-  self:CreateMenuItem(menu, "Sharing"):SetSubmenu(submenu)
+  if self.sharing then
+    submenu = self:CreateMenu("Sharing")
+    local item = self:CreateMenuItem(submenu, "Enable")
+    local tex = self:GetIconTexture(item, 10)
+    if not obj.want_share then tex:SetVertexColor(1, 1, 1, 0) end
+    item:AddTexture(tex, true)
+    item:SetFunction(obj.Share, obj)
+    
+    local item = self:CreateMenuItem(submenu, "Disable")
+    local tex = self:GetIconTexture(item, 10)
+    if obj.want_share then tex:SetVertexColor(1, 1, 1, 0) end
+    item:AddTexture(tex, true)
+    item:SetFunction(obj.Unshare, obj)
+    
+    self:CreateMenuItem(menu, "Sharing"):SetSubmenu(submenu)
+  end
   
   self:CreateMenuItem(menu, "Ignore"):SetFunction(
     function (obj)

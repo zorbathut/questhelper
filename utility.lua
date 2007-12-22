@@ -166,6 +166,17 @@ function QuestHelper:PositionListDistance(list, c, z, x, y)
   end
 end
 
+function QuestHelper:CreateTable()
+  return table.remove(self.free_tables) or {}
+end
+
+function QuestHelper:ReleaseTable(tbl)
+  assert(tbl)
+  for i,t in ipairs(self.free_tables) do assert(t ~= tbl) end
+  for key in pairs(tbl) do tbl[key] = nil end
+  table.insert(self.free_tables, tbl)
+end
+
 function QuestHelper:PositionListDistance2(list, c1, z1, x1, y1, c2, z2, x2, y2)
   local closest, bd1, bd2, bdt = nil, 0, 0, 0
   for i, p in ipairs(list) do

@@ -426,11 +426,15 @@ local function CollapseQuest(quest)
     end
   end
   
+  if quest.alt == nil then
+    quest.hash = nil -- Don't need the store the hash if there is only one quest by that name.
+  end
+  
   return quest.pos == nil and quest.finish == nil
 end
 
 local function CollapseObjective(objective)
-  -- if not objective.quest then return true end
+  if not objective.quest then return true end
   objective.quest = nil
   
   if objective.drop and not next(objective.drop, nil) then objective.drop = nil end
@@ -630,6 +634,13 @@ function Finished()
       if delete_faction then l.quest[faction] = nil end
     end
     
+    for faction, list in pairs(l.flight_instructors) do
+      for area, npc in pairs(list) do
+        -- Need to remember the flight instructors, for use in routing.
+        GetObjective(locale, "monster", npc).quest = true
+      end
+    end
+    
     if l.objective["item"] then 
       for name, objective in pairs(l.objective["item"]) do if objective.quest then
         -- If this is a quest item, mark anything that drops it as being a quest monster.
@@ -656,6 +667,36 @@ function Finished()
         end
       end
       if delete_category then l.objective[category] = nil end
+    end
+    
+    for cont, start_list in pairs(l.flight_routes) do
+      local delete_cont = true
+      for start, dest_list in pairs(start_list) do
+        local delete_start = true
+        for dest, hash_list in pairs(dest_list) do
+          local delete_dest = true
+          for hash, data in pairs(hash_list) do
+            if not data.real then
+              hash_list[hash] = nil
+            else
+              delete_dest = false
+            end
+          end
+          if delete_dest then
+            dest_list[dest] = nil
+          else
+            delete_start = false
+          end
+        end
+        if delete_start then
+          start_list[start] = nil
+        else
+          delete_cont = false
+        end
+      end
+      if delete_cont then
+        l.flight_routes[cont] = nil
+      end
     end
     
     --if l.zone_transition then for continent, zone1_list in pairs(l.zone_transition) do

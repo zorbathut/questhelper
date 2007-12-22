@@ -156,7 +156,7 @@ function QuestHelper:PurgeItemFromQuest(quest, item_name, item_object)
 end
 
 function QuestHelper:PurgeQuestItem(item_name, item_object)
-  for faction, level_list in pairs(QuestHelper_QuestObjects) do
+  for faction, level_list in pairs(QuestHelper_Quests) do
     for level, quest_list in pairs(level_list) do
       for quest_name, quest in pairs(quest_list) do
         self:PurgeItemFromQuest(quest, item_name, item_object)

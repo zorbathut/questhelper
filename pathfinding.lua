@@ -1,3 +1,15 @@
+local IRONFORGE_PORTAL = {2,14,0.255,0.084}
+local STORMWIND_CITY_PORTAL = {2,20,0.387,0.802}
+local DARNASSUS_PORTAL = {1,6,0.397,0.824}
+local EXODAR_PORTAL = {1,20,0.476,0.598}
+
+local SHATTRATH_CITY_PORTAL = {3,6,0.530,0.492}
+
+-- These are guesses, since I don't have a Horde mage that can teleport or a character in Shattrath City.
+local SILVERMOON_CITY_PORTAL = {2,18,0.583,0.192}
+local UNDERCITY_PORTAL = {2,25,0.846,0.163}
+local ORGRIMMAR_PORTAL = {1,14,0.386,0.859}
+local THUNDER_BLUFF_PORTAL = {1,22,0.222,0.168}
 
 local static_horde_routes = 
   {
@@ -5,12 +17,23 @@ local static_horde_routes =
    {{2,21,0.316,0.289}, {2,24,0.621,0.591}, 210}, -- Grom'gol Base Camp <--> Tirisfal Glades
    {{2,24,0.605,0.587}, {1,8,0.509,0.141}, 210}, -- Tirisfal Glades <--> Durotar
    {{2,25,0.549,0.110}, {2,18,0.495,0.148}, 5}, -- Undercity <--> Silvermoon City
+   
+   {{3,6,0.592,0.483}, SILVERMOON_CITY_PORTAL, 5, true}, -- Shattrath City <--> Silvermoon City
+   {{3,6,0.528,0.531}, THUNDER_BLUFF_PORTAL, 5, true}, -- Shattrath City <--> Thunder Bluff
+   {{3,6,0.522,0.529}, ORGRIMMAR_PORTAL, 5, true}, -- Shattrath City <--> Orgrimmar
+   {{3,6,0.517,0.525}, UNDERCITY_PORTAL, 5, true} -- Shattrath City <--> Undercity
   }
+
 local static_alliance_routes = 
   {
    {{2,20,0.639,0.083}, {2,14,0.764,0.512}, 120}, -- Deeprun Tram
    {{2,28,0.044,0.569}, {1,5,0.323,0.441}, 210}, --Menethil Harbor <--> Auberdine
-   {{1,9,0.718,0.565}, {2,28,0.047,0.636}, 210} -- Theramore Isle <--> Menethil Harmor
+   {{1,9,0.718,0.565}, {2,28,0.047,0.636}, 210}, -- Theramore Isle <--> Menethil Harmor
+   
+   {{3,6,0.558,0.366}, STORMWIND_CITY_PORTAL, 5, true}, -- Shattrath City <--> Stormwind City
+   {{3,6,0.563,0.370}, IRONFORGE_PORTAL, 5, true}, -- Shattrath City <--> Ironforge
+   {{3,6,0.552,0.364}, DARNASSUS_PORTAL, 5, true}, -- Shattrath City <--> Darnassus
+   {{3,6,0.596,0.467}, EXODAR_PORTAL, 5, true} -- Shattrath City <--> Exodar
   }
 
 local static_shared_routes = 
@@ -172,7 +195,6 @@ function QuestHelper:ComputeTravelTime(p1, p2)
   
   graph:PrepareSearch()
   
-  
   local l = p2[2]
   local el = p2[1]
   for i, n in ipairs(el) do
@@ -223,7 +245,8 @@ end
 function QuestHelper:CreateAndAddZoneNode(z, c, x, y)
   local node = self:CreateGraphNode(c, x, y)
   
-  local closest, travel_time = nil, 0
+  -- Not going to merge nodes.
+  --[[local closest, travel_time = nil, 0
   
   for i, n in ipairs(z) do
     local t = math.sqrt((n.x-node.x)*(n.x-node.x)+(n.y-node.y)*(n.y-node.y))
@@ -238,10 +261,10 @@ function QuestHelper:CreateAndAddZoneNode(z, c, x, y)
     closest.w = closest.w + 1
     self.world_graph:DestroyNode(node)
     return closest
-  else
+  else]]
     table.insert(z, node)
     return node
-  end
+  --end
 end
 
 function QuestHelper:CreateAndAddStaticNodePair(data)
@@ -252,7 +275,10 @@ function QuestHelper:CreateAndAddStaticNodePair(data)
   node2.name = "route to "..select(data[1][2], GetMapZones(data[1][1]))
   
   node1:Link(node2, data[3])
-  node2:Link(node1, data[3])
+  
+  if not data[4] then -- If data[4] is true, then this is a one-way trip.
+    node2:Link(node1, data[3])
+  end
   
   return node1, node2
 end
@@ -283,6 +309,50 @@ local function isGoodPath(start_node, end_node, i, j)
       return end_node == start_node
     end
   end
+end
+
+local function shouldLink(a, b)
+  if a == b then
+    return false
+  else
+    for id in pairs(a.id_from) do
+      if not b.id_to[id] then
+        for id in pairs(b.id_to) do
+          if not a.id_from[id] then
+            return true
+          end
+        end
+      end
+    end
+    
+    --if not next(a.id_from, nil) then
+    --  return false
+    --end
+    
+    --for id in pairs(b.id_to) do
+    --  if not a.id_from[id] then
+    --    return true
+    --  end
+    --end
+    return false
+  end
+end
+
+local function getNPCNode(npc)
+  local npc_objective = QuestHelper:GetObjective("monster", npc)
+  if npc_objective:Known() then
+    npc_objective:PrepareRouting()
+    local p = npc_objective:Position()
+    local node = nil
+    
+    if p then
+      node = QuestHelper:CreateAndAddZoneNode(p[1], p[1].c, p[3], p[4])
+    end
+    
+    npc_objective:DoneRouting()
+    return node
+  end
+  return nil
 end
 
 function QuestHelper:CreateAndAddTransitionNode(z1, z2, pos)
@@ -466,6 +536,7 @@ function QuestHelper:ResetPathing()
   end
   
   -- Go through the flight masters and add nodes for them as well.
+  --[[
   if QuestHelper_FlightInstructors[self.faction] then
     for start, npc in pairs(QuestHelper_FlightInstructors[self.faction]) do
       if not flight_master_nodes[start] then
@@ -518,6 +589,79 @@ function QuestHelper:ResetPathing()
         end
       end
     end
+  end]]
+  
+  -- Create and link the flight route nodes.
+  for c, start_list in pairs(QuestHelper_KnownFlightRoutes) do
+    local local_fi = QuestHelper_FlightInstructors[self.faction]
+    local static_fi = QuestHelper_StaticData[self.locale].flight_instructors[self.faction]
+    for start, end_list in pairs(start_list) do
+      for dest in pairs(end_list) do
+        local a_npc, b_npc = local_fi[start] or static_fi[start], local_fi[dest], static_fi[dest]
+        
+        if a_npc and b_npc then
+          local a, b = flight_master_nodes[start], flight_master_nodes[dest]
+          
+          if not a then
+            a = getNPCNode(a_npc)
+            if a then
+              flight_master_nodes[start] = a
+              a.name = (select(3, string.find(start, "^(.*),")) or start).." flight point"
+            end
+          end
+          
+          if not b then
+            b = getNPCNode(b_npc)
+            if b then
+              flight_master_nodes[dest] = b
+              b.name = (select(3, string.find(dest, "^(.*),")) or dest).." flight point"
+            end
+          end
+          
+          if a and b then
+            a:Link(b, self:GetFlightTime(c, start, dest))
+          else
+            self:TextOut("Can't link!")
+          end
+        end
+      end
+    end
+  end
+  
+  -- id_from, id_to, and id_local will be used in determining whether there is a point to linking nodes together.
+  for i, n in ipairs(self.world_graph.nodes) do
+    n.id_from = self:CreateTable()
+    n.id_to = self:CreateTable()
+    n.id_local = self:CreateTable()
+  end
+  
+  -- Setup the local ids a node exists in.
+  for c=1,3 do
+    local z = 1
+    while select(z,GetMapZones(c)) do
+      local list = zone_nodes[c][z]
+      for i, n in ipairs(list) do
+        n.id_local[z+c*100] = true
+        n.id_to[z+c*100] = true
+        n.id_from[z+c*100] = true
+      end
+      z = z + 1
+    end
+  end
+  
+  -- Figure out where each node can come from or go to.
+  for c=1,3 do
+    local z = 1
+    while select(z,GetMapZones(c)) do
+      local list = zone_nodes[c][z]
+      for _, node in ipairs(list) do
+        for n in pairs(node.n) do
+          for id in pairs(n.id_local) do node.id_to[id] = true end
+          for id in pairs(node.id_local) do n.id_from[id] = true end
+        end
+      end
+      z = z + 1
+    end
   end
   
   -- Will go through each zone and link all the nodes we have so far with every other node.
@@ -525,17 +669,27 @@ function QuestHelper:ResetPathing()
     local z = 1
     while select(z,GetMapZones(c)) do
       local list = zone_nodes[c][z]
-      for i = 1,#list-1 do
-        for j = i+1,#list do
-          list[i]:Link(list[j], same_cont_heuristic(list[i], list[j]))
-          list[j]:Link(list[i], same_cont_heuristic(list[j], list[i]))
+      for i = 1,#list do
+        for j = 1,#list do
+          if shouldLink(list[i], list[j]) then
+            list[i]:Link(list[j], same_cont_heuristic(list[i], list[j]))
+          end
         end
       end
       z = z + 1
     end
   end
   
+  -- We don't need to know where the nodes can go or come from now.
+  for i, n in ipairs(self.world_graph.nodes) do
+    self:ReleaseTable(n.id_from)
+    self:ReleaseTable(n.id_to)
+    self:ReleaseTable(n.id_local)
+    n.id_from, n.id_to, n.id_local = nil, nil, nil
+  end
+  
   -- Add the player's know flight routes.
+  --[[
   for c, start_list in pairs(QuestHelper_KnownFlightRoutes) do
     for start, end_list in pairs(start_list) do
       for dest, hash in pairs(end_list) do
@@ -545,7 +699,7 @@ function QuestHelper:ResetPathing()
         end
       end
     end
-  end
+  end]]
   
   -- TODO: Create a heuristic for this.
   
@@ -591,7 +745,7 @@ function QuestHelper:ResetPathing()
     end
   end
   
-  self.world_graph:SanityCheck()
+  -- self.world_graph:SanityCheck()
   
   -- TODO: heuristic returns NaNs, fix this.
   --self.world_graph:SetHeuristic(heuristic)
@@ -642,4 +796,7 @@ function QuestHelper:ResetPathing()
   
   -- And if all went according to plan, we now have a graph we can follow to get from anywhere to anywhere.
   
+  if self.graph_walker then
+    self.graph_walker:GraphChanged()
+  end
 end
