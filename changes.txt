@@ -1,7 +1,21 @@
+== Version 0.12; Uploaded 12/01/2007 ==
+
+* List of known positions for something could be erased when trying to add a location that wasn't valid, a function was returning nil instead of the old unchanged list in this case.
+* Created some icons. I'll customize the images for different objective types later.
+* Will only show one menu at a time, will automatically hide the old one.
+* Made the code for merging positions much more strict.
+* Will go through your saved data and remove any locations that don't seem to be possible.
+* Removed a whole lot of seemingly impossible locations from the static data.
+* Will take the time to calculate a route the first time it checks your quest log, at the risk of making already pretty sad loading times even more miserable.
+* Updating the route takes a stupidly long time to finish, so to keep you from having wait around for the objectives in the route to be updated, the arrow on the minimap will automatically point to the first objective on the route that isn't queued for removal.
+* Route calculations will now occur even when viewing the world map.
+* Recalculating the world graph will be defered until such time as the routing co-routine is some place safe. If an objective wasn't in the route because it was being moved to another position, it would lose its pathing data, and bad stuff would happen.
+* Added a sanity check that will prevent QuestHelper from running and corrupting itself in the inevitable event that Blizzard adds/rearranges the zones in the game. Because somebody is bound to try running it anyway, even with the version mismatch. I know I would.
+
 == Version 0.11; Uploaded 12/01/2007 ==
 
 * Wrote functions for creating menus. There seems to be some horrible bug related to recycling them, but I can't figure it out and I'm not going to worry about it for now. You can drag them around by their title or right click on their title to close them.
-* You can right click on an objective on the world map to create a menu for it, and from that menu you can request that it be ignored for forced to the beginning for the route.
+* You can right click on an objective on the world map to create a menu for it, and from that menu you can request that it be ignored for forced to the beginning of the route.
 * For the people that couldn't zoom out of the map, that might have been fixed, too.
 
 == Version 0.10; Uploaded 11/30/2007 ==

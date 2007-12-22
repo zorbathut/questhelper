@@ -58,6 +58,8 @@ function QuestHelper:ItemIsForQuest(item_object, item_name)
   return nil
 end
 
+local first_time = true
+
 function QuestHelper:ScanQuestLog()
   local quests = self.quest_log
   
@@ -206,5 +208,10 @@ function QuestHelper:ScanQuestLog()
       self:RemoveObjectiveWatch(quest, lq.reason)
       quests[quest] = nil
     end
+  end
+  
+  if first_time then
+    first_time = false
+    self:ForceRouteUpdate(3)
   end
 end

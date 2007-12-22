@@ -47,6 +47,7 @@ function QuestHelper:GetQuest(name, level, hash)
   
   if not quest_object then
     quest_object = self:NewObjectiveObject()
+    quest_object.icon_id = 8
     quest_object.PrepareRouting = QuestPrepareRouting
     quest_object.Known = QuestKnown
     

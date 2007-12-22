@@ -89,11 +89,31 @@ function QuestHelper:GetTexture(parent, r, g, b, a)
   tex:SetTexCoord(0, 1, 0, 1)
   tex:SetVertexColor(1, 1, 1, 1)
   tex:SetDrawLayer("ARTWORK")
-  tex:SetWidth(12)
-  tex:SetHeight(12)
+  tex:SetBlendMode("BLEND")
+  tex:SetWidth(15)
+  tex:SetHeight(15)
   tex:Show()
   
   return tex
+end
+
+function QuestHelper:GetIconTexture(parent, id)
+  local icon = self:GetTexture(parent, "Interface\\AddOns\\QuestHelper\\Art\\Icons.tga")
+  
+  local w, h = 1/4, 1/4
+  local x, y = ((id-1)%4)*w, math.floor((id-1)/4)*h
+  
+  icon:SetTexCoord(x, x+w, y, y+h)
+  
+  return icon
+end
+
+function QuestHelper:GetDotTexture(parent)
+  local icon = self:GetIconTexture(parent, 5)
+  icon:SetWidth(5)
+  icon:SetHeight(5)
+  icon:SetVertexColor(0, 0, 0, 0.35)
+  return icon
 end
 
 function QuestHelper:GetGlowTexture(parent)
@@ -125,7 +145,6 @@ function QuestHelper:CreateWorldMapWalker()
   
   walker.phase = 0.0
   walker.dots = {}
-  walker.used_dots = 0
   walker.points = {}
   walker.origin = {}
   walker.frame = self
@@ -160,17 +179,13 @@ function QuestHelper:CreateWorldMapWalker()
             out = out + 1
             local dot = self.dots[out]
             if not dot then
-              dot = self:CreateTexture()
-              dot:SetTexture("Interface\\Minimap\\ObjectIcons")
-              dot:SetTexCoord(0.280, 0.35, 0.09, 0.36)
-              dot:SetVertexColor(0, 0, 0, 0.35)
-              dot:SetWidth(5)
-              dot:SetHeight(5)
+              dot = QuestHelper:GetDotTexture(self)
               self.dots[out] = dot
             end
+            
             dot:ClearAllPoints()
             dot:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x1*w*(1-p)+x2*w*p, y1*h*(1-p)+y2*h*p)
-            dot:Show()
+            
             p = p + interval
           end
           
@@ -179,40 +194,42 @@ function QuestHelper:CreateWorldMapWalker()
       end
     end
     
-    for i = out+1,self.used_dots do
-      self.dots[i]:Hide()
+    while #self.dots > out do
+      QuestHelper:ReleaseTexture(table.remove(self.dots))
     end
     
     self.used_dots = out
   end
   
   function walker:RouteChanged()
-    local points = self.points
-    local cur = self.frame.pos
-    local spare_tables = self.spare_tables
-    
-    while #points > 0 do table.insert(spare_tables, table.remove(points)) end
-    
-    local travel_time = 0.0
-    
-    local w, h = WorldMapDetailFrame:GetWidth(), -WorldMapDetailFrame:GetHeight()
-    local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
-    
-    for i, obj in pairs(self.frame.route) do
-      local path, d = self.frame:ComputeRoute(cur, obj.pos)
+    if QuestHelper.Astrolabe.WorldMapVisible then
+      local points = self.points
+      local cur = self.frame.pos
+      local spare_tables = self.spare_tables
       
-      pushPath(points, path, spare_tables, c, z)
+      while #points > 0 do table.insert(spare_tables, table.remove(points)) end
       
-      travel_time = travel_time + d
-      obj.travel_time = travel_time
+      local travel_time = 0.0
       
-      cur = obj.pos
+      local w, h = WorldMapDetailFrame:GetWidth(), -WorldMapDetailFrame:GetHeight()
+      local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
       
-      local t = table.remove(spare_tables)
-      if not t then t = {} end
-      t[1], t[2] = convertLocationToScreen(cur, c, z)
-      
-      table.insert(points, t)
+      for i, obj in pairs(self.frame.route) do
+        local path, d = self.frame:ComputeRoute(cur, obj.pos)
+        
+        pushPath(points, path, spare_tables, c, z)
+        
+        travel_time = travel_time + d
+        obj.travel_time = travel_time
+        
+        cur = obj.pos
+        
+        local t = table.remove(spare_tables)
+        if not t then t = {} end
+        t[1], t[2] = convertLocationToScreen(cur, c, z)
+        
+        table.insert(points, t)
+      end
     end
   end
   
@@ -226,30 +243,34 @@ end
 
 function QuestHelper:CreateWorldMapDodad(objective, index)
   local icon = CreateFrame("Button", nil, WorldMapButton)
-  icon:SetHeight(12)
-  icon:SetWidth(12)
-  
-  icon.dot = icon:CreateTexture()
-  icon.dot:SetTexture("Interface\\Minimap\\ObjectIcons")
-  icon.dot:SetAllPoints()
-  icon.dot:Show()
+  icon:SetHeight(16)
+  icon:SetWidth(16)
   
   icon:SetFrameStrata("FULLSCREEN_DIALOG")
   
   function icon:SetObjective(objective, i)
-    self.objective = objective
+    if self.dot then
+      QuestHelper:ReleaseTexture(self.dot)
+      self.dot = nil
+    end
     
     if objective then
+      self.objective = objective
       self.index = i
       
       if i == 1 then
-        self.dot:SetTexCoord(0.404, 0.475, 0.12, 0.375)
+        self.dot = QuestHelper:GetIconTexture(self, 5)
       else
-        self.dot:SetTexCoord(0.280, 0.35, 0.09, 0.36)
+        self.dot = QuestHelper:GetIconTexture(self, objective.icon_id)
       end
+      
+      self.dot:ClearAllPoints()
+      self.dot:SetPoint("TOPLEFT", self, "TOPLEFT")
+      self.dot:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT")
       
       QuestHelper.Astrolabe:PlaceIconOnWorldMap(WorldMapDetailFrame, self, convertLocation(objective.pos))
     else
+      self.objective = nil
       self:Hide()
     end
   end
@@ -387,19 +408,8 @@ end
 function QuestHelper:CreateMipmapDodad()
   local icon = CreateFrame("Button", nil, Minimap)
   icon:Hide()
-  icon:SetHeight(10)
-  icon:SetWidth(10)
-  
-  icon.dot = icon:CreateTexture()
-  icon.dot:SetTexture("Interface\\Minimap\\ObjectIcons")
-  --icon.dot:SetTexCoord(0.375, 0.5, 0.0, 0.5)
-  icon.dot:SetTexCoord(0.404, 0.471, 0.12, 0.375)
-  
-  -- If you're reading this and you know why this doesn't work, please tell me.
-  --icon.dot:SetTexture("Interface\\AddOns\\QuestHelper\\dot.tga")
-  --icon.dot:SetTexCoord(0, 1, 0, 1)
-  
-  icon.dot:SetAllPoints()
+  icon:SetHeight(16)
+  icon:SetWidth(16)
   
   icon.recalc_timeout = 0
   
@@ -412,17 +422,38 @@ function QuestHelper:CreateMipmapDodad()
   
   icon.phase = 0
   icon.target = {0, 0, 0, 0}
+  icon.icon_id = 7
+  
+  function icon:NextObjective()
+    for i, o in ipairs(QuestHelper.route) do
+      if not QuestHelper.to_remove[o] then
+        return o
+      end
+    end
+  end
   
   function icon:OnUpdate(elapsed)
     if self.objective then
+      self:Show()
+      
       if self.recalc_timeout == 0 then
-        self.recalc_timeout = 120
+        self.recalc_timeout = 50
+        
+        self.objective = self:NextObjective()
+        
+        if not self.objective then
+          self:Hide()
+          return
+        end
+        
         local path = QuestHelper:ComputeRoute(QuestHelper.pos, self.objective.pos)
         local t = self.target
+        local id = self.objective.icon_id
         t[1], t[2], t[3], t[4] = convertLocation(self.objective.pos)
         t[5] = nil
         while path do
           if path.g > 10.0 then
+            id = 7
             t[1] = path.c
             t[2] = 0
             t[3] = path.x / QuestHelper.continent_scales_x[path.c]
@@ -431,18 +462,25 @@ function QuestHelper:CreateMipmapDodad()
           end
           path = path.p
         end
+        
+        if not self.dot or id ~= self.icon_id then
+          self.icon_id = id
+          if self.dot then QuestHelper:ReleaseTexture(self.dot) end
+          self.dot = QuestHelper:GetIconTexture(self, self.icon_id)
+          self.dot:SetAllPoints()
+        end
+        
         QuestHelper.Astrolabe:PlaceIconOnMinimap(self, unpack(self.target))
       else
         self.recalc_timeout = self.recalc_timeout - 1
       end
       
       local edge = QuestHelper.Astrolabe:IsIconOnEdge(self)
-      local dot = self.dot:IsShown()
-       
-      if edge and dot then
+      
+      if edge then
         self.arrow:Show()
         self.dot:Hide()
-      elseif not edge and not dot then
+      else
         self.dot:Show()
         self.arrow:Hide()
       end
@@ -464,6 +502,8 @@ function QuestHelper:CreateMipmapDodad()
         end
         self.arrow:SetModelScale(0.600000023841879+0.1*math.sin(self.phase))
       end
+    else
+      self:Hide()
     end
   end
   

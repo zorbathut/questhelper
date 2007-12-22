@@ -1,3 +1,4 @@
+QuestHelper.active_menu = nil
 QuestHelper.spare_menus = {}
 
 function QuestHelper:ReleaseMenu(menu)
@@ -14,6 +15,10 @@ function QuestHelper:ReleaseMenu(menu)
   menu.func = nil
   menu.func_arg = nil
   menu.parent = nil
+  
+  if self.active_menu == menu then
+    self.active_menu = nil
+  end
   
   table.insert(self.spare_menus, menu)
 end
@@ -111,6 +116,12 @@ function QuestHelper:CreateMenu()
     self:ClearAllPoints()
     self:DoShow()
     self:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x, y-self:GetHeight()/2+5)
+    
+    if QuestHelper.active_menu and QuestHelper.active_menu ~= self then
+      QuestHelper.active_menu:DoHide()
+    end
+    
+    QuestHelper.active_menu = self
   end
   
   function menu:DoHide()
@@ -153,19 +164,6 @@ function QuestHelper:ReleaseMenuItem(item)
   end
   
   table.insert(self.spare_menuitems, item)
-end
-
-function QuestHelper:CreateMenuIconTexture(menu, id)
-  local icon = self:GetTexture(menu, "Interface\\AddOns\\QuestHelper\\Art\\Icons.blp")
-  icon:SetWidth(15)
-  icon:SetHeight(15)
-  
-  local w, h = 1/4, 1/4
-  local x, y = ((id-1)%4)*w, math.floor((id-1)/4)*h
-  
-  icon:SetTexCoord(x, x+w, y, y+h)
-  
-  return icon
 end
 
 function QuestHelper:CreateMenuItem(menu, text)
@@ -295,7 +293,7 @@ function QuestHelper:CreateMenuItem(menu, text)
     if menu then
       menu.parent = self
       self.submenu = menu
-      self:AddTexture(QuestHelper:CreateMenuIconTexture(self, 11))
+      self:AddTexture(QuestHelper:GetIconTexture(self, 11))
     end
   end
   

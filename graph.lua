@@ -183,8 +183,6 @@ local function Graph_AddRouteStartNode(self, n, g, end_list)
       n.h = math.min(n.h, (heuristic(n, e)+e.e)*e.w)
     end
   else
-    assert(n.s ~= 2)
-    
     local of = n.f
     if g+n.h < of then
       local mn, mx = 1, #open
@@ -199,7 +197,6 @@ local function Graph_AddRouteStartNode(self, n, g, end_list)
       end
       
       while open[mn] ~= n do
-        assert(open[mn])
         mn = mn + 1
       end
       
@@ -306,7 +303,6 @@ local function Graph_DoRouteSearch(self, end_list)
           end
           
           while open[mn] ~= n do
-            assert(open[mn])
             mn = mn + 1
           end
           
@@ -359,8 +355,6 @@ local function Graph_AddStartNode(self, n, g, end_list)
       n.h = math.min(n.h, (heuristic(n, e)+e.e)*e.w)
     end
   else
-    assert(n.s ~= 2)
-    
     local of = n.f
     if g+n.h < of then
       local mn, mx = 1, #open
@@ -375,7 +369,6 @@ local function Graph_AddStartNode(self, n, g, end_list)
       end
       
       while open[mn] ~= n do
-        assert(open[mn])
         mn = mn + 1
       end
       
@@ -482,7 +475,6 @@ local function Graph_DoSearch(self, end_list)
           end
           
           while open[mn] ~= n do
-            assert(open[mn])
             mn = mn + 1
           end
           
@@ -599,7 +591,6 @@ local function Graph_DoFullSearch(self, end_list)
           end
           
           while open[mn] ~= n do
-            assert(open[mn])
             mn = mn + 1
           end
           
@@ -637,7 +628,6 @@ local function Graph_DoFullSearch(self, end_list)
   end
   
   QuestHelper:Error("Boom!")
-  assert(false, "Should have found everything!")
   
   for i = 1,#removed do
     table.insert(end_list, table.remove(removed))

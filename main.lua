@@ -3,10 +3,14 @@ if GetLocale() ~= "enUS" then
   return
 end
 
-QuestHelper = CreateFrame("Frame", "QuestHelper", UIParent)
+QuestHelper = CreateFrame("Frame", "QuestHelper", nil)
+
+-- Just to make sure it's always 'seen' (there's nothing that can be seen, but still...), and therefore always updating.
+QuestHelper:SetFrameStrata("TOOLTIP")
+
 QuestHelper.Astrolabe = DongleStub("Astrolabe-0.4")
 
-QuestHelper_SaveVersion = 3
+QuestHelper_SaveVersion = 4
 QuestHelper_Locale = GetLocale()
 QuestHelper_Quests = {}
 QuestHelper_Objectives = {}
@@ -194,6 +198,11 @@ end
 
 function QuestHelper:OnEvent(event)
   if event == "VARIABLES_LOADED" then
+    if not self:ZoneSanity() then
+      QuestHelper:TextOut("I'm refusing to run, out of fear of corrupting your saved data.")
+      QuestHelper:TextOut("Please wait for a patch that will be able to handle the new zone layout.")
+      return
+    end
     QuestHelper_UpgradeDatabase(_G)
     
     -- TODO: Just sanity for now, should be able to remove later.
@@ -494,7 +503,7 @@ function QuestHelper:OnEvent(event)
       
       if altered then
         self:TextOut("The flight routes for your character have been altered. Will recalculate world pathing information.")
-        self:ResetPathing()
+        self.defered_graph_update = true
       end
     end
   end
@@ -502,6 +511,15 @@ end
 
 function QuestHelper:OnUpdate()
   local nc, nz, nx, ny = self.Astrolabe:GetCurrentPlayerPosition()
+  
+  if nc and nc > 0 and nz == 0 and nc == self.c and self.z > 0 then
+    nx, ny = self.Astrolabe:TranslateWorldMapPosition(nc, nz, nx, ny, nc, self.z)
+    if nx and ny and nx > -0.1 and ny > -0.1 and nx < 1.1 and ny < 1.1 then
+      nz = self.z
+    else
+      nc, nz, nx, ny = nil, nil, nil, nil
+    end
+  end
   
   if nc and nz > 0 then
     if UnitOnTaxi("player") then
@@ -533,7 +551,7 @@ function QuestHelper:OnUpdate()
           end
           
           self:TextOut("Zone connection altered. Will recalculate world pathing information.")
-          self:ResetPathing()
+          self.defered_graph_update = true
         end
       end
     end

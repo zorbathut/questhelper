@@ -8,6 +8,24 @@ function QuestHelper:HashString(text)
   return b*65536+a
 end
 
+function QuestHelper:ZoneSanity()
+  local sane = true
+  
+  for c=1,32 do
+    local z = 0
+    while true do
+      z = z + 1
+      local name = select(z,GetMapZones(c))
+      if not name then break end
+      if QuestHelper_Ver01_Zones[c][z] ~= name then
+        sane = false
+        QuestHelper:TextOut("'"..name.."' has the wrong ID.")
+      end
+    end
+  end
+  return sane
+end
+
 function QuestHelper:TextOut(text)
   DEFAULT_CHAT_FRAME:AddMessage("|cff65c7ffQuestHelper: |r"..text, 1.0, 0.6, 0.2)
 end
@@ -95,8 +113,8 @@ function QuestHelper:Distance(c1, z1, x1, y1, c2, z2, x2, y2)
 end
 
 function QuestHelper:AppendPosition(list, c, z, x, y, w, min_dist)
-  if not c or (c == 0 and z == 0) or x == 0 or y == 0 then
-    return -- This isn't a real position.
+  if not c or c <= 0 or z <= 0 or (x == 0 and y == 0) or x <= -0.1 or y <= -0.1 or x >= 1.1 or y >= 1.1 then
+    return list -- This isn't a real position.
   end
   
   local closest, distance = nil, 0

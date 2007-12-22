@@ -144,10 +144,8 @@ end
 local function MergePositionLists(list, add)
   for _, pos in ipairs(add) do
     local c, z, x, y, w = pos[1], pos[2], pos[3], pos[4], pos[5] or 1
-    if type(c) == "number" and c > 0 and
-       type(z) == "number" and z > 0 and
-       type(x) == "number" and x > -0.1 and y < 1.1 and
-       type(y) == "number" and y > -0.1 and y < 1.1 and
+    if type(c) == "number" and
+       QuestHelper_ValidPosition(c, z, x, y) and
        type(w) == "number" and w > 0 then
       local nearest, distance = nil, 0
       for i, pos in ipairs(list) do

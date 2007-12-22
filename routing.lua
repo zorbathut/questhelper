@@ -1,6 +1,10 @@
-local call_count = -2000
+local call_count = 0
+
+local map_rpf = 50
+local normal_rpf = 20
+
 local function yieldIfNeeded()
-  if call_count == 5 then
+  if call_count == QuestHelper.Astrolabe.WorldMapVisible and map_rpf or normal_rpf then
     call_count = 0
     coroutine.yield()
   else
@@ -244,6 +248,7 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
 end
 
 local route_pass = 0
+local map_walker = QuestHelper:CreateWorldMapWalker()
 
 local function RouteUpdateRoutine(self)
   local minimap_dodad = self:CreateMipmapDodad()
@@ -251,7 +256,10 @@ local function RouteUpdateRoutine(self)
   local distance, extra, route, new_route, shuffle, insert, point = 0, 0, self.route, {}, {}, 0, nil
   
   while true do
-    self:PlayerPosition()
+    if self.defered_graph_update then
+      self:ResetPathing()
+      self.defered_graph_update = false
+    end
     
     local first_obj_exists = false
     
@@ -350,21 +358,23 @@ local function RouteUpdateRoutine(self)
     coroutine.yield()
     
     if #route > 0 then
-      
-      -- We'll randomly remove one of the points in the route and reinsert it.
-      -- Hopefully we'll insert it into a better location, but if not, it'll
-      -- at least have the side effect of making sure its relations ships
-      -- with other nodes is still correct, assuming it was made to be
-      -- before or after another since it was inserted.
-      local recheck_index = #route == 1 and 1 or math.random(self.first_objective and 2 or 1, #route)
-      local recheck_object = route[recheck_index]
-      distance, extra = self:RemoveIndexFromRoute(route, distance, extra, recheck_index)
-      self:CalcObjectiveIJ(route, recheck_object)
-      if self.first_objective then recheck_object.i = math.max(2, recheck_object.i) end
-      insert, distance, extra = self:InsertObjectiveIntoRoute(route, distance, extra, recheck_object)
-      
-      if insert == 1 or recheck_index == 1 then
-        minimap_dodad:SetObjective(route[1])
+      for iter = 1,8 do
+        -- We'll randomly remove one of the points in the route and reinsert it.
+        -- Hopefully we'll insert it into a better location, but if not, it'll
+        -- at least have the side effect of making sure its relations ships
+        -- with other nodes is still correct, assuming it was made to be
+        -- before or after another since it was inserted.
+        
+        local recheck_index = #route == 1 and 1 or math.random(self.first_objective and 2 or 1, #route)
+        local recheck_object = route[recheck_index]
+        distance, extra = self:RemoveIndexFromRoute(route, distance, extra, recheck_index)
+        self:CalcObjectiveIJ(route, recheck_object)
+        if self.first_objective then recheck_object.i = math.max(2, recheck_object.i) end
+        insert, distance, extra = self:InsertObjectiveIntoRoute(route, distance, extra, recheck_object)
+        
+        if insert == 1 or recheck_index == 1 then
+          minimap_dodad:SetObjective(route[1])
+        end
       end
       
       if #route > 2 then
@@ -429,26 +439,28 @@ local function RouteUpdateRoutine(self)
         -- The existing route has the advantage of having been optimized, so we'll go through the new
         -- route and remove and re-add each point once.
         
-        for i=1,#route-1 do -- Shuffling the order we'll add the nodes in.
-          local r = math.random(i, #route)
-          if r ~= i then
-            local t = shuffle[i]
-            shuffle[i] = shuffle[r]
-            shuffle[r] = t
+        for iter = 1,3 do
+          for i=1,#route-1 do -- Shuffling the order we'll add the nodes in.
+            local r = math.random(i, #route)
+            if r ~= i then
+              local t = shuffle[i]
+              shuffle[i] = shuffle[r]
+              shuffle[r] = t
+            end
           end
-        end
-        
-        for i=self.first_objective and 2 or 1,#route do
-          -- TODO: Due to the inserting/removing, I might skip a node or do one twice. Not gonna worry right now.
-          point = new_route[shuffle[i]]
-          if point == self.first_objective then
-            point = new_route[shuffle[1]]
-            shuffle[1], shuffle[i] = shuffle[i], shuffle[1]
+          
+          for i=self.first_objective and 2 or 1,#route do
+            -- TODO: Due to the inserting/removing, I might skip a node or do one twice. Not gonna worry right now.
+            point = new_route[shuffle[i]]
+            if point == self.first_objective then
+              point = new_route[shuffle[1]]
+              shuffle[1], shuffle[i] = shuffle[i], shuffle[1]
+            end
+            new_distance, new_extra = self:RemoveIndexFromRouteSOP(new_route, new_distance, new_extra, shuffle[i])
+            self:CalcObjectiveIJ(new_route, point)
+            if self.first_objective then point.i = math.max(2, point.i) end
+            insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point)
           end
-          new_distance, new_extra = self:RemoveIndexFromRouteSOP(new_route, new_distance, new_extra, shuffle[i])
-          self:CalcObjectiveIJ(new_route, point)
-          if self.first_objective then point.i = math.max(2, point.i) end
-          insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point)
         end
         
         -- If the distance is less than what we have so far, then use it.
@@ -489,27 +501,25 @@ local function RouteUpdateRoutine(self)
     if route_pass > 0 then
       route_pass = route_pass - 1
     end
+    
+    map_walker:RouteChanged()
   end
 end
 
-local map_walker = QuestHelper:CreateWorldMapWalker()
-
-function QuestHelper:ForceRouteUpdate()
-  route_pass = 2
+function QuestHelper:ForceRouteUpdate(passes)
+  route_pass = math.max(2, passes or 0)
   
   while route_pass ~= 0 do
     if coroutine.status(self.update_route) == "dead" then
-      return
+      break
     end
     
     local state, err = coroutine.resume(self.update_route, self)
     if not state then
       self:TextOut("|cffff0000The routing co-routine just exploded|r: |cffffff77"..err.."|r")
-      return
+      break
     end
   end
-  
-  map_walker:RouteChanged()
 end
 
 QuestHelper.update_route = coroutine.create(RouteUpdateRoutine)

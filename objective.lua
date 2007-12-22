@@ -548,6 +548,8 @@ function QuestHelper:NewObjectiveObject()
     auto_ignore = false,
     user_ignore = false,
     
+    icon_id=6,
+    
     before={},
     after={},
     d={},
