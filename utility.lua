@@ -31,6 +31,18 @@ function QuestHelper:TimeString(seconds)
   end
 end
 
+function QuestHelper:PercentString(pct)
+  if pct > 1 then
+    return string.format("|cff00ff00%.1f%%|r", pct*100)
+  elseif pct < 0 then
+    return string.format("|cffff0000%.1f%%|r", pct*100)
+  elseif pct > 0.5 then
+    return string.format("|cff%2xff00%.1f%%|r", 510-pct*510, pct*100)
+  else
+    return string.format("|cffff%2x00%.1f%%|r", pct*510, pct*100)
+  end
+end
+
 function QuestHelper:PlayerPosition()
   return self.c, self.z, self.x, self.y
 end
@@ -131,7 +143,7 @@ function QuestHelper:PositionListDistance2(list, c1, z1, x1, y1, c2, z2, x2, y2)
     local d2 = self:Distance(c2, z2, x2, y2, p[1], p[2], p[3], p[4])
     local t = d1+d2
     if not closest or t < bdt then
-      closest, bd1, bd2, bdt = d1, d2, t
+      closest, bd1, bd2, bdt = p, d1, d2, t
     end
   end
   if closest then

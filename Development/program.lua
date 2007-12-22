@@ -146,8 +146,8 @@ local function MergePositionLists(list, add)
     local c, z, x, y, w = pos[1], pos[2], pos[3], pos[4], pos[5] or 1
     if type(c) == "number" and c > 0 and
        type(z) == "number" and z > 0 and
-       type(x) == "number" and x > 0 and y < 1 and
-       type(y) == "number" and y > 0 and y < 1 and
+       type(x) == "number" and x > -0.1 and y < 1.1 and
+       type(y) == "number" and y > -0.1 and y < 1.1 and
        type(w) == "number" and w > 0 then
       local nearest, distance = nil, 0
       for i, pos in ipairs(list) do
@@ -203,6 +203,13 @@ local function AddQuest(locale, faction, level, name, data)
   if ValidFaction(faction)
      and type(level) == "number" and level >= 1 and level <= 100
      and type(name) == "string" and type(data) == "table" then
+    
+    local _, _, real_name = string.find(name, "^%["..level..".?%] (.+)$")
+    
+    if real_name then
+      -- The Quest Level AddOn mangles level names.
+      name = real_name
+    end
     
     local q = GetQuest(locale, faction, level, name, type(data.hash) == "number" and data.hash or nil)
     

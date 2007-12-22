@@ -1,9 +1,21 @@
+== Version 0.8; Uploaded 11/27/2007 ==
+
+* User waypoints can be created by typing '/find <what you want>'. Begin with the word "item", "npc", or "loc" to only search for things in those categories. If you don't say what you want, it'll search everything it knows of. Locations can be prefixed with a zone name, to add the location in that zone instead of your current one. All text is compared using Levenshtein distance, so it should be able to handle typos and partial matches. It also makes it slow as hell. At the moment, you can't remove objectives or force them to be first, so this is almost useless.
+* If an item can be purchased, it will always suggest this. No more telling you to kill the people you talk to, just because they were on your route and killing them is faster than walking to the vendor.
+* Fixed bug with graph searching code, distance traveled was getting overwritten even when the fitness wasn't better.
+* Routing us now done using A* pathfinding instead of straight line distances. Actually, that's a lie, my herustic isn't working properly, so until I fix it, it's technically Dijkstra's algorithm. But the point is, it should be able make more intelligent decisions now.
+* The arrow on the minimap now points to the next place you should visit instead of directly at the next objective. So it might, for example, direct you towards a flight master.
+* Graph nodes that got merged due to their proximity sometimes didn't appear in all the zones they should have.
+* When a graph node was shared by more than one zone, and an objective could be completed in either of them, that node would be searched for twice, and couldn't be found the second time.
+* Most of the internals have been rewritten, so odds are good that if something was broken before, it will work now. Of course, the reverse is equally true. So, cross your fingers.
+
+
 == Version 0.7; Uploaded 11/21/2007 ==
 
 * Started work on pathing, which is used on the world map display. Routing is still using straight line distance between objectives though, as I haven't programmed a proper heuristic for it yet, and I'm worried about performance.
 * Records information about flight masters, and keeps track of flight times between locations. Note that for a flight point to get considered in pathing, you need to talk to the flight master there.
 * Records the locations where two zones join together when you walk over the edge, for use in pathing.
-* Tooltips for objectives on the world map now include travel time estimates. Naturally, that doesn't include the time required for killing monsters and collecting items, or using mounts, swimming through water, obsticle avoidance, or anything else that'll affect your speed.
+* Tooltips for objectives on the world map now include travel time estimates. Naturally, that doesn't include the time required for killing monsters and collecting items, or using mounts, swimming through water, obstacle avoidance, or anything else that'll affect your speed.
 * In the static data, quests without hashed objective text no longer get replaced by quests that do. Incomplete quests were hiding the imported quest data, so QuestHelper didn't know where to hand them in.
 
 == Version 0.6; Uploaded 11/18/2007 ==
@@ -37,4 +49,4 @@
 
 == Version 0.1; Uploaded 11/15/2007 ==
 
-* Replaces the AddOn 'TravelingTomTom', and dropped TomTom as a dependancy.
+* Replaces the AddOn 'TravelingTomTom', and dropped TomTom as a dependency.

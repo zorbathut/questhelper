@@ -25,6 +25,7 @@ QuestHelper_ZoneTransition = {}
 
 QuestHelper.tooltip = CreateFrame("GameTooltip", "QuestHelperTooltip", nil, "GameTooltipTemplate")
 QuestHelper.objective_objects = {}
+QuestHelper.user_objectives = {}
 QuestHelper.quest_objects = {}
 QuestHelper.locale = GetLocale()
 QuestHelper.faction = UnitFactionGroup("player")
@@ -32,6 +33,7 @@ QuestHelper.route = {}
 QuestHelper.to_add = {}
 QuestHelper.to_remove = {}
 QuestHelper.quest_log = {}
+QuestHelper.pos = {nil, {}, 0, 0, 1, "You are here.", 0}
 
 function QuestHelper:GetCharacterID()
   if QuestHelper_CharacterID == nil then
@@ -204,8 +206,8 @@ function QuestHelper:OnEvent(event)
             
             local x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(c, start, pos[3], pos[4], c, dest)
             
-            if x > 0 and y > 0 and x < 1 and y < 1 and
-               pos[3] > 0 and pos[4] > 0 and pos[3] < 1 and pos[4] < 1 then
+            if x > -0.1 and y > -0.1 and x < 1.1 and y < 1.1 and
+               pos[3] > -0.1 and pos[4] > -0.1 and pos[3] < 1.1 and pos[4] < 1.1 then
               i = i + 1
             else
               table.remove(pos_list, i)
@@ -216,6 +218,19 @@ function QuestHelper:OnEvent(event)
     end
   
     self:ResetPathing()
+    
+    self:UnregisterEvent("VARIABLES_LOADED")
+    self:RegisterEvent("PLAYER_TARGET_CHANGED")
+    self:RegisterEvent("LOOT_OPENED")
+    self:RegisterEvent("QUEST_COMPLETE")
+    self:RegisterEvent("QUEST_LOG_UPDATE")
+    self:RegisterEvent("QUEST_PROGRESS")
+    self:RegisterEvent("MERCHANT_SHOW")
+    self:RegisterEvent("QUEST_DETAIL")
+    self:RegisterEvent("TAXIMAP_OPENED")
+    self:RegisterEvent("PLAYER_CONTROL_GAINED")
+    self:RegisterEvent("PLAYER_CONTROL_LOST")
+    self:SetScript("OnUpdate", self.OnUpdate)
   end
   
   if event == "PLAYER_TARGET_CHANGED" then
@@ -353,12 +368,21 @@ function QuestHelper:OnEvent(event)
           local distance
           for zone, npc in pairs(list) do
             local npc_objective = self:GetObjective("monster", npc)
-            local d = npc_objective:Distance(c, z, x, y)
-            if d and (not end_zone or d < distance) then
-              end_zone, distance = zone, d
+            
+            if npc_objective:Known() then
+              npc_objective:PrepareRouting()
+              
+              local pos = npc_objective:Position()
+              
+              if pos then
+                local d = self:ComputeTravelTime(self.pos, pos)
+                if not end_zone or d < distance then
+                  end_zone, distance = zone, d
+                end
+              end
             end
           end
-          if end_zone and distance > 20 then
+          if end_zone and distance > 5 then
             end_zone = nil
           end
         end
@@ -478,14 +502,14 @@ function QuestHelper:OnUpdate()
   end
   
   if UnitOnTaxi("player") then
-    self.was_flying = true
-  else
+      self.was_flying = true
+  elseif nc > 0 and nz > 0 then
     if nc == self.c and nz ~= self.z and nz > 0 and self.z > 0 and
-       nx > 0 and ny > 0 and nx < 1 and ny < 1 and
-       self.x > 0 and self.y > 0 and self.x < 1 and self.y < 1 then
+       nx > -0.1 and ny > -0.1 and nx < 1.1 and ny < 1.1 and
+       self.x > -0.1 and self.y > -0.1 and self.x < 1.1 and self.y < 1.1 then
       -- Changed zones!
       local distance = self.Astrolabe:ComputeDistance(self.c, self.z, self.x, self.y, nc, nz, nx, ny)
-      if distance and distance < 20 then
+      if distance and distance < 5 then
         local cont = QuestHelper_ZoneTransition[nc]
         if not cont then
           cont = {}
@@ -509,32 +533,29 @@ function QuestHelper:OnUpdate()
         self:ResetPathing()
       end
     end
-  end
-  
-  self.c, self.z, self.x, self.y = nc or self.c, nz or self.z, nx or self.x, ny or self.y
-  
-  if self.defered_quest_scan then
-    self.defered_quest_scan = false
-    self:ScanQuestLog()
-  end
-  
-  if coroutine.status(self.update_route) ~= "dead" then
-    local state, err = coroutine.resume(self.update_route, self)
-    if not state then self:TextOut("|cffff0000The routing co-routine just exploded|r: |cffffff77"..err.."|r") end
+    
+    self.c, self.z, self.x, self.y = nc or self.c, nz or self.z, nx or self.x, ny or self.y
+    
+    self.pos[1] = self.zone_nodes[self.c][self.z]
+    self.pos[3], self.pos[4] = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)
+    self.pos[3] = self.pos[3] * self.continent_scales_x[self.c]
+    self.pos[4] = self.pos[4] * self.continent_scales_y[self.c]
+    for i, n in ipairs(self.pos[1]) do
+      local a, b = n.x-self.pos[3], n.y-self.pos[4]
+      self.pos[2][i] = math.sqrt(a*a+b*b)
+    end
+    
+    if self.defered_quest_scan then
+      self.defered_quest_scan = false
+      self:ScanQuestLog()
+    end
+    
+    if coroutine.status(self.update_route) ~= "dead" then
+      local state, err = coroutine.resume(self.update_route, self)
+      if not state then self:TextOut("|cffff0000The routing co-routine just exploded|r: |cffffff77"..err.."|r") end
+    end
   end
 end
 
-QuestHelper:RegisterEvent("PLAYER_TARGET_CHANGED")
-QuestHelper:RegisterEvent("LOOT_OPENED")
-QuestHelper:RegisterEvent("QUEST_COMPLETE")
-QuestHelper:RegisterEvent("QUEST_LOG_UPDATE")
-QuestHelper:RegisterEvent("QUEST_PROGRESS")
-QuestHelper:RegisterEvent("MERCHANT_SHOW")
 QuestHelper:RegisterEvent("VARIABLES_LOADED")
-QuestHelper:RegisterEvent("QUEST_DETAIL")
-QuestHelper:RegisterEvent("TAXIMAP_OPENED")
-QuestHelper:RegisterEvent("PLAYER_CONTROL_GAINED")
-QuestHelper:RegisterEvent("PLAYER_CONTROL_LOST")
-
 QuestHelper:SetScript("OnEvent", QuestHelper.OnEvent)
-QuestHelper:SetScript("OnUpdate", QuestHelper.OnUpdate)

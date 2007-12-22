@@ -3,11 +3,11 @@ function QuestHelper:DumpRoute(route, distance)
   for i, n in ipairs(route) do
     if i == #route then
       self:TextOut(i..": "..n:Reason())
-      self:TextOut(i..": "..self:LocationString(unpack(n.pos)).."\tTotal: "..string.format("%.1f yards.",real_distance))
+      self:TextOut(i..": "..self:LocationString(unpack(n.pos)).."\tTotal: "..string.format("%.1f seconds.",real_distance))
     else
       real_distance = real_distance + (n.len or 0)
       self:TextOut(i..": "..n:Reason())
-      self:TextOut(i..": "..self:LocationString(unpack(n.pos)).."\tNext: "..string.format("%.1f yards.", n.len))
+      self:TextOut(i..": "..self:LocationString(unpack(n.pos)).."\tNext: "..string.format("%.1f seconds.", n.len))
     end
   end
   if math.abs(distance,real_distance) > 0.00001 then
@@ -34,16 +34,15 @@ function QuestHelper:RemoveIndexFromRoute(array, distance, extra, index)
     table.remove(array, 1)
   elseif index == 1 then
     distance = distance - array[1].len
-    extra = self:Distance(self.c, self.z, self.x, self.y, unpack(array[2].pos))
+    extra = self:ComputeTravelTime(self.pos, array[2].pos)
     table.remove(array, 1)
   elseif index == #array then
     distance = distance - array[index-1].len
     table.remove(array, index)
   else
     local a, b = array[index-1], table.remove(array, index)
-    local ap, np = a.pos, array[index].pos -- really index+1, but got shifted down.
     distance = distance - a.len - b.len
-    a.len = self:Distance(ap[1], ap[2], ap[3], ap[4], np[1], np[2], np[3], np[4])
+    a.len = self:ComputeTravelTime(a.pos, array[index].pos)
     distance = distance + a.len
   end
   
@@ -65,30 +64,25 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective)
   
   if #array == 0 then
     table.insert(array, 1, objective)
-    local p = objective.pos
-    extra, p[1], p[2], p[3], p[4] = objective:Distance(self.c, self.z, self.x, self.y)
+    extra, objective.pos = objective:TravelTime(self.pos)
     return 1, 0, extra
   end
   
-  local best_index, best_extra, best_total, best_len1, best_len2, bc, bz, bx, by
+  local best_index, best_extra, best_total, best_len1, best_len2, bp
   
   if objective.i == 1 then
     best_index = 1
-    best_extra, bc, bz, bx, by = objective:Distance(self.c, self.z, self.x, self.y)
-    -- best_len1 SHOULDN'T BE UNUSED WHEN INDEX = 1
-    best_len2 = self:Distance(bc, bz, bx, by, unpack(array[1].pos))
+    best_extra, best_len2, bp = objective:TravelTime2(self.pos, array[1].pos)
     best_total = best_extra+distance+best_len2
   elseif objective.i == #array+1 then
-    local p = objective.pos
     local o = array[#array]
-    o.len, p[1], p[2], p[3], p[4] = objective:Distance(unpack(array[#array].pos))
+    o.len, objective.pos = objective:TravelTime(array[#array].pos)
     table.insert(array, objective)
     return #array, distance+o.len, extra
   else
     local a = array[objective.i-1]
-    local ap, bp = a.pos, array[objective.i].pos
     best_index = objective.i
-    best_len1, best_len2, bc, bz, bx, by = objective:Distance2(ap[1], ap[2], ap[3], ap[4], bp[1], bp[2], bp[3], bp[4])
+    best_len1, best_len2, bp = objective:TravelTime2(a.pos, array[objective.i].pos)
     best_extra = extra
     best_total = distance - a.len + best_len1 + best_len2 + extra
   end
@@ -97,11 +91,10 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective)
   
   for i = objective.i+1, math.min(#array, objective.j) do
     local a = array[i-1]
-    local ap, bp = a.pos, array[i].pos
-    local l1, l2, c, z, x, y = objective:Distance2(ap[1], ap[2], ap[3], ap[4], bp[1], bp[2], bp[3], bp[4])
+    local l1, l2, p = objective:TravelTime2(a.pos, array[i].pos)
     local d = total - a.len + l1 + l2
     if d < best_total then
-      bc, bz, bx, by = c, z, x, y
+      bp = p
       best_len1 = l1
       best_len2 = l2
       best_extra = extra
@@ -111,24 +104,24 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective)
   end
   
   if objective.j == #array+1 then
-    local l1, c, z, x, y = objective:Distance(unpack(array[#array].pos))
+    local l1, p = objective:TravelTime(array[#array].pos)
     local d = total + l1
     if d < best_total then
-      local p = objective.pos
-      p[1], p[2], p[3], p[4] = c, z, x, y
+      objective.pos = p
       array[#array].len = l1
       table.insert(array, objective)
       return #array, d-extra, extra
     end
   end
   
-  local p = objective.pos
-  p[1], p[2], p[3], p[4] = bc, bz, bx, by
+  assert(bp)
+  objective.pos = bp
   if best_index > 1 then array[best_index-1].len = best_len1 end
   objective.len = best_len2
   table.insert(array, best_index, objective)
   return best_index, best_total-best_extra, best_extra
 end
+
 
 function QuestHelper:RemoveIndexFromRouteSOP(array, distance, extra, index)
   if #array == 1 then
@@ -137,16 +130,15 @@ function QuestHelper:RemoveIndexFromRouteSOP(array, distance, extra, index)
     table.remove(array, 1)
   elseif index == 1 then
     distance = distance - array[1].nel
-    extra = self:Distance(self.c, self.z, self.x, self.y, unpack(array[2].sop))
+    extra = self:ComputeTravelTime(self.pos, array[2].sop)
     table.remove(array, 1)
   elseif index == #array then
     distance = distance - array[index-1].nel
     table.remove(array, index)
   else
     local a, b = array[index-1], table.remove(array, index)
-    local ap, np = a.sop, array[index].sop -- really index+1, but got shifted down.
     distance = distance - a.nel - b.nel
-    a.nel = self:Distance(ap[1], ap[2], ap[3], ap[4], np[1], np[2], np[3], np[4])
+    a.nel = self:ComputeTravelTime(a.sop, array[index].sop)
     distance = distance + a.nel
   end
   
@@ -168,30 +160,25 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
   
   if #array == 0 then
     table.insert(array, 1, objective)
-    local p = objective.sop
-    extra, p[1], p[2], p[3], p[4] = objective:Distance(self.c, self.z, self.x, self.y)
+    extra, objective.sop = objective:TravelTime(self.pos)
     return 1, 0, extra
   end
   
-  local best_index, best_extra, best_total, best_len1, best_len2, bc, bz, bx, by
+  local best_index, best_extra, best_total, best_len1, best_len2, bp
   
   if objective.i == 1 then
     best_index = 1
-    best_extra, bc, bz, bx, by = objective:Distance(self.c, self.z, self.x, self.y)
-    -- best_len1 SHOULDN'T BE UNUSED WHEN INDEX = 1
-    best_len2 = self:Distance(bc, bz, bx, by, unpack(array[1].sop))
+    best_extra, best_len2, bp = objective:TravelTime2(self.pos, array[1].sop)
     best_total = best_extra+distance+best_len2
   elseif objective.i == #array+1 then
-    local p = objective.sop
     local o = array[#array]
-    o.nel, p[1], p[2], p[3], p[4] = objective:Distance(unpack(array[#array].sop))
+    o.nel, objective.sop = objective:TravelTime(array[#array].sop)
     table.insert(array, objective)
     return #array, distance+o.nel, extra
   else
     local a = array[objective.i-1]
-    local ap, bp = a.sop, array[objective.i].sop
     best_index = objective.i
-    best_len1, best_len2, bc, bz, bx, by = objective:Distance2(ap[1], ap[2], ap[3], ap[4], bp[1], bp[2], bp[3], bp[4])
+    best_len1, best_len2, bp = objective:TravelTime2(a.sop, array[objective.i].sop)
     best_extra = extra
     best_total = distance - a.nel + best_len1 + best_len2 + extra
   end
@@ -200,11 +187,10 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
   
   for i = objective.i+1, math.min(#array, objective.j) do
     local a = array[i-1]
-    local ap, bp = a.sop, array[i].sop
-    local l1, l2, c, z, x, y = objective:Distance2(ap[1], ap[2], ap[3], ap[4], bp[1], bp[2], bp[3], bp[4])
+    local l1, l2, p = objective:TravelTime2(a.sop, array[i].sop)
     local d = total - a.nel + l1 + l2
     if d < best_total then
-      bc, bz, bx, by = c, z, x, y
+      bp = p
       best_len1 = l1
       best_len2 = l2
       best_extra = extra
@@ -214,25 +200,23 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
   end
   
   if objective.j == #array+1 then
-    local l1, c, z, x, y = objective:Distance(unpack(array[#array].sop))
+    local l1, p = objective:TravelTime(array[#array].sop)
     local d = total + l1
     if d < best_total then
-      local p = objective.sop
-      p[1], p[2], p[3], p[4] = c, z, x, y
+      objective.sop = p
       array[#array].nel = l1
       table.insert(array, objective)
       return #array, d-extra, extra
     end
   end
   
-  local p = objective.sop
-  p[1], p[2], p[3], p[4] = bc, bz, bx, by
+  assert(bp)
+  objective.sop = bp
   if best_index > 1 then array[best_index-1].nel = best_len1 end
   objective.nel = best_len2
   table.insert(array, best_index, objective)
   return best_index, best_total-best_extra, best_extra
 end
-
 
 local function RouteUpdateRoutine(self)
   local minimap_dodad = self:CreateMipmapDodad()
@@ -281,6 +265,7 @@ local function RouteUpdateRoutine(self)
     -- Add any waypoints if needed.
     for obj, _ in pairs(self.to_add) do
       if obj:Known() then
+        obj:PrepareRouting()
         self.to_add[obj] = nil
         
         if #route == 0 then
@@ -403,9 +388,7 @@ local function RouteUpdateRoutine(self)
           for i, node in ipairs(new_route) do
             table.remove(route)
             node.len = node.nel
-            local t = node.pos
-            node.pos = node.sop
-            node.sop = t
+            node.pos, node.sop = node.sop, node.pos
           end
           
           self.route = new_route

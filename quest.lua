@@ -1,4 +1,4 @@
-local function QuestObjectiveKnown(self)
+local function QuestKnown(self)
   if not self.target and not self.destination then
     if self.o.finish then
       self.target = self.qh:GetObjective("monster", self.o.finish)
@@ -13,31 +13,20 @@ local function QuestObjectiveKnown(self)
   return (self.target or self.destination) and self:DefaultKnown() and (self.destination or self.target:Known())
 end
 
-local function QuestObjectiveDistance(self, c, z, x, y)
-  if self.target then
-    return self.target:Distance(c, z, x, y)
-  elseif self.destination then
-    return self.qh:PositionListDistance(self.destination, c, z, x, y)
+local function QuestPrepareRouting(self)
+  if not self.setup then
+    if self.target then
+      self.target:AppendPositions(self, 1, "Talk to "..self.qh:HighlightText(self.o.finish or self.fb.finish)..".")
+    elseif self.destination then
+      for i, p in ipairs(self.destination) do
+        self:AddLoc(unpack(p))
+      end
+    end
+    
+    self:FinishAddLoc()
   end
 end
 
-local function QuestObjectiveDistance2(self, c1, z1, x1, y1, c2, z2, x2, y2)
-  if self.target then
-    return self.target:Distance2(c1, z1, x1, y1, c2, z2, x2, y2)
-  elseif self.destination then
-    return self.qh:PositionListDistance2(self.destination, c1, z1, x1, y1, c2, z2, x2, y2)
-  end
-end
-
-local function QuestObjectiveReason(self)
-  if self.o.finish then
-    return self:DefaultReason() .. "\nTalk to "..self.qh:HighlightText(self.o.finish).."."
-  elseif self.fb.finish then
-    return self:DefaultReason() .. "\nTalk to "..self.qh:HighlightText(self.fb.finish).."."
-  else
-    return self:DefaultReason()
-  end
-end
 
 function QuestHelper:GetQuest(name, level, hash)
   local bracket = self.quest_objects[level]
@@ -58,10 +47,8 @@ function QuestHelper:GetQuest(name, level, hash)
   
   if not quest_object then
     quest_object = self:NewObjectiveObject()
-    quest_object.Distance = QuestObjectiveDistance
-    quest_object.Distance2 = QuestObjectiveDistance2
-    quest_object.Reason = QuestObjectiveReason
-    quest_object.Known = QuestObjectiveKnown
+    quest_object.PrepareRouting = QuestPrepareRouting
+    quest_object.Known = QuestKnown
     
     bracket2[hash] = quest_object
     

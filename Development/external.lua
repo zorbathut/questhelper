@@ -121,7 +121,8 @@ local function ProcessEQL3ItemData()
     for monster, _ in pairs(drops) do
       local item = GetObjective("enUS", "item", item)
       if not item.drop then item.drop = {} end
-      item.drop[monster] = (item.drop[monster] or 0)+1
+      -- Making these tiny, because there isn't a loot entry for the monster.
+      item.drop[monster] = (item.drop[monster] or 0)+0.001
     end
   end
 end
