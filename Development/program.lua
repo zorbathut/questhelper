@@ -1,6 +1,6 @@
 local StaticData = {}
 
-local function GetQuest(locale, faction, level, name)
+local function GetQuest(locale, faction, level, name, hash)
   local l = StaticData[locale]
   if not l then
     l = {}
@@ -23,6 +23,24 @@ local function GetQuest(locale, faction, level, name)
     q = {}
     b[name] = q
     q.finish = {}
+    q.hash = hash
+    q.alt = {}
+  end
+  if q.hash ~= hash then
+    if q.alt[hash] then
+      q = q.alt[hash]
+    else
+      -- Don't know which quest you're referring to.
+      q = {}
+      b[name] = q
+      q.finish = {}
+      q.hash = hash
+      q.alt = {}
+      
+      if hash then
+       b[name] = q
+      end
+    end
   end
   return q
 end
@@ -55,23 +73,32 @@ end
 
 local function TidyPositionList(list)
   local i = 1
-  while i ~= #list do
-    local nearest, distance = nil, 0
-    for j = i+1, #list do
-      local d = Distance(list[i], list[j])
-      if not nearest or d < distance then
-        nearest, distance = j, d
+  local changed = false
+  while true do
+    while i ~= #list do
+      local nearest, distance = nil, 0
+      for j = i+1, #list do
+        local d = Distance(list[i], list[j])
+        if not nearest or d < distance then
+          nearest, distance = j, d
+        end
+      end
+      if nearest and distance < 0.05 then
+        local a, b = list[i].pos, list[closest].pos
+        a[3] = (a[3]*a[5]+b[3]*b[5])/(a[5]+b[5])
+        a[4] = (a[4]*a[5]+b[4]*b[5])/(a[5]+b[5])
+        a[5] = a[5]+b[5]
+        table.remove(list, nearest)
+        changed = true
+      else
+        i = i + 1
       end
     end
-    if nearest and distance < 0.01 then
-      local a, b = list[i].pos, list[closest].pos
-      a[3] = (a[3]*a[5]+b[3]*b[5])/(a[5]+b[5])
-      a[4] = (a[4]*a[5]+b[4]*b[5])/(a[5]+b[5])
-      a[5] = a[5]+b[5]
-      table.remove(list, nearest)
-    else
-      i = i + 1
+    if not changed then
+      -- Because we moved nodes around, we'll check again to make sure we didn't move too close together
+      break
     end
+    changed = false
   end
 end
 
@@ -92,7 +119,7 @@ local function MergePositionLists(list, add)
           end
         end
       end
-      if nearest and distance < 0.01 then
+      if nearest and distance < 0.05 then
         pos[3] = (pos[3]*pos[5]+x*w)/(pos[5]+w)
         pos[4] = (pos[4]*pos[5]+x*w)/(pos[5]+w)
         pos[5] = pos[5]+w
@@ -118,12 +145,19 @@ local function AddQuest(locale, faction, level, name, data)
      and type(level) == "number" and level >= 1 and level <= 100
      and type(name) == "string" and type(data) == "table" then
     
-    local q = GetQuest(locale, faction, level, name)
+    local q = GetQuest(locale, faction, level, name, type(data.hash) == "number" and data.hash or nil)
     
     if type(data.finish) == "string" then
       AddQuestEnd(q, data.finish)
     elseif type(data.pos) == "table" then
       AddQuestPos(q, data.pos)
+    end
+    
+    if type(data.hash) == "number" and type(data.alt) == "table" then
+      for hash, quest in pairs(data.alt) do
+        quest.hash = hash
+        AddQuest(locale, faction, level, name, quest)
+      end
     end
   end
 end
@@ -145,7 +179,26 @@ local function AddObjective(locale, category, name, objective)
       if type(objective.looted) == "number" and objective.looted > 1 then
         o.looted = (o.looted or 0) + objective.looted
       end
+      if type(objective.faction) == "string" then
+        -- TODO: Sanity checking for faction.
+        o.faction = objective.faction
+      end
     elseif category == "item" then
+      if type(objective.vendor) == "table" then
+        if not o.vendor then o.vendor = {} end
+        
+        for _, v1 in ipairs(objective.vendor) do
+          local known = false
+          for _, v2 in ipairs(o.vendor) do
+            if v1 == v2 then
+              known = true
+              break
+            end
+          end
+          
+          if not known then table.insert(o.vendor, v1) end
+        end
+      end
       if type(objective.drop) == "table" then
         if not o.drop then o.drop = {} end
         for monster, count in pairs(objective.drop) do
@@ -189,6 +242,19 @@ local function CollapseQuest(quest)
     if quest.pos then TidyPositionList(quest.pos) end
   end
   
+  if quest.alt then
+    for hash, q2 in pairs(quest.alt) do
+      if CollapseQuest(q2) then
+        quest.alt[hash] = nil
+      else
+        quest.hash = nil
+      end
+    end
+    if not next(quest.alt, nil) then
+      quest.alt = nil
+    end
+  end
+  
   return quest.pos == nil and quest.finish == nil
 end
 
@@ -198,6 +264,7 @@ local function CollapseObjective(objective)
   
   if objective.drop and not next(objective.drop, nil) then objective.drop = nil end
   if objective.pos and not next(objective.pos, nil) then objective.pos = nil end
+  if objective.vendor and not next(objective.vendor, nil) then objective.vendor = nil end
   
   if objective.drop then
     -- Don't need both.
@@ -210,6 +277,8 @@ local function CollapseObjective(objective)
 end
 
 function NewData()
+  QuestHelper_UpgradeDatabase(data)
+  
   if type(data.QuestHelper_Locale) == "string" then
     local locale = data.QuestHelper_Locale
     if type(data.QuestHelper_Quests) == "table" then for faction, levels in pairs(data.QuestHelper_Quests) do
@@ -304,14 +373,19 @@ function Finished()
     end
     
     if l.objective["item"] then 
-      for name, objective in pairs(l.objective["item"]) do
+      for name, objective in pairs(l.objective["item"]) do if objective.quest then
         -- If this is a quest item, mark anything that drops it as being a quest monster.
-        if objective.quest and objective.drop then
+        if objective.drop then
           for monster, count in pairs(objective.drop) do
             GetObjective(locale, "monster", monster).quest = true
           end
         end
-      end
+        if objective.vendor then
+          for i, npc in ipairs(objective.vendor) do
+            GetObjective(locale, "monster", npc).quest = true
+          end
+        end
+      end end
     end
     
     for category, objectives in pairs(l.objective) do
