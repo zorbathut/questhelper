@@ -250,8 +250,6 @@ end
 local route_pass = 0
 local map_walker
 
-QuestHelper.route_sane = true
-
 local function RouteUpdateRoutine(self)
   map_walker = self:CreateWorldMapWalker()
   local minimap_dodad = self:CreateMipmapDodad()

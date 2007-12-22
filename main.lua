@@ -212,6 +212,7 @@ function QuestHelper:OnEvent(event)
     QuestHelper_UpgradeDatabase(_G)
     
     self:ResetPathing()
+    self:Nag()
     
     self:UnregisterEvent("VARIABLES_LOADED")
     self:RegisterEvent("PLAYER_TARGET_CHANGED")

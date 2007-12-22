@@ -74,7 +74,7 @@ local function Distance(a, b)
 end
 
 local function TidyPositionList(list, min_distance)
-  min_distance = min_distance or 0.05
+  min_distance = min_distance or 0.03
   while true do
     if #list == 0 then return end
     local changed = false
@@ -156,7 +156,7 @@ local function MergePositionLists(list, add)
           end
         end
       end
-      if nearest and distance < 0.05 then
+      if nearest and distance < 0.03 then
         pos[3] = (pos[3]*pos[5]+x*w)/(pos[5]+w)
         pos[4] = (pos[4]*pos[5]+x*w)/(pos[5]+w)
         pos[5] = pos[5]+w
@@ -452,7 +452,7 @@ local function CollapseObjective(objective)
   
   if objective.pos then TidyPositionList(objective.pos) end
   
-  return objective.drop == nil and objective.pos == nil
+  return objective.drop == nil and objective.pos == nil and objective.vendor == nil
 end
 
 function NewData()
