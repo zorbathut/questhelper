@@ -241,7 +241,7 @@ function QuestHelper:CreateWorldMapWalker()
   return walker
 end
 
-function QuestHelper:GetOverlapObjectives()
+function QuestHelper:GetOverlapObjectives(obj)
   local w, h = WorldMapDetailFrame:GetWidth(), WorldMapDetailFrame:GetHeight()
   local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
   
@@ -259,21 +259,27 @@ function QuestHelper:GetOverlapObjectives()
   
   local cx, cy = GetCursorPosition()
   
-  -- I'm probably supposed to account for scale here somewhere, but it seems to work.
-  cx, cy = cx-WorldMapDetailFrame:GetLeft(), WorldMapDetailFrame:GetTop()-cy
+  local es = WorldMapDetailFrame:GetEffectiveScale()
+  local ies = 1/es
   
+  cx, cy = (cx-WorldMapDetailFrame:GetLeft()*es)*ies, (WorldMapDetailFrame:GetTop()*es-cy)*ies
   
   for i, o in ipairs(self.route) do
-    local x, y = o.pos[3], o.pos[4]
-    x, y = x / self.continent_scales_x[o.pos[1].c], y / self.continent_scales_y[o.pos[1].c]
-    x, y = self.Astrolabe:TranslateWorldMapPosition(o.pos[1].c, 0, x, y, c, z)
-    
-    if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
-      x, y = x*w, y*h
+    if o == obj then
+      list[i] = o
+      count = count + 1
+    else
+      local x, y = o.pos[3], o.pos[4]
+      x, y = x / self.continent_scales_x[o.pos[1].c], y / self.continent_scales_y[o.pos[1].c]
+      x, y = self.Astrolabe:TranslateWorldMapPosition(o.pos[1].c, 0, x, y, c, z)
       
-      if cx >= x-10 and cy >= y-10 and cx <= x+10 and cy <= y+10 then
-        list[i] = o
-        count = count + 1
+      if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
+        x, y = x*w, y*h
+        
+        if cx >= x-10 and cy >= y-10 and cx <= x+10 and cy <= y+10 then
+          list[i] = o
+          count = count + 1
+        end
       end
     end
   end
@@ -346,19 +352,30 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   end
   
   function icon:OnEnter()
-    QuestHelper.tooltip:Show()
     QuestHelper.tooltip:SetOwner(self, "ANCHOR_CURSOR")
+    QuestHelper.tooltip:ClearLines()
     
-    local text = ""
+    local first = true
     
-    local list = QuestHelper:GetOverlapObjectives()
+    local list = QuestHelper:GetOverlapObjectives(self.objective)
     
     for i, o in pairs(list) do
-      if text ~= "" then text = text .. "\n   |c80ff0000...|r\n" end
-      text = text .. "|cffffffff("..i..")|r ".. o:Reason() .. "\nEstimated travel time: "..QuestHelper:TimeString(o.travel_time or 0)
+      if first then
+        first = false
+      else
+        QuestHelper.tooltip:AddLine("|c80ff0000  .  .  .  .  .  .|r")
+        QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\ARIALN.TTF", 8)
+      end
+      
+      QuestHelper.tooltip:AddLine(o:Reason())
+      QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\FRIZQT__.TTF", 14)
+      QuestHelper.tooltip:AddDoubleLine("Estimated travel time: ", QuestHelper:TimeString(o.travel_time or 0))
+      QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\ARIALN.TTF", 11)
+      select(2, QuestHelper.tooltip:GetPrevLines()):SetFont("Fonts\\ARIALN.TTF", 11)
     end
     
-    QuestHelper.tooltip:SetText(text)
+    --QuestHelper.tooltip:SetText(text)
+    QuestHelper.tooltip:Show()
     
     icon.show_glow = true
     
@@ -420,7 +437,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   function icon:OnClick()
     if self.objective then
       local menu = QuestHelper:CreateMenu()
-      local list, count = QuestHelper:GetOverlapObjectives()
+      local list, count = QuestHelper:GetOverlapObjectives(self.objective)
       local item
       
       if count > 1 then
@@ -430,6 +447,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
           local submenu = QuestHelper:CreateMenu()
           item = QuestHelper:CreateMenuItem(menu, o:Reason(true))
           item:SetSubmenu(submenu)
+          item:AddTexture(QuestHelper:GetIconTexture(item, o.icon_id), true)
           
           if QuestHelper.first_objective == o then
             item = QuestHelper:CreateMenuItem(submenu, "Place this objective for me.")

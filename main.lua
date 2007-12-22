@@ -37,6 +37,12 @@ QuestHelper.to_remove = {}
 QuestHelper.quest_log = {}
 QuestHelper.pos = {nil, {}, 0, 0, 1, "You are here.", 0}
 
+function QuestHelper.tooltip:GetPrevLines() -- Just a helper to make life easier.
+  local last = self:NumLines()
+  local name = self:GetName()
+  return _G[name.."TextLeft"..last], _G[name.."TextRight"..last]
+end
+
 function QuestHelper:GetCharacterID()
   if QuestHelper_CharacterID == nil then
     QuestHelper_CharacterID = QuestHelper_NextCharacterID
@@ -585,6 +591,8 @@ function QuestHelper:OnUpdate()
       if not state then self:TextOut("|cffff0000The routing co-routine just exploded|r: |cffffff77"..err.."|r") end
     end
   end
+  
+  self:GetOverlapObjectives()
 end
 
 QuestHelper:RegisterEvent("VARIABLES_LOADED")

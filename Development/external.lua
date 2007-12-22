@@ -16,74 +16,7 @@ end
 local EQL3_zone_map = {}
 
 local function GetZone(zone_name)
-  local data = 
-    {{
-      [1]="Ashenvale",
-      [2]="Azshara",
-      [3]="Azuremyst Isle",
-      [4]="Bloodmyst Isle",
-      [5]="Darkshore",
-      [6]="Darnassus",
-      [7]="Desolace",
-      [8]="Durotar",
-      [9]="Dustwallow Marsh",
-      [10]="Felwood",
-      [11]="Feralas",
-      [12]="Moonglade",
-      [13]="Mulgore",
-      [14]="Orgrimmar",
-      [15]="Silithus",
-      [16]="Stonetalon Mountains",
-      [17]="Tanaris",
-      [18]="Teldrassil",
-      [19]="The Barrens",
-      [20]="The Exodar",
-      [21]="Thousand Needles",
-      [22]="Thunder Bluff",
-      [23]="Un'Goro Crater",
-      [24]="Winterspring"
-     },
-     {
-      [1]="Alterac Mountains",
-      [2]="Arathi Highlands",
-      [3]="Badlands",
-      [4]="Blasted Lands",
-      [5]="Burning Steppes",
-      [6]="Deadwind Pass",
-      [7]="Dun Morogh",
-      [8]="Duskwood",
-      [9]="Eastern Plaguelands",
-      [10]="Elwynn Forest",
-      [11]="Eversong Woods",
-      [12]="Ghostlands",
-      [13]="Hillsbrad Foothills",
-      [14]="Ironforge",
-      [15]="Loch Modan",
-      [16]="Redridge Mountains",
-      [17]="Searing Gorge",
-      [18]="Silvermoon City",
-      [19]="Silverpine Forest",
-      [20]="Stormwind City",
-      [21]="Stranglethorn Vale",
-      [22]="Swamp of Sorrows",
-      [23]="The Hinterlands",
-      [24]="Tirisfal Glades",
-      [25]="Undercity",
-      [26]="Western Plaguelands",
-      [27]="Westfall",
-      [28]="Wetlands",
-     },
-     {
-      [1]="Blade's Edge Mountains",
-      [2]="Hellfire Peninsula",
-      [3]="Nagrand",
-      [4]="Netherstorm",
-      [5]="Shadowmoon Valley",
-      [6]="Shattrath City",
-      [7]="Terokkar Forest",
-      [8]="Zangarmarsh",
-     }}
-  for c, names in ipairs(data) do
+  for c, names in ipairs(QuestHelper_Ver01_Zones) do
     for z, name in ipairs(names) do
       if name == zone_name then
         return c, z
@@ -118,11 +51,16 @@ end
 
 local function ProcessEQL3ItemData()
   for item, drops in pairs(eql3.itemData) do
-    for monster, _ in pairs(drops) do
-      local item = GetObjective("enUS", "item", item)
-      if not item.drop then item.drop = {} end
-      -- Making these tiny, because there isn't a loot entry for the monster.
-      item.drop[monster] = (item.drop[monster] or 0)+0.001
+    for monster, amount in pairs(drops) do
+      amount = (tonumber(amount) or 0.05)*0.2
+      
+      local item_obj = GetObjective("enUS", "item", item)
+      local monster_obj = GetObjective("enUS", "monster", monster)
+      
+      if not item_obj.drop then item_obj.drop = {} end
+      
+      item_obj.drop[monster] = (item_obj.drop[monster] or 0)+amount
+      monster_obj.looted = (monster_obj.looted or 0)+amount
     end
   end
 end
