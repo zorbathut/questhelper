@@ -1,5 +1,30 @@
 local StaticData = {}
 
+function CreateAverage()
+  return {}
+end
+
+function AppendToAverage(average, value)
+  table.insert(average, value)
+end
+
+function CollapseAverage(average)
+  table.sort(average)
+  local to_remove = math.floor(#average*0.2)
+  for i = 1,to_remove do
+    table.remove(average, 1)
+    table.remove(average, 1)
+  end
+  if #average == 0 then 
+    return nil
+  end
+  local sum = 0
+  for _, v in pairs(average) do
+    sum = sum + v
+  end
+  return sum/#average
+end
+
 function GetQuest(locale, faction, level, name, hash)
   local l = StaticData[locale]
   if not l then
@@ -83,6 +108,28 @@ local function Distance(a, b)
                math.floor(a[4]*10000+0.5)/10000-math.floor(b[4]*10000+0.5)/10000
   
   return math.sqrt(x*x+y*y)
+end
+
+local function TidyDropList(locale, list)
+  local high = 0
+  
+  for monster, count in pairs(list) do
+    local monster_obj = GetObjective(locale, "monster", monster)
+    if monster_obj.looted and monster_obj.looted > 0 then
+      high = math.max(high, math.max(1, math.floor(count))/math.ceil(monster_obj.looted))
+    end
+  end
+  
+  for monster, count in pairs(list) do
+    local monster_obj = GetObjective(locale, "monster", monster)
+    count = math.max(1, math.floor(count))
+    
+    if monster_obj.looted and monster_obj.looted > 0 and count/math.ceil(monster_obj.looted) > high*0.2 then
+      list[monster] = count
+    else
+      list[monster] = nil
+    end
+  end
 end
 
 local function TidyPositionList(list, min_distance)
@@ -187,20 +234,19 @@ local function MergePositionLists(list, add)
     if type(c) == "number" and
        QuestHelper_ValidPosition(c, z, x, y) and
        type(w) == "number" and w > 0 then
-      local nearest, distance = nil, 0
-      for i, pos in ipairs(list) do
-        if c == pos[1] and z == pos[2] then
-          local d = math.sqrt((x-pos[3])*(x-pos[3])+(y-pos[4])*(y-pos[4]))
+      local bp, distance = nil, 0
+      for i, pos2 in ipairs(list) do
+        if c == pos2[1] and z == pos2[2] then
+          local d = math.sqrt((x-pos2[3])*(x-pos2[3])+(y-pos2[4])*(y-pos2[4]))
           if not nearest or d < distance then
-            nearest, distance = i, d
+            bp, distance = pos2, d
           end
         end
       end
-      if nearest and distance < 0.03 then
-        local p = list[nearest]
-        p[3] = (p[3]*p[5]+x*w)/(p[5]+w)
-        p[4] = (p[4]*p[5]+x*w)/(p[5]+w)
-        p[5] = p[5]+w
+      if bp and distance < 0.03 then
+        bp[3] = (bp[3]*bp[5]+x*w)/(bp[5]+w)
+        bp[4] = (bp[4]*bp[5]+y*w)/(bp[5]+w)
+        bp[5] = bp[5]+w
       else
         table.insert(list, {c,z,x,y,w})
       end
@@ -332,7 +378,12 @@ local function AddFlightRoute(locale, continent, start, destination, hash, data)
       hash_list[hash] = route_data
     end
     route_data.raw = route_data.raw or data.raw
-    route_data.real = route_data.real or data.real
+    if data.real then
+      if not route_data.real then
+        route_data.real = CreateAverage()
+      end
+      AppendToAverage(route_data.real, data.real)
+    end
   end
 end
 
@@ -422,7 +473,7 @@ local function AddObjective(locale, category, name, objective)
   end
 end
 
-local function CollapseQuest(quest)
+local function CollapseQuest(locale, quest)
   local name_score = quest.finish and DropListMass(quest.finish) or 0
   local pos_score = quest.pos and PositionListMass(quest.pos)*0.25 or 0
   
@@ -438,15 +489,26 @@ local function CollapseQuest(quest)
   
   if quest.item then
     for name, data in pairs(quest.item) do
-      local drop_score = data.drop and DropListMass(data.drop) or 0
-      local pos_score = data.pos and PositionListMass(data.pos) or 0
-      if drop_score > pos_score then
-        data.pos = nil
-      elseif pos_score > 0 then
-        data.drop = nil
-        TidyPositionList(data.pos)
-      else
+      local item_obj = GetObjective(locale, "item", name)
+      
+      if item_obj.drop or item_obj.pos then
+        -- Move the information out of the quest and into the item.
+        if data.drop then if not item_obj.drop then item_obj.drop = {} end MergeDropLists(item_obj.drop, data.drop) end
+        if data.pos then if not item_obj.pos then item_obj.pos = {} end MergePositionLists(item_obj.pos, data.pos) end
         quest.item[name] = nil
+      else
+        if data.drop then TidyDropList(locale, data.drop) end
+        
+        local drop_score = data.drop and DropListMass(data.drop) or 0
+        local pos_score = data.pos and PositionListMass(data.pos) or 0
+        if drop_score > pos_score then
+          data.pos = nil
+        elseif pos_score > 0 then
+          data.drop = nil
+          TidyPositionList(data.pos)
+        else
+          quest.item[name] = nil
+        end
       end
     end
     if not next(quest.item, nil) then
@@ -456,7 +518,7 @@ local function CollapseQuest(quest)
   
   if quest.alt then
     for hash, q2 in pairs(quest.alt) do
-      if CollapseQuest(q2) then
+      if CollapseQuest(locale, q2) then
         quest.alt[hash] = nil
       end
     end
@@ -470,7 +532,7 @@ local function CollapseQuest(quest)
   return quest.pos == nil and quest.finish == nil
 end
 
-local function CollapseObjective(objective)
+local function CollapseObjective(locale, objective)
   if not objective.quest then return true end
   objective.quest = nil
   
@@ -479,15 +541,13 @@ local function CollapseObjective(objective)
   if objective.vendor and not next(objective.vendor, nil) then objective.vendor = nil end
   
   if objective.drop then
+    TidyDropList(locale, objective.drop)
+    
     if objective.pos and PositionListMass(objective.pos) > DropListMass(objective.drop) then
       objective.drop = nil
     else
       -- Don't need both.
       objective.pos = nil
-      
-      for monster, count in pairs(objective.drop) do
-        objective.drop[monster] = math.max(1, math.floor(count))
-      end
     end
   end
   
@@ -495,9 +555,20 @@ local function CollapseObjective(objective)
     objective.looted = math.max(1, math.ceil(objective.looted))
   end
   
+  if objective.vendor then table.sort(objective.vendor) end
+  
   if objective.pos then TidyPositionList(objective.pos) end
   
   return objective.drop == nil and objective.pos == nil and objective.vendor == nil
+end
+
+local function CollapseFlightRoute(data)
+  data.real = data.real and CollapseAverage(data.real)
+  if data.real then
+    data.real = math.floor(data.real*10+0.5)/10
+    return false
+  end
+  return true
 end
 
 function NewData()
@@ -651,7 +722,7 @@ function Finished()
       for level, quest_list in pairs(levels) do
         local delete_level = true
         for quest, quest_data in pairs(quest_list) do
-          if CollapseQuest(quest_data) then
+          if CollapseQuest(locale, quest_data) then
             if quest_data.alt then
               -- If there are alternate quests, don't throw them away.
               local alt = quest_data.alt
@@ -745,7 +816,7 @@ function Finished()
     for category, objectives in pairs(l.objective) do
       local delete_category = true
       for name, objective in pairs(objectives) do
-        if CollapseObjective(objective) then
+        if CollapseObjective(locale, objective) then
           objectives[name] = nil
         else
           delete_category = false
@@ -761,7 +832,7 @@ function Finished()
         for dest, hash_list in pairs(dest_list) do
           local delete_dest = true
           for hash, data in pairs(hash_list) do
-            if not data.real then
+            if CollapseFlightRoute(data) then
               hash_list[hash] = nil
             else
               delete_dest = false

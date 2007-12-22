@@ -335,6 +335,9 @@ local function isGoodPath(start_node, end_node, i, j)
 end
 
 local function shouldLink(a, b)
+  -- TODO: Need to have objectives not create links to unreachable nodes.
+  return a ~= b
+  --[[
   if a == b then
     return false
   else
@@ -348,17 +351,8 @@ local function shouldLink(a, b)
       end
     end
     
-    --if not next(a.id_from, nil) then
-    --  return false
-    --end
-    
-    --for id in pairs(b.id_to) do
-    --  if not a.id_from[id] then
-    --    return true
-    --  end
-    --end
     return false
-  end
+  end]]
 end
 
 local function getNPCNode(npc)
@@ -626,9 +620,9 @@ function QuestHelper:ResetPathing()
   
   self:SetupTeleportInfo(self.teleport_info, true)
   
-  for node, info in pairs(self.teleport_info.node) do
+  --[[for node, info in pairs(self.teleport_info.node) do
     self:TextOut("You can teleport to "..(node.name or "nil").. " in "..self:TimeString(info[1]+info[2]-GetTime()))
-  end
+  end]]
   
   if self.faction == "Alliance" then
     for i, data in ipairs(static_alliance_routes) do
@@ -754,6 +748,18 @@ function QuestHelper:ResetPathing()
     self:ReleaseTable(n.id_to)
     self:ReleaseTable(n.id_local)
     n.id_from, n.id_to, n.id_local = nil, nil, nil
+  end
+  
+  -- TODO: This is a work around until I fix shouldLink
+  for c, start_list in pairs(QuestHelper_KnownFlightRoutes) do
+    for start, end_list in pairs(start_list) do
+      for dest in pairs(end_list) do
+        local a, b = flight_master_nodes[start], flight_master_nodes[dest]
+        if a and b then
+          a:Link(b, self:GetFlightTime(c, start, dest))
+        end
+      end
+    end
   end
   
   -- TODO: Create a heuristic for this.

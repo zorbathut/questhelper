@@ -314,7 +314,7 @@ local function FinishAddLoc(self)
     local remove_zone = true
     local i = 1
     while i <= #pl do
-      if pl[i][5] < mx*0.25 then
+      if pl[i][5] < mx*0.2 then
         QuestHelper:ReleaseTable(pl[i])
         table.remove(pl, i)
       else

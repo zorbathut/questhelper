@@ -145,7 +145,9 @@ local commands =
     {"/qh scale 80%", "Makes icons slightly smaller than their default size."}}, QuestHelper.SetIconScale, QuestHelper},
   
   {"NAG",
-   "Tells you if you have anything that's missing from the static database.", {}, QuestHelper.Nag, QuestHelper},
+   "Tells you if you have anything that's missing from the static database.",
+    {{"/qh nag", "Prints just the summary of changes."},
+     {"/qh nag verbose", "Prints the specific changes that were found."}}, QuestHelper.Nag, QuestHelper},
   
   {"LEVEL",
    "Adjusts the level offset used by the level filter. Naturally, the level filter must be turned on to have an effect.",
