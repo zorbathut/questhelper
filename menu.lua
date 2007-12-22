@@ -293,7 +293,7 @@ function QuestHelper:CreateMenuItem(menu, text)
       menu:SetParent(self)
       menu.parent = self
       self.submenu = menu
-      self:AddTexture(QuestHelper:GetIconTexture(self, 11))
+      self:AddTexture(QuestHelper:GetIconTexture(self, 9))
     end
   end
   

@@ -565,7 +565,8 @@ function QuestHelper:NewObjectiveObject()
     auto_ignore = false,
     user_ignore = false,
     
-    icon_id=6,
+    icon_id=12,
+    icon_bg=14,
     
     before={},
     after={},
@@ -604,9 +605,9 @@ function QuestHelper:GetObjective(category, objective)
     elseif category == "event" then
       objective_object.icon_id = 4
     elseif category == "loc" then
-      objective_object.icon_id = 9
+      objective_object.icon_id = 6
     elseif category == "reputation" then
-      objective_object.icon_id = 10
+      objective_object.icon_id = 5
     else
       self:TextOut("FIXME: Objective type '"..category.."' for objective '"..objective.."' isn't explicitly supported yet; hopefully the dummy handler will do something sensible.")
     end
