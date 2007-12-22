@@ -1,13 +1,18 @@
 local function DefaultObjectiveKnown(self)
+  if self.auto_ignore or self.user_ignore then
+    return false
+  end
+  
   for i, j in pairs(self.after) do
     if i.watched and not i:Known() then -- Need to know how to do everything before this objective.
       return false
     end
   end
+  
   return true
 end
 
-local function ObjectiveReason(self)
+local function ObjectiveReason(self, short)
   local reason, rc = nil, 0
   if self.reasons then
     for r, c in pairs(self.reasons) do
@@ -19,7 +24,7 @@ local function ObjectiveReason(self)
   
   if not reason then reason = "Do some extremely secret unspecified something." end
   
-  if self.pos and self.pos[6] then
+  if not short and self.pos and self.pos[6] then
     reason = reason .. "\n" .. self.pos[6]
   end
   
@@ -539,6 +544,9 @@ function QuestHelper:NewObjectiveObject()
     Position=GetPosition,
     TravelTime=ComputeTravelTime,
     TravelTime2=ComputeTravelTime2,
+    
+    auto_ignore = false,
+    user_ignore = false,
     
     before={},
     after={},

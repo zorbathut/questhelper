@@ -75,15 +75,29 @@ local function pushPath(list, path, spare_tables, c, z)
   end
 end
 
-function QuestHelper:GetGlowTexture(parent)
-  local tex = self.free_glow_textures and table.remove(self.free_glow_textures)
+function QuestHelper:GetTexture(parent, r, g, b, a)
+  local tex = self.free_textures and table.remove(self.free_textures)
   
   if tex then
     tex:SetParent(parent)
   else
     tex = parent:CreateTexture()
-    tex:SetTexture("Interface\\Addons\\QuestHelper\\Art\\Glow.blp")
   end
+  
+  tex:SetTexture(r, g, b, a)
+  tex:ClearAllPoints()
+  tex:SetTexCoord(0, 1, 0, 1)
+  tex:SetVertexColor(1, 1, 1, 1)
+  tex:SetDrawLayer("ARTWORK")
+  tex:SetWidth(12)
+  tex:SetHeight(12)
+  tex:Show()
+  
+  return tex
+end
+
+function QuestHelper:GetGlowTexture(parent)
+  local tex = self:GetTexture(parent, "Interface\\Addons\\QuestHelper\\Art\\Glow.blp")
   
   local angle = math.random()*6.28318530717958647692528676655900576839433879875021164
   local x, y = math.cos(angle)*0.707106781186547524400844362104849039284835937688474036588339869,
@@ -96,10 +110,10 @@ function QuestHelper:GetGlowTexture(parent)
   return tex
 end
 
-function QuestHelper:ReleaseGlowTexture(tex)
-  if not self.free_glow_textures then self.free_glow_textures = {} end
+function QuestHelper:ReleaseTexture(tex)
   tex:Hide()
-  table.insert(self.free_glow_textures, tex)
+  if not self.free_textures then self.free_textures = {tex}
+  else table.insert(self.free_textures, tex) end
 end
 
 function QuestHelper:CreateWorldMapWalker()
@@ -172,7 +186,7 @@ function QuestHelper:CreateWorldMapWalker()
     self.used_dots = out
   end
   
-  function walker:OnEvent()
+  function walker:RouteChanged()
     local points = self.points
     local cur = self.frame.pos
     local spare_tables = self.spare_tables
@@ -202,13 +216,13 @@ function QuestHelper:CreateWorldMapWalker()
     end
   end
   
-  walker:SetScript("OnEvent", walker.OnEvent)
+  walker:SetScript("OnEvent", walker.RouteChanged)
   walker:RegisterEvent("WORLD_MAP_UPDATE")
   
   walker:SetScript("OnUpdate", walker.OnUpdate)
+  
+  return walker
 end
-
-QuestHelper.map_walker = QuestHelper:CreateWorldMapWalker()
 
 function QuestHelper:CreateWorldMapDodad(objective, index)
   local icon = CreateFrame("Button", nil, WorldMapButton)
@@ -224,15 +238,20 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   
   function icon:SetObjective(objective, i)
     self.objective = objective
-    self.index = i
     
-    if i == 1 then
-      self.dot:SetTexCoord(0.404, 0.475, 0.12, 0.375)
+    if objective then
+      self.index = i
+      
+      if i == 1 then
+        self.dot:SetTexCoord(0.404, 0.475, 0.12, 0.375)
+      else
+        self.dot:SetTexCoord(0.280, 0.35, 0.09, 0.36)
+      end
+      
+      QuestHelper.Astrolabe:PlaceIconOnWorldMap(WorldMapDetailFrame, self, convertLocation(objective.pos))
     else
-      self.dot:SetTexCoord(0.280, 0.35, 0.09, 0.36)
+      self:Hide()
     end
-    
-    QuestHelper.Astrolabe:PlaceIconOnWorldMap(WorldMapDetailFrame, self, convertLocation(objective.pos))
   end
   
   icon.show_glow = false
@@ -250,7 +269,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
       
       if self.glow_pct == 0 then
         while #self.glow_list > 0 do
-          QuestHelper:ReleaseGlowTexture(table.remove(self.glow_list))
+          QuestHelper:ReleaseTexture(table.remove(self.glow_list))
         end
         self:SetScript("OnUpdate", nil)
         return
@@ -309,7 +328,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
     end
     
     for i = out,#self.glow_list do
-      QuestHelper:ReleaseGlowTexture(table.remove(self.glow_list))
+      QuestHelper:ReleaseTexture(table.remove(self.glow_list))
     end
     
     self:SetScript("OnUpdate", self.OnUpdate)
@@ -321,12 +340,44 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   end
   
   function icon:OnEvent(event)
-    QuestHelper.Astrolabe:PlaceIconOnWorldMap(WorldMapDetailFrame, self, convertLocation(self.objective.pos))
+    if self.objective then
+      QuestHelper.Astrolabe:PlaceIconOnWorldMap(WorldMapDetailFrame, self, convertLocation(self.objective.pos))
+    else
+      self:Hide()
+    end
   end
   
+  function icon:OnClick()
+
+  if self.objective then
+      local menu = QuestHelper:CreateMenu()
+      QuestHelper:CreateMenuTitle(menu, self.objective:Reason(true))
+      
+      local item
+      
+      if QuestHelper.first_objective == self.objective then
+        item = QuestHelper:CreateMenuItem(menu, "Place this objective for me.")
+        item:SetFunction(function (obj) if QuestHelper.first_objective == obj then QuestHelper.first_objective = nil QuestHelper:ForceRouteUpdate() end end, self.objective)
+      elseif not next(self.objective.after, nil) then
+        item = QuestHelper:CreateMenuItem(menu, "Force this objective to be first.")
+        item:SetFunction(function (obj) QuestHelper.first_objective = obj QuestHelper:ForceRouteUpdate() end, self.objective)
+      end
+      
+      item = QuestHelper:CreateMenuItem(menu, "Ignore this objective.")
+      item:SetFunction(function (obj) obj.user_ignore = true QuestHelper:ForceRouteUpdate() end, self.objective)
+      
+      menu:SetCloseFunction(QuestHelper.ReleaseMenu, QuestHelper, menu)
+      menu:ShowAtCursor()
+    end
+  end
+  
+  icon:SetScript("OnClick", icon.OnClick)
   icon:SetScript("OnEnter", icon.OnEnter)
   icon:SetScript("OnLeave", icon.OnLeave)
   icon:SetScript("OnEvent", icon.OnEvent)
+  
+  icon:RegisterForClicks("RightButtonUp")
+  
   icon:RegisterEvent("WORLD_MAP_UPDATE")
   
   icon:SetObjective(objective, index)

@@ -503,15 +503,7 @@ end
 function QuestHelper:OnUpdate()
   local nc, nz, nx, ny = self.Astrolabe:GetCurrentPlayerPosition()
   
-  if nc then
-    if nz == 0 then
-      SetMapToCurrentZone()
-      nz = GetCurrentMapZone()
-      if nz ~= 0 then
-        nx, ny = self.Astrolabe:TranslateWorldMapPosition(nc, 0, nx, ny, nc, nz)
-      end
-    end
-    
+  if nc and nz > 0 then
     if UnitOnTaxi("player") then
       self.was_flying = true
     elseif nc > 0 and nz > 0 then

@@ -104,12 +104,16 @@ function QuestHelper:ScanQuestLog()
     
     players = math.min(5, math.max(1, (players and players ~= 0 and players) or (qtype ~= nil and 5) or 1))
     
-    if not header and party_levels[math.min(5, math.max(1, players or (qtype and 5) or 1))]+3 >= level then
+    if not header then
       SelectQuestLogEntry(index)
       local hash = self:HashString(select(2, GetQuestLogQuestText()))
       local quest = self:GetQuest(title, level, hash)
       local lq = quests[quest]
       local is_new = false
+      
+      local ignored = party_levels[math.min(5, math.max(1, players or (qtype and 5) or 1))]+3 < level
+      
+      quest.auto_ignore = ignored
       
       if self.quest_giver and self.quest_giver[title] then
         quest.o.start = self.quest_giver[title]
@@ -175,6 +179,8 @@ function QuestHelper:ScanQuestLog()
             end
             lo.have = have
           end
+          
+          lo.objective.auto_ignore = ignored
         end
       else
         quest.goal = nil

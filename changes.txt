@@ -1,8 +1,14 @@
-== Version 0.10; Uploaded ??? ==
+== Version 0.11; Uploaded 12/01/2007 ==
+
+* Wrote functions for creating menus. There seems to be some horrible bug related to recycling them, but I can't figure it out and I'm not going to worry about it for now. You can drag them around by their title or right click on their title to close them.
+* You can right click on an objective on the world map to create a menu for it, and from that menu you can request that it be ignored for forced to the beginning for the route.
+* For the people that couldn't zoom out of the map, that might have been fixed, too.
+
+== Version 0.10; Uploaded 11/30/2007 ==
 
 * Will ignore quests you're probably not capable of doing.
 * Minimap arrow should now unhide itself when entering/leaving an instance or continent.
-* Asking of the same objective twice will remove it.
+* Asking for the same objective twice will remove it.
 * Route objectives contain an array of distances to nearby nodes, but they weren't being updated with the world graph. If new nodes were created, pathing would break when it tried to do math on a value that didn't exist.
 
 == Version 0.9; Uploaded 11/29/2007 ==
