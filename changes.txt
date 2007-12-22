@@ -1,3 +1,10 @@
+== Version 0.10; Uploaded ??? ==
+
+* Will ignore quests you're probably not capable of doing.
+* Minimap arrow should now unhide itself when entering/leaving an instance or continent.
+* Asking of the same objective twice will remove it.
+* Route objectives contain an array of distances to nearby nodes, but they weren't being updated with the world graph. If new nodes were created, pathing would break when it tried to do math on a value that didn't exist.
+
 == Version 0.9; Uploaded 11/29/2007 ==
 
 * If you put the mouse over the an objective on the world map, all known locations for it will be highlighted on the map.

@@ -273,34 +273,46 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
     
     icon.show_glow = true
     
-    if #self.glow_list == 0 then
-      local w, h = WorldMapDetailFrame:GetWidth(), WorldMapDetailFrame:GetHeight()
-      local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
-      local _, x_size, y_size = QuestHelper.Astrolabe:ComputeDistance(c, z, 0.25, 0.25, c, z, 0.75, 0.75)
-      
-      x_size = math.max(25, 200 / x_size * w)
-      y_size = math.max(25, 200 / y_size * h)
-      
-      for _, list in pairs(self.objective.p) do
-        for _, p in ipairs(list) do
-          local x, y = p[3], p[4]
-          x, y = x / QuestHelper.continent_scales_x[p[1].c], y / QuestHelper.continent_scales_y[p[1].c]
-          x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(p[1].c, 0, x, y, c, z)
-          if x > 0 and y > 0 and x < 1 and y < 1 then
-            local tex = QuestHelper:GetGlowTexture(self)
-            tex:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x*w, -y*h)
-            tex:SetVertexColor(1,1,1,0)
-            tex:SetWidth(x_size)
-            tex:SetHeight(y_size)
-            tex:Show()
-            tex.max_alpha = 1/p[5]
+    local out = 1
+    
+    local w, h = WorldMapDetailFrame:GetWidth(), WorldMapDetailFrame:GetHeight()
+    local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+    local _, x_size, y_size = QuestHelper.Astrolabe:ComputeDistance(c, z, 0.25, 0.25, c, z, 0.75, 0.75)
+    
+    x_size = math.max(25, 200 / x_size * w)
+    y_size = math.max(25, 200 / y_size * h)
+    
+    
+    
+    for _, list in pairs(self.objective.p) do
+      for _, p in ipairs(list) do
+        local x, y = p[3], p[4]
+        x, y = x / QuestHelper.continent_scales_x[p[1].c], y / QuestHelper.continent_scales_y[p[1].c]
+        x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(p[1].c, 0, x, y, c, z)
+        if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
+          --local tex = QuestHelper:GetGlowTexture(self)
+          tex = self.glow_list[out]
+          if not tex then
+            tex = QuestHelper:GetGlowTexture(self)
             table.insert(self.glow_list, tex)
           end
+          out = out + 1
+          
+          tex:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x*w, -y*h)
+          tex:SetVertexColor(1,1,1,0)
+          tex:SetWidth(x_size)
+          tex:SetHeight(y_size)
+          tex:Show()
+          tex.max_alpha = 1/p[5]
         end
       end
-      
-      self:SetScript("OnUpdate", self.OnUpdate)
     end
+    
+    for i = out,#self.glow_list do
+      QuestHelper:ReleaseGlowTexture(table.remove(self.glow_list))
+    end
+    
+    self:SetScript("OnUpdate", self.OnUpdate)
   end
   
   function icon:OnLeave()
@@ -351,7 +363,7 @@ function QuestHelper:CreateMipmapDodad()
   icon.target = {0, 0, 0, 0}
   
   function icon:OnUpdate(elapsed)
-    if self:IsShown() then
+    if self.objective then
       if self.recalc_timeout == 0 then
         self.recalc_timeout = 120
         local path = QuestHelper:ComputeRoute(QuestHelper.pos, self.objective.pos)
@@ -405,17 +417,25 @@ function QuestHelper:CreateMipmapDodad()
   end
   
   function icon:SetObjective(objective)
+    if objective then
+      self:Show()
+    else
+      self:Hide()
+    end
+    
     self.objective = objective
     self.recalc_timeout = 0
   end
   
   function icon:OnEnter()
-    QuestHelper.tooltip:Show()
-    QuestHelper.tooltip:SetOwner(self, "ANCHOR_CURSOR")
-    if self.target[5] then
-      QuestHelper.tooltip:SetText("Visit "..QuestHelper:HighlightText(self.target[5]).." en route to objective:\n"..self.objective:Reason())
-    else
-      QuestHelper.tooltip:SetText(self.objective:Reason())
+    if self.objective then
+      QuestHelper.tooltip:Show()
+      QuestHelper.tooltip:SetOwner(self, "ANCHOR_CURSOR")
+      if self.target[5] then
+        QuestHelper.tooltip:SetText("Visit "..QuestHelper:HighlightText(self.target[5]).." en route to objective:\n"..self.objective:Reason())
+      else
+        QuestHelper.tooltip:SetText(self.objective:Reason())
+      end
     end
   end
   
@@ -423,9 +443,20 @@ function QuestHelper:CreateMipmapDodad()
     QuestHelper.tooltip:Hide()
   end
   
+  function icon:OnEvent()
+    if self.objective then
+      self:Show()
+    else
+      self:Hide()
+    end
+  end
+  
   icon:SetScript("OnUpdate", icon.OnUpdate)
   icon:SetScript("OnEnter", icon.OnEnter)
   icon:SetScript("OnLeave", icon.OnLeave)
+  icon:SetScript("OnEvent", icon.OnEvent)
+  
+  icon:RegisterEvent("PLAYER_ENTERING_WORLD")
   
   return icon
 end

@@ -524,6 +524,21 @@ function QuestHelper:ResetPathing()
   -- Route objectives are expected to be routable.
   for i, obj in ipairs(self.route) do
     obj:PrepareRouting()
+    
+    -- Make sure positions still contain the correct distances to other nodes in the zone, as
+    -- the order may have changed, they may have been moved, and some may have been added or removed.
+    if obj.pos then
+      for i, n in ipairs(obj.pos[1]) do
+        local x, y = obj.pos[3]-n.x, obj.pos[4]-n.y
+        obj.pos[2][i] = math.sqrt(x*x+y*y)
+      end
+    end
+    if obj.sop then
+      for i, n in ipairs(obj.sop[1]) do
+        local x, y = obj.sop[3]-n.x, obj.sop[4]-n.y
+        obj.pos[2][i] = math.sqrt(x*x+y*y)
+      end
+    end
   end
   
   -- And if all went according to plan, we now have a graph we can follow to get from anywhere to anywhere.

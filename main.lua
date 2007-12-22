@@ -230,6 +230,9 @@ function QuestHelper:OnEvent(event)
     self:RegisterEvent("TAXIMAP_OPENED")
     self:RegisterEvent("PLAYER_CONTROL_GAINED")
     self:RegisterEvent("PLAYER_CONTROL_LOST")
+    self:RegisterEvent("PLAYER_LEVEL_UP")
+    self:RegisterEvent("PARTY_MEMBERS_CHANGED")
+    
     self:SetScript("OnUpdate", self.OnUpdate)
   end
   
@@ -286,7 +289,9 @@ function QuestHelper:OnEvent(event)
     end
   end
   
-  if event == "QUEST_LOG_UPDATE" then
+  if event == "QUEST_LOG_UPDATE" or
+     event == "PLAYER_LEVEL_UP" or
+     event == "PARTY_MEMBERS_CHANGED" then
     self.defered_quest_scan = true
   end
   
@@ -498,60 +503,64 @@ end
 function QuestHelper:OnUpdate()
   local nc, nz, nx, ny = self.Astrolabe:GetCurrentPlayerPosition()
   
-  if nz == 0 then
-    SetMapToCurrentZone()
-    nz = GetCurrentMapZone()
-    if nz ~= 0 then
-      nx, ny = self.Astrolabe:TranslateWorldMapPosition(nc, 0, nx, ny, nc, nz)
+  if nc then
+    if nz == 0 then
+      SetMapToCurrentZone()
+      nz = GetCurrentMapZone()
+      if nz ~= 0 then
+        nx, ny = self.Astrolabe:TranslateWorldMapPosition(nc, 0, nx, ny, nc, nz)
+      end
     end
-  end
-  
-  if UnitOnTaxi("player") then
-    self.was_flying = true
-  elseif nc > 0 and nz > 0 then
-    if nc == self.c and nz ~= self.z and nz > 0 and self.z > 0 and
-       nx > -0.1 and ny > -0.1 and nx < 1.1 and ny < 1.1 and
-       self.x > -0.1 and self.y > -0.1 and self.x < 1.1 and self.y < 1.1 then
-      -- Changed zones!
-      local distance = self.Astrolabe:ComputeDistance(self.c, self.z, self.x, self.y, nc, nz, nx, ny)
-      if distance and distance < 5 then
-        local cont = QuestHelper_ZoneTransition[nc]
-        if not cont then
-          cont = {}
-          QuestHelper_ZoneTransition[nc] = cont
+    
+    if UnitOnTaxi("player") then
+      self.was_flying = true
+    elseif nc > 0 and nz > 0 then
+      if nc == self.c and nz ~= self.z and nz > 0 and self.z > 0 and
+         nx > -0.1 and ny > -0.1 and nx < 1.1 and ny < 1.1 and
+         self.x > -0.1 and self.y > -0.1 and self.x < 1.1 and self.y < 1.1 then
+        -- Changed zones!
+        local distance = self.Astrolabe:ComputeDistance(self.c, self.z, self.x, self.y, nc, nz, nx, ny)
+        if distance and distance < 5 then
+          local cont = QuestHelper_ZoneTransition[nc]
+          if not cont then
+            cont = {}
+            QuestHelper_ZoneTransition[nc] = cont
+          end
+          if nz > self.z then
+            local from = cont[self.z]
+            if not from then from = {} cont[self.z] = from end
+            local to = from[nz]
+            if not to then to = {} from[nz] = to end
+            self:AppendPosition(to, self.c, self.z, self.x, self.y, 1, 1500.0)
+          else
+            local from = cont[nz]
+            if not from then from = {} cont[nz] = from end
+            local to = from[self.z]
+            if not to then to = {} from[self.z] = to end
+            self:AppendPosition(to, nc, nz, nx, ny, 1, 1500.0)
+          end
+          
+          self:TextOut("Zone connection altered. Will recalculate world pathing information.")
+          self:ResetPathing()
         end
-        if nz > self.z then
-          local from = cont[self.z]
-          if not from then from = {} cont[self.z] = from end
-          local to = from[nz]
-          if not to then to = {} from[nz] = to end
-          self:AppendPosition(to, self.c, self.z, self.x, self.y, 1, 1500.0)
-        else
-          local from = cont[nz]
-          if not from then from = {} cont[nz] = from end
-          local to = from[self.z]
-          if not to then to = {} from[self.z] = to end
-          self:AppendPosition(to, nc, nz, nx, ny, 1, 1500.0)
-        end
-        
-        self:TextOut("Zone connection altered. Will recalculate world pathing information.")
-        self:ResetPathing()
+      end
+    end
+    
+    if nc > 0 and nz > 0 then
+      self.c, self.z, self.x, self.y = nc or self.c, nz or self.z, nx or self.x, ny or self.y
+      
+      self.pos[1] = self.zone_nodes[self.c][self.z]
+      self.pos[3], self.pos[4] = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)
+      self.pos[3] = self.pos[3] * self.continent_scales_x[self.c]
+      self.pos[4] = self.pos[4] * self.continent_scales_y[self.c]
+      for i, n in ipairs(self.pos[1]) do
+        local a, b = n.x-self.pos[3], n.y-self.pos[4]
+        self.pos[2][i] = math.sqrt(a*a+b*b)
       end
     end
   end
   
-  if nc > 0 and nz > 0 then
-    self.c, self.z, self.x, self.y = nc or self.c, nz or self.z, nx or self.x, ny or self.y
-    
-    self.pos[1] = self.zone_nodes[self.c][self.z]
-    self.pos[3], self.pos[4] = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)
-    self.pos[3] = self.pos[3] * self.continent_scales_x[self.c]
-    self.pos[4] = self.pos[4] * self.continent_scales_y[self.c]
-    for i, n in ipairs(self.pos[1]) do
-      local a, b = n.x-self.pos[3], n.y-self.pos[4]
-      self.pos[2][i] = math.sqrt(a*a+b*b)
-    end
-    
+  if self.c and self.c > 0 then
     if self.defered_quest_scan then
       self.defered_quest_scan = false
       self:ScanQuestLog()

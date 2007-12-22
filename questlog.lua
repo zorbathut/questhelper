@@ -1,6 +1,7 @@
 function QuestHelper:GetQuestLogObjective(quest_index, objective_index)
   local text, category, done = GetQuestLogLeaderBoard(objective_index, quest_index)
   local _, _, wanted, have, need = string.find(text, "%s*(.+)%s*:%s*(.+)%s*/%s*(.+)%s*")
+  local verb
   if not need then
     have = 0
     need = 1
@@ -12,9 +13,19 @@ function QuestHelper:GetQuestLogObjective(quest_index, objective_index)
     local start = string.find(wanted, "%sslain$", -6)
     if start then
       wanted = string.sub(wanted, 1, start-1)
+      verb = "Slay"
+    else
+      start = string.find(wanted, "s%sCollected$", -11)
+      if start then
+        wanted = string.sub(wanted, 1, start-1)
+        verb = "Collect"
+      end
     end
+  elseif category == "item" then
+    verb = "Acquire"
   end
-  return category, wanted or text, tonumber(have) or have, tonumber(need) or need
+  
+  return category, verb or "<VERB>", wanted or text, tonumber(have) or have, tonumber(need) or need
 end
 
 function QuestHelper:GetQuestLevel(quest_name)
@@ -50,6 +61,36 @@ end
 function QuestHelper:ScanQuestLog()
   local quests = self.quest_log
   
+  local party_levels = self.party_levels
+  if not party_levels then
+    party_levels = {}
+    self.party_levels = party_levels
+  end
+  
+  party_levels[1] = UnitLevel("player")
+  
+  for n=1,4 do
+    party_levels[n+1] = UnitLevel("party"..n)
+    
+    if not party_levels[n+1] or party_levels[n+1] <= 0 then
+      local sum = 0
+      for m = 1,n do
+        sum = sum + party_levels[m]
+      end
+      party_levels[n+1] = sum/n*3/5
+    end
+  end
+  
+  table.sort(party_levels, function(a, b) return a > b end)
+  
+  for n = 5,1,-1 do
+    local sum = 0
+    for m = 1,n do
+      sum = sum + party_levels[m]
+    end
+    party_levels[n] = sum/n
+  end
+  
   for i, quest in pairs(quests) do
     -- Will set this to false if the player still has it.
     quest.removed = true
@@ -61,7 +102,9 @@ function QuestHelper:ScanQuestLog()
     
     if not title then break end
     
-    if not header then
+    players = math.min(5, math.max(1, (players and players ~= 0 and players) or (qtype ~= nil and 5) or 1))
+    
+    if not header and party_levels[math.min(5, math.max(1, players or (qtype and 5) or 1))]+3 >= level then
       SelectQuestLogEntry(index)
       local hash = self:HashString(select(2, GetQuestLogQuestText()))
       local quest = self:GetQuest(title, level, hash)
@@ -91,7 +134,7 @@ function QuestHelper:ScanQuestLog()
         for objective = 1, GetNumQuestLeaderBoards(index) do
           local lo = lq.goal[objective]
           if not lo then lo = {} lq.goal[objective] = lo end
-          local category, wanted, have, need = self:GetQuestLogObjective(index, objective)
+          local category, verb, wanted, have, need = self:GetQuestLogObjective(index, objective)
           
           if (category == "item" and wanted == " ") or
              (category == "monster" and wanted == "slain") then
@@ -108,13 +151,7 @@ function QuestHelper:ScanQuestLog()
               lo.objective.item = wanted
             end
             
-            if category == "monster" then
-              lo.reason = "Slay "..self:HighlightText(wanted).." for quest "..self:HighlightText(title).."."
-            elseif category == "item" then
-              lo.reason = "Acquire "..self:HighlightText(wanted).." for quest "..self:HighlightText(title).."."
-            else
-              lo.reason = "Complete objective "..self:HighlightText(wanted).." for quest "..self:HighlightText(title).."."
-            end
+            lo.reason = verb.." "..self:HighlightText(wanted).." for quest "..self:HighlightText(title).."."
             
             lo.category = category
             lo.wanted = wanted

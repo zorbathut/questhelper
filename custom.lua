@@ -189,7 +189,10 @@ local function slashHelper(command_string)
     local objective = QuestHelper:GetObjective(cat, what)
     
     if QuestHelper.user_objectives[objective] then
-      QuestHelper:TextOut("You've already created that objective.")
+      QuestHelper:TextOut("Removed: "..QuestHelper.user_objectives[objective])
+      QuestHelper:RemoveObjectiveWatch(objective, QuestHelper.user_objectives[objective])
+      QuestHelper.user_objectives[objective] = nil
+      return
     elseif objective:Known() then
       local name
       if cat == "loc" then

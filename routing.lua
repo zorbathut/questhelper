@@ -1,4 +1,4 @@
-local call_count = 0
+local call_count = -2000
 local function yieldIfNeeded()
   if call_count == 5 then
     call_count = 0
@@ -275,7 +275,7 @@ local function RouteUpdateRoutine(self)
         if o == obj then
           if i == 1 then
             if #route == 1 then
-              minimap_dodad:Hide()
+              minimap_dodad:SetObjective(nil)
             else
               minimap_dodad:SetObjective(route[2])
             end
@@ -295,7 +295,6 @@ local function RouteUpdateRoutine(self)
         
         if #route == 0 then
           insert, distance, extra = self:InsertObjectiveIntoRoute(route, distance, extra, obj)
-          minimap_dodad:Show()
           minimap_dodad:SetObjective(obj)
         else
           self:CalcObjectiveIJ(route, obj)
