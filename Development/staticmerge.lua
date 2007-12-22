@@ -1,4 +1,5 @@
 loadfile("../upgrade.lua")()
+loadfile("dump.lua")()
 loadfile("program.lua")()
 
 for _, file in ipairs(arg) do

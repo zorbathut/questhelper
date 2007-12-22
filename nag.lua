@@ -83,7 +83,7 @@ local function DropListUpdated(list, static)
     local monster_obj1 = QuestHelper:GetObjective("monster", name)
     local monster_obj2 = FindStaticObjective("monster", name)
     
-    local looted = math.ceil((monster_obj1.looted or 0)+(monster_obj2.looted or 0))
+    local looted = math.ceil((monster_obj1.looted or 0)+((monster_obj2 and monster_obj2.looted) or 0))
     if looted > 0 then
       v = math.max(1, math.floor(v))/looted
       if v > high*0.2 and not static[name] then return true end

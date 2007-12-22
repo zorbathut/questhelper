@@ -47,14 +47,13 @@ function GetQuest(locale, faction, level, name, hash)
   if not q then
     q = {}
     b[name] = q
-    q.finish = {}
     q.hash = hash
     q.alt = {}
   end
   
-  if hash and q.hash ~= hash then
+  if hash and hash ~= q.hash then
     if q.alt[hash] then
-      q = q.alt[hash]
+      return q.alt[hash]
     end
   end
   
@@ -66,11 +65,8 @@ function GetQuest(locale, faction, level, name, hash)
     -- If the old quest had a hash, but this one doesn't, we'll return a dummy object
     -- so that we don't overwrite it with the wrong quest data.
     q = {}
-    q.hash = hash
-    q.finish = {}
   elseif hash ~= q.hash then
     local q2 = {}
-    q2.finish = {}
     q2.hash = hash
     q.alt[hash] = q2
     q = q2
@@ -387,43 +383,6 @@ local function AddFlightRoute(locale, continent, start, destination, hash, data)
   end
 end
 
---[[local function AddZoneTransition(locale, continent, zone1, zone2, pos_list)
-  if type(continent) == "number" and
-     type(zone1) == "number" and
-     type(zone2) == "number" and
-     zone1 < zone2 and
-     type(pos_list) == "table" then
-    -- TODO: Doesn't need to be one per locale, is only numbers. Me thinks.
-    
-    local l = StaticData[locale]
-    if not l then
-      l = {}
-      StaticData[locale] = l
-    end
-    local continent_list = l.zone_transition
-    if not continent_list then
-      continent_list = {}
-      l.zone_transition = continent_list
-    end
-    local zone1_list = continent_list[continent]
-    if not zone1_list then
-      zone1_list = {}
-      continent_list[continent] = zone1_list
-    end
-    local zone2_list = zone1_list[zone1]
-    if not zone2_list then
-      zone2_list = {}
-      zone1_list[zone1] = zone2_list
-    end
-    local position_list = zone2_list[zone2]
-    if not position_list then
-      position_list = {}
-      zone2_list[zone2] = position_list
-    end
-    MergePositionLists(position_list, pos_list)
-  end
-end]]
-
 local function AddObjective(locale, category, name, objective)
   if type(category) == "string"
      and type(name) == "string"
@@ -442,8 +401,9 @@ local function AddObjective(locale, category, name, objective)
         o.looted = (o.looted or 0) + objective.looted
       end
       if type(objective.faction) == "string" then
-        -- TODO: Sanity checking for faction.
-        o.faction = objective.faction
+        if ValidFaction(objective.faction) then
+          o.faction = objective.faction
+        end
       end
     elseif category == "item" then
       if type(objective.vendor) == "table" then
@@ -487,49 +447,11 @@ local function CollapseQuest(locale, quest)
     end
   end
   
-  if quest.item then
-    for name, data in pairs(quest.item) do
-      local item_obj = GetObjective(locale, "item", name)
-      
-      if item_obj.drop or item_obj.pos then
-        -- Move the information out of the quest and into the item.
-        if data.drop then if not item_obj.drop then item_obj.drop = {} end MergeDropLists(item_obj.drop, data.drop) end
-        if data.pos then if not item_obj.pos then item_obj.pos = {} end MergePositionLists(item_obj.pos, data.pos) end
-        quest.item[name] = nil
-      else
-        if data.drop then TidyDropList(locale, data.drop) end
-        
-        local drop_score = data.drop and DropListMass(data.drop) or 0
-        local pos_score = data.pos and PositionListMass(data.pos) or 0
-        if drop_score > pos_score then
-          data.pos = nil
-        elseif pos_score > 0 then
-          data.drop = nil
-          TidyPositionList(data.pos)
-        else
-          quest.item[name] = nil
-        end
-      end
-    end
-    if not next(quest.item, nil) then
-      quest.item = nil
-    end
+  if quest.item and not next(quest.item) then
+    quest.item = nil
   end
   
-  if quest.alt then
-    for hash, q2 in pairs(quest.alt) do
-      if CollapseQuest(locale, q2) then
-        quest.alt[hash] = nil
-      end
-    end
-  end
-  
-  if not quest.alt or not next(quest.alt, nil) then
-    quest.alt = nil
-    quest.hash = nil
-  end
-  
-  return quest.pos == nil and quest.finish == nil
+  return quest.pos == nil and quest.finish == nil and quest.item == nil
 end
 
 local function CollapseObjective(locale, objective)
@@ -537,16 +459,26 @@ local function CollapseObjective(locale, objective)
   objective.quest = nil
   
   if objective.drop and not next(objective.drop, nil) then objective.drop = nil end
-  if objective.pos and not next(objective.pos, nil) then objective.pos = nil end
+  if objective.pos and #objective.pos == 0 then objective.pos = nil end
   if objective.vendor and not next(objective.vendor, nil) then objective.vendor = nil end
   
   if objective.drop then
-    TidyDropList(locale, objective.drop)
+    -- Can't call TidyDropList, it might create new Objectives that will get missed. We'll have called it before hand.
     
-    if objective.pos and PositionListMass(objective.pos) > DropListMass(objective.drop) then
+    if not next(objective.drop) or (objective.pos and PositionListMass(objective.pos) > DropListMass(objective.drop)) then
       objective.drop = nil
+      if objective.pos then
+        TidyPositionList(objective.pos)
+        if not next(objective.pos, nil) then
+          objective.pos = nil
+        end
+      end
     else
-      -- Don't need both.
+      objective.pos = nil
+    end
+  elseif objective.pos then
+    TidyPositionList(objective.pos)
+    if not next(objective.pos, nil) then
       objective.pos = nil
     end
   end
@@ -555,9 +487,11 @@ local function CollapseObjective(locale, objective)
     objective.looted = math.max(1, math.ceil(objective.looted))
   end
   
-  if objective.vendor then table.sort(objective.vendor) end
-  
-  if objective.pos then TidyPositionList(objective.pos) end
+  if not objective.vendor or not next(objective.vendor) then
+    objective.vendor = nil
+  else
+    table.sort(objective.vendor)
+  end
   
   return objective.drop == nil and objective.pos == nil and objective.vendor == nil
 end
@@ -629,158 +563,112 @@ function NewData()
         end end
       end end
     end end
-    
-    --if type(data.QuestHelper_ZoneTransition) == "table" then for continent, zone1_list in pairs(data.QuestHelper_ZoneTransition) do
-    --  if type(zone1_list) == "table" then for zone1, zone2_list in pairs(zone1_list) do
-    --    if type(zone2_list) == "table" then for zone2, pos_list in pairs(zone2_list) do
-    --      AddZoneTransition(locale, continent, zone1, zone2, pos_list)
-    --    end end
-    --  end end
-    --end end
   end
 end
 
-local function isArray(obj)
-  local c = 0
-  for i, j in pairs(obj) do c = c + 1 end
-  return c == #obj
+function QuestItemsAreSimilar(item, quest_list)
+  -- TODO: Write this function. Should make sure all the quests get item from the same place.
+  return #quest_list <= 1
 end
 
-local function isSafeString(obj)
-  return type(obj) == "string" and string.len(obj) > 0 and string.find(obj, "^[%a_][%a%d_]*$")
-end
-
-local function Dump(buffer, variable, depth, seen)
-  if type(variable) == "string" then
-    return buffer:add(("%q"):format(variable))
-  elseif type(variable) == "number" then
-    return buffer:add(tostring(variable+0))
-  elseif type(variable) == "nil" then
-    return buffer:add("nil")
-  elseif type(variable) == "boolean" then
-    return buffer:add(variable and "true" or "false")
-  elseif type(variable) == "table" then
-    if not seen then
-      seen = {}
-    elseif seen[variable] then
-      -- return "nil --[[ TABLE CONTAINS ITSELF! ]]"
+function RemoveQuestByData(data)
+  for locale, l in pairs(StaticData) do
+    for faction, levels in pairs(l.quest) do
+      for level, quest_list in pairs(levels) do
+        for quest, quest_data in pairs(quest_list) do
+          if data == quest_data then
+            if quest_data.alt then
+              local alt = quest_data.alt
+              local hash = next(alt, nil)
+              local quest_data2 = alt[hash]
+              alt[hash] = nil
+              quest_list[quest] = quest_data2
+              if next(alt, nil) then
+                quest_data2.alt = alt
+                quest_data2.hash = hash
+              end
+            else
+              quest_list[quest] = nil
+            end
+          elseif quest_data.alt then
+            for hash, quest_data2 in pairs(quest_data.alt) do
+              if data == quest_data2 then
+                quest_data.alt[hash] = nil
+                break
+              end
+            end
+            if not next(quest_data.alt) then
+              quest_data.alt = nil
+              quest_data.hash = nil
+            end
+          end
+        end
+        if not next(levels[level], nil) then levels[level] = nil end
+      end
+      if not next(l.quest[faction], nil) then l.quest[faction] = nil end
     end
-    seen[variable] = true
-    if not depth then depth = 1 end
-    buffer:add("{")
-    
-    if isArray(variable) then
-      for i, j in ipairs(variable) do
-        Dump(buffer, j, depth+1, seen)
-        if next(variable,i) then
-          buffer:add(","..(type(variable[i+1])=="table"and"\n"..("  "):rep(depth) or " "))
-        end
-      end
-    else
-      local sort_table = {}
-      
-      for key in pairs(variable) do
-        table.insert(sort_table, key)
-      end
-      
-      table.sort(sort_table, function (a, b)
-        if type(a) < type(b) then return true end
-        return type(a) == type(b) and (tostring(a) or "") < (tostring(b) or "")
-      end)
-      
-      for index, i in ipairs(sort_table) do
-        local j = variable[i]
-        
-        if isSafeString(i) then
-          buffer:add(i.."=")
-        else
-          buffer:add("[")
-          Dump(buffer, i, depth+1, seen)
-          buffer:add("]=")
-        end
-        
-        buffer:add((type(j)=="table"and"\n"..("  "):rep(depth+1) or ""))
-        
-        Dump(buffer, j, depth+1, seen)
-        
-        if index~=#sort_table then
-          buffer:add(",\n"..("  "):rep(depth))
-        end
-      end
-    end
-    buffer:add("}")
-    seen[variable] = nil
-  else
-    return buffer:add("nil --[[ UNHANDLED TYPE: '"..type(variable).."' ]]")
   end
 end
 
 function Finished()
   for locale, l in pairs(StaticData) do
+    local quest_item_mass = {}
+    local quest_item_quests = {}
+    
+    local function WatchQuestItems(quest)
+      if quest.finish then GetObjective(locale, "monster", quest.finish).quest = true end
+      
+      if quest.item then
+        for item, data in pairs(quest.item) do
+          quest_item_mass[item] = (quest_item_mass[item] or 0)+
+                                  (data.drop and DropListMass(data.drop) or 0)+
+                                  (data.pos and PositionListMass(data.pos) or 0)
+          
+          quest_item_quests[item] = quest_item_quests[item] or {}
+          table.insert(quest_item_quests[item], quest)
+        end
+      end
+    end
+    
     for faction, levels in pairs(l.quest) do
       local delete_faction = true
       for level, quest_list in pairs(levels) do
         local delete_level = true
         for quest, quest_data in pairs(quest_list) do
+          if quest_data.alt then
+            for hash, quest_data2 in pairs(quest_data.alt) do
+              if CollapseQuest(locale, quest_data2) then
+                quest_data.alt[hash] = nil
+              else
+                quest_data2.hash = nil
+                WatchQuestItems(quest_data2)
+              end
+            end
+            
+            if not next(quest_data.alt, nil) then
+              quest_data.alt = nil
+              quest_data.hash = nil
+            end
+          end
+          
           if CollapseQuest(locale, quest_data) then
             if quest_data.alt then
-              -- If there are alternate quests, don't throw them away.
               local alt = quest_data.alt
               local hash = next(alt, nil)
-              quest_list[quest] = alt[hash]
+              local quest_data2 = alt[hash]
               alt[hash] = nil
+              quest_list[quest] = quest_data2
               if next(alt, nil) then
-                quest_list[quest].hash = hash
+                quest_data2.alt = alt
+                quest_data2.hash = hash
               end
+              
+              delete_level = false
             else
               quest_list[quest] = nil
             end
           else
-            if quest_data.finish then
-              GetObjective(locale, "monster", quest_data.finish).quest = true
-            end
-            if quest_data.item then
-              for item, data in pairs(quest_data.item) do
-                item_data = GetObjective(locale, "item", item)
-                item_data.quest = true
-                
-                local item_score = (item_data.drop and DropListMass(item_data.drop) or 0)+
-                                   (item_data.pos and PositionListMass(item_data.pos) or 0)
-                
-                local quest_score = (data.drop and DropListMass(data.drop) or 0)+
-                                    (data.pos and PositionListMass(data.pos) or 0)
-                
-                if item_score > quest_score then
-                  if item_data.drop or data.drop then
-                    if data.drop then
-                      if not item_data.drop then item_data.drop = {} end
-                      MergeDropLists(item_data.drop, data.drop)
-                      item_data.pos = nil
-                    end
-                  elseif item_data.pos or data.pos then
-                    if data.pos then
-                      if not item_data.pos then item_data.pos = {} end
-                      MergePositionLists(item_data.pos, data.pos)
-                    end
-                  end
-                  
-                  quest_data.item[item] = nil
-                else
-                   item_data.drop = nil
-                   item_data.pos = nil
-                   
-                   if data.drop then
-                    for monster, count in pairs(data.drop) do
-                      GetObjective(locale, "monster", monster).quest = true
-                    end
-                  end
-                end
-              end
-              
-              if not next(quest_data.item, nil) then
-                quest_data.item = nil
-              end
-            end
+            WatchQuestItems(quest_data)
             delete_level = false
           end
         end
@@ -797,20 +685,119 @@ function Finished()
       end
     end
     
+    for item, quest_list in pairs(quest_item_quests) do
+      -- If all the items are similar, then we don't want quest item entries for them,
+      -- we want to use the gobal item objective instead.
+      if QuestItemsAreSimilar(item, quest_list) then
+        quest_item_mass[item] = 0
+      end
+    end
+    
+    -- Will go through the items and either delete them, or merge the quest items into them, and then
+    -- mark the relevent monsters as being quest objectives.
     if l.objective["item"] then 
-      for name, objective in pairs(l.objective["item"]) do if objective.quest then
+      for name, objective in pairs(l.objective["item"]) do
         -- If this is a quest item, mark anything that drops it as being a quest monster.
-        if objective.drop then
-          for monster, count in pairs(objective.drop) do
-            GetObjective(locale, "monster", monster).quest = true
+        local quest_mass = quest_item_mass[name] or 0
+        
+        if objective.vendor and next(objective.vendor, nil) then
+          quest_mass = 0 -- If the item can be bought, then it shouldn't be quest specific.
+        end
+        
+        local item_mass = (objective.pos and PositionListMass(objective.pos) or 0)+
+                          (objective.drop and DropListMass(objective.drop) or 0)
+        
+        if quest_mass > item_mass then
+          -- Delete this item, we'll deal with the the quests using the items after.
+          l.objective["item"][name] = nil
+        else
+          if quest_item_quests[name] then
+            for i, quest_data in pairs(quest_item_quests[name]) do
+              local quest_item = quest_data.item and quest_data.item[name]
+              if quest_item then
+                if quest_item.drop then
+                  if not objective.drop then objective.drop = {} end
+                  MergeDropLists(objective.drop, quest_item.drop)
+                end
+                
+                if quest_item.pos then
+                  if not objective.pos then objective.pos = {} end
+                  MergePositionLists(objective.pos, quest_item.pos)
+                end
+                
+                quest_data.item[name] = nil
+                if not next(quest_data.item, nil) then
+                  quest_data.item = nil
+                  
+                  if not quest_data.finish and not quest_data.pos then
+                    RemoveQuestByData(quest_data)
+                  end
+                end
+              end
+            end
+            
+            quest_item_quests[name] = nil
+            objective.quest = true
+          end
+          
+          if objective.quest then
+            if objective.drop then
+              TidyDropList(locale, objective.drop)
+              for monster, count in pairs(objective.drop) do
+                GetObjective(locale, "monster", monster).quest = true
+              end
+            end
+            
+            if objective.vendor then
+              for i, npc in ipairs(objective.vendor) do
+                GetObjective(locale, "monster", npc).quest = true
+              end
+            end
           end
         end
-        if objective.vendor then
-          for i, npc in ipairs(objective.vendor) do
-            GetObjective(locale, "monster", npc).quest = true
+      end
+    end
+    
+    -- For any quest items that didn't get handled above, we'll clean them up and leave them be.
+    for item, quest_list in pairs(quest_item_quests) do
+      for _, quest_data in ipairs(quest_list) do
+        -- Item should already exist in quest, not going to check.
+        local item_data = quest_data.item[item]
+        
+        local pos_mass = 0
+        if item_data.pos then
+          pos_mass = PositionListMass(item_data.pos)
+          TidyPositionList(item_data.pos)
+        end
+        
+        local drop_mass = 0
+        if item_data.drop then
+          drop_mass = DropListMass(item_data.drop)
+          TidyDropList(locale, item_data.drop)
+        end
+        
+        if drop_mass > pos_mass then
+          item_data.pos = nil
+          if item_data.drop then
+            for monster, count in pairs(item_data.drop) do
+              GetObjective(locale, "monster", monster).quest = true
+            end
+          end
+        else
+          item_data.drop = nil
+        end
+        
+        if not item_data.pos and not item_data.drop then
+          quest_data.item[item] = nil
+          if not next(quest_data.item, nil) then
+            quest_data.item = nil
+            
+            if not quest_data.finish and not quest_data.pos then
+              RemoveQuestByData(quest_data)
+            end
           end
         end
-      end end
+      end
     end
     
     for category, objectives in pairs(l.objective) do
@@ -854,35 +841,10 @@ function Finished()
         l.flight_routes[cont] = nil
       end
     end
-    
-    --if l.zone_transition then for continent, zone1_list in pairs(l.zone_transition) do
-    --  for zone1, zone2_list in pairs(zone1_list) do
-    --    for zone2, pos_list in pairs(zone2_list) do
-    --      TidyPositionList(pos_list, 0.35)
-    --    end
-    --  end
-    --end end
   end
   
-  local buffer =
-   {
-    add=function(self, text)
-      table.insert(self, text)
-      for i=#self-1, 1, -1 do
-        if string.len(self[i]) > string.len(self[i+1]) then break end
-        self[i] = self[i]..table.remove(self,i+1)
-      end
-    end,
-    dump = function(self)
-      for i=#self-1, 1, -1 do
-        self[i] = self[i]..table.remove(self)
-      end
-      return self[1]
-    end
-   }
-  
-  Dump(buffer, StaticData)
-  
-  print("QuestHelper_StaticData="..buffer:dump())
+  print("QuestHelper_StaticData="..DumpVariable(StaticData))
+  AllDumpsComplete()
   print("\n-- END OF FILE --\n")
 end
+

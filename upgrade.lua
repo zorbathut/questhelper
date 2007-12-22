@@ -177,7 +177,7 @@ function QuestHelper_UpgradeDatabase(data)
   
   if data.QuestHelper_SaveVersion == 4 then
     -- Zone transitions have been obsoleted by a bug.
-    data.QuestHelper_ZoneTransition = {}
+    data.QuestHelper_ZoneTransition = nil
     data.QuestHelper_SaveVersion = 5
   end
 end
