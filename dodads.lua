@@ -264,16 +264,13 @@ function QuestHelper:GetOverlapObjectives(obj)
   local w, h = WorldMapDetailFrame:GetWidth(), WorldMapDetailFrame:GetHeight()
   local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
   
-  local count = 0
   local list = self.overlap_list
   
   if not list then
     list = {}
     self.overlap_list = list
   else
-    while next(list) do
-      list[next(list)] = nil
-    end
+    while table.remove(list) do end
   end
   
   local cx, cy = GetCursorPosition()
@@ -283,10 +280,24 @@ function QuestHelper:GetOverlapObjectives(obj)
   
   cx, cy = (cx-WorldMapDetailFrame:GetLeft()*es)*ies, (WorldMapDetailFrame:GetTop()*es-cy)*ies
   
+  if self.limbo_node then
+    local o = self.limbo_node
+    local x, y = o.pos[3], o.pos[4]
+    x, y = x / self.continent_scales_x[o.pos[1].c], y / self.continent_scales_y[o.pos[1].c]
+    x, y = self.Astrolabe:TranslateWorldMapPosition(o.pos[1].c, 0, x, y, c, z)
+    
+    if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
+      x, y = x*w, y*h
+      
+      if cx >= x-10 and cy >= y-10 and cx <= x+10 and cy <= y+10 then
+        table.insert(list, o)
+      end
+    end
+  end
+  
   for i, o in ipairs(self.route) do
     if o == obj then
-      list[i] = o
-      count = count + 1
+      table.insert(list, o)
     else
       local x, y = o.pos[3], o.pos[4]
       x, y = x / self.continent_scales_x[o.pos[1].c], y / self.continent_scales_y[o.pos[1].c]
@@ -296,14 +307,15 @@ function QuestHelper:GetOverlapObjectives(obj)
         x, y = x*w, y*h
         
         if cx >= x-10 and cy >= y-10 and cx <= x+10 and cy <= y+10 then
-          list[i] = o
-          count = count + 1
+          table.insert(list, o)
         end
       end
     end
   end
   
-  return list, count
+  table.sort(list, function(a, b) return (a.travel_time or 0) < (b.travel_time or 0) end)
+  
+  return list
 end
 
 function QuestHelper:CreateWorldMapDodad(objective, index)
@@ -312,6 +324,30 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   icon:SetWidth(20)
   
   icon:SetFrameStrata("FULLSCREEN_DIALOG")
+  
+  function icon:SetTooltip(list)
+    QuestHelper.tooltip:SetOwner(self, "ANCHOR_CURSOR")
+    QuestHelper.tooltip:ClearLines()
+    
+    local first = true
+    
+    for i, o in ipairs(list) do
+      if first then
+        first = false
+      else
+        QuestHelper.tooltip:AddLine("|c80ff0000  .  .  .  .  .  .|r")
+        QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\ARIALN.TTF", 8)
+      end
+      
+      QuestHelper.tooltip:AddLine(o:Reason())
+      QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\FRIZQT__.TTF", 14)
+      QuestHelper.tooltip:AddDoubleLine("Estimated travel time: ", QuestHelper:TimeString(o.travel_time or 0))
+      QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\ARIALN.TTF", 11)
+      select(2, QuestHelper.tooltip:GetPrevLines()):SetFont("Fonts\\ARIALN.TTF", 11)
+    end
+    
+    QuestHelper.tooltip:Show()
+  end
   
   function icon:SetObjective(objective, i)
     if self.dot then
@@ -352,9 +388,18 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   icon.glow_pct = 0.0
   icon.glow_list = {}
   icon.phase = 0.0
+  icon.old_count = 0
   
   function icon:OnUpdate(elapsed)
     self.phase = (self.phase + elapsed)%6.283185307179586476925286766559005768394338798750211641949889185
+    
+    if self.old_count > 0 then
+      local list = QuestHelper:GetOverlapObjectives(self.objective)
+      if #list ~= self.old_count then
+        self:SetTooltip(list)
+        self.old_count = #list
+      end
+    end
     
     if self.show_glow then
       self.glow_pct = math.min(1, self.glow_pct+elapsed*1.5)
@@ -380,30 +425,9 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   end
   
   function icon:OnEnter()
-    QuestHelper.tooltip:SetOwner(self, "ANCHOR_CURSOR")
-    QuestHelper.tooltip:ClearLines()
-    
-    local first = true
-    
     local list = QuestHelper:GetOverlapObjectives(self.objective)
-    
-    for i, o in pairs(list) do
-      if first then
-        first = false
-      else
-        QuestHelper.tooltip:AddLine("|c80ff0000  .  .  .  .  .  .|r")
-        QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\ARIALN.TTF", 8)
-      end
-      
-      QuestHelper.tooltip:AddLine(o:Reason())
-      QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\FRIZQT__.TTF", 14)
-      QuestHelper.tooltip:AddDoubleLine("Estimated travel time: ", QuestHelper:TimeString(o.travel_time or 0))
-      QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\ARIALN.TTF", 11)
-      select(2, QuestHelper.tooltip:GetPrevLines()):SetFont("Fonts\\ARIALN.TTF", 11)
-    end
-    
-    --QuestHelper.tooltip:SetText(text)
-    QuestHelper.tooltip:Show()
+    self:SetTooltip(list)
+    self.old_count = #list
     
     icon.show_glow = true
     
@@ -415,8 +439,6 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
     
     x_size = math.max(25, 200 / x_size * w)
     y_size = math.max(25, 200 / y_size * h)
-    
-    
     
     for _, list in pairs(self.objective.p) do
       for _, p in ipairs(list) do
@@ -451,6 +473,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   function icon:OnLeave()
     QuestHelper.tooltip:Hide()
     self.show_glow = false
+    self.old_count = 0
   end
   
   function icon:OnEvent(event)
@@ -464,13 +487,13 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   function icon:OnClick()
     if self.objective then
       local menu = QuestHelper:CreateMenu()
-      local list, count = QuestHelper:GetOverlapObjectives(self.objective)
+      local list = QuestHelper:GetOverlapObjectives(self.objective)
       local item
       
-      if count > 1 then
+      if #list > 1 then
         QuestHelper:CreateMenuTitle(menu, "Objectives")
         
-        for i, o in pairs(list) do
+        for i, o in ipairs(list) do
           local submenu = QuestHelper:CreateMenu()
           item = QuestHelper:CreateMenuItem(menu, o:Reason(true))
           item:SetSubmenu(submenu)
@@ -544,7 +567,8 @@ function QuestHelper:CreateMipmapDodad()
   icon.bg:SetAllPoints()
   
   function icon:NextObjective()
-    if not QuestHelper.route_sane then
+    if QuestHelper.route_limbo_objective then
+      -- If an objective is in limbo, don't try to figure out the next objective, because the node in limbo isn't it.
       return self.objective
     end
     

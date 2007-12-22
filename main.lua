@@ -490,7 +490,7 @@ function QuestHelper:OnEvent(event)
       
       if altered then
         self:TextOut("The flight routes for your character have been altered. Will recalculate world pathing information.")
-        self.defered_graph_update = true
+        self:ResetPathing()
       end
     end
   end
@@ -499,11 +499,6 @@ end
 local map_shown_decay = 0
 
 function QuestHelper:OnUpdate()
-  if self.defered_graph_update and self.route_sane then
-    self:ResetPathing()
-    self.defered_graph_update = false
-  end
-  
   if self.Astrolabe.WorldMapVisible then
     -- We won't trust that the zone returned by Astrolabe is correct until map_shown_decay is 0.
     map_shown_decay = 2
@@ -537,37 +532,6 @@ function QuestHelper:OnUpdate()
     if UnitOnTaxi("player") then
       self.was_flying = true
     end
-    --[[elseif nc > 0 and nz > 0 then
-      if nc == self.c and nz ~= self.z and nz > 0 and self.z > 0 and
-         nx > -0.1 and ny > -0.1 and nx < 1.1 and ny < 1.1 and
-         self.x > -0.1 and self.y > -0.1 and self.x < 1.1 and self.y < 1.1 then
-        -- Changed zones!
-        local distance = self.Astrolabe:ComputeDistance(self.c, self.z, self.x, self.y, nc, nz, nx, ny)
-        if distance and distance < 5 then
-          local cont = QuestHelper_ZoneTransition[nc]
-          if not cont then
-            cont = {}
-            QuestHelper_ZoneTransition[nc] = cont
-          end
-          if nz > self.z then
-            local from = cont[self.z]
-            if not from then from = {} cont[self.z] = from end
-            local to = from[nz]
-            if not to then to = {} from[nz] = to end
-            self:AppendPosition(to, self.c, self.z, self.x, self.y, 1, 500.0)
-          else
-            local from = cont[nz]
-            if not from then from = {} cont[nz] = from end
-            local to = from[self.z]
-            if not to then to = {} from[self.z] = to end
-            self:AppendPosition(to, nc, nz, nx, ny, 1, 500.0)
-          end
-          
-          self:TextOut("Zone connection altered; "..self:LocationString(self.c, self.z, self.x, self.y).." to "..self:LocationString(nc, nz, nx, ny).."; distance="..distance.." Will recalculate world pathing information.")
-          self.defered_graph_update = true
-        end
-      end
-    end]]
     
     if nc > 0 and nz > 0 then
       self.c, self.z, self.x, self.y = nc or self.c, nz or self.z, nx or self.x, ny or self.y
@@ -593,8 +557,6 @@ function QuestHelper:OnUpdate()
       if not state then self:TextOut("|cffff0000The routing co-routine just exploded|r: |cffffff77"..err.."|r") end
     end
   end
-  
-  self:GetOverlapObjectives()
 end
 
 QuestHelper:RegisterEvent("VARIABLES_LOADED")
