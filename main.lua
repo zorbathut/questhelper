@@ -6,7 +6,7 @@ end
 local frame = CreateFrame("Frame", "QuestHelper", UIParent)
 local Astrolabe = DongleStub("Astrolabe-0.4")
 
-QuestHelper_SaveVersion = 2
+QuestHelper_SaveVersion = 3
 QuestHelper_Locale = GetLocale()
 QuestHelper_Quests = {}
 QuestHelper_Objectives = {}
@@ -113,35 +113,25 @@ local function CreateWorldMapWalker(frame)
   
   walker.phase = 0.0
   walker.dots = {}
-  for i = 1,10 do
-    local dot = walker:CreateTexture()
-    dot:SetTexture("Interface\\Minimap\\ObjectIcons")
-    dot:SetTexCoord(0.280, 0.35, 0.09, 0.36)
-    dot:SetVertexColor(0,0,0)
-    dot:SetWidth(4)
-    dot:SetHeight(4)
-    walker.dots[i] = dot
-  end
   
   function walker:OnUpdate(elapsed)
-    self.phase = self.phase + elapsed * 0.3
+    self.phase = self.phase + elapsed
     while self.phase > 1 do self.phase = self.phase - 1 end
     
     local w, h = WorldMapDetailFrame:GetWidth(), -WorldMapDetailFrame:GetHeight()
     
-    while #self.dots < frame.route_size do
-      local dot = walker:CreateTexture()
-      dot:SetTexture("Interface\\Minimap\\ObjectIcons")
-      dot:SetTexCoord(0.280, 0.35, 0.09, 0.36)
-      dot:SetVertexColor(0,0,0)
-      dot:SetWidth(4)
-      dot:SetHeight(4)
-      table.insert(self.dots, dot)
-    end
-    
-    for i = 1,frame.route_size do
+    for i = 1,frame.route_size*4+1 do
       local dot = self.dots[i]
-      local x, y = frame:CalcWorldMapPosition(i+self.phase-1)
+      if not dot then
+        dot = self:CreateTexture()
+        dot:SetTexture("Interface\\Minimap\\ObjectIcons")
+        dot:SetTexCoord(0.280, 0.35, 0.09, 0.36)
+        dot:SetVertexColor(1,0,0,0.5)
+        dot:SetWidth(4)
+        dot:SetHeight(4)
+        self.dots[i] = dot
+      end
+      local x, y = frame:CalcWorldMapPosition((i-1)/4+self.phase/4)
       if x and x > 0 and y > 0 and x < 1 and y < 1 then 
           dot:ClearAllPoints()
           dot:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x*w, y*h)
@@ -151,7 +141,7 @@ local function CreateWorldMapWalker(frame)
       end
     end
     
-    for i = frame.route_size+1,#self.dots do
+    for i = #self.dots,frame.route_size*4+1 do
       self.dots[i]:Hide()
     end
   end
@@ -352,6 +342,58 @@ local function HashString(text)
   return b*65536+a
 end
 
+local function PurgeItemFromQuest(quest, item_name, item_object)
+  if quest.alt then
+    for hash, alt_quest in pairs(quest.alt) do
+      PurgeItemFromQuest(alt_quest, item_name, item_object)
+    end
+  end
+  
+  if quest.item then
+    local item_data = quest.item[item_name]
+    if item_data then
+      TextOut("Found a reference to it in a quest.")
+      quest.item[item_name] = nil
+      if not next(quest.item) then quest.item = nil end
+      
+      if item_data.pos then
+        for i, pos in ipairs(item_data.pos) do
+          AppendObjectivePosition(item_object, unpack(pos))
+        end
+      elseif item_data.drop then
+        for monster, count in pairs(item_data.drop) do
+          AppendObjectiveDrop(item_object, monster, count)
+        end
+      end
+      
+      -- In addition, we now know that we can use that old data.
+      
+      if item_object.bad_pos then
+        for i, pos in ipairs(item_object.bad_pos) do
+          AppendObjectivePosition(item_object, unpack(pos))
+        end
+        item_object.bad_pos = nil
+      elseif item_object.bad_drop then
+        for monster, count in pairs(item_object.bad_drop) do
+          AppendObjectiveDrop(item_object, monster, count)
+        end
+        item_object.bad_drop = nil
+      end
+    end
+  end
+end
+
+local function PurgeQuestItem(item_name, item_object)
+  TextOut("PurgeQuestItem invoked for item '"..item_name.."'.")
+  for faction, level_list in pairs(QuestHelper_QuestObjects) do
+    for level, quest_list in pairs(level_list) do
+      for quest_name, quest in pairs(quest_list) do
+        PurgeItemFromQuest(quest, item_name, item_object)
+      end
+    end
+  end
+end
+
 local function NewEmptyObjectiveObject()
   return {before={},after={},pos={0,0,0,0},sop={0,0,0,0}}
 end
@@ -477,6 +519,10 @@ local function ObjectiveIsKnown(objective)
     end
   end
   
+  if objective.Known then
+    return objective:Known()
+  end
+  
   -- If returns true if we know where to go to complete the objective.
   if (objective.o.finish and ObjectiveIsKnown(GetObjectiveObject("monster", objective.o.finish))) or
      (objective.fb.finish and objective.fb.finish ~= objective.o.finish
@@ -513,6 +559,10 @@ local function GetObjectiveDistance(objective, c, z, x, y)
   end
   
   local distance, oc, oz, ox, oy = nil, 0, 0, 0, 0
+  
+  if objective.Distance then
+    return objective:Distance(c, z, x, y)
+  end
   
   if objective.o.vendor or objective.fb.vendor then
     local faction = UnitFactionGroup("player")
@@ -626,6 +676,10 @@ local function GetObjectiveDistance2(objective, c1, z1, x1, y1, c2, z2, x2, y2)
     return GetObjectiveDistance2(GetObjectiveObject("monster", objective.o.finish), c1, z1, x1, y1, c2, z2, x2, y2)
   elseif objective.fb.finish then
     return GetObjectiveDistance2(GetObjectiveObject("monster", objective.fb.finish), c1, z1, x1, y1, c2, z2, x2, y2)
+  end
+  
+  if objective.Distance2 then
+    return objective:Distance2()
   end
   
   local distance, oc, oz, ox, oy = nil, 0, 0, 0, 0
@@ -862,6 +916,10 @@ function frame:BestInsertPositionSOP(array, size, distance, extra, objective)
 end
 
 GetObjectiveReason = function(objective)
+  if objective.Reason then
+    return objective:Reason()
+  end
+  
   local text = nil
   if objective.reasons then
     for reason, count in pairs(objective.reasons) do
@@ -1000,51 +1058,93 @@ function frame:RemoveObjectiveWatch(objective, reason)
   end
 end
 
-local function AppendObjectivePosition(objective, c, z, x, y)
+local function AppendPosition(list, c, z, x, y, w)
   if not c or (c == 0 and z == 0) or x == 0 or y == 0 then
     return -- This isn't a real position.
   end
   
-  if objective.o.drop then
-    return -- If we know it comes from a monster, then don't record a location for it.
-  end
-  
-  if not objective.o.pos then
-    -- Never recorded a position before, create a new table and return.
-    objective.o.pos = {{c, z, x, y, 1}}
-    return
-  end
-  
   local closest, distance = nil, 0
-  for i, pos in ipairs(objective.o.pos) do
+  for i, pos in ipairs(list) do
     if c == pos[1] and z == pos[2] then
       local d = Astrolabe:ComputeDistance(c, z, x, y, pos[1], pos[2], pos[3], pos[4])
       if not closest or d < distance then
-        closest = i
-        distance = d
+        closest, distance = i, d
       end
     end
   end
   if closest and distance < 200.0 then
-    local pos = objective.o.pos[closest]
-    pos[3] = (pos[3]*pos[5]+x)/(pos[5]+1)
-    pos[4] = (pos[4]*pos[5]+y)/(pos[5]+1)
-    pos[5] = pos[5]+1
+    local pos = list[closest]
+    w = w or 1
+    pos[3] = (pos[3]*pos[5]+x*w)/(pos[5]+w)
+    pos[4] = (pos[4]*pos[5]+y*w)/(pos[5]+w)
+    pos[5] = pos[5]+w
   else
-    table.insert(objective.o.pos, {c, z, x, y, 1})
+    table.insert(list, {c, z, x, y, w or 1})
+  end
+  return list
+end
+
+local function AppendObjectivePosition(objective, c, z, x, y, w)
+  local pos = objective.o.pos
+  if not pos then
+    if objective.o.drop then
+      return -- If it's dropped by a monster, don't record the position we got the item at.
+    end
+    objective.o.pos = AppendPosition({}, c, z, x, y, w)
+  else
+    AppendPosition(pos, c, z, x, y, w)
+  end
+end
+
+local function AppendQuestPosition(quest, item_name, c, z, x, y, w)
+  local item_list = quest.o.item
+  if not item_list then
+    item_list = {}
+    quest.o.item = item_list
+  end
+  local item = item_list[item_name]
+  if not item then
+    item = {}
+    item_list[item_name] = item
+  end
+  local pos = item.pos
+  if not pos then
+    if item.drop then
+      return -- If it's dropped by a monster, don't record the position we got the item at.
+    end
+    item.pos = AppendPosition({}, c, z, x, y, w)
+  else
+    AppendPosition(pos, c, z, x, y, w)
   end
 end
 
 local function AppendObjectiveDrop(objective, monster, count)
-  if not count then count = 1 end
-  if objective.o.pos then
-    objective.o.pos = nil -- Don't record positions of things that come from monsters. We'll use the monster positions instead.
-  end
   if not objective.o.drop then
-    objective.o.drop = {[monster] = count}
+    objective.o.drop = {[monster] = count or 1}
+    objective.o.pos = nil
   else
-    objective.o.drop[monster] = (objective.o.drop[monster] or 0) + count
+    objective.o.drop[monster] = (objective.o.drop[monster] or 0) + (count or 1)
   end
+end
+
+local function AppendQuestDrop(quest, item_name, monster_name, count)
+  local item_list = quest.o.item
+  if not item_list then
+    item_list = {}
+    quest.o.item = item_list
+  end
+  local item = item_list[item_name]
+  if not item then
+    item = {}
+    item_list[item_name] = item
+  end
+  local drop = item.drop
+  if not drop then
+    drop = {}
+    item.drop = drop
+    item.pos = nil -- If we know monsters drop the item, don't record the position we got the item at.
+  end
+  drop[monster_name] = (drop[monster_name] or 0) + count
 end
 
 local function GetObjective(quest, objective)
@@ -1073,7 +1173,7 @@ local function GetQuestLevel(quest)
     if not title then return 0 end
     if title == quest then
       SelectQuestLogEntry(index)
-      return level, HashString(GetQuestLogQuestText())
+      return level, HashString(select(2, GetQuestLogQuestText()))
     end
     index = index + 1
   end
@@ -1084,6 +1184,49 @@ local function ObjectiveObjectDependsOn(objective, needs)
   objective.after[needs] = true
   needs.before[objective] = true
 end
+
+function frame:ItemIsForQuest(item_object, item_name)
+  if not item_object.o.quest then
+    return nil
+  end
+  for quest, lq in pairs(self.quest_log) do
+    if lq.goal then
+      for i, lo in ipairs(lq.goal) do
+        if lo.category == "item" and lo.wanted == item_name then
+          return quest
+        end
+      end
+    end
+  end
+  return nil
+end
+
+function frame:AppendItemDrop(item_object, item_name, monster_name, count)
+  TextOut("AppendItemDrop invoked.")
+  local quest = self:ItemIsForQuest(item_object, item_name)
+  if quest then
+    AppendQuestDrop(quest, item_name, monster_name, count)
+  else
+    if not item_object.o.drop and not item_object.pos then
+      PurgeQuestItem(item_object, item_name)
+    end
+    AppendObjectiveDrop(item_object, monster_name, count)
+  end
+end
+
+function frame:AppendItemPosition(item_object, item_name, c, z, x, y)
+  local quest = self:ItemIsForQuest(item_object, item_name)
+  if quest then
+    AppendQuestPosition(quest, item_name, c, z, x, y)
+  else
+    if not item_object.o.drop and not item_object.pos then
+      -- Just learned that this item doesn't depend on a quest to drop, remove any quest references to it.
+      PurgeQuestItem(item_object, item_name)
+    end
+    AppendObjectivePosition(item_object, c, z, x, y)
+  end
+end
+
 
 function frame:ScanQuestLog()
   local quests = self.quest_log
@@ -1101,10 +1244,15 @@ function frame:ScanQuestLog()
     
     if not header then
       SelectQuestLogEntry(index)
-      local hash = HashString(GetQuestLogQuestText())
+      local hash = HashString(select(2, GetQuestLogQuestText()))
       local quest = GetQuestObject(title, level, hash)
       local lq = quests[quest]
       local is_new = false
+      
+      if self.quest_giver and self.quest_giver[title] then
+        quest.o.start = self.quest_giver[title]
+        self.quest_giver[title] = nil
+      end
       
       if not lq then
         lq = {}
@@ -1131,11 +1279,9 @@ function frame:ScanQuestLog()
           elseif not lo.objective then
             -- objective is new.
             lo.objective = GetObjectiveObject(category, wanted)
-            lo.objective.quest = true -- If I ever decide to prune the DB, I'll have the stuff actually used in quests marked.
+            lo.objective.o.quest = true -- If I ever decide to prune the DB, I'll have the stuff actually used in quests marked.
             ObjectiveObjectDependsOn(quest, lo.objective)
             
-            -- TODO: Possible bug: Sometimes 'wanted' ends up being a space. Yet when I reload, its the correct value.
-            -- Maybe an item isn't in the local cache and I should try again later after its loaded?
             
             if category == "monster" then
               lo.reason = "Slay |cffffff77"..wanted.."|r for quest |cffffff77"..title.."|r."
@@ -1145,16 +1291,21 @@ function frame:ScanQuestLog()
               lo.reason = "Complete objective |cffffff77"..wanted.."|r for quest |cffffff77"..title.."|r."
             end
             
+            lo.category = category
+            lo.wanted = wanted
             lo.have = have
             lo.need = need
             if have ~= need then -- If the objective isn't complete, watch it.
               self:AddObjectiveWatch(lo.objective, lo.reason)
             end
           elseif lo.have ~= have then
-            if type(lo.have) == "string" or lo.have > have then
-              AppendObjectivePosition(lo.objective, self:GetBestKnownPlayerPosition())
+            if have == need or (type(have) == "number" and have > lo.have) then
+              if category == "item" then
+                self:AppendItemPosition(lo.objective, wanted, self:GetBestKnownPlayerPosition())
+              else
+                AppendObjectivePosition(lo.objective, self:GetBestKnownPlayerPosition())
+              end
             end
-            
             if lo.have == need then -- The objective was done, but now its not.
               self:AddObjectiveWatch(lo.objective, lo.reason)
             elseif have == need then -- The objective is now finished.
@@ -1191,7 +1342,7 @@ function frame:ScanQuestLog()
 end
 
 function frame:OnEvent(event)
-  -- TextOut(event..":"..(arg1 or "nil").."|"..(arg2 or "nil").."|"..(arg3 or "nil").."|"..(arg4 or "nil"))
+  TextOut(event..":"..(arg1 or "nil").."|"..(arg2 or "nil").."|"..(arg3 or "nil").."|"..(arg4 or "nil"))
   
   if event == "VARIABLES_LOADED" then
     QuestHelper_UpgradeDatabase(_G)
@@ -1224,7 +1375,7 @@ function frame:OnEvent(event)
         local icon, name, number, rarity = GetLootSlotInfo(i)
         if name then
           if number and number >= 1 then
-            AppendObjectiveDrop(GetObjectiveObject("item", name), target, number)
+            self:AppendItemDrop(GetObjectiveObject("item", name), name, target, number)
           else
             local total = 0
             local _, _, amount = string.find(name, "(%d+) Copper")
@@ -1244,7 +1395,7 @@ function frame:OnEvent(event)
       for i = 1, GetNumLootItems() do
         local icon, name, number, rarity = GetLootSlotInfo(i)
         if name and number >= 1 then
-            AppendObjectivePosition(GetObjectiveObject("item", name), self:GetBestKnownPlayerPosition())
+          self:AppendItemPosition(GetObjectiveObject("item", name), name, self:GetBestKnownPlayerPosition())
         end
       end
     end
@@ -1252,6 +1403,11 @@ function frame:OnEvent(event)
   
   if event == "QUEST_LOG_UPDATE" then
     self.defered_quest_scan = true
+  end
+  
+  if event == "QUEST_DETAIL" then
+    if not self.quest_giver then self.quest_giver = {} end
+    self.quest_giver[GetTitleText()] = UnitName("npc")
   end
   
   if event == "QUEST_COMPLETE" or event == "QUEST_PROGRESS" then
@@ -1559,6 +1715,7 @@ frame:RegisterEvent("QUEST_LOG_UPDATE")
 frame:RegisterEvent("QUEST_PROGRESS")
 frame:RegisterEvent("MERCHANT_SHOW")
 frame:RegisterEvent("VARIABLES_LOADED")
+frame:RegisterEvent("QUEST_DETAIL")
 
 frame:SetScript("OnEvent", frame.OnEvent)
 frame:SetScript("OnUpdate", frame.OnUpdate)
