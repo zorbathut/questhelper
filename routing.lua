@@ -299,6 +299,10 @@ local function RouteUpdateRoutine(self)
         self:DoUnshareObjective(obj)
       end
       
+      self:ReleaseTeleportInfo(obj.tele_pos)
+      self:ReleaseTeleportInfo(obj.tele_sop)
+      obj.tele_pos, obj.tele_sop = nil, nil
+      
       for i, o in ipairs(route) do
         if o == obj then
           if i == 1 then
@@ -342,6 +346,9 @@ local function RouteUpdateRoutine(self)
           obj:DoneRouting()
           swap_table[obj] = true
         else
+          obj.tele_pos = self:CreateTeleportInfo()
+          obj.tele_sop = self:CreateTeleportInfo()
+          
           if not obj.is_sharing and obj.want_share then
             obj.is_sharing = true
             self:DoShareObjective(obj)
@@ -370,7 +377,7 @@ local function RouteUpdateRoutine(self)
     end
     
     for obj in pairs(swap_table) do
-      -- If one of the objectives were were considering adding was removed, it would be in both lists.
+      -- If one of the objectives we were considering adding was removed, it would be in both lists.
       -- That would be bad. We can't remove it because we haven't actually added it yet, so
       -- handle that special case here.
       if self.to_remove[obj] then
@@ -448,6 +455,7 @@ local function RouteUpdateRoutine(self)
     if new_distance+new_extra+0.001 < distance+extra then
       for i, node in ipairs(route) do
         node.len = node.nel
+        node.tele_pos, node.tele_sop = node.tele_sop, node.tele_pos
         node.pos, node.sop = node.sop, node.pos
       end
       
@@ -492,6 +500,8 @@ local function RouteUpdateRoutine(self)
     map_walker:RouteChanged()
     
     call_count = 0
+    
+    self:SetupTeleportInfo(self.teleport_info)
     
     if self.defered_graph_reset then
       self:ResetPathing()

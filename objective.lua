@@ -570,6 +570,12 @@ local function DoneRouting(self)
   if self.setup_count == 1 then
     self.setup_count = 0
     QuestHelper:ReleaseObjectivePathingInfo(self)
+    for i, obj in ipairs(self.qh.prepared_objectives) do
+      if o == obj then
+        table.remove(self.qh.prepared_objectives, i)
+        break
+      end
+    end
   else
     self.setup_count = self.setup_count - 1
   end
@@ -839,7 +845,7 @@ function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
     end
     
     item:AddTexture(tex, true)
-    item:SetFunction(self.SetObjectivePriority, self, obj, i)
+    item:SetFunction(self.SetObjectivePriorityPrompt, self, obj, i)
   end
   
   self:CreateMenuItem(menu, "Priority"):SetSubmenu(submenu)
@@ -865,7 +871,7 @@ function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
   self:CreateMenuItem(menu, "Ignore"):SetFunction(
     function (obj)
       obj.user_ignore = true
-      QuestHelper:ForceRouteUpdate()
+      --QuestHelper:ForceRouteUpdate()
     end, obj)
 end
 
@@ -879,7 +885,42 @@ function QuestHelper:SetObjectivePriority(objective, level)
         objective.peer[u] = math.min(l, 2)
       end
     end
-    self:ForceRouteUpdate()
+    --self:ForceRouteUpdate()
+  end
+end
+
+local function CalcObjectivePriority(obj)
+  local priority = obj.priority
+  
+  for o in pairs(obj.before) do
+    if o.watched then
+      priority = math.min(priority, CalcObjectivePriority(o))
+    end
+  end
+  
+  return priority
+end
+
+local function ApplyBlockPriority(obj, level)
+  for o in pairs(obj.before) do
+    if o.watched then
+      ApplyBlockPriority(o, level)
+    end
+  end
+  
+  if obj.priority < level then QuestHelper:SetObjectivePriority(obj, level) end
+end
+
+local function NOP() end
+
+function QuestHelper:SetObjectivePriorityPrompt(objective, level)
+  self:SetObjectivePriority(objective, level)
+  if CalcObjectivePriority(objective) ~= level then
+    local menu = self:CreateMenu()
+    self:CreateMenuTitle(menu, "The selected priority would be ignored.")
+    self:CreateMenuItem(menu, "Apply same priority to the blocking objectives."):SetFunction(ApplyBlockPriority, objective, level)
+    self:CreateMenuItem(menu, "I'll set the priorities myself."):SetFunction(NOP)
+    menu:ShowAtCursor()
   end
 end
 

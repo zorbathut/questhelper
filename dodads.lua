@@ -15,6 +15,11 @@ local function convertNodeToScreen(n, c, z)
   return QuestHelper.Astrolabe:TranslateWorldMapPosition(n.c, 0, n.x/QuestHelper.continent_scales_x[n.c], n.y/QuestHelper.continent_scales_y[n.c], c, z)
 end
 
+QuestHelper.map_overlay = CreateFrame("FRAME", nil, WorldMapButton)
+QuestHelper.map_overlay:SetFrameLevel(WorldMapButton:GetFrameLevel()+1)
+QuestHelper.map_overlay:SetAllPoints()
+QuestHelper.map_overlay:SetFrameStrata("FULLSCREEN")
+
 local function ClampLine(x1, y1, x2, y2)
   if x1 and y1 and x2 and y2 then
     local x_div, y_div = (x2-x1), (y2-y1)
@@ -120,7 +125,7 @@ function QuestHelper:GetDotTexture(parent)
 end
 
 function QuestHelper:GetGlowTexture(parent)
-  local tex = self:GetTexture(parent, "Interface\\Addons\\QuestHelper\\Art\\Glow.blp")
+  local tex = self:GetTexture(parent, "Interface\\Addons\\QuestHelper\\Art\\Glow.tga")
   
   local angle = math.random()*6.28318530717958647692528676655900576839433879875021164
   local x, y = math.cos(angle)*0.707106781186547524400844362104849039284835937688474036588339869,
@@ -140,7 +145,7 @@ function QuestHelper:ReleaseTexture(tex)
 end
 
 function QuestHelper:CreateWorldMapWalker()
-  local walker = CreateFrame("Button", nil, WorldMapButton)
+  local walker = CreateFrame("Button", nil, QuestHelper.map_overlay)
   walker:SetWidth(0)
   walker:SetHeight(0)
   walker:SetPoint("CENTER", WorldMapFrame, "TOPLEFT", 0, 0)
@@ -356,8 +361,8 @@ function QuestHelper:AppendObjectiveToTooltip(o)
 end
 
 function QuestHelper:CreateWorldMapDodad(objective, index)
-  local icon = CreateFrame("Button", nil, WorldMapButton)
-  icon:SetFrameStrata("FULLSCREEN_DIALOG")
+  local icon = CreateFrame("Button", nil, QuestHelper.map_overlay)
+  icon:SetFrameStrata("FULLSCREEN")
   
   function icon:SetTooltip(list)
     QuestHelper.tooltip:SetOwner(self, "ANCHOR_CURSOR")
@@ -407,8 +412,8 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
       
       self.bg:SetDrawLayer("BACKGROUND")
       self.bg:SetAllPoints()
-      self.dot:SetPoint("TOPLEFT", self, "TOPLEFT", 2, -2)
-      self.dot:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -2, 2)
+      self.dot:SetPoint("TOPLEFT", self, "TOPLEFT", 3*QuestHelper_Pref.scale, -3*QuestHelper_Pref.scale)
+      self.dot:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -3*QuestHelper_Pref.scale, 3*QuestHelper_Pref.scale)
       
       QuestHelper.Astrolabe:PlaceIconOnWorldMap(WorldMapDetailFrame, self, convertLocation(objective.pos))
     else
@@ -417,9 +422,58 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
     end
   end
   
+  function icon:SetGlow(list)
+    local w, h = WorldMapDetailFrame:GetWidth(), WorldMapDetailFrame:GetHeight()
+    local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+    local _, x_size, y_size = QuestHelper.Astrolabe:ComputeDistance(c, z, 0.25, 0.25, c, z, 0.75, 0.75)
+    
+    x_size = math.max(25, 200 / x_size * w)
+    y_size = math.max(25, 200 / y_size * h)
+    
+    local out = 1
+    for _, objective in ipairs(list) do 
+      if objective.p then for _, list in pairs(objective.p) do
+        for _, p in ipairs(list) do
+          local x, y = p[3], p[4]
+          x, y = x / QuestHelper.continent_scales_x[p[1].c], y / QuestHelper.continent_scales_y[p[1].c]
+          x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(p[1].c, 0, x, y, c, z)
+          if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
+            if not self.glow_list then
+              self.glow_list = QuestHelper:CreateTable()
+            end
+            
+            tex = self.glow_list[out]
+            if not tex then
+              tex = QuestHelper:GetGlowTexture(self)
+              table.insert(self.glow_list, tex)
+            end
+            out = out + 1
+            
+            tex:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x*w, -y*h)
+            tex:SetVertexColor(1,1,1,0)
+            tex:SetWidth(x_size)
+            tex:SetHeight(y_size)
+            tex:Show()
+            tex.max_alpha = 1/p[5]
+          end
+        end end
+      end
+    end
+    
+    if self.glow_list then
+      for i = out,#self.glow_list do
+        QuestHelper:ReleaseTexture(table.remove(self.glow_list))
+      end
+      
+      if #self.glow_list == 0 then
+        QuestHelper:ReleaseTable(self.glow_list)
+        self.glow_list = nil
+      end
+    end
+  end
+  
   icon.show_glow = false
   icon.glow_pct = 0.0
-  icon.glow_list = {}
   icon.phase = 0.0
   icon.old_count = 0
   
@@ -431,6 +485,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
       if #list ~= self.old_count then
         self:SetTooltip(list)
         self.old_count = #list
+        self:SetGlow(list)
       end
     end
     
@@ -440,20 +495,27 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
       self.glow_pct = math.max(0, self.glow_pct-elapsed*0.5)
       
       if self.glow_pct == 0 then
-        while #self.glow_list > 0 do
-          QuestHelper:ReleaseTexture(table.remove(self.glow_list))
+        if self.glow_list then
+          while #self.glow_list > 0 do
+            QuestHelper:ReleaseTexture(table.remove(self.glow_list))
+          end
+          QuestHelper:ReleaseTable(self.glow_list)
+          self.glow_list = nil
         end
+        
         self:SetScript("OnUpdate", nil)
         return
       end
     end
     
-    local r, g, b = math.sin(self.phase)*0.25+0.75,
-                    math.sin(self.phase+2.094395102393195492308428922186335256131446266250070547316629728)*0.25+0.75,
-                    math.sin(self.phase+4.188790204786390984616857844372670512262892532500141094633259456)*0.25+0.75
-    
-    for i, tex in ipairs(self.glow_list) do
-      tex:SetVertexColor(r, g, b, self.glow_pct*tex.max_alpha)
+    if self.glow_list then
+      local r, g, b = math.sin(self.phase)*0.25+0.75,
+                      math.sin(self.phase+2.094395102393195492308428922186335256131446266250070547316629728)*0.25+0.75,
+                      math.sin(self.phase+4.188790204786390984616857844372670512262892532500141094633259456)*0.25+0.75
+      
+      for i, tex in ipairs(self.glow_list) do
+        tex:SetVertexColor(r, g, b, self.glow_pct*tex.max_alpha)
+      end
     end
   end
   
@@ -464,41 +526,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
     
     icon.show_glow = true
     
-    local out = 1
-    
-    local w, h = WorldMapDetailFrame:GetWidth(), WorldMapDetailFrame:GetHeight()
-    local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
-    local _, x_size, y_size = QuestHelper.Astrolabe:ComputeDistance(c, z, 0.25, 0.25, c, z, 0.75, 0.75)
-    
-    x_size = math.max(25, 200 / x_size * w)
-    y_size = math.max(25, 200 / y_size * h)
-    
-    for _, list in pairs(self.objective.p) do
-      for _, p in ipairs(list) do
-        local x, y = p[3], p[4]
-        x, y = x / QuestHelper.continent_scales_x[p[1].c], y / QuestHelper.continent_scales_y[p[1].c]
-        x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(p[1].c, 0, x, y, c, z)
-        if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
-          tex = self.glow_list[out]
-          if not tex then
-            tex = QuestHelper:GetGlowTexture(self)
-            table.insert(self.glow_list, tex)
-          end
-          out = out + 1
-          
-          tex:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x*w, -y*h)
-          tex:SetVertexColor(1,1,1,0)
-          tex:SetWidth(x_size)
-          tex:SetHeight(y_size)
-          tex:Show()
-          tex.max_alpha = 1/p[5]
-        end
-      end
-    end
-    
-    for i = out,#self.glow_list do
-      QuestHelper:ReleaseTexture(table.remove(self.glow_list))
-    end
+    self:SetGlow(list)
     
     self:SetScript("OnUpdate", self.OnUpdate)
   end
@@ -579,7 +607,7 @@ function QuestHelper:CreateMipmapDodad()
   function icon:NextObjective()
     if QuestHelper.limbo_node then
       -- If an objective is in limbo, don't try to figure out the next objective, because the node in limbo isn't it.
-      return self.objective
+      return self.objective.pos and self.objective or nil
     end
     
     for i, o in ipairs(QuestHelper.route) do
@@ -587,6 +615,8 @@ function QuestHelper:CreateMipmapDodad()
         return o
       end
     end
+    
+    return nil
   end
   
   function icon:OnUpdate(elapsed)
@@ -743,7 +773,7 @@ function QuestHelper:CreateMipmapDodad()
 end
 
 function QuestHelper:CreateWorldGraphWalker()
-  local walker = CreateFrame("Button", nil, WorldMapButton)
+  local walker = CreateFrame("Button", nil, QuestHelper.map_overlay)
   walker:SetWidth(0)
   walker:SetHeight(0)
   walker:SetPoint("CENTER", WorldMapFrame, "TOPLEFT", 0, 0)

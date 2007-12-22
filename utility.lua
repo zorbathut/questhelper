@@ -47,9 +47,10 @@ end
 function QuestHelper:CountItem(item_id)
   local count = 0
   
-  for bag = 1,NUM_BAG_SLOTS do
+  for bag = 0,NUM_BAG_SLOTS do
     for slot = 1,GetContainerNumSlots(bag) do
-      if string.find(GetContainerItemLink(bag, slot), string.format("^|Hitem:%d:", item_id)) then
+      local link = GetContainerItemLink(bag, slot)
+      if link and string.find(link, string.format("|Hitem:%d:", item_id)) then
         count = count + (select(2, GetContainerItemInfo(bag, slot)) or 0)
       end
     end
@@ -62,9 +63,10 @@ function QuestHelper:ItemCooldown(item_id)
   local now = GetTime()
   local cooldown = nil
   
-  for bag = 1,NUM_BAG_SLOTS do
+  for bag = 0,NUM_BAG_SLOTS do
     for slot = 1,GetContainerNumSlots(bag) do
-      if string.find(GetContainerItemLink(bag, slot), string.format("^|Hitem:%d:", item_id)) then
+      local link = GetContainerItemLink(bag, slot)
+      if link and string.find(link, string.format("|Hitem:%d:", item_id)) then
         local s, d, e = GetContainerItemCooldown(bag, slot)
         if e then
           if cooldown then
@@ -75,10 +77,8 @@ function QuestHelper:ItemCooldown(item_id)
         else
           return 0
         end
-        count = count + (select(2, GetContainerItemInfo(bag, slot)) or 0)
       end
     end
-    
   end
   
   return cooldown

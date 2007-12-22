@@ -248,7 +248,7 @@ function QuestHelper:OnEvent(event)
       end
     end
     
-    if not QuestHelper_Pref.home then
+    if not QuestHelper_Home then
       self:TextOut("You home isn't known. When you get a chance, please talk to your innkeeper and reset it.")
     end
     
@@ -313,17 +313,17 @@ function QuestHelper:OnEvent(event)
   end
   
   if event == "CHAT_MSG_SYSTEM" then
-    if string.find(arg1, " is now your home.$") then
-      
+    local _, _, home_name = string.find(arg1, "^(.*) is now your home.$")
+    if home_name then
       if self.c and self.c > 0 and self.z > 0 then
         self:TextOut("Your home has been changed. Will reset pathing information.")
-        local home = QuestHelper_Pref.home
+        local home = QuestHelper_Home
         if not home then
           home = {}
-          QuestHelper_Pref.home = home
+          QuestHelper_Home = home
         end
         
-        home[1], home[2], home[3], home[4] = self.c, self.z, self.x, self.y
+        home[1], home[2], home[3], home[4], home[5] = self.c, self.z, self.x, self.y, home_name
         self.defered_graph_reset = true
       end
     end

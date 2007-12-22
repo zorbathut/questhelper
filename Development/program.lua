@@ -26,7 +26,8 @@ function GetQuest(locale, faction, level, name, hash)
     q.hash = hash
     q.alt = {}
   end
-  if q.hash ~= hash then
+  
+  if hash and q.hash ~= hash then
     if q.alt[hash] then
       q = q.alt[hash]
     end
@@ -40,8 +41,14 @@ function GetQuest(locale, faction, level, name, hash)
     -- If the old quest had a hash, but this one doesn't, we'll return a dummy object
     -- so that we don't overwrite it with the wrong quest data.
     q = {}
+    q.hash = hash
     q.finish = {}
-    q.alt = {}
+  elseif hash ~= q.hash then
+    local q2 = {}
+    q2.finish = {}
+    q2.hash = hash
+    q.alt[hash] = q2
+    q = q2
   end
   
   return q
@@ -79,7 +86,7 @@ local function TidyPositionList(list, min_distance)
     if #list == 0 then return end
     local changed = false
     local i = 1
-    while i < #list do
+    while i <= #list do
       local nearest, distance = nil, 0
       for j = i+1, #list do
         local d = Distance(list[i], list[j])
@@ -103,10 +110,38 @@ local function TidyPositionList(list, min_distance)
       break
     end
   end
+  
+  local highest = 0
+  
+  for i, data in ipairs(list) do
+    highest = math.max(highest, data[5])
+  end
+  
+  local i = 1 -- Remove anything that doesn't seem very likely.
+  while i <= #list do
+    if list[i][5] < highest*0.2 then
+      table.remove(list, i)
+    else
+      i = i + 1
+    end
+  end
+  
   for i, j in ipairs(list) do
     j[3] = math.floor(j[3]*10000+0.5)/10000
     j[4] = math.floor(j[4]*10000+0.5)/10000
   end
+  
+  table.sort(list, function(a, b)
+    if a[5] > b[5] then return true end
+    if a[5] < b[5] then return false end
+    if a[1] < b[1] then return true end
+    if a[1] > b[1] then return false end
+    if a[2] < b[2] then return true end
+    if a[2] > b[2] then return false end
+    if a[3] < b[3] then return true end
+    if a[3] > b[3] then return false end
+    return a[4] < b[4]
+  end)
 end
 
 local function DropListMass(list)
@@ -128,7 +163,7 @@ end
 local function CollapseDropList(list)
   local result, c = nil, 0
   for item, count in pairs(list) do
-    if count > c then
+    if not result or count > c then
       result, c = item, count
     end
   end
@@ -383,7 +418,7 @@ end
 
 local function CollapseQuest(quest)
   local name_score = quest.finish and DropListMass(quest.finish) or 0
-  local pos_score = quest.pos and PositionListMass(quest.pos) or 0
+  local pos_score = quest.pos and PositionListMass(quest.pos)*0.25 or 0
   
   if name_score > pos_score then
     quest.finish = CollapseDropList(quest.finish)
@@ -417,24 +452,20 @@ local function CollapseQuest(quest)
     for hash, q2 in pairs(quest.alt) do
       if CollapseQuest(q2) then
         quest.alt[hash] = nil
-      else
-        quest.hash = nil
       end
-    end
-    if not next(quest.alt, nil) then
-      quest.alt = nil
     end
   end
   
-  if quest.alt == nil then
-    quest.hash = nil -- Don't need the store the hash if there is only one quest by that name.
+  if not quest.alt or not next(quest.alt, nil) then
+    quest.alt = nil
+    quest.hash = nil
   end
   
   return quest.pos == nil and quest.finish == nil
 end
 
 local function CollapseObjective(objective)
-  -- if not objective.quest then return true end
+  if not objective.quest then return true end
   objective.quest = nil
   
   if objective.drop and not next(objective.drop, nil) then objective.drop = nil end
@@ -515,7 +546,7 @@ local function isArray(obj)
 end
 
 local function isSafeString(obj)
-  return type(obj) == "string" and string.len(obj) > 0 and not string.find(obj, "[^%a]")
+  return type(obj) == "string" and string.len(obj) > 0 and string.find(obj, "^[%a_][%a%d_]*$")
 end
 
 local function Dump(buffer, variable, depth, seen)
@@ -545,7 +576,20 @@ local function Dump(buffer, variable, depth, seen)
         end
       end
     else
-      for i, j in pairs(variable) do
+      local sort_table = {}
+      
+      for key in pairs(variable) do
+        table.insert(sort_table, key)
+      end
+      
+      table.sort(sort_table, function (a, b)
+        if type(a) < type(b) then return true end
+        return type(a) == type(b) and (tostring(a) or "") < (tostring(b) or "")
+      end)
+      
+      for index, i in ipairs(sort_table) do
+        local j = variable[i]
+        
         if isSafeString(i) then
           buffer:add(i.."=")
         else
@@ -558,7 +602,7 @@ local function Dump(buffer, variable, depth, seen)
         
         Dump(buffer, j, depth+1, seen)
         
-        if next(variable,i) then
+        if index~=#sort_table then
           buffer:add(",\n"..("  "):rep(depth))
         end
       end
@@ -578,7 +622,18 @@ function Finished()
         local delete_level = true
         for quest, quest_data in pairs(quest_list) do
           if CollapseQuest(quest_data) then
-            quest_list[quest] = nil
+            if quest_data.alt then
+              -- If there are alternate quests, don't throw them away.
+              local alt = quest_data.alt
+              local hash = next(alt, nil)
+              quest_list[quest] = alt[hash]
+              alt[hash] = nil
+              if next(alt, nil) then
+                quest_list[quest].hash = hash
+              end
+            else
+              quest_list[quest] = nil
+            end
           else
             if quest_data.finish then
               GetObjective(locale, "monster", quest_data.finish).quest = true

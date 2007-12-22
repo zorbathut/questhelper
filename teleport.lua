@@ -15,6 +15,17 @@ function QuestHelper:ReleaseTeleportInfo(info)
   self:ReleaseTable(info)
 end
 
+function QuestHelper:TeleportInfoClear(info)
+  for node, data in pairs(info.node) do
+    self:ReleaseTable(data)
+    info.node[node] = nil
+  end
+  
+  for id in pairs(info.reag) do
+    info.reag[id] = nil
+  end
+end
+
 function QuestHelper:SetTeleportInfoTarget(info,
                                            node, -- The world graph node this will take us to.
                                            start, -- The last time this spell was used.
@@ -54,7 +65,7 @@ function QuestHelper:TeleportInfoUseNode(info, node, time_delta)
 end
 
 function QuestHelper:TeleportInfoTransfer(original, dest)
-  for key in pairs(dest.node)
+  for key in pairs(dest.node) do
     if not original.node[key] then
       self:ReleaseTable(dest.node[key])
       dest.node[key] = nil
@@ -89,3 +100,5 @@ function QuestHelper:TeleportInfoAddGraphPoints(info, graph, end_list, time_delt
     end
   end
 end
+
+QuestHelper.teleport_info = QuestHelper:CreateTeleportInfo()

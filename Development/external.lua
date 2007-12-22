@@ -7,7 +7,7 @@ local function ProcessLightheadedQuests(faction, data)
       if quest_name and quest_level and ename then
         local quest = GetQuest("enUS", faction, quest_level, quest_name, nil)
         if not quest.finish then quest.finish = {} end
-        quest.finish[ename] = (quest.finish[ename] or 0) + 1
+        quest.finish[ename] = (quest.finish[ename] or 0) + 0.01
       end
     end
   end
@@ -42,8 +42,6 @@ local function ProcessEQL3NPCData()
         if x and y then
           local monster = GetObjective("enUS", "monster", npc)
           
-          --monster.quest = true
-          
           if not monster.pos then monster.pos = {} end
           table.insert(monster.pos, {c, z, x/100, y/100, 1})
         end
@@ -59,9 +57,6 @@ local function ProcessEQL3ItemData()
       
       local item_obj = GetObjective("enUS", "item", item)
       local monster_obj = GetObjective("enUS", "monster", monster)
-      
-      --item_obj.quest = true
-      --monster_obj.quest = true
       
       if not item_obj.drop then item_obj.drop = {} end
       

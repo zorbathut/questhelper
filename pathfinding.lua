@@ -1,15 +1,15 @@
-local IRONFORGE_PORTAL = {2,14,0.255,0.084}
-local STORMWIND_CITY_PORTAL = {2,20,0.387,0.802}
-local DARNASSUS_PORTAL = {1,6,0.397,0.824}
-local EXODAR_PORTAL = {1,20,0.476,0.598}
+local IRONFORGE_PORTAL = {2,14,0.255,0.084, "Ironforge portal site"}
+local STORMWIND_CITY_PORTAL = {2,20,0.387,0.802, "Stormwind City portal site"}
+local DARNASSUS_PORTAL = {1,6,0.397,0.824, "Darnassus portal site"}
+local EXODAR_PORTAL = {1,20,0.476,0.598, "Exodar portal site"}
 
-local SHATTRATH_CITY_PORTAL = {3,6,0.530,0.492}
-local MOONGLADE_PORTAL = {1,12,0.563,0.320}
+local SHATTRATH_CITY_PORTAL = {3,6,0.530,0.492, "Shattrath City portal site"}
+local MOONGLADE_PORTAL = {1,12,0.563,0.320, "Moonglade portal site"}
 
-local SILVERMOON_CITY_PORTAL = {2,18,0.583,0.192}
-local UNDERCITY_PORTAL = {2,25,0.846,0.163}
-local ORGRIMMAR_PORTAL = {1,14,0.386,0.859}
-local THUNDER_BLUFF_PORTAL = {1,22,0.222,0.168}
+local SILVERMOON_CITY_PORTAL = {2,18,0.583,0.192, "Silvermoon City portal site"}
+local UNDERCITY_PORTAL = {2,25,0.846,0.163, "Undercity portal site"}
+local ORGRIMMAR_PORTAL = {1,14,0.386,0.859, "Orgrimmar portal site"}
+local THUNDER_BLUFF_PORTAL = {1,22,0.222,0.168, "Thunder Bluff portal site"}
 
 local static_horde_routes = 
   {
@@ -18,10 +18,10 @@ local static_horde_routes =
    {{2,24,0.605,0.587}, {1,8,0.509,0.141}, 210}, -- Tirisfal Glades <--> Durotar
    {{2,25,0.549,0.110}, {2,18,0.495,0.148}, 5}, -- Undercity <--> Silvermoon City
    
-   {{3,6,0.592,0.483}, SILVERMOON_CITY_PORTAL, 5, true}, -- Shattrath City <--> Silvermoon City
-   {{3,6,0.528,0.531}, THUNDER_BLUFF_PORTAL, 5, true}, -- Shattrath City <--> Thunder Bluff
-   {{3,6,0.522,0.529}, ORGRIMMAR_PORTAL, 5, true}, -- Shattrath City <--> Orgrimmar
-   {{3,6,0.517,0.525}, UNDERCITY_PORTAL, 5, true} -- Shattrath City <--> Undercity
+   {{3,6,0.592,0.483}, SILVERMOON_CITY_PORTAL, 5, true, nil, "SILVERMOON_CITY_PORTAL"}, -- Shattrath City <--> Silvermoon City
+   {{3,6,0.528,0.531}, THUNDER_BLUFF_PORTAL, 5, true, nil, "THUNDER_BLUFF_PORTAL"}, -- Shattrath City <--> Thunder Bluff
+   {{3,6,0.522,0.529}, ORGRIMMAR_PORTAL, 5, true, nil, "ORGRIMMAR_PORTAL"}, -- Shattrath City <--> Orgrimmar
+   {{3,6,0.517,0.525}, UNDERCITY_PORTAL, 5, true, nil, "UNDERCITY_PORTAL"} -- Shattrath City <--> Undercity
   }
 
 local static_alliance_routes = 
@@ -30,10 +30,10 @@ local static_alliance_routes =
    {{2,28,0.044,0.569}, {1,5,0.323,0.441}, 210}, --Menethil Harbor <--> Auberdine
    {{1,9,0.718,0.565}, {2,28,0.047,0.636}, 210}, -- Theramore Isle <--> Menethil Harmor
    
-   {{3,6,0.558,0.366}, STORMWIND_CITY_PORTAL, 5, true}, -- Shattrath City <--> Stormwind City
-   {{3,6,0.563,0.370}, IRONFORGE_PORTAL, 5, true}, -- Shattrath City <--> Ironforge
-   {{3,6,0.552,0.364}, DARNASSUS_PORTAL, 5, true}, -- Shattrath City <--> Darnassus
-   {{3,6,0.596,0.467}, EXODAR_PORTAL, 5, true} -- Shattrath City <--> Exodar
+   {{3,6,0.558,0.366}, STORMWIND_CITY_PORTAL, 5, true, nil, "STORMWIND_CITY_PORTAL"}, -- Shattrath City <--> Stormwind City
+   {{3,6,0.563,0.370}, IRONFORGE_PORTAL, 5, true, nil, "IRONFORGE_PORTAL"}, -- Shattrath City <--> Ironforge
+   {{3,6,0.552,0.364}, DARNASSUS_PORTAL, 5, true, nil, "DARNASSUS_PORTAL"}, -- Shattrath City <--> Darnassus
+   {{3,6,0.596,0.467}, EXODAR_PORTAL, 5, true, nil, "EXODAR_PORTAL"} -- Shattrath City <--> Exodar
   }
 
 local static_shared_routes = 
@@ -140,6 +140,7 @@ local function nil_heuristic(a, b)
 end
 
 QuestHelper.prepared_objectives = {}
+QuestHelper.named_nodes = {}
 
 local function heuristic(a, b)
   if type(b) ~= "table" then QuestHelper:Error("Boom?!") end
@@ -222,20 +223,20 @@ function QuestHelper:ComputeTravelTime(p1, p2)
   return d
 end
 
-function QuestHelper:CreateGraphNode(c, x, y)
+function QuestHelper:CreateGraphNode(c, x, y, n)
   local node = self.world_graph:CreateNode()
   
   if y then
     node.c = c
     node.x = x
     node.y = y
-    node.name = nil
+    node.name = n
   else
     node.c = c[1]
     node.x, node.y = self.Astrolabe:TranslateWorldMapPosition(c[1], c[2], c[3], c[4], c[1], 0)
     node.x = node.x * self.continent_scales_x[node.c]
     node.y = node.y * self.continent_scales_y[node.c]
-    node.name = select(c[2], GetMapZones(c[1]))
+    node.name = c[5] or select(c[2], GetMapZones(c[1]))
   end
   
   node.w = 1
@@ -268,11 +269,24 @@ function QuestHelper:CreateAndAddZoneNode(z, c, x, y)
 end
 
 function QuestHelper:CreateAndAddStaticNodePair(data)
-  local node1, node2 = self:CreateAndAddZoneNode(self.zone_nodes[data[1][1]][data[1][2]], data[1]),
-                       self:CreateAndAddZoneNode(self.zone_nodes[data[2][1]][data[2][2]], data[2])
+  local node1, node2
   
-  node1.name = "route to "..select(data[2][2], GetMapZones(data[2][1]))
-  node2.name = "route to "..select(data[1][2], GetMapZones(data[1][1]))
+  if data[5] and self.named_nodes[data[5]] then
+    node1 = self.named_nodes[data[5]]
+  else
+    node1 = self:CreateAndAddZoneNode(self.zone_nodes[data[1][1]][data[1][2]], data[1])
+    if data[5] then self.named_nodes[data[5]] = node1 end
+  end
+  
+  if data[6] and self.named_nodes[data[6]] then
+    node2 = self.named_nodes[data[6]]
+  else
+    node2 = self:CreateAndAddZoneNode(self.zone_nodes[data[2][1]][data[2][2]], data[2])
+    if data[6] then self.named_nodes[data[6]] = node2 end
+  end
+  
+  node1.name = node1.name or "route to "..select(data[2][2], GetMapZones(data[2][1]))
+  node2.name = node2.name or "route to "..select(data[1][2], GetMapZones(data[1][1]))
   
   node1:Link(node2, data[3])
   
@@ -281,6 +295,15 @@ function QuestHelper:CreateAndAddStaticNodePair(data)
   end
   
   return node1, node2
+end
+
+function QuestHelper:GetNodeByName(name, fallback_data)
+  local node = self.named_nodes[name]
+  if not node and fallback_data then
+    node = self:CreateAndAddZoneNode(self.zone_nodes[fallback_data[1]][fallback_data[2]], fallback_data)
+    self.named_nodes[name] = node
+  end
+  return node
 end
 
 local function nodeLeavesContinent(node, c)
@@ -416,29 +439,105 @@ function QuestHelper:CreateAndAddTransitionNode(z1, z2, pos)
 end
 
 function QuestHelper:ReleaseObjectivePathingInfo(o)
-  for z, pl in pairs(o.p) do
-    self:ReleaseTable(o.d[z])
-    
-    for i, p in ipairs(pl) do
-      self:ReleaseTable(p[2])
-      self:ReleaseTable(p)
+  if o.setup then
+    for z, pl in pairs(o.p) do
+      self:ReleaseTable(o.d[z])
+      
+      for i, p in ipairs(pl) do
+        self:ReleaseTable(p[2])
+        self:ReleaseTable(p)
+      end
+      
+      self:ReleaseTable(pl)
     end
     
-    self:ReleaseTable(pl)
+    self:ReleaseTable(o.d)
+    self:ReleaseTable(o.p)
+    self:ReleaseTable(o.nm)
+    self:ReleaseTable(o.nm2)
+    self:ReleaseTable(o.nl)
+    
+    o.d, o.p, o.nm, o.nm2, o.nl = nil, nil, nil, nil, nil
+    o.pos, o.sop = nil, nil -- ResetPathing will preserve these values if needed.
+    o.setup = nil
+  end
+end
+
+function QuestHelper:SetupTeleportInfo(info, can_create)
+  self:TeleportInfoClear(info)
+  
+  if QuestHelper_Home then
+    local node = self:GetNodeByName("HOME_PORTAL", can_create and QuestHelper_Home)
+    if node then
+      local cooldown = self:ItemCooldown(6948)
+      if cooldown then
+        self:SetTeleportInfoTarget(info, node, GetTime()-60*60+cooldown, 60*60, 10)
+      end
+    else
+      self.defered_graph_reset = true
+    end
   end
   
-  self:ReleaseTable(o.d)
-  self:ReleaseTable(o.p)
-  self:ReleaseTable(o.nm)
-  self:ReleaseTable(o.nm2)
-  self:ReleaseTable(o.nl)
+  -- TODO: Compact this. . . and find a better way to tell if the player has a spell.
   
-  o.d, o.p, o.nm, o.nm2, o.nl = nil, nil, nil, nil, nil
-  o.pos, o.sop = nil, nil -- ResetPathing will preserve these values if needed.
-  o.setup = nil
+  if GetSpellTexture("Teleport: Darnassus") then
+    local node = self:GetNodeByName("DARNASSUS_PORTAL", can_create and DARNASSUS_PORTAL)
+    if node then self:SetTeleportInfoTarget(info, node, 0, 0, 10, 17031) else self.defered_graph_reset = true end
+  end
+  
+  if GetSpellTexture("Teleport: Exodar") then
+    local node = self:GetNodeByName("EXODAR_PORTAL", can_create and EXODAR_PORTAL)
+    if node then self:SetTeleportInfoTarget(info, node, 0, 0, 10, 17031) else self.defered_graph_reset = true end
+  end
+  
+  if GetSpellTexture("Teleport: Ironforge") then
+    local node = self:GetNodeByName("IRONFORGE_PORTAL", can_create and IRONFORGE_PORTAL)
+    if node then self:SetTeleportInfoTarget(info, node, 0, 0, 10, 17031) else self.defered_graph_reset = true end
+  end
+  
+  if GetSpellTexture("Teleport: Moonglade") then
+    local node = self:GetNodeByName("MOONGLADE_PORTAL", can_create and MOONGLADE_PORTAL)
+    if node then self:SetTeleportInfoTarget(info, node, 0, 0, 10) else self.defered_graph_reset = true end
+  end
+  
+  if GetSpellTexture("Teleport: Orgrimmar") then
+    local node = self:GetNodeByName("ORGRIMMAR_PORTAL", can_create and ORGRIMMAR_PORTAL)
+    if node then self:SetTeleportInfoTarget(info, node, 0, 0, 10, 17031) else self.defered_graph_reset = true end
+  end
+  
+  if GetSpellTexture("Teleport: Shattrath") then
+    local node = self:GetNodeByName("SHATTRATH_CITY_PORTAL", can_create and SHATTRATH_CITY_PORTAL)
+    if node then self:SetTeleportInfoTarget(info, node, 0, 0, 10, 17031) else self.defered_graph_reset = true end
+  end
+  
+  if GetSpellTexture("Teleport: Silvermoon") then
+    local node = self:GetNodeByName("SILVERMOON_CITY_PORTAL", can_create and SILVERMOON_CITY_PORTAL)
+    if node then self:SetTeleportInfoTarget(info, node, 0, 0, 10, 17031) else self.defered_graph_reset = true end
+  end
+  
+  if GetSpellTexture("Teleport: Stormwind") then
+    local node = self:GetNodeByName("STORMWIND_CITY_PORTAL", can_create and STORMWIND_CITY_PORTAL)
+    if node then self:SetTeleportInfoTarget(info, node, 0, 0, 10, 17031) else self.defered_graph_reset = true end
+  end
+  
+  if GetSpellTexture("Teleport: Thunder Bluff") then
+    local node = self:GetNodeByName("THUNDER_BLUFF_PORTAL", can_create and THUNDER_BLUFF_PORTAL)
+    if node then self:SetTeleportInfoTarget(info, node, 0, 0, 10, 17031) else self.defered_graph_reset = true end
+  end
+  
+  if GetSpellTexture("Teleport: Undercity") then
+    local node = self:GetNodeByName("UNDERCITY_PORTAL", can_create and UNDERCITY_PORTAL)
+    if node then self:SetTeleportInfoTarget(info, node, 0, 0, 10, 17031) else self.defered_graph_reset = true end
+  end
+  
+  self:SetTeleportInfoReagent(info, 17031, self:CountItem(17031))
 end
 
 function QuestHelper:ResetPathing()
+  for key in pairs(self.named_nodes) do
+    self.named_nodes[key] = nil
+  end
+  
   -- Objectives may include cached information that depends on the world graph.
   local i = 1
   
@@ -523,6 +622,12 @@ function QuestHelper:ResetPathing()
       end
       z = z + 1
     end
+  end
+  
+  self:SetupTeleportInfo(self.teleport_info, true)
+  
+  for node, info in pairs(self.teleport_info.node) do
+    self:TextOut("You can teleport to "..(node.name or "nil").. " in "..self:TimeString(info[1]+info[2]-GetTime()))
   end
   
   if self.faction == "Alliance" then
@@ -620,6 +725,11 @@ function QuestHelper:ResetPathing()
       end
       z = z + 1
     end
+  end
+  
+  -- We'll treat 0 as a special id for where ever it is the player happens to be.
+  for node in pairs(self.teleport_info.node) do
+    node.id_from[0] = true
   end
   
   -- Will go through each zone and link all the nodes we have so far with every other node.

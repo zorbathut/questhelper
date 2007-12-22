@@ -18,7 +18,7 @@ end
 
 local function PositionCompare(a, b)
   return a[1] == b[1] and a[2] == b[2] and
-         QuestHelper.Astrolabe:ComputeDistance(a[1], a[2], a[3], a[4], b[1], b[2], b[3], b[4]) < 450
+         (a[3]-b[3])*(a[3]-b[3])+(a[4]-b[4])*(a[4]-b[4]) < 0.03*0.03
 end
 
 local function VendorCompare(a, b)
@@ -35,7 +35,7 @@ end
 
 local function DropListUpdated(list, static)
   if not list then return false end
-  if not static then return true end
+  if not static then return next(list, nil) ~= nil end
   for name in pairs(list) do
     if not static[name] then return true end
   end
@@ -79,20 +79,25 @@ local function CompareStaticQuest(info, faction, level, name, hash, data)
     updated = true
   elseif data.item then
     if static.item then
-      for name, item in pairs(data.item) do
-        local static_item = static.item[name]
+      for item_name, item in pairs(data.item) do
+        local static_item = static.item[item_name]
         
         if not static_item then
           updated = true
+          break
         elseif item.drop then
-          updated = DropListUpdated(item.drop, static_item.drop)
-        elseif item.pos and not static_item.drop then
-          updated = PositionListUpdated(item.pos, static_item.pos)
+          if DropListUpdated(item.drop, static_item.drop) then
+            updated = true
+            break
+          end
+        elseif item.pos and not static_item.drop and PositionListUpdated(item.pos, static_item.pos) then
+          updated = true
+          break
         end
       end
     else
-      for name, item in pairs(data.item) do
-        if not FindStaticObjective("item", name) then
+      for item_name, item in pairs(data.item) do
+        if not FindStaticObjective("item", item_name) then
           updated = true
           break
         end

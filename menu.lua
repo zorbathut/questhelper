@@ -132,8 +132,10 @@ function QuestHelper:CreateMenu()
     
     local x, y = GetCursorPosition()
     
-    --self:SetParent(QuestHelper.Astrolabe.WorldMapVisible and WorldMapDetailFrame or UIParent)
+    local parent = QuestHelper.Astrolabe.WorldMapVisible and QuestHelper.map_overlay or UIParent
     
+    self:SetParent(parent)
+    self.level = parent:GetFrameLevel()+1
     self:ClearAllPoints()
     self:DoShow()
     self:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", math.max(0, math.min(x-self:GetWidth()/2, UIParent:GetRight()*UIParent:GetScale()-self:GetWidth())), y+5)
@@ -305,7 +307,7 @@ function QuestHelper:CreateMenuItem(menu, text)
     self.text:SetTextColor(ih, ih, ih, 1)
     item.text:SetShadowColor(h, h, h, ih)
     item.text:SetShadowOffset(1, -1)
-    self.background:SetVertexColor(h*0.5+.1, h*0.7+.1, h+.1, h*0.2+0.4)
+    self.background:SetVertexColor(h*0.2+.1, h*0.4+.1, h*0.6+.1, h*0.3+0.4)
     self:SetAlpha(s)
   end
   
@@ -471,8 +473,8 @@ end
 function QuestHelper:CreateMenuTitle(menu, title)
   local item = QuestHelper:CreateMenuItem(menu, title)
   
-  local f1, f2 = QuestHelper:GetTexture(item, "Interface\\AddOns\\QuestHelper\\Art\\Fluff.blp"),
-                 QuestHelper:GetTexture(item, "Interface\\AddOns\\QuestHelper\\Art\\Fluff.blp")
+  local f1, f2 = QuestHelper:GetTexture(item, "Interface\\AddOns\\QuestHelper\\Art\\Fluff.tga"),
+                 QuestHelper:GetTexture(item, "Interface\\AddOns\\QuestHelper\\Art\\Fluff.tga")
   
   f1:SetTexCoord(0, 1, 0, .5)
   f1:SetWidth(20)
