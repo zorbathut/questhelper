@@ -46,7 +46,7 @@ function QuestHelper:UnitPosition(unit)
       SetMapToCurrentZone()
       z = GetCurrentMapZone()
       if z ~= 0 then
-        x, y = self.Astrolabe:TranslateWorldMapPosition(nc, 0, x, y, c, z)
+        x, y = self.Astrolabe:TranslateWorldMapPosition(c, 0, x, y, c, z)
       end
     end
     return c, z, x, y
@@ -128,16 +128,17 @@ function QuestHelper:PositionListDistance(list, c, z, x, y)
 end
 
 function QuestHelper:PositionListDistance2(list, c1, z1, x1, y1, c2, z2, x2, y2)
-  local closest, distance = nil, 0
+  local closest, bd1, bd2, bdt = nil, 0, 0, 0
   for i, p in ipairs(list) do
-    local d = self:Distance(c1, z1, x1, y1, p[1], p[2], p[3], p[4])+
-              self:Distance(c2, z2, x2, y2, p[1], p[2], p[3], p[4])
-    if not closest or d < distance then
-      closest, distance = p, d
+    local d1 = self:Distance(c1, z1, x1, y1, p[1], p[2], p[3], p[4])
+    local d2 = self:Distance(c2, z2, x2, y2, p[1], p[2], p[3], p[4])
+    local t = d1+d2
+    if not closest or t < bdt then
+      closest, bd1, bd2, bdt = d1, d2, t
     end
   end
   if closest then
-    return distance, closest[1], closest[2], closest[3], closest[4]
+    return d1, d2, closest[1], closest[2], closest[3], closest[4]
   end
 end
 

@@ -70,7 +70,7 @@ function QuestHelper:CreateWorldMapWalker()
       end
     end
     
-    for i = #self.dots,#self.frame.route*4+1 do
+    for i = #self.frame.route*4+1,#self.dots do
       self.dots[i]:Hide()
     end
   end

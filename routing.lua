@@ -1,68 +1,57 @@
-function QuestHelper:BestInsertPosition(array, distance, extra, objective)
-  -- array     - Contains the path you want to insert to.
-  -- distance  - How long is the path so far?
-  -- extra     - How far is it from the player to the first node?
-  -- objective - Where are we trying to get to?
-  
-  -- In addition, objective needs i and j set, for the min and max indexes it can be inserted into.
-  
-  -- Returns:
-  -- index    - The index to insert to
-  -- distance - The new length of the path.
-  -- extra    - The new distance from the first node to the player?
-  -- c,z,x,y  - The location chosen to go to.
-  
-  if #array == 0 then
-    return 1, 0, objective:Distance(self.c, self.z, self.x, self.y)
-  end
-  
-  local best_index, best_extra, bc, bz, bx, by
-  
-  if objective.i == 1 then
-    best_index = 1
-    best_extra, bc, bz, bx, by = objective:Distance(self.c, self.z, self.x, self.y)
-    best_distance = self:Distance(bc, bz, bx, by, unpack(array[1].pos))+distance
-    best_total = best_extra+best_distance
-  elseif objective.i == #array+1 then
-    best_distance, bc, bz, bx, by = objective:Distance(unpack(array[#array].pos))
-    best_distance = best_distance + distance
-    return #array+1, best_distance, extra, bc, bz, bx, by
-  else
-    local a, b = array[objective.i-1].pos, array[objective.i].pos
-    best_index = objective.i
-    best_extra = extra
-    best_distance, bc, bz, bx, by = objective:Distance2(a[1], a[2], a[3], a[4], b[1], b[2], b[3], b[4])
-    best_distance = distance + best_distance - self:Distance(a[1], a[2], a[3], a[4], b[1], b[2], b[3], b[4])
-    best_total = best_extra+best_distance
-  end
-  
-  local total = distance+extra
-  
-  for i = objective.i+1, math.min(#array, objective.j) do
-    local a, b = array[i-1].pos, array[i].pos
-    local d, c, z, x, y = objective:Distance2(a[1], a[2], a[3], a[4], b[1], b[2], b[3], b[4])
-    d = total + d - self:Distance(a[1], a[2], a[3], a[4], b[1], b[2], b[3], b[4])
-    if d < best_distance then
-      bc, bz, bx, by = c, z, x, y
-      best_distance = d - extra
-      best_extra = extra
-      best_index = i
+function QuestHelper:DumpRoute(route, distance)
+  local real_distance = 0
+  for i, n in ipairs(route) do
+    if i == #route then
+      self:TextOut(i..": "..n:Reason())
+      self:TextOut(i..": "..self:LocationString(unpack(n.pos)).."\tTotal: "..string.format("%.1f yards.",real_distance))
+    else
+      real_distance = real_distance + (n.len or 0)
+      self:TextOut(i..": "..n:Reason())
+      self:TextOut(i..": "..self:LocationString(unpack(n.pos)).."\tNext: "..string.format("%.1f yards.", n.len))
     end
   end
-  
-  if objective.j == #array+1 then
-    local d, c, z, x, y = objective:Distance(unpack(array[#array].pos))
-    d = total + d
-    if d < best_distance then
-      return #array+1, d-extra, extra, c, z, x, y
-    end
+  if math.abs(distance,real_distance) > 0.00001 then
+    self:TextOut("Distance error: "..string.format("%.2f%%",(real_distance-distance)*100))
   end
-  
-  return best_index, best_distance, best_extra, bc, bz, bx, by
 end
 
-function QuestHelper:BestInsertPositionSOP(array, distance, extra, objective)
-  -- array     - Contains the path you want to insert to.
+function QuestHelper:CalcObjectiveIJ(route, obj)
+  obj.i, obj.j = 1, #route+1
+  
+  for i, o in ipairs(route) do
+    if obj.after[o] then
+      obj.i = i+1
+    elseif obj.before[o] then
+      obj.j = i
+    end
+  end
+end
+
+function QuestHelper:RemoveIndexFromRoute(array, distance, extra, index)
+  if #array == 1 then
+    distance = 0
+    extra = 0
+    table.remove(array, 1)
+  elseif index == 1 then
+    distance = distance - array[1].len
+    extra = self:Distance(self.c, self.z, self.x, self.y, unpack(array[2].pos))
+    table.remove(array, 1)
+  elseif index == #array then
+    distance = distance - array[index-1].len
+    table.remove(array, index)
+  else
+    local a, b = array[index-1], table.remove(array, index)
+    local ap, np = a.pos, array[index].pos -- really index+1, but got shifted down.
+    distance = distance - a.len - b.len
+    a.len = self:Distance(ap[1], ap[2], ap[3], ap[4], np[1], np[2], np[3], np[4])
+    distance = distance + a.len
+  end
+  
+  return distance, extra
+end
+
+function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective)
+  -- array     - Contains the path you want to insert into.
   -- distance  - How long is the path so far?
   -- extra     - How far is it from the player to the first node?
   -- objective - Where are we trying to get to?
@@ -70,59 +59,180 @@ function QuestHelper:BestInsertPositionSOP(array, distance, extra, objective)
   -- In addition, objective needs i and j set, for the min and max indexes it can be inserted into.
   
   -- Returns:
-  -- index    - The index to insert to
+  -- index    - The index to inserted into.
   -- distance - The new length of the path.
-  -- extra    - The new distance from the first node to the player?
-  -- c,z,x,y  - The location chosen to go to.
+  -- extra    - The new distance from the first node to the player.
   
   if #array == 0 then
-    return 1, 0, objective:Distance(self.c, self.z, self.x, self.y)
+    table.insert(array, 1, objective)
+    local p = objective.pos
+    extra, p[1], p[2], p[3], p[4] = objective:Distance(self.c, self.z, self.x, self.y)
+    return 1, 0, extra
   end
   
-  local best_index, best_extra, bc, bz, bx, by
+  local best_index, best_extra, best_total, best_len1, best_len2, bc, bz, bx, by
   
   if objective.i == 1 then
     best_index = 1
     best_extra, bc, bz, bx, by = objective:Distance(self.c, self.z, self.x, self.y)
-    best_distance = self:Distance(bc, bz, bx, by, unpack(array[1].sop))+distance
-    best_total = best_extra+best_distance
+    -- best_len1 SHOULDN'T BE UNUSED WHEN INDEX = 1
+    best_len2 = self:Distance(bc, bz, bx, by, unpack(array[1].pos))
+    best_total = best_extra+distance+best_len2
   elseif objective.i == #array+1 then
-    best_distance, bc, bz, bx, by = objective:Distance(unpack(array[#array].sop))
-    best_distance = best_distance + distance
-    return #array+1, best_distance, extra, bc, bz, bx, by
+    local p = objective.pos
+    local o = array[#array]
+    o.len, p[1], p[2], p[3], p[4] = objective:Distance(unpack(array[#array].pos))
+    table.insert(array, objective)
+    return #array, distance+o.len, extra
   else
-    local a, b = array[objective.i-1].sop, array[objective.i].sop
+    local a = array[objective.i-1]
+    local ap, bp = a.pos, array[objective.i].pos
     best_index = objective.i
+    best_len1, best_len2, bc, bz, bx, by = objective:Distance2(ap[1], ap[2], ap[3], ap[4], bp[1], bp[2], bp[3], bp[4])
     best_extra = extra
-    best_distance, bc, bz, bx, by = objective:Distance2(a[1], a[2], a[3], a[4], b[1], b[2], b[3], b[4])
-    best_distance = distance + best_distance - self:Distance(a[1], a[2], a[3], a[4], b[1], b[2], b[3], b[4])
-    best_total = best_extra+best_distance
+    best_total = distance - a.len + best_len1 + best_len2 + extra
   end
   
   local total = distance+extra
   
   for i = objective.i+1, math.min(#array, objective.j) do
-    local a, b = array[i-1].sop, array[i].sop
-    local d, c, z, x, y = objective:Distance2(a[1], a[2], a[3], a[4], b[1], b[2], b[3], b[4])
-    d = total + d - self:Distance(a[1], a[2], a[3], a[4], b[1], b[2], b[3], b[4])
-    if d < best_distance then
+    local a = array[i-1]
+    local ap, bp = a.pos, array[i].pos
+    local l1, l2, c, z, x, y = objective:Distance2(ap[1], ap[2], ap[3], ap[4], bp[1], bp[2], bp[3], bp[4])
+    local d = total - a.len + l1 + l2
+    if d < best_total then
       bc, bz, bx, by = c, z, x, y
-      best_distance = d - extra
+      best_len1 = l1
+      best_len2 = l2
       best_extra = extra
+      best_total = d
       best_index = i
     end
   end
   
   if objective.j == #array+1 then
-    local d, c, z, x, y = objective:Distance(unpack(array[#array].sop))
-    d = total + d
-    if d < best_distance then
-      return #array+1, d-extra, extra, c, z, x, y
+    local l1, c, z, x, y = objective:Distance(unpack(array[#array].pos))
+    local d = total + l1
+    if d < best_total then
+      local p = objective.pos
+      p[1], p[2], p[3], p[4] = c, z, x, y
+      array[#array].len = l1
+      table.insert(array, objective)
+      return #array, d-extra, extra
     end
   end
   
-  return best_index, best_distance, best_extra, bc, bz, bx, by
+  local p = objective.pos
+  p[1], p[2], p[3], p[4] = bc, bz, bx, by
+  if best_index > 1 then array[best_index-1].len = best_len1 end
+  objective.len = best_len2
+  table.insert(array, best_index, objective)
+  return best_index, best_total-best_extra, best_extra
 end
+
+function QuestHelper:RemoveIndexFromRouteSOP(array, distance, extra, index)
+  if #array == 1 then
+    distance = 0
+    extra = 0
+    table.remove(array, 1)
+  elseif index == 1 then
+    distance = distance - array[1].nel
+    extra = self:Distance(self.c, self.z, self.x, self.y, unpack(array[2].sop))
+    table.remove(array, 1)
+  elseif index == #array then
+    distance = distance - array[index-1].nel
+    table.remove(array, index)
+  else
+    local a, b = array[index-1], table.remove(array, index)
+    local ap, np = a.sop, array[index].sop -- really index+1, but got shifted down.
+    distance = distance - a.nel - b.nel
+    a.nel = self:Distance(ap[1], ap[2], ap[3], ap[4], np[1], np[2], np[3], np[4])
+    distance = distance + a.nel
+  end
+  
+  return distance, extra
+end
+
+function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objective)
+  -- array     - Contains the path you want to insert into.
+  -- distance  - How long is the path so far?
+  -- extra     - How far is it from the player to the first node?
+  -- objective - Where are we trying to get to?
+  
+  -- In addition, objective needs i and j set, for the min and max indexes it can be inserted into.
+  
+  -- Returns:
+  -- index    - The index to inserted into.
+  -- distance - The new length of the path.
+  -- extra    - The new distance from the first node to the player.
+  
+  if #array == 0 then
+    table.insert(array, 1, objective)
+    local p = objective.sop
+    extra, p[1], p[2], p[3], p[4] = objective:Distance(self.c, self.z, self.x, self.y)
+    return 1, 0, extra
+  end
+  
+  local best_index, best_extra, best_total, best_len1, best_len2, bc, bz, bx, by
+  
+  if objective.i == 1 then
+    best_index = 1
+    best_extra, bc, bz, bx, by = objective:Distance(self.c, self.z, self.x, self.y)
+    -- best_len1 SHOULDN'T BE UNUSED WHEN INDEX = 1
+    best_len2 = self:Distance(bc, bz, bx, by, unpack(array[1].sop))
+    best_total = best_extra+distance+best_len2
+  elseif objective.i == #array+1 then
+    local p = objective.sop
+    local o = array[#array]
+    o.nel, p[1], p[2], p[3], p[4] = objective:Distance(unpack(array[#array].sop))
+    table.insert(array, objective)
+    return #array, distance+o.nel, extra
+  else
+    local a = array[objective.i-1]
+    local ap, bp = a.sop, array[objective.i].sop
+    best_index = objective.i
+    best_len1, best_len2, bc, bz, bx, by = objective:Distance2(ap[1], ap[2], ap[3], ap[4], bp[1], bp[2], bp[3], bp[4])
+    best_extra = extra
+    best_total = distance - a.nel + best_len1 + best_len2 + extra
+  end
+  
+  local total = distance+extra
+  
+  for i = objective.i+1, math.min(#array, objective.j) do
+    local a = array[i-1]
+    local ap, bp = a.sop, array[i].sop
+    local l1, l2, c, z, x, y = objective:Distance2(ap[1], ap[2], ap[3], ap[4], bp[1], bp[2], bp[3], bp[4])
+    local d = total - a.nel + l1 + l2
+    if d < best_total then
+      bc, bz, bx, by = c, z, x, y
+      best_len1 = l1
+      best_len2 = l2
+      best_extra = extra
+      best_total = d
+      best_index = i
+    end
+  end
+  
+  if objective.j == #array+1 then
+    local l1, c, z, x, y = objective:Distance(unpack(array[#array].sop))
+    local d = total + l1
+    if d < best_total then
+      local p = objective.sop
+      p[1], p[2], p[3], p[4] = c, z, x, y
+      array[#array].nel = l1
+      table.insert(array, objective)
+      return #array, d-extra, extra
+    end
+  end
+  
+  local p = objective.sop
+  p[1], p[2], p[3], p[4] = bc, bz, bx, by
+  if best_index > 1 then array[best_index-1].nel = best_len1 end
+  objective.nel = best_len2
+  table.insert(array, best_index, objective)
+  return best_index, best_total-best_extra, best_extra
+end
+
 
 local function RouteUpdateRoutine(self)
   local minimap_dodad = self:CreateMipmapDodad()
@@ -161,7 +271,8 @@ local function RouteUpdateRoutine(self)
               minimap_dodad:SetObjective(route[2])
             end
           end
-          table.remove(route, i)
+          
+          distance, extra = self:RemoveIndexFromRoute(route, distance, extra, i)
           break
         end
       end
@@ -173,27 +284,12 @@ local function RouteUpdateRoutine(self)
         self.to_add[obj] = nil
         
         if #route == 0 then
-          extra, obj.pos[1], obj.pos[2], obj.pos[3], obj.pos[4] =
-            obj:Distance(self.c, self.z, self.x, self.y)
-          
-          table.insert(route, obj)
+          insert, distance, extra = self:InsertObjectiveIntoRoute(route, distance, extra, obj)
           minimap_dodad:Show()
           minimap_dodad:SetObjective(obj)
         else
-          obj.i, obj.j = 1, #route+1
-          
-          for i, o in ipairs(route) do
-            if obj.after[o] then
-              obj.i = i+1
-            elseif obj.before[o] then
-              obj.j = i
-            end
-          end
-          
-          insert, distance, extra, obj.pos[1], obj.pos[2], obj.pos[3], obj.pos[4]
-           = self:BestInsertPosition(route, distance, extra, obj)
-          
-          table.insert(route, insert, obj)
+          self:CalcObjectiveIJ(route, obj)
+          insert, distance, extra = self:InsertObjectiveIntoRoute(route, distance, extra, obj)
           
           if insert == 1 then
             minimap_dodad:SetObjective(obj)
@@ -202,149 +298,141 @@ local function RouteUpdateRoutine(self)
       end
     end
     
-    -- If the size changed, update the table we use for shuffling.
+    -- If size decreased, all the old indexes need to be reset.
     if #route < original_size then
       for i=1,#route do
         shuffle[i] = i
       end
-    else
-      for i=original_size+1,#route do
-        shuffle[i] = i
-      end
+    end
+    
+    -- Append new indexes to shuffle.
+    for i=original_size+1,#route do
+      shuffle[i] = i
     end
     
     -- Thats enough work for now, we'll continue next frame.
     coroutine.yield()
     
     if #route > 0 then
-      -- Move the points around in the existing path if needed. This will hopefully optimize the path somewhat, and
-      -- reposition objectives if we learn that we can't do something the way we thought we could.
       
-      -- TODO: Cache distances.
+      -- We'll randomly remove one of the points in the route and reinsert it.
+      -- Hopefully we'll insert it into a better location, but if not, it'll
+      -- at least have the side effect of making sure its relations ships
+      -- with other nodes is still correct, assuming it was made to be
+      -- before or after another since it was inserted.
+      local recheck_index = math.random(1, #route)
+      local recheck_object = route[recheck_index]
+      distance, extra = self:RemoveIndexFromRoute(route, distance, extra, recheck_index)
+      self:CalcObjectiveIJ(route, recheck_object)
+      insert, distance, extra = self:InsertObjectiveIntoRoute(route, distance, extra, recheck_object)
       
-      if #route == 1 then
-        local o = route[1]
-        extra, o.pos[1], o.pos[2], o.pos[3], o.pos[4] = o:Distance(self.c, self.z, self.x, self.y)
-        minimap_dodad:SetObjective(o)
-        local icon = waypoint_icons[1]
-        if not icon then
-          icon = self:CreateWorldMapDodad(o, 1)
-          waypoint_icons[1] = icon
-        else
-          icon:SetObjective(o, 1)
-        end
-        for i = 2,#waypoint_icons do
-          waypoint_icons[i]:Hide()
-        end
-      else
-        local d
-        for i, o in ipairs(route) do
-          if i == 1 then
-            local old_d = self:Distance(o.pos[1], o.pos[2], o.pos[3], o.pos[4], unpack(route[2].pos))
-            d, o.pos[1], o.pos[2], o.pos[3], o.pos[4] = o:Distance2(self.c, self.z, self.x, self.y, unpack(route[2].pos))
-            local new_d = self:Distance(o.pos[1], o.pos[2], o.pos[3], o.pos[4], unpack(route[2].pos))
-            distance = distance - old_d + new_d
-            extra = d - new_d
-            minimap_dodad:SetObjective(o)
-          elseif i == #route then
-            local old_d = self:Distance(o.pos[1], o.pos[2], o.pos[3], o.pos[4], unpack(route[#route-1].pos))
-            d, o.pos[1], o.pos[2], o.pos[3], o.pos[4] = o:Distance(unpack(route[#route-1].pos))
-            distance = distance - old_d + d
-          else
-            local a, b = route[i-1], route[i+1]
-            old_d = self:Distance(a.pos[1], a.pos[2], a.pos[3], a.pos[4], unpack(o.pos))+
-                    self:Distance(o.pos[1], o.pos[2], o.pos[3], o.pos[4], unpack(b.pos))
-            d, o.pos[1], o.pos[2], o.pos[3], o.pos[4] = o:Distance2(a.pos[1], a.pos[2], a.pos[3], a.pos[4], unpack(b.pos))
-            distance = distance - old_d + d
-          end
-          
-          local icon = waypoint_icons[i]
-          if not icon then
-            icon = self:CreateWorldMapDodad(o, i)
-            waypoint_icons[i] = icon
-          else
-            icon:SetObjective(o, i)
-          end
-        end
-        for i = #route+1,#waypoint_icons do
-          waypoint_icons[i]:Hide()
-        end
+      if insert == 1 or recheck_index == 1 then
+        minimap_dodad:SetObjective(route[1])
       end
       
       coroutine.yield()
       
-      local new_distance, new_extra = 0, 0
-      extra = self:Distance(self.c, self.z, self.x, self.y, unpack(route[1].pos))
-      
-      for i=1,#route-1 do
-        local r = math.random(i, #route)
-        if r ~= i then
-          local t = shuffle[i]
-          shuffle[i] = shuffle[r]
-          shuffle[r] = t
-        end
-      end
-      
-      point = route[shuffle[1]]
-      new_distance = 0
-      new_extra, point.sop[1], point.sop[2], point.sop[3], point.sop[4] = point:Distance(self.c, self.z, self.x, self.y)
-      
-      table.insert(new_route, point)
-      
-      for j=2,#route do
-        local p = route[shuffle[j]]
+      if #route > 2 then
+        -- To help prevent getting into a local minimum, we'll also construct a new path from scratch.
+        -- If it ends up being smaller than the original path, we'll use it instead.
         
-        if p.before[point] then
-          p.i = 1
-          p.j = 1
-        elseif p.after[point] then
-          p.i = 2
-          p.j = 2
-        else
-          p.i = 1
-          p.j = 2
-        end
-      end
-      
-      for i=2,#route do
-        point = route[shuffle[i]]
-        
-        insert, new_distance, new_extra, point.sop[1], point.sop[2], point.sop[3], point.sop[4]
-          = self:BestInsertPositionSOP(new_route, new_distance, new_extra, point)
-        
-        for j=i+1,#route do
-          local p = route[shuffle[j]]
-          if p.before[point] then
-            p.j = insert
-          elseif p.after[point] then
-            p.i = insert+1
-            p.j = p.j + 1
-          elseif p.j > insert then
-            p.j = p.j + 1
-            if p.i > insert then p.i = p.i + 1 end
+        for i=1,#route-1 do -- Shuffling the order we'll add the nodes in.
+          local r = math.random(i, #route)
+          if r ~= i then
+            local t = shuffle[i]
+            shuffle[i] = shuffle[r]
+            shuffle[r] = t
           end
         end
         
-        table.insert(new_route, insert, point)
-        coroutine.yield()
-      end
-      
-      if new_distance+new_extra+0.01 < distance+extra then
-        for i, node in ipairs(new_route) do
-          table.remove(route)
-          local t = node.pos
-          node.pos = node.sop
-          node.sop = t
+        -- Insert the first point.
+        local new_distance, new_extra
+        point = route[shuffle[1]]
+        insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, 0, 0, point)
+        
+        -- Set up the i/j values for all the other points, based on the first point.
+        for i=2,#route do
+          local p = route[shuffle[i]]
+          if p.before[point] then p.i, p.j = 1, 1
+          elseif p.after[point] then p.i, p.j = 2, 2
+          else p.i, p.j = 1, 2
+          end
         end
         
-        self.route = new_route
-        new_route = route
-        route = self.route
-        distance = new_distance
-        extra = new_extra
-      else
-        for i = 1,#route do table.remove(new_route) end
+        -- Insert the rest of the points.
+        for i=2,#route do
+          point = route[shuffle[i]]
+          insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point)
+          
+          for j=i+1,#route do
+            local p = route[shuffle[j] ]
+            if p.before[point] then p.j = insert
+            elseif p.after[point] then p.i, p.j = insert+1, p.j + 1
+            elseif p.j > insert then
+              p.j = p.j + 1
+              if p.i > insert then p.i = p.i + 1 end
+            end
+          end
+          
+          coroutine.yield()
+        end
+        
+        -- The existing route has the advantage of having been optimized, so we'll go through the new
+        -- route and remove and re-add each point once.
+        
+        for i=1,#route-1 do -- Shuffling the order we'll add the nodes in.
+          local r = math.random(i, #route)
+          if r ~= i then
+            local t = shuffle[i]
+            shuffle[i] = shuffle[r]
+            shuffle[r] = t
+          end
+        end
+        
+        for i=1,#route do
+          -- TODO: Due to the inserting/removing, I might skip a node or do one twice. Not gonna worry right now.
+          point = new_route[shuffle[i]]
+          new_distance, new_extra = self:RemoveIndexFromRouteSOP(new_route, new_distance, new_extra, shuffle[i])
+          self:CalcObjectiveIJ(new_route, point)
+          insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point)
+          coroutine.yield()
+        end
+        
+        -- If the distance is less than what we have so far, then use it.
+        if new_distance+new_extra+0.01 < distance+extra then
+          for i, node in ipairs(new_route) do
+            table.remove(route)
+            node.len = node.nel
+            local t = node.pos
+            node.pos = node.sop
+            node.sop = t
+          end
+          
+          self.route = new_route
+          new_route = route
+          route = self.route
+          distance = new_distance
+          extra = new_extra
+          minimap_dodad:SetObjective(route[1])
+        else
+          for i = 1,#route do table.remove(new_route) end
+        end
       end
+    end
+    
+    for i = 1,#route do
+      local node = route[i]
+      local wp = waypoint_icons[i]
+      if wp then
+        wp:SetObjective(node, i)
+      else
+        wp = self:CreateWorldMapDodad(node, i)
+        waypoint_icons[i] = wp
+      end
+    end
+    
+    for i = #route+1,#waypoint_icons do
+      waypoint_icons[i]:Hide()
     end
   end
 end

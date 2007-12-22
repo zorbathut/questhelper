@@ -171,15 +171,16 @@ end
 local function ItemObjectiveDistance2(self, c1, z1, x1, y1, c2, z2, x2, y2)
   -- TODO: Going to return 2 distances later.
   
-  local distance, score, bc, bz, bx, by = nil, nil, 0, 0, 0, 0
+  local bd1, bd2, score, bc, bz, bx, by = 0, 0, nil, nil, 0, 0, 0, 0
   
   if self.o.vendor then for i, npc in ipairs(self.o.vendor) do
     local n = self.qh:GetObjective("monster", npc)
     if (not n.o.faction or n.o.faction == qh.faction) and
        (not n.fb.faction or n.fb.faction == qh.faction) then
-      local d, nc, nz, nx, ny = n:Distance2(c1, z1, x1, y1, c2, z2, x2, y2)
-      if not score or d < score then
-        distance, score, bc, bz, bx, by = d, d, nc, nz, nx, ny
+      local d1, d2, nc, nz, nx, ny = n:Distance2(c1, z1, x1, y1, c2, z2, x2, y2)
+      local t = d1+d2
+      if not score or t < score then
+        bd1, bd2, score, bc, bz, bx, by = d1, d2, t, nc, nz, nx, ny
       end
     end
   end end
@@ -188,53 +189,54 @@ local function ItemObjectiveDistance2(self, c1, z1, x1, y1, c2, z2, x2, y2)
     local n = self.qh:GetObjective("monster", npc)
     if (not n.o.faction or n.o.faction == qh.faction) and
        (not n.fb.faction or n.fb.faction == qh.faction) then
-      local d, nc, nz, nx, ny = n:Distance2(c1, z1, x1, y1, c2, z2, x2, y2)
-      if not score or d < score then
-        distance, score, bc, bz, bx, by = d, d, nc, nz, nx, ny
+      local d1, d2, nc, nz, nx, ny = n:Distance2(c1, z1, x1, y1, c2, z2, x2, y2)
+      local t = d1+d2
+      if not score or t < score then
+        bd1, bd2, score, bc, bz, bx, by = d1, d2, t, nc, nz, nx, ny
       end
     end
   end end
   
   if self.o.drop then for monster, count in pairs(self.o.drop) do
     local m = self.qh:GetObjective("monster", monster)
-    local d, nc, nz, nx, ny = m:Distance2(c1, z1, x1, y1, c2, z2, x2, y2)
-    if d then
-      local s = d/count*(m.o.looted or 1)
+    local d1, d2, nc, nz, nx, ny = m:Distance2(c1, z1, x1, y1, c2, z2, x2, y2)
+    if d1 then
+      local s = (d1+d2)/count*(m.o.looted or 1)
       if not score or s < score then
-        distance, score, bc, bz, bx, by = d, s, nc, nz, nx, ny
+        bd1, bd2, score, bc, bz, bx, by = d1, d2, s, nc, nz, nx, ny
       end
     end
   end end
   
   if self.fb.drop then for monster, count in pairs(self.fb.drop) do
     local m = self.qh:GetObjective("monster", monster)
-    local d, nc, nz, nx, ny = m:Distance2(c1, z1, x1, y1, c2, z2, x2, y2)
-    if d then
-      local s = d/count*(m.fb.looted or 1)
+    local d1, d2, nc, nz, nx, ny = m:Distance2(c1, z1, x1, y1, c2, z2, x2, y2)
+    if d1 then
+      local s = (d1+d2)/count*(m.fb.looted or 1)
       if not score or s < score then
-        distance, score, bc, bz, bx, by = d, s, nc, nz, nx, ny
+        bd1, bd2, score, bc, bz, bx, by = d1, d2, s, nc, nz, nx, ny
       end
     end
   end end
   
-  if distance then return distance, bc, bz, bx, by end
+  if score then return bd1, bd2, bc, bz, bx, by end
   
   if self.o.pos then for i, p in ipairs(self.o.pos) do
-    local d = self.qh:Distance(c1, z1, x1, y1, p[1], p[2], p[3], p[4])+
-              self.qh:Distance(c2, z2, x2, y2, p[1], p[2], p[3], p[4])
+    local d1 = self.qh:Distance(c1, z1, x1, y1, p[1], p[2], p[3], p[4])
+    local d2 = self.qh:Distance(c2, z2, x2, y2, p[1], p[2], p[3], p[4])
     -- Pretend upto 3x distance for a monster we've only seen once, approaching the actual distance the more we've seen.
-    local s = d + d*2/p[5]
+    local s = d1+d2+(d1+d2)*2/p[5]
     if not score or s < score then
-      distance, score, bc, bz, bx, by = d, s, p[1], p[2], p[3], p[4]
+      bd1, bd2, score, bc, bz, bx, by = d1, d2, s, p[1], p[2], p[3], p[4]
     end
   end end
   
   if self.fb.pos then for i, p in ipairs(self.fb.pos) do
-    local d = self.qh:Distance(c1, z1, x1, y1, p[1], p[2], p[3], p[4])+
-              self.qh:Distance(c2, z2, x2, y2, p[1], p[2], p[3], p[4])
-    local s = d + d*2/p[5]
+    local d1 = self.qh:Distance(c1, z1, x1, y1, p[1], p[2], p[3], p[4])
+    local d2 = self.qh:Distance(c2, z2, x2, y2, p[1], p[2], p[3], p[4])
+    local s = d1+d2+(d1+d2)*2/p[5]
     if not score or s < score then
-      distance, score, bc, bz, bx, by = d, s, p[1], p[2], p[3], p[4]
+      bd1, bd2, bc, bz, bx, by = d1, d2, s, p[1], p[2], p[3], p[4]
     end
   end end
   
@@ -245,21 +247,21 @@ local function ItemObjectiveDistance2(self, c1, z1, x1, y1, c2, z2, x2, y2)
       if data.drop then
         for monster, count in pairs(data.drop) do
           local m = self.qh:GetObjective("monster", monster)
-          local d, nc, nz, nx, ny = m:Distance2(c1, z1, x1, y1, c2, z2, x2, y2)
-          if d then
-            local s = d/count*(m.o.looted or 1)
+          local d1, d2, nc, nz, nx, ny = m:Distance2(c1, z1, x1, y1, c2, z2, x2, y2)
+          if d1 then
+            local s = (d1+d2)/count*(m.o.looted or 1)
             if not score or s < score then
-              distance, score, bc, bz, bx, by = d, s, nc, nz, nx, ny
+              bd1, bd2, score, bc, bz, bx, by = d1, d2, s, nc, nz, nx, ny
             end
           end
         end
       elseif data.pos then
         for i, p in ipairs(data.pos) do
-          local d = self.qh:Distance(c1, z1, x1, y1, p[1], p[2], p[3], p[4])+
-                    self.qh:Distance(c2, z2, x2, y2, p[1], p[2], p[3], p[4])
-          local s = d + d*2/p[5]
+          local d1 = self.qh:Distance(c1, z1, x1, y1, p[1], p[2], p[3], p[4])
+          local d2 = self.qh:Distance(c2, z2, x2, y2, p[1], p[2], p[3], p[4])
+          local s = d1+d2+(d1+d2)*2/p[5]
           if not score or s < score then
-            distance, score, bc, bz, bx, by = d, s, p[1], p[2], p[3], p[4]
+            bd1, bd2, score, bc, bz, bx, by = d1, d2, s, p[1], p[2], p[3], p[4]
           end
         end
       end
@@ -271,28 +273,28 @@ local function ItemObjectiveDistance2(self, c1, z1, x1, y1, c2, z2, x2, y2)
       if data.drop then
         for monster, count in pairs(data.drop) do
           local m = self.qh:GetObjective("monster", monster)
-          local d, nc, nz, nx, ny = m:Distance2(c1, z1, x1, y1, c2, z2, x2, y2)
-          if d then
-            local s = d/count*(m.fb.looted or 1)
+          local d1, d2, nc, nz, nx, ny = m:Distance2(c1, z1, x1, y1, c2, z2, x2, y2)
+          if d1 then
+            local s = (d1+d2)/count*(m.fb.looted or 1)
             if not score or s < score then
-              distance, score, bc, bz, bx, by = d, s, nc, nz, nx, ny
+              bd1, bd2, score, bc, bz, bx, by = d1, d2, s, nc, nz, nx, ny
             end
           end
         end
       elseif data.pos then
         for i, p in ipairs(data.pos) do
-          local d = self.qh:Distance(c1, z1, x1, y1, p[1], p[2], p[3], p[4])+
-                    self.qh:Distance(c2, z2, x2, y2, p[1], p[2], p[3], p[4])
-          local s = d + d*2/p[5]
+          local d1 = self.qh:Distance(c1, z1, x1, y1, p[1], p[2], p[3], p[4])
+          local d2 = self.qh:Distance(c2, z2, x2, y2, p[1], p[2], p[3], p[4])
+          local s = d1+d2+(d1+d2)*2/p[5]
           if not score or s < score then
-            distance, score, bc, bz, bx, by = d, s, p[1], p[2], p[3], p[4]
+            bd1, bd2, score, bc, bz, bx, by = d1, d2, s, p[1], p[2], p[3], p[4]
           end
         end
       end
     end
   end
   
-  return distance, bc, bz, bx, by
+  return bd1, bd2, bc, bz, bx, by
 end
 
 local function ItemObjectiveKnown(self)
@@ -472,27 +474,27 @@ local function MonsterObjectiveDistance(self, c, z, x, y)
 end
 
 local function MonsterObjectiveDistance2(self, c1, z1, x1, y1, c2, z2, x2, y2)
-  local distance, score, bc, bz, bx, by = nil, nil
+  local bd1, bd2, score, bc, bz, bx, by = nil, nil, nil
   
   if self.o.pos then for i, p in ipairs(self.o.pos) do
-    local d = self.qh:Distance(c1, z1, x1, y1, p[1], p[2], p[3], p[4])+
-              self.qh:Distance(c2, z2, x2, y2, p[1], p[2], p[3], p[4])
-    local s = d + d*2/p[5]
+    local d1 = self.qh:Distance(c1, z1, x1, y1, p[1], p[2], p[3], p[4])
+    local d2 = self.qh:Distance(c2, z2, x2, y2, p[1], p[2], p[3], p[4])
+    local s = d1+d2+(d1+d2)*2/p[5]
     if not score or s < score then
-      distance, score, bc, bz, bx, by = d, s, p[1], p[2], p[3], p[4]
+      bd1, bd2, score, bc, bz, bx, by = d1, d2, s, p[1], p[2], p[3], p[4]
     end
   end end
   
   if self.fb.pos then for i, p in ipairs(self.fb.pos) do
-    local d = self.qh:Distance(c1, z1, x1, y1, p[1], p[2], p[3], p[4])+
-              self.qh:Distance(c2, z2, x2, y2, p[1], p[2], p[3], p[4])
-    local s = d + d*2/p[5]
+    local d1 = self.qh:Distance(c1, z1, x1, y1, p[1], p[2], p[3], p[4])
+    local d2 = self.qh:Distance(c2, z2, x2, y2, p[1], p[2], p[3], p[4])
+    local s = d1+d2+(d1+d2)*2/p[5]
     if not score or s < score then
-      distance, score, bc, bz, bx, by = d, s, p[1], p[2], p[3], p[4]
+      bd1, bd2, score, bc, bz, bx, by = d1, d2, s, p[1], p[2], p[3], p[4]
     end
   end end
   
-  return distance, bc, bz, bx, by
+  return bd1, bd2, bc, bz, bx, by
 end
 
 local function MonsterObjectiveKnown(self)
