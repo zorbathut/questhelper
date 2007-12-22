@@ -2,9 +2,15 @@
 ## Title: QuestHelper
 ## Author: smariot
 ## Notes: Calculates an optimal route for you to follow while questing.
-## Version: 0.3
+## Version: 0.4
 ## SavedVariables: QuestHelper_SaveVersion QuestHelper_Locale QuestHelper_Quests QuestHelper_Objectives
 Astrolabe\Load.xml
 static.lua
 upgrade.lua
 main.lua
+quest.lua
+objective.lua
+questlog.lua
+utility.lua
+dodads.lua
+routing.lua

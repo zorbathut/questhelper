@@ -1,6 +1,6 @@
 local StaticData = {}
 
-local function GetQuest(locale, faction, level, name, hash)
+function GetQuest(locale, faction, level, name, hash)
   local l = StaticData[locale]
   if not l then
     l = {}
@@ -45,7 +45,7 @@ local function GetQuest(locale, faction, level, name, hash)
   return q
 end
 
-local function GetObjective(locale, category, name)
+function GetObjective(locale, category, name)
   local l = StaticData[locale]
   if not l then
     l = {}
@@ -72,10 +72,11 @@ local function Distance(a, b)
 end
 
 local function TidyPositionList(list)
-  local i = 1
-  local changed = false
   while true do
-    while i ~= #list do
+    if #list == 0 then return end
+    local changed = false
+    local i = 1
+    while i < #list do
       local nearest, distance = nil, 0
       for j = i+1, #list do
         local d = Distance(list[i], list[j])
@@ -84,7 +85,7 @@ local function TidyPositionList(list)
         end
       end
       if nearest and distance < 0.05 then
-        local a, b = list[i].pos, list[closest].pos
+        local a, b = list[i], list[nearest]
         a[3] = (a[3]*a[5]+b[3]*b[5])/(a[5]+b[5])
         a[4] = (a[4]*a[5]+b[4]*b[5])/(a[5]+b[5])
         a[5] = a[5]+b[5]
@@ -98,7 +99,42 @@ local function TidyPositionList(list)
       -- Because we moved nodes around, we'll check again to make sure we didn't move too close together
       break
     end
-    changed = false
+  end
+  for i, j in ipairs(list) do
+    j[3] = math.floor(j[3]*10000+0.5)/10000
+    j[4] = math.floor(j[4]*10000+0.5)/10000
+  end
+end
+
+local function DropListMass(list)
+  local mass = 0
+  for item, count in pairs(list) do
+    mass = mass + count
+  end
+  return mass
+end
+
+local function PositionListMass(list)
+  local mass = 0
+  for _, pos in ipairs(list) do
+    mass = mass + pos[5]
+  end
+  return mass
+end
+
+local function CollapseDropList(list)
+  local result, c = nil, 0
+  for item, count in pairs(list) do
+    if count > c then
+      result, c = item, count
+    end
+  end
+  return result
+end
+
+local function MergeDropLists(list, add)
+  for item, count in pairs(add) do
+    list[item] = (list[item] or 0) + count
   end
 end
 
@@ -140,6 +176,22 @@ local function AddQuestPos(quest, pos)
   MergePositionLists(quest.pos, pos)
 end
 
+local function AddQuestItems(quest, list)
+  for item, data in pairs(list) do
+    if type(data.drop) == "table" then
+      if not quest.item then quest.item = {} end
+      if not quest.item[item] then quest.item[item] = {} end
+      if not quest.item[item].drop then quest.item[item].drop = {} end
+      MergeDropLists(quest.item[item].drop, data.drop)
+    elseif type(data.pos) == "table" then
+      if not quest.item then quest.item = {} end
+      if not quest.item[item] then quest.item[item] = {} end
+      if not quest.item[item].pos then quest.item[item].pos = {} end
+      MergePositionLists(quest.item[item].pos, data.pos)
+    end
+  end
+end
+
 local function AddQuest(locale, faction, level, name, data)
   if type(faction) == "string" and (faction == "Horde" or faction == "Alliance")
      and type(level) == "number" and level >= 1 and level <= 100
@@ -151,6 +203,10 @@ local function AddQuest(locale, faction, level, name, data)
       AddQuestEnd(q, data.finish)
     elseif type(data.pos) == "table" then
       AddQuestPos(q, data.pos)
+    end
+    
+    if type(data.item) == "table" then
+      AddQuestItems(q, data.item)
     end
     
     if type(data.hash) == "number" and type(data.alt) == "table" then
@@ -212,34 +268,35 @@ local function AddObjective(locale, category, name, objective)
 end
 
 local function CollapseQuest(quest)
-  local best_name, name_score = nil, 0
-  
-  if quest.finish then
-    for name, weight in pairs(quest.finish) do
-      if not best_name or weight > name_score then
-        best_name, name_score = name, weight
-      end
-    end
-  end
-  
-  local pos_score = 0
-  
-  if quest.pos then
-    for i, pos in ipairs(quest.pos) do
-      pos_score = pos_score + pos[5]
-    end
-  end
-  
-  if name_score < 0 and pos_score < 1 then
-    return false
-  end
+  local name_score = quest.finish and DropListMass(quest.finish) or 0
+  local pos_score = quest.pos and PositionListMass(quest.pos) or 0
   
   if name_score > pos_score then
-    quest.finish = best_name
+    quest.finish = CollapseDropList(quest.finish)
     quest.pos = nil
   else
     quest.finish = nil
-    if quest.pos then TidyPositionList(quest.pos) end
+    if quest.pos then
+      TidyPositionList(quest.pos)
+    end
+  end
+  
+  if quest.item then
+    for name, data in pairs(quest.item) do
+      local drop_score = data.drop and DropListMass(data.drop) or 0
+      local pos_score = data.pos and PositionListMass(data.pos) or 0
+      if drop_score > pos_score then
+        data.pos = nil
+      elseif pos_score > 0 then
+        data.drop = nil
+        TidyPositionList(data.pos)
+      else
+        quest.item[name] = nil
+      end
+    end
+    if not next(quest.item, nil) then
+      quest.item = nil
+    end
   end
   
   if quest.alt then
@@ -259,7 +316,7 @@ local function CollapseQuest(quest)
 end
 
 local function CollapseObjective(objective)
-  if not objective.quest then return true end
+  -- if not objective.quest then return true end
   objective.quest = nil
   
   if objective.drop and not next(objective.drop, nil) then objective.drop = nil end
@@ -303,15 +360,19 @@ local function isArray(obj)
   return c == #obj
 end
 
-local function Dump(variable, depth, seen)
+local function isSafeString(obj)
+  return type(obj) == "string" and string.len(obj) > 0 and not string.find(obj, "[^%a]")
+end
+
+local function Dump(buffer, variable, depth, seen)
   if type(variable) == "string" then
-    return ("%q"):format(variable)
+    return buffer:add(("%q"):format(variable))
   elseif type(variable) == "number" then
-    return variable + 0
+    return buffer:add(tostring(variable+0))
   elseif type(variable) == "nil" then
-    return "nil"
+    return buffer:add("nil")
   elseif type(variable) == "boolean" then
-    return variable and "true" or "false"
+    return buffer:add(variable and "true" or "false")
   elseif type(variable) == "table" then
     if not seen then seen = {} end
     if seen[variable] then
@@ -319,34 +380,40 @@ local function Dump(variable, depth, seen)
     end
     seen[variable] = true
     if not depth then depth = 1 end
-    local text = "{"
+    buffer:add("{")
     
     if isArray(variable) then
       for i, j in ipairs(variable) do
-        text = text..Dump(j, depth+1, seen)
+        Dump(buffer, j, depth+1, seen)
         if next(variable,i) then
-          text = text..","..(type(variable[i+1])=="table"and"\n"..("  "):rep(depth) or " ")
+          buffer:add(","..(type(variable[i+1])=="table"and"\n"..("  "):rep(depth) or " "))
         else
-          return text.."}"
+          buffer:add("}")
         end
       end
     else
       for i, j in pairs(variable) do
-        local a = Dump(i, depth+1, seen)
-        local b = Dump(j, depth+1, seen)
+        if isSafeString(i) then
+          buffer:add(i.."=")
+        else
+          buffer:add("[")
+          Dump(buffer, i, depth+1, seen)
+          buffer:add("]=")
+        end
         
-        text = text.."["..Dump(i, depth+1, seen).. "]="..
-               (type(j)=="table"and"\n"..("  "):rep(depth+1) or "")..Dump(j, depth+1, seen)
+        buffer:add((type(j)=="table"and"\n"..("  "):rep(depth+1) or ""))
+        
+        Dump(buffer, j, depth+1, seen)
         
         if next(variable,i) then
-          text = text..",\n"..("  "):rep(depth)
+          buffer:add(",\n"..("  "):rep(depth))
         end
       end
+      return buffer:add("}")
     end
     seen[variable] = nil
-    return text.."}"
   else
-    return "nil --[[ UNHANDLED TYPE: '"..type(variable).."' ]]"
+    return buffer:add("nil --[[ UNHANDLED TYPE: '"..type(variable).."' ]]")
   end
 end
 
@@ -362,6 +429,48 @@ function Finished()
           else
             if quest_data.finish then
               GetObjective(locale, "monster", quest_data.finish).quest = true
+            end
+            if quest_data.item then
+              for item, data in pairs(quest_data.item) do
+                item_data = GetObjective(locale, "item", item)
+                item_data.quest = true
+                
+                local item_score = (item_data.drop and DropListMass(item_data.drop) or 0)+
+                                   (item_data.pos and PositionListMass(item_data.pos) or 0)
+                
+                local quest_score = (data.drop and DropListMass(data.drop) or 0)+
+                                    (data.pos and PositionListMass(data.pos) or 0)
+                
+                if item_score > quest_score then
+                  if item_data.drop or data.drop then
+                    if data.drop then
+                      if not item_data.drop then item_data.drop = {} end
+                      MergeDropLists(item_data.drop, data.drop)
+                      item_data.pos = nil
+                    end
+                  elseif item_data.pos or data.pos then
+                    if data.pos then
+                      if not item_data.pos then item_data.pos = {} end
+                      MergePositionLists(item_data.pos, data.pos)
+                    end
+                  end
+                  
+                  quest_data.item[item] = nil
+                else
+                   item_data.drop = nil
+                   item_data.pos = nil
+                   
+                   if data.drop then
+                    for monster, count in pairs(data.drop) do
+                      GetObjective(locale, "monster", monster).quest = true
+                    end
+                  end
+                end
+              end
+              
+              if not next(quest_data.item, nil) then
+                quest_data.item = nil
+              end
             end
             delete_level = false
           end
@@ -401,6 +510,25 @@ function Finished()
     end
   end
   
-  print("QuestHelper_StaticData="..Dump(StaticData))
+  local buffer =
+   {
+    add=function(self, text)
+      table.insert(self, text)
+      for i=#self-1, 1, -1 do
+        if string.len(self[i]) > string.len(self[i+1]) then break end
+        self[i] = self[i]..table.remove(self,i+1)
+      end
+    end,
+    dump = function(self)
+      for i=#self-1, 1, -1 do
+        self[i] = self[i]..table.remove(self)
+      end
+      return self[1]
+    end
+   }
+  
+  Dump(buffer, StaticData)
+  
+  print("QuestHelper_StaticData="..buffer:dump())
   print("\n-- END OF FILE --\n")
 end
