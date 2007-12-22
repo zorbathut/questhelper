@@ -83,6 +83,8 @@ function QuestHelper:CreateMenu()
     
     local w, h = 0, 0
     
+    self:SetScale(1)
+    
     for i, c in ipairs(self.items) do
       local cw, ch = c:GetSize()
       w = math.max(w, cw)
@@ -113,8 +115,6 @@ function QuestHelper:CreateMenu()
       n.level = self.level+i
       n:SetFrameLevel(n.level)
       n:DoShow()
-      if n.submenu then for i, n2 in ipairs(n.submenu.items) do
-      end end
     end
   end
   
@@ -194,7 +194,13 @@ function QuestHelper:CreateMenuItem(menu, text)
     item.background = item:CreateTexture()
     item.background:SetPoint("TOPRIGHT", item, "TOPRIGHT")
     item.background:SetPoint("BOTTOMLEFT", item, "BOTTOMLEFT")
+    item.background:SetTexture(1, 1, 1)
     item.background:SetDrawLayer("BACKGROUND")
+    
+    --item.tbg = item:CreateTexture()
+    --item.tbg:SetPoint("TOPRIGHT", item.text, "TOPRIGHT")
+    --item.tbg:SetPoint("BOTTOMLEFT", item.text, "BOTTOMLEFT")
+    --item.tbg:SetTexture(1,0,1,0.5)
   end
   
   table.insert(item.children, item.text)
@@ -278,7 +284,7 @@ function QuestHelper:CreateMenuItem(menu, text)
     self.text:SetTextColor(ih, ih, ih, 1)
     item.text:SetShadowColor(h, h, h, ih)
     item.text:SetShadowOffset(1, -1)
-    self.background:SetTexture(h*0.5+.1, h*0.7+.1, h+.1, h*0.2+0.4)
+    self.background:SetVertexColor(h*0.5+.1, h*0.7+.1, h+.1, h*0.2+0.4)
     self:SetAlpha(s)
   end
   
@@ -334,17 +340,29 @@ function QuestHelper:CreateMenuItem(menu, text)
     end
   end
   
-  --function item:OnLeave()
-  --  self.highlighting = false
-  --  self:SetScript("OnUpdate", self.OnUpdate)
-  --end
-  
   function item:GetSize()
+    self:SetScale(1)
+    self.text:ClearAllPoints()
+    self.text:SetWidth(0)
+    
+    self.text_w = self.text:GetWidth()
+    if self.text_w > 400 then
+      self.text_w = 400
+      self.text:SetWidth(self.text_w)
+    end
+    
+    self.text_h = self.text:GetHeight()
+    
     local w, h = 0, 0
     
     for i, f in ipairs(self.children) do
-      w = w + f:GetWidth()
-      h = math.max(h, f:GetHeight())
+      if f == self.text then
+        w = w + self.text_w + 4
+        h = math.max(h, self.text_h + 4)
+      else
+        w = w + f:GetWidth() + 4
+        h = math.max(h, f:GetHeight() + 4)
+      end
     end
     
     self.needed_width = w
@@ -360,17 +378,25 @@ function QuestHelper:CreateMenuItem(menu, text)
     
     if #self.children > 1 then
       spacing = (w-self.needed_width)/(#self.children-1)
+    else
+      x = (w-self.needed_width)*0.5
     end
     
     for i, f in ipairs(self.children) do
+      local cw, ch
+      if f == self.text then
+        cw, ch = self.text_w, self.text_h
+      else
+        cw, ch = f:GetWidth(), f:GetHeight()
+      end
+      
       f:ClearAllPoints()
-      f:SetPoint("TOPLEFT", self, "TOPLEFT", x, -(h-f:GetHeight())*0.5)
-      x = x + f:GetWidth() + spacing
+      f:SetPoint("TOPLEFT", self, "TOPLEFT", x+2, -(h-ch)*0.5)
+      x = x + cw + 4 + spacing
     end
   end
   
   item:SetScript("OnEnter", item.OnEnter)
-  --item:SetScript("OnLeave", item.OnLeave)
   
   menu:AddItem(item)
   
@@ -395,14 +421,10 @@ function QuestHelper:CreateMenuItem(menu, text)
   item:SetScript("OnClick", item.OnClick)
   
   item.text:SetFont("Fonts\\ARIALN.TTF", 15)
-  item.text:ClearAllPoints()
-  item.text:SetJustifyH("LEFT")
+  item.text:SetJustifyH("CENTER")
   item.text:SetJustifyV("MIDDLE")
-  item.text:SetWidth(0)
-  item.text:SetHeight(0)
   item.text:SetText(text)
-  item.text:SetWidth(math.min(250, item.text:GetWidth()+15))
-  item.text:SetHeight(item.text:GetHeight()+5)
+  item.text:ClearAllPoints()
   
   return item
 end
@@ -445,7 +467,7 @@ function QuestHelper:CreateMenuTitle(menu, title)
   
   function item:Shade(s, h)
     self.text:SetTextColor(1, 1, 1, 1)
-    self.background:SetTexture(h*0.1, 0.2+h*0.2, 0.6+h*0.4, h*0.2+0.6)
+    self.background:SetVertexColor(h*0.1, 0.2+h*0.2, 0.6+h*0.4, h*0.2+0.6)
     self:SetAlpha(s)
   end
   
@@ -467,9 +489,4 @@ function QuestHelper:CreateMenuTitle(menu, title)
   
   item.text:SetFont("Fonts\\MORPHEUS.TTF", 13)
   item.text:ClearAllPoints()
-  item.text:SetWidth(0)
-  item.text:SetHeight(0)
-  item.text:SetWidth(math.min(250, item.text:GetWidth()+15))
-  item.text:SetHeight(item.text:GetHeight()+5)
 end
-

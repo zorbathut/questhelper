@@ -13,7 +13,7 @@ local function ObjectiveCouldBeFirst(self)
 end
 
 local function DefaultObjectiveKnown(self)
-  if self.auto_ignore or self.user_ignore then
+  if (self.user_ignore == nil and self.auto_ignore) or self.user_ignore then
     return false
   end
   

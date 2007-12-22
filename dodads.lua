@@ -182,6 +182,7 @@ function QuestHelper:CreateWorldMapWalker()
             local dot = self.dots[out]
             if not dot then
               dot = QuestHelper:GetDotTexture(self)
+              dot:SetDrawLayer("BACKGROUND")
               self.dots[out] = dot
             end
             
@@ -503,7 +504,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
             item = QuestHelper:CreateMenuItem(submenu, "Place this objective for me.")
             item:SetFunction(function (obj) if QuestHelper.first_objective == obj then QuestHelper.first_objective = nil QuestHelper:ForceRouteUpdate() end end, o)
           elseif o:CouldBeFirst() then
-            item = QuestHelper:CreateMenuItem(submenu, "Force this objective to be first.")
+            item = QuestHelper:CreateMenuItem(submenu, "Force this objective to be first. [BROKEN!]")
             item:SetFunction(function (obj) QuestHelper.first_objective = obj QuestHelper:ForceRouteUpdate() end, o)
           end
           
@@ -517,7 +518,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
           item = QuestHelper:CreateMenuItem(menu, "Place this objective for me.")
           item:SetFunction(function (obj) if QuestHelper.first_objective == obj then QuestHelper.first_objective = nil QuestHelper:ForceRouteUpdate() end end, self.objective)
         elseif self.objective:CouldBeFirst() then
-          item = QuestHelper:CreateMenuItem(menu, "Force this objective to be first.")
+          item = QuestHelper:CreateMenuItem(menu, "Force this objective to be first. [BROKEN!]")
           item:SetFunction(function (obj) QuestHelper.first_objective = obj QuestHelper:ForceRouteUpdate() end, self.objective)
         end
         
