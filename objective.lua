@@ -110,7 +110,7 @@ local function ItemKnown(self)
   return false
 end
 
-local function AppendPositions(self, objective, weight, why)
+local function ObjectiveAppendPositions(self, objective, weight, why)
   if self.o.pos then for i, p in ipairs(self.o.pos) do
     objective:AddLoc(p[1], p[2], p[3], p[4], p[5]*weight, why)
   end end
@@ -121,100 +121,89 @@ local function AppendPositions(self, objective, weight, why)
 end
 
 
-local function DummyPrepareRouting(self)
+local function ObjectivePrepareRouting(self)
   self.setup_count = self.setup_count + 1
   if not self.setup then
-    if self.o.pos then for i, p in ipairs(self.o.pos) do
-      self:AddLoc(unpack(p))
-    end end
-    
-    if self.fb.pos then for i, p in ipairs(self.fb.pos) do
-      self:AddLoc(unpack(p))
-    end end
-    
+    self:AppendPositions(self, 1, nil)
     self:FinishAddLoc()
   end
 end
 
-local function ItemPrepareRouting(self)
-  self.setup_count = self.setup_count + 1
-  if not self.setup then
-    if self.o.vendor then for i, npc in ipairs(self.o.vendor) do
-      local n = self.qh:GetObjective("monster", npc)
-      if (not n.o.faction or n.o.faction == self.qh.faction) and
-         (not n.fb.faction or n.fb.faction == self.qh.faction) then
-        
-        n:AppendPositions(self, 1, "Purchase from "..self.qh:HighlightText(npc)..".")
-      end
-    end end
-    
-    if self.fb.vendor then for i, npc in ipairs(self.fb.vendor) do
-      local n = self.qh:GetObjective("monster", npc)
-      if (not n.o.faction or n.o.faction == self.qh.faction) and
-         (not n.fb.faction or n.fb.faction == self.qh.faction) then
-        
-        n:AppendPositions(self, 1, "Purchase from "..self.qh:HighlightText(npc)..".")
-      end
-    end end
-    
-    if next(self.p, nil) then
-      -- If we have points from vendors, then always use vendors. I don't want it telling you to killing the
-      -- towns people just because you had to talk to them anyway, and it saves walking to the store.
-      self:FinishAddLoc()
-      return
-    end
-    
-    if self.o.drop then for monster, count in pairs(self.o.drop) do
-      local m = self.qh:GetObjective("monster", monster)
-      m:AppendPositions(self, m.o.looted and count/m.o.looted or 1, "Slay "..self.qh:HighlightText(monster)..".")
-    end end
-    
-    if self.fb.drop then for monster, count in pairs(self.fb.drop) do
-      local m = self.qh:GetObjective("monster", monster)
-      m:AppendPositions(self, m.fb.looted and count/m.fb.looted or 1, "Slay "..self.qh:HighlightText(monster)..".")
-    end end
-    
-    if self.o.pos then for i, p in ipairs(self.o.pos) do
-      self:AddLoc(unpack(p))
-    end end
-    
-    if self.fb.pos then for i, p in ipairs(self.fb.pos) do
-      self:AddLoc(unpack(p))
-    end end
-    
-    if self.quest then
-      local item_list=self.quest.o.item
-      if item_list then
-        local data = item_list[self.item]
-        if data and data.drop then
-          for monster, count in pairs(data.drop) do
-            local m = self.qh:GetObjective("monster", monster)
-            m:AppendPositions(self, m.o.looted and count/m.o.looted or 1, "Slay "..self.qh:HighlightText(monster)..".")
-          end
-        elseif data and data.pos then
-          for i, p in ipairs(data.pos) do
-            self:AddLoc(unpack(p))
-          end
-        end
-      end
+local function ItemAppendPositions(self, objective, weight, why)
+  why2 = why and why.."\n" or ""
+  
+  if self.o.vendor then for i, npc in ipairs(self.o.vendor) do
+    local n = self.qh:GetObjective("monster", npc)
+    if (not n.o.faction or n.o.faction == self.qh.faction) and
+       (not n.fb.faction or n.fb.faction == self.qh.faction) then
       
-      item_list=self.quest.fb.item
-      if item_list then 
-        local data = item_list[self.item]
-        if data and data.drop then
-          for monster, count in pairs(data.drop) do
-            local m = self.qh:GetObjective("monster", monster)
-            m:AppendPositions(self, m.fb.looted and count/m.fb.looted or 1, "Slay "..self.qh:HighlightText(monster)..".")
-          end
-        elseif data and data.pos then
-          for i, p in ipairs(data.pos) do
-            self:AddLoc(unpack(p))
-          end
+      n:AppendPositions(objective, 1, why2.."Purchase from "..self.qh:HighlightText(npc)..".")
+    end
+  end end
+  
+  if self.fb.vendor then for i, npc in ipairs(self.fb.vendor) do
+    local n = self.qh:GetObjective("monster", npc)
+    if (not n.o.faction or n.o.faction == self.qh.faction) and
+       (not n.fb.faction or n.fb.faction == self.qh.faction) then
+      
+      n:AppendPositions(objective, 1, why2.."Purchase from "..self.qh:HighlightText(npc)..".")
+    end
+  end end
+  
+  if next(self.p, nil) then
+    -- If we have points from vendors, then always use vendors. I don't want it telling you to killing the
+    -- towns people just because you had to talk to them anyway, and it saves walking to the store.
+    return
+  end
+  
+  if self.o.drop then for monster, count in pairs(self.o.drop) do
+    local m = self.qh:GetObjective("monster", monster)
+    m:AppendPositions(objective, m.o.looted and count/m.o.looted or 1, why2.."Slay "..self.qh:HighlightText(monster)..".")
+  end end
+  
+  if self.fb.drop then for monster, count in pairs(self.fb.drop) do
+    local m = self.qh:GetObjective("monster", monster)
+    m:AppendPositions(self, m.fb.looted and count/m.fb.looted or 1, why2.."Slay "..self.qh:HighlightText(monster)..".")
+  end end
+  
+  if self.o.pos then for i, p in ipairs(self.o.pos) do
+    objective:AddLoc(p[1], p[2], p[3], p[4], p[5], why)
+  end end
+  
+  if self.fb.pos then for i, p in ipairs(self.fb.pos) do
+    objective:AddLoc(p[1], p[2], p[3], p[4], p[5], why)
+  end end
+  
+  if self.quest then
+    local item_list=self.quest.o.item
+    if item_list then
+      local data = item_list[self.item]
+      if data and data.drop then
+        for monster, count in pairs(data.drop) do
+          local m = self.qh:GetObjective("monster", monster)
+          m:AppendPositions(objective, m.o.looted and count/m.o.looted or 1, why2.."Slay "..self.qh:HighlightText(monster)..".")
+        end
+      elseif data and data.pos then
+        for i, p in ipairs(data.pos) do
+          objective:AddLoc(p[1], p[2], p[3], p[4], p[5], why)
         end
       end
     end
     
-    self:FinishAddLoc()
+    item_list=self.quest.fb.item
+    if item_list then 
+      local data = item_list[self.item]
+      if data and data.drop then
+        for monster, count in pairs(data.drop) do
+          local m = self.qh:GetObjective("monster", monster)
+          m:AppendPositions(objective, m.fb.looted and count/m.fb.looted or 1, why2.."Slay "..self.qh:HighlightText(monster)..".")
+        end
+      elseif data and data.pos then
+        for i, p in ipairs(data.pos) do
+          objective:AddLoc(p[1], p[2], p[3], p[4], p[5], why)
+        end
+      end
+    end
   end
 end
 
@@ -244,6 +233,8 @@ end
 
 
 local function AddLoc(self, c, z, x, y, w, why)
+  assert(not self.setup)
+  
   if w > 0 then
     x, y = self.qh.Astrolabe:TranslateWorldMapPosition(c, z, x, y, c, 0)
     
@@ -334,7 +325,7 @@ local function FinishAddLoc(self)
   
   assert(not self.setup)
   self.setup = true
-  self.qh.prepared_objectives[self] = true
+  table.insert(self.qh.prepared_objectives, self)
 end
 
 local function GetPosition(self)
@@ -548,7 +539,8 @@ function QuestHelper:NewObjectiveObject()
     Known=DummyObjectiveKnown,
     Reason=ObjectiveReason,
     
-    PrepareRouting=DummyPrepareRouting,
+    AppendPositions=ObjectiveAppendPositions,
+    PrepareRouting=ObjectivePrepareRouting,
     AddLoc=AddLoc,
     FinishAddLoc=FinishAddLoc,
     DoneRouting=DoneRouting,
@@ -592,10 +584,9 @@ function QuestHelper:GetObjective(category, objective)
     
     if category == "item" then
       objective_object.Known = ItemKnown
-      objective_object.PrepareRouting = ItemPrepareRouting
+      objective_object.AppendPositions = ItemAppendPositions
       objective_object.icon_id = 2
     elseif category == "monster" then
-      objective_object.AppendPositions = AppendPositions
       objective_object.icon_id = 1
     elseif category == "object" then
       objective_object.icon_id = 3

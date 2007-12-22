@@ -13,20 +13,17 @@ local function QuestKnown(self)
   return (self.target or self.destination) and self:DefaultKnown() and (self.destination or self.target:Known())
 end
 
-local function QuestPrepareRouting(self)
-  if not self.setup then
-    if self.target then
-      self.target:AppendPositions(self, 1, "Talk to "..self.qh:HighlightText(self.o.finish or self.fb.finish)..".")
-    elseif self.destination then
-      for i, p in ipairs(self.destination) do
-        self:AddLoc(unpack(p))
-      end
+local function QuestAppendPositions(self, objective, weight, why)
+  why2 = why and why.."\n" or ""
+
+  if self.target then
+    self.target:AppendPositions(self, 1, why2.."Talk to "..self.qh:HighlightText(self.o.finish or self.fb.finish)..".")
+  elseif self.destination then
+    for i, p in ipairs(self.destination) do
+      self:AddLoc(p[1], p[2], p[3], p[4], p[5])
     end
-    
-    self:FinishAddLoc()
   end
 end
-
 
 function QuestHelper:GetQuest(name, level, hash)
   local bracket = self.quest_objects[level]
@@ -49,7 +46,7 @@ function QuestHelper:GetQuest(name, level, hash)
     quest_object = self:NewObjectiveObject()
     quest_object.icon_id = 7
     quest_object.icon_bg = 15
-    quest_object.PrepareRouting = QuestPrepareRouting
+    quest_object.AppendPositions = QuestAppendPositions
     quest_object.Known = QuestKnown
     
     bracket2[hash] = quest_object

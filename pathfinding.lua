@@ -364,6 +364,10 @@ function QuestHelper:ResetPathing()
     end
   end
   
+  local to_readd = self.prepared_objectives
+  self.prepared_objectives = self.old_prepared_objectives or {}
+  self.old_prepared_objectives = to_readd
+  
   self.world_graph:SetHeuristic(nil_heuristic)
   
   local zone_nodes = self.zone_nodes
@@ -592,22 +596,46 @@ function QuestHelper:ResetPathing()
   -- TODO: heuristic returns NaNs, fix this.
   --self.world_graph:SetHeuristic(heuristic)
   
-  for i, obj in ipairs(self.prepared_objectives) do
-    obj:PrepareRouting()
-    obj.setup_count = obj.setup_count - 1 -- Don't want to increase it, just set it up.
+  -- Remove objectives again, since we created some for the flight masters.
+  while true do
+    local o = table.remove(self.prepared_objectives)
+    if not o then break end
     
-    -- Make sure positions still contain the correct distances to other nodes in the zone, as
-    -- the order may have changed, they may have been moved, and some may have been added or removed.
-    if obj.pos then
-      for i, n in ipairs(obj.pos[1]) do
-        local x, y = obj.pos[3]-n.x, obj.pos[4]-n.y
-        obj.pos[2][i] = math.sqrt(x*x+y*y)
-      end
+    o.setup = false
+    o.d = {}
+    o.p = {}
+    o.nm = {}
+    o.nm2 = {}
+    o.nl = {}
+    
+    if o.setup_count > 0 then
+      -- There's a chance an objective could end up in the list twice, but we'll deal with that by not actually
+      -- adding locations for it if it's already setup.
+      table.insert(to_readd, o)
     end
-    if obj.sop then
-      for i, n in ipairs(obj.sop[1]) do
-        local x, y = obj.sop[3]-n.x, obj.sop[4]-n.y
-        obj.pos[2][i] = math.sqrt(x*x+y*y)
+  end
+  
+  while true do
+    local obj = table.remove(to_readd)
+    if not obj then break end
+    
+    if not obj.setup then -- In case the objective was added multiple times to the to_readd list.
+      obj:AppendPositions(obj, 1, nil)
+      obj:FinishAddLoc()
+      
+      -- Make sure positions still contain the correct distances to other nodes in the zone, as
+      -- the order may have changed, they may have been moved, and some may have been added or removed.
+      if obj.pos then
+        for i, n in ipairs(obj.pos[1]) do
+          local x, y = obj.pos[3]-n.x, obj.pos[4]-n.y
+          obj.pos[2][i] = math.sqrt(x*x+y*y)
+        end
+      end
+      if obj.sop then
+        for i, n in ipairs(obj.sop[1]) do
+          local x, y = obj.sop[3]-n.x, obj.sop[4]-n.y
+          obj.pos[2][i] = math.sqrt(x*x+y*y)
+        end
       end
     end
   end

@@ -515,7 +515,7 @@ function QuestHelper:OnUpdate()
     -- be seen in that zone but aren't in it.
     local nnx, nny = self.Astrolabe:TranslateWorldMapPosition(nc, nz, nx, ny, nc, self.z)
     if nnx > 0 and nny > 0 and nnx < 1 and nny < 1 then
-      nc, nx, ny = self.c, nnx, nny
+      nz, nx, ny = self.z, nnx, nny
     end
   end
   
