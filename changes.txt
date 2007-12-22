@@ -1,3 +1,10 @@
+== Version 0.9; Uploaded 11/29/2007 ==
+
+* If you put the mouse over the an objective on the world map, all known locations for it will be highlighted on the map.
+* Wrote a script to generate the zip file for me, which will save me from having to delete the unneeded bits each time, and also hopefully ensure that the directory structure remains sane.
+* The player's position wasn't being updated while flying. When the player landed, it would think you were still where you took off from, think that was where you flew to, and crash and burn when it discovered that that wasn't one of the possible flight routes you could have taken.
+* The routing co-routine will perform no more than 5 pathing operations per frame. Should prevent performance from degrading with lots of objectives.
+
 == Version 0.8; Uploaded 11/27/2007 ==
 
 * User waypoints can be created by typing '/find <what you want>'. Begin with the word "item", "npc", or "loc" to only search for things in those categories. If you don't say what you want, it'll search everything it knows of. Locations can be prefixed with a zone name, to add the location in that zone instead of your current one. All text is compared using Levenshtein distance, so it should be able to handle typos and partial matches. It also makes it slow as hell. At the moment, you can't remove objectives or force them to be first, so this is almost useless.

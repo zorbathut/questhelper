@@ -265,8 +265,6 @@ local function FinishAddLoc(self)
   local node_map = self.nm
   local node_list = self.nl
   
-  -- TODO: Verify this works properly when a node is in multiple zones.
-  
   for list, pl in pairs(self.p) do
     local dist = self.d[list]
     
@@ -289,18 +287,23 @@ local function FinishAddLoc(self)
         point[2][i] = d
         
         if dist[i] then
-          if d < dist[i][1]*dist[i][2] then
+          if d*point[5] < dist[i][1]*dist[i][2] then
             dist[i][1], dist[i][2] = d, point[5]
             node_map[node] = point
           end
         else
           dist[i] = {d,point[5]}
           
-          if not node_map[node] then -- This is a hack, I might need more than just this. TODO: Verify.
+          if not node_map[node] then
             table.insert(node_list, node)
+            node_map[node] = point
+          else
+            u, v = node_map[node][3]-node.x, node_map[node][4]-node.y
+            
+            if dist[i][1]*dist[i][2] < math.sqrt(u*u+v*v)*node_map[node][5] then
+              node_map[node] = point
+            end
           end
-          
-          node_map[node] = point
         end
       end
     end

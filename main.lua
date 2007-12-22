@@ -388,7 +388,11 @@ function QuestHelper:OnEvent(event)
         end
         
         if end_zone then
-          self:GetFlightPathData(c, self.flight_origin, end_zone, self.flight_hashs[end_zone]).real = elapsed
+          if self.flight_hashs[end_zone] then
+            self:GetFlightPathData(c, self.flight_origin, end_zone, self.flight_hashs[end_zone]).real = elapsed
+          else
+            self:TextOut("You shouldn't have been able to fly here. And yet here you are. Reality will never be the same again.")
+          end
         else
           self:TextOut("Please talk to the local flight master.")
           if not self.pending_flight_data then
@@ -475,6 +479,7 @@ function QuestHelper:OnEvent(event)
           
           local hash = self:HashString(path_string)
           local end_location = TaxiNodeName(i)
+          
           self.flight_hashs[end_location] = hash
           altered = self:PlayerKnowsFlightRoute(self.c, start_location, end_location, hash) or altered
           altered = self:PlayerKnowsFlightRoute(self.c, end_location, start_location) or altered
@@ -502,7 +507,7 @@ function QuestHelper:OnUpdate()
   end
   
   if UnitOnTaxi("player") then
-      self.was_flying = true
+    self.was_flying = true
   elseif nc > 0 and nz > 0 then
     if nc == self.c and nz ~= self.z and nz > 0 and self.z > 0 and
        nx > -0.1 and ny > -0.1 and nx < 1.1 and ny < 1.1 and
@@ -533,7 +538,9 @@ function QuestHelper:OnUpdate()
         self:ResetPathing()
       end
     end
-    
+  end
+  
+  if nc > 0 and nz > 0 then
     self.c, self.z, self.x, self.y = nc or self.c, nz or self.z, nx or self.x, ny or self.y
     
     self.pos[1] = self.zone_nodes[self.c][self.z]

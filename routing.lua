@@ -1,3 +1,13 @@
+local call_count = 0
+local function yieldIfNeeded()
+  if call_count == 5 then
+    call_count = 0
+    coroutine.yield()
+  else
+    call_count = call_count + 1
+  end
+end
+
 function QuestHelper:DumpRoute(route, distance)
   local real_distance = 0
   for i, n in ipairs(route) do
@@ -36,6 +46,7 @@ function QuestHelper:RemoveIndexFromRoute(array, distance, extra, index)
     distance = distance - array[1].len
     extra = self:ComputeTravelTime(self.pos, array[2].pos)
     table.remove(array, 1)
+    yieldIfNeeded()
   elseif index == #array then
     distance = distance - array[index-1].len
     table.remove(array, index)
@@ -44,6 +55,7 @@ function QuestHelper:RemoveIndexFromRoute(array, distance, extra, index)
     distance = distance - a.len - b.len
     a.len = self:ComputeTravelTime(a.pos, array[index].pos)
     distance = distance + a.len
+    yieldIfNeeded()
   end
   
   return distance, extra
@@ -65,6 +77,7 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective)
   if #array == 0 then
     table.insert(array, 1, objective)
     extra, objective.pos = objective:TravelTime(self.pos)
+    yieldIfNeeded()
     return 1, 0, extra
   end
   
@@ -78,6 +91,7 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective)
     local o = array[#array]
     o.len, objective.pos = objective:TravelTime(array[#array].pos)
     table.insert(array, objective)
+    yieldIfNeeded()
     return #array, distance+o.len, extra
   else
     local a = array[objective.i-1]
@@ -85,6 +99,7 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective)
     best_len1, best_len2, bp = objective:TravelTime2(a.pos, array[objective.i].pos)
     best_extra = extra
     best_total = distance - a.len + best_len1 + best_len2 + extra
+    yieldIfNeeded()
   end
   
   local total = distance+extra
@@ -101,10 +116,12 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective)
       best_total = d
       best_index = i
     end
+    yieldIfNeeded()
   end
   
   if objective.j == #array+1 then
     local l1, p = objective:TravelTime(array[#array].pos)
+    yieldIfNeeded()
     local d = total + l1
     if d < best_total then
       objective.pos = p
@@ -132,6 +149,7 @@ function QuestHelper:RemoveIndexFromRouteSOP(array, distance, extra, index)
     distance = distance - array[1].nel
     extra = self:ComputeTravelTime(self.pos, array[2].sop)
     table.remove(array, 1)
+    yieldIfNeeded()
   elseif index == #array then
     distance = distance - array[index-1].nel
     table.remove(array, index)
@@ -140,6 +158,7 @@ function QuestHelper:RemoveIndexFromRouteSOP(array, distance, extra, index)
     distance = distance - a.nel - b.nel
     a.nel = self:ComputeTravelTime(a.sop, array[index].sop)
     distance = distance + a.nel
+    yieldIfNeeded()
   end
   
   return distance, extra
@@ -161,6 +180,7 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
   if #array == 0 then
     table.insert(array, 1, objective)
     extra, objective.sop = objective:TravelTime(self.pos)
+    yieldIfNeeded()
     return 1, 0, extra
   end
   
@@ -170,10 +190,12 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
     best_index = 1
     best_extra, best_len2, bp = objective:TravelTime2(self.pos, array[1].sop)
     best_total = best_extra+distance+best_len2
+    yieldIfNeeded()
   elseif objective.i == #array+1 then
     local o = array[#array]
     o.nel, objective.sop = objective:TravelTime(array[#array].sop)
     table.insert(array, objective)
+    yieldIfNeeded()
     return #array, distance+o.nel, extra
   else
     local a = array[objective.i-1]
@@ -181,6 +203,7 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
     best_len1, best_len2, bp = objective:TravelTime2(a.sop, array[objective.i].sop)
     best_extra = extra
     best_total = distance - a.nel + best_len1 + best_len2 + extra
+    yieldIfNeeded()
   end
   
   local total = distance+extra
@@ -197,10 +220,12 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
       best_total = d
       best_index = i
     end
+    yieldIfNeeded()
   end
   
   if objective.j == #array+1 then
     local l1, p = objective:TravelTime(array[#array].sop)
+    yieldIfNeeded()
     local d = total + l1
     if d < best_total then
       objective.sop = p
@@ -315,8 +340,6 @@ local function RouteUpdateRoutine(self)
         minimap_dodad:SetObjective(route[1])
       end
       
-      coroutine.yield()
-      
       if #route > 2 then
         -- To help prevent getting into a local minimum, we'll also construct a new path from scratch.
         -- If it ends up being smaller than the original path, we'll use it instead.
@@ -358,8 +381,6 @@ local function RouteUpdateRoutine(self)
               if p.i > insert then p.i = p.i + 1 end
             end
           end
-          
-          coroutine.yield()
         end
         
         -- The existing route has the advantage of having been optimized, so we'll go through the new
@@ -380,7 +401,6 @@ local function RouteUpdateRoutine(self)
           new_distance, new_extra = self:RemoveIndexFromRouteSOP(new_route, new_distance, new_extra, shuffle[i])
           self:CalcObjectiveIJ(new_route, point)
           insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point)
-          coroutine.yield()
         end
         
         -- If the distance is less than what we have so far, then use it.

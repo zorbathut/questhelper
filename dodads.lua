@@ -75,6 +75,33 @@ local function pushPath(list, path, spare_tables, c, z)
   end
 end
 
+function QuestHelper:GetGlowTexture(parent)
+  local tex = self.free_glow_textures and table.remove(self.free_glow_textures)
+  
+  if tex then
+    tex:SetParent(parent)
+  else
+    tex = parent:CreateTexture()
+    tex:SetTexture("Interface\\Addons\\QuestHelper\\Art\\Glow.blp")
+  end
+  
+  local angle = math.random()*6.28318530717958647692528676655900576839433879875021164
+  local x, y = math.cos(angle)*0.707106781186547524400844362104849039284835937688474036588339869,
+               math.sin(angle)*0.707106781186547524400844362104849039284835937688474036588339869
+  
+  -- Randomly rotate the texture, so they don't all look the same.
+  tex:SetTexCoord(x+0.5, y+0.5, y+0.5, 0.5-x, 0.5-y, x+0.5, 0.5-x, 0.5-y)
+  tex:ClearAllPoints()
+  
+  return tex
+end
+
+function QuestHelper:ReleaseGlowTexture(tex)
+  if not self.free_glow_textures then self.free_glow_textures = {} end
+  tex:Hide()
+  table.insert(self.free_glow_textures, tex)
+end
+
 function QuestHelper:CreateWorldMapWalker()
   local walker = CreateFrame("Button", nil, WorldMapButton)
   walker:SetWidth(0)
@@ -122,7 +149,7 @@ function QuestHelper:CreateWorldMapWalker()
               dot = self:CreateTexture()
               dot:SetTexture("Interface\\Minimap\\ObjectIcons")
               dot:SetTexCoord(0.280, 0.35, 0.09, 0.36)
-              dot:SetVertexColor(0,0,0,0.35)
+              dot:SetVertexColor(0, 0, 0, 0.35)
               dot:SetWidth(5)
               dot:SetHeight(5)
               self.dots[out] = dot
@@ -208,14 +235,77 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
     QuestHelper.Astrolabe:PlaceIconOnWorldMap(WorldMapDetailFrame, self, convertLocation(objective.pos))
   end
   
+  icon.show_glow = false
+  icon.glow_pct = 0.0
+  icon.glow_list = {}
+  icon.phase = 0.0
+  
+  function icon:OnUpdate(elapsed)
+    self.phase = (self.phase + elapsed)%6.283185307179586476925286766559005768394338798750211641949889185
+    
+    if self.show_glow then
+      self.glow_pct = math.min(1, self.glow_pct+elapsed*1.5)
+    else
+      self.glow_pct = math.max(0, self.glow_pct-elapsed*0.5)
+      
+      if self.glow_pct == 0 then
+        while #self.glow_list > 0 do
+          QuestHelper:ReleaseGlowTexture(table.remove(self.glow_list))
+        end
+        self:SetScript("OnUpdate", nil)
+        return
+      end
+    end
+    
+    local r, g, b = math.sin(self.phase)*0.25+0.75,
+                    math.sin(self.phase+2.094395102393195492308428922186335256131446266250070547316629728)*0.25+0.75,
+                    math.sin(self.phase+4.188790204786390984616857844372670512262892532500141094633259456)*0.25+0.75
+    
+    for i, tex in ipairs(self.glow_list) do
+      tex:SetVertexColor(r, g, b, self.glow_pct*tex.max_alpha)
+    end
+  end
+  
   function icon:OnEnter()
     QuestHelper.tooltip:Show()
     QuestHelper.tooltip:SetOwner(self, "ANCHOR_CURSOR")
     QuestHelper.tooltip:SetText("|cffffffff("..self.index..")|r "..self.objective:Reason().."\nEstimated travel time: "..QuestHelper:TimeString(self.objective.travel_time or 0))
+    
+    icon.show_glow = true
+    
+    if #self.glow_list == 0 then
+      local w, h = WorldMapDetailFrame:GetWidth(), WorldMapDetailFrame:GetHeight()
+      local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+      local _, x_size, y_size = QuestHelper.Astrolabe:ComputeDistance(c, z, 0.25, 0.25, c, z, 0.75, 0.75)
+      
+      x_size = math.max(25, 200 / x_size * w)
+      y_size = math.max(25, 200 / y_size * h)
+      
+      for _, list in pairs(self.objective.p) do
+        for _, p in ipairs(list) do
+          local x, y = p[3], p[4]
+          x, y = x / QuestHelper.continent_scales_x[p[1].c], y / QuestHelper.continent_scales_y[p[1].c]
+          x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(p[1].c, 0, x, y, c, z)
+          if x > 0 and y > 0 and x < 1 and y < 1 then
+            local tex = QuestHelper:GetGlowTexture(self)
+            tex:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x*w, -y*h)
+            tex:SetVertexColor(1,1,1,0)
+            tex:SetWidth(x_size)
+            tex:SetHeight(y_size)
+            tex:Show()
+            tex.max_alpha = 1/p[5]
+            table.insert(self.glow_list, tex)
+          end
+        end
+      end
+      
+      self:SetScript("OnUpdate", self.OnUpdate)
+    end
   end
   
   function icon:OnLeave()
     QuestHelper.tooltip:Hide()
+    self.show_glow = false
   end
   
   function icon:OnEvent(event)
