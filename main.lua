@@ -243,13 +243,27 @@ function QuestHelper:OnEvent(event)
     
     for locale in pairs(QuestHelper_StaticData) do
       if locale ~= self.locale then
-        -- Will delete references to locales we won't use, so as not to waste memory.
+        -- Will delete references to locales you don't use.
         QuestHelper_StaticData[locale] = nil
       end
     end
     
+    for faction in pairs(QuestHelper_StaticData[self.locale].flight_instructors) do
+      if faction ~= self.faction then
+        -- Will delete references to flight instructors that don't belong to your faction.
+        QuestHelper_StaticData[self.locale].flight_instructors[faction] = nil
+      end
+    end
+    
+    for faction in pairs(QuestHelper_StaticData[self.locale].quest) do
+      if faction ~= self.faction then
+        -- Will delete references to quests that don't belong to your faction.
+        QuestHelper_StaticData[self.locale].quest[faction] = nil
+      end
+    end
+    
     if not QuestHelper_Home then
-      self:TextOut("You home isn't known. When you get a chance, please talk to your innkeeper and reset it.")
+      self:TextOut("Your home isn't known. When you get a chance, please talk to your innkeeper and reset it.")
     end
     
     if QuestHelper_Pref.graph then

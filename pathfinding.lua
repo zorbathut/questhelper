@@ -654,7 +654,7 @@ function QuestHelper:ResetPathing()
     local static_fi = QuestHelper_StaticData[self.locale].flight_instructors[self.faction]
     for start, end_list in pairs(start_list) do
       for dest in pairs(end_list) do
-        local a_npc, b_npc = local_fi[start] or static_fi[start], local_fi[dest], static_fi[dest]
+        local a_npc, b_npc = (local_fi and local_fi[start]) or static_fi[start], (local_fi and local_fi[dest]) or static_fi[dest]
         
         if a_npc and b_npc then
           local a, b = flight_master_nodes[start], flight_master_nodes[dest]

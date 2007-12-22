@@ -115,7 +115,7 @@ local function CompareStaticQuest(info, faction, level, name, hash, data, verbos
   
   if not static then
     if data.finish or data.pos then
-      if verbose then QuestHelper:TextOut("Quest "..QuestHelper:HighlightText(name).." is was missing.") end
+      if verbose then QuestHelper:TextOut("Quest "..QuestHelper:HighlightText(name).." was missing.") end
       info.new.quest = (info.new.quest or 0) + 1
     end
     return
