@@ -55,6 +55,13 @@ local function ClampLine(x1, y1, x2, y2)
   end
 end
 
+local function pushPath(list, path)
+  if path then
+    pushPath(list, path.p)
+    table.insert(list, path.pos)
+  end
+end
+
 function QuestHelper:CreateWorldMapWalker()
   local walker = CreateFrame("Button", nil, WorldMapButton)
   walker:SetWidth(0)
@@ -65,9 +72,13 @@ function QuestHelper:CreateWorldMapWalker()
   walker.phase = 0.0
   walker.dots = {}
   walker.used_dots = 0
+  walker.points = {}
+  walker.origin = {}
   walker.frame = self
   
   function walker:OnUpdate(elapsed)
+    local points = self.points
+    
     self.phase = self.phase + elapsed
     while self.phase > 1 do self.phase = self.phase - 1 end
     
@@ -78,8 +89,8 @@ function QuestHelper:CreateWorldMapWalker()
     local last_x, last_y = self.frame.Astrolabe:TranslateWorldMapPosition(self.frame.c, self.frame.z, self.frame.x, self.frame.y, c, z) local remainder = self.phase
     local out = 0
     
-    for i, obj in ipairs(self.frame.route) do
-      local new_x, new_y = self.frame.Astrolabe:TranslateWorldMapPosition(obj.pos[1], obj.pos[2], obj.pos[3], obj.pos[4], c, z)
+    for i, pos in ipairs(points) do
+      local new_x, new_y = self.frame.Astrolabe:TranslateWorldMapPosition(pos[1], pos[2], pos[3], pos[4], c, z)
       local x1, y1, x2, y2 = ClampLine(last_x, last_y, new_x, new_y)
       last_x, last_y = new_x, new_y
       
@@ -120,6 +131,35 @@ function QuestHelper:CreateWorldMapWalker()
     self.used_dots = out
   end
   
+  function walker:OnEvent()
+    local points = self.points
+    local cur = self.origin
+    
+    cur[1], cur[2], cur[3], cur[4] = self.frame.c, self.frame.z, self.frame.x, self.frame.y
+    
+    while #points > 0 do table.remove(points) end
+    
+    local travel_time = 0.0
+    
+    for i, obj in pairs(self.frame.route) do
+      local path = self.frame:ComputeRoute(cur[1], cur[2], cur[3], cur[4], unpack(obj.pos))
+      if path then
+        travel_time = travel_time + path.g + path.e
+        pushPath(points, path)
+      else
+        travel_time = travel_time + (self.frame.Astrolabe:ComputeDistance(cur[1], cur[2], cur[3], cur[4], unpack(obj.pos)) or 0)/7.0
+      end
+      
+      obj.travel_time = travel_time
+      
+      cur = obj.pos
+      table.insert(points, cur)
+    end
+  end
+  
+  walker:SetScript("OnEvent", walker.OnEvent)
+  walker:RegisterEvent("WORLD_MAP_UPDATE")
+  
   walker:SetScript("OnUpdate", walker.OnUpdate)
 end
 
@@ -153,7 +193,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   function icon:OnEnter()
     QuestHelper.tooltip:Show()
     QuestHelper.tooltip:SetOwner(self, "ANCHOR_CURSOR")
-    QuestHelper.tooltip:SetText("|cffffffff("..self.index..")|r "..self.objective:Reason())
+    QuestHelper.tooltip:SetText("|cffffffff("..self.index..")|r "..self.objective:Reason().."\nEstimated travel time: "..QuestHelper:TimeString(self.objective.travel_time or 0))
   end
   
   function icon:OnLeave()

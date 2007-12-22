@@ -93,7 +93,8 @@ function QuestHelper:ScanQuestLog()
           if not lo then lo = {} lq.goal[objective] = lo end
           local category, wanted, have, need = self:GetQuestLogObjective(index, objective)
           
-          if wanted == " " then
+          if (category == "item" and wanted == " ") or
+             (category == "monster" and wanted == "slain") then
             self.defered_quest_scan = true
           elseif not lo.objective then
             -- objective is new.

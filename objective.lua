@@ -392,7 +392,7 @@ local function ItemObjectiveReason(self)
     if d then
       local s = d/count*(m.o.looted or 1)
       if not score or s < score then
-        reason = "Slay monster "..self.qh:HighlightText(monster).."."
+        reason = "Slay "..self.qh:HighlightText(monster).."."
         score = s
       end
     end
@@ -404,7 +404,7 @@ local function ItemObjectiveReason(self)
     if d then
       local s = d/count*(m.fb.looted or 1)
       if not score or s < score then
-        reason = "Slay monster "..self.qh:HighlightText(monster).."."
+        reason = "Slay "..self.qh:HighlightText(monster).."."
         score = s
       end
     end
@@ -420,7 +420,7 @@ local function ItemObjectiveReason(self)
         if d then
           local s = d/count*m.o.looted
           if not score or s < score then
-            reason = "Slay monster "..self.qh:HighlightText(monster).."."
+            reason = "Slay "..self.qh:HighlightText(monster).."."
             score = s
           end
         end
@@ -436,7 +436,7 @@ local function ItemObjectiveReason(self)
         if d then
           local s = d/count*m.fb.looted
           if not score or s < score then
-            reason = "Slay monster "..self.qh:HighlightText(monster).."."
+            reason = "Slay "..self.qh:HighlightText(monster).."."
             score = s
           end
         end
@@ -540,7 +540,7 @@ function QuestHelper:GetObjective(category, objective)
       objective_object.Distance = MonsterObjectiveDistance
       objective_object.Distance2 = MonsterObjectiveDistance2
       objective_object.Known = MonsterObjectiveKnown
-    else
+    elseif category ~= "reputation" and category ~= "event" and category ~= "object" then
       self:TextOut("FIXME: Objective type '"..category.."' for objective '"..objective.."' isn't explicitly supported yet; hopefully the dummy handler will do something sensible.")
     end
     

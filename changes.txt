@@ -1,0 +1,40 @@
+== Version 0.7; Uploaded 11/21/2007 ==
+
+* Started work on pathing, which is used on the world map display. Routing is still using straight line distance between objectives though, as I haven't programmed a proper heuristic for it yet, and I'm worried about performance.
+* Records information about flight masters, and keeps track of flight times between locations. Note that for a flight point to get considered in pathing, you need to talk to the flight master there.
+* Records the locations where two zones join together when you walk over the edge, for use in pathing.
+* Tooltips for objectives on the world map now include travel time estimates. Naturally, that doesn't include the time required for killing monsters and collecting items, or using mounts, swimming through water, obsticle avoidance, or anything else that'll affect your speed.
+* In the static data, quests without hashed objective text no longer get replaced by quests that do. Incomplete quests were hiding the imported quest data, so QuestHelper didn't know where to hand them in.
+
+== Version 0.6; Uploaded 11/18/2007 ==
+
+* Due to a bug fallback quest information wasn't getting found. Now that it's fixed, it can now tell you where to hand quests in.
+* Fixed the bug with the vendor item objectives.
+* The dots on the world map are now spaced evenly.
+
+== Version 0.5; Uploaded 11/18/2007 ==
+
+* Redid the routing.
+* Fix a bug with the unneeded red dots not getting hidden, and littering the world map. 
+
+== Version 0.4; Uploaded 11/17/2007 ==
+
+* Includes a lot more quest information, which was mostly imported from LightHeaded and EQL3.
+* Item gathering objectives should be working.
+* I think there's a bug in the routing, but I'll worry about that later. 
+
+== Version 0.3; Uploaded 11/17/2007 ==
+
+* Discovered that quest items are often returned to you, resulting in QuestHelper thinking you can acquire then from the same place you finish the quest.
+* Due to the above change, routing doesn't understand the way the data is organized now, so quests that involve gathering items are broken.
+
+== Version 0.2; Uploaded 11/16/2007 ==
+
+* Now parse objectives involving reputation correctly, although I'm not tracking reputation changes from kills yet.
+* Keeping track of what vendors sell what items.
+* Hashed quest text, so I have some way to tell quests with the same name apart.
+* I think I fixed the bug with the empty item objectives. 
+
+== Version 0.1; Uploaded 11/15/2007 ==
+
+* Replaces the AddOn 'TravelingTomTom', and dropped TomTom as a dependancy.

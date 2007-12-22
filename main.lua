@@ -11,6 +11,18 @@ QuestHelper_Locale = GetLocale()
 QuestHelper_Quests = {}
 QuestHelper_Objectives = {}
 
+-- Character ID identifies the player's charaters by a number instead of a Name/Realm pair. You know, in case
+-- they want to submit their data anonymously without references to their characters in them.
+-- This way the most I can tell is how many characters the submitter has, which probably isn't a big deal.
+QuestHelper_NextCharacterID = 1
+QuestHelper_CharacterID = nil
+
+QuestHelper_FlightInstructors = {}
+QuestHelper_FlightRoutes = {}
+QuestHelper_KnownFlightRoutes = {}
+
+QuestHelper_ZoneTransition = {}
+
 QuestHelper.tooltip = CreateFrame("GameTooltip", "QuestHelperTooltip", nil, "GameTooltipTemplate")
 QuestHelper.objective_objects = {}
 QuestHelper.quest_objects = {}
@@ -21,401 +33,189 @@ QuestHelper.to_add = {}
 QuestHelper.to_remove = {}
 QuestHelper.quest_log = {}
 
---[[
-local function ObjectiveIsKnown(objective)
-  for i, j in pairs(objective.after) do
-    if i.watched and not ObjectiveIsKnown(i) then -- Need to know how to do everything before this objective.
-      return false
-    end
+function QuestHelper:GetCharacterID()
+  if QuestHelper_CharacterID == nil then
+    QuestHelper_CharacterID = QuestHelper_NextCharacterID
+    QuestHelper_NextCharacterID = QuestHelper_NextCharacterID + 1
+  end
+  return QuestHelper_NextCharacterID
+end
+
+function QuestHelper:GetFlightPathData(c, start_string, end_string, hash)
+  local cont = QuestHelper_FlightRoutes[c]
+  if not cont then
+    cont = {}
+    QuestHelper_FlightRoutes[c] = cont
+  end
+  local map = cont[start_string]
+  if not map then
+    map = {}
+    cont[start_string] = map
+  end
+  local hash_list = map[end_string]
+  if not hash_list then
+    hash_list = {}
+    map[end_string] = hash_list
+  end
+  local data = hash_list[hash]
+  if not data then
+    data = {}
+    hash_list[hash] = data
+  end
+  return data
+end
+
+function QuestHelper:GetFallbackFlightPathData(c, start_string, end_string, hash)
+  local l = QuestHelper_StaticData[self.locale]
+  local cont = l and l.flight_routes
+  local map = cont and cont[start_string]
+  local hash_list = map and map[end_string]
+  return hash_list and hash_list[hash]
+end
+
+function QuestHelper:PlayerKnowsFlightRoute(c, start_string, end_string, hash)
+  local cont = QuestHelper_KnownFlightRoutes[c]
+  if not cont then
+    cont = {}
+    QuestHelper_KnownFlightRoutes[c] = cont
+  end
+  local map = cont[start_string]
+  if not map then
+    map = {}
+    cont[start_string] = map
   end
   
-  if objective.Known then
-    return objective:Known()
-  end
-  
-  -- If returns true if we know where to go to complete the objective.
-  if (objective.o.finish and ObjectiveIsKnown(GetObjectiveObject("monster", objective.o.finish))) or
-     (objective.fb.finish and objective.fb.finish ~= objective.o.finish
-      and ObjectiveIsKnown(GetObjectiveObject("monster", objective.fb.finish))) or
-     (objective.o.pos and next(objective.o.pos, nil)) or
-     (objective.fb.pos and next(objective.fb.pos, nil)) then
+  if not map[end_string] or (hash and hash ~= map[end_string]) then
+    map[end_string] = hash or map[end_string] or 0
     return true
-  end
-  
-  if objective.o.drop then
-    for m, count in pairs(objective.o.drop) do
-      if ObjectiveIsKnown(GetObjectiveObject("monster", m)) then
-        return true
-      end
-    end
-  end
-  
-  if objective.fb.drop then
-    for m, count in pairs(objective.fb.drop) do
-      if ObjectiveIsKnown(GetObjectiveObject("monster", m)) then
-        return true
-      end
-    end
   end
   
   return false
 end
 
-local function GetObjectiveDistance(objective, c, z, x, y)
-  if objective.o.finish then
-    return GetObjectiveDistance(GetObjectiveObject("monster", objective.o.finish), c, z, x, y)
-  elseif objective.fb.finish then
-    return GetObjectiveDistance(GetObjectiveObject("monster", objective.fb.finish), c, z, x, y, c, z, x, y)
-  end
+function QuestHelper:ComputeRawFlightScaler(c)
+  local real, raw = 0, 0
   
-  local distance, oc, oz, ox, oy = nil, 0, 0, 0, 0
-  
-  if objective.Distance then
-    return objective:Distance(c, z, x, y)
-  end
-  
-  if objective.o.vendor or objective.fb.vendor then
-    local faction = UnitFactionGroup("player")
-    
-    if objective.o.vendor then
-      for i, vendor in pairs(objective.o.vendor) do
-        local npc = GetObjectiveObject("monster", vendor)
-        if not npc.faction or npc.faction == faction then
-          local d, mc, mz, mx, my = GetObjectiveDistance(npc, c, z, x, y)
-          if not distance or d and d < distance then
-            distance, oc, oz, ox, oy = d, mc, mz, mx, my
+  if QuestHelper_FlightRoutes[c] then
+    for start, end_list in pairs(QuestHelper_FlightRoutes[c]) do
+      for dest, hash_list in pairs(end_list) do
+        for hash, data in pairs(hash_list) do
+          if data.raw and data.real then
+            real = real + data.real
+            raw = raw + data.raw
           end
         end
       end
     end
-    
-    if objective.fb.vendor then
-      for i, vendor in pairs(objective.fb.vendor) do
-        local npc = GetObjectiveObject("monster", vendor)
-        if not npc.faction or npc.faction == faction then
-          local d, mc, mz, mx, my = GetObjectiveDistance(npc, c, z, x, y)
-          if not distance or d and d < distance then
-            distance, oc, oz, ox, oy = d, mc, mz, mx, my
+  end
+  
+  if QuestHelper_StaticData[self.locale] and QuestHelper_StaticData[self.locale].flight_routes[c] then
+    for start, end_list in pairs(QuestHelper_StaticData[self.locale].flight_routes[c]) do
+      for dest, hash_list in pairs(end_list) do
+        for hash, data in pairs(hash_list) do
+          if data.raw and data.real then
+            real = real + data.real
+            raw = raw + data.raw
           end
         end
       end
     end
-    
-    if distance then return distance, oc, oz, ox, oy end
   end
   
-  if objective.o.drop or objective.fb.drop then
-    local score = 0
-    
-    if objective.o.drop then
-      for m, count in pairs(objective.o.drop) do
-        local monster = GetObjectiveObject("monster", m)
-        local d, mc, mz, mx, my = GetObjectiveDistance(monster, c, z, x, y)
-        if d then -- TODO: Check for nil in other places too
-          if d < 1 then
-            return d, mc, mz, mx, my
-          elseif d then
-            local s = count/(monster.o.looted or 1)/d
-            if s > score then
-              score, distance, oc, oz, ox, oy = s, d, mc, mz, mx, my
-            end
-          end
-        end
-      end
-    end
-    
-    if objective.fb.drop then
-      for m, count in pairs(objective.fb.drop) do
-        local monster = GetObjectiveObject("monster", m)
-        local d, mc, mz, mx, my = GetObjectiveDistance(monster, c, z, x, y)
-        if d then
-          if d < 1 then
-            return d, mc, mz, mx, my
-          elseif d then
-            local s = count/(monster.fb.looted or 1)/d
-            if s > score then
-              score, distance, oc, oz, ox, oy = s, d, mc, mz, mx, my
-            end
-          end
-        end
-      end
-    end
-    
-    if distance then return distance, oc, oz, ox, oy end
+  if raw > 0 then
+    return real/raw
   end
-  
-  if objective.o.pos or objective.fb.pos then
-    local score = 0
-    
-    if objective.o.pos then
-      for i, pos in ipairs(objective.o.pos) do
-        local d = Astrolabe:ComputeDistance(pos[1], pos[2], pos[3], pos[4], c, z, x, y)
-        
-        if d < 1 then
-          return d, pos[1], pos[2], pos[3], pos[4]
-        end
-        local s = pos[5]/d
-        if s > score then
-          score, distance, oc, oz, ox, oy = s, d, pos[1], pos[2], pos[3], pos[4]
-        end
-      end
-    end
-    
-    if objective.fb.pos then
-      for i, pos in ipairs(objective.fb.pos) do
-        local d = Astrolabe:ComputeDistance(pos[1], pos[2], pos[3], pos[4], c, z, x, y)
-        
-        if d < 1 then
-          return d, pos[1], pos[2], pos[3], pos[4]
-        end
-        local s = pos[5]/d
-        if s > score then
-          score, distance, oc, oz, ox, oy = s, d, pos[1], pos[2], pos[3], pos[4]
-        end
-      end
-    end
-    
-    -- if distance then return distance, oc, oz, ox, oy end
-  end
-  
-  return distance, oc, oz, ox, oy
 end
 
-local function GetObjectiveDistance2(objective, c1, z1, x1, y1, c2, z2, x2, y2)
-  if objective.o.finish then
-    return GetObjectiveDistance2(GetObjectiveObject("monster", objective.o.finish), c1, z1, x1, y1, c2, z2, x2, y2)
-  elseif objective.fb.finish then
-    return GetObjectiveDistance2(GetObjectiveObject("monster", objective.fb.finish), c1, z1, x1, y1, c2, z2, x2, y2)
+function QuestHelper:GetFlightTime(c, start_string, end_string)
+  local hash1, hash2
+  if QuestHelper_KnownFlightRoutes[c] and
+     QuestHelper_KnownFlightRoutes[c][start_string] and 
+     QuestHelper_KnownFlightRoutes[c][start_string][end_string] then
+    hash1 = QuestHelper_KnownFlightRoutes[c][start_string][end_string]
   end
   
-  if objective.Distance2 then
-    return objective:Distance2()
+  local data1 = hash1 and hash1 ~= 0 and self:GetFlightPathData(c, start_string, end_string, hash1)
+  
+  if data1 and data1.real then -- Have we flown and know the exact time there?
+    return data1.real
   end
   
-  local distance, oc, oz, ox, oy = nil, 0, 0, 0, 0
+  local fbdata1 = self:GetFallbackFlightPathData(c, start_string, end_string, hash1)
   
-  if objective.o.vendor or objective.fb.vendor then
-    local faction = UnitFactionGroup("player")
-    
-    if objective.o.vendor then
-      for i, vendor in pairs(objective.o.vendor) do
-        local npc = GetObjectiveObject("monster", vendor)
-        if not npc.faction or npc.faction == faction then
-          local d, mc, mz, mx, my = GetObjectiveDistance2(npc, c1, z1, x1, y1, c2, z2, x2, y2)
-          if not distance or d and d < distance then
-            distance, oc, oz, ox, oy = d, mc, mz, mx, my
-          end
-        end
-      end
-    end
-    
-    if objective.fb.vendor then
-      for i, vendor in pairs(objective.fb.vendor) do
-        local npc = GetObjectiveObject("monster", vendor)
-        if not npc.faction or npc.faction == faction then
-          local d, mc, mz, mx, my = GetObjectiveDistance2(npc, c1, z1, x1, y1, c2, z2, x2, y2)
-          if not distance or d and d < distance then
-            distance, oc, oz, ox, oy = d, mc, mz, mx, my
-          end
-        end
-      end
-    end
-    
-    if distance then return distance, oc, oz, ox, oy end
+  if fbdata1 and fbdata1.real then
+    return fbdata1.real
   end
   
-  if objective.o.drop or objective.fb.drop then
-    local score = 0
-    
-    if objective.o.drop then
-      for m, count in pairs(objective.o.drop) do
-        local monster = GetObjectiveObject("monster", m)
-        local d, mc, mz, mx, my = GetObjectiveDistance2(monster, c1, z1, x1, y1, c2, z2, x2, y2)
-        if d then
-          if d < 1 then
-            return d, mc, mz, mx, my
-          elseif d then
-            local s = count/(monster.o.looted or 1)/d
-            if s > score then
-              score, distance, oc, oz, ox, oy = s, d, mc, mz, mx, my
-            end
-          end
-        end
-      end
-    end
-    
-    if objective.fb.drop then
-      for m, count in pairs(objective.fb.drop) do
-        local monster = GetObjectiveObject("monster", m)
-        local d, mc, mz, mx, my = GetObjectiveDistance2(monster, c1, z1, x1, y1, c2, z2, x2, y2)
-        if d then
-          if d < 1 then
-            return d, mc, mz, mx, my
-          elseif d then
-            local s = count/(monster.fb.looted or 1)/d
-            if s > score then
-              score, distance, oc, oz, ox, oy = s, d, mc, mz, mx, my
-            end
-          end
-        end
-      end
-    end
-    
-    if distance then return distance, oc, oz, ox, oy end
+  if QuestHelper_KnownFlightRoutes[c] and
+     QuestHelper_KnownFlightRoutes[c][end_string] and 
+     QuestHelper_KnownFlightRoutes[c][end_string][start_string] then
+    hash2 = QuestHelper_KnownFlightRoutes[c][end_string][start_string]
   end
   
-  if objective.o.pos or objective.fb.pos then
-    local score = 0
-    
-    if objective.o.pos then
-      for i, pos in ipairs(objective.o.pos) do
-        local d = Astrolabe:ComputeDistance(c1, z1, x1, y1, pos[1], pos[2], pos[3], pos[4])+
-                  Astrolabe:ComputeDistance(pos[1], pos[2], pos[3], pos[4], c2, z2, x2, y2)
-        
-        if d < 1 then
-          return d, pos[1], pos[2], pos[3], pos[4]
-        end
-        local s = pos[5]/d
-        if s > score then
-          score, distance, oc, oz, ox, oy = s, d, pos[1], pos[2], pos[3], pos[4]
-        end
-      end
-    end
-    
-    if objective.fb.pos then
-      for i, pos in ipairs(objective.fb.pos) do
-        local d = Astrolabe:ComputeDistance(c1, z1, x1, y1, pos[1], pos[2], pos[3], pos[4])+
-                  Astrolabe:ComputeDistance(pos[1], pos[2], pos[3], pos[4], c2, z2, x2, y2)
-        
-        if d < 1 then
-          return d, pos[1], pos[2], pos[3], pos[4]
-        end
-        local s = pos[5]/d
-        if s > score then
-          score, distance, oc, oz, ox, oy = s, d, pos[1], pos[2], pos[3], pos[4]
-        end
-      end
-    end
-    
-    -- if distance then return distance, oc, oz, ox, oy end
+  local data2 = hash2 and hash2 ~= 0 and self:GetFlightPathData(c, end_string, start_string, hash2)
+  
+  if data2 and data2.real then -- Have we flown from there to here? We'll use that time instead.
+    return data2.real
   end
   
-  return distance, oc, oz, ox, oy
+  local fbdata2 = self:GetFallbackFlightPathData(c, end_string, start_string, hash1)
+  
+  if fbdata2 and fbdata2.real then
+    return fbdata2.real
+  end
+  
+  local scale = self:ComputeRawFlightScaler(c)
+  
+  if scale then
+    if data1 and data1.raw then -- We'll estimate the flight time based on the route distance.
+      return data1.raw * scale
+    end
+    
+    if fbdata1 and fbdata1.raw then
+      return fbdata1.raw * scale
+    end
+    
+    if data2 and data2.raw then
+      return data2.raw * scale
+    end
+    
+    if fbdata2 and fbdata2.raw then
+      return fbdata2.raw * scale
+    end
+  end
+  
+  -- If we got here, then we have absolutely no idea how long the flight will take.
+  -- We'll pretend to know and say three and a half minutes.
+  return 210
 end
-
-GetObjectiveReason = function(objective)
-  if objective.Reason then
-    return objective:Reason()
-  end
-  
-  local text = nil
-  if objective.reasons then
-    for reason, count in pairs(objective.reasons) do
-      if text ~= nil then
-        text = text .. "\n" .. reason
-      else
-        text = reason
-      end
-    end
-  end
-  text = text or "I don't know why this waypoint exists."
-  
-  if objective.o.finish or objective.fb.finish then
-    text = text .. "\nTalk to |cffffff77"..(objective.o.finish or objective.fb.finish).."|r."
-  elseif objective.o.vendor or objective.fb.vendor then
-    local npc_list = {}
-    
-    if objective.o.vendor then for i, npc in ipairs(objective.o.vendor) do
-      npc_list[npc] = 1
-    end end
-    
-    if objective.fb.vendor then for i, npc in ipairs(objective.fb.vendor) do
-      npc_list[npc] = 1
-    end end
-    
-    local sort_list = {}
-    
-    for npc, count in pairs(npc_list) do
-      local npc_objective = GetObjectiveObject("monster", npc)
-      if ObjectiveIsKnown(npc_objective) then
-        npc_list[npc] = GetObjectiveDistance(npc_objective, unpack(objective.pos))
-        table.insert(sort_list, npc)
-      else
-        npc_list[npc] = nil
-      end
-    end
-    
-    table.sort(sort_list, function(a, b) return npc_list[a] < npc_list[b] end)
-    
-    if #sort_list > 0 then
-      local count, first = math.min(#sort_list, 3), true
-      text = text .. "\nPurchase from "
-      for i = 1,count do
-        if i ~= count then
-          text = text .. " |cffffff77"..sort_list[i].."|r,"
-        elseif first then
-          text = text .. " |cffffff77"..sort_list[i].."|r."
-        else
-          text = text .. " or |cffffff77"..sort_list[i].."|r."
-        end
-        first = false
-      end
-    else
-      text = text .. "\nI'm not sure whom you should purchase this from."
-    end
-  elseif objective.o.drop or objective.fb.drop then
-    -- Going to go through all the monsters we know and suggest the 3 that are most likely to give you what you want.
-    local monster_list = {}
-    
-    if objective.o.drop then for monster, count in pairs(objective.o.drop) do
-      monster_list[monster] = count
-    end end
-    
-    if objective.fb.drop then for monster, count in pairs(objective.fb.drop) do
-      monster_list[monster] = (monster_list[monster] or 0) + count
-    end end
-    
-    local sort_list = {}
-    
-    for monster, count in pairs(monster_list) do
-      local monster_objective = GetObjectiveObject("monster", monster)
-      local looted = (monster_objective.o.looted or 0) + (monster_objective.fb.looted or 0)
-      if looted > 0 and ObjectiveIsKnown(monster_objective) then
-        local distance = GetObjectiveDistance(monster_objective, unpack(objective.pos))
-        if distance < 1 then distance = 1 end
-        local score = count / looted / distance
-        monster_list[monster] = score
-        table.insert(sort_list, monster)
-      else
-        monster_list[monster] = nil
-      end
-    end
-    
-    table.sort(sort_list, function(a, b) return monster_list[a] > monster_list[b] end)
-    
-    if #sort_list > 0 then
-      local count, first = math.min(#sort_list, 3), true
-      text = text .. "\nSlay"
-      for i = 1,count do
-        if i ~= count then
-          text = text .. " |cffffff77"..sort_list[i].."|r,"
-        elseif first then
-          text = text .. " |cffffff77"..sort_list[i].."|r."
-        else
-          text = text .. " or |cffffff77"..sort_list[i].."|r."
-        end
-        first = false
-      end
-    else
-      text = text .. "\nI'm not sure what monster you should slay for this."
-    end
-  end
-  return text
-end ]]
 
 function QuestHelper:OnEvent(event)
   if event == "VARIABLES_LOADED" then
     QuestHelper_UpgradeDatabase(_G)
+    
+    -- TODO: Just sanity for now, should be able to remove later.
+    for c, start_list in pairs(QuestHelper_ZoneTransition) do
+      for start, end_list in pairs(start_list) do
+        for dest, pos_list in pairs(end_list) do
+          local i = 1
+          while i <= #pos_list do
+            local pos = pos_list[i]
+            
+            local x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(c, start, pos[3], pos[4], c, dest)
+            
+            if x > 0 and y > 0 and x < 1 and y < 1 and
+               pos[3] > 0 and pos[4] > 0 and pos[3] < 1 and pos[4] < 1 then
+              i = i + 1
+            else
+              table.remove(pos_list, i)
+            end
+          end
+        end
+      end
+    end
+  
+    self:ResetPathing()
   end
   
   if event == "PLAYER_TARGET_CHANGED" then
@@ -534,13 +334,190 @@ function QuestHelper:OnEvent(event)
       end
     end
   end
+  
+  if event == "PLAYER_CONTROL_LOST" then
+    if self.flight_origin then
+      -- We'll check to make sure we were actually on a taxi when we regain control.
+      self.flight_start_time = time()
+    end
+  end
+  
+  if event == "PLAYER_CONTROL_GAINED" then
+    if (self.was_flying or UnitOnTaxi("player")) and self.flight_origin and self.flight_start_time then
+      local elapsed = time()-self.flight_start_time
+      if elapsed > 0 then
+        local c, z, x, y = self:PlayerPosition()
+        local list = QuestHelper_FlightInstructors[self.faction]
+        local end_zone = nil
+        if list then
+          local distance
+          for zone, npc in pairs(list) do
+            local npc_objective = self:GetObjective("monster", npc)
+            local d = npc_objective:Distance(c, z, x, y)
+            if d and (not end_zone or d < distance) then
+              end_zone, distance = zone, d
+            end
+          end
+          if end_zone and distance > 20 then
+            end_zone = nil
+          end
+        end
+        
+        if end_zone then
+          self:GetFlightPathData(c, self.flight_origin, end_zone, self.flight_hashs[end_zone]).real = elapsed
+        else
+          self:TextOut("Please talk to the local flight master.")
+          if not self.pending_flight_data then
+            self.pending_flight_data = {}
+          end
+          table.insert(self.pending_flight_data, {self.flight_origin, self.flight_hashs, elapsed, c, z, x, y})
+          self.flight_hashs = nil
+        end
+      else
+        self:TextOut("You arrived at your destination before you left. I love a good temporal paradox!")
+      end
+    end
+    self.was_flying, self.flight_origin, self.flight_start_time = nil, nil, nil
+  end
+  
+  if event == "TAXIMAP_OPENED" then
+    local flight_instructor = UnitName("npc")
+    
+    local start_index = nil
+    for i = 1,NumTaxiNodes() do
+      if GetNumRoutes(i) == 0 then
+        start_index = i
+        break
+      end
+    end
+    
+    if start_index ~= nil then
+      local start_location = TaxiNodeName(start_index)
+      self.flight_origin = start_location
+      
+      if flight_instructor and start_location then
+        local list = QuestHelper_FlightInstructors[self.faction]
+        if not list then
+          list = {}
+          QuestHelper_FlightInstructors[self.faction] = list
+        end
+        if list[start_location] ~= flight_instructor then
+          --self:TextOut("Recorded that "..flight_instructor.." is the "..self.faction.." flight instructor for "..start_location..".")
+          list[start_location] = flight_instructor
+        end
+      end
+      
+      if self.pending_flight_data then
+        local c, z, x, y = self:UnitPosition("npc")
+        for i, data in ipairs(self.pending_flight_data) do
+          if self:Distance(c, z, x, y, data[4], data[5], data[6], data[7]) < 20 then
+            self:TextOut("Thanks.")
+            self.flight_hashs = data[2]
+            self:GetFlightPathData(c, data[1], start_location, self.flight_hashs[start_location]).real = data[3]
+            table.remove(self.pending_flight_data, i)
+            break
+          end
+        end
+      end
+      
+      if not self.flight_hashs then
+        self.flight_hashs = {}
+      else
+        while #self.flight_hashs > 0 do
+          table.remove(self.flight_hashs)
+        end
+      end
+      
+      local altered = false
+      
+      for i = 1,NumTaxiNodes() do
+        local routes = GetNumRoutes(i)
+        -- Why Blizzard would tell me there are nine hundred million route nodes instead of returning
+        -- nil when you can't get there is beyond me.
+        if i ~= start_index and routes and routes > 0 and routes < 100 then
+          local required_time = 0
+          local path_string = "PATH"
+          for j=1,routes do
+            path_string=string.format("%s:%d,%d",
+                                      path_string,
+                                      math.floor(TaxiGetDestX(i,j)*100+0.5),
+                                      math.floor(TaxiGetDestY(i,j)*100+0.5))
+            
+            local x, y = TaxiGetSrcX(i,j)-TaxiGetDestX(i,j), TaxiGetSrcY(i,j)-TaxiGetDestY(i,j)
+            
+            -- It appears that the coordinates do actually use a square aspect ratio. That's a pleasant surprise.
+            required_time = required_time + math.sqrt(x*x+y*y)
+          end
+          
+          local hash = self:HashString(path_string)
+          local end_location = TaxiNodeName(i)
+          self.flight_hashs[end_location] = hash
+          altered = self:PlayerKnowsFlightRoute(self.c, start_location, end_location, hash) or altered
+          altered = self:PlayerKnowsFlightRoute(self.c, end_location, start_location) or altered
+          self:GetFlightPathData(self.c, start_location, end_location, hash).raw = required_time
+        end
+      end
+      
+      if altered then
+        self:TextOut("The flight routes for your character have been altered. Will recalculate world pathing information.")
+        self:ResetPathing()
+      end
+    end
+  end
 end
 
 function QuestHelper:OnUpdate()
+  local nc, nz, nx, ny = self.Astrolabe:GetCurrentPlayerPosition()
+  
+  if nz == 0 then
+    SetMapToCurrentZone()
+    nz = GetCurrentMapZone()
+    if nz ~= 0 then
+      nx, ny = self.Astrolabe:TranslateWorldMapPosition(nc, 0, nx, ny, nc, nz)
+    end
+  end
+  
+  if UnitOnTaxi("player") then
+    self.was_flying = true
+  else
+    if nc == self.c and nz ~= self.z and nz > 0 and self.z > 0 and
+       nx > 0 and ny > 0 and nx < 1 and ny < 1 and
+       self.x > 0 and self.y > 0 and self.x < 1 and self.y < 1 then
+      -- Changed zones!
+      local distance = self.Astrolabe:ComputeDistance(self.c, self.z, self.x, self.y, nc, nz, nx, ny)
+      if distance and distance < 20 then
+        local cont = QuestHelper_ZoneTransition[nc]
+        if not cont then
+          cont = {}
+          QuestHelper_ZoneTransition[nc] = cont
+        end
+        if nz > self.z then
+          local from = cont[self.z]
+          if not from then from = {} cont[self.z] = from end
+          local to = from[nz]
+          if not to then to = {} from[nz] = to end
+          self:AppendPosition(to, self.c, self.z, self.x, self.y, 1, 1500.0)
+        else
+          local from = cont[nz]
+          if not from then from = {} cont[nz] = from end
+          local to = from[self.z]
+          if not to then to = {} from[self.z] = to end
+          self:AppendPosition(to, nc, nz, nx, ny, 1, 1500.0)
+        end
+        
+        self:TextOut("Zone connection altered. Will recalculate world pathing information.")
+        self:ResetPathing()
+      end
+    end
+  end
+  
+  self.c, self.z, self.x, self.y = nc or self.c, nz or self.z, nx or self.x, ny or self.y
+  
   if self.defered_quest_scan then
     self.defered_quest_scan = false
     self:ScanQuestLog()
   end
+  
   if coroutine.status(self.update_route) ~= "dead" then
     local state, err = coroutine.resume(self.update_route, self)
     if not state then self:TextOut("|cffff0000The routing co-routine just exploded|r: |cffffff77"..err.."|r") end
@@ -555,6 +532,9 @@ QuestHelper:RegisterEvent("QUEST_PROGRESS")
 QuestHelper:RegisterEvent("MERCHANT_SHOW")
 QuestHelper:RegisterEvent("VARIABLES_LOADED")
 QuestHelper:RegisterEvent("QUEST_DETAIL")
+QuestHelper:RegisterEvent("TAXIMAP_OPENED")
+QuestHelper:RegisterEvent("PLAYER_CONTROL_GAINED")
+QuestHelper:RegisterEvent("PLAYER_CONTROL_LOST")
 
 QuestHelper:SetScript("OnEvent", QuestHelper.OnEvent)
 QuestHelper:SetScript("OnUpdate", QuestHelper.OnUpdate)

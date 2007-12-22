@@ -29,19 +29,21 @@ function GetQuest(locale, faction, level, name, hash)
   if q.hash ~= hash then
     if q.alt[hash] then
       q = q.alt[hash]
-    else
-      -- Don't know which quest you're referring to.
-      q = {}
-      b[name] = q
-      q.finish = {}
-      q.hash = hash
-      q.alt = {}
-      
-      if hash then
-       b[name] = q
-      end
     end
   end
+  
+  if hash and not q.hash then
+    -- If the old quest didn't have a hash, we'll assume this is it. If we're wrong, we'll
+    -- hopefully overwrite it with the correct data.
+    q.hash = hash
+  elseif not hash and q.hash then
+    -- If the old quest had a hash, but this one doesn't, we'll return a dummy object
+    -- so that we don't overwrite it with the wrong quest data.
+    q = {}
+    q.finish = {}
+    q.alt = {}
+  end
+  
   return q
 end
 
@@ -71,7 +73,8 @@ local function Distance(a, b)
   return math.sqrt(x*x+y*y)
 end
 
-local function TidyPositionList(list)
+local function TidyPositionList(list, min_distance)
+  min_distance = min_distance or 0.05
   while true do
     if #list == 0 then return end
     local changed = false
@@ -84,7 +87,7 @@ local function TidyPositionList(list)
           nearest, distance = j, d
         end
       end
-      if nearest and distance < 0.05 then
+      if nearest and distance < min_distance then
         local a, b = list[i], list[nearest]
         a[3] = (a[3]*a[5]+b[3]*b[5])/(a[5]+b[5])
         a[4] = (a[4]*a[5]+b[4]*b[5])/(a[5]+b[5])
@@ -192,8 +195,12 @@ local function AddQuestItems(quest, list)
   end
 end
 
+local function ValidFaction(faction)
+  return type(faction) == "string" and (faction == "Horde" or faction == "Alliance")
+end
+
 local function AddQuest(locale, faction, level, name, data)
-  if type(faction) == "string" and (faction == "Horde" or faction == "Alliance")
+  if ValidFaction(faction)
      and type(level) == "number" and level >= 1 and level <= 100
      and type(name) == "string" and type(data) == "table" then
     
@@ -215,6 +222,108 @@ local function AddQuest(locale, faction, level, name, data)
         AddQuest(locale, faction, level, name, quest)
       end
     end
+  end
+end
+
+local function AddFlightInstructor(locale, faction, location, npc)
+  if ValidFaction(faction) and type(location) == "string" and type(npc) == "string" then
+    local l = StaticData[locale]
+    if not l then
+      l = {}
+      StaticData[locale] = l
+    end
+    local faction_list = l.flight_instructors
+    if not faction_list then
+      faction_list = {}
+      l.flight_instructors = faction_list
+    end
+    
+    local location_list = faction_list[faction]
+    if not location_list then
+      location_list = {}
+      faction_list[faction] = location_list
+    end
+    location_list[location] = npc
+  end
+end
+
+local function AddFlightRoute(locale, continent, start, destination, hash, data)
+  if type(continent) == "number" and
+     type(start) == "string" and
+     type(destination) == "string" and
+     type(hash) == "number" and
+     type(data) == "table" and
+     type(data.raw) == "number" and 
+     (not data.real or type(data.real) == "number") then
+    local l = StaticData[locale]
+    if not l then
+      l = {}
+      StaticData[locale] = l
+    end
+    local continent_list = l.flight_routes
+    if not continent_list then
+      continent_list = {}
+      l.flight_routes = continent_list
+    end
+    local start_list = continent_list[continent]
+    if not start_list then
+      start_list = {}
+      continent_list[continent] = start_list
+    end
+    local end_list = start_list[start]
+    if not end_list then
+      end_list = {}
+      start_list[start] = end_list
+    end
+    local hash_list = end_list[destination]
+    if not hash_list then
+      hash_list = {}
+      end_list[destination] = hash_list
+    end
+    local route_data = hash_list[hash]
+    if not route_data then
+      route_data = {}
+      hash_list[hash] = route_data
+    end
+    route_data.raw = route_data.raw or data.raw
+    route_data.real = route_data.real or data.real
+  end
+end
+
+local function AddZoneTransition(locale, continent, zone1, zone2, pos_list)
+  if type(continent) == "number" and
+     type(zone1) == "number" and
+     type(zone2) == "number" and
+     zone1 < zone2 and
+     type(pos_list) == "table" then
+    -- TODO: Doesn't need to be one per locale, is only numbers. Me thinks.
+    
+    local l = StaticData[locale]
+    if not l then
+      l = {}
+      StaticData[locale] = l
+    end
+    local continent_list = l.zone_transition
+    if not continent_list then
+      continent_list = {}
+      l.zone_transition = continent_list
+    end
+    local zone1_list = continent_list[continent]
+    if not zone1_list then
+      zone1_list = {}
+      continent_list[continent] = zone1_list
+    end
+    local zone2_list = zone1_list[zone1]
+    if not zone2_list then
+      zone2_list = {}
+      zone1_list[zone1] = zone2_list
+    end
+    local position_list = zone2_list[zone2]
+    if not position_list then
+      position_list = {}
+      zone2_list[zone2] = position_list
+    end
+    MergePositionLists(position_list, pos_list)
   end
 end
 
@@ -351,6 +460,30 @@ function NewData()
         AddObjective(locale, category, name, objective)
       end end
     end end
+    
+    if type(data.QuestHelper_FlightInstructors) == "table" then for faction, list in pairs(data.QuestHelper_FlightInstructors) do
+      if type(list) == "table" then for location, npc in pairs(list) do
+        AddFlightInstructor(locale, faction, location, npc)
+      end end
+    end end
+    
+    if type(data.QuestHelper_FlightRoutes) == "table" then for continent, start_list in pairs(data.QuestHelper_FlightRoutes) do
+      if type(start_list) == "table" then for start, destination_list in pairs(start_list) do
+        if type(destination_list) == "table" then for destination, route_list in pairs(destination_list) do
+          if type(route_list) == "table" then for hash, data in pairs(route_list) do
+            AddFlightRoute(locale, continent, start, destination, hash, data)
+          end end
+        end end
+      end end
+    end end
+    
+    if type(data.QuestHelper_ZoneTransition) == "table" then for continent, zone1_list in pairs(data.QuestHelper_ZoneTransition) do
+      if type(zone1_list) == "table" then for zone1, zone2_list in pairs(zone1_list) do
+        if type(zone2_list) == "table" then for zone2, pos_list in pairs(zone2_list) do
+          AddZoneTransition(locale, continent, zone1, zone2, pos_list)
+        end end
+      end end
+    end end
   end
 end
 
@@ -374,8 +507,9 @@ local function Dump(buffer, variable, depth, seen)
   elseif type(variable) == "boolean" then
     return buffer:add(variable and "true" or "false")
   elseif type(variable) == "table" then
-    if not seen then seen = {} end
-    if seen[variable] then
+    if not seen then
+      seen = {}
+    elseif seen[variable] then
       -- return "nil --[[ TABLE CONTAINS ITSELF! ]]"
     end
     seen[variable] = true
@@ -387,8 +521,6 @@ local function Dump(buffer, variable, depth, seen)
         Dump(buffer, j, depth+1, seen)
         if next(variable,i) then
           buffer:add(","..(type(variable[i+1])=="table"and"\n"..("  "):rep(depth) or " "))
-        else
-          buffer:add("}")
         end
       end
     else
@@ -409,8 +541,8 @@ local function Dump(buffer, variable, depth, seen)
           buffer:add(",\n"..("  "):rep(depth))
         end
       end
-      return buffer:add("}")
     end
+    buffer:add("}")
     seen[variable] = nil
   else
     return buffer:add("nil --[[ UNHANDLED TYPE: '"..type(variable).."' ]]")
@@ -508,6 +640,14 @@ function Finished()
       end
       if delete_category then l.objective[category] = nil end
     end
+    
+    if l.zone_transition then for continent, zone1_list in pairs(l.zone_transition) do
+      for zone1, zone2_list in pairs(zone1_list) do
+        for zone2, pos_list in pairs(zone2_list) do
+          TidyPositionList(pos_list, 0.35)
+        end
+      end
+    end end
   end
   
   local buffer =

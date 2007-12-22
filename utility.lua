@@ -8,7 +8,6 @@ function QuestHelper:HashString(text)
   return b*65536+a
 end
 
-
 function QuestHelper:TextOut(text)
   DEFAULT_CHAT_FRAME:AddMessage("|cff65c7ffQuestHelper: |r"..text, 1.0, 0.6, 0.2)
 end
@@ -22,20 +21,17 @@ function QuestHelper:HighlightText(text)
   return "|cffbbffd6"..text.."|r"
 end
 
-function QuestHelper:PlayerPosition()
-  local nc, nz, nx, ny = self.Astrolabe:GetCurrentPlayerPosition()
-  
-  if nz == 0 then
-    -- Not sure why this is, but whatever.
-    SetMapToCurrentZone()
-    nz = GetCurrentMapZone()
-    if nz ~= 0 then
-      nx, ny = self.Astrolabe:TranslateWorldMapPosition(nc, 0, nx, ny, nc, nz)
-    end
+function QuestHelper:TimeString(seconds)
+  local seconds = math.ceil(seconds)
+  local h, m, s = math.floor(seconds/(60*60)), math.floor(seconds/60)%60, seconds%60
+  if h > 0 then
+    return string.format("|cffffffff%d|r:|cffffffff%02d|r:|cffffffff%02d|r", h, m, s)
+  else
+    return string.format("|cffffffff%d|r:|cffffffff%02d|r", m, s)
   end
-  
-  self.c, self.z, self.x, self.y = nc or self.c, nz or self.z, nx or self.x, ny or self.y
-  
+end
+
+function QuestHelper:PlayerPosition()
   return self.c, self.z, self.x, self.y
 end
 
@@ -86,13 +82,14 @@ function QuestHelper:Distance(c1, z1, x1, y1, c2, z2, x2, y2)
   return self.Astrolabe:ComputeDistance(c1, z1, x1, y1, c2, z2, x2, y2) or 10000
 end
 
-function QuestHelper:AppendPosition(list, c, z, x, y, w)
+function QuestHelper:AppendPosition(list, c, z, x, y, w, min_dist)
   if not c or (c == 0 and z == 0) or x == 0 or y == 0 then
     return -- This isn't a real position.
   end
   
   local closest, distance = nil, 0
   w = w or 1
+  min_dist = min_dist or 200
   
   for i, p in ipairs(list) do
     if c == p[1] and z == p[2] then
@@ -102,7 +99,7 @@ function QuestHelper:AppendPosition(list, c, z, x, y, w)
       end
     end
   end
-  if closest and distance < 200.0 then
+  if closest and distance < min_dist then
     local p = list[closest]
     p[3] = (p[3]*p[5]+x*w)/(p[5]+w)
     p[4] = (p[4]*p[5]+y*w)/(p[5]+w)
