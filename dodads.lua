@@ -241,10 +241,50 @@ function QuestHelper:CreateWorldMapWalker()
   return walker
 end
 
+function QuestHelper:GetOverlapObjectives()
+  local w, h = WorldMapDetailFrame:GetWidth(), WorldMapDetailFrame:GetHeight()
+  local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+  
+  local count = 0
+  local list = self.overlap_list
+  
+  if not list then
+    list = {}
+    self.overlap_list = list
+  else
+    while next(list) do
+      list[next(list)] = nil
+    end
+  end
+  
+  local cx, cy = GetCursorPosition()
+  
+  -- I'm probably supposed to account for scale here somewhere, but it seems to work.
+  cx, cy = cx-WorldMapDetailFrame:GetLeft(), WorldMapDetailFrame:GetTop()-cy
+  
+  
+  for i, o in ipairs(self.route) do
+    local x, y = o.pos[3], o.pos[4]
+    x, y = x / self.continent_scales_x[o.pos[1].c], y / self.continent_scales_y[o.pos[1].c]
+    x, y = self.Astrolabe:TranslateWorldMapPosition(o.pos[1].c, 0, x, y, c, z)
+    
+    if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
+      x, y = x*w, y*h
+      
+      if cx >= x-10 and cy >= y-10 and cx <= x+10 and cy <= y+10 then
+        list[i] = o
+        count = count + 1
+      end
+    end
+  end
+  
+  return list, count
+end
+
 function QuestHelper:CreateWorldMapDodad(objective, index)
   local icon = CreateFrame("Button", nil, WorldMapButton)
-  icon:SetHeight(16)
-  icon:SetWidth(16)
+  icon:SetHeight(20)
+  icon:SetWidth(20)
   
   icon:SetFrameStrata("FULLSCREEN_DIALOG")
   
@@ -265,8 +305,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
       end
       
       self.dot:ClearAllPoints()
-      self.dot:SetPoint("TOPLEFT", self, "TOPLEFT")
-      self.dot:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT")
+      self.dot:SetAllPoints()
       
       QuestHelper.Astrolabe:PlaceIconOnWorldMap(WorldMapDetailFrame, self, convertLocation(objective.pos))
     else
@@ -309,7 +348,17 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   function icon:OnEnter()
     QuestHelper.tooltip:Show()
     QuestHelper.tooltip:SetOwner(self, "ANCHOR_CURSOR")
-    QuestHelper.tooltip:SetText("|cffffffff("..self.index..")|r "..self.objective:Reason().."\nEstimated travel time: "..QuestHelper:TimeString(self.objective.travel_time or 0))
+    
+    local text = ""
+    
+    local list = QuestHelper:GetOverlapObjectives()
+    
+    for i, o in pairs(list) do
+      if text ~= "" then text = text .. "\n   |c80ff0000...|r\n" end
+      text = text .. "|cffffffff("..i..")|r ".. o:Reason() .. "\nEstimated travel time: "..QuestHelper:TimeString(o.travel_time or 0)
+    end
+    
+    QuestHelper.tooltip:SetText(text)
     
     icon.show_glow = true
     
@@ -369,23 +418,44 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   end
   
   function icon:OnClick()
-
-  if self.objective then
+    if self.objective then
       local menu = QuestHelper:CreateMenu()
-      QuestHelper:CreateMenuTitle(menu, self.objective:Reason(true))
-      
+      local list, count = QuestHelper:GetOverlapObjectives()
       local item
       
-      if QuestHelper.first_objective == self.objective then
-        item = QuestHelper:CreateMenuItem(menu, "Place this objective for me.")
-        item:SetFunction(function (obj) if QuestHelper.first_objective == obj then QuestHelper.first_objective = nil QuestHelper:ForceRouteUpdate() end end, self.objective)
-      elseif not next(self.objective.after, nil) then
-        item = QuestHelper:CreateMenuItem(menu, "Force this objective to be first.")
-        item:SetFunction(function (obj) QuestHelper.first_objective = obj QuestHelper:ForceRouteUpdate() end, self.objective)
+      if count > 1 then
+        QuestHelper:CreateMenuTitle(menu, "Objectives")
+        
+        for i, o in pairs(list) do
+          local submenu = QuestHelper:CreateMenu()
+          item = QuestHelper:CreateMenuItem(menu, o:Reason(true))
+          item:SetSubmenu(submenu)
+          
+          if QuestHelper.first_objective == o then
+            item = QuestHelper:CreateMenuItem(submenu, "Place this objective for me.")
+            item:SetFunction(function (obj) if QuestHelper.first_objective == obj then QuestHelper.first_objective = nil QuestHelper:ForceRouteUpdate() end end, o)
+          elseif o:CouldBeFirst() then
+            item = QuestHelper:CreateMenuItem(submenu, "Force this objective to be first.")
+            item:SetFunction(function (obj) QuestHelper.first_objective = obj QuestHelper:ForceRouteUpdate() end, o)
+          end
+          
+          item = QuestHelper:CreateMenuItem(submenu, "Ignore this objective.")
+          item:SetFunction(function (obj) obj.user_ignore = true QuestHelper:ForceRouteUpdate() end, o)
+        end
+      else
+        QuestHelper:CreateMenuTitle(menu, self.objective:Reason(true))
+        
+        if QuestHelper.first_objective == self.objective then
+          item = QuestHelper:CreateMenuItem(menu, "Place this objective for me.")
+          item:SetFunction(function (obj) if QuestHelper.first_objective == obj then QuestHelper.first_objective = nil QuestHelper:ForceRouteUpdate() end end, self.objective)
+        elseif self.objective:CouldBeFirst() then
+          item = QuestHelper:CreateMenuItem(menu, "Force this objective to be first.")
+          item:SetFunction(function (obj) QuestHelper.first_objective = obj QuestHelper:ForceRouteUpdate() end, self.objective)
+        end
+        
+        item = QuestHelper:CreateMenuItem(menu, "Ignore this objective.")
+        item:SetFunction(function (obj) obj.user_ignore = true QuestHelper:ForceRouteUpdate() end, self.objective)
       end
-      
-      item = QuestHelper:CreateMenuItem(menu, "Ignore this objective.")
-      item:SetFunction(function (obj) obj.user_ignore = true QuestHelper:ForceRouteUpdate() end, self.objective)
       
       menu:SetCloseFunction(QuestHelper.ReleaseMenu, QuestHelper, menu)
       menu:ShowAtCursor()
@@ -425,6 +495,10 @@ function QuestHelper:CreateMipmapDodad()
   icon.icon_id = 7
   
   function icon:NextObjective()
+    if not QuestHelper.route_sane then
+      return self.objective
+    end
+    
     for i, o in ipairs(QuestHelper.route) do
       if not QuestHelper.to_remove[o] then
         return o
@@ -508,14 +582,16 @@ function QuestHelper:CreateMipmapDodad()
   end
   
   function icon:SetObjective(objective)
-    if objective then
-      self:Show()
-    else
-      self:Hide()
+    if objective ~= self.objective then
+      if objective then
+        self:Show()
+      else
+        self:Hide()
+      end
+      
+      self.objective = objective
+      self.recalc_timeout = 0
     end
-    
-    self.objective = objective
-    self.recalc_timeout = 0
   end
   
   function icon:OnEnter()
@@ -564,45 +640,91 @@ function QuestHelper:CreateWorldGraphWalker()
   walker.used_nodes = 0
   walker.frame = self
   
+  QuestHelper_Dump = {}
+  
+  for c, z1list in pairs(QuestHelper_ZoneTransition) do
+    for z1, z2list in pairs(z1list) do
+      for z2, poslist in pairs(z2list) do
+        for i, pos in ipairs(poslist) do
+          table.insert(QuestHelper_Dump, string.format("{%d, %d, %d, %.3f, %.3f}, -- %s <--> %s", c, z1, z2, pos[3], pos[4], select(z1, GetMapZones(c)), select(z2, GetMapZones(c))))
+        end
+      end
+    end
+  end
+  
   function walker:OnUpdate(elapsed)
     local w, h = WorldMapDetailFrame:GetWidth(), -WorldMapDetailFrame:GetHeight()
-    local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+    local pc, pz = GetCurrentMapContinent(), GetCurrentMapZone()
     
-    for i, n in ipairs(self.frame.world_graph.nodes) do
-      local node = self.nodes[i]
-      if not node then
-        node = CreateFrame("Button", nil, WorldMapButton)
-        node:SetFrameStrata("FULLSCREEN_DIALOG")
-        node:SetWidth(10)
-        node:SetHeight(10)
-        
-        node.dot = node:CreateTexture()
-        node.dot:SetTexture("Interface\\Minimap\\ObjectIcons")
-        node.dot:SetTexCoord(0.280, 0.35, 0.09, 0.36)
-        node.dot:SetVertexColor(0,0,0,1)
-        node.dot:SetAllPoints()
-        node.dot:Show()
-        
-        node:SetScript("OnEnter", function (self) QuestHelper.tooltip:Show()
-    QuestHelper.tooltip:SetOwner(self, "ANCHOR_CURSOR")
-    QuestHelper.tooltip:SetText(self.text) end)
-        node:SetScript("OnLeave", function (self) QuestHelper.tooltip:Hide() end)
-        
-        self.nodes[i] = node
-      end 
-      node:ClearAllPoints()
-      local x, y = self.frame.Astrolabe:TranslateWorldMapPosition(n.c, 0, n.x / QuestHelper.continent_scales_x[n.c], n.y / QuestHelper.continent_scales_y[n.c], c, z)
-      
-      if x and y then
-        node:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x*w, y*h)
-        node:Show()
-        node.text = "name:"..(n.name or "nil").."\ns:"..n.s.."\ng:"..(n.g and math.floor(n.g+0.5)or "nil").."\nh:"..(n.h and math.floor(n.h+0.5) or "nil").."\nf:"..(n.f and math.floor(n.f+0.5) or "nil").."\ne:"..(n.e and math.floor(n.e+0.5) or "nil")
-      else
-        node:Hide()
+    --QuestHelper_ZoneTransition = QuestHelper_StaticData.enUS.zone_transition
+    
+    local count = 0
+    for c, z1list in pairs(QuestHelper_ZoneTransition) do
+      for z1, z2list in pairs(z1list) do
+        for z2, poslist in pairs(z2list) do
+          for i, pos in ipairs(poslist) do
+            count = count + 1
+            
+            local node = self.nodes[count]
+            if not node then
+              node = CreateFrame("Button", nil, WorldMapButton)
+              node:SetFrameStrata("FULLSCREEN_DIALOG")
+              node:SetWidth(10)
+              node:SetHeight(10)
+              
+              node.dot = node:CreateTexture()
+              node.dot:SetTexture("Interface\\Minimap\\ObjectIcons")
+              node.dot:SetTexCoord(0.280, 0.35, 0.09, 0.36)
+              node.dot:SetVertexColor(0,0,0,1)
+              node.dot:SetAllPoints()
+              node.dot:Show()
+              
+              node:SetScript("OnEnter", function (self) QuestHelper.tooltip:Show()
+              QuestHelper.tooltip:SetOwner(self, "ANCHOR_CURSOR")
+              QuestHelper.tooltip:SetText(self.text) end)
+              node:SetScript("OnLeave", function (self) QuestHelper.tooltip:Hide() end)
+              
+              function node:OnClick()
+                local menu = QuestHelper:CreateMenu()
+                QuestHelper:CreateMenuTitle(menu, "Delete node: "..self.text)
+                
+                local item
+                
+                item = QuestHelper:CreateMenuItem(menu, "Yes.")
+                item:SetFunction(function (c, z1, z2, i) QuestHelper:TextOut(string.format("Asked to delete %d,%d,%d,%d", c, z1, z2, i)) table.remove(QuestHelper_ZoneTransition[c][z1][z2], i) end, self.c, self.z1, self.z2, self.i)
+                
+                item = QuestHelper:CreateMenuItem(menu, "No, WTF?! NO!")
+                item:SetFunction(function () end)
+                
+                menu:SetCloseFunction(QuestHelper.ReleaseMenu, QuestHelper, menu)
+                menu:ShowAtCursor()
+              end
+              
+              node:SetScript("OnClick", node.OnClick)
+              node:RegisterForClicks("RightButtonUp")
+              
+              self.nodes[count] = node
+            end 
+            
+            node.c, node.z1, node.z2, node.i = c, z1, z2, i
+            
+            node:ClearAllPoints()
+            
+            local x, y = self.frame.Astrolabe:TranslateWorldMapPosition(pos[1], pos[2], pos[3], pos[4], pc, pz)
+            
+            if x and y then
+              node:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x*w, y*h)
+              node:Show()
+              node.text = select(z1, GetMapZones(c)).." to "..select(z2, GetMapZones(c))
+            else
+              node:Hide()
+            end
+          end
+        end
       end
     end
     
-    for i = #self.frame.world_graph.nodes+1,self.used_nodes do
+    for i = count+1,self.used_nodes do
       self.nodes[i]:Hide()
     end
     
@@ -613,5 +735,3 @@ function QuestHelper:CreateWorldGraphWalker()
   
   walker:SetScript("OnUpdate", walker.OnUpdate)
 end
-
--- QuestHelper:CreateWorldGraphWalker(QuestHelper)

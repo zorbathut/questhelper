@@ -1,3 +1,17 @@
+local function ObjectiveCouldBeFirst(self)
+  if self.auto_ignore or self.user_ignore then
+    return false
+  end
+  
+  for i, j in pairs(self.after) do
+    if i.watched then
+      return false
+    end
+  end
+  
+  return true
+end
+
 local function DefaultObjectiveKnown(self)
   if self.auto_ignore or self.user_ignore then
     return false
@@ -532,6 +546,9 @@ function QuestHelper:NewObjectiveObject()
   return
    {
     qh=self,
+    
+    CouldBeFirst=ObjectiveCouldBeFirst,
+    
     DefaultKnown=DefaultObjectiveKnown,
     Known=DummyObjectiveKnown,
     Reason=ObjectiveReason,
@@ -578,9 +595,19 @@ function QuestHelper:GetObjective(category, objective)
     if category == "item" then
       objective_object.Known = ItemKnown
       objective_object.PrepareRouting = ItemPrepareRouting
+      objective_object.icon_id = 2
     elseif category == "monster" then
       objective_object.AppendPositions = AppendPositions
-    elseif category ~= "reputation" and category ~= "event" and category ~= "object" and category ~= "loc" then
+      objective_object.icon_id = 1
+    elseif category == "object" then
+      objective_object.icon_id = 3
+    elseif category == "event" then
+      objective_object.icon_id = 4
+    elseif category == "loc" then
+      objective_object.icon_id = 9
+    elseif category == "reputation" then
+      objective_object.icon_id = 10
+    else
       self:TextOut("FIXME: Objective type '"..category.."' for objective '"..objective.."' isn't explicitly supported yet; hopefully the dummy handler will do something sensible.")
     end
     

@@ -1,3 +1,14 @@
+== Version 0.13; Uploaded 12/03/2007 ==
+
+* Fixed the problem with the minimap arrow jumping all over the place.
+* Minimap arrow will silently do nothing if it is changed to the same objective it's already pointing to (saves recalculating the waypoints to the objective.)
+* Created more icons for the various objective types.
+* Fixed yet another bug with missing quest items.
+* Now includes a horrible kludge to figure out the correct zone the player is in, when you're looking at a neighboring zone and your character is still visible. Astrolabe would declare you to be in the zone you were looking at.
+* Gave up on tracking zone transition locations. Too many special cases I don't want to deal with. They're now all hardcoded into pathfinding.lua.
+* Can deal with overlapping objectives. In most cases, anyway.
+* Menus seem to work better than before, it seems I wasn't changing the parents of the recycled items, and if their old parent was hidden, so too would they. Now the big problem with them is their size isn't getting calculated correctly. Probably something obvious that I'm too tired to see.
+
 == Version 0.12; Uploaded 12/01/2007 ==
 
 * List of known positions for something could be erased when trying to add a location that wasn't valid, a function was returning nil instead of the old unchanged list in this case.
@@ -9,7 +20,7 @@
 * Will take the time to calculate a route the first time it checks your quest log, at the risk of making already pretty sad loading times even more miserable.
 * Updating the route takes a stupidly long time to finish, so to keep you from having wait around for the objectives in the route to be updated, the arrow on the minimap will automatically point to the first objective on the route that isn't queued for removal.
 * Route calculations will now occur even when viewing the world map.
-* Recalculating the world graph will be defered until such time as the routing co-routine is some place safe. If an objective wasn't in the route because it was being moved to another position, it would lose its pathing data, and bad stuff would happen.
+* Recalculating the world graph will be deferred until such time as the routing co-routine is some place safe. If an objective wasn't in the route because it was being moved to another position, it would lose its pathing data, and bad stuff would happen.
 * Added a sanity check that will prevent QuestHelper from running and corrupting itself in the inevitable event that Blizzard adds/rearranges the zones in the game. Because somebody is bound to try running it anyway, even with the version mismatch. I know I would.
 
 == Version 0.11; Uploaded 12/01/2007 ==
@@ -42,7 +53,6 @@
 * Graph nodes that got merged due to their proximity sometimes didn't appear in all the zones they should have.
 * When a graph node was shared by more than one zone, and an objective could be completed in either of them, that node would be searched for twice, and couldn't be found the second time.
 * Most of the internals have been rewritten, so odds are good that if something was broken before, it will work now. Of course, the reverse is equally true. So, cross your fingers.
-
 
 == Version 0.7; Uploaded 11/21/2007 ==
 

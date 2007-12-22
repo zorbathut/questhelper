@@ -295,7 +295,7 @@ local function AddFlightRoute(locale, continent, start, destination, hash, data)
   end
 end
 
-local function AddZoneTransition(locale, continent, zone1, zone2, pos_list)
+--[[local function AddZoneTransition(locale, continent, zone1, zone2, pos_list)
   if type(continent) == "number" and
      type(zone1) == "number" and
      type(zone2) == "number" and
@@ -330,7 +330,7 @@ local function AddZoneTransition(locale, continent, zone1, zone2, pos_list)
     end
     MergePositionLists(position_list, pos_list)
   end
-end
+end]]
 
 local function AddObjective(locale, category, name, objective)
   if type(category) == "string"
@@ -482,13 +482,13 @@ function NewData()
       end end
     end end
     
-    if type(data.QuestHelper_ZoneTransition) == "table" then for continent, zone1_list in pairs(data.QuestHelper_ZoneTransition) do
-      if type(zone1_list) == "table" then for zone1, zone2_list in pairs(zone1_list) do
-        if type(zone2_list) == "table" then for zone2, pos_list in pairs(zone2_list) do
-          AddZoneTransition(locale, continent, zone1, zone2, pos_list)
-        end end
-      end end
-    end end
+    --if type(data.QuestHelper_ZoneTransition) == "table" then for continent, zone1_list in pairs(data.QuestHelper_ZoneTransition) do
+    --  if type(zone1_list) == "table" then for zone1, zone2_list in pairs(zone1_list) do
+    --    if type(zone2_list) == "table" then for zone2, pos_list in pairs(zone2_list) do
+    --      AddZoneTransition(locale, continent, zone1, zone2, pos_list)
+    --    end end
+    --  end end
+    --end end
   end
 end
 
@@ -646,13 +646,13 @@ function Finished()
       if delete_category then l.objective[category] = nil end
     end
     
-    if l.zone_transition then for continent, zone1_list in pairs(l.zone_transition) do
-      for zone1, zone2_list in pairs(zone1_list) do
-        for zone2, pos_list in pairs(zone2_list) do
-          TidyPositionList(pos_list, 0.35)
-        end
-      end
-    end end
+    --if l.zone_transition then for continent, zone1_list in pairs(l.zone_transition) do
+    --  for zone1, zone2_list in pairs(zone1_list) do
+    --    for zone2, pos_list in pairs(zone2_list) do
+    --      TidyPositionList(pos_list, 0.35)
+    --    end
+    --  end
+    --end end
   end
   
   local buffer =

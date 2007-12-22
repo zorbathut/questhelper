@@ -248,24 +248,22 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
 end
 
 local route_pass = 0
-local map_walker = QuestHelper:CreateWorldMapWalker()
+local map_walker
+
+QuestHelper.route_sane = true
 
 local function RouteUpdateRoutine(self)
+  map_walker = self:CreateWorldMapWalker()
   local minimap_dodad = self:CreateMipmapDodad()
   local waypoint_icons = {}
   local distance, extra, route, new_route, shuffle, insert, point = 0, 0, self.route, {}, {}, 0, nil
   
   while true do
-    if self.defered_graph_update then
-      self:ResetPathing()
-      self.defered_graph_update = false
-    end
-    
     local first_obj_exists = false
     
     for i,o in ipairs(route) do
       if o == self.first_objective then
-        first_obj_exists = not self.to_remove[o] and not next(o.after, nil) and o:Known()
+        first_obj_exists = not self.to_remove[o] and o:CouldBeFirst()
         if i ~= 1 then
           -- The objective that was supposed to be first isn't first. Remove it and re-add it.
           self.to_remove[o] = true
@@ -290,6 +288,8 @@ local function RouteUpdateRoutine(self)
     end
     
     local original_size = #route
+    
+    self.route_sane = false
     
     -- Remove any waypoints if needed.
     for obj, _ in pairs(self.to_remove) do
@@ -342,6 +342,8 @@ local function RouteUpdateRoutine(self)
       end
     end
     
+    self.route_sane = true
+    
     -- If size decreased, all the old indexes need to be reset.
     if #route < original_size then
       for i=1,#route do
@@ -358,6 +360,8 @@ local function RouteUpdateRoutine(self)
     coroutine.yield()
     
     if #route > 0 then
+      self.route_sane = false
+      
       for iter = 1,8 do
         -- We'll randomly remove one of the points in the route and reinsert it.
         -- Hopefully we'll insert it into a better location, but if not, it'll
@@ -376,6 +380,8 @@ local function RouteUpdateRoutine(self)
           minimap_dodad:SetObjective(route[1])
         end
       end
+      
+      self.route_sane = true
       
       if #route > 2 then
         -- To help prevent getting into a local minimum, we'll also construct a new path from scratch.
@@ -471,9 +477,9 @@ local function RouteUpdateRoutine(self)
             node.pos, node.sop = node.sop, node.pos
           end
           
-          self.route = new_route
-          new_route = route
-          route = self.route
+          route, new_route = new_route, route
+          self.route = route
+          
           distance = new_distance
           extra = new_extra
           minimap_dodad:SetObjective(route[1])

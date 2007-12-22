@@ -27,6 +27,72 @@ local static_shared_routes =
 
 local static_zone_transitions =
   {
+   {1, 1, 19, 0.687, 0.872}, -- Ashenvale <--> The Barrens
+   {1, 1, 16, 0.423, 0.711}, -- Ashenvale <--> Stonetalon Mountains
+   {1, 1, 2, 0.954, 0.484}, -- Ashenvale <--> Azshara
+   {1, 1, 5, 0.289, 0.144}, -- Ashenvale <--> Darkshore
+   {1, 1, 10, 0.557, 0.290}, -- Ashenvale <--> Felwood
+   {1, 6, 18, 0.894, 0.358}, -- Darnassus <--> Teldrassil
+   {1, 13, 19, 0.697, 0.604}, -- Mulgore <--> The Barrens
+   {1, 13, 22, 0.376, 0.330}, -- Mulgore <--> Thunder Bluff
+   {1, 3, 20, 0.247, 0.494}, -- Azuremyst Isle <--> The Exodar
+   {1, 3, 20, 0.369, 0.469}, -- Azuremyst Isle <--> The Exodar
+   {1, 3, 4, 0.420, 0.013}, -- Azuremyst Isle <--> Bloodmyst Isle
+   {1, 7, 16, 0.539, 0.032}, -- Desolace <--> Stonetalon Mountains
+   {1, 7, 11, 0.428, 0.976}, -- Desolace <--> Feralas
+   {1, 15, 23, 0.865, 0.115}, -- Silithus <--> Un'Goro Crater
+   {1, 8, 19, 0.341, 0.424}, -- Durotar <--> The Barrens
+   {1, 8, 14, 0.455, 0.121}, -- Durotar <--> Orgrimmar
+   {1, 17, 23, 0.269, 0.516}, -- Tanaris <--> Un'Goro Crater
+   {1, 17, 21, 0.512, 0.210}, -- Tanaris <--> Thousand Needles
+   {1, 9, 19, 0.287, 0.472}, -- Dustwallow Marsh <--> The Barrens
+   {1, 9, 19, 0.563, 0.077}, -- Dustwallow Marsh <--> The Barrens
+   {1, 19, 21, 0.442, 0.915}, -- The Barrens <--> Thousand Needles
+   {1, 10, 24, 0.685, 0.060}, -- Felwood <--> Winterspring
+   {1, 10, 12, 0.669, -0.063}, -- Felwood <--> Moonglade
+   {1, 14, 19, 0.118, 0.690}, -- Orgrimmar <--> The Barrens
+   {1, 11, 21, 0.899, 0.460}, -- Feralas <--> Thousand Needles
+   {1, 16, 19, 0.836, 0.973}, -- Stonetalon Mountains <--> The Barrens
+   {2, 1, 13, 0.521, 0.700}, -- Alterac Mountains <--> Hillsbrad Foothills
+   {2, 1, 19, 0.173, 0.482}, -- Alterac Mountains <--> Silverpine Forest
+   {2, 1, 26, 0.807, 0.347}, -- Alterac Mountains <--> Western Plaguelands
+   {2, 2, 28, 0.454, 0.890}, -- Arathi Highlands <--> Wetlands
+   {2, 2, 13, 0.200, 0.293}, -- Arathi Highlands <--> Hillsbrad Foothills
+   {2, 3, 15, 0.490, 0.071}, -- Badlands <--> Loch Modan
+   {2, 3, 17, -0.005, 0.636}, -- Badlands <--> Searing Gorge
+   {2, 4, 22, 0.519, 0.051}, -- Blasted Lands <--> Swamp of Sorrows
+   {2, 5, 16, 0.790, 0.842}, -- Burning Steppes <--> Redridge Mountains
+   {2, 6, 8, 0.324, 0.363}, -- Deadwind Pass <--> Duskwood
+   {2, 6, 22, 0.605, 0.410}, -- Deadwind Pass <--> Swamp of Sorrows
+   {2, 7, 14, 0.534, 0.349}, -- Dun Morogh <--> Ironforge
+   {2, 7, 15, 0.863, 0.514}, -- Dun Morogh <--> Loch Modan
+   {2, 7, 15, 0.844, 0.310}, -- Dun Morogh <--> Loch Modan
+   {2, 8, 10, 0.801, 0.158}, -- Duskwood <--> Elwynn Forest
+   {2, 8, 10, 0.150, 0.214}, -- Duskwood <--> Elwynn Forest
+   {2, 8, 21, 0.447, 0.884}, -- Duskwood <--> Stranglethorn Vale
+   {2, 8, 21, 0.209, 0.863}, -- Duskwood <--> Stranglethorn Vale
+   {2, 8, 16, 0.941, 0.103}, -- Duskwood <--> Redridge Mountains
+   {2, 8, 27, 0.079, 0.638}, -- Duskwood <--> Westfall
+   {2, 9, 26, 0.107, 0.726}, -- Eastern Plaguelands <--> Western Plaguelands
+   {2, 9, 12, 0.625, 0.030}, -- Eastern Plaguelands <--> Ghostlands
+   {2, 10, 20, 0.321, 0.493}, -- Elwynn Forest <--> Stormwind City
+   {2, 10, 27, 0.202, 0.804}, -- Elwynn Forest <--> Westfall
+   {2, 10, 16, 0.944, 0.724}, -- Elwynn Forest <--> Redridge Mountains
+   {2, 11, 18, 0.567, 0.494}, -- Eversong Woods <--> Silvermoon City
+   {2, 11, 12, 0.486, 0.916}, -- Eversong Woods <--> Ghostlands
+   {2, 19, 24, 0.678, 0.049}, -- Silverpine Forest <--> Tirisfal Glades
+   {2, 23, 26, 0.217, 0.264}, -- The Hinterlands <--> Western Plaguelands
+   {2, 24, 25, 0.619, 0.651}, -- Tirisfal Glades <--> Undercity
+   {2, 24, 26, 0.851, 0.703}, -- Tirisfal Glades <--> Western Plaguelands
+   {2, 21, 27, 0.292, 0.024}, -- Stranglethorn Vale <--> Westfall
+   {2, 13, 19, 0.137, 0.458}, -- Hillsbrad Foothills <--> Silverpine Forest
+   {2, 13, 23, 0.899, 0.253}, -- Hillsbrad Foothills <--> The Hinterlands
+   {2, 15, 28, 0.252, 0.000}, -- Loch Modan <--> Wetlands
+   {3, 3, 6, 0.783, 0.545}, -- Nagrand <--> Shattrath City
+   {3, 6, 7, 0.782, 0.492}, -- Shattrath City <--> Terokkar Forest
+   
+   -- These are just guesses, since I haven't actually been to these areas.
+   
    {3, 1, 4, 0.842, 0.284}, -- Blade's Edge Mountains <--> Netherstorm
    {3, 1, 8, 0.482, 0.996}, -- Blade's Edge Mountains <--> Zangarmarsh
    
@@ -338,10 +404,6 @@ function QuestHelper:ResetPathing()
     end
   end
   
-  -- Buggy locations I need to deal with:
-  -- * Detects a zone change on the Grom'gol Base Camp/Tirisfal Glades zeppelin route.
-  -- * That portal between 
-  
   if self.faction == "Alliance" then
     for i, data in ipairs(static_alliance_routes) do
       self:CreateAndAddStaticNodePair(data)
@@ -362,7 +424,7 @@ function QuestHelper:ResetPathing()
                                     {data[1], data[2], data[4], data[5]}).name = select(data[2],GetMapZones(data[1])).."/"..select(data[3],GetMapZones(data[1])).." border"
   end
   
-  for c, zone_list in pairs(QuestHelper_ZoneTransition) do
+  --[[for c, zone_list in pairs(QuestHelper_ZoneTransition) do
     for start, end_list in pairs(zone_list) do
       for dest, pos_list in pairs(end_list) do
         for i, pos in ipairs(pos_list) do
@@ -380,7 +442,7 @@ function QuestHelper:ResetPathing()
         end
       end
     end
-  end
+  end]]
   
   for name in pairs(flight_master_nodes) do
     flight_master_nodes[name] = nil

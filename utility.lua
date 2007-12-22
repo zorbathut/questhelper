@@ -82,7 +82,7 @@ function QuestHelper:UnitPosition(unit)
 end
 
 function QuestHelper:LocationString(c, z, x, y)
-  return ("[|cffffffff%d,%d,%.3f,%.3f|r]"):format(c, z, x, y)
+  return ("[|cffffffff%s|r:|cffffffff%d,%d,%.3f,%.3f|r]"):format(select(z,GetMapZones(c)) or "nil", c, z, x, y)
 end
 
 function QuestHelper:Distance(c1, z1, x1, y1, c2, z2, x2, y2)

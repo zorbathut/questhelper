@@ -8,9 +8,7 @@ QuestHelper = CreateFrame("Frame", "QuestHelper", nil)
 -- Just to make sure it's always 'seen' (there's nothing that can be seen, but still...), and therefore always updating.
 QuestHelper:SetFrameStrata("TOOLTIP")
 
-QuestHelper.Astrolabe = DongleStub("Astrolabe-0.4")
-
-QuestHelper_SaveVersion = 4
+QuestHelper_SaveVersion = 5
 QuestHelper_Locale = GetLocale()
 QuestHelper_Quests = {}
 QuestHelper_Objectives = {}
@@ -198,6 +196,8 @@ end
 
 function QuestHelper:OnEvent(event)
   if event == "VARIABLES_LOADED" then
+    self.Astrolabe = DongleStub("Astrolabe-0.4")
+    
     if not self:ZoneSanity() then
       QuestHelper:TextOut("I'm refusing to run, out of fear of corrupting your saved data.")
       QuestHelper:TextOut("Please wait for a patch that will be able to handle the new zone layout.")
@@ -205,27 +205,6 @@ function QuestHelper:OnEvent(event)
     end
     QuestHelper_UpgradeDatabase(_G)
     
-    -- TODO: Just sanity for now, should be able to remove later.
-    for c, start_list in pairs(QuestHelper_ZoneTransition) do
-      for start, end_list in pairs(start_list) do
-        for dest, pos_list in pairs(end_list) do
-          local i = 1
-          while i <= #pos_list do
-            local pos = pos_list[i]
-            
-            local x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(c, start, pos[3], pos[4], c, dest)
-            
-            if x > -0.1 and y > -0.1 and x < 1.1 and y < 1.1 and
-               pos[3] > -0.1 and pos[4] > -0.1 and pos[3] < 1.1 and pos[4] < 1.1 then
-              i = i + 1
-            else
-              table.remove(pos_list, i)
-            end
-          end
-        end
-      end
-    end
-  
     self:ResetPathing()
     
     self:UnregisterEvent("VARIABLES_LOADED")
@@ -509,8 +488,33 @@ function QuestHelper:OnEvent(event)
   end
 end
 
+local map_shown_decay = 0
+
 function QuestHelper:OnUpdate()
+  if self.defered_graph_update and self.route_sane then
+    self:ResetPathing()
+    self.defered_graph_update = false
+  end
+  
+  if self.Astrolabe.WorldMapVisible then
+    -- We won't trust that the zone returned by Astrolabe is correct until map_shown_decay is 0.
+    map_shown_decay = 2
+  elseif map_shown_decay > 0 then
+    map_shown_decay = map_shown_decay - 1
+  else
+    SetMapToCurrentZone()
+  end
+  
   local nc, nz, nx, ny = self.Astrolabe:GetCurrentPlayerPosition()
+  
+  if nc and nc == self.c and map_shown_decay > 0 and self.z > 0 and self.z ~= nz then
+    -- There's a chance astrolable will return the wrong zone if you're messing with the world map, if you can
+    -- be seen in that zone but aren't in it.
+    local nnx, nny = self.Astrolabe:TranslateWorldMapPosition(nc, nz, nx, ny, nc, self.z)
+    if nnx > 0 and nny > 0 and nnx < 1 and nny < 1 then
+      nc, nx, ny = self.c, nnx, nny
+    end
+  end
   
   if nc and nc > 0 and nz == 0 and nc == self.c and self.z > 0 then
     nx, ny = self.Astrolabe:TranslateWorldMapPosition(nc, nz, nx, ny, nc, self.z)
@@ -524,7 +528,8 @@ function QuestHelper:OnUpdate()
   if nc and nz > 0 then
     if UnitOnTaxi("player") then
       self.was_flying = true
-    elseif nc > 0 and nz > 0 then
+    end
+    --[[elseif nc > 0 and nz > 0 then
       if nc == self.c and nz ~= self.z and nz > 0 and self.z > 0 and
          nx > -0.1 and ny > -0.1 and nx < 1.1 and ny < 1.1 and
          self.x > -0.1 and self.y > -0.1 and self.x < 1.1 and self.y < 1.1 then
@@ -541,24 +546,23 @@ function QuestHelper:OnUpdate()
             if not from then from = {} cont[self.z] = from end
             local to = from[nz]
             if not to then to = {} from[nz] = to end
-            self:AppendPosition(to, self.c, self.z, self.x, self.y, 1, 1500.0)
+            self:AppendPosition(to, self.c, self.z, self.x, self.y, 1, 500.0)
           else
             local from = cont[nz]
             if not from then from = {} cont[nz] = from end
             local to = from[self.z]
             if not to then to = {} from[self.z] = to end
-            self:AppendPosition(to, nc, nz, nx, ny, 1, 1500.0)
+            self:AppendPosition(to, nc, nz, nx, ny, 1, 500.0)
           end
           
-          self:TextOut("Zone connection altered. Will recalculate world pathing information.")
+          self:TextOut("Zone connection altered; "..self:LocationString(self.c, self.z, self.x, self.y).." to "..self:LocationString(nc, nz, nx, ny).."; distance="..distance.." Will recalculate world pathing information.")
           self.defered_graph_update = true
         end
       end
-    end
+    end]]
     
     if nc > 0 and nz > 0 then
       self.c, self.z, self.x, self.y = nc or self.c, nz or self.z, nx or self.x, ny or self.y
-      
       self.pos[1] = self.zone_nodes[self.c][self.z]
       self.pos[3], self.pos[4] = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)
       self.pos[3] = self.pos[3] * self.continent_scales_x[self.c]

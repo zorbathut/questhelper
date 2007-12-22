@@ -182,7 +182,9 @@ function QuestHelper:ScanQuestLog()
             lo.have = have
           end
           
-          lo.objective.auto_ignore = ignored
+          if lo.objective then -- Might not have loaded the objective yet, if it wasn't in the local cache and we defered loading it.
+            lo.objective.auto_ignore = ignored
+          end
         end
       else
         quest.goal = nil
@@ -200,7 +202,7 @@ function QuestHelper:ScanQuestLog()
     if lq.removed then
       if lq.goal then
         for i, lo in ipairs(lq.goal) do
-          if lo.have ~= lo.need then
+          if lo.objective and lo.have ~= lo.need then
             self:RemoveObjectiveWatch(lo.objective, lo.reason)
           end
         end
