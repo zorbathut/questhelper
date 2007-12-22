@@ -440,6 +440,14 @@ local function CollapseObjective(objective)
   if objective.drop then
     -- Don't need both.
     objective.pos = nil
+    
+    for monster, count in pairs(objective.drop) do
+      objective.drop[monster] = math.max(1, math.floor(count))
+    end
+  end
+  
+  if objective.looted then
+    objective.looted = math.max(1, math.ceil(objective.looted))
   end
   
   if objective.pos then TidyPositionList(objective.pos) end
