@@ -48,6 +48,8 @@ function QuestHelper:GetQuest(name, level, hash)
     quest_object.icon_bg = 15
     quest_object.AppendPositions = QuestAppendPositions
     quest_object.Known = QuestKnown
+    quest_object.cat = "quest"
+    quest_object.obj = level.."/"..(hash or "").."/"..name
     
     bracket2[hash] = quest_object
     

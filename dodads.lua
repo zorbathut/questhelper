@@ -321,6 +321,43 @@ function QuestHelper:GetOverlapObjectives(obj)
   return list
 end
 
+local prog_sort_table = {}
+
+function QuestHelper:AppendObjectiveToTooltip(o)
+  self.tooltip:AddLine(o:Reason())
+  self.tooltip:GetPrevLines():SetFont("Fonts\\FRIZQT__.TTF", 14)
+  
+  if o.progress then
+    for user, progress in pairs(o.progress) do
+      table.insert(prog_sort_table, user)
+    end
+    
+    table.sort(prog_sort_table, function(a, b)
+      if o.progress[a][3] < o.progress[b][3] then
+        return true
+      elseif o.progress[a][3] == o.progress[b][3] then
+        return a < b
+      end
+      return false
+    end)
+    
+    for i, u in ipairs(prog_sort_table) do
+      self.tooltip:AddDoubleLine(u.."'s progress:",
+                                 self:ProgressString(o.progress[u][1].."/"..o.progress[u][2],
+                                 o.progress[u][3]))
+      
+      self.tooltip:GetPrevLines():SetFont("Fonts\\ARIALN.TTF", 13)
+      select(2, self.tooltip:GetPrevLines()):SetFont("Fonts\\ARIALN.TTF", 13)
+    end
+    
+    while table.remove(prog_sort_table) do end
+  end
+  
+  QuestHelper.tooltip:AddDoubleLine("Estimated travel time:", QuestHelper:TimeString(o.travel_time or 0))
+  QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\ARIALN.TTF", 11)
+  select(2, QuestHelper.tooltip:GetPrevLines()):SetFont("Fonts\\ARIALN.TTF", 11)
+end
+
 function QuestHelper:CreateWorldMapDodad(objective, index)
   local icon = CreateFrame("Button", nil, WorldMapButton)
   icon:SetFrameStrata("FULLSCREEN_DIALOG")
@@ -339,11 +376,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
         QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\ARIALN.TTF", 8)
       end
       
-      QuestHelper.tooltip:AddLine(o:Reason())
-      QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\FRIZQT__.TTF", 14)
-      QuestHelper.tooltip:AddDoubleLine("Estimated travel time: ", QuestHelper:TimeString(o.travel_time or 0))
-      QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\ARIALN.TTF", 11)
-      select(2, QuestHelper.tooltip:GetPrevLines()):SetFont("Fonts\\ARIALN.TTF", 11)
+      QuestHelper:AppendObjectiveToTooltip(o)
     end
     
     QuestHelper.tooltip:Show()
@@ -572,11 +605,14 @@ function QuestHelper:CreateMipmapDodad()
           return
         end
         
-        local path = QuestHelper:ComputeRoute(QuestHelper.pos, self.objective.pos)
+        local path, travel_time = QuestHelper:ComputeRoute(QuestHelper.pos, self.objective.pos)
         local t = self.target
         local id = self.objective.icon_id
         t[1], t[2], t[3], t[4] = convertLocation(self.objective.pos)
         t[5] = nil
+        
+        self.objective.travel_time = travel_time
+        
         while path do
           if path.g > 10.0 then
             id = 8
@@ -654,13 +690,16 @@ function QuestHelper:CreateMipmapDodad()
   
   function icon:OnEnter()
     if self.objective then
-      QuestHelper.tooltip:Show()
       QuestHelper.tooltip:SetOwner(self, "ANCHOR_CURSOR")
+      QuestHelper.tooltip:ClearLines()
+      
       if self.target[5] then
-        QuestHelper.tooltip:SetText("Visit "..QuestHelper:HighlightText(self.target[5]).." en route to objective:\n"..self.objective:Reason())
-      else
-        QuestHelper.tooltip:SetText(self.objective:Reason())
+        QuestHelper.tooltip:AddLine("Visit "..QuestHelper:HighlightText(self.target[5]).." en route to objective:")
+        QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\FRIZQT__.TTF", 14)
       end
+      
+      QuestHelper:AppendObjectiveToTooltip(self.objective)
+      QuestHelper.tooltip:Show()
     end
   end
   

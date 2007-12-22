@@ -49,6 +49,18 @@ function QuestHelper:TimeString(seconds)
   end
 end
 
+function QuestHelper:ProgressString(str, pct)
+  if pct > 1 then
+    return string.format("|cff00ff00%s%|r", str, pct*100)
+  elseif pct < 0 then
+    return string.format("|cffff0000%s%|r", str, pct*100)
+  elseif pct > 0.5 then
+    return string.format("|cff%2xff00%s|r", 510-pct*510, str, pct*100)
+  else
+    return string.format("|cffff%2x00%s|r", pct*510, str, pct*100)
+  end
+end
+
 function QuestHelper:PercentString(pct)
   if pct > 1 then
     return string.format("|cff00ff00%.1f%%|r", pct*100)

@@ -219,6 +219,7 @@ function QuestHelper:OnEvent(event)
     
     self:ResetPathing()
     self:Nag()
+    self:HandlePartyChange()
     
     self:UnregisterEvent("VARIABLES_LOADED")
     self:RegisterEvent("PLAYER_TARGET_CHANGED")
@@ -233,6 +234,7 @@ function QuestHelper:OnEvent(event)
     self:RegisterEvent("PLAYER_CONTROL_LOST")
     self:RegisterEvent("PLAYER_LEVEL_UP")
     self:RegisterEvent("PARTY_MEMBERS_CHANGED")
+    self:RegisterEvent("CHAT_MSG_ADDON")
     
     self:SetScript("OnUpdate", self.OnUpdate)
   end
@@ -288,6 +290,16 @@ function QuestHelper:OnEvent(event)
         end
       end
     end
+  end
+  
+  if event == "CHAT_MSG_ADDON" then
+    if arg1 == "QHpr" and (arg3 == "PARTY" or arg3 == "WHISPER") and arg4 ~= UnitName("player") then
+      self:HandleRemoteData(arg2, arg4)
+    end
+  end
+  
+  if event == "PARTY_MEMBERS_CHANGED" then
+    self:HandlePartyChange()
   end
   
   if event == "QUEST_LOG_UPDATE" or
@@ -564,6 +576,8 @@ function QuestHelper:OnUpdate()
       if not state then self:TextOut("|cffff0000The routing co-routine just exploded|r: |cffffff77"..err.."|r") end
     end
   end
+  
+  self:PumpCommMessages()
 end
 
 function QuestHelper:SetIconScale(input)

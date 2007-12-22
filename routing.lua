@@ -273,6 +273,16 @@ local function RouteUpdateRoutine(self)
         self.to_add[o] = true
       else
         CalcObjectivePriority(o)
+        
+        if o.is_sharing ~= o.want_share then
+          o.is_sharing = o.want_share
+          
+          if o.want_share then
+            self:DoShareObjective(o)
+          else
+            self:DoUnshareObjective(o)
+          end
+        end
       end
     end
     
@@ -283,6 +293,11 @@ local function RouteUpdateRoutine(self)
       local obj = next(self.to_remove)
       if not obj then break end
       self.to_remove[obj] = nil
+      
+      if obj.is_sharing then
+        obj.is_sharing = false
+        self:DoUnshareObjective(obj)
+      end
       
       for i, o in ipairs(route) do
         if o == obj then
@@ -327,6 +342,11 @@ local function RouteUpdateRoutine(self)
           obj:DoneRouting()
           swap_table[obj] = true
         else
+          if not obj.is_sharing and obj.want_share then
+            obj.is_sharing = true
+            self:DoShareObjective(obj)
+          end
+          
           CalcObjectivePriority(obj)
           
           if #route == 0 then

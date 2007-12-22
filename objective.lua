@@ -542,10 +542,22 @@ local function DoneRouting(self)
   self.setup_count = self.setup_count - 1
 end
 
+local next_objective_id = 0
+
+local function ObjectiveShare(self)
+  self.want_share = true
+end
+
+local function ObjectiveUnshare(self)
+  self.want_share = false
+end
+
 function QuestHelper:NewObjectiveObject()
+  next_objective_id = next_objective_id+1
   return
    {
     qh=self,
+    id=next_objective_id,
     
     CouldBeFirst=ObjectiveCouldBeFirst,
     
@@ -562,6 +574,11 @@ function QuestHelper:NewObjectiveObject()
     Position=GetPosition,
     TravelTime=ComputeTravelTime,
     TravelTime2=ComputeTravelTime2,
+    
+    Share=ObjectiveShare, -- Invoke to share this objective with your peers.
+    Unshare=ObjectiveUnshare, -- Invoke to stop sharing this objective.
+    want_share=false, -- True if we want this objective shared.
+    is_sharing=false, -- Set to true if we've told other users about this objective.
     
     user_ignore=nil, -- When nil, will use filters. Will ignore, when true, always show (if known).
     
@@ -603,7 +620,18 @@ function QuestHelper:GetObjective(category, objective)
   local objective_object = objective_list[objective]
   
   if not objective_object then
+    if category == "quest" then
+      local _, _, level, hash, name = string.find(objective, "^(%d+)/(%d*)/(.*)$")
+      if hash == "" then hash = nil end
+      objective_object = self:GetQuest(name, tonumber(level), tonumber(hash))
+      objective_list[objective] = objective_object
+      return objective_object
+    end
+    
     objective_object = self:NewObjectiveObject()
+    
+    objective_object.cat = category
+    objective_object.obj = objective
     
     if category == "item" then
       objective_object.Known = ItemKnown
@@ -743,8 +771,18 @@ end
 
 function QuestHelper:ObjectiveObjectDependsOn(objective, needs)
   assert(objective ~= needs) -- If this was true, ObjectiveIsKnown would get in an infinite loop.
-  objective.after[needs] = true
-  needs.before[objective] = true
+  -- TODO: Needs sanity checking, especially now that dependencies can be assigned by remote users.
+  
+  if not objective.after[needs] then
+    if objective.peer then
+      for u, l in pairs(objective.peer) do
+        -- Make sure other users know that the dependencies for this objective changed.
+        objective.peer[u] = math.min(l, 1)
+      end
+    end
+    objective.after[needs] = true
+    needs.before[objective] = true
+  end
 end
 
 QuestHelper.priority_names = {"Highest", "High", "Normal", "Low", "Lowest"}
@@ -766,18 +804,82 @@ function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
     end
     
     item:AddTexture(tex, true)
-    item:SetFunction(
-      function (obj, pri)
-        obj.priority = i
-        QuestHelper:ForceRouteUpdate()
-      end, obj, i)
+    item:SetFunction(self.SetObjectivePriority, self, obj, i)
   end
   
   self:CreateMenuItem(menu, "Priority"):SetSubmenu(submenu)
+  
+  submenu = self:CreateMenu("Sharing")
+  local item = self:CreateMenuItem(submenu, "Enable")
+  local tex = self:GetIconTexture(item, 10)
+  if not obj.want_share then tex:SetVertexColor(1, 1, 1, 0) end
+  item:AddTexture(tex, true)
+  item:SetFunction(obj.Share, obj)
+  
+  local item = self:CreateMenuItem(submenu, "Disable")
+  local tex = self:GetIconTexture(item, 10)
+  if obj.want_share then tex:SetVertexColor(1, 1, 1, 0) end
+  item:AddTexture(tex, true)
+  item:SetFunction(obj.Unshare, obj)
+  
+  self:CreateMenuItem(menu, "Sharing"):SetSubmenu(submenu)
   
   self:CreateMenuItem(menu, "Ignore"):SetFunction(
     function (obj)
       obj.user_ignore = true
       QuestHelper:ForceRouteUpdate()
     end, obj)
+end
+
+function QuestHelper:SetObjectivePriority(objective, level)
+  level = math.min(5, math.max(1, math.floor((tonumber(level) or 3)+0.5)))
+  if level ~= objective.priority then
+    objective.priority = level
+    if objective.peer then
+      for u, l in pairs(objective.peer) do
+        -- Peers don't know about this new priority.
+        objective.peer[u] = math.min(l, 2)
+      end
+    end
+    self:ForceRouteUpdate()
+  end
+end
+
+function QuestHelper:SetObjectiveProgress(objective, user, have, need)
+  if have and need then
+    local list = objective.progress
+    if not list then
+      list = {}
+      objective.progress = list
+    end
+    
+    local user_progress = list[user]
+    if not user_progress then
+      user_progress = {}
+      list[user] = user_progress
+    end
+    
+    local pct = 0
+    local a, b = tonumber(have), tonumber(need)
+    if a and b then
+      if b ~= 0 then
+        pct = a/b
+      elseif a == 0 then
+        pct = 1
+      end
+    elseif a == b then
+      pct = 1
+    end
+    
+    user_progress[1], user_progress[2], user_progress[3] = have, need, pct
+  else
+    if objective.progress then
+      if objective.progress[user] then
+        objective.progress[user] = nil
+        if not next(objective.progress, nil) then
+          objective.progress = nil
+        end
+      end
+    end
+  end
 end

@@ -121,8 +121,12 @@ function QuestHelper:ScanQuestLog()
         
         if GetQuestLogTimeLeft() then
           -- Quest has a timer, so give it a higher than normal priority.
-          quest.priority = 2
+          self:SetObjectivePriority(quest, 2)
+        else
+          -- Use a normal priority.
+          self:SetObjectivePriority(quest, 3)
         end
+        
         
         -- Can't add the objective here, if we don't have it depend on the objectives
         -- first it'll get added and possibly not be doable.
@@ -164,10 +168,23 @@ function QuestHelper:ScanQuestLog()
             lo.wanted = wanted
             lo.have = have
             lo.need = need
+            
+            QuestHelper:SetObjectiveProgress(lo.objective, UnitName("player"), have, need)
+            
             if have ~= need then -- If the objective isn't complete, watch it.
+              lo.objective:Share()
               self:AddObjectiveWatch(lo.objective, lo.reason)
             end
           elseif lo.have ~= have then
+            QuestHelper:SetObjectiveProgress(lo.objective, UnitName("player"), have, need)
+            
+            if lo.objective.peer then
+              for u, l in pairs(lo.objective.peer) do
+                -- Peers don't know about our progress.
+                lo.objective.peer[u] = math.min(l, 2)
+              end
+            end
+            
             if have == need or (type(have) == "number" and have > lo.have) then
               if category == "item" then
                 self:AppendItemObjectivePosition(lo.objective, wanted, self:PlayerPosition())
@@ -175,11 +192,15 @@ function QuestHelper:ScanQuestLog()
                 self:AppendObjectivePosition(lo.objective, self:PlayerPosition())
               end
             end
+            
             if lo.have == need then -- The objective was done, but now its not.
+              lo.objective:Share()
               self:AddObjectiveWatch(lo.objective, lo.reason)
             elseif have == need then -- The objective is now finished.
+              lo.objective:Unshare()
               self:RemoveObjectiveWatch(lo.objective, lo.reason)
             end
+            
             lo.have = have
           end
           
@@ -194,6 +215,7 @@ function QuestHelper:ScanQuestLog()
       
       if is_new then
         lq.reason = "Turn in quest "..self:HighlightText(title).."."
+        quest:Share()
         self:AddObjectiveWatch(quest, lq.reason)
       end
     end
@@ -205,10 +227,15 @@ function QuestHelper:ScanQuestLog()
       if lq.goal then
         for i, lo in ipairs(lq.goal) do
           if lo.objective and lo.have ~= lo.need then
+            QuestHelper:SetObjectiveProgress(lo.objective, UnitName("player"), nil, nil)
+            
+            lo.objective:Unshare()
             self:RemoveObjectiveWatch(lo.objective, lo.reason)
           end
         end
       end
+      
+      quest:Unshare()
       self:RemoveObjectiveWatch(quest, lq.reason)
       quests[quest] = nil
     end
