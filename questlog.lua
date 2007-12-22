@@ -109,8 +109,6 @@ function QuestHelper:ScanQuestLog()
       
       local ignored = party_levels[math.min(5, math.max(1, players or (qtype and 5) or 1))]+3 < level
       
-      -- quest.auto_ignore = ignored
-      
       if self.quest_giver and self.quest_giver[title] then
         quest.o.start = self.quest_giver[title]
         self.quest_giver[title] = nil
@@ -120,6 +118,11 @@ function QuestHelper:ScanQuestLog()
         lq = {}
         
         quests[quest] = lq
+        
+        if GetQuestLogTimeLeft() then
+          -- Quest has a timer, so give it a higher than normal priority.
+          quest.priority = 2
+        end
         
         -- Can't add the objective here, if we don't have it depend on the objectives
         -- first it'll get added and possibly not be doable.
@@ -181,7 +184,8 @@ function QuestHelper:ScanQuestLog()
           end
           
           if lo.objective then -- Might not have loaded the objective yet, if it wasn't in the local cache and we defered loading it.
-            lo.objective.auto_ignore = ignored
+            lo.objective.filter_level = ignored
+            lo.objective.filter_done = true
           end
         end
       else

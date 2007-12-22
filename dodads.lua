@@ -281,6 +281,8 @@ function QuestHelper:GetOverlapObjectives(obj)
   
   cx, cy = (cx-WorldMapDetailFrame:GetLeft()*es)*ies, (WorldMapDetailFrame:GetTop()*es-cy)*ies
   
+  local s = 10*QuestHelper_Pref.scale
+  
   if self.limbo_node then
     local o = self.limbo_node
     local x, y = o.pos[3], o.pos[4]
@@ -290,7 +292,7 @@ function QuestHelper:GetOverlapObjectives(obj)
     if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
       x, y = x*w, y*h
       
-      if cx >= x-10 and cy >= y-10 and cx <= x+10 and cy <= y+10 then
+      if cx >= x-s and cy >= y-s and cx <= x+s and cy <= y+s then
         table.insert(list, o)
       end
     end
@@ -307,7 +309,7 @@ function QuestHelper:GetOverlapObjectives(obj)
       if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
         x, y = x*w, y*h
         
-        if cx >= x-10 and cy >= y-10 and cx <= x+10 and cy <= y+10 then
+        if cx >= x-s and cy >= y-s and cx <= x+s and cy <= y+s then
           table.insert(list, o)
         end
       end
@@ -321,9 +323,6 @@ end
 
 function QuestHelper:CreateWorldMapDodad(objective, index)
   local icon = CreateFrame("Button", nil, WorldMapButton)
-  icon:SetHeight(20)
-  icon:SetWidth(20)
-  
   icon:SetFrameStrata("FULLSCREEN_DIALOG")
   
   function icon:SetTooltip(list)
@@ -351,6 +350,9 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   end
   
   function icon:SetObjective(objective, i)
+    self:SetHeight(20*QuestHelper_Pref.scale)
+    self:SetWidth(20*QuestHelper_Pref.scale)
+    
     if self.dot then
       QuestHelper:ReleaseTexture(self.dot)
       self.dot = nil
@@ -499,31 +501,11 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
           item = QuestHelper:CreateMenuItem(menu, o:Reason(true))
           item:SetSubmenu(submenu)
           item:AddTexture(QuestHelper:GetIconTexture(item, o.icon_id), true)
-          
-          if QuestHelper.first_objective == o then
-            item = QuestHelper:CreateMenuItem(submenu, "Place this objective for me.")
-            item:SetFunction(function (obj) if QuestHelper.first_objective == obj then QuestHelper.first_objective = nil QuestHelper:ForceRouteUpdate() end end, o)
-          elseif o:CouldBeFirst() then
-            item = QuestHelper:CreateMenuItem(submenu, "Force this objective to be first. [BROKEN!]")
-            item:SetFunction(function (obj) QuestHelper.first_objective = obj QuestHelper:ForceRouteUpdate() end, o)
-          end
-          
-          item = QuestHelper:CreateMenuItem(submenu, "Ignore this objective.")
-          item:SetFunction(function (obj) obj.user_ignore = true QuestHelper:ForceRouteUpdate() end, o)
+          QuestHelper:AddObjectiveOptionsToMenu(o, submenu)
         end
       else
         QuestHelper:CreateMenuTitle(menu, self.objective:Reason(true))
-        
-        if QuestHelper.first_objective == self.objective then
-          item = QuestHelper:CreateMenuItem(menu, "Place this objective for me.")
-          item:SetFunction(function (obj) if QuestHelper.first_objective == obj then QuestHelper.first_objective = nil QuestHelper:ForceRouteUpdate() end end, self.objective)
-        elseif self.objective:CouldBeFirst() then
-          item = QuestHelper:CreateMenuItem(menu, "Force this objective to be first. [BROKEN!]")
-          item:SetFunction(function (obj) QuestHelper.first_objective = obj QuestHelper:ForceRouteUpdate() end, self.objective)
-        end
-        
-        item = QuestHelper:CreateMenuItem(menu, "Ignore this objective.")
-        item:SetFunction(function (obj) obj.user_ignore = true QuestHelper:ForceRouteUpdate() end, self.objective)
+        QuestHelper:AddObjectiveOptionsToMenu(self.objective, menu)
       end
       
       menu:ShowAtCursor()
@@ -546,9 +528,6 @@ end
 function QuestHelper:CreateMipmapDodad()
   local icon = CreateFrame("Button", nil, Minimap)
   icon:Hide()
-  icon:SetHeight(20)
-  icon:SetWidth(20)
-  
   icon.recalc_timeout = 0
   
   icon.arrow = CreateFrame("Model", nil, icon)
@@ -567,7 +546,7 @@ function QuestHelper:CreateMipmapDodad()
   icon.bg:SetAllPoints()
   
   function icon:NextObjective()
-    if QuestHelper.route_limbo_objective then
+    if QuestHelper.limbo_node then
       -- If an objective is in limbo, don't try to figure out the next objective, because the node in limbo isn't it.
       return self.objective
     end
@@ -658,6 +637,9 @@ function QuestHelper:CreateMipmapDodad()
   end
   
   function icon:SetObjective(objective)
+    self:SetHeight(20*QuestHelper_Pref.scale)
+    self:SetWidth(20*QuestHelper_Pref.scale)
+    
     if objective ~= self.objective then
       if objective then
         self:Show()
@@ -686,6 +668,15 @@ function QuestHelper:CreateMipmapDodad()
     QuestHelper.tooltip:Hide()
   end
   
+  function icon:OnClick()
+    if self.objective then
+      local menu = QuestHelper:CreateMenu()
+      QuestHelper:CreateMenuTitle(menu, self.objective:Reason(true))
+      QuestHelper:AddObjectiveOptionsToMenu(self.objective, menu)
+      menu:ShowAtCursor()
+    end
+  end
+  
   function icon:OnEvent()
     if self.objective then
       self:Show()
@@ -698,7 +689,9 @@ function QuestHelper:CreateMipmapDodad()
   icon:SetScript("OnEnter", icon.OnEnter)
   icon:SetScript("OnLeave", icon.OnLeave)
   icon:SetScript("OnEvent", icon.OnEvent)
+  icon:SetScript("OnClick", icon.OnClick)
   
+  icon:RegisterForClicks("RightButtonUp")
   icon:RegisterEvent("PLAYER_ENTERING_WORLD")
   
   return icon

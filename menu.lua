@@ -40,6 +40,9 @@ function QuestHelper:CreateMenu()
   menu:SetParent(nil)
   
   function menu:AddItem(item)
+    item:ClearAllPoints()
+    item:SetPoint("TOPLEFT", self, "TOPLEFT")
+    
     item:SetParent(self)
     item.parent = self
     table.insert(self.items, item)
@@ -133,7 +136,7 @@ function QuestHelper:CreateMenu()
     
     self:ClearAllPoints()
     self:DoShow()
-    self:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x, y-self:GetHeight()/2+5)
+    self:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", math.max(0, math.min(x-self:GetWidth()/2, UIParent:GetRight()*UIParent:GetScale()-self:GetWidth())), y+5)
     
     if QuestHelper.active_menu and QuestHelper.active_menu ~= self then
       QuestHelper.active_menu:DoHide()
@@ -164,9 +167,14 @@ QuestHelper.spare_menuitems = {}
 function QuestHelper:ReleaseMenuItem(item)
   item:Hide()
   
-  while #item.children > 0 do
-    local child = table.remove(item.children)
-    if child ~= item.text then self:ReleaseTexture(child) end
+  while #item.lchildren > 0 do
+    local child = table.remove(item.lchildren)
+    self:ReleaseTexture(child)
+  end
+  
+  while #item.rchildren > 0 do
+    local child = table.remove(item.rchildren)
+    self:ReleaseTexture(child)
   end
   
   if item.submenu then
@@ -196,7 +204,8 @@ function QuestHelper:CreateMenuItem(menu, text)
   
   if not item then
     item = CreateFrame("Button", nil, menu)
-    item.children = {}
+    item.lchildren = {}
+    item.rchildren = {}
     item.text = item:CreateFontString()
     item.text:SetDrawLayer("OVERLAY")
     item.background = item:CreateTexture()
@@ -211,18 +220,21 @@ function QuestHelper:CreateMenuItem(menu, text)
     --item.tbg:SetTexture(1,0,1,0.5)
   end
   
-  table.insert(item.children, item.text)
-  
   item.showing = true
   item.highlighting = false
   item.show_phase = 0
   item.highlight_phase = 0
   
   function item:AddTexture(tex, before)
+    tex:ClearAllPoints()
+    
+    -- Not really going to use this position, just want it anchored to our invisible selves so that it too will be invisible.
+    tex:SetPoint("TOPLEFT", self, "TOPLEFT")
+    
     if before then
-      table.insert(self.children, 1, tex)
+      table.insert(self.lchildren, 1, tex)
     else
-      table.insert(self.children, tex)
+      table.insert(self.rchildren, tex)
     end
   end
   
@@ -304,10 +316,13 @@ function QuestHelper:CreateMenuItem(menu, text)
   function item:SetSubmenu(menu)
     assert(not self.submenu)
     if menu then
+      menu:ClearAllPoints()
+      menu:SetPoint("TOPLEFT", self, "TOPLEFT")
       menu:SetParent(self)
       menu.parent = self
       self.submenu = menu
       self:AddTexture(QuestHelper:GetIconTexture(self, 9))
+      menu:DoHide()
     end
   end
   
@@ -354,23 +369,36 @@ function QuestHelper:CreateMenuItem(menu, text)
     self.text:SetWidth(0)
     
     self.text_w = self.text:GetWidth()
-    if self.text_w > 400 then
-      self.text_w = 400
-      self.text:SetWidth(self.text_w)
+    if self.text_w > 320 then
+      self.text:SetWidth(320)
+      self.text_h = self.text:GetHeight()
+      local mn, mx = 100, 321
+      while mn ~= mx do
+        local w = math.floor((mn+mx)*0.5)
+        self.text:SetWidth(w-1)
+        if self.text:GetHeight() <= self.text_h then
+          mx = w
+        else
+          mn = w+1
+        end
+      end
+      
+      self.text:SetWidth(mn)
+      self.text_w = mn
+    else
+      self.text_h = self.text:GetHeight()
     end
     
-    self.text_h = self.text:GetHeight()
+    local w, h = self.text_w+4, self.text_h+4
     
-    local w, h = 0, 0
+    for i, f in ipairs(self.lchildren) do
+      w = w + f:GetWidth() + 4
+      h = math.max(h, f:GetHeight() + 4)
+    end
     
-    for i, f in ipairs(self.children) do
-      if f == self.text then
-        w = w + self.text_w + 4
-        h = math.max(h, self.text_h + 4)
-      else
-        w = w + f:GetWidth() + 4
-        h = math.max(h, f:GetHeight() + 4)
-      end
+    for i, f in ipairs(self.rchildren) do
+      w = w + f:GetWidth() + 4
+      h = math.max(h, f:GetHeight() + 4)
     end
     
     self.needed_width = w
@@ -382,26 +410,28 @@ function QuestHelper:CreateMenuItem(menu, text)
     self:SetWidth(w)
     self:SetHeight(h)
     
-    local x, spacing = 0, 0
+    local x = 0
     
-    if #self.children > 1 then
-      spacing = (w-self.needed_width)/(#self.children-1)
-    else
-      x = (w-self.needed_width)*0.5
-    end
-    
-    for i, f in ipairs(self.children) do
-      local cw, ch
-      if f == self.text then
-        cw, ch = self.text_w, self.text_h
-      else
-        cw, ch = f:GetWidth(), f:GetHeight()
-      end
+    for i, f in ipairs(self.lchildren) do
+      local cw, ch = f:GetWidth(), f:GetHeight()
       
       f:ClearAllPoints()
       f:SetPoint("TOPLEFT", self, "TOPLEFT", x+2, -(h-ch)*0.5)
-      x = x + cw + 4 + spacing
+      x = x + cw + 4
     end
+    
+    local x1 = x
+    x = w
+    
+    for i, f in ipairs(self.rchildren) do
+      local cw, ch = f:GetWidth(), f:GetHeight()
+      f:ClearAllPoints()
+      x = x - cw - 4
+      f:SetPoint("TOPLEFT", self, "TOPLEFT", x+2, -(h-ch)*0.5)
+    end
+    
+    self.text:ClearAllPoints()
+    self.text:SetPoint("TOPLEFT", self, "TOPLEFT", x1+((x-x1)-self.text_w)*0.5, -(h-self.text_h)*0.5)
   end
   
   item:SetScript("OnEnter", item.OnEnter)

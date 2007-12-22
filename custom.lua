@@ -128,6 +128,7 @@ function QuestHelper:ToggleUserObjective(cat, what)
       name = "User Objective: "..self:HighlightText(string.gsub(cat, "^(.)", string.upper))..": "..self:HighlightText(what)
     end
     
+    objective.priority = 1
     self.user_objectives[objective] = name
     self:AddObjectiveWatch(objective, name)
     
@@ -282,7 +283,7 @@ function search_frame:SearchRoutine(input)
         x, y = x*0.01, y*0.01
         
         if region == "" then
-          self:AddResult("loc", string.format("%d,%d,%.3f,%.3f", QuestHelper.c, QuestHelper.z, x, y), 1)
+          self:AddResult("loc", string.format("%d,%d,%.3f,%.3f", QuestHelper.c, QuestHelper.z, x, y), 0)
         else
           for c=1,3 do
             local z = 1

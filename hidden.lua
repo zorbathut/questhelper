@@ -20,9 +20,19 @@ local function HiddenReason(obj)
     end
   end
   
-  if obj.user_ignore == nil and obj.auto_ignore then
-    return "Hidden due to level requirements.", true
-  elseif obj.user_ignore == true then
+  if obj.user_ignore == nil then
+    if obj.filter_level and QuestHelper_Pref.filter_level then
+      return "Filtered due to level.", true
+    end
+    
+    if obj.filter_zone and QuestHelper_Pref.filter_zone then
+      return "Filtered due to zone.", true
+    end
+    
+    if obj.filter_done and QuestHelper_Pref.filter_done then
+      return "Filtered due to completeness.", true
+    end
+  elseif obj.user_ignore then
     return "You requested this objective be hidden.", true
   end
   

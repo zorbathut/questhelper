@@ -13,9 +13,16 @@ local function ObjectiveCouldBeFirst(self)
 end
 
 local function DefaultObjectiveKnown(self)
-  if (self.user_ignore == nil and self.auto_ignore) or self.user_ignore then
+  if self.user_ignore == nil then
+    if (self.filter_zone and QuestHelper_Pref.filter_zone) or
+       (self.filter_done and QuestHelper_Pref.filter_done) or
+       (self.filter_level and QuestHelper_Pref.filter_level) then
+      return false
+    end
+  elseif self.user_ignore then
     return false
   end
+  
   
   for i, j in pairs(self.after) do
     if i.watched and not i:Known() then -- Need to know how to do everything before this objective.
@@ -270,7 +277,27 @@ local function FinishAddLoc(self)
   
   for z, pl in pairs(self.p) do
     for i, p in ipairs(pl) do
-      mx = math.max(mx, p[5])
+      if p[5] > mx then
+        self.location = p
+        mx = p[5]
+      end
+    end
+  end
+  
+  -- Remove probably useless locations.
+  for z, pl in pairs(self.p) do
+    local remove_zone = true
+    local i = 1
+    while i <= #pl do
+      if pl[i][5] < mx*0.25 then
+        table.remove(pl, i)
+      else
+        remove_zone = false
+        i = i + 1
+      end
+    end
+    if remove_zone then
+      self.p[z] = nil
     end
   end
   
@@ -330,21 +357,8 @@ end
 
 local function GetPosition(self)
   assert(self.setup)
-  local result, w
   
-  for z, pl in pairs(self.p) do
-    for i, p in ipairs(pl) do
-      for i, _ in ipairs(z) do
-        assert(type(p[2][i]) == "number")
-      end
-      
-      if not w or w < p[5] then
-        result, w = p, p[5]
-      end
-    end
-  end
-  
-  return result
+  return self.location
 end
 
 local function ComputeTravelTime(self, pos)
@@ -549,21 +563,30 @@ function QuestHelper:NewObjectiveObject()
     TravelTime=ComputeTravelTime,
     TravelTime2=ComputeTravelTime2,
     
-    auto_ignore=false,
-    user_ignore=nil, -- When nil, will use auto_ignore, when false, will ignore, when true, won't ignore.
+    user_ignore=nil, -- When nil, will use filters. Will ignore, when true, always show (if known).
+    
+    priority=3, -- A hint as to what priority the quest should have. Should be 1, 2, 3, 4, or 5.
+    real_priority=3, -- This will be set to the priority routing actually decided to assign it.
     
     setup_count=0,
     
     icon_id=12,
     icon_bg=14,
     
-    before={},
-    after={},
+    match_zone=false,
+    match_level=false,
+    match_done=false,
+    
+    before={}, -- List of objectives that this objective must appear before.
+    after={}, -- List of objectives that this objective must appear after.
+    
+    -- Routing related junk.
     d={},
     p={},
     nm={}, -- Maps nodes to their nearest zone/list/x/y position.
     nm2={}, -- Maps nodes to their nears position, but dynamically set in TravelTime2.
     nl={}, -- List of all the nodes we need to consider.
+    location={nil,nil,0,0,nil}, -- Will be set to the best position for the node.
     pos={nil,nil,0,0,nil}, -- Zone node list, distance list, x, y, reason.
     sop={nil,nil,0,0,nil}
    }
@@ -722,4 +745,39 @@ function QuestHelper:ObjectiveObjectDependsOn(objective, needs)
   assert(objective ~= needs) -- If this was true, ObjectiveIsKnown would get in an infinite loop.
   objective.after[needs] = true
   needs.before[objective] = true
+end
+
+QuestHelper.priority_names = {"Highest", "High", "Normal", "Low", "Lowest"}
+
+function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
+  local submenu = self:CreateMenu()
+  
+  for i, name in ipairs(self.priority_names) do
+    local item = self:CreateMenuItem(submenu, name)
+    local tex
+    
+    if obj.priority == i then
+      tex = self:GetIconTexture(item, 10)
+    elseif obj.real_priority == i then
+      tex = self:GetIconTexture(item, 8)
+    else
+      tex = self:GetIconTexture(item, 12)
+      tex:SetVertexColor(1, 1, 1, 0)
+    end
+    
+    item:AddTexture(tex, true)
+    item:SetFunction(
+      function (obj, pri)
+        obj.priority = i
+        QuestHelper:ForceRouteUpdate()
+      end, obj, i)
+  end
+  
+  self:CreateMenuItem(menu, "Priority"):SetSubmenu(submenu)
+  
+  self:CreateMenuItem(menu, "Ignore"):SetFunction(
+    function (obj)
+      obj.user_ignore = true
+      QuestHelper:ForceRouteUpdate()
+    end, obj)
 end

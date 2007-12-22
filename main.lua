@@ -13,6 +13,14 @@ QuestHelper_Locale = GetLocale()
 QuestHelper_Quests = {}
 QuestHelper_Objectives = {}
 
+QuestHelper_Pref =
+ {
+  scale=1,
+  filter_level=true,
+  filter_zone=false,
+  filter_done=false,
+ }
+
 -- Character ID identifies the player's charaters by a number instead of a Name/Realm pair. You know, in case
 -- they want to submit their data anonymously without references to their characters in them.
 -- This way the most I can tell is how many characters the submitter has, which probably isn't a big deal.
@@ -22,8 +30,6 @@ QuestHelper_CharacterID = nil
 QuestHelper_FlightInstructors = {}
 QuestHelper_FlightRoutes = {}
 QuestHelper_KnownFlightRoutes = {}
-
-QuestHelper_ZoneTransition = {}
 
 QuestHelper.tooltip = CreateFrame("GameTooltip", "QuestHelperTooltip", nil, "GameTooltipTemplate")
 QuestHelper.objective_objects = {}
@@ -560,6 +566,53 @@ function QuestHelper:OnUpdate()
   end
 end
 
+function QuestHelper:SetIconScale(input)
+  if input == "" then
+    self:TextOut("Current icon scale is "..self:HighlightText(math.floor(QuestHelper_Pref.scale*100+0.5).."%")..".")
+  else
+    local scale = tonumber(input)
+    
+    if not scale then
+      local _, _, x = string.find(input, "^%s*([%d%.]+)%s*%%%s*$")
+      scale = tonumber(x)
+      if not scale then
+        self:TextOut("I don't know how to interpret your input.")
+        return
+      end
+      scale = scale * 0.01
+    end
+    
+    if scale < 0.5 then
+      self:TextOut("I won't accept a scale less than 50%.")
+    elseif scale > 3 then
+      self:TextOut("I won't accept a scale more than 300%.")
+    else
+      QuestHelper_Pref.scale = scale
+      self:TextOut("Icon scale set to "..self:HighlightText(math.floor(scale*100+0.5).."%")..".")
+    end
+  end
+end
+
+function QuestHelper:Filter(input)
+  input = string.upper(input)
+  if input == "ZONE" then
+    QuestHelper_Pref.filter_zone = not QuestHelper_Pref.filter_zone
+    self:TextOut("Filter "..self:HighlightText("zone").." set to "..self:HighlightText(QuestHelper_Pref.filter_zone and "active" or "inactive")..".")
+  elseif input == "DONE" then
+    QuestHelper_Pref.filter_done = not QuestHelper_Pref.filter_done
+    self:TextOut("Filter "..self:HighlightText("done").." set to "..self:HighlightText(QuestHelper_Pref.filter_done and "active" or "inactive")..".")
+  elseif input == "LEVEL" then
+    QuestHelper_Pref.filter_level = not QuestHelper_Pref.filter_level
+    self:TextOut("Filter "..self:HighlightText("level").." set to "..self:HighlightText(QuestHelper_Pref.filter_level and "active" or "inactive")..".")
+  elseif input == "" then
+    self:TextOut("Filter "..self:HighlightText("zone")..": "..self:HighlightText(QuestHelper_Pref.filter_zone and "active" or "inactive"))
+    self:TextOut("Filter "..self:HighlightText("level")..": "..self:HighlightText(QuestHelper_Pref.filter_level and "active" or "inactive"))
+    self:TextOut("Filter "..self:HighlightText("done")..": "..self:HighlightText(QuestHelper_Pref.filter_done and "active" or "inactive"))
+  else
+    self:TextOut("Don't know what you want filtered, expect "..self:HighlightText("zone")..", "..self:HighlightText("done")..", or "..self:HighlightText("level")..".")
+  end
+end
+
 function QuestHelper:SlashCommand(input)
   local _, _, command, argument = string.find(input, "^%s*([^%s]-)%s+(.-)%s*$")
   if not command then
@@ -568,7 +621,14 @@ function QuestHelper:SlashCommand(input)
   
   command = string.upper(command)
   
-  if command == "NAG" then
+  if command == "RECALC" then
+    self:TextOut("Will recalculate world pathing information.")
+    self:ResetPathing()
+  elseif command == "FILTER" then
+    self:Filter(argument)
+  elseif command == "SCALE" then
+    self:SetIconScale(argument)
+  elseif command == "NAG" then
     self:Nag()
   elseif command == "HIDDEN" then
     self:ShowHidden()
@@ -581,7 +641,24 @@ function QuestHelper:SlashCommand(input)
     
     argument = string.upper(argument)
     
-    if argument == "NAG" then
+    if argument == "RECALC" then
+      DEFAULT_CHAT_FRAME:AddMessage("RECALC", 1.0, 0.8, 0.4)
+      DEFAULT_CHAT_FRAME:AddMessage("  Recalculates the world graph and locations for any active objectives.", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("  Use this sparingly, as the old data will get leaked and waste memory.", 1.0, 0.6, 0.2)
+    elseif argument == "FILTER" then
+      DEFAULT_CHAT_FRAME:AddMessage("FILTER |cffffffff|r", 1.0, 0.8, 0.4)
+      DEFAULT_CHAT_FRAME:AddMessage("  Automatically ignores/unignores objectives based on criteria.", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("    |cffffff00/qh filter zone|r Toggle showing objectives outside the current zone.", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("    |cffffff00/qh filter done|r Toggle showing objectives for uncompleted quests.", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("    |cffffff00/qh filter level|r Toggle showing objectives that are probably too hard.", 1.0, 0.6, 0.2)
+    elseif argument == "SCALE" then
+      DEFAULT_CHAT_FRAME:AddMessage("SCALE|r", 1.0, 0.8, 0.4)
+      DEFAULT_CHAT_FRAME:AddMessage("  Scales the map icons used by QuestHelper.", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("  Will accept values ranging from 50% to 300%.", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("    |cffffff00/qh scale 1|r Uses the default icon size.", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("    |cffffff00/qh scale 2|r Make icons twice their default size.", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("    |cffffff00/qh scale 80%|r Make icons slightly smaller than the default.", 1.0, 0.6, 0.2)
+    elseif argument == "NAG" then
       DEFAULT_CHAT_FRAME:AddMessage("NAG", 1.0, 0.8, 0.4)
       DEFAULT_CHAT_FRAME:AddMessage("  Tells you if you have anything that's missing from the static database.", 1.0, 0.6, 0.2)
     elseif argument == "HIDDEN" then
@@ -593,18 +670,22 @@ function QuestHelper:SlashCommand(input)
       DEFAULT_CHAT_FRAME:AddMessage("  Get information about a QuestHelper command.", 1.0, 0.6, 0.2)
     elseif argument == "FIND" then
       DEFAULT_CHAT_FRAME:AddMessage("FIND", 1.0, 0.8, 0.4)
-      DEFAULT_CHAT_FRAME:AddMessage("  Search for an item, location, or npc. Examples: ", 1.0, 0.6, 0.2)
-      DEFAULT_CHAT_FRAME:AddMessage("    /qh find item rune of teleport", 1.0, 0.6, 0.2)
-      DEFAULT_CHAT_FRAME:AddMessage("    /qh find npc bragok", 1.0, 0.6, 0.2)
-      DEFAULT_CHAT_FRAME:AddMessage("    /qh find loc stormwind 50 60", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("  Search for an item, location, or npc. ", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("    |cffffff00/qh find item rune of teleport|r Finds a reagent vendor.", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("    |cffffff00/qh find npc bragok|r Finds the Ratchet flight point.", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("    |cffffff00/qh find loc stormwind 50 60|r Finds the Stormwind auction house.", 1.0, 0.6, 0.2)
       DEFAULT_CHAT_FRAME:AddMessage("  Omiting the search category will search all categories.", 1.0, 0.6, 0.2)
       DEFAULT_CHAT_FRAME:AddMessage("  You can also search using the commands /find and /qhfind.", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("  User objectives are automatically assigned the highest priority.", 1.0, 0.6, 0.2)
     else
       DEFAULT_CHAT_FRAME:AddMessage("Available Commands:", 1.0, 0.6, 0.2)
-      DEFAULT_CHAT_FRAME:AddMessage("  help", 1.0, 0.6, 0.2)
       DEFAULT_CHAT_FRAME:AddMessage("  find", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("  filter", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("  help", 1.0, 0.6, 0.2)
       DEFAULT_CHAT_FRAME:AddMessage("  hidden", 1.0, 0.6, 0.2)
       DEFAULT_CHAT_FRAME:AddMessage("  nag", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("  recalc", 1.0, 0.6, 0.2)
+      DEFAULT_CHAT_FRAME:AddMessage("  scale", 1.0, 0.6, 0.2)
     end
   end
 end
