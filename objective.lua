@@ -52,8 +52,8 @@ local function ItemObjectiveDistance(self, c, z, x, y)
   
   if self.o.vendor then for i, npc in ipairs(self.o.vendor) do
     local n = self.qh:GetObjective("monster", npc)
-    if (not n.o.faction or n.o.faction == qh.faction) and
-       (not n.fb.faction or n.fb.faction == qh.faction) then
+    if (not n.o.faction or n.o.faction == self.qh.faction) and
+       (not n.fb.faction or n.fb.faction == self.qh.faction) then
       local d, nc, nz, nx, ny = n:Distance(c, z, x, y)
       if not score or d < score then
         distance, score, bc, bz, bx, by = d, d, nc, nz, nx, ny
@@ -63,8 +63,8 @@ local function ItemObjectiveDistance(self, c, z, x, y)
   
   if self.fb.vendor then for i, npc in ipairs(self.fb.vendor) do
     local n = self.qh:GetObjective("monster", npc)
-    if (not n.o.faction or n.o.faction == qh.faction) and
-       (not n.fb.faction or n.fb.faction == qh.faction) then
+    if (not n.o.faction or n.o.faction == self.qh.faction) and
+       (not n.fb.faction or n.fb.faction == self.qh.faction) then
       local d, nc, nz, nx, ny = n:Distance(c, z, x, y)
       if not score or d < score then
         distance, score, bc, bz, bx, by = d, d, nc, nz, nx, ny
@@ -175,8 +175,8 @@ local function ItemObjectiveDistance2(self, c1, z1, x1, y1, c2, z2, x2, y2)
   
   if self.o.vendor then for i, npc in ipairs(self.o.vendor) do
     local n = self.qh:GetObjective("monster", npc)
-    if (not n.o.faction or n.o.faction == qh.faction) and
-       (not n.fb.faction or n.fb.faction == qh.faction) then
+    if (not n.o.faction or n.o.faction == self.qh.faction) and
+       (not n.fb.faction or n.fb.faction == self.qh.faction) then
       local d1, d2, nc, nz, nx, ny = n:Distance2(c1, z1, x1, y1, c2, z2, x2, y2)
       local t = d1+d2
       if not score or t < score then
@@ -187,8 +187,8 @@ local function ItemObjectiveDistance2(self, c1, z1, x1, y1, c2, z2, x2, y2)
   
   if self.fb.vendor then for i, npc in ipairs(self.fb.vendor) do
     local n = self.qh:GetObjective("monster", npc)
-    if (not n.o.faction or n.o.faction == qh.faction) and
-       (not n.fb.faction or n.fb.faction == qh.faction) then
+    if (not n.o.faction or n.o.faction == self.qh.faction) and
+       (not n.fb.faction or n.fb.faction == self.qh.faction) then
       local d1, d2, nc, nz, nx, ny = n:Distance2(c1, z1, x1, y1, c2, z2, x2, y2)
       local t = d1+d2
       if not score or t < score then
@@ -364,8 +364,8 @@ local function ItemObjectiveReason(self)
   
   if self.o.vendor then for i, npc in ipairs(self.o.vendor) do
     local n = self.qh:GetObjective("monster", npc)
-    if (not n.o.faction or n.o.faction == qh.faction) and
-       (not n.fb.faction or n.fb.faction == qh.faction) then
+    if (not n.o.faction or n.o.faction == self.qh.faction) and
+       (not n.fb.faction or n.fb.faction == self.qh.faction) then
       local d = n:Distance(c, z, x, y)
       if not score or d < score then
         reason = "Purchase from "..self.qh:HighlightText(npc).."."
@@ -376,8 +376,8 @@ local function ItemObjectiveReason(self)
   
   if self.o.vendor then for i, npc in ipairs(self.fb.vendor) do
     local n = self.qh:GetObjective("monster", npc)
-    if (not n.o.faction or n.o.faction == qh.faction) and
-       (not n.fb.faction or n.fb.faction == qh.faction) then
+    if (not n.o.faction or n.o.faction == self.qh.faction) and
+       (not n.fb.faction or n.fb.faction == self.qh.faction) then
       local d = n:Distance(c, z, x, y)
       if not score or d < score then
         reason = "Purchase from "..self.qh:HighlightText(npc).."."

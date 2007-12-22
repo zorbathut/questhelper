@@ -89,7 +89,7 @@ function QuestHelper:GetQuest(name, level, hash)
     local l = QuestHelper_StaticData[self.locale]
     
     if l then
-      fbracket = l.quest[faction]
+      fbracket = l.quest[self.faction]
       if fbracket then
         bracket = fbracket[level]
         if bracket then

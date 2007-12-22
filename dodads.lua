@@ -1,34 +1,57 @@
 local ofs = 0.000723339 * (GetScreenHeight()/GetScreenWidth() + 1/3) * 70.4;
 local radius = ofs / 1.166666666666667;
 
-function QuestHelper:CalcWorldMapPosition(findex)
-  if findex < 0 or findex > #self.route then
-    return nil
-  end
-  
-  local index = math.floor(findex)
-  local r = findex-index
-  
-  local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
-  
-  local x1, y1, x2, y2
-  
-  if index == 0 then
-    x1, y1 = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, c, z)
-  else
-    local p = self.route[index].pos
-    x1, y1 = self.Astrolabe:TranslateWorldMapPosition(p[1], p[2], p[3], p[4], c, z)
-  end
-  
-  if r < 0.000001 then
-    return x1, y1
-  end
-  
-  local p = self.route[index+1].pos
-  x2, y2 = self.Astrolabe:TranslateWorldMapPosition(p[1], p[2], p[3], p[4], c, z)
-  
-  if x1 and x2 then
-    return x1*(1-r)+x2*r, y1*(1-r)+y2*r
+local function ClampLine(x1, y1, x2, y2)
+  if x1 and y1 and x2 and y2 then
+    local x_div, y_div = (x2-x1), (y2-y1)
+    local x_0 = y1-x1/x_div*y_div
+    local x_1 = y1+(1-x1)/x_div*y_div
+    local y_0 = x1-y1/y_div*x_div
+    local y_1 = x1+(1-y1)/y_div*x_div
+    
+    if y1 < 0 then
+      x1 = y_0
+      y1 = 0
+    end
+    
+    if y2 < 0 then
+      x2 = y_0
+      y2 = 0
+    end
+    
+    if y1 > 1 then
+      x1 = y_1
+      y1 = 1
+    end
+    
+    if y2 > 1 then
+      x2 = y_1
+      y2 = 1
+    end
+    
+    if x1 < 0 then
+      y1 = x_0
+      x1 = 0
+    end
+    
+    if x2 < 0 then
+      y2 = x_0
+      x2 = 0
+    end
+    
+    if x1 > 1 then
+      y1 = x_1
+      x1 = 1
+    end
+    
+    if x2 > 1 then
+      y2 = x_1
+      x2 = 1
+    end
+    
+    if x1 >= 0 and x2 >= 0 and y1 >= 0 and y2 >= 0 and x1 <= 1 and x2 <= 1 and y1 <= 1 and y2 <= 1 then
+      return x1, y1, x2, y2
+    end
   end
 end
 
@@ -41,6 +64,7 @@ function QuestHelper:CreateWorldMapWalker()
   
   walker.phase = 0.0
   walker.dots = {}
+  walker.used_dots = 0
   walker.frame = self
   
   function walker:OnUpdate(elapsed)
@@ -49,30 +73,51 @@ function QuestHelper:CreateWorldMapWalker()
     
     local w, h = WorldMapDetailFrame:GetWidth(), -WorldMapDetailFrame:GetHeight()
     
-    for i = 1,#self.frame.route*4+1 do
-      local dot = self.dots[i]
-      if not dot then
-        dot = self:CreateTexture()
-        dot:SetTexture("Interface\\Minimap\\ObjectIcons")
-        dot:SetTexCoord(0.280, 0.35, 0.09, 0.36)
-        dot:SetVertexColor(1,0,0,0.5)
-        dot:SetWidth(4)
-        dot:SetHeight(4)
-        self.dots[i] = dot
-      end
-      local x, y = self.frame:CalcWorldMapPosition((i-1)/4+self.phase/4)
-      if x and x > 0 and y > 0 and x < 1 and y < 1 then 
-          dot:ClearAllPoints()
-          dot:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x*w, y*h)
-          dot:Show()
-      else
-        dot:Hide()
+    local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+    
+    local last_x, last_y = self.frame.Astrolabe:TranslateWorldMapPosition(self.frame.c, self.frame.z, self.frame.x, self.frame.y, c, z) local remainder = self.phase
+    local out = 0
+    
+    for i, obj in ipairs(self.frame.route) do
+      local new_x, new_y = self.frame.Astrolabe:TranslateWorldMapPosition(obj.pos[1], obj.pos[2], obj.pos[3], obj.pos[4], c, z)
+      local x1, y1, x2, y2 = ClampLine(last_x, last_y, new_x, new_y)
+      last_x, last_y = new_x, new_y
+      
+      if x1 then
+        local len = math.sqrt((x1-x2)*(x1-x2)*16/9+(y1-y2)*(y1-y2))
+        
+        if len > 0.0001 then
+          local interval = .03/len
+          local p = remainder*interval
+          
+          while p < 1 do
+            out = out + 1
+            local dot = self.dots[out]
+            if not dot then
+              dot = self:CreateTexture()
+              dot:SetTexture("Interface\\Minimap\\ObjectIcons")
+              dot:SetTexCoord(0.280, 0.35, 0.09, 0.36)
+              dot:SetVertexColor(1,0,0,0.5)
+              dot:SetWidth(4)
+              dot:SetHeight(4)
+              self.dots[out] = dot
+            end
+            dot:ClearAllPoints()
+            dot:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x1*w*(1-p)+x2*w*p, y1*h*(1-p)+y2*h*p)
+            dot:Show()
+            p = p + interval
+          end
+          
+          remainder = (p-1)/interval
+        end
       end
     end
     
-    for i = #self.frame.route*4+1,#self.dots do
+    for i = out+1,self.used_dots do
       self.dots[i]:Hide()
     end
+    
+    self.used_dots = out
   end
   
   walker:SetScript("OnUpdate", walker.OnUpdate)
