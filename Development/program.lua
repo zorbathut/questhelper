@@ -438,11 +438,15 @@ local function CollapseObjective(objective)
   if objective.vendor and not next(objective.vendor, nil) then objective.vendor = nil end
   
   if objective.drop then
-    -- Don't need both.
-    objective.pos = nil
-    
-    for monster, count in pairs(objective.drop) do
-      objective.drop[monster] = math.max(1, math.floor(count))
+    if objective.pos and PositionListMass(objective.pos) > DropListMass(objective.drop) then
+      objective.drop = nil
+    else
+      -- Don't need both.
+      objective.pos = nil
+      
+      for monster, count in pairs(objective.drop) do
+        objective.drop[monster] = math.max(1, math.floor(count))
+      end
     end
   end
   
