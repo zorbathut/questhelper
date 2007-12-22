@@ -76,9 +76,21 @@ local function ItemKnown(self)
     end
   end
   
-  if self.o.drop or self.fb.drop or self.o.pos or self.fb.pos then
+  if self.o.pos or self.fb.pos then
     return true
   end
+  
+  if self.o.drop then for monster in pairs(self.o.drop) do
+    if self.qh:GetObjective("monster", monster):Known() then
+      return true
+    end
+  end end
+  
+  if self.fb.drop then for monster in pairs(self.fb.drop) do
+    if self.qh:GetObjective("monster", monster):Known() then
+      return true
+    end
+  end end
   
   if self.quest then
     local item=self.quest.o.item
@@ -89,7 +101,7 @@ local function ItemKnown(self)
         return true
       end
       if item.drop then
-        for monster, count in pairs(item.drop) do
+        for monster in pairs(item.drop) do
           if self.qh:GetObjective("monster", monster):Known() then
             return true
           end
@@ -104,7 +116,7 @@ local function ItemKnown(self)
         return true
       end
       if item.drop then
-        for monster, count in pairs(item.drop) do
+        for monster in pairs(item.drop) do
           if self.qh:GetObjective("monster", monster):Known() then
             return true
           end
@@ -377,7 +389,7 @@ local function FinishAddLoc(self)
     end
   end
   
-  if #node_list == 0 then QuestHelper:Error("Boom!") end
+  if #node_list == 0 then QuestHelper:Error(self.cat.."/"..self.obj..": zero nodes!") end
   
   assert(not self.setup)
   self.setup = true
