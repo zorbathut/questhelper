@@ -18,6 +18,7 @@ function QuestHelper:ReleaseMenu(menu)
   menu.parent = nil
   menu.auto_release = nil
   menu:SetParent(nil)
+  menu:ClearAllPoints()
   menu:SetScript("OnUpdate", nil)
   
   if self.active_menu == menu then
@@ -41,9 +42,8 @@ function QuestHelper:CreateMenu()
   
   function menu:AddItem(item)
     item:ClearAllPoints()
-    item:SetPoint("TOPLEFT", self, "TOPLEFT")
-    
     item:SetParent(self)
+    item:SetPoint("TOPLEFT", self, "TOPLEFT")
     item.parent = self
     table.insert(self.items, item)
   end
@@ -75,7 +75,7 @@ function QuestHelper:CreateMenu()
         if self.func then
           self.func(unpack(self.func_arg))
         end
-        if auto_release then
+        if self.auto_release then
           QuestHelper:ReleaseMenu(self)
           return
         end
@@ -127,7 +127,7 @@ function QuestHelper:CreateMenu()
   end
   
   function menu:ShowAtCursor(auto_release)
-    auto_release = auto_release == "nil" and true or auto_release
+    auto_release = auto_release == nil and true or auto_release
     self.auto_release = auto_release
     
     local x, y = GetCursorPosition()
@@ -191,6 +191,7 @@ function QuestHelper:ReleaseMenuItem(item)
   item.func_arg = nil
   item.parent = nil
   item:SetParent(nil)
+  item:ClearAllPoints()
   
   for i, o in ipairs(self.spare_menuitems) do
     assert(o ~= item)
@@ -229,7 +230,7 @@ function QuestHelper:CreateMenuItem(menu, text)
     tex:ClearAllPoints()
     
     -- Not really going to use this position, just want it anchored to our invisible selves so that it too will be invisible.
-    tex:SetPoint("TOPLEFT", self, "TOPLEFT")
+    tex:SetPoint("TOPLEFT", menu, "TOPLEFT")
     
     if before then
       table.insert(self.lchildren, 1, tex)
@@ -317,8 +318,8 @@ function QuestHelper:CreateMenuItem(menu, text)
     assert(not self.submenu)
     if menu then
       menu:ClearAllPoints()
-      menu:SetPoint("TOPLEFT", self, "TOPLEFT")
       menu:SetParent(self)
+      menu:SetPoint("TOPLEFT", self, "TOPLEFT")
       menu.parent = self
       self.submenu = menu
       self:AddTexture(QuestHelper:GetIconTexture(self, 9))
@@ -369,7 +370,7 @@ function QuestHelper:CreateMenuItem(menu, text)
     self.text:SetWidth(0)
     
     self.text_w = self.text:GetWidth()
-    if self.text_w > 320 then
+    if self.text_w >= 320 then
       self.text:SetWidth(320)
       self.text_h = self.text:GetHeight()
       local mn, mx = 100, 321
@@ -384,7 +385,7 @@ function QuestHelper:CreateMenuItem(menu, text)
       end
       
       self.text:SetWidth(mn)
-      self.text_w = mn
+      self.text_w = mn+1
     else
       self.text_h = self.text:GetHeight()
     end

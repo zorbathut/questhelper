@@ -492,6 +492,12 @@ local function RouteUpdateRoutine(self)
     map_walker:RouteChanged()
     
     call_count = 0
+    
+    if self.defered_graph_reset then
+      self:ResetPathing()
+      self.defered_graph_reset = false
+    end
+    
     coroutine.yield()
   end
 end

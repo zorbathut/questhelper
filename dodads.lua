@@ -510,9 +510,10 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   end
   
   function icon:OnEvent(event)
-    if self.objective then
+    if self.objective and self.objective.pos then
       QuestHelper.Astrolabe:PlaceIconOnWorldMap(WorldMapDetailFrame, self, convertLocation(self.objective.pos))
     else
+      self.objective = nil
       self:Hide()
     end
   end
@@ -582,7 +583,7 @@ function QuestHelper:CreateMipmapDodad()
     end
     
     for i, o in ipairs(QuestHelper.route) do
-      if not QuestHelper.to_remove[o] then
+      if not QuestHelper.to_remove[o] and o.pos then
         return o
       end
     end
@@ -590,6 +591,14 @@ function QuestHelper:CreateMipmapDodad()
   
   function icon:OnUpdate(elapsed)
     if self.objective then
+      if not self.objective.pos then
+        self.objective = self:NextObjective()
+        if not self.objective then
+          self:Hide()
+          return
+        end
+      end
+      
       self:Show()
       
       if self.recalc_timeout == 0 then
@@ -714,7 +723,7 @@ function QuestHelper:CreateMipmapDodad()
   end
   
   function icon:OnEvent()
-    if self.objective then
+    if self.objective and self.objective.pos then
       self:Show()
     else
       self:Hide()

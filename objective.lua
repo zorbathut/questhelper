@@ -142,6 +142,18 @@ end
 local function ObjectivePrepareRouting(self)
   self.setup_count = self.setup_count + 1
   if not self.setup then
+    assert(not self.d)
+    assert(not self.p)
+    assert(not self.nm)
+    assert(not self.nm2)
+    assert(not self.nl)
+    
+    self.d = QuestHelper:CreateTable()
+    self.p = QuestHelper:CreateTable()
+    self.nm = QuestHelper:CreateTable()
+    self.nm2 = QuestHelper:CreateTable()
+    self.nl = QuestHelper:CreateTable()
+    
     self:AppendPositions(self, 1, nil)
     self:FinishAddLoc()
   end
@@ -262,7 +274,7 @@ local function AddLoc(self, c, z, x, y, w, why)
     
     local points = self.p[list]
     if not points then
-      points = {}
+      points = QuestHelper:CreateTable()
       self.p[list] = points
     end
     
@@ -279,7 +291,9 @@ local function AddLoc(self, c, z, x, y, w, why)
       end
     end
     
-    table.insert(points, {list, nil, x, y, w, why, w})
+    local new = QuestHelper:CreateTable()
+    new[1], new[2], new[3], new[4], new[5], new[6], new[7] = list, nil, x, y, w, why, w
+    table.insert(points, new)
   end
 end
 
@@ -301,6 +315,7 @@ local function FinishAddLoc(self)
     local i = 1
     while i <= #pl do
       if pl[i][5] < mx*0.25 then
+        QuestHelper:ReleaseTable(pl[i])
         table.remove(pl, i)
       else
         remove_zone = false
@@ -308,6 +323,7 @@ local function FinishAddLoc(self)
       end
     end
     if remove_zone then
+      QuestHelper:ReleaseTable(self.p[z])
       self.p[z] = nil
     end
   end
@@ -321,14 +337,14 @@ local function FinishAddLoc(self)
     assert(not dist)
     
     if not dist then
-      dist = {}
+      dist = QuestHelper:CreateTable()
       self.d[list] = dist
     end
     
     for i, point in ipairs(pl) do
       point[5] = mx/point[5] -- Will become 1 for the most desired location, and become larger and larger for less desireable locations.
       
-      point[2] = {}
+      point[2] = QuestHelper:CreateTable()
       
       for i, node in ipairs(list) do
         local u, v = point[3]-node.x, point[4]-node.y
@@ -342,7 +358,9 @@ local function FinishAddLoc(self)
             node_map[node] = point
           end
         else
-          dist[i] = {d,point[5]}
+          local pair = QuestHelper:CreateTable()
+          pair[1], pair[2] = d, point[5]
+          dist[i] = pair
           
           if not node_map[node] then
             table.insert(node_list, node)
@@ -390,7 +408,6 @@ local function ComputeTravelTime(self, pos)
       end
     end
   end
-  
   
   local d = pos[2]
   for i, n in ipairs(pos[1]) do
@@ -547,10 +564,15 @@ local function ComputeTravelTime2(self, pos1, pos2)
 end
 
 local function DoneRouting(self)
-  assert(self.setup_count > 0) -- TODO: This assertion has failed on me when quickly joining and leaving a party.
+  assert(self.setup_count > 0)
   assert(self.setup)
   
-  self.setup_count = self.setup_count - 1
+  if self.setup_count == 1 then
+    self.setup_count = 0
+    QuestHelper:ReleaseObjectivePathingInfo(self)
+  else
+    self.setup_count = self.setup_count - 1
+  end
 end
 
 local next_objective_id = 0
@@ -609,14 +631,16 @@ function QuestHelper:NewObjectiveObject()
     after={}, -- List of objectives that this objective must appear after.
     
     -- Routing related junk.
-    d={},
-    p={},
-    nm={}, -- Maps nodes to their nearest zone/list/x/y position.
-    nm2={}, -- Maps nodes to their nears position, but dynamically set in TravelTime2.
-    nl={}, -- List of all the nodes we need to consider.
+    
+    --[[ Will be created as needed.
+    d=nil,
+    p=nil,
+    nm=nil, -- Maps nodes to their nearest zone/list/x/y position.
+    nm2=nil, -- Maps nodes to their nears position, but dynamically set in TravelTime2.
+    nl=nil, -- List of all the nodes we need to consider.
     location=nil, -- Will be set to the best position for the node.
     pos=nil, -- Zone node list, distance list, x, y, reason.
-    sop=nil
+    sop=nil ]]
    }
 end
 
@@ -863,13 +887,13 @@ function QuestHelper:SetObjectiveProgress(objective, user, have, need)
   if have and need then
     local list = objective.progress
     if not list then
-      list = {}
+      list = self:CreateTable()
       objective.progress = list
     end
     
     local user_progress = list[user]
     if not user_progress then
-      user_progress = {}
+      user_progress = self:CreateTable()
       list[user] = user_progress
     end
     
@@ -889,8 +913,11 @@ function QuestHelper:SetObjectiveProgress(objective, user, have, need)
   else
     if objective.progress then
       if objective.progress[user] then
+        self:ReleaseTable(objective.progress[user])
         objective.progress[user] = nil
+        
         if not next(objective.progress, nil) then
+          self:ReleaseTable(objective.progress)
           objective.progress = nil
         end
       end

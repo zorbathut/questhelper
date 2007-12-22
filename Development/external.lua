@@ -41,6 +41,9 @@ local function ProcessEQL3NPCData()
         x, y = tonumber(x), tonumber(y)
         if x and y then
           local monster = GetObjective("enUS", "monster", npc)
+          
+          --monster.quest = true
+          
           if not monster.pos then monster.pos = {} end
           table.insert(monster.pos, {c, z, x/100, y/100, 1})
         end
@@ -56,6 +59,9 @@ local function ProcessEQL3ItemData()
       
       local item_obj = GetObjective("enUS", "item", item)
       local monster_obj = GetObjective("enUS", "monster", monster)
+      
+      --item_obj.quest = true
+      --monster_obj.quest = true
       
       if not item_obj.drop then item_obj.drop = {} end
       

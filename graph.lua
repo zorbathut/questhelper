@@ -116,21 +116,11 @@ local function Graph_Node_Link(self, next_node, distance)
   end
 end
 
-local function Graph_Node_Reset(self)
-  for _, n in ipairs(self.r) do n.n[self] = nil end
-  while #self.n > 0 do table.remove(self.n) end
-  while #self.r > 0 do table.remove(self.r) end
-end
-
 local function Graph_CreateNode(self)
-  local node = table.remove(self.unused)
-  if not node then
-    node = {}
-    node.Link = Graph_Node_Link
-    node.Reset = Graph_Node_Reset
-    node.n = {}
-    node.r = {}
-  end
+  local node = QuestHelper:CreateTable()
+  node.Link = Graph_Node_Link
+  node.n = QuestHelper:CreateTable()
+  node.r = QuestHelper:CreateTable()
   table.insert(self.nodes, node)
   return node
 end
@@ -139,8 +129,9 @@ local function Graph_DestroyNode(self, node)
   for i = 1,#self.nodes do
     if self.nodes[i] == node then
       table.remove(self.nodes, i)
-      node:Reset()
-      table.insert(self.unused, node)
+      QuestHelper:ReleaseTable(node.n)
+      QuestHelper:ReleaseTable(node.r)
+      QuestHelper:ReleaseTable(node)
       break
     end
   end
@@ -149,8 +140,9 @@ end
 local function Graph_Reset(self)
   while #self.nodes > 0 do
     local node = table.remove(self.nodes)
-    node:Reset()
-    table.insert(self.unused, node)
+    QuestHelper:ReleaseTable(node.n)
+    QuestHelper:ReleaseTable(node.r)
+    QuestHelper:ReleaseTable(node)
   end
 end
 
@@ -660,11 +652,11 @@ function Graph_SanityCheck(self)
 end
 
 function QuestHelper:CreateGraph()
-  local graph = {}
-  graph.unused = {}
-  graph.nodes = {}
-  graph.end_nodes = {}
-  graph.open = {}
+  local graph = self:CreateTable()
+  graph.nodes = self:CreateTable()
+  graph.end_nodes = self:CreateTable()
+  graph.open = self:CreateTable()
+  
   graph.CreateNode = Graph_CreateNode
   graph.DestroyNode = Graph_DestroyNode
   graph.Reset = Graph_Reset
@@ -683,6 +675,14 @@ function QuestHelper:CreateGraph()
   graph.DoFullSearch = Graph_DoFullSearch
   
   return graph
+end
+
+function QuestHelper:ReleaseGraph(graph)
+  graph:Reset()
+  self:ReleaseTable(graph.nodes)
+  self:ReleaseTable(graph.end_nodes)
+  self:ReleaseTable(graph.open)
+  self:ReleaseTable(graph)
 end
 
 QuestHelper.world_graph = QuestHelper:CreateGraph()

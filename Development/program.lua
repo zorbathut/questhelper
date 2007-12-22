@@ -434,7 +434,7 @@ local function CollapseQuest(quest)
 end
 
 local function CollapseObjective(objective)
-  if not objective.quest then return true end
+  -- if not objective.quest then return true end
   objective.quest = nil
   
   if objective.drop and not next(objective.drop, nil) then objective.drop = nil end

@@ -39,6 +39,51 @@ function QuestHelper:HighlightText(text)
   return "|cffbbffd6"..text.."|r"
 end
 
+-- For future reference:
+--  Hearthstone = 6948
+--  Rune of Teleportation = 17031
+--  Rune of Portals = 17032
+
+function QuestHelper:CountItem(item_id)
+  local count = 0
+  
+  for bag = 1,NUM_BAG_SLOTS do
+    for slot = 1,GetContainerNumSlots(bag) do
+      if string.find(GetContainerItemLink(bag, slot), string.format("^|Hitem:%d:", item_id)) then
+        count = count + (select(2, GetContainerItemInfo(bag, slot)) or 0)
+      end
+    end
+  end
+  
+  return count
+end
+
+function QuestHelper:ItemCooldown(item_id)
+  local now = GetTime()
+  local cooldown = nil
+  
+  for bag = 1,NUM_BAG_SLOTS do
+    for slot = 1,GetContainerNumSlots(bag) do
+      if string.find(GetContainerItemLink(bag, slot), string.format("^|Hitem:%d:", item_id)) then
+        local s, d, e = GetContainerItemCooldown(bag, slot)
+        if e then
+          if cooldown then
+            cooldown = math.min(cooldown, math.max(0, d-now+s))
+          else
+            cooldown = math.max(0, d-now+s)
+          end
+        else
+          return 0
+        end
+        count = count + (select(2, GetContainerItemInfo(bag, slot)) or 0)
+      end
+    end
+    
+  end
+  
+  return cooldown
+end
+
 function QuestHelper:TimeString(seconds)
   local seconds = math.ceil(seconds)
   local h, m, s = math.floor(seconds/(60*60)), math.floor(seconds/60)%60, seconds%60

@@ -113,7 +113,6 @@ end
 
 local shared_objectives = {}
 local users = {}
-local spare_users = {}
 local shared_users = 0
 
 local function CreateUser(name)
@@ -121,17 +120,12 @@ local function CreateUser(name)
     QuestHelper:TextOut("Created user: "..name)
   end
   
-  user = table.remove(spare_users)
-  if not user then
-    user = 
-     {
-      version=0,
-      syn_req=false, -- Will set this to false if they send a syn message.
-      obj={}
-     }
-  end
+  user = QuestHelper:CreateTable()
   
   user.name=name
+  user.version=0
+  user.syn_req=false
+  user.obj=QuestHelper:CreateTable()
   
   for i, obj in ipairs(shared_objectives) do -- Mark this user as knowing nothing about any of our objectives.
     assert(obj.peer)
@@ -170,12 +164,8 @@ local function ReleaseUser(user)
     QuestHelper:TextOut("Released user: "..user.name)
   end
   
-  user.name=nil
-  user.xmsg=nil
-  user.version=0
-  user.syn_req=false
-  
-  table.insert(spare_users, user)
+  QuestHelper:ReleaseTable(user.obj)
+  QuestHelper:ReleaseTable(user)
 end
 
 function QuestHelper:DoShareObjective(objective)

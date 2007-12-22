@@ -115,10 +115,22 @@ function QuestHelper:Filter(input)
   end
 end
 
+function QuestHelper:WantPathingReset()
+  self:TextOut("Will reset world graph.")
+  self.defered_graph_reset = true
+end
+
+function QuestHelper:RecycleInfo()
+  self:TextOut("Tracking "..self:HighlightText(#self.free_tables).." unused lua tables.")
+  self:TextOut("Tracking "..self:HighlightText(self.free_textures and #self.free_textures or 0).." unused texture objects.")
+  self:TextOut("Tracking "..self:HighlightText(self.spare_menus and #self.spare_menus or 0).." unused menus.")
+  self:TextOut("Tracking "..self:HighlightText(self.spare_menuitems and #self.spare_menuitems or 0).." unused menu items.")
+end
+
 local commands =
  {
   {"RECALC",
-   "Recalculates the world graph and locations for any active objectives.", {}, QuestHelper.ResetPathing, QuestHelper},
+   "Recalculates the world graph and locations for any active objectives.", {}, QuestHelper.WantPathingReset, QuestHelper},
   
   {"FILTER",
    "Automatically ignores/unignores objectives based on criteria.",
@@ -163,6 +175,10 @@ local commands =
   {"COMM",
    "Toggles showing of the communication between QuestHelper users. Exists mainly for my own personal convenience.",
     {}, QuestHelper.ToggleComm, QuestHelper},
+  
+  {"RECYCLE",
+   "Displays how many unused entities QuestHelper is tracking, so that it can reuse them in the future instead of creating new ones in the future.",
+    {}, QuestHelper.RecycleInfo, QuestHelper},
   
   {"SHARE",
    "Toggles objective sharing between QuestHelper users.",

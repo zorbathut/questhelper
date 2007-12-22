@@ -4,8 +4,8 @@ local DARNASSUS_PORTAL = {1,6,0.397,0.824}
 local EXODAR_PORTAL = {1,20,0.476,0.598}
 
 local SHATTRATH_CITY_PORTAL = {3,6,0.530,0.492}
+local MOONGLADE_PORTAL = {1,12,0.563,0.320}
 
--- These are guesses, since I don't have a Horde mage that can teleport or a character in Shattrath City.
 local SILVERMOON_CITY_PORTAL = {2,18,0.583,0.192}
 local UNDERCITY_PORTAL = {2,25,0.846,0.163}
 local ORGRIMMAR_PORTAL = {1,14,0.386,0.859}
@@ -415,21 +415,51 @@ function QuestHelper:CreateAndAddTransitionNode(z1, z2, pos)
   end
 end
 
+function QuestHelper:ReleaseObjectivePathingInfo(o)
+  for z, pl in pairs(o.p) do
+    self:ReleaseTable(o.d[z])
+    
+    for i, p in ipairs(pl) do
+      self:ReleaseTable(p[2])
+      self:ReleaseTable(p)
+    end
+    
+    self:ReleaseTable(pl)
+  end
+  
+  self:ReleaseTable(o.d)
+  self:ReleaseTable(o.p)
+  self:ReleaseTable(o.nm)
+  self:ReleaseTable(o.nm2)
+  self:ReleaseTable(o.nl)
+  
+  o.d, o.p, o.nm, o.nm2, o.nl = nil, nil, nil, nil, nil
+  o.pos, o.sop = nil, nil -- ResetPathing will preserve these values if needed.
+  o.setup = nil
+end
+
 function QuestHelper:ResetPathing()
   -- Objectives may include cached information that depends on the world graph.
   local i = 1
+  
   while i <= #self.prepared_objectives do
     local o = self.prepared_objectives[i]
-    o.setup = false
-    o.d = {}
-    o.p = {}
-    o.nm = {}
-    o.nm2 = {}
-    o.nl = {}
     
     if o.setup_count == 0 then
       table.remove(self.prepared_objectives, i)
+      self:ReleaseObjectivePathingInfo(o)
     else
+      if o.pos then
+        o.old_pos = self:CreateTable()
+        o.old_pos[1], o.old_pos[2], o.old_pos[3] = o.pos[1].c, o.pos[3], o.pos[4]
+      end
+      
+      if o.sop then
+        o.old_sop = self:CreateTable()
+        o.old_sop[1], o.old_sop[2], o.old_sop[3] = o.sop[1].c, o.sop[3], o.sop[4]
+      end
+      
+      self:ReleaseObjectivePathingInfo(o)
       i = i + 1
     end
   end
@@ -450,6 +480,10 @@ function QuestHelper:ResetPathing()
   if not flight_master_nodes then
     flight_master_nodes = {}
     self.flight_master_nodes = flight_master_nodes
+  else
+    for key in pairs(flight_master_nodes) do
+      flight_master_nodes[key] = nil
+    end
   end
   
   self.world_graph:Reset()
@@ -506,90 +540,14 @@ function QuestHelper:ResetPathing()
   end
   
   for i, data in pairs(static_zone_transitions) do
+    self.scratch_table[1], self.scratch_table[2], self.scratch_table[3], self.scratch_table[4] = data[1], data[2], data[4], data[5]
+    
     self:CreateAndAddTransitionNode(zone_nodes[data[1]][data[2]],
                                     zone_nodes[data[1]][data[3]],
-                                    {data[1], data[2], data[4], data[5]}).name = select(data[2],GetMapZones(data[1])).."/"..select(data[3],GetMapZones(data[1])).." border"
+                                    self.scratch_table).name = select(data[2],GetMapZones(data[1])).."/"..select(data[3],GetMapZones(data[1])).." border"
   end
   
-  --[[for c, zone_list in pairs(QuestHelper_ZoneTransition) do
-    for start, end_list in pairs(zone_list) do
-      for dest, pos_list in pairs(end_list) do
-        for i, pos in ipairs(pos_list) do
-          self:CreateAndAddTransitionNode(zone_nodes[c][start], zone_nodes[c][dest], pos).name = select(start,GetMapZones(c)).."/"..select(dest,GetMapZones(c)).." border"
-        end
-      end
-    end
-  end
-  
-  for c, zone_list in pairs(QuestHelper_StaticData[self.locale].zone_transition) do
-    for start, end_list in pairs(zone_list) do
-      for dest, pos_list in pairs(end_list) do
-        for i, pos in ipairs(pos_list) do
-          self:CreateAndAddTransitionNode(zone_nodes[c][start], zone_nodes[c][dest], pos).name = select(start,GetMapZones(c)).."/"..select(dest,GetMapZones(c)).." border"
-        end
-      end
-    end
-  end]]
-  
-  for name in pairs(flight_master_nodes) do
-    flight_master_nodes[name] = nil
-  end
-  
-  -- Go through the flight masters and add nodes for them as well.
-  --[[
-  if QuestHelper_FlightInstructors[self.faction] then
-    for start, npc in pairs(QuestHelper_FlightInstructors[self.faction]) do
-      if not flight_master_nodes[start] then
-        local npc_objective = self:GetObjective("monster", npc)
-        if npc_objective:Known() and
-           ((npc_objective.o.faction and npc_objective.o.faction == self.faction) or
-            (npc_objective.fb.faction and npc_objective.fb.faction == self.faction)) then
-          
-          npc_objective:PrepareRouting()
-          local p = npc_objective:Position()
-          
-          if p then
-            flight_master_nodes[start] = self:CreateAndAddZoneNode(p[1], p[1].c, p[3], p[4])
-            local _, _, area = string.find(start, "^(.*),")
-            if area then
-              flight_master_nodes[start].name = area.." flight point"
-            else
-              flight_master_nodes[start].name = start.." flight point"
-            end
-          end
-          
-          npc_objective:DoneRouting()
-        end
-      end
-    end
-  end
-  
-  if QuestHelper_StaticData[self.locale].flight_instructors[self.faction] then
-    for start, npc in pairs(QuestHelper_StaticData[self.locale].flight_instructors[self.faction]) do
-      if not flight_master_nodes[start] then
-        local npc_objective = self:GetObjective("monster", npc)
-        if npc_objective:Known() and
-           ((npc_objective.o.faction and npc_objective.o.faction == self.faction) or
-            (npc_objective.fb.faction and npc_objective.fb.faction == self.faction)) then
-          
-          npc_objective:PrepareRouting()
-          local p = npc_objective:Position()
-          
-          if p then
-            flight_master_nodes[start] = self:CreateAndAddZoneNode(p[1], p[1].c, p[3], p[4])
-            local _, _, area = string.find(start, "^(.*),")
-            if area then
-              flight_master_nodes[start].name = area.." flight point"
-            else
-              flight_master_nodes[start].name = start.." flight point"
-            end
-          end
-          
-          npc_objective:DoneRouting()
-        end
-      end
-    end
-  end]]
+  while table.remove(self.scratch_table) do end
   
   -- Create and link the flight route nodes.
   for c, start_list in pairs(QuestHelper_KnownFlightRoutes) do
@@ -688,21 +646,8 @@ function QuestHelper:ResetPathing()
     n.id_from, n.id_to, n.id_local = nil, nil, nil
   end
   
-  -- Add the player's know flight routes.
-  --[[
-  for c, start_list in pairs(QuestHelper_KnownFlightRoutes) do
-    for start, end_list in pairs(start_list) do
-      for dest, hash in pairs(end_list) do
-        local a, b = flight_master_nodes[start], flight_master_nodes[dest]
-        if a and b then
-          a:Link(b, self:GetFlightTime(c, start, dest))
-        end
-      end
-    end
-  end]]
-  
   -- TODO: Create a heuristic for this.
-  
+  --[[
   for i = 1,3 do
     for j = 1,3 do
       if i == j then
@@ -744,7 +689,7 @@ function QuestHelper:ResetPathing()
       end
     end
   end
-  
+  ]]
   -- self.world_graph:SanityCheck()
   
   -- TODO: heuristic returns NaNs, fix this.
@@ -755,12 +700,7 @@ function QuestHelper:ResetPathing()
     local o = table.remove(self.prepared_objectives)
     if not o then break end
     
-    o.setup = false
-    o.d = {}
-    o.p = {}
-    o.nm = {}
-    o.nm2 = {}
-    o.nl = {}
+    self:ReleaseObjectivePathingInfo(o)
     
     if o.setup_count > 0 then
       -- There's a chance an objective could end up in the list twice, but we'll deal with that by not actually
@@ -774,22 +714,59 @@ function QuestHelper:ResetPathing()
     if not obj then break end
     
     if not obj.setup then -- In case the objective was added multiple times to the to_readd list.
+      obj.d = QuestHelper:CreateTable()
+      obj.p = QuestHelper:CreateTable()
+      obj.nm = QuestHelper:CreateTable()
+      obj.nm2 = QuestHelper:CreateTable()
+      obj.nl = QuestHelper:CreateTable()
       obj:AppendPositions(obj, 1, nil)
       obj:FinishAddLoc()
       
-      -- Make sure positions still contain the correct distances to other nodes in the zone, as
-      -- the order may have changed, they may have been moved, and some may have been added or removed.
-      if obj.pos then
-        for i, n in ipairs(obj.pos[1]) do
-          local x, y = obj.pos[3]-n.x, obj.pos[4]-n.y
-          obj.pos[2][i] = math.sqrt(x*x+y*y)
+      -- Make sure the objectives still contain the positions set by routing.
+      -- The might have shifted slightly, but there's not much I can do about that.
+      
+      if obj.old_pos then
+        local p, d = nil, 0
+        
+        for z, pl in pairs(obj.p) do
+          for i, point in ipairs(pl) do
+            if obj.old_pos[1] == point[1].c then
+              local x, y = obj.old_pos[2]-point[3], obj.old_pos[3]-point[4]
+              local d2 = x*x+y*y
+              if not p or d2 < d then
+                p, d = point, d2
+              end
+            end
+          end
         end
+        
+        assert(p)
+        
+        obj.pos = p
+        self:ReleaseTable(obj.old_pos)
+        obj.old_pos = nil
       end
-      if obj.sop then
-        for i, n in ipairs(obj.sop[1]) do
-          local x, y = obj.sop[3]-n.x, obj.sop[4]-n.y
-          obj.pos[2][i] = math.sqrt(x*x+y*y)
+      
+      if obj.old_sop then
+        local p, d = nil, 0
+        
+        for z, pl in pairs(obj.p) do
+          for i, point in ipairs(pl) do
+            if obj.old_sop[1] == point[1].c then
+              local x, y = obj.old_sop[2]-point[3], obj.old_sop[3]-point[4]
+              local d2 = x*x+y*y
+              if not p or d2 < d then
+                p, d = point, d2
+              end
+            end
+          end
         end
+        
+        assert(p)
+        
+        obj.sop = p
+        self:ReleaseTable(obj.old_sop)
+        obj.old_sop = nil
       end
     end
   end

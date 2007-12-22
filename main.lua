@@ -214,8 +214,6 @@ function QuestHelper:OnEvent(event)
     QuestHelper_UpgradeDatabase(_G)
     
     self:ResetPathing()
-    self:Nag()
-    self:HandlePartyChange()
     
     self:UnregisterEvent("VARIABLES_LOADED")
     self:RegisterEvent("PLAYER_TARGET_CHANGED")
@@ -231,6 +229,7 @@ function QuestHelper:OnEvent(event)
     self:RegisterEvent("PLAYER_LEVEL_UP")
     self:RegisterEvent("PARTY_MEMBERS_CHANGED")
     self:RegisterEvent("CHAT_MSG_ADDON")
+    self:RegisterEvent("CHAT_MSG_SYSTEM")
     
     self:SetScript("OnUpdate", self.OnUpdate)
     
@@ -240,10 +239,24 @@ function QuestHelper:OnEvent(event)
     if QuestHelper_Pref.level == nil then QuestHelper_Pref.level = 2 end
     
     self:HandlePartyChange()
+    self:Nag()
+    
+    for locale in pairs(QuestHelper_StaticData) do
+      if locale ~= self.locale then
+        -- Will delete references to locales we won't use, so as not to waste memory.
+        QuestHelper_StaticData[locale] = nil
+      end
+    end
+    
+    if not QuestHelper_Pref.home then
+      self:TextOut("You home isn't known. When you get a chance, please talk to your innkeeper and reset it.")
+    end
     
     if QuestHelper_Pref.graph then
       self.graph_walker = self:CreateWorldGraphWalker()
     end
+    
+    collectgarbage("collect") -- Free everything we aren't using.
   end
   
   if event == "PLAYER_TARGET_CHANGED" then
@@ -295,6 +308,23 @@ function QuestHelper:OnEvent(event)
         if name and number >= 1 then
           self:AppendItemObjectivePosition(self:GetObjective("item", name), name, self:PlayerPosition())
         end
+      end
+    end
+  end
+  
+  if event == "CHAT_MSG_SYSTEM" then
+    if string.find(arg1, " is now your home.$") then
+      
+      if self.c and self.c > 0 and self.z > 0 then
+        self:TextOut("Your home has been changed. Will reset pathing information.")
+        local home = QuestHelper_Pref.home
+        if not home then
+          home = {}
+          QuestHelper_Pref.home = home
+        end
+        
+        home[1], home[2], home[3], home[4] = self.c, self.z, self.x, self.y
+        self.defered_graph_reset = true
       end
     end
   end
@@ -378,13 +408,13 @@ function QuestHelper:OnEvent(event)
   if event == "PLAYER_CONTROL_LOST" then
     if self.flight_origin then
       -- We'll check to make sure we were actually on a taxi when we regain control.
-      self.flight_start_time = time()
+      self.flight_start_time = GetTime()
     end
   end
   
   if event == "PLAYER_CONTROL_GAINED" then
     if (self.was_flying or UnitOnTaxi("player")) and self.flight_origin and self.flight_start_time then
-      local elapsed = time()-self.flight_start_time
+      local elapsed = GetTime()-self.flight_start_time
       if elapsed > 0 then
         local c, z, x, y = self:PlayerPosition()
         local list = QuestHelper_FlightInstructors[self.faction]
@@ -516,7 +546,7 @@ function QuestHelper:OnEvent(event)
       
       if altered then
         self:TextOut("The flight routes for your character have been altered. Will recalculate world pathing information.")
-        self:ResetPathing()
+        self.defered_graph_reset = true
       end
     end
   end
