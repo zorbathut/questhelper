@@ -76,7 +76,12 @@ function GetObjective(locale, category, name)
 end
 
 local function Distance(a, b)
-  local x, y = a[3]-b[3], a[4]-b[4]
+  -- Doing this, because the distances are going to be rounded later, and I don't want it to create 
+  -- a situation where if you ran TidyPositionList twice, it would have a different result.
+  
+  local x, y = math.floor(a[3]*10000+0.5)/10000-math.floor(b[3]*10000+0.5)/10000,
+               math.floor(a[4]*10000+0.5)/10000-math.floor(b[4]*10000+0.5)/10000
+  
   return math.sqrt(x*x+y*y)
 end
 
@@ -192,9 +197,10 @@ local function MergePositionLists(list, add)
         end
       end
       if nearest and distance < 0.03 then
-        pos[3] = (pos[3]*pos[5]+x*w)/(pos[5]+w)
-        pos[4] = (pos[4]*pos[5]+x*w)/(pos[5]+w)
-        pos[5] = pos[5]+w
+        local p = list[nearest]
+        p[3] = (p[3]*p[5]+x*w)/(p[5]+w)
+        p[4] = (p[4]*p[5]+x*w)/(p[5]+w)
+        p[5] = p[5]+w
       else
         table.insert(list, {c,z,x,y,w})
       end
@@ -381,7 +387,7 @@ local function AddObjective(locale, category, name, objective)
     end
     
     if category == "monster" then
-      if type(objective.looted) == "number" and objective.looted > 1 then
+      if type(objective.looted) == "number" and objective.looted >= 1 then
         o.looted = (o.looted or 0) + objective.looted
       end
       if type(objective.faction) == "string" then
@@ -495,6 +501,30 @@ local function CollapseObjective(objective)
 end
 
 function NewData()
+  if data.QuestHelper_StaticData then
+    -- Importing a static data file.
+    local static = data.QuestHelper_StaticData
+    data.QuestHelper_StaticData = nil
+    
+    for locale, info in pairs(static) do
+      data.QuestHelper_Locale = locale
+      data.QuestHelper_Quests = info.quest
+      data.QuestHelper_Objectives = info.objective
+      data.QuestHelper_FlightRoutes = info.flight_routes
+      data.QuestHelper_FlightInstructors = info.flight_instructors
+      
+      for cat, list in pairs(data.QuestHelper_Objectives) do
+        for name, info in pairs(list) do
+          info.quest = true
+        end
+      end
+      
+      NewData()
+    end
+    
+    return
+  end
+  
   QuestHelper_UpgradeDatabase(data)
   
   if type(data.QuestHelper_Locale) == "string" then
