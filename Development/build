@@ -1,0 +1,74 @@
+#!/usr/bin/env lua
+
+--[[ Note:
+     
+     fileHash, fileType, and forEachFile will probably need replacements for other operating systems. ]]
+
+--[[ Warning:
+     
+     Pretty much all these functions can be made to do something malicious if given bad file names;
+     don't use input from untrusted sources. ]]
+
+local function fileHash(filename)
+  local stream = io.popen(string.format("sha1sum %q", filename))
+  local line = stream:read()
+  io.close(stream)
+  if line then
+    return select(3, string.find(line, "^([abcdef%d]+)  "..filename.."$"))
+  end
+end
+
+local function fileType(filename)
+  local stream = io.popen(string.format("stat -c \"%%F\" %q", filename))
+  local line = stream:read()
+  io.close(stream)
+  return line
+end
+
+local function fileExists(filename)
+  local stream = io.open(filename, "r")
+  if stream then
+    io.close(stream)
+    return true
+  end
+  return false
+end
+
+local function copyFile(in_name, out_name)
+  if in_name ~= out_name then
+    local in_stream, out_stream = io.open(in_name, "r"), io.open(out_name, "w")
+    out_stream:write(in_stream:read("*a"))
+    io.close(in_stream)
+    io.close(out_stream)
+  end
+end
+
+local function forEachFile(directory, func)
+  local stream = io.popen(string.format("ls -f1 %q", directory))
+
+  while true do
+    local filename = stream:read()
+    if not filename then break end
+    filename = directory.."/"..filename
+    if fileType(filename) == "regular file" then
+      func(filename)
+    end
+  end
+
+  io.close(stream)
+end
+
+--listHashs("build")
+
+
+forEachFile("LocalInput", function (name)
+  local hash = fileHash(name)
+  if hash then
+    local input_name = "Input/"..hash..".lua"
+    if not fileExists(input_name) then
+      copyFile(name, input_name)
+    end
+  else
+    print("Can't get hash of "..name)
+  end
+end)
