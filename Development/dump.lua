@@ -99,7 +99,7 @@ local function WriteDupVariables(prebuf, var, dup)
     local buf = CreateBuffer()
     local ref = dup.ref
     dup.ref = 0 -- Do that we don't try to write DAT[???] = DAT[???] over and over again.
-    DumpRecurse(buf, var, 0)
+    DumpRecurse(buf, prebuf, var, 0)
     dup.ref = ref
     if last_id == 1 then
       prebuf:add("local DAT={}\n")
@@ -143,7 +143,7 @@ DumpRecurse = function(buffer, prebuf, variable, depth)
     
     if isArray(variable) then
       for i, j in ipairs(variable) do
-        DumpRecurse(buffer, j, depth+1)
+        DumpRecurse(buffer, prebuf, j, depth+1)
         if next(variable,i) then
           buffer:add(","..(type(variable[i+1])=="table"and"\n"..("  "):rep(depth) or " "))
         end
@@ -167,13 +167,13 @@ DumpRecurse = function(buffer, prebuf, variable, depth)
           buffer:add(i.."=")
         else
           buffer:add("[")
-          DumpRecurse(buffer, i, depth+1)
+          DumpRecurse(buffer, prebuf, i, depth+1)
           buffer:add("]=")
         end
         
         buffer:add((type(j)=="table"and"\n"..("  "):rep(depth+1) or ""))
         
-        DumpRecurse(buffer, j, depth+1)
+        DumpRecurse(buffer, prebuf, j, depth+1)
         
         if index~=#sort_table then
           buffer:add(",\n"..("  "):rep(depth))
