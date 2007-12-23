@@ -13,8 +13,19 @@ local function BufferDump(self)
   return self[1]
 end
 
+local function BufferAppend(self, buffer)
+  while true do
+    local chunk = table.remove(buffer, 1)
+    if chunk then
+      BufferAdd(self, chunk)
+    else
+      break
+    end
+  end
+end
+
 function CreateBuffer()
-  return {add=BufferAdd, dump=BufferDump}
+  return {add=BufferAdd, dump=BufferDump, append=BufferAppend}
 end
 
 local function TableCompare(tbl_a, tbl_b)
