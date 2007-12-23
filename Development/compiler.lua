@@ -690,12 +690,12 @@ function CompileFinish()
       if delete_faction then l.quest[faction] = nil end
     end
     
-    for faction, list in pairs(l.flight_instructors) do
+    if l.flight_instructors then for faction, list in pairs(l.flight_instructors) do
       for area, npc in pairs(list) do
         -- Need to remember the flight instructors, for use in routing.
         GetObjective(locale, "monster", npc).quest = true
       end
-    end
+    end end
     
     for item, quest_list in pairs(quest_item_quests) do
       -- If all the items are similar, then we don't want quest item entries for them,
@@ -824,33 +824,35 @@ function CompileFinish()
       if delete_category then l.objective[category] = nil end
     end
     
-    for cont, start_list in pairs(l.flight_routes) do
-      local delete_cont = true
-      for start, dest_list in pairs(start_list) do
-        local delete_start = true
-        for dest, hash_list in pairs(dest_list) do
-          local delete_dest = true
-          for hash, data in pairs(hash_list) do
-            if CollapseFlightRoute(data) then
-              hash_list[hash] = nil
+    if l.flight_routes then
+      for cont, start_list in pairs(l.flight_routes) do
+        local delete_cont = true
+        for start, dest_list in pairs(start_list) do
+          local delete_start = true
+          for dest, hash_list in pairs(dest_list) do
+            local delete_dest = true
+            for hash, data in pairs(hash_list) do
+              if CollapseFlightRoute(data) then
+                hash_list[hash] = nil
+              else
+                delete_dest = false
+              end
+            end
+            if delete_dest then
+              dest_list[dest] = nil
             else
-              delete_dest = false
+              delete_start = false
             end
           end
-          if delete_dest then
-            dest_list[dest] = nil
+          if delete_start then
+            start_list[start] = nil
           else
-            delete_start = false
+            delete_cont = false
           end
         end
-        if delete_start then
-          start_list[start] = nil
-        else
-          delete_cont = false
+        if delete_cont then
+          l.flight_routes[cont] = nil
         end
-      end
-      if delete_cont then
-        l.flight_routes[cont] = nil
       end
     end
   end
