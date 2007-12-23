@@ -11,10 +11,12 @@ if not cache.removed then cache.removed = {} end
 if not cache.known then cache.known = {} end
 
 loadfile("dump.lua")()
+loadfile("../upgrade.lua")()
+loadfile("compiler.lua")()
 
 local function saveCache()
   local stream = io.open("build-cache.lua", "w")
-  stream:write("cache=", DumpVariable(cache))
+  stream:write(DumpVariable(cache, "cache"))
   io.close(stream)
 end
 
@@ -170,7 +172,7 @@ local function ObsoletedBy(data1, data2)
 end
 
 for new_name in pairs(unknown_input_files) do
-  print("Checking new data: ", new_name)
+  print("Checking file: ", new_name)
   local data = LoadFile(new_name)
   cache.known[new_name] = 1
   for existing_name in pairs(all_input_files) do if new_name ~= existing_name then
@@ -194,3 +196,17 @@ for new_name in pairs(unknown_input_files) do
 end
 
 saveCache()
+
+print("Compiling data. . .")
+
+for name in pairs(all_input_files) do
+  CompileInputFile(name)
+end
+
+print("Writing static.lua. . .")
+
+local stream = io.open("../static.lua", "w")
+stream:write(DumpVariable(CompileFinish(), "QuestHelper_StaticData"))
+io.close(stream)
+
+print("Done!")
