@@ -75,9 +75,6 @@ local function FindSameTable(tbl)
     end
   end
   
-  -- TODO: Can write this once
-  assert(mn == #table_list+1 or TableCompare(table_list[mn], tbl) == -1)
-  
   table.insert(table_list, mn, tbl)
   local dat = {}
   table_dat[tbl] = dat
@@ -118,7 +115,12 @@ local function WriteDupVariables(prebuf, var, dup)
     
     dup.id = last_id
     last_id = last_id + 1
-    prebuf:add("DAT["..dup.id.."]="..buf:dump().."\n")
+    
+    prebuf:add("DAT[")
+    prebuf:add(tostring(dup.id))
+    prebuf:add("]=")
+    prebuf:append(buf)
+    prebuf:add("\n")
   end
 end
 
@@ -203,7 +205,6 @@ function DumpVariable(variable, name)
   local buffer, prebuf = CreateBuffer(), CreateBuffer()
   DumpRecurse(buffer, prebuf, variable, 0)
   
-  
   buffer:add("\n")
   
   if last_id ~= 1 then
@@ -214,7 +215,7 @@ function DumpVariable(variable, name)
   prebuf:add("\n")
   prebuf:add(name)
   prebuf:add("=")
-  prebuf:add(buffer:dump())
+  prebuf:append(buffer)
   
   local result = prebuf:dump()
   
