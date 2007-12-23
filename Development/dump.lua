@@ -100,18 +100,21 @@ end
 
 local DumpRecurse
 
-local last_id = 1
+local last_id = 0
 
 local function WriteDupVariables(prebuf, var, dup)
   if not dup.id then
     local buf = CreateBuffer()
     local ref = dup.ref
     dup.ref = 0 -- Do that we don't try to write DAT[???] = DAT[???] over and over again.
-    DumpRecurse(buf, prebuf, var, 0)
-    dup.ref = ref
-    if last_id == 1 then
+    
+    if last_id == 0 then
+      last_id = 1
       prebuf:add("local DAT={}\n")
     end
+    
+    DumpRecurse(buf, prebuf, var, 0)
+    dup.ref = ref
     
     dup.id = last_id
     last_id = last_id + 1
