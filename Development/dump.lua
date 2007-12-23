@@ -180,23 +180,33 @@ DumpRecurse = function(buffer, prebuf, variable, depth)
         end
       end
     end
+    
     buffer:add("}")
   else
     return buffer:add("nil --[[ UNHANDLED TYPE: '"..type(variable).."' ]]")
   end
 end
 
-function DumpVariable(variable)
+function DumpVariable(variable, name)
   if type(variable) == "table" then variable = ScanTable(variable) end
   local buffer, prebuf = CreateBuffer(), CreateBuffer()
   DumpRecurse(buffer, prebuf, variable, 0)
-  prebuf:add("\n")
-  prebuf:add(buffer:dump())
-  local result = prebuf:dump()
+  
+  
+  buffer:add("\n")
+  
   if last_id ~= 1 then
-    print("DAT=nil")
+    buffer:add("DAT=nil\n")
     last_id = 1
   end
+  
+  prebuf:add("\n")
+  prebuf:add(name)
+  prebuf:add("=")
+  prebuf:add(buffer:dump())
+  
+  local result = prebuf:dump()
+  
   table_list = {}
   table_dat = {}
   return result
