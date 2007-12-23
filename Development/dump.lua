@@ -94,7 +94,7 @@ local DumpRecurse
 
 local last_id = 1
 
-local function WriteDupVariables(var, dup)
+local function WriteDupVariables(prebuf, var, dup)
   if not dup.id then
     local buf = CreateBuffer()
     local ref = dup.ref
@@ -102,12 +102,12 @@ local function WriteDupVariables(var, dup)
     DumpRecurse(buf, var, 0)
     dup.ref = ref
     if last_id == 1 then
-      print("local DAT={}")
+      prebuf:add("local DAT={}\n")
     end
     
     dup.id = last_id
     last_id = last_id + 1
-    print("DAT["..dup.id.."]="..buf:dump())
+    prebuf:add("DAT["..dup.id.."]="..buf:dump().."\n")
   end
 end
 
@@ -121,7 +121,7 @@ local function isSafeString(obj)
   return type(obj) == "string" and string.len(obj) > 0 and string.find(obj, "^[%a_][%a%d_]*$")
 end
 
-DumpRecurse = function(buffer, variable, depth, seen)
+DumpRecurse = function(buffer, prebuf, variable, depth)
   if type(variable) == "string" then
     return buffer:add(("%q"):format(variable))
   elseif type(variable) == "number" then
@@ -134,7 +134,7 @@ DumpRecurse = function(buffer, variable, depth, seen)
     local dup = table_dat[variable]
     
     if dup and dup.ref > 1 then
-      WriteDupVariables(variable, dup)
+      WriteDupVariables(prebuf, variable, dup)
       buffer:add("DAT["..dup.id.."]")
       return
     end
@@ -188,16 +188,16 @@ end
 
 function DumpVariable(variable)
   if type(variable) == "table" then variable = ScanTable(variable) end
-  local buffer = CreateBuffer()
-  DumpRecurse(buffer, variable, 0)
-  return buffer:dump()
-end
-
-function AllDumpsComplete()
+  local buffer, prebuf = CreateBuffer(), CreateBuffer()
+  DumpRecurse(buffer, prebuf, variable, 0)
+  prebuf:add("\n")
+  prebuf:add(buffer:dump())
+  local result = prebuf:dump()
   if last_id ~= 1 then
     print("DAT=nil")
     last_id = 1
   end
   table_list = {}
   table_dat = {}
+  return result
 end

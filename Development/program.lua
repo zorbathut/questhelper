@@ -844,7 +844,6 @@ function Finished()
   end
   
   print("QuestHelper_StaticData="..DumpVariable(StaticData))
-  AllDumpsComplete()
   print("\n-- END OF FILE --\n")
 end
 

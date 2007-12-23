@@ -1,8 +1,25 @@
 #!/usr/bin/env lua
 
+local cache = {}
+local cache_loader = loadfile("build-cache.lua")
+if cache_loader then
+  cache_loader()
+  cache_loader = nil
+end
+
+if not cache.removed then cache.removed = {} end
+
+loadfile("dump.lua")()
+
+local function saveCache()
+  local stream = io.open("build-cache.lua", "w")
+  stream:write("cache=", DumpVariable(cache))
+  io.close(stream)
+end
+
 --[[ Note:
      
-     fileHash, fileType, and forEachFile will probably need replacements for other operating systems. ]]
+     fileHash and forEachFile will probably need replacements for other operating systems. ]]
 
 --[[ Warning:
      
@@ -18,18 +35,12 @@ local function fileHash(filename)
   end
 end
 
-local function fileType(filename)
-  local stream = io.popen(string.format("stat -c \"%%F\" %q", filename))
-  local line = stream:read()
-  io.close(stream)
-  return line
-end
-
 local function fileExists(filename)
   local stream = io.open(filename, "r")
   if stream then
+    local exists = stream:read() ~= nil
     io.close(stream)
-    return true
+    return exists
   end
   return false
 end
@@ -50,7 +61,7 @@ local function forEachFile(directory, func)
     local filename = stream:read()
     if not filename then break end
     filename = directory.."/"..filename
-    if fileType(filename) == "regular file" then
+    if fileExists(filename) then
       func(filename)
     end
   end
@@ -58,17 +69,16 @@ local function forEachFile(directory, func)
   io.close(stream)
 end
 
---listHashs("build")
-
-
 forEachFile("LocalInput", function (name)
   local hash = fileHash(name)
   if hash then
     local input_name = "Input/"..hash..".lua"
-    if not fileExists(input_name) then
+    if not (cache.removed[input_name] or fileExists(input_name)) then
       copyFile(name, input_name)
     end
   else
     print("Can't get hash of "..name)
   end
 end)
+
+saveCache()
