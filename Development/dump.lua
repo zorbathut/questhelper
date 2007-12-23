@@ -160,7 +160,7 @@ DumpRecurse = function(buffer, prebuf, variable, depth)
     if isArray(variable) then
       for i, j in ipairs(variable) do
         DumpRecurse(buffer, prebuf, j, depth+1)
-        if next(variable,i) then
+        if i ~= #variable then
           buffer:add(","..(type(variable[i+1])=="table"and"\n"..("  "):rep(depth) or " "))
         end
       end
@@ -210,7 +210,7 @@ function DumpVariable(variable, name)
   
   buffer:add("\n")
   
-  if last_id ~= 1 then
+  if last_id ~= 0 then
     buffer:add("DAT=nil\n")
     last_id = 1
   end
