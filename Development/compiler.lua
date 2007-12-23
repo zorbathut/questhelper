@@ -505,7 +505,7 @@ local function CollapseFlightRoute(data)
   return true
 end
 
-function NewData()
+local function AddInputData(data)
   if data.QuestHelper_StaticData then
     -- Importing a static data file.
     local static = data.QuestHelper_StaticData
@@ -524,7 +524,7 @@ function NewData()
         end
       end
       
-      NewData()
+      AddInputData(data)
     end
     
     return
@@ -566,12 +566,12 @@ function NewData()
   end
 end
 
-function QuestItemsAreSimilar(item, quest_list)
+local function QuestItemsAreSimilar(item, quest_list)
   -- TODO: Write this function. Should make sure all the quests get item from the same place.
   return #quest_list <= 1
 end
 
-function RemoveQuestByData(data)
+local function RemoveQuestByData(data)
   for locale, l in pairs(StaticData) do
     for faction, levels in pairs(l.quest) do
       for level, quest_list in pairs(levels) do
@@ -610,7 +610,19 @@ function RemoveQuestByData(data)
   end
 end
 
-function Finished()
+function CompileInputFile(filename)
+  local data_loader = loadfile(filename)
+  if data_loader then
+    local data = {}
+    setfenv(data_loader, data)
+    data_loader()
+    AddInputData(data)
+  else
+    print("'"..file.."' couldn't be loaded!")
+  end
+end
+
+function CompileFinish()
   for locale, l in pairs(StaticData) do
     local quest_item_mass = {}
     local quest_item_quests = {}
@@ -843,7 +855,8 @@ function Finished()
     end
   end
   
-  print("QuestHelper_StaticData="..DumpVariable(StaticData))
-  print("\n-- END OF FILE --\n")
+  local old_data = StaticData
+  StaticData = {}
+  return old_data
 end
 
