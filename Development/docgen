@@ -8,11 +8,26 @@
 -- processComment(file, line, comment)
 -- file (string) The name of the file the comment came from.
 -- line (number) The line number of the file the comment came from.
--- comment (string) The comment that this comment came from.
+-- comment (table) An array of strings, the lines making up the comment.
 -- Parses comments to extract information from them.
 local function processComment(file, line, comment)
   -- TODO: Parse comments.
-  print("--BEGIN COMMENT--\n"..comment.."\n-- END COMMENT --")
+  print("--BEGIN COMMENT--")
+  
+  for i, line in ipairs(comment) do
+    print(line)
+  end
+  
+  print("-- END COMMENT --")
+end
+
+-- clearTable(tbl)
+-- tbl (table) The table to clear.
+-- Goes through a table and deletes all its keys.
+local function clearTable(tbl)
+  for key in pairs(tbl) do
+    tbl[key] = nil
+  end
 end
 
 -- readLuaFile(file)
@@ -26,7 +41,7 @@ local function readLuaFile(file)
     return
   end
   
-  local comment, comment_line, comment_type
+  local comment = {}, comment_line, comment_type
   
   local line_number = 0
   local line_remainder
@@ -42,54 +57,58 @@ local function readLuaFile(file)
       if not line then break end
     end
     
-    if comment and comment_type == 2 then
+    if next(comment) and comment_type == 2 then
       local comment_text
       comment_text, line_remainder = select(3, string.find(line, "^%s*(.-)%s*%]%](.*)"))
       
+      
       if comment_text then
-        processComment(file, comment_line, comment .. "\n" .. comment_text)
-        comment = nil
+        table.insert(comment, comment_text)
+        processComment(file, comment_line, comment)
+        clearTable(comment)
       else
-        comment = comment.. "\n" .. line
+        table.insert(comment, line)
       end
     else
       local comment_text = select(3, string.find(line, "^%s*%-%-%[%[%s*(.-)%s*$"))
       
       if comment_text then
-        if comment then
+        if next(comment) then
           processComment(file, comment_line, comment)
-          comment = nil
+          clearTable(comment)
         end
         
         local short_text
         short_text, line_remainder = select(3, string.find(comment_text, "^(.-)%s*%]%](.*)"))
         
         if short_text then
-          processComment(file, line, short_text)
+          table.insert(comment, short_text)
+          processComment(file, line, comment)
+          clearTable(comment)
         else
-          comment = comment_text
+          table.insert(comment, comment_text)
           comment_type = 2
           comment_line = line_number
         end
       else
         comment_text = select(3, string.find(line, "^%s*%-%-%s*(.-)%s*$"))
         if comment_text then
-          if comment then
-            comment = comment .. "\n" .. comment_text
+          if next(comment) then
+            table.insert(comment, comment_text)
           else
-            comment = comment_text
+            table.insert(comment, comment_text)
             comment_type = 1
             comment_line = line_number
           end
-        elseif comment then
+        elseif next(comment) then
           processComment(file, comment_line, comment)
-          comment = nil
+          clearTable(comment)
         end
       end
     end
   end
   
-  if comment then
+  if next(comment) then
     processComment(file, comment_line, comment)
   end
   
