@@ -23,16 +23,17 @@ local function GetZone(zone_name)
       end
     end
   end
+  
   error("Don't know where "..zone_name.." is!")
 end
 
-local function GenerateEQL3ZoneMapping()
+local function GenerateEQL3ZoneMapping(eql3)
   for i, name in pairs(eql3.zoneData) do
     EQL3_zone_map[i] = {GetZone(name)}
   end
 end
 
-local function ProcessEQL3NPCData()
+local function ProcessEQL3NPCData(eql3)
   for npc, data in pairs(eql3.npcData) do
     if data.zone and EQL3_zone_map[data.zone] then
       local c, z = unpack(EQL3_zone_map[data.zone])
@@ -50,7 +51,7 @@ local function ProcessEQL3NPCData()
   end
 end
 
-local function ProcessEQL3ItemData()
+local function ProcessEQL3ItemData(eql3)
   for item, drops in pairs(eql3.itemData) do
     for monster, amount in pairs(drops) do
       amount = (tonumber(amount) or 0.05)*0.2
@@ -66,16 +67,46 @@ local function ProcessEQL3ItemData()
   end
 end
 
+local function LoadFile(filename, data)
+  local loader = loadfile(filename)
+  if loader then
+    setfenv(loader, data)
+    loader()
+  else
+    print("Unable to open file: "..filename)
+  end
+end
+
 function ProcessExternal()
-  ProcessLightheadedQuests("Alliance", LightHeaded.LH_Alliance_20)
-  ProcessLightheadedQuests("Alliance", LightHeaded.LH_Alliance_40)
-  ProcessLightheadedQuests("Alliance", LightHeaded.LH_Alliance_60)
-  ProcessLightheadedQuests("Alliance", LightHeaded.LH_Alliance_80)
-  ProcessLightheadedQuests("Horde", LightHeaded.LH_Horde_20)
-  ProcessLightheadedQuests("Horde", LightHeaded.LH_Horde_40)
-  ProcessLightheadedQuests("Horde", LightHeaded.LH_Horde_60)
-  ProcessLightheadedQuests("Horde", LightHeaded.LH_Horde_80)
-  GenerateEQL3ZoneMapping()
-  ProcessEQL3NPCData()
-  ProcessEQL3ItemData()
+  local lh_map =
+    {Alliance={["External/LH_AllianceQuests_20.lua"] = "LH_Alliance_20",
+     ["External/LH_AllianceQuests_40.lua"] = "LH_Alliance_40",
+     ["External/LH_AllianceQuests_60.lua"] = "LH_Alliance_60",
+     ["External/LH_AllianceQuests_80.lua"] = "LH_Alliance_80"},
+     Horde={["External/LH_HordeQuests_20.lua"] = "LH_Horde_20",
+     ["External/LH_HordeQuests_40.lua"] = "LH_Horde_40",
+     ["External/LH_HordeQuests_60.lua"] = "LH_Horde_60",
+     ["External/LH_HordeQuests_80.lua"] = "LH_Horde_80"}}
+  
+  for faction, map in pairs(lh_map) do
+    for file, key in pairs(map) do
+      local data = {}
+      LoadFile(file, data)
+      if data[key] then
+        ProcessLightheadedQuests(faction, data[key])
+      else
+        print("Missing Lightheaded data: "..key)
+      end
+    end
+  end
+  
+  local eql3 = {}
+  
+  LoadFile("External/itemData.lua", eql3)
+  LoadFile("External/npcData.lua", eql3)
+  LoadFile("External/zoneData.lua", eql3)
+  
+  GenerateEQL3ZoneMapping(eql3)
+  ProcessEQL3NPCData(eql3)
+  ProcessEQL3ItemData(eql3)
 end
