@@ -92,7 +92,11 @@ function QuestHelper:GetTexture(parent, r, g, b, a)
     tex = parent:CreateTexture()
   end
   
-  tex:SetTexture(r, g, b, a)
+  if not tex:SetTexture(r, g, b, a) and
+     not tex:SetTexture("Interface\\Icons\\Temp.png") then
+    tex:SetTexture(1, 0, 1, 0.5)
+  end
+  
   tex:ClearAllPoints()
   tex:SetTexCoord(0, 1, 0, 1)
   tex:SetVertexColor(1, 1, 1, 1)
