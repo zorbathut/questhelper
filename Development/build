@@ -180,4 +180,18 @@ local stream = io.open("../static.lua", "w")
 stream:write(ScanAndDumpVariable(CompileFinish(), "QuestHelper_StaticData"))
 io.close(stream)
 
+print("Creating: Icons.tga")
+os.execute("convert -background None Data/art.svg ../Art/Icons.tga")
+
+print("Creating: QuestHelper.zip")
+
+os.execute("rm -rf QuestHelper ../QuestHelper.zip ../QuestHelper.7z")
+os.execute("mkdir -p QuestHelper QuestHelper/Art QuestHelper/Astrolabe QuestHelper/ChatThrottleLib")
+os.execute("cp ../*.{lua,toc} QuestHelper")
+os.execute("cp ../Art/* QuestHelper/Art")
+os.execute("cp ../Astrolabe/* QuestHelper/Astrolabe")
+os.execute("cp ../ChatThrottleLib/* QuestHelper/ChatThrottleLib")
+os.execute("zip -r -9 ../QuestHelper.zip QuestHelper")
+os.execute("rm -r QuestHelper")
+
 print("Done!")
