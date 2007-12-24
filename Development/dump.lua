@@ -81,21 +81,24 @@ local function FindSameTable(tbl)
   return tbl, dat
 end
 
-local function ScanTable(tbl)
-  local tbl2, dat = FindSameTable(tbl)
-  
-  if not dat.ref then
-    dat.ref = 1
-    for i, j in pairs(tbl2) do
-      if type(j) == "table" then
-        tbl[i] = ScanTable(j)
+function ScanVariable(tbl)
+  if type(tbl) == "table" then
+    local tbl2, dat = FindSameTable(tbl)
+    
+    if not dat.ref then
+      dat.ref = 1
+      
+      for i, j in pairs(tbl2) do
+        tbl2[i] = ScanVariable(j)
       end
+    else
+      dat.ref = dat.ref + 1
     end
-  else
-    dat.ref = dat.ref + 1
+    
+    return tbl2, dat
   end
   
-  return tbl2, dat
+  return tbl, nil
 end
 
 local DumpRecurse
@@ -203,21 +206,20 @@ DumpRecurse = function(buffer, prebuf, variable, depth)
   end
 end
 
-function DumpVariable(variable, name)
-  if type(variable) == "table" then variable = ScanTable(variable) end
-  local buffer, prebuf = CreateBuffer(), CreateBuffer()
-  DumpRecurse(buffer, prebuf, variable, 0)
-  
+function DumpVariable(buffer, prebuf, variable, name)
+  buffer:add(name)
+  buffer:add("=")
+  DumpRecurse(buffer, prebuf, variable, 1)
   buffer:add("\n")
-  
+end
+
+function DumpingComplete(buffer, prebuf)
   if last_id ~= 0 then
     buffer:add("DAT=nil\n")
-    last_id = 1
+    last_id = 0
   end
   
   prebuf:add("\n")
-  prebuf:add(name)
-  prebuf:add("=")
   prebuf:append(buffer)
   
   local result = prebuf:dump()
@@ -225,4 +227,10 @@ function DumpVariable(variable, name)
   table_list = {}
   table_dat = {}
   return result
+end
+
+function ScanAndDumpVariable(variable, name)
+  local buffer, prebuf = CreateBuffer(), CreateBuffer()
+  DumpVariable(buffer, prebuf, ScanVariable(variable), name)
+  return DumpingComplete(buffer, prebuf)
 end
