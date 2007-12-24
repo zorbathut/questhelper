@@ -285,7 +285,7 @@ local function AddQuest(locale, faction, level, name, data)
      and type(level) == "number" and level >= 1 and level <= 100
      and type(name) == "string" and type(data) == "table" then
     
-    local _, _, real_name = string.find(name, "^%["..level..".?%] (.+)$")
+    local _, _, real_name = string.find(name, "^%["..level.."[^%s]-%] (.+)$")
     
     if real_name then
       -- The Quest Level AddOn mangles level names.
@@ -618,7 +618,7 @@ function CompileInputFile(filename)
     data_loader()
     AddInputData(data)
   else
-    print("'"..file.."' couldn't be loaded!")
+    print("'"..filename.."' couldn't be loaded!")
   end
 end
 
