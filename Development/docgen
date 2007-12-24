@@ -5,20 +5,75 @@
 
 -- You can probably read this file for examples on how to document stuff.
 
+-- valid = isVariableString(var)
+-- var (string) The name of a variable.
+-- valid (boolean) True if var is a valid variable name.
+-- Checks if a string would make a valid variable name.
+local function isVariableString(var)
+  return string.len(var) > 0 and string.find(var, "^[%a_][%a%d_]*$")
+end
+
+-- array = readList(list)
+-- list (string) A comma seperated list of items.
+-- array (array) The list, broken up into tokens.
+-- Breaks string containing a comma seperated list of items into tokens.
+-- Returns nil if the list couldn't be parsed.
+local function readVariableList(list)
+  local result = {}
+  
+  for arg in string.gmatch(list, "%s*([^,%s]+)%s*,?") do
+    if isVariableString(arg) then
+      table.insert(result, arg)
+    else
+      return nil
+    end
+  end
+  
+  return result
+end
+
+-- name, arguments, returns = readFunctionLine(line)
+-- line (string) The line to read.
+-- name(string) The name of the function.
+-- arguments (array) An array of arguments to the function.
+-- returns (array) An array of return values from the function.
+-- Returns nothing if it couldn't parse the line.
+local function readFunctionLine(line)
+  local function_chunk, argument_chunk = select(3, string.find(line, "^(.-)%((.*)%)%s*$"))
+  if not function_chunk then return end
+  
+  local return_chunk, function_name_chunk = select(3, string.find(function_chunk, "^(.*)=%s*([^%s]+)%s*$"))
+  
+  if not function_name_chunk then
+    return_chunk, function_name_chunk = "", select(3, string.find(function_chunk, "^%s*([^%s]+)%s*$"))
+  end
+  
+  if function_name_chunk then
+    local arguments, returns = readVariableList(argument_chunk), readVariableList(return_chunk)
+    
+    if arguments and returns then
+      return function_name_chunk, arguments, returns
+    end
+  end
+end
+
 -- processComment(file, line, comment)
 -- file (string) The name of the file the comment came from.
 -- line (number) The line number of the file the comment came from.
 -- comment (table) An array of strings, the lines making up the comment.
 -- Parses comments to extract information from them.
 local function processComment(file, line, comment)
-  -- TODO: Parse comments.
-  print("--BEGIN COMMENT--")
+  local func, arg, ret = readFunctionLine(comment[1])
   
-  for i, line in ipairs(comment) do
-    print(line)
+  if func then
+    print((next(ret) and table.concat(ret, ", ") or "<nil>").." = "..func.."("..table.concat(arg, ", ")..")")
   end
   
-  print("-- END COMMENT --")
+  -- TODO: Parse comments.
+  
+  --for i, line in ipairs(comment) do
+  --  print(line)
+  --end
 end
 
 -- clearTable(tbl)
