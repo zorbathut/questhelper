@@ -1,0 +1,53 @@
+#!/usr/bin/env lua
+
+loadfile("dump.lua")()
+
+local optimize=false
+local no_parse=false
+local files = {}
+
+for _, a in ipairs(arg) do
+  if not no_parse and string.sub(a, 1, 1) == "-" then
+    if a == "--" then
+      no_parse = true
+    elseif a == "--help" then
+      print("-u, --unoptimize:  Unoptimize the data file; makes comparing files easy.")
+      print("-o, --optimize:    Optimize the data file; will reduce Lua memory usage when loaded.")
+      print("--                 Stop parsing options.")
+      print("--help             Print this message.")
+      return
+    elseif a == "-o" or a == "--optimize" then
+      optimize = true
+    elseif a == "-u" or a == "--unoptimize" then
+      optimize = false
+    else
+      print("Unknown option: "..a)
+      return
+    end
+  else
+    table.insert(files, a)
+  end
+end
+
+if #files == 1 then
+  local loader = loadfile(arg[1])
+  local data = {}
+  setfenv(loader, data)
+  loader()
+  
+  local buffer, prebuf = CreateBuffer(), CreateBuffer()
+  
+  if optimize then
+    for key, value in pairs(data) do
+      ScanVariable(value)
+    end
+  end
+  
+  for key, value in pairs(data) do
+    DumpVariable(buffer, prebuf, value, key)
+  end
+  
+  print(DumpingComplete(buffer, prebuf))
+else
+  print("Expect a single file name.")
+end
