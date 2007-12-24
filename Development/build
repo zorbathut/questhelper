@@ -13,6 +13,7 @@ if not cache.known then cache.known = {} end
 loadfile("dump.lua")()
 loadfile("../upgrade.lua")()
 loadfile("compiler.lua")()
+loadfile("external.lua")()
 
 local function saveCache()
   local stream = io.open("build-cache.lua", "w")
@@ -218,6 +219,9 @@ for new_name in pairs(unknown_input_files) do
 end
 
 saveCache()
+
+print("Compiling Lightheaded/eql3 data. . .")
+ProcessExternal()
 
 for name, origin in pairs(all_input_files) do
   print("Compiling: ", origin)
