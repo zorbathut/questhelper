@@ -330,7 +330,9 @@ end
 local prog_sort_table = {}
 
 function QuestHelper:AppendObjectiveToTooltip(o)
-  self.tooltip:AddLine(o:Reason())
+  local theme = self:GetColourTheme()
+  
+  self.tooltip:AddLine(o:Reason(), unpack(theme.tooltip))
   self.tooltip:GetPrevLines():SetFont("Fonts\\FRIZQT__.TTF", 14)
   
   if o.progress then
@@ -350,7 +352,7 @@ function QuestHelper:AppendObjectiveToTooltip(o)
     for i, u in ipairs(prog_sort_table) do
       self.tooltip:AddDoubleLine(u.."'s progress:",
                                  self:ProgressString(o.progress[u][1].."/"..o.progress[u][2],
-                                 o.progress[u][3]))
+                                 o.progress[u][3]), unpack(theme.tooltip))
       
       self.tooltip:GetPrevLines():SetFont("Fonts\\ARIALN.TTF", 13)
       select(2, self.tooltip:GetPrevLines()):SetFont("Fonts\\ARIALN.TTF", 13)
@@ -359,7 +361,7 @@ function QuestHelper:AppendObjectiveToTooltip(o)
     while table.remove(prog_sort_table) do end
   end
   
-  QuestHelper.tooltip:AddDoubleLine("Estimated travel time:", QuestHelper:TimeString(o.travel_time or 0))
+  QuestHelper.tooltip:AddDoubleLine("Estimated travel time:", QuestHelper:TimeString(o.travel_time or 0), unpack(theme.tooltip))
   QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\ARIALN.TTF", 11)
   select(2, QuestHelper.tooltip:GetPrevLines()):SetFont("Fonts\\ARIALN.TTF", 11)
 end
@@ -734,7 +736,7 @@ function QuestHelper:CreateMipmapDodad()
       QuestHelper.tooltip:ClearLines()
       
       if self.target[5] then
-        QuestHelper.tooltip:AddLine("Visit "..QuestHelper:HighlightText(self.target[5]).." en route to objective:")
+        QuestHelper.tooltip:AddLine("Visit "..QuestHelper:HighlightText(self.target[5]).." en route to objective:", unpack(QuestHelper:GetColourTheme().tooltip))
         QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\FRIZQT__.TTF", 14)
       end
       

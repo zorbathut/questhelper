@@ -302,12 +302,21 @@ function QuestHelper:CreateMenuItem(menu, text)
   end
   
   function item:Shade(s, h)
+    local theme = QuestHelper:GetColourTheme()
+    
     local ih = 1-h
     
-    self.text:SetTextColor(ih, ih, ih, 1)
-    item.text:SetShadowColor(h, h, h, ih)
+    self.text:SetTextColor(ih*theme.menu_text[1]+h*theme.menu_text_highlight[1],
+                           ih*theme.menu_text[2]+h*theme.menu_text_highlight[2],
+                           ih*theme.menu_text[3]+h*theme.menu_text_highlight[3], 1)
+    
+    item.text:SetShadowColor(0, 0, 0, ih)
     item.text:SetShadowOffset(1, -1)
-    self.background:SetVertexColor(h*0.2+.1, h*0.4+.1, h*0.6+.1, h*0.3+0.4)
+    
+    self.background:SetVertexColor(ih*theme.menu[1]+h*theme.menu_highlight[1],
+                                   ih*theme.menu[2]+h*theme.menu_highlight[2],
+                                   ih*theme.menu[3]+h*theme.menu_highlight[3], h*0.3+0.4)
+    
     self:SetAlpha(s)
   end
   
@@ -507,8 +516,21 @@ function QuestHelper:CreateMenuTitle(menu, title)
   end
   
   function item:Shade(s, h)
-    self.text:SetTextColor(1, 1, 1, 1)
-    self.background:SetVertexColor(h*0.1, 0.2+h*0.2, 0.6+h*0.4, h*0.2+0.6)
+    local theme = QuestHelper:GetColourTheme()
+    
+    local ih = 1-h
+    
+    self.text:SetTextColor(ih*theme.menu_title_text[1]+h*theme.menu_title_text_highlight[1],
+                           ih*theme.menu_title_text[2]+h*theme.menu_title_text_highlight[2],
+                           ih*theme.menu_title_text[3]+h*theme.menu_title_text_highlight[3], 1)
+    
+    self.background:SetVertexColor(ih*theme.menu_title[1]+h*theme.menu_title_highlight[1],
+                                   ih*theme.menu_title[2]+h*theme.menu_title_highlight[2],
+                                   ih*theme.menu_title[3]+h*theme.menu_title_highlight[3], h*0.3+0.4)
+    
+    item.text:SetShadowColor(0, 0, 0, 1)
+    item.text:SetShadowOffset(1, -1)
+    
     self:SetAlpha(s)
   end
   

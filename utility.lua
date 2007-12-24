@@ -1,3 +1,39 @@
+local default_colour_theme =
+  {message_prefix={0.4, 0.78, 1},
+   message={1, 0.6, 0.2},
+   tooltip={1, 0.8, 0.5},
+   message_highlight={0.73, 1, 0.84},
+   menu_text={1, 1, 1},
+   menu_text_highlight={0, 0, 0},
+   menu={0, 0, 0},
+   menu_highlight={0.3, 0.5, 0.7}, 
+   menu_title_text={1, 1, 1},
+   menu_title_text_highlight={1, 1, 1},
+   menu_title={0, 0.2, 0.6},
+   menu_title_highlight={0.1, 0.4, 0.8}}
+
+local xmas_colour_theme =
+  {message_prefix={0.0, 0.7, 0.0},
+   message={0.2, 1, 0.2},
+   tooltip={0.4, 1, 0.4},
+   message_highlight={1, 0.3, 0.1},
+   menu_text={1, 1, 1},
+   menu_text_highlight={0, 0, 0},
+   menu={0.2, 0, 0},
+   menu_highlight={1, 0.3, 0.3},
+   menu_title_text={0.8, 1, 0.8},
+   menu_title_text_highlight={1, 1, 1},
+   menu_title={0.2, 0.6, 0.2},
+   menu_title_highlight={0.4, 0.7, 0.4}}
+
+function QuestHelper:GetColourTheme()
+  if date("%b%d") == "Dec25" then
+    return xmas_colour_theme
+  end
+  
+  return default_colour_theme
+end
+
 function QuestHelper:HashString(text)
   -- Computes an Adler-32 checksum.
   local a, b = 1, 0
@@ -27,7 +63,13 @@ function QuestHelper:ZoneSanity()
 end
 
 function QuestHelper:TextOut(text)
-  DEFAULT_CHAT_FRAME:AddMessage("|cff65c7ffQuestHelper: |r"..text, 1.0, 0.6, 0.2)
+  local theme = self:GetColourTheme()
+  DEFAULT_CHAT_FRAME:AddMessage(string.format("|cff%2x%2x%2xQuestHelper: |r%s", theme.message_prefix[1]*255,
+                                                                                theme.message_prefix[2]*255,
+                                                                                theme.message_prefix[3]*255, text),
+                                theme.message[1],
+                                theme.message[2],
+                                theme.message[3])
 end
 
 function QuestHelper:Error(what)
@@ -36,7 +78,10 @@ function QuestHelper:Error(what)
 end
 
 function QuestHelper:HighlightText(text)
-  return "|cffbbffd6"..text.."|r"
+  local theme = self:GetColourTheme()
+  return string.format("|cff%2x%2x%2x%s|r", theme.message_highlight[1]*255,
+                                            theme.message_highlight[2]*255,
+                                            theme.message_highlight[3]*255, text)
 end
 
 -- For future reference:
