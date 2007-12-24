@@ -2,10 +2,13 @@
 ## Title: QuestHelper
 ## Author: smariot
 ## Notes: Calculates an optimal route for you to follow while questing.
-## Version: 0.14
-## SavedVariables: QuestHelper_SaveVersion QuestHelper_Locale QuestHelper_Quests QuestHelper_Objectives QuestHelper_NextCharacterID QuestHelper_FlightInstructors QuestHelper_FlightRoutes
-## SavedVariablesPerCharacter: QuestHelper_CharacterID QuestHelper_KnownFlightRoutes
+## Version: 0.20c
+## SavedVariables: QuestHelper_SaveVersion QuestHelper_Locale QuestHelper_Quests QuestHelper_Objectives QuestHelper_FlightInstructors QuestHelper_FlightRoutes QuestHelper_Pref
+## SavedVariablesPerCharacter: QuestHelper_KnownFlightRoutes QuestHelper_Home
+
 Astrolabe\Load.xml
+ChatThrottleLib\ChatThrottleLib.xml
+
 static.lua
 upgrade.lua
 main.lua
@@ -15,7 +18,12 @@ questlog.lua
 utility.lua
 dodads.lua
 graph.lua
+teleport.lua
 pathfinding.lua
 routing.lua
 custom.lua
 menu.lua
+hidden.lua
+nag.lua
+comm.lua
+help.lua
