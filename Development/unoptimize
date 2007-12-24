@@ -30,7 +30,7 @@ for _, a in ipairs(arg) do
 end
 
 if #files == 1 then
-  local loader = loadfile(arg[1])
+  local loader = loadfile(files[1])
   local data = {}
   setfenv(loader, data)
   loader()
