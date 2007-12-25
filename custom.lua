@@ -321,9 +321,13 @@ function search_frame:SearchRoutine(input)
   return "Done!"
 end
 
+local function ReturnArgument(x)
+  return x
+end
+
 function search_frame:PerformSearch(input)
   if not self.routine then
-    self.query = input
+    self.query = string.gsub(input, "|c.-|H.-|h%[(.-)%]|h|r", ReturnArgument)
     self.routine = coroutine.create(self.SearchRoutine)
     self:Show()
     self:SetScript("OnUpdate", self.OnUpdate)
