@@ -1,0 +1,87 @@
+What I want:
+
+* Break code in to mostly separate modules, rather than the tangled mess I have now.
+** Collecting data on objectives.
+** Collecting data on the world.
+** Figuring out how to travel through the world.
+** Figuring out how to complete an objective.
+** Figuring out how to complete groups of objectives.
+** Figuring out what needs to be done by user and/or party.
+
+* Code distribution:
+** Will distribute using Git.
+*** I think Git requires some special inconvenient environment in Windows. But I have no sympathy for Windows users, so it's all good.
+** Supply instructions for submitting patches.
+** Build scripts to create the generated files.
+*** Have all scripts written in Lua, no Makefiles/C Compilers and stuff most people can't use.
+*** Have scripts be platform independent.
+**** Right now, they'll probably only work in Unix like environments. But again, no sympathy for Windows users.
+**** Requires sha1sum and convert (part of ImageMagick) programs to be installed and in the path.
+***** The path requirement will be yet another thing that's going to inconvenience Window users.
+** Need to be more friendly to Windows users.
+*** Supply instructions for setting up an environment that the build scripts will run in.
+*** Make sure the scripts will actually run.
+
+* Documentation:
+** Code needs to be commented.
+** Functions need to be documented.
+*** Will probably write script to read the source code to extract documentation from the comments.
+
+* World Data Collection:
+** Should track the locations and boundaries of zones. (The areas that appear on the mini-map, not the maps you can view)
+*** Will allow routing and pathing inside instances, although it will be extremely granular.
+** Should track where these zones link together.
+*** Inside instances, should track the time it takes to transition between zones and use that for routing, since we can't use positions.
+
+* Objective Data Collection:
+** Should adjust weights based of the added positions based on their range from the player.
+** Should track containers items come from.
+** Should track how killing a monster affects reputation.
+** Should have ability to create exceptions.
+*** Exceptions will probably have to be done automatically.
+*** Some items are created from spells or other items.
+*** Some event objectives require having an item gotten elsewhere.
+** Locations for things be translated into terms of the above zones.
+
+* Objectives API:
+** Balanced objective creation/deletion.
+** Ability to add new objective types.
+*** For use by plug-ins.
+*** Types will need to be ref-counted by the objectives using it, so removing a type won't break them.
+** Ability to remove objective types.
+*** Virtual table for objective and the functions; want only an extra single entry in objective table.
+** Remove category from objectives, all objectives of the same category will share the same virtual table.
+** No more closure functions, they waste memory. Will be part of the virtual table effort.
+** Remove routing/pathing data from objectives. Will probably put it in a table, keyed by the route it belongs to.
+** Scan the player's trade skills, to see if they can make required item.
+** Support Sub-objectives, objectives should be able to create their own objectives while figuring out how to complete themselves.
+*** If there are multiple ways to complete an objective, something clever is going to need to to done with routing to make sure it only includes the bits that are needed.
+*** Quests will need to become such an objective, with its objectives actually becoming sub-objectives.
+
+* Graph API:
+** Ability to relink a node multiple times, with different distances, have it route using the shortest distance.
+** Ability to remove a distance, and have the node switch to best remaining distance that was previously added.
+** Balanced link addition/removal
+** Balanced node creation/destruction.
+** Make the player into a node.
+*** Will probably necessitate the ability to move nodes.
+*** Will make it easier to support the Hearthstone and teleport spells.
+
+* Frame/Texture API:
+** Menus and menu items shouldn't be tracked separately, the individual frames they're composed of should be tracked and recycled.
+** Devise some API for assembling windows and menus and whatnot out of the recycled frames.
+** Menus need to be made to completely inside the screen; right now they spawn under the cursor, but this might not be desirable if the cursor is near the edge of the screen.
+** Need to create some graphical user interface for configuration.
+** Should create a Quest Minion, similar to the ones in UberQuest and MonkeyQuest.
+*** Will be able to automatically hide quests that aren't immediately needed.
+*** Will be able to sort quests by how likely you are to do them.
+*** Will be able to show the objective progress of other users, in addition to your own.
+
+* Sharing:
+** Should be able to enable sharing with only friends or guild members.
+** If a peer doesn't know where an objective is, they should be able to ask the peer that submitted it.
+*** The peers answer shouldn't be recorded, I want peers to discover these things independently on their own, replicating data from other users will only create bias.
+** All peers should have the same route.
+*** Should be calculated from the same starting point.
+*** Hearthstones and teleport spells shouldn't be used, unless everyone has them.
+**** If somebody has a portal spell on the other hand, then everyone should effectively have them.
