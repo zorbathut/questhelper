@@ -93,7 +93,7 @@ function QuestHelper:GetTexture(parent, r, g, b, a)
   end
   
   if not tex:SetTexture(r, g, b, a) and
-     not tex:SetTexture("Interface\\Icons\\Temp.png") then
+     not tex:SetTexture("Interface\\Icons\\Temp.blp") then
     tex:SetTexture(1, 0, 1, 0.5)
   end
   
