@@ -27,21 +27,23 @@ end
 local all_input_files, unknown_input_files = {}, {}
 
 FileUtil.forEachFile("LocalInput", function (name)
-  local hash = FileUtil.fileHash(name)
-  if hash then
-    local input_name = "Input/"..hash..".lua"
-    if not cache.removed[input_name] then
-      if not cache.known[input_name] then
-        FileUtil.copyFile(name, input_name)
-        unknown_input_files[input_name] = name
+  if FileUtil.extension(name) == "lua" then
+    local hash = FileUtil.fileHash(name)
+    if hash then
+      local input_name = "Input/"..hash..".lua"
+      if not cache.removed[input_name] then
+        if not cache.known[input_name] then
+          FileUtil.copyFile(name, input_name)
+          unknown_input_files[input_name] = name
+        else
+          cache.known[input_name] = name
+        end
       else
-        cache.known[input_name] = name
+        cache.removed[input_name] = name
       end
     else
-      cache.removed[input_name] = name
+      print("Can't get hash of "..name)
     end
-  else
-    print("Can't get hash of "..name)
   end
 end)
 
@@ -133,7 +135,7 @@ local checked = {}
 for new_name in pairs(unknown_input_files) do
   print("Checking: ", unknown_input_files[new_name])
   local data = LoadFile(new_name)
-  cache.known[new_name] = 1
+  cache.known[new_name] = unknown_input_files[new_name]
   checked[new_name] = true
   for existing_name in pairs(all_input_files) do
     if not checked[existing_name] then
@@ -185,13 +187,37 @@ os.execute("convert -background None Data/art.svg ../Art/Icons.tga")
 
 print("Creating: QuestHelper.zip")
 
-os.execute("rm -rf QuestHelper ../QuestHelper.zip ../QuestHelper.7z")
-os.execute("mkdir -p QuestHelper QuestHelper/Art QuestHelper/Astrolabe QuestHelper/ChatThrottleLib")
-os.execute("cp ../*.{lua,toc} QuestHelper")
-os.execute("cp ../Art/*.tga QuestHelper/Art")
-os.execute("cp ../Astrolabe/* QuestHelper/Astrolabe")
-os.execute("cp ../ChatThrottleLib/* QuestHelper/ChatThrottleLib")
-os.execute("zip -r -9 ../QuestHelper.zip QuestHelper")
-os.execute("rm -r QuestHelper")
+FileUtil.unlinkFile("QuestHelper")
+FileUtil.unlinkFile("../QuestHelper.zip")
+
+FileUtil.createDirectory("QuestHelper")
+FileUtil.createDirectory("QuestHelper/Art")
+FileUtil.createDirectory("QuestHelper/Astrolabe")
+FileUtil.createDirectory("QuestHelper/ChatThrottleLib")
+
+FileUtil.forEachFile("..", function (file)
+  local ext = FileUtil.extension(file)
+  if ext == "toc" or ext == "lua" then
+    FileUtil.copyFile(file, "QuestHelper")
+  end
+end)
+
+FileUtil.forEachFile("../Art", function (file)
+  local ext = FileUtil.extension(file)
+  if ext == "tga" then
+    FileUtil.copyFile(file, "QuestHelper/Art")
+  end
+end)
+
+FileUtil.forEachFile("../Astrolabe", function (file)
+  FileUtil.copyFile(file, "QuestHelper/Astrolabe")
+end)
+
+FileUtil.forEachFile("../ChatThrottleLib", function (file)
+  FileUtil.copyFile(file, "QuestHelper/ChatThrottleLib")
+end)
+
+FileUtil.createZipArchive("QuestHelper", "../QuestHelper.zip")
+FileUtil.unlinkFile("QuestHelper")
 
 print("Done!")
