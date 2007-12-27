@@ -638,15 +638,17 @@ function QuestHelper:ResetPathing()
     self:CreateAndAddStaticNodePair(data)
   end
   
+  local st = self:CreateTable()
+  
   for i, data in pairs(static_zone_transitions) do
-    self.scratch_table[1], self.scratch_table[2], self.scratch_table[3], self.scratch_table[4] = data[1], data[2], data[4], data[5]
+    st[1], st[2], st[3], st[4] = data[1], data[2], data[4], data[5]
     
     self:CreateAndAddTransitionNode(zone_nodes[data[1]][data[2]],
                                     zone_nodes[data[1]][data[3]],
-                                    self.scratch_table).name = select(data[2],GetMapZones(data[1])).."/"..select(data[3],GetMapZones(data[1])).." border"
+                                    st).name = select(data[2],GetMapZones(data[1])).."/"..select(data[3],GetMapZones(data[1])).." border"
   end
   
-  while table.remove(self.scratch_table) do end
+  self:ReleaseTable(st)
   
   -- Create and link the flight route nodes.
   for c, start_list in pairs(QuestHelper_KnownFlightRoutes) do

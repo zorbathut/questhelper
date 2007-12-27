@@ -333,7 +333,7 @@ function QuestHelper:CreateMenuItem(menu, text)
       menu:SetPoint("TOPLEFT", self, "TOPLEFT")
       menu.parent = self
       self.submenu = menu
-      self:AddTexture(QuestHelper:GetIconTexture(self, 9))
+      self:AddTexture(QuestHelper:CreateIconTexture(self, 9))
       menu:DoHide()
     end
   end

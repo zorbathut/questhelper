@@ -44,9 +44,6 @@ QuestHelper.quest_log = {}
 QuestHelper.pos = {nil, {}, 0, 0, 1, "You are here.", 0}
 QuestHelper.sharing = false -- Will be set to true when sharing with at least one user.
 
-QuestHelper.scratch_table = {}
-QuestHelper.free_tables = {}
-
 function QuestHelper.tooltip:GetPrevLines() -- Just a helper to make life easier.
   local last = self:NumLines()
   local name = self:GetName()

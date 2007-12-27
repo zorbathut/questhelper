@@ -143,10 +143,10 @@ function search_frame:CreateResultItem(r, menu)
   if r.cat == "loc" then
     local _, _, c, z, x, y = string.find(r.what, "^(%d+),(%d+),([%d%.]+),([%d%.]+)$")
     item = QuestHelper:CreateMenuItem(menu, select(z,GetMapZones(c))..": "..(x*100)..", "..(y*100).." ["..QuestHelper:PercentString(1-r.w).."]")
-    item:AddTexture(QuestHelper:GetIconTexture(item, 6), true)
+    item:AddTexture(QuestHelper:CreateIconTexture(item, 6), true)
   else
     item = QuestHelper:CreateMenuItem(menu, r.what .. " ["..QuestHelper:PercentString(1-r.w).."]")
-    item:AddTexture(QuestHelper:GetIconTexture(item, (r.cat == "monster" and 1) or 2), true)
+    item:AddTexture(QuestHelper:CreateIconTexture(item, (r.cat == "monster" and 1) or 2), true)
   end
   
   item:SetFunction(QuestHelper.ToggleUserObjective, QuestHelper, r.cat, r.what)
