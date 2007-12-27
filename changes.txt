@@ -1,3 +1,107 @@
+== Version 0.20d Uploaded 12/24/2007 ==
+
+* As usual, the database has grown a bit.
+* Some nice guy from the interwebs bought me a gamecard, so I got to play a little bit today, and spent a little time giving QuestHelper the ability to change its colours based on the current date. Now why on Earth might I have done that?
+* Working on moving the project over to git.
+
+== Version 0.20c Uploaded 12/21/2007 ==
+
+* Tiny bit more data.
+* Fixed a bug that occured when you didn't know any flight instructors for your faction. Or compounded it further. Only time will tell.
+
+== Version 0.20b Uploaded 12/21/2007 ==
+
+* More data.
+* Wrote a script to detect obsoleted input files, such as when somebody emails me a newer version of a file that they had already emailed to me. Should prevent weights in the generated data from getting biased.
+* Will delete references to quests and flight instructors that don't belong to your faction.
+* QuestHelper would do bad things if need an item, it knew the monsters that dropped that item, but had no idea where any of those monsters were.
+
+== Version 0.20 Uploaded 12/16/2007 ==
+
+* Got quite a few emails on the weekend, so there should be a bunch of new quest information.
+* Just because I can't play Warcraft doesn't mean I can't still improve things. Reduced the RAM used by ''static.lua'' by about 270KB, by removing duplicate tables, and having everything reference the first instance. All that searching also increased the generation time by a few hundred fold, but all well. It's a one time thing for code most people aren't going to run.
+* Static data should no longer include monster that have been seen to drop an item, but had a probabilty so low that it wasn't actually included in the list of monsters that drop it.
+
+== Version 0.19e Uploaded 12/15/2007 ==
+
+* Includes data from two more people, and fixed a bug with the nag command. At least I think I fixed it, can't really test it.
+
+== Version 0.19d Uploaded 12/14/2007 ==
+
+* More changes to the static data, and the nag command is now aware that the static data filters improbable data, and shouldn't complain about things that aren't likely to be included.
+* This will probably be the last update until I return in January, aside from keeping the static data up to date with whatever people email me.
+
+== Version 0.19c Uploaded 12/14/2007 ==
+
+* Objectives contained links to unconnected nodes, breaking path finding. I can't fix the problem right now, but I can try to hide the symptoms.
+* Accidently averaged the y components with the x components when combining positions in the static data. All the positions were wrong. This is probably the kind wierdness that happens when you give yourself a deadline.
+
+== Version 0.19b Uploaded 12/14/2007 ==
+
+* Includes the ''staticmerge.lua'' script.
+* In the process of writing said script, I noticed two more bugs in my merging code and fixed them, so ''static.lua'' should hopefully contain more accurate locations than the previous upload.
+
+== Version 0.19; Uploaded 12/14/2007 ==
+
+* The static data was missing the quest information for the additional quests with the same name. Oops!
+* Did some more work to get QuestHelper to use its memory more effectively.
+* Will delete references to data not intended for your locale and invoke the garbage collector on startup. If I actually supported multiple locales, this might have been a useful change. Maybe in the future.
+* Menus weren't getting recycled due to a bug. Fixed.
+* Will record where you've set your home to.
+* Calculates most of the information needed to include teleport spells and the hearthstone in routing, but I don't think I'll have time to actually get the pathfinding functions able to use it before my account expires.
+* When nodes are overlapping, they'll all glow, not just the one on top.
+* Will offer to set the priorities of any objectives that are preventing you from using the priority you asked for.
+
+== Version 0.18; Uploaded 12/12/2007 ==
+
+* The portals in Shattrath City have been added to the world graph.
+* Objective sharing can now be turned on or off with <code>/qh share</code>.
+* Fixed an assertion error when objectives were removed while routing was still inserting them. Happened a lot with objective sharing, when a party member joined and then quickly left.
+* Shared objectives now set the quest they belong to, quest specific item objectives couldn't be seen by peers unless they were on the same quest.
+* The offset used by the level filter can now be adjusted with <code>/qh level ''offset''</code>.
+* Fiddled with the math for calculating your effective level for group quests, when you don't have the matching number of people in your group. You can see your effective level with <code>/qh level</code>.
+* Using the find command without any arguments will now return your user objectives, so you can easily remove them.
+* Tried to improve memory usage:
+** Flight routes which nobody has flown yet have been removed.
+** Hashes were removed for quests for which only one quest by that name is known to exist.
+** The static database has been purged of monsters and items that haven't been seen to be used in any quests so far. Sure, there's a non-zero chance I removed something important, but that's what you get for complaining about the memory footprint.
+
+== Version 0.17; Uploaded 12/09/2007 ==
+
+* If the following changes don't interest you, you might want to stick with 0.16, as this is a lot of new code and haven't spent a lot of time testing.
+* Started on working cooperatively with other party members.
+* Will automatically share your quest related objectives with your peers.
+* Quest progress is shown in the tooltips.
+* User created objectives can be shared using the right-click menu.
+* Objective priorities are shared between users.
+
+== Version 0.16; Uploaded 12/07/2007 ==
+
+* New priority system for objectives.
+* Timed quests automatically get an above normal priority, so that they will get assigned before non-timed quests.
+* Right clicking on the objective on the minimap will now show a menu for that objective.
+* Did a little more work on the menus.
+* Can now hide objectives that aren't in your current zone, or objectives that aren't to turn in quests. Can turn filters on or off with <code>/qh filter</code>.
+* Various bugfixes.
+
+== Version 0.15; Uploaded 12/06/2007 ==
+
+* Fixed the problem with the failed assertions that happened after pathing information was reset.
+* Fixed a bug with my Astrolabe kludge.
+* Game no longer freezes while searching, and displays multiple results via a menu.
+* If you've discovered anything that I don't have in the supplied database, it will display a message when starting.
+* Won't hide objectives to turn in quests to due their level requirements.
+* Added some slash commands, try '/qh help'.
+
+== Version 0.14; Uploaded 12/05/2007 ==
+
+* Fixed the missing tooltips with AddOns that scale the world map, such as Cartographer and Metamap.
+* Overlapping objectives in tooltips are now sorted by their estimated travel time.
+* Icons have been separated from their backgrounds, so I can easily change their colours without having separate images.
+* It seems the problem with the overly large menu items was caused by the menu being scaled at the time the size was calculated.
+* Routing should be much more responsive to objectives being added and removed.
+* The 'Make this objective first' option has been broken. It will probably be replaced by some kind of priority system later.
+
 == Version 0.13; Uploaded 12/03/2007 ==
 
 * Fixed the problem with the minimap arrow jumping all over the place.
