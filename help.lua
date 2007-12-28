@@ -115,6 +115,23 @@ function QuestHelper:Filter(input)
   end
 end
 
+function QuestHelper:ToggleCartWP()
+  QuestHelper_Pref.cart_wp = not QuestHelper_Pref.cart_wp
+  if QuestHelper_Pref.cart_wp then
+    if Cartographer_Waypoints then
+      self:TextOut("Will use "..self:HighlightText("Cartographer Waypoints").." to show objectives.")
+    else
+      self:TextOut("Would use "..self:HighlightText("Cartographer Waypoints").." to show objectives, except it doesn't seem to be present.")
+    end
+  else
+    if self.old_cartographer_wp_data then
+      self:ReleaseTable(self.old_cartographer_wp_data)
+      self.old_cartographer_wp_data = nil
+    end
+    self:TextOut("Won't use "..self:HighlightText("Cartographer Waypoints").." to show objectives.")
+  end
+end
+
 function QuestHelper:WantPathingReset()
   self:TextOut("Will reset world graph.")
   self.defered_graph_reset = true
@@ -181,6 +198,11 @@ local commands =
   {"RECYCLE",
    "Displays how many unused entities QuestHelper is tracking, so that it can reuse them in the future instead of creating new ones in the future.",
     {}, QuestHelper.RecycleInfo, QuestHelper},
+  
+  
+  {"CARTWP",
+   "Toggles displaying the current objective using Cartographer Waypoints.",
+    {}, QuestHelper.ToggleCartWP, QuestHelper},
   
   {"SHARE",
    "Toggles objective sharing between QuestHelper users.",

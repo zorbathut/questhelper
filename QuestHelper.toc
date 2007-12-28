@@ -2,7 +2,8 @@
 ## Title: QuestHelper
 ## Author: smariot
 ## Notes: Calculates an optimal route for you to follow while questing.
-## Version: 0.20e
+## Version: 0.21
+## OptionalDeps: Cartographer
 ## SavedVariables: QuestHelper_SaveVersion QuestHelper_Locale QuestHelper_Quests QuestHelper_Objectives QuestHelper_FlightInstructors QuestHelper_FlightRoutes QuestHelper_Pref
 ## SavedVariablesPerCharacter: QuestHelper_KnownFlightRoutes QuestHelper_Home
 
