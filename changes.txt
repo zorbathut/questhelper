@@ -1,3 +1,8 @@
+== Version 0.20e Uploaded 12/27/2007 ==
+
+* More data.
+* Mirrored the repository here at [http://repo.or.cz/w/QuestHelper.git], but it doesn't seem to be updating.
+
 == Version 0.20d Uploaded 12/24/2007 ==
 
 * As usual, the database has grown a bit.
