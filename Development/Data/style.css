@@ -1,0 +1,68 @@
+html
+ {
+  font-family: sans-serif;
+  font-size: 12px;
+  color: #000000;
+  background-color: #808080;
+ }
+
+body
+ {
+  padding: 5px 5px;
+ }
+
+h1
+ {
+  text-align: center;
+ }
+
+div.item
+ {
+  display: block;
+  margin: 10px 10px;
+  padding: 5px 5px;
+  border: thin solid #000000;
+  background-color: #ffffff;
+ }
+
+span.argument
+ {
+  position: relative;
+  color: #000080;
+  font-family: monospace;
+ }
+
+span.argument div.description
+ {
+  display: none;
+ }
+
+span.argument:hover div.description
+ {
+  position: absolute;
+  top: 12px;
+  left: 5px;
+  min-width: 150px;
+  font-family: sans-serif;
+  padding: 5px 5px;
+  color: #000000;
+  background-color: #ffffff;
+  border: thin solid #000000;
+  display: block;
+ }
+
+span.typename
+ {
+  color: #808080;
+  font-style: italic;
+ }
+
+span.typename:before
+ {
+  content: "[";
+ }
+
+span.typename:after
+ {
+  content: "]";
+ }
