@@ -102,7 +102,7 @@ FileUtil.forEachFile = function(directory, func)
 end
 
 FileUtil.extension = function(filename)
-  local ext = select(2, string.find(filename, "%.(.-)$"))
+  local ext = select(3, string.find(filename, ".*%.(.-)$"))
   if ext and not string.find(ext, "[/\\]") then
     return ext
   end
