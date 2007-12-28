@@ -5,6 +5,47 @@
 
 -- You can probably read this file for examples on how to document stuff.
 
+loadfile("dump.lua")()
+loadfile("fileutil.lua")()
+
+local items = {}
+
+-- object = getObject(name, list)
+-- .name (string) The name of the documented item.
+-- .list (table) The table to search for the item in.
+-- .object (docobj) The object to 
+local function getObject(name, list)
+  if not list then
+    list = items
+  end
+  
+  local _, _, real_name, remainder = string.find(name, "(.-)[%.:](.+)")
+  
+  if real_name then
+    name = real_name
+  end
+  
+  local item = items[name]
+  if not item then
+    item = {}
+    items[name] = item
+    
+    item.name = name
+    item.type = "<unknown>"
+    item.file = "<unknown>"
+    item.line = -1
+    
+    item.children = {}
+    item.notes = {}
+  end
+  
+  if remainder then
+    return getObject(remainder, item.children)
+  else
+    return item
+  end
+end
+
 -- valid = isVariableString(var)
 -- var (string) The name of a variable.
 -- valid (boolean) True if var is a valid variable name.
@@ -173,3 +214,48 @@ end
 for i, file in ipairs(arg) do
   readLuaFile(file)
 end
+
+local WriteDocObject
+
+local function WriteDocObjectList(list, buffer)
+  local array = {}
+  for key in pairs(list) do
+    table.insert(array, key)
+  end
+  
+  table.sort(array)
+  
+  for i, key in ipairs(array) do
+    WriteDocObject(list[key], buffer)
+  end
+end
+
+WriteDocObject = function(obj, buffer)
+  buffer:add("<div class=item>"..obj.name.."</div>")
+end
+
+local function WritePage(filename, title, list)
+  local buffer = CreateBuffer()
+  buffer:add(string.format(
+[[
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+  <title>%s</title>
+</head><body>
+]], title))
+
+  WriteDocObjectList(list, buffer)
+  buffer:add("</body></html>")
+  
+  local stream = io.open(filename, "w")
+  if stream then
+    stream:write(buffer:dump())
+    io.close(stream)
+  else
+    print("Unable to write file: "..filename)
+  end
+end
+
+FileUtil.createDirectory("API")
+WritePage("API/api.xhtml", "QuestHelper API Documentation", items)
