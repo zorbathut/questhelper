@@ -19,6 +19,7 @@ QuestHelper_Pref =
   filter_level=true,
   filter_zone=false,
   filter_done=false,
+  cart_wp=true
  }
 
 -- Character ID identifies the player's charaters by a number instead of a Name/Realm pair. You know, in case
@@ -237,6 +238,7 @@ function QuestHelper:OnEvent(event)
     if QuestHelper_Pref.comm == nil then QuestHelper_Pref.comm = false end
     if QuestHelper_Pref.graph == nil then QuestHelper_Pref.graph = false end
     if QuestHelper_Pref.level == nil then QuestHelper_Pref.level = 2 end
+    if QuestHelper_Pref.cart_wp == nil then QuestHelper_Pref.cart_wp = true end
     
     self:HandlePartyChange()
     self:Nag()
