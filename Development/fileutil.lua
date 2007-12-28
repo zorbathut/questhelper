@@ -14,8 +14,6 @@ local is_windows = os.getenv("HOMEDRIVE") ~= nil or
                    os.getenv("WINDIR") ~= nil or
                    os.getenv("OS") == "Windows_NT"
 
-print(is_windows and "Is Windows!" or "Not Windows!")
-
 FileUtil.quoteFile = is_windows and function(filename)
   -- Escapes file names in Windows, and converts slashes to backslashes.
   local result = ""
