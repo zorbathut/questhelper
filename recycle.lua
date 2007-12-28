@@ -37,8 +37,37 @@ function QuestHelper:CreateFrame(parent)
     frame = CreateFrame("Button", nil, parent)
   end
   
+  frame:SetFrameLevel((parent or UIParent):GetFrameLevel()+1)
+  frame:SetFrameStrata("MEDIUM")
+  frame:Show()
+  
   return frame
 end
+
+local frameScripts =
+ {
+  "OnChar",
+  "OnClick",
+  "OnDoubleClick",
+  "OnDragStart",
+  "OnDragStop",
+  "OnEnter",
+  "OnEvent",
+  "OnHide",
+  "OnKeyDown",
+  "OnKeyUp",
+  "OnLeave",
+  "OnLoad",
+  "OnMouseDown",
+  "OnMouseUp",
+  "OnMouseWheel",
+  "OnReceiveDrag",
+  "OnShow",
+  "OnSizeChanged",
+  "OnUpdate",
+  "PostClick",
+  "PreClick"
+ }
 
 function QuestHelper:ReleaseFrame(frame)
   assert(type(frame) == "table")
@@ -51,14 +80,24 @@ function QuestHelper:ReleaseFrame(frame)
     end
   end
   
+  for i, script in ipairs(frameScripts) do
+    frame:SetScript(script, nil)
+  end
+  
   frame:Hide()
   frame:SetParent(nil)
-  -- TODO: Reset whatever other settings might have been changed.
+  frame:ClearAllPoints()
+  frame:SetMovable(false)
+  frame:RegisterForDrag()
+  frame:RegisterForClicks()
+  frame:SetScale(1)
+  frame:SetAlpha(1)
+  
   self.used_frames = self.used_frames - 1
   table.insert(self.free_frames, frame)
 end
 
-function QuestHelper:CreateText(parent, text_str)
+function QuestHelper:CreateText(parent, text_str, text_size, text_font, r, g, b, a)
   self.used_text = self.used_text + 1
   local text = table.remove(self.free_text)
   
@@ -68,11 +107,15 @@ function QuestHelper:CreateText(parent, text_str)
     text = parent:CreateFontString()
   end
   
-  text:SetFont("Fonts\\ARIALN.TTF", 15)
+  text:SetFont(text_font or "Fonts\\ARIALN.TTF", text_size or 15)
   text:SetDrawLayer("OVERLAY")
   text:SetJustifyH("CENTER")
   text:SetJustifyV("MIDDLE")
+  text:SetTextColor(r or 1, g or 1, b or 1, a or 1)
   text:SetText(text_str or "")
+  text:SetShadowColor(0, 0, 0, 0.3)
+  text:SetShadowOffset(1, -1)
+  text:Show()
   
   return text
 end
@@ -90,6 +133,7 @@ function QuestHelper:ReleaseText(text)
   
   text:Hide()
   text:SetParent(nil)
+  text:ClearAllPoints()
   self.used_text = self.used_text - 1
   table.insert(self.free_text, text)
 end
@@ -167,6 +211,7 @@ function QuestHelper:ReleaseTexture(tex)
   
   tex:Hide()
   tex:SetParent(nil)
+  tex:ClearAllPoints()
   self.used_textures = self.used_textures - 1
   table.insert(self.free_textures, tex)
 end

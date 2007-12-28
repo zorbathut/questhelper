@@ -385,7 +385,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
             
             tex = self.glow_list[out]
             if not tex then
-              tex = QuestHelper:GetGlowTexture(self)
+              tex = QuestHelper:CreateGlowTexture(self)
               table.insert(self.glow_list, tex)
             end
             out = out + 1
