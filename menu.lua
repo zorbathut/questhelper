@@ -100,10 +100,10 @@ local function Menu_ShowAtCursor(self, auto_release)
   
   local x, y = GetCursorPosition()
   
-  local parent = (QuestHelper.Astrolabe.WorldMapVisible and QuestHelper.map_overlay) or UIParent
+  local parent = (QuestHelper.Astrolabe.WorldMapVisible and QuestHelper.map_overlay) or nil
   
   self:SetParent(parent)
-  self.level = parent:GetFrameLevel()+1
+  self.level = (parent or UIParent):GetFrameLevel()+1
   self:ClearAllPoints()
   self:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", math.max(0, math.min(x-self:GetWidth()/2, UIParent:GetRight()*UIParent:GetScale()-self:GetWidth())), y+5)
   
@@ -117,6 +117,7 @@ end
 
 function QuestHelper:CreateMenu()
   local menu = self:CreateFrame(UIParent)
+  menu:Hide()
   
   menu.items = self:CreateTable()
   menu:SetMovable(true)
@@ -152,9 +153,6 @@ function QuestHelper:ReleaseMenu(menu)
 end
 
 local function MenuItem_AddTexture(self, tex, before)
-  -- Will be positioned for real later by MenuItem_SetSize
-  tex:SetPoint("TOPLEFT", self, "TOPLEFT")
-  
   if before then
     table.insert(self.lchildren, 1, tex)
   else
@@ -383,6 +381,8 @@ end
 
 function QuestHelper:CreateMenuItem(menu, text)
   item = self:CreateFrame(menu)
+  item:Hide()
+  
   item.lchildren = self:CreateTable()
   item.rchildren = self:CreateTable()
   item.text = self:CreateText(item, text)
