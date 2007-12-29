@@ -1,3 +1,11 @@
+== Version 0.21b Uploaded 12/29/2007 ==
+
+* Will try not to replace the waypoint to your corpse.
+* Will remove the waypoint when you have no objectives left.
+* Will try to keep menus from going off the bottom or top of the screen when making them appear under the cursor.
+* Will refuse to run if it doesn't recognize your saved data; the format is probably going to be changed in the future.
+* Menus have been switched over to use the new frame recycling API.
+
 == Version 0.21 Uploaded 12/28/2007 ==
 
 * Added support for Cartographer Waypoints.
