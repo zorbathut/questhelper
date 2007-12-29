@@ -124,10 +124,7 @@ function QuestHelper:ToggleCartWP()
       self:TextOut("Would use "..self:HighlightText("Cartographer Waypoints").." to show objectives, except it doesn't seem to be present.")
     end
   else
-    if self.old_cartographer_wp_data then
-      self:ReleaseTable(self.old_cartographer_wp_data)
-      self.old_cartographer_wp_data = nil
-    end
+    self:HideCartographerWaypoint()
     self:TextOut("Won't use "..self:HighlightText("Cartographer Waypoints").." to show objectives.")
   end
 end
