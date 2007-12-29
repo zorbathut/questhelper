@@ -101,18 +101,20 @@ local function Menu_ShowAtCursor(self, auto_release)
   local x, y = GetCursorPosition()
   
   local parent = (QuestHelper.Astrolabe.WorldMapVisible and QuestHelper.map_overlay) or nil
-  
   self:SetParent(parent)
   self.level = (parent or UIParent):GetFrameLevel()+1
   self:ClearAllPoints()
-  self:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", math.max(0, math.min(x-self:GetWidth()/2, UIParent:GetRight()*UIParent:GetScale()-self:GetWidth())), y+5)
+  
+  -- Need to call DoShow before setting the position so that the width and height will have been calculated.
+  self:DoShow()
+  
+  self:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", math.max(0, math.min(x-self:GetWidth()/2, UIParent:GetRight()*UIParent:GetScale()-self:GetWidth())), math.min(UIParent:GetTop()*UIParent:GetScale(), math.max(self:GetHeight(), y+5)))
   
   if QuestHelper.active_menu and QuestHelper.active_menu ~= self then
     QuestHelper.active_menu:DoHide()
   end
   
   QuestHelper.active_menu = self
-  self:DoShow()
 end
 
 function QuestHelper:CreateMenu()
