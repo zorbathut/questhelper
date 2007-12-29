@@ -168,8 +168,8 @@ end
 function QuestHelper:CreateIconTexture(parent, id)
   local icon = self:CreateTexture(parent, "Interface\\AddOns\\QuestHelper\\Art\\Icons.tga")
   
-  local w, h = 1/4, 1/4
-  local x, y = ((id-1)%4)*w, math.floor((id-1)/4)*h
+  local w, h = 1/8, 1/8
+  local x, y = ((id-1)%8)*w, math.floor((id-1)/8)*h
   
   icon:SetTexCoord(x, x+w, y, y+h)
   

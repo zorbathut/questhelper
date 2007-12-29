@@ -525,6 +525,20 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   return icon
 end
 
+local function QH_CartographerWaypoint_Cancel(self)
+  self.task = nil
+  
+  if QuestHelper.cartographer_wp == self then
+    QuestHelper.cartographer_wp = nil
+  end
+  
+  Waypoint.Cancel(self)
+end
+
+local function QH_CartographerWaypoint_ToString(self)
+  return self.task
+end
+
 function QuestHelper:CreateMipmapDodad()
   local icon = CreateFrame("Button", nil, Minimap)
   icon:Hide()
@@ -608,6 +622,36 @@ function QuestHelper:CreateMipmapDodad()
           self.dot = QuestHelper:CreateIconTexture(self, self.icon_id)
           self.dot:SetPoint("TOPLEFT", icon, "TOPLEFT", 2, -2)
           self.dot:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -2, 2)
+        end
+        
+        if QuestHelper_Pref.cart_wp and Cartographer_Waypoints and Waypoint then
+          local x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], t[1], QuestHelper.z)
+          local z = select(QuestHelper.z, GetMapZones(t[1]))
+          
+          if QuestHelper.cartographer_wp and (QuestHelper.cartographer_wp.x ~= x or QuestHelper.cartographer_wp.y ~= y or QuestHelper.cartographer_wp.Zone ~= z) then
+            QuestHelper.cartographer_wp:Cancel()
+            QuestHelper.cartographer_wp = nil
+          end
+          
+          local owp = QuestHelper.old_cartographer_wp_data
+          if not owp then
+            owp = QuestHelper:CreateTable()
+            QuestHelper.old_cartographer_wp_data = owp
+          end
+          
+          if not QuestHelper.cartographer_wp and (not owp or owp.x ~= x or owp.y ~= y or owp.z ~= z) then
+            local wp = Waypoint:new()
+            wp.Cancel = QH_CartographerWaypoint_Cancel
+            wp.ToString = QH_CartographerWaypoint_ToString
+            
+            wp.x, wp.y, wp.Zone, wp.task = x, y, z, t[5] and ("Visit "..QuestHelper:HighlightText(t[5]).." en route to:\n"..self.objective:Reason(true)) or self.objective:Reason(true)
+            owp.x, owp.y, owp.z = wp.x, wp.y, wp.Zone
+            Cartographer_Waypoints:AddWaypoint(wp)
+            QuestHelper.cartographer_wp = wp
+          end
+        elseif QuestHelper.cartographer_wp then
+          QuestHelper.cartographer_wp:Cancel()
+          QuestHelper.cartographer_wp = nil
         end
         
         QuestHelper.Astrolabe:PlaceIconOnMinimap(self, unpack(self.target))
