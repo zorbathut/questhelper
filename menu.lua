@@ -1,170 +1,423 @@
 QuestHelper.active_menu = nil
-QuestHelper.spare_menus = {}
 
-function QuestHelper:ReleaseMenu(menu)
+local function Menu_AddItem(self, item)
+  item:ClearAllPoints()
+  item:SetParent(self)
+  item:SetPoint("TOPLEFT", self, "TOPLEFT")
+  item.parent = self
+  table.insert(self.items, item)
+end
+
+local function Menu_SetCloseFunction(self, ...)
+  self.func_arg = {...}
+  self.func = table.remove(self.func_arg, 1)
+end
+
+local function Menu_OnUpdate(self, elapsed)
+  if self.showing then
+    self.show_phase = self.show_phase + elapsed * 5.0
+    if self.show_phase > 1 then
+      self.show_phase = 1
+      self:SetScript("OnUpdate", nil)
+    end
+  else
+    self.show_phase = self.show_phase - elapsed * 3.0
+    if self.show_phase < 0 then
+      self.show_phase = 0
+      self:SetScript("OnUpdate", nil)
+      self:Hide()
+      if self.func then
+        self.func(unpack(self.func_arg))
+      end
+      if self.auto_release then
+        QuestHelper:ReleaseMenu(self)
+        return
+      end
+    end
+  end
+  
+  self:SetAlpha(self.show_phase)
+  self:SetScale(self.show_phase*0.7+0.3)
+end
+
+local function Menu_DoShow(self)
+  self.showing = true
+  
+  local w, h = 0, 0
+  
+  self:SetScale(1)
+  
+  for i, c in ipairs(self.items) do
+    local cw, ch = c:GetSize()
+    w = math.max(w, cw)
+    h = h + ch
+  end
+  
+  local y = 0
+  
+  self:SetWidth(w)
+  self:SetHeight(h)
+  self:Show()
+  self:SetScript("OnUpdate", self.OnUpdate)
+  
+  for i, c in ipairs(self.items) do
+    local cw, ch = c:GetSize()
+    c:ClearAllPoints()
+    c:SetSize(w, ch)
+    c:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -y)
+    y = y + ch
+  end
+  
+  if self.parent then
+    self.level = self.parent.parent.level + #self.parent.parent.items + 1
+    self:SetFrameLevel(self.level)
+  end
+  
+  for i, n in ipairs(self.items) do
+    n.level = self.level+i
+    n:SetFrameLevel(n.level)
+    n:DoShow()
+  end
+end
+
+local function Menu_DoHide(self)
+  self.showing = false
+  self:SetScript("OnUpdate", self.OnUpdate)
+  
+  if self.active_item then
+    self.active_item.highlighting = false
+    self.active_item:SetScript("OnUpdate", self.active_item.OnUpdate)
+  end
+  
+  for i, n in ipairs(self.items) do
+    n:DoHide()
+  end
+end
+
+local function Menu_ShowAtCursor(self, auto_release)
+  auto_release = autom_release == nil and true or auto_release
+  self.auto_release = auto_release
+  
+  local x, y = GetCursorPosition()
+  
+  local parent = (QuestHelper.Astrolabe.WorldMapVisible and QuestHelper.map_overlay) or nil
+  self:SetParent(parent)
+  self.level = (parent or UIParent):GetFrameLevel()+1
+  self:ClearAllPoints()
+  
+  -- Need to call DoShow before setting the position so that the width and height will have been calculated.
+  self:DoShow()
+  
+  self:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", math.max(0, math.min(x-self:GetWidth()/2, UIParent:GetRight()*UIParent:GetScale()-self:GetWidth())), math.min(UIParent:GetTop()*UIParent:GetScale(), math.max(self:GetHeight(), y+5)))
+  
+  if QuestHelper.active_menu and QuestHelper.active_menu ~= self then
+    QuestHelper.active_menu:DoHide()
+  end
+  
+  QuestHelper.active_menu = self
+end
+
+function QuestHelper:CreateMenu()
+  local menu = self:CreateFrame(UIParent)
   menu:Hide()
   
+  menu.items = self:CreateTable()
+  menu:SetMovable(true)
+  menu:SetFrameStrata("TOOLTIP")
+  
+  menu.AddItem = Menu_AddItem
+  menu.SetCloseFunction = Menu_SetCloseFunction
+  menu.OnUpdate = Menu_OnUpdate
+  menu.DoShow = Menu_DoShow
+  menu.DoHide = Menu_DoHide
+  menu.ShowAtCursor = Menu_ShowAtCursor
+  
+  menu.show_phase = 0
+  menu.showing = false
+  menu.level = 2
+  menu:SetFrameLevel(menu.level)
+  
+  return menu
+end
+
+function QuestHelper:ReleaseMenu(menu)
   while #menu.items > 0 do
     local item = table.remove(menu.items)
     self:ReleaseMenuItem(item)
   end
   
-  menu.showing = false
-  menu.show_phase = 0
-  menu.submenu = nil
-  menu.active_item = nil
-  menu.func = nil
-  menu.func_arg = nil
-  menu.parent = nil
-  menu.auto_release = nil
-  menu:SetParent(nil)
-  menu:ClearAllPoints()
-  menu:SetScript("OnUpdate", nil)
-  
   if self.active_menu == menu then
     self.active_menu = nil
   end
   
-  table.insert(self.spare_menus, menu)
+  self:ReleaseTable(menu.items)
+  self:ReleaseFrame(menu)
 end
 
-function QuestHelper:CreateMenu()
-  local menu = table.remove(self.spare_menus)
-  
-  if not menu then
-    menu = CreateFrame("Button")
-    menu.items = {}
-    menu:SetMovable(true)
-    menu:SetFrameStrata("TOOLTIP")
+local function MenuItem_AddTexture(self, tex, before)
+  if before then
+    table.insert(self.lchildren, 1, tex)
+  else
+    table.insert(self.rchildren, tex)
+  end
+end
+
+local function MenuItem_DoShow(self)
+  self.showing = true
+  self:SetScript("OnUpdate", self.OnUpdate)
+  self:Show()
+end
+
+local function MenuItem_DoHide(self)
+  if self.submenu then
+    self.submenu:DoHide()
   end
   
-  menu:SetParent(nil)
+  self.showing = false
+  self:SetScript("OnUpdate", self.OnUpdate)
+end
+
+local function MenuItem_OnUpdate(self, elapsed)
+  local done_update = true
   
-  function menu:AddItem(item)
-    item:ClearAllPoints()
-    item:SetParent(self)
-    item:SetPoint("TOPLEFT", self, "TOPLEFT")
-    item.parent = self
-    table.insert(self.items, item)
-  end
-  
-  menu.level = 2
-  menu:SetFrameLevel(menu.level)
-  
-  menu.show_phase = 0
-  menu.showing = true
-  
-  function menu:SetCloseFunction(...)
-    self.func_arg = {...}
-    self.func = table.remove(self.func_arg, 1)
-  end
-  
-  function menu:OnUpdate(elapsed)
-    if self.showing then
-      self.show_phase = self.show_phase + elapsed * 5.0
-      if self.show_phase > 1 then
-        self.show_phase = 1
-        self:SetScript("OnUpdate", nil)
-      end
+  if self.highlighting then
+    self.highlight_phase = self.highlight_phase + elapsed * 3.0
+    if self.highlight_phase > 1 then
+      self.highlight_phase = 1
     else
-      self.show_phase = self.show_phase - elapsed * 3.0
-      if self.show_phase < 0 then
-        self.show_phase = 0
-        self:SetScript("OnUpdate", nil)
-        self:Hide()
-        if self.func then
-          self.func(unpack(self.func_arg))
-        end
-        if self.auto_release then
-          QuestHelper:ReleaseMenu(self)
-          return
-        end
+      done_update = false
+    end
+  else
+    self.highlight_phase = self.highlight_phase - elapsed
+    if self.highlight_phase < 0 then
+      self.highlight_phase = 0
+    else
+      done_update = false
+    end
+  end
+  
+  if self.showing then
+    self.show_phase = self.show_phase + elapsed * 5.0
+    if self.show_phase > 1 then
+      self.show_phase = 1
+    else
+      done_update = false
+    end
+  else
+    self.show_phase = self.show_phase - elapsed * 5.0
+    if self.show_phase < 0 then
+      self.show_phase = 0
+      self.highlight_phase = 0
+      self:Hide()
+      done_update = true
+    else
+      done_update = false
+    end
+  end
+  
+  self:Shade(self.show_phase, self.highlight_phase)
+  
+  if done_update then
+    self:SetScript("OnUpdate", nil)
+  end
+end
+
+local function MenuItem_Shade(self, s, h)
+  local theme = QuestHelper:GetColourTheme()
+  
+  local ih = 1-h
+  
+  self.text:SetTextColor(ih*theme.menu_text[1]+h*theme.menu_text_highlight[1],
+                         ih*theme.menu_text[2]+h*theme.menu_text_highlight[2],
+                         ih*theme.menu_text[3]+h*theme.menu_text_highlight[3], 1)
+  
+  self.text:SetShadowColor(0, 0, 0, ih)
+  self.text:SetShadowOffset(1, -1)
+  
+  self.background:SetVertexColor(ih*theme.menu[1]+h*theme.menu_highlight[1],
+                                 ih*theme.menu[2]+h*theme.menu_highlight[2],
+                                 ih*theme.menu[3]+h*theme.menu_highlight[3], h*0.3+0.4)
+  
+  self:SetAlpha(s)
+end
+
+local function MenuItem_SetFunction(self, ...)
+  self.func_arg = {...}
+  self.func = table.remove(self.func_arg, 1)
+end
+
+local function MenuItem_SetSubmenu(self, menu)
+  assert(not self.submenu and menu)
+  menu:ClearAllPoints()
+  menu:SetParent(self)
+  menu:SetPoint("TOPLEFT", self, "TOPLEFT")
+  menu.parent = self
+  self.submenu = menu
+  self:AddTexture(QuestHelper:CreateIconTexture(self, 9))
+end
+
+local function MenuItem_OnEnter(self)
+  self.highlighting = true
+  self:SetScript("OnUpdate", self.OnUpdate)
+  
+  if self.parent.active_item and self.parent.active_item ~= self then
+    self.parent.active_item.highlighting = false
+    self.parent.active_item:SetScript("OnUpdate", self.parent.active_item.OnUpdate)
+  end
+  
+  self.parent.active_item = self
+  
+  if self.parent.submenu and self.parent.submenu ~= self.submenu then
+    self.parent.submenu:DoHide()
+    self.parent.submenu = nil
+  end
+  
+  if self.submenu then
+    self.parent.submenu = self.submenu
+    self.submenu:ClearAllPoints()
+    
+    local v, h1, h2 = "TOP", "LEFT", "RIGHT"
+    
+    self.submenu:DoShow()
+    
+    if self:GetRight()+self.submenu:GetWidth() > UIParent:GetRight()*UIParent:GetScale() then
+      h1, h2 = h2, h1
+    end
+    
+    if self:GetBottom()-self.submenu:GetHeight() < 0 then
+      v = "BOTTOM"
+    end
+    
+    self.submenu:SetPoint(v..h1, self, v..h2)
+    self.submenu:DoShow()
+  end
+end
+
+local function MenuItem_GetSize(self)
+  self:SetScale(1)
+  self.text:ClearAllPoints()
+  self.text:SetWidth(0)
+  
+  self.text_w = self.text:GetWidth()
+  if self.text_w >= 320 then
+    self.text:SetWidth(320)
+    self.text_h = self.text:GetHeight()
+    local mn, mx = 100, 321
+    while mn ~= mx do
+      local w = math.floor((mn+mx)*0.5)
+      self.text:SetWidth(w-1)
+      if self.text:GetHeight() <= self.text_h then
+        mx = w
+      else
+        mn = w+1
       end
     end
     
-    self:SetAlpha(self.show_phase)
-    self:SetScale(self.show_phase*0.7+0.3)
+    self.text:SetWidth(mn)
+    self.text_w = mn+1
+  else
+    self.text_h = self.text:GetHeight()
   end
   
-  function menu:DoShow()
-    self.showing = true
-    
-    local w, h = 0, 0
-    
-    self:SetScale(1)
-    
-    for i, c in ipairs(self.items) do
-      local cw, ch = c:GetSize()
-      w = math.max(w, cw)
-      h = h + ch
-    end
-    
-    local y = 0
-    
-    self:SetWidth(w)
-    self:SetHeight(h)
-    self:Show()
-    self:SetScript("OnUpdate", self.OnUpdate)
-    
-    for i, c in ipairs(self.items) do
-      local cw, ch = c:GetSize()
-      c:ClearAllPoints()
-      c:SetSize(w, ch)
-      c:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -y)
-      y = y + ch
-    end
-    
-    if self.parent then
-      self.level = self.parent.parent.level + #self.parent.parent.items + 1
-      self:SetFrameLevel(self.level)
-    end
-    
-    for i, n in ipairs(self.items) do
-      n.level = self.level+i
-      n:SetFrameLevel(n.level)
-      n:DoShow()
-    end
+  local w, h = self.text_w+4, self.text_h+4
+  
+  for i, f in ipairs(self.lchildren) do
+    w = w + f:GetWidth() + 4
+    h = math.max(h, f:GetHeight() + 4)
   end
   
-  function menu:ShowAtCursor(auto_release)
-    auto_release = auto_release == nil and true or auto_release
-    self.auto_release = auto_release
-    
-    local x, y = GetCursorPosition()
-    
-    local parent = QuestHelper.Astrolabe.WorldMapVisible and QuestHelper.map_overlay or UIParent
-    
-    self:SetParent(parent)
-    self.level = parent:GetFrameLevel()+1
-    self:ClearAllPoints()
-    self:DoShow()
-    self:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", math.max(0, math.min(x-self:GetWidth()/2, UIParent:GetRight()*UIParent:GetScale()-self:GetWidth())), y+5)
-    
-    if QuestHelper.active_menu and QuestHelper.active_menu ~= self then
-      QuestHelper.active_menu:DoHide()
-    end
-    
-    QuestHelper.active_menu = self
+  for i, f in ipairs(self.rchildren) do
+    w = w + f:GetWidth() + 4
+    h = math.max(h, f:GetHeight() + 4)
   end
   
-  function menu:DoHide()
-    self.showing = false
-    self:SetScript("OnUpdate", self.OnUpdate)
-    
-    if self.active_item then
-      self.active_item.highlighting = false
-      self.active_item:SetScript("OnUpdate", self.active_item.OnUpdate)
-    end
-    
-    for i, n in ipairs(self.items) do
-      n:DoHide()
-    end
-  end
+  self.needed_width = w
   
-  return menu
+  return w, h
 end
 
-QuestHelper.spare_menuitems = {}
+local function MenuItem_SetSize(self, w, h)
+  self:SetWidth(w)
+  self:SetHeight(h)
+  
+  local x = 0
+  
+  for i, f in ipairs(self.lchildren) do
+    local cw, ch = f:GetWidth(), f:GetHeight()
+    
+    f:ClearAllPoints()
+    f:SetPoint("TOPLEFT", self, "TOPLEFT", x+2, -(h-ch)*0.5)
+    x = x + cw + 4
+  end
+  
+  local x1 = x
+  x = w
+  
+  for i, f in ipairs(self.rchildren) do
+    local cw, ch = f:GetWidth(), f:GetHeight()
+    f:ClearAllPoints()
+    x = x - cw - 4
+    f:SetPoint("TOPLEFT", self, "TOPLEFT", x+2, -(h-ch)*0.5)
+  end
+  
+  self.text:ClearAllPoints()
+  self.text:SetPoint("TOPLEFT", self, "TOPLEFT", x1+((x-x1)-self.text_w)*0.5, -(h-self.text_h)*0.5)
+end
+
+local function MenuItem_OnClick(self, btn)
+  if btn == "RightButton" then
+    local parent = self.parent
+    while parent.parent do
+      parent = parent.parent
+    end
+    parent:DoHide()
+  elseif btn == "LeftButton" and self.func then
+    self.func(unpack(self.func_arg))
+    local parent = self.parent
+    while parent.parent do
+      parent = parent.parent
+    end
+    parent:DoHide()
+  end
+end
+
+function QuestHelper:CreateMenuItem(menu, text)
+  item = self:CreateFrame(menu)
+  item:Hide()
+  
+  item.lchildren = self:CreateTable()
+  item.rchildren = self:CreateTable()
+  item.text = self:CreateText(item, text)
+  item.background = self:CreateTexture(item, 1, 1, 1, 1)
+  item.background:SetDrawLayer("BACKGROUND")
+  item.background:SetAllPoints()
+  item.background:SetVertexColor(0, 0, 0, 0)
+  
+  item.showing = false
+  item.highlighting = false
+  item.show_phase = 0
+  item.highlight_phase = 0
+  
+  item.AddTexture = MenuItem_AddTexture
+  item.DoShow = MenuItem_DoShow
+  item.DoHide = MenuItem_DoHide
+  item.OnUpdate = MenuItem_OnUpdate
+  item.Shade = MenuItem_Shade
+  item.SetFunction = MenuItem_SetFunction
+  item.SetSubmenu = MenuItem_SetSubmenu
+  item.OnEnter = MenuItem_OnEnter
+  item.GetSize = MenuItem_GetSize
+  item.SetSize = MenuItem_SetSize
+  item.OnClick = MenuItem_OnClick
+  
+  item:RegisterForClicks("LeftButtonUp", "RightButtonDown")
+  item:SetScript("OnEnter", item.OnEnter)
+  item:SetScript("OnClick", item.OnClick)
+  
+  menu:AddItem(item)
+  
+  return item
+end
 
 function QuestHelper:ReleaseMenuItem(item)
   item:Hide()
@@ -184,306 +437,67 @@ function QuestHelper:ReleaseMenuItem(item)
     item.submenu = nil
   end
   
-  item.showing = false
-  item.show_phase = 0
-  item.highlighting = false
-  item.highlight_phase = 0
-  item:SetScript("OnUpdate", nil)
-  item.func = nil
-  item.func_arg = nil
-  item.parent = nil
-  item:SetParent(nil)
-  item:ClearAllPoints()
-  
-  for i, o in ipairs(self.spare_menuitems) do
-    assert(o ~= item)
-  end
-  
-  table.insert(self.spare_menuitems, item)
+  self:ReleaseTable(item.lchildren)
+  self:ReleaseTable(item.rchildren)
+  self:ReleaseText(item.text)
+  self:ReleaseTexture(item.background)
+  self:ReleaseFrame(item)
 end
 
-function QuestHelper:CreateMenuItem(menu, text)
-  local item = table.remove(self.spare_menuitems)
+local function MenuTitle_OnDragStart(self)
+  local parent = self.parent
   
-  if not item then
-    item = CreateFrame("Button", nil, menu)
-    item.lchildren = {}
-    item.rchildren = {}
-    item.text = item:CreateFontString()
-    item.text:SetDrawLayer("OVERLAY")
-    item.background = item:CreateTexture()
-    item.background:SetPoint("TOPRIGHT", item, "TOPRIGHT")
-    item.background:SetPoint("BOTTOMLEFT", item, "BOTTOMLEFT")
-    item.background:SetTexture(1, 1, 1)
-    item.background:SetDrawLayer("BACKGROUND")
-    
-    --item.tbg = item:CreateTexture()
-    --item.tbg:SetPoint("TOPRIGHT", item.text, "TOPRIGHT")
-    --item.tbg:SetPoint("BOTTOMLEFT", item.text, "BOTTOMLEFT")
-    --item.tbg:SetTexture(1,0,1,0.5)
+  while parent.parent do
+    parent = parent.parent
   end
   
-  item.showing = true
-  item.highlighting = false
-  item.show_phase = 0
-  item.highlight_phase = 0
+  parent:StartMoving()
+end
+
+local function MenuTitle_OnDragStop(self)
+  local parent = self.parent
   
-  function item:AddTexture(tex, before)
-    tex:ClearAllPoints()
-    
-    -- Not really going to use this position, just want it anchored to our invisible selves so that it too will be invisible.
-    tex:SetPoint("TOPLEFT", menu, "TOPLEFT")
-    
-    if before then
-      table.insert(self.lchildren, 1, tex)
-    else
-      table.insert(self.rchildren, tex)
-    end
+  while parent.parent do
+    parent = parent.parent
   end
   
-  function item:DoShow()
-    self.showing = true
-    self:SetScript("OnUpdate", self.OnUpdate)
-    self:Show()
+  parent:StopMovingOrSizing()
+end
+
+local function MenuTitle_Shade(self, s, h)
+  local theme = QuestHelper:GetColourTheme()
+  
+  local ih = 1-h
+  
+  self.text:SetTextColor(ih*theme.menu_title_text[1]+h*theme.menu_title_text_highlight[1],
+                         ih*theme.menu_title_text[2]+h*theme.menu_title_text_highlight[2],
+                         ih*theme.menu_title_text[3]+h*theme.menu_title_text_highlight[3], 1)
+  
+  self.background:SetVertexColor(ih*theme.menu_title[1]+h*theme.menu_title_highlight[1],
+                                 ih*theme.menu_title[2]+h*theme.menu_title_highlight[2],
+                                 ih*theme.menu_title[3]+h*theme.menu_title_highlight[3], h*0.3+0.4)
+  
+  self.text:SetShadowColor(0, 0, 0, 1)
+  self.text:SetShadowOffset(1, -1)
+  
+  self:SetAlpha(s)
+end
+
+local function MenuTitle_OnClick(self)
+  local parent = self.parent
+  
+  while parent.parent do
+    parent = parent.parent
   end
   
-  function item:DoHide()
-    if self.submenu then
-      self.submenu:DoHide()
-    end
-    
-    self.showing = false
-    self:SetScript("OnUpdate", self.OnUpdate)
-  end
-  
-  function item:OnUpdate(elapsed)
-    local done_update = true
-    
-    if self.highlighting then
-      self.highlight_phase = self.highlight_phase + elapsed * 3.0
-      if self.highlight_phase > 1 then
-        self.highlight_phase = 1
-      else
-        done_update = false
-      end
-    else
-      self.highlight_phase = self.highlight_phase - elapsed
-      if self.highlight_phase < 0 then
-        self.highlight_phase = 0
-      else
-        done_update = false
-      end
-    end
-    
-    if self.showing then
-      self.show_phase = self.show_phase + elapsed * 5.0
-      if self.show_phase > 1 then
-        self.show_phase = 1
-      else
-        done_update = false
-      end
-    else
-      self.show_phase = self.show_phase - elapsed * 5.0
-      if self.show_phase < 0 then
-        self.show_phase = 0
-        self.highlight_phase = 0
-        self:Hide()
-        done_update = true
-      else
-        done_update = false
-      end
-    end
-    
-    self:Shade(self.show_phase, self.highlight_phase)
-    
-    if done_update then
-      self:SetScript("OnUpdate", nil)
-    end
-  end
-  
-  function item:Shade(s, h)
-    local theme = QuestHelper:GetColourTheme()
-    
-    local ih = 1-h
-    
-    self.text:SetTextColor(ih*theme.menu_text[1]+h*theme.menu_text_highlight[1],
-                           ih*theme.menu_text[2]+h*theme.menu_text_highlight[2],
-                           ih*theme.menu_text[3]+h*theme.menu_text_highlight[3], 1)
-    
-    item.text:SetShadowColor(0, 0, 0, ih)
-    item.text:SetShadowOffset(1, -1)
-    
-    self.background:SetVertexColor(ih*theme.menu[1]+h*theme.menu_highlight[1],
-                                   ih*theme.menu[2]+h*theme.menu_highlight[2],
-                                   ih*theme.menu[3]+h*theme.menu_highlight[3], h*0.3+0.4)
-    
-    self:SetAlpha(s)
-  end
-  
-  function item:SetFunction(...)
-    self.func_arg = {...}
-    self.func = table.remove(self.func_arg, 1)
-  end
-  
-  function item:SetSubmenu(menu)
-    assert(not self.submenu)
-    if menu then
-      menu:ClearAllPoints()
-      menu:SetParent(self)
-      menu:SetPoint("TOPLEFT", self, "TOPLEFT")
-      menu.parent = self
-      self.submenu = menu
-      self:AddTexture(QuestHelper:GetIconTexture(self, 9))
-      menu:DoHide()
-    end
-  end
-  
-  function item:OnEnter()
-    self.highlighting = true
-    self:SetScript("OnUpdate", self.OnUpdate)
-    
-    if self.parent.active_item and self.parent.active_item ~= self then
-      self.parent.active_item.highlighting = false
-      self.parent.active_item:SetScript("OnUpdate", self.parent.active_item.OnUpdate)
-    end
-    
-    self.parent.active_item = self
-    
-    if self.parent.submenu and self.parent.submenu ~= self.submenu then
-      self.parent.submenu:DoHide()
-      self.parent.submenu = nil
-    end
-    
-    if self.submenu then
-      self.parent.submenu = self.submenu
-      self.submenu:ClearAllPoints()
-      
-      local v, h1, h2 = "TOP", "LEFT", "RIGHT"
-      
-      self.submenu:DoShow()
-      
-      if self:GetRight()+self.submenu:GetWidth() > UIParent:GetRight()*UIParent:GetScale() then
-        h1, h2 = h2, h1
-      end
-      
-      if self:GetBottom()-self.submenu:GetHeight() < 0 then
-        v = "BOTTOM"
-      end
-      
-      self.submenu:SetPoint(v..h1, self, v..h2)
-      self.submenu:DoShow()
-    end
-  end
-  
-  function item:GetSize()
-    self:SetScale(1)
-    self.text:ClearAllPoints()
-    self.text:SetWidth(0)
-    
-    self.text_w = self.text:GetWidth()
-    if self.text_w >= 320 then
-      self.text:SetWidth(320)
-      self.text_h = self.text:GetHeight()
-      local mn, mx = 100, 321
-      while mn ~= mx do
-        local w = math.floor((mn+mx)*0.5)
-        self.text:SetWidth(w-1)
-        if self.text:GetHeight() <= self.text_h then
-          mx = w
-        else
-          mn = w+1
-        end
-      end
-      
-      self.text:SetWidth(mn)
-      self.text_w = mn+1
-    else
-      self.text_h = self.text:GetHeight()
-    end
-    
-    local w, h = self.text_w+4, self.text_h+4
-    
-    for i, f in ipairs(self.lchildren) do
-      w = w + f:GetWidth() + 4
-      h = math.max(h, f:GetHeight() + 4)
-    end
-    
-    for i, f in ipairs(self.rchildren) do
-      w = w + f:GetWidth() + 4
-      h = math.max(h, f:GetHeight() + 4)
-    end
-    
-    self.needed_width = w
-    
-    return w, h
-  end
-  
-  function item:SetSize(w, h)
-    self:SetWidth(w)
-    self:SetHeight(h)
-    
-    local x = 0
-    
-    for i, f in ipairs(self.lchildren) do
-      local cw, ch = f:GetWidth(), f:GetHeight()
-      
-      f:ClearAllPoints()
-      f:SetPoint("TOPLEFT", self, "TOPLEFT", x+2, -(h-ch)*0.5)
-      x = x + cw + 4
-    end
-    
-    local x1 = x
-    x = w
-    
-    for i, f in ipairs(self.rchildren) do
-      local cw, ch = f:GetWidth(), f:GetHeight()
-      f:ClearAllPoints()
-      x = x - cw - 4
-      f:SetPoint("TOPLEFT", self, "TOPLEFT", x+2, -(h-ch)*0.5)
-    end
-    
-    self.text:ClearAllPoints()
-    self.text:SetPoint("TOPLEFT", self, "TOPLEFT", x1+((x-x1)-self.text_w)*0.5, -(h-self.text_h)*0.5)
-  end
-  
-  item:SetScript("OnEnter", item.OnEnter)
-  
-  menu:AddItem(item)
-  
-  function item:OnClick(btn)
-    if btn == "RightButton" then
-      local parent = self.parent
-      while parent.parent do
-        parent = parent.parent
-      end
-      parent:DoHide()
-    elseif btn == "LeftButton" and self.func then
-      self.func(unpack(self.func_arg))
-      local parent = self.parent
-      while parent.parent do
-        parent = parent.parent
-      end
-      parent:DoHide()
-    end
-  end
-  
-  item:RegisterForClicks("LeftButtonUp", "RightButtonDown")
-  item:SetScript("OnClick", item.OnClick)
-  
-  item.text:SetFont("Fonts\\ARIALN.TTF", 15)
-  item.text:SetJustifyH("CENTER")
-  item.text:SetJustifyV("MIDDLE")
-  item.text:SetText(text)
-  item.text:ClearAllPoints()
-  
-  return item
+  parent:DoHide()
 end
 
 function QuestHelper:CreateMenuTitle(menu, title)
-  local item = QuestHelper:CreateMenuItem(menu, title)
+  local item = self:CreateMenuItem(menu, title)
   
-  local f1, f2 = QuestHelper:GetTexture(item, "Interface\\AddOns\\QuestHelper\\Art\\Fluff.tga"),
-                 QuestHelper:GetTexture(item, "Interface\\AddOns\\QuestHelper\\Art\\Fluff.tga")
+  local f1, f2 = self:CreateTexture(item, "Interface\\AddOns\\QuestHelper\\Art\\Fluff.tga"),
+                 self:CreateTexture(item, "Interface\\AddOns\\QuestHelper\\Art\\Fluff.tga")
   
   f1:SetTexCoord(0, 1, 0, .5)
   f1:SetWidth(20)
@@ -495,54 +509,10 @@ function QuestHelper:CreateMenuTitle(menu, title)
   item:AddTexture(f1, true)
   item:AddTexture(f2, false)
   
-  function item:OnDragStart()
-    local parent = self.parent
-    
-    while parent.parent do
-      parent = parent.parent
-    end
-    
-    parent:StartMoving()
-  end
-  
-  function item:OnDragStop()
-    local parent = self.parent
-    
-    while parent.parent do
-      parent = parent.parent
-    end
-    
-    parent:StopMovingOrSizing()
-  end
-  
-  function item:Shade(s, h)
-    local theme = QuestHelper:GetColourTheme()
-    
-    local ih = 1-h
-    
-    self.text:SetTextColor(ih*theme.menu_title_text[1]+h*theme.menu_title_text_highlight[1],
-                           ih*theme.menu_title_text[2]+h*theme.menu_title_text_highlight[2],
-                           ih*theme.menu_title_text[3]+h*theme.menu_title_text_highlight[3], 1)
-    
-    self.background:SetVertexColor(ih*theme.menu_title[1]+h*theme.menu_title_highlight[1],
-                                   ih*theme.menu_title[2]+h*theme.menu_title_highlight[2],
-                                   ih*theme.menu_title[3]+h*theme.menu_title_highlight[3], h*0.3+0.4)
-    
-    item.text:SetShadowColor(0, 0, 0, 1)
-    item.text:SetShadowOffset(1, -1)
-    
-    self:SetAlpha(s)
-  end
-  
-  function item:OnClick()
-    local parent = self.parent
-    
-    while parent.parent do
-      parent = parent.parent
-    end
-    
-    parent:DoHide()
-  end
+  item.OnDragStart = MenuTitle_OnDragStart
+  item.OnDragStop = MenuTitle_OnDragStop
+  item.Shade = MenuTitle_Shade
+  item.OnClick = MenuTitle_OnClick
   
   item:RegisterForClicks("RightButtonDown")
   item:SetScript("OnClick", item.OnClick)
@@ -551,5 +521,4 @@ function QuestHelper:CreateMenuTitle(menu, title)
   item:RegisterForDrag("LeftButton")
   
   item.text:SetFont("Fonts\\MORPHEUS.TTF", 13)
-  item.text:ClearAllPoints()
 end

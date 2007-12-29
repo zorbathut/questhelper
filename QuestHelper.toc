@@ -13,6 +13,7 @@ ChatThrottleLib\ChatThrottleLib.xml
 static.lua
 upgrade.lua
 main.lua
+recycle.lua
 quest.lua
 objective.lua
 questlog.lua

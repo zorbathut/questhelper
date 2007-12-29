@@ -45,9 +45,6 @@ QuestHelper.quest_log = {}
 QuestHelper.pos = {nil, {}, 0, 0, 1, "You are here.", 0}
 QuestHelper.sharing = false -- Will be set to true when sharing with at least one user.
 
-QuestHelper.scratch_table = {}
-QuestHelper.free_tables = {}
-
 function QuestHelper.tooltip:GetPrevLines() -- Just a helper to make life easier.
   local last = self:NumLines()
   local name = self:GetName()
@@ -212,7 +209,14 @@ function QuestHelper:OnEvent(event)
       QuestHelper:TextOut("Please wait for a patch that will be able to handle the new zone layout.")
       return
     end
+    
     QuestHelper_UpgradeDatabase(_G)
+    
+    if QuestHelper_SaveVersion ~= 5 then
+      QuestHelper:TextOut("Your saved data isn't compatible with this version of QuestHelper.")
+      QuestHelper:TextOut("Use a new version, or delete your saved variables.")
+      return
+    end
     
     self:ResetPathing()
     

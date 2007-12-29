@@ -848,11 +848,11 @@ function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
     local tex
     
     if obj.priority == i then
-      tex = self:GetIconTexture(item, 10)
+      tex = self:CreateIconTexture(item, 10)
     elseif obj.real_priority == i then
-      tex = self:GetIconTexture(item, 8)
+      tex = self:CreateIconTexture(item, 8)
     else
-      tex = self:GetIconTexture(item, 12)
+      tex = self:CreateIconTexture(item, 12)
       tex:SetVertexColor(1, 1, 1, 0)
     end
     
@@ -866,13 +866,13 @@ function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
   if self.sharing then
     submenu = self:CreateMenu("Sharing")
     local item = self:CreateMenuItem(submenu, "Enable")
-    local tex = self:GetIconTexture(item, 10)
+    local tex = self:CreateIconTexture(item, 10)
     if not obj.want_share then tex:SetVertexColor(1, 1, 1, 0) end
     item:AddTexture(tex, true)
     item:SetFunction(obj.Share, obj)
     
     local item = self:CreateMenuItem(submenu, "Disable")
-    local tex = self:GetIconTexture(item, 10)
+    local tex = self:CreateIconTexture(item, 10)
     if obj.want_share then tex:SetVertexColor(1, 1, 1, 0) end
     item:AddTexture(tex, true)
     item:SetFunction(obj.Unshare, obj)

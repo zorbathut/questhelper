@@ -124,10 +124,7 @@ function QuestHelper:ToggleCartWP()
       self:TextOut("Would use "..self:HighlightText("Cartographer Waypoints").." to show objectives, except it doesn't seem to be present.")
     end
   else
-    if self.old_cartographer_wp_data then
-      self:ReleaseTable(self.old_cartographer_wp_data)
-      self.old_cartographer_wp_data = nil
-    end
+    self:HideCartographerWaypoint()
     self:TextOut("Won't use "..self:HighlightText("Cartographer Waypoints").." to show objectives.")
   end
 end
@@ -137,11 +134,15 @@ function QuestHelper:WantPathingReset()
   self.defered_graph_reset = true
 end
 
+local function RecycleStatusString(fmt, used, free)
+  return string.format(fmt, QuestHelper:ProgressString(string.format("%d/%d", used, used+free), ((used+free == 0) and 1) or (1-used/(used+free))))
+end
+
 function QuestHelper:RecycleInfo()
-  self:TextOut("Tracking "..self:HighlightText(#self.free_tables).." unused lua tables.")
-  self:TextOut("Tracking "..self:HighlightText(self.free_textures and #self.free_textures or 0).." unused texture objects.")
-  self:TextOut("Tracking "..self:HighlightText(self.spare_menus and #self.spare_menus or 0).." unused menus.")
-  self:TextOut("Tracking "..self:HighlightText(self.spare_menuitems and #self.spare_menuitems or 0).." unused menu items.")
+  self:TextOut(RecycleStatusString("Using %s lua tables.", self.used_tables, #self.free_tables))
+  self:TextOut(RecycleStatusString("Using %s texture objects.", self.used_textures, #self.free_textures))
+  self:TextOut(RecycleStatusString("Using %s font objects.", self.used_text, #self.free_text))
+  self:TextOut(RecycleStatusString("Using %s frame objects.", self.used_frames, #self.free_frames))
 end
 
 local commands =
@@ -219,14 +220,18 @@ function QuestHelper:SlashCommand(input)
   
   for i, data in ipairs(commands) do
     if data[1] == command then
-      for i = 5,#data do table.insert(self.scratch_table, data[5]) end
-      table.insert(self.scratch_table, argument)
+      local st = self:CreateTable()
+      
+      for i = 5,#data do table.insert(st, data[5]) end
+      table.insert(st, argument)
+      
       if type(data[4]) == "function" then
-        data[4](unpack(self.scratch_table))
+        data[4](unpack(st))
       else
         self:TextOut(data[1].." is not yet implemented.")
       end
-      while table.remove(self.scratch_table) do end
+      
+      self:ReleaseTable(st)
       return
     end
   end

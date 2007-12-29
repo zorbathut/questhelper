@@ -141,13 +141,13 @@ end
 
 function QuestHelper:ProgressString(str, pct)
   if pct > 1 then
-    return string.format("|cff00ff00%s%|r", str, pct*100)
+    return string.format("|cff00ff00%s|r", str)
   elseif pct < 0 then
-    return string.format("|cffff0000%s%|r", str, pct*100)
+    return string.format("|cffff0000%s|r", str)
   elseif pct > 0.5 then
-    return string.format("|cff%2xff00%s|r", 510-pct*510, str, pct*100)
+    return string.format("|cff%2xff00%s|r", 510-pct*510, str)
   else
-    return string.format("|cffff%2x00%s|r", pct*510, str, pct*100)
+    return string.format("|cffff%2x00%s|r", pct*510, str)
   end
 end
 
@@ -254,17 +254,6 @@ function QuestHelper:PositionListDistance(list, c, z, x, y)
   if closest then
     return distance, closest[1], closest[2], closest[3], closest[4]
   end
-end
-
-function QuestHelper:CreateTable()
-  return table.remove(self.free_tables) or {}
-end
-
-function QuestHelper:ReleaseTable(tbl)
-  assert(tbl)
-  for i,t in ipairs(self.free_tables) do assert(t ~= tbl) end
-  for key in pairs(tbl) do tbl[key] = nil end
-  table.insert(self.free_tables, tbl)
 end
 
 function QuestHelper:PositionListDistance2(list, c1, z1, x1, y1, c2, z2, x2, y2)

@@ -83,71 +83,6 @@ local function pushPath(list, path, c, z)
   end
 end
 
-function QuestHelper:GetTexture(parent, r, g, b, a)
-  local tex = self.free_textures and table.remove(self.free_textures)
-  
-  if tex then
-    tex:SetParent(parent)
-  else
-    tex = parent:CreateTexture()
-  end
-  
-  if not tex:SetTexture(r, g, b, a) and
-     not tex:SetTexture("Interface\\Icons\\Temp.blp") then
-    tex:SetTexture(1, 0, 1, 0.5)
-  end
-  
-  tex:ClearAllPoints()
-  tex:SetTexCoord(0, 1, 0, 1)
-  tex:SetVertexColor(1, 1, 1, 1)
-  tex:SetDrawLayer("ARTWORK")
-  tex:SetBlendMode("BLEND")
-  tex:SetWidth(15)
-  tex:SetHeight(15)
-  tex:Show()
-  
-  return tex
-end
-
-function QuestHelper:GetIconTexture(parent, id)
-  local icon = self:GetTexture(parent, "Interface\\AddOns\\QuestHelper\\Art\\Icons.tga")
-  
-  local w, h = 1/4, 1/4
-  local x, y = ((id-1)%4)*w, math.floor((id-1)/4)*h
-  
-  icon:SetTexCoord(x, x+w, y, y+h)
-  
-  return icon
-end
-
-function QuestHelper:GetDotTexture(parent)
-  local icon = self:GetIconTexture(parent, 13)
-  icon:SetWidth(5)
-  icon:SetHeight(5)
-  icon:SetVertexColor(0, 0, 0, 0.35)
-  return icon
-end
-
-function QuestHelper:GetGlowTexture(parent)
-  local tex = self:GetTexture(parent, "Interface\\Addons\\QuestHelper\\Art\\Glow.tga")
-  
-  local angle = math.random()*6.28318530717958647692528676655900576839433879875021164
-  local x, y = math.cos(angle)*0.707106781186547524400844362104849039284835937688474036588339869,
-               math.sin(angle)*0.707106781186547524400844362104849039284835937688474036588339869
-  
-  -- Randomly rotate the texture, so they don't all look the same.
-  tex:SetTexCoord(x+0.5, y+0.5, y+0.5, 0.5-x, 0.5-y, x+0.5, 0.5-x, 0.5-y)
-  tex:ClearAllPoints()
-  
-  return tex
-end
-
-function QuestHelper:ReleaseTexture(tex)
-  tex:Hide()
-  if not self.free_textures then self.free_textures = {tex}
-  else table.insert(self.free_textures, tex) end
-end
-
 function QuestHelper:CreateWorldMapWalker()
   local walker = CreateFrame("Button", nil, QuestHelper.map_overlay)
   walker:SetWidth(0)
@@ -192,7 +127,7 @@ function QuestHelper:CreateWorldMapWalker()
             out = out + 1
             local dot = self.dots[out]
             if not dot then
-              dot = QuestHelper:GetDotTexture(self)
+              dot = QuestHelper:CreateDotTexture(self)
               dot:SetDrawLayer("BACKGROUND")
               self.dots[out] = dot
             end
@@ -409,12 +344,12 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
       self.index = i
       
       if i == 1 then
-        self.bg = QuestHelper:GetIconTexture(self, 13)
+        self.bg = QuestHelper:CreateIconTexture(self, 13)
       else
-        self.bg = QuestHelper:GetIconTexture(self, objective.icon_bg)
+        self.bg = QuestHelper:CreateIconTexture(self, objective.icon_bg)
       end
       
-      self.dot = QuestHelper:GetIconTexture(self, objective.icon_id)
+      self.dot = QuestHelper:CreateIconTexture(self, objective.icon_id)
       
       self.bg:SetDrawLayer("BACKGROUND")
       self.bg:SetAllPoints()
@@ -450,7 +385,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
             
             tex = self.glow_list[out]
             if not tex then
-              tex = QuestHelper:GetGlowTexture(self)
+              tex = QuestHelper:CreateGlowTexture(self)
               table.insert(self.glow_list, tex)
             end
             out = out + 1
@@ -565,7 +500,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
           local submenu = QuestHelper:CreateMenu()
           item = QuestHelper:CreateMenuItem(menu, o:Reason(true))
           item:SetSubmenu(submenu)
-          item:AddTexture(QuestHelper:GetIconTexture(item, o.icon_id), true)
+          item:AddTexture(QuestHelper:CreateIconTexture(item, o.icon_id), true)
           QuestHelper:AddObjectiveOptionsToMenu(o, submenu)
         end
       else
@@ -604,6 +539,17 @@ local function QH_CartographerWaypoint_ToString(self)
   return self.task
 end
 
+function QuestHelper:HideCartographerWaypoint()
+  if self.cartographer_wp then
+    self.cartographer_wp:Cancel()
+  end
+  
+  if self.old_cartographer_wp_data then
+    self:ReleaseTable(self.old_cartographer_wp_data)
+    self.old_cartographer_wp_data = nil
+  end
+end
+
 function QuestHelper:CreateMipmapDodad()
   local icon = CreateFrame("Button", nil, Minimap)
   icon:Hide()
@@ -620,7 +566,7 @@ function QuestHelper:CreateMipmapDodad()
   icon.target = {0, 0, 0, 0}
   icon.icon_id = 7
   
-  icon.bg = QuestHelper:GetIconTexture(icon, 16)
+  icon.bg = QuestHelper:CreateIconTexture(icon, 16)
   icon.bg:SetDrawLayer("BACKGROUND")
   icon.bg:SetAllPoints()
   
@@ -684,39 +630,44 @@ function QuestHelper:CreateMipmapDodad()
         if not self.dot or id ~= self.icon_id then
           self.icon_id = id
           if self.dot then QuestHelper:ReleaseTexture(self.dot) end
-          self.dot = QuestHelper:GetIconTexture(self, self.icon_id)
+          self.dot = QuestHelper:CreateIconTexture(self, self.icon_id)
           self.dot:SetPoint("TOPLEFT", icon, "TOPLEFT", 2, -2)
           self.dot:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -2, 2)
         end
         
         if QuestHelper_Pref.cart_wp and Cartographer_Waypoints and Waypoint then
-          local x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], t[1], QuestHelper.z)
-          local z = select(QuestHelper.z, GetMapZones(t[1]))
-          
-          if QuestHelper.cartographer_wp and (QuestHelper.cartographer_wp.x ~= x or QuestHelper.cartographer_wp.y ~= y or QuestHelper.cartographer_wp.Zone ~= z) then
-            QuestHelper.cartographer_wp:Cancel()
-            QuestHelper.cartographer_wp = nil
-          end
-          
-          local owp = QuestHelper.old_cartographer_wp_data
-          if not owp then
-            owp = QuestHelper:CreateTable()
-            QuestHelper.old_cartographer_wp_data = owp
-          end
-          
-          if not QuestHelper.cartographer_wp and (not owp or owp.x ~= x or owp.y ~= y or owp.z ~= z) then
-            local wp = Waypoint:new()
-            wp.Cancel = QH_CartographerWaypoint_Cancel
-            wp.ToString = QH_CartographerWaypoint_ToString
+          if UnitIsDeadOrGhost("player") then
+            QuestHelper:HideCartographerWaypoint()
+          else
+            local x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], t[1], QuestHelper.z)
+            local z = select(QuestHelper.z, GetMapZones(t[1]))
             
-            wp.x, wp.y, wp.Zone, wp.task = x, y, z, t[5] and ("Visit "..QuestHelper:HighlightText(t[5]).." en route to:\n"..self.objective:Reason(true)) or self.objective:Reason(true)
-            owp.x, owp.y, owp.z = wp.x, wp.y, wp.Zone
-            Cartographer_Waypoints:AddWaypoint(wp)
-            QuestHelper.cartographer_wp = wp
+            if QuestHelper.cartographer_wp and (QuestHelper.cartographer_wp.x ~= x or
+                                                QuestHelper.cartographer_wp.y ~= y or
+                                                QuestHelper.cartographer_wp.Zone ~= z) then
+              QuestHelper.cartographer_wp:Cancel()
+            end
+            
+            local owp = QuestHelper.old_cartographer_wp_data
+            
+            if not owp then
+              owp = QuestHelper:CreateTable()
+              QuestHelper.old_cartographer_wp_data = owp
+            end
+            
+            if not QuestHelper.cartographer_wp and (not owp or owp.x ~= x or owp.y ~= y or owp.z ~= z) then
+              local wp = Waypoint:new()
+              wp.Cancel = QH_CartographerWaypoint_Cancel
+              wp.ToString = QH_CartographerWaypoint_ToString
+              
+              wp.x, wp.y, wp.Zone, wp.task = x, y, z, t[5] and ("Visit "..QuestHelper:HighlightText(t[5]).." en route to:\n"..self.objective:Reason(true)) or self.objective:Reason(true)
+              owp.x, owp.y, owp.z = wp.x, wp.y, wp.Zone
+              Cartographer_Waypoints:AddWaypoint(wp)
+              QuestHelper.cartographer_wp = wp
+            end
           end
         elseif QuestHelper.cartographer_wp then
-          QuestHelper.cartographer_wp:Cancel()
-          QuestHelper.cartographer_wp = nil
+          QuestHelper:HideCartographerWaypoint()
         end
         
         QuestHelper.Astrolabe:PlaceIconOnMinimap(self, unpack(self.target))
@@ -766,6 +717,7 @@ function QuestHelper:CreateMipmapDodad()
       if objective then
         self:Show()
       else
+        QuestHelper:HideCartographerWaypoint()
         self:Hide()
       end
       
@@ -857,7 +809,7 @@ function QuestHelper:CreateWorldGraphWalker()
             out = out + 1
             local dot = self.dots[out]
             if not dot then
-              dot = QuestHelper:GetDotTexture(self)
+              dot = QuestHelper:CreateDotTexture(self)
               dot:SetDrawLayer("BACKGROUND")
               self.dots[out] = dot
             end
