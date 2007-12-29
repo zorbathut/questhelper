@@ -212,7 +212,14 @@ function QuestHelper:OnEvent(event)
       QuestHelper:TextOut("Please wait for a patch that will be able to handle the new zone layout.")
       return
     end
+    
     QuestHelper_UpgradeDatabase(_G)
+    
+    if QuestHelper_SaveVersion ~= 5 then
+      QuestHelper:TextOut("Your saved data isn't compatible with this version of QuestHelper.")
+      QuestHelper:TextOut("Use a new version, or delete your saved variables.")
+      return
+    end
     
     self:ResetPathing()
     
