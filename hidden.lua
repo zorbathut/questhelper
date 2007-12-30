@@ -22,15 +22,15 @@ local function HiddenReason(obj)
   
   if obj.user_ignore == nil then
     if obj.filter_level and QuestHelper_Pref.filter_level then
-      return "Filtered due to level.", true
+      return "Filtered due to level.", true, "level"
     end
     
     if obj.filter_zone and QuestHelper_Pref.filter_zone then
-      return "Filtered due to zone.", true
+      return "Filtered due to zone.", true, "zone"
     end
     
     if obj.filter_done and QuestHelper_Pref.filter_done then
-      return "Filtered due to completeness.", true
+      return "Filtered due to completeness.", true, "done"
     end
   elseif obj.user_ignore then
     return "You requested this objective be hidden.", true
@@ -48,7 +48,7 @@ function QuestHelper:ShowHidden()
   
   for obj in pairs(self.to_add) do
     if not obj:Known() then
-      reason, can_show = HiddenReason(obj)
+      reason, can_show, filter = HiddenReason(obj)
       empty = false
       
       local item = self:CreateMenuItem(menu, obj:Reason(true))
@@ -62,6 +62,13 @@ function QuestHelper:ShowHidden()
         item2:SetSubmenu(menu3)
         local item3 = self:CreateMenuItem(menu3, "Show.")
         item3:SetFunction(function (obj) obj.user_ignore = false end, obj)
+        
+        if filter then
+          item3 = self:CreateMenuItem(menu3, "Disable filter: "..self:HighlightText(filter))
+          item3:SetFunction(function (filter) QuestHelper_Pref["filter_"..filter] = false end, filter)
+        end
+        
+        -- I'd add an option to adjust the level filter, but I can't tell what value would be required.
       end
     end
   end
