@@ -43,7 +43,7 @@ function QuestHelper:ToggleGraph()
   else
     QuestHelper_Pref.graph = true
     if self.graph_walker then
-      self.graph:Show()
+      self.graph_walker:Show()
     else
       self.graph_walker = self:CreateWorldGraphWalker()
     end
