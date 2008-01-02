@@ -1,3 +1,8 @@
+== Version 0.21c Uploaded 01/02/2008 ==
+
+* More data.
+* You can now disable filters from the hidden objective list.
+
 == Version 0.21b Uploaded 12/29/2007 ==
 
 * Will try not to replace the waypoint to your corpse.
