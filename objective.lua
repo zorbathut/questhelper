@@ -61,7 +61,8 @@ local function ItemKnown(self)
   if self.o.vendor then
     for i, npc in ipairs(self.o.vendor) do
       local n = self.qh:GetObjective("monster", npc)
-      if (not n.o.faction or n.o.faction == self.qh.faction) and n:Known() then
+      local faction = n.o.faction or n.fb.faction
+      if (not faction or faction == self.qh.faction) and n:Known() then
         return true
       end
     end
@@ -70,7 +71,8 @@ local function ItemKnown(self)
   if self.fb.vendor then
     for i, npc in ipairs(self.fb.vendor) do
       local n = self.qh:GetObjective("monster", npc)
-      if (not n.fb.faction or n.fb.faction == self.qh.faction) and n:Known() then
+      local faction = n.o.faction or n.fb.faction
+      if (not faction or faction == self.qh.faction) and n:Known() then
         return true
       end
     end
@@ -176,18 +178,16 @@ local function ItemAppendPositions(self, objective, weight, why)
   
   if self.o.vendor then for i, npc in ipairs(self.o.vendor) do
     local n = self.qh:GetObjective("monster", npc)
-    if (not n.o.faction or n.o.faction == self.qh.faction) and
-       (not n.fb.faction or n.fb.faction == self.qh.faction) then
-      
+    local faction = n.o.faction or n.fb.faction
+    if (not faction or faction == self.qh.faction) then
       n:AppendPositions(objective, 1, why2.."Purchase from "..self.qh:HighlightText(npc)..".")
     end
   end end
   
   if self.fb.vendor then for i, npc in ipairs(self.fb.vendor) do
     local n = self.qh:GetObjective("monster", npc)
-    if (not n.o.faction or n.o.faction == self.qh.faction) and
-       (not n.fb.faction or n.fb.faction == self.qh.faction) then
-      
+    local faction = n.o.faction or n.fb.faction
+    if (not faction or faction == self.qh.faction) then
       n:AppendPositions(objective, 1, why2.."Purchase from "..self.qh:HighlightText(npc)..".")
     end
   end end
