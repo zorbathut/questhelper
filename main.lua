@@ -16,6 +16,8 @@ QuestHelper_Objectives = {}
 QuestHelper_Pref =
  {
   scale=1,
+  share=true,
+  solo=false,
   filter_level=true,
   filter_zone=false,
   filter_done=false,
@@ -239,10 +241,15 @@ function QuestHelper:OnEvent(event)
     self:SetScript("OnUpdate", self.OnUpdate)
     
     if QuestHelper_Pref.share == nil then QuestHelper_Pref.share = true end
+    if QuestHelper_Pref.solo == nil then QuestHelper_Pref.solo = false end
     if QuestHelper_Pref.comm == nil then QuestHelper_Pref.comm = false end
     if QuestHelper_Pref.graph == nil then QuestHelper_Pref.graph = false end
     if QuestHelper_Pref.level == nil then QuestHelper_Pref.level = 2 end
     if QuestHelper_Pref.cart_wp == nil then QuestHelper_Pref.cart_wp = true end
+    
+    if QuestHelper_Pref.share and not QuestHelper_Pref.solo then
+      self:EnableSharing()
+    end
     
     self:HandlePartyChange()
     self:Nag()

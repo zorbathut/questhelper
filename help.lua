@@ -26,12 +26,38 @@ function QuestHelper:SetIconScale(input)
 end
 
 function QuestHelper:ToggleShare()
+  QuestHelper_Pref.share = not QuestHelper_Pref.share
   if QuestHelper_Pref.share then
-    self:DisableSharing()
-    self:TextOut("Objective sharing has been |cffff0000disabled|r.")
+    if QuestHelper_Pref.solo then
+      self:TextOut("Objective sharing will been |cff00ff00enabled|r when you disable solo mode.")
+    else
+      self:TextOut("Objective sharing has been |cff00ff00enabled|r.")
+      self:EnableSharing()
+    end
   else
-    self:EnableSharing()
-    self:TextOut("Objective sharing has been |cff00ff00enabled|r.")
+    self:TextOut("Objective sharing has been |cffff0000disabled|r.")
+    if QuestHelper_Pref.solo then
+      self:TextOut("Objective sharing won't be reenabled when you disable solo mode.")
+    else
+      self:DisableSharing()
+    end
+  end
+end
+
+function QuestHelper:ToggleSolo()
+  QuestHelper_Pref.solo = not QuestHelper_Pref.solo
+  if QuestHelper_Pref.solo then
+    if QuestHelper_Pref.share then
+      self:DisableSharing()
+      self:TextOut("Objective sharing has been temporarly |cffff0000disabled|r.")
+    end
+    self:TextOut("Solo mode has been |cff00ff00enabled|r.")
+  else
+    self:TextOut("Solo mode has been |cffff0000disabled|r.")
+    if QuestHelper_Pref.share then
+      self:EnableSharing()
+      self:TextOut("Objective sharing has been re|cff00ff00enabled|r.")
+    end
   end
 end
 
@@ -90,6 +116,10 @@ function QuestHelper:LevelOffset(offset)
     if self.party_levels then for n, l in ipairs(self.party_levels) do
       self:TextOut("Your effective level in a "..self:HighlightText(n).." player quest is "..self:HighlightText(string.format("%.1f", l))..".")
     end end
+    
+    if QuestHelper_Pref.solo then
+      self:TextOut("Peers aren't considered in your effective level, because you're playing solo.")
+    end
   else
     self:TextOut("Expected a level offset.")
   end
@@ -200,14 +230,17 @@ local commands =
    "Displays how many unused entities QuestHelper is tracking, so that it can reuse them in the future instead of creating new ones in the future.",
     {}, QuestHelper.RecycleInfo, QuestHelper},
   
-  
   {"CARTWP",
    "Toggles displaying the current objective using Cartographer Waypoints.",
     {}, QuestHelper.ToggleCartWP, QuestHelper},
   
   {"SHARE",
    "Toggles objective sharing between QuestHelper users.",
-    {}, QuestHelper.ToggleShare, QuestHelper}
+    {}, QuestHelper.ToggleShare, QuestHelper},
+  
+  {"SOLO",
+   "Toggles solo mode. When enabled, assumes you're playing alone, even when in a party.",
+    {}, QuestHelper.ToggleSolo, QuestHelper}
  }
 
 function QuestHelper:SlashCommand(input)

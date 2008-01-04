@@ -67,16 +67,17 @@ function QuestHelper:ScanQuestLog()
     self.party_levels = party_levels
   end
   
-  
   local level_average = UnitLevel("player")
   local users = 1
   
-  for n=1,4 do
-    local level = UnitLevel("party"..n)
-    
-    if level and level > 0 then
-      level_average = level_average + level
-      users = users + 1
+  if not QuestHelper_Pref.solo then
+    for n=1,4 do
+      local level = UnitLevel("party"..n)
+      
+      if level and level > 0 then
+        level_average = level_average + level
+        users = users + 1
+      end
     end
   end
   

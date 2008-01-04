@@ -453,16 +453,18 @@ function QuestHelper:HandlePartyChange()
   end
 end
 
+local enabled_sharing = false
+
 function QuestHelper:EnableSharing()
-  if not QuestHelper_Pref.share then
-    QuestHelper_Pref.share = true
+  if not enabled_sharing then
+    enabled_sharing = true
     self:HandlePartyChange()
   end
 end
 
 function QuestHelper:DisableSharing()
-  if QuestHelper_Pref.share then
-    QuestHelper_Pref.share = false
+  if enabled_sharing then
+    enabled_sharing = false
     for name, user in pairs(users) do
       if user.version > 0 then self:SendData("syn:0", name) end
       ReleaseUser(user)
