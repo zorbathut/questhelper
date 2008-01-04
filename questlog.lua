@@ -28,8 +28,11 @@ function QuestHelper:GetQuestLevel(quest_name)
     local title, level = GetQuestLogTitle(index)
     if not title then return 0 end
     if title == quest_name then
+      local original_entry = GetQuestLogSelection()
       SelectQuestLogEntry(index)
-      return level, self:HashString(select(2, GetQuestLogQuestText()))
+      local hash = self:HashString(select(2, GetQuestLogQuestText()))
+      SelectQuestLogEntry(original_entry)
+      return level, hash
     end
     index = index + 1
   end
@@ -55,6 +58,7 @@ end
 local first_time = true
 
 function QuestHelper:ScanQuestLog()
+  local original_entry = GetQuestLogSelection()
   local quests = self.quest_log
   
   local party_levels = self.party_levels
@@ -239,4 +243,6 @@ function QuestHelper:ScanQuestLog()
     first_time = false
     self:ForceRouteUpdate(3)
   end
+  
+  SelectQuestLogEntry(original_entry)
 end
