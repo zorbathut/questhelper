@@ -1,3 +1,9 @@
+== Version 0.22 Uploaded 01/05/2008 ==
+
+* Will restore your original quest selection after scanning your quest log.
+* Will hopefully properly determine the faction of a vendor now, and not direct you toward someone that will kill you.
+* Added solo mode, <code>/qh solo</code>, will ignore everyone else in your party and pretend you're playing alone.
+
 == Version 0.21c Uploaded 01/02/2008 ==
 
 * More data.
