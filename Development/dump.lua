@@ -159,6 +159,7 @@ DumpRecurse = function(buffer, prebuf, variable, depth)
     end
     
     buffer:add("{")
+    buffer:add("\n"..("  "):rep(depth) or "")
     
     if isArray(variable) then
       for i, j in ipairs(variable) do
@@ -190,7 +191,7 @@ DumpRecurse = function(buffer, prebuf, variable, depth)
           buffer:add("]=")
         end
         
-        buffer:add((type(j)=="table"and"\n"..("  "):rep(depth+1) or ""))
+        --buffer:add((type(j)=="table"and"\n"..("  "):rep(depth+1) or ""))
         
         DumpRecurse(buffer, prebuf, j, depth+1)
         
@@ -217,9 +218,9 @@ function DumpingComplete(buffer, prebuf)
   if last_id ~= 0 then
     buffer:add("DAT=nil\n")
     last_id = 0
+    prebuf:add("\n")
   end
   
-  prebuf:add("\n")
   prebuf:append(buffer)
   
   local result = prebuf:dump()
