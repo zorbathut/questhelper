@@ -116,7 +116,7 @@ local function WriteDupVariables(prebuf, var, dup)
       prebuf:add("local DAT={}\n")
     end
     
-    DumpRecurse(buf, prebuf, var, 0)
+    DumpRecurse(buf, prebuf, var, 1)
     dup.ref = ref
     
     dup.id = last_id
@@ -131,9 +131,12 @@ local function WriteDupVariables(prebuf, var, dup)
 end
 
 local function isArray(obj)
-  local c = 0
-  for i, j in pairs(obj) do c = c + 1 end
-  return c == #obj
+  if type(obj) == "table" then
+    local c = 0
+    for i, j in pairs(obj) do c = c + 1 end
+    return c == #obj
+  end
+  return false
 end
 
 local function isSafeString(obj)
@@ -159,16 +162,21 @@ DumpRecurse = function(buffer, prebuf, variable, depth)
     end
     
     buffer:add("{")
-    buffer:add("\n"..("  "):rep(depth) or "")
     
     if isArray(variable) then
       for i, j in ipairs(variable) do
+        if isArray(j) then
+          buffer:add("\n"..("  "):rep(depth))
+        end
+        
         DumpRecurse(buffer, prebuf, j, depth+1)
         if i ~= #variable then
-          buffer:add(","..(type(variable[i+1])=="table"and"\n"..("  "):rep(depth) or " "))
+          buffer:add(", ")
         end
       end
     else
+      buffer:add("\n"..("  "):rep(depth))
+      
       local sort_table = {}
       
       for key in pairs(variable) do
