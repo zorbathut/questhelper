@@ -1,3 +1,9 @@
+== Version 0.23 Uploaded 01/06/2008 ==
+
+* Menu positions now account for their effective scale.
+* Ignoring a user objective will now delete it instead.
+* Made dumped data more visually pleasing.
+
 == Version 0.22 Uploaded 01/05/2008 ==
 
 * Will restore your original quest selection after scanning your quest log.
