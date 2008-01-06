@@ -880,11 +880,18 @@ function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
     self:CreateMenuItem(menu, "Sharing"):SetSubmenu(submenu)
   end
   
-  self:CreateMenuItem(menu, "Ignore"):SetFunction(
-    function (obj)
-      obj.user_ignore = true
-      --QuestHelper:ForceRouteUpdate()
-    end, obj)
+  self:CreateMenuItem(menu, "Ignore"):SetFunction(self.IgnoreObjective, self, obj)
+end
+
+function QuestHelper:IgnoreObjective(objective)
+  if self.user_objectives[objective] then
+    self:RemoveObjectiveWatch(objective, self.user_objectives[objective])
+    self.user_objectives[objective] = nil
+  else
+    objective.user_ignore = true
+  end
+  
+  --self:ForceRouteUpdate()
 end
 
 function QuestHelper:SetObjectivePriority(objective, level)
