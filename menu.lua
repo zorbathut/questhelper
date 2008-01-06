@@ -108,7 +108,12 @@ local function Menu_ShowAtCursor(self, auto_release)
   -- Need to call DoShow before setting the position so that the width and height will have been calculated.
   self:DoShow()
   
-  self:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", math.max(0, math.min(x-self:GetWidth()/2, UIParent:GetRight()*UIParent:GetScale()-self:GetWidth())), math.min(UIParent:GetTop()*UIParent:GetScale(), math.max(self:GetHeight(), y+5)))
+  -- I declare this math horrible and convoluted.
+  local scale = parent and parent:GetEffectiveScale() or 1
+  x, y = math.max(0, math.min(x-self:GetWidth()/2*scale, UIParent:GetRight()*UIParent:GetEffectiveScale()-self:GetWidth()*scale)) / scale,
+         math.min(UIParent:GetTop()*UIParent:GetEffectiveScale(), math.max(self:GetHeight(), y+5)) / scale
+  
+  self:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x, y)
   
   if QuestHelper.active_menu and QuestHelper.active_menu ~= self then
     QuestHelper.active_menu:DoHide()
@@ -280,7 +285,7 @@ local function MenuItem_OnEnter(self)
     
     self.submenu:DoShow()
     
-    if self:GetRight()+self.submenu:GetWidth() > UIParent:GetRight()*UIParent:GetScale() then
+    if self:GetRight()+self.submenu:GetWidth() > UIParent:GetRight()*UIParent:GetEffectiveScale() then
       h1, h2 = h2, h1
     end
     
