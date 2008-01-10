@@ -61,22 +61,6 @@ function QuestHelper:ToggleSolo()
   end
 end
 
-function QuestHelper:ToggleGraph()
-  if QuestHelper_Pref.graph then
-    QuestHelper_Pref.graph = false
-    self.graph_walker:Hide()
-    self:TextOut("Graph display has been |cffff0000disabled|r.")
-  else
-    QuestHelper_Pref.graph = true
-    if self.graph_walker then
-      self.graph_walker:Show()
-    else
-      self.graph_walker = self:CreateWorldGraphWalker()
-    end
-    self:TextOut("Graph display has been |cff00ff00enabled|r.")
-  end
-end
-
 function QuestHelper:ToggleComm()
   if QuestHelper_Pref.comm then
     QuestHelper_Pref.comm = false
@@ -217,10 +201,6 @@ local commands =
    {{"/qh find item rune of teleport", "Finds a reagent vendor."},
     {"/qh find npc bragok", "Finds the Ratchet flight point."},
     {"/qh find loc stormwind 50 60", "Finds the Stormwind auction house."}}, QuestHelper.PerformSearch, QuestHelper},
-  
-  {"GRAPH",
-   "Toggles showing of the world graph. Exists mainly for my own personal convenience.",
-    {}, QuestHelper.ToggleGraph, QuestHelper},
   
   {"COMM",
    "Toggles showing of the communication between QuestHelper users. Exists mainly for my own personal convenience.",
