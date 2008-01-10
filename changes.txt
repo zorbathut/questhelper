@@ -1,4 +1,4 @@
-== Version 0.24 Uploaded 01/09/2008 ==
+== Version 0.24 Uploaded 01/10/2008 ==
 
 * Removed the graph command. I suspect it caused some people some grief.
 * Won't attempt to communicate with party members from other realms, i.e., in battle grounds.
