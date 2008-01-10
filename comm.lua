@@ -419,8 +419,9 @@ function QuestHelper:HandlePartyChange()
     
     for i = 1,4 do
       if UnitExists("party"..i) then
-        local name = UnitName("party"..i)
-        if name ~= UNKNOWNOBJECT then
+        local name, realm = UnitName("party"..i)
+        
+        if name ~= UNKNOWNOBJECT and not realm then
           local user = users[name]
           if not user then
             user = CreateUser(name)

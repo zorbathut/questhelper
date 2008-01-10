@@ -243,7 +243,6 @@ function QuestHelper:OnEvent(event)
     if QuestHelper_Pref.share == nil then QuestHelper_Pref.share = true end
     if QuestHelper_Pref.solo == nil then QuestHelper_Pref.solo = false end
     if QuestHelper_Pref.comm == nil then QuestHelper_Pref.comm = false end
-    if QuestHelper_Pref.graph == nil then QuestHelper_Pref.graph = false end
     if QuestHelper_Pref.level == nil then QuestHelper_Pref.level = 2 end
     if QuestHelper_Pref.cart_wp == nil then QuestHelper_Pref.cart_wp = true end
     
@@ -277,10 +276,6 @@ function QuestHelper:OnEvent(event)
     
     if not QuestHelper_Home then
       self:TextOut("Your home isn't known. When you get a chance, please talk to your innkeeper and reset it.")
-    end
-    
-    if QuestHelper_Pref.graph then
-      self.graph_walker = self:CreateWorldGraphWalker()
     end
     
     collectgarbage("collect") -- Free everything we aren't using.
