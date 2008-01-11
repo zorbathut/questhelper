@@ -279,6 +279,12 @@ function QuestHelper:OnEvent(event)
     end
     
     collectgarbage("collect") -- Free everything we aren't using.
+    
+    if self.debug_objectives then
+      for name, data in pairs(self.debug_objectives) do
+        self:LoadDebugObjective(name, data)
+      end
+    end
   end
   
   if event == "PLAYER_TARGET_CHANGED" then
