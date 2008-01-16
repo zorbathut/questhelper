@@ -1,3 +1,32 @@
+--[[QuestHelper.debug_objectives =
+ {
+  ["Harbinger of Doom"] =
+   {
+    cat="quest", what="Harbinger of Doom", sub=
+     {
+      ["Slay Harbinger Skyriss"] =
+       {
+        cat="monster", what="Harbinger Skyriss"
+       }
+     }
+   }
+ }]]
+
+function QuestHelper:LoadDebugObjective(name, data)
+  local obj = self:GetObjective(data.cat, data.what)
+  
+  self:SetObjectivePriority(obj, 3)
+  self:AddObjectiveWatch(obj, name)
+  
+  if data.sub then
+    for name, sdata in pairs(data.sub) do
+      self:ObjectiveObjectDependsOn(obj, QuestHelper:LoadDebugObjective(name, sdata))
+    end
+  end
+  
+  return obj
+end
+
 function QuestHelper:GetQuestLogObjective(quest_index, objective_index)
   local text, category, done = GetQuestLogLeaderBoard(objective_index, quest_index)
   local _, _, wanted, have, need = string.find(text, "%s*(.+)%s*:%s*(.+)%s*/%s*(.+)%s*")

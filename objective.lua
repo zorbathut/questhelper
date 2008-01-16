@@ -675,6 +675,13 @@ function QuestHelper:GetObjective(category, objective)
   if not objective_object then
     if category == "quest" then
       local _, _, level, hash, name = string.find(objective, "^(%d+)/(%d*)/(.*)$")
+      if not level then
+        _, _, level, name = string.find(objective, "^(%d+)/(.*)$")
+        if not level then
+          name = objective
+        end
+      end
+      
       if hash == "" then hash = nil end
       objective_object = self:GetQuest(name, tonumber(level), tonumber(hash))
       objective_list[objective] = objective_object

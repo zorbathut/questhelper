@@ -99,46 +99,49 @@ function QuestHelper:CreateWorldMapWalker()
   walker.used_map_dodads = 0
   
   function walker:OnUpdate(elapsed)
-    local points = self.points
-    
-    self.phase = self.phase + elapsed * 0.66
-    while self.phase > 1 do self.phase = self.phase - 1 end
-    
-    local w, h = WorldMapDetailFrame:GetWidth(), -WorldMapDetailFrame:GetHeight()
-    
-    local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
-    
-    local last_x, last_y = self.frame.Astrolabe:TranslateWorldMapPosition(self.frame.c, self.frame.z, self.frame.x, self.frame.y, c, z) local remainder = self.phase
     local out = 0
     
-    for i, pos in ipairs(points) do
-      local new_x, new_y = unpack(pos)
-      local x1, y1, x2, y2 = ClampLine(last_x, last_y, new_x, new_y)
-      last_x, last_y = new_x, new_y
+    if QuestHelper_Pref.show_ants then
+      local points = self.points
       
-      if x1 then
-        local len = math.sqrt((x1-x2)*(x1-x2)*16/9+(y1-y2)*(y1-y2))
+      self.phase = self.phase + elapsed * 0.66
+      while self.phase > 1 do self.phase = self.phase - 1 end
+      
+      local w, h = WorldMapDetailFrame:GetWidth(), -WorldMapDetailFrame:GetHeight()
+      
+      local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+      
+      local last_x, last_y = self.frame.Astrolabe:TranslateWorldMapPosition(self.frame.c, self.frame.z, self.frame.x, self.frame.y, c, z) local remainder = self.phase
+      
+      for i, pos in ipairs(points) do
+        local new_x, new_y = unpack(pos)
+        local x1, y1, x2, y2 = ClampLine(last_x, last_y, new_x, new_y)
+        last_x, last_y = new_x, new_y
         
-        if len > 0.0001 then
-          local interval = .025/len
-          local p = remainder*interval
+        if x1 then
+          local len = math.sqrt((x1-x2)*(x1-x2)*16/9+(y1-y2)*(y1-y2))
           
-          while p < 1 do
-            out = out + 1
-            local dot = self.dots[out]
-            if not dot then
-              dot = QuestHelper:CreateDotTexture(self)
-              dot:SetDrawLayer("BACKGROUND")
-              self.dots[out] = dot
+          if len > 0.0001 then
+            local interval = .025/len
+            local p = remainder*interval
+            
+            while p < 1 do
+              out = out + 1
+              local dot = self.dots[out]
+              if not dot then
+                dot = QuestHelper:CreateDotTexture(self)
+                dot:SetDrawLayer("BACKGROUND")
+                self.dots[out] = dot
+              end
+              
+              dot:ClearAllPoints()
+              dot:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x1*w*(1-p)+x2*w*p, y1*h*(1-p)+y2*h*p)
+              
+              p = p + interval
             end
             
-            dot:ClearAllPoints()
-            dot:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x1*w*(1-p)+x2*w*p, y1*h*(1-p)+y2*h*p)
-            
-            p = p + interval
+            remainder = (p-1)/interval
           end
-          
-          remainder = (p-1)/interval
         end
       end
     end

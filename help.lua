@@ -71,6 +71,16 @@ function QuestHelper:ToggleComm()
   end
 end
 
+function QuestHelper:ToggleAnts()
+  if QuestHelper_Pref.show_ants then
+    QuestHelper_Pref.show_ants = false
+    self:TextOut("Ant trails have been |cffff0000disabled|r.")
+  else
+    QuestHelper_Pref.show_ants = true
+    self:TextOut("Ant trails have been |cff00ff00enabled|r.")
+  end
+end
+
 function QuestHelper:LevelOffset(offset)
   local level = tonumber(offset)
   if level then
@@ -217,6 +227,10 @@ local commands =
   {"SHARE",
    "Toggles objective sharing between QuestHelper users.",
     {}, QuestHelper.ToggleShare, QuestHelper},
+  
+  {"ANTS",
+   "Toggles the world map ant trails on and off.",
+    {}, QuestHelper.ToggleAnts, QuestHelper},
   
   {"SOLO",
    "Toggles solo mode. When enabled, assumes you're playing alone, even when in a party.",

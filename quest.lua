@@ -26,6 +26,34 @@ local function QuestAppendPositions(self, objective, weight, why)
 end
 
 function QuestHelper:GetQuest(name, level, hash)
+  if not level then
+    if QuestHelper_Quests[self.faction] then
+      for l, quest_list in ipairs(QuestHelper_Quests[self.faction]) do
+        if quest_list[name] then
+          level = l
+          break
+        end
+      end
+    end
+    
+    if not level and 
+       QuestHelper_StaticData[self.locale] and
+       QuestHelper_StaticData[self.locale].quest[self.faction] then
+     for l, quest_list in ipairs(QuestHelper_StaticData[self.locale].quest[self.faction]) do
+        if quest_list[name] then
+          level = l
+          break
+        end
+      end
+    end
+    
+    if not level then
+      error("Don't know of a quest named '"..name.."' for your faction.")
+    end
+    
+    self:TextOut("Determined the quest level of '"..name.."' to be "..level..".")
+  end
+  
   local bracket = self.quest_objects[level]
   
   if not bracket then
@@ -40,7 +68,7 @@ function QuestHelper:GetQuest(name, level, hash)
     bracket[name] = bracket2
   end
   
-  local quest_object = bracket2[hash]
+  local quest_object = bracket2[hash or -1]
   
   if not quest_object then
     quest_object = self:NewObjectiveObject()
@@ -51,7 +79,7 @@ function QuestHelper:GetQuest(name, level, hash)
     quest_object.cat = "quest"
     quest_object.obj = level.."/"..(hash or "").."/"..name
     
-    bracket2[hash] = quest_object
+    bracket2[hash or -1] = quest_object
     
     local fbracket = QuestHelper_Quests[self.faction]
     
@@ -70,8 +98,12 @@ function QuestHelper:GetQuest(name, level, hash)
     quest_object.o = bracket[name]
     
     if not quest_object.o then
-      quest_object.o = {hash=hash}
-      bracket[name] = quest_object.o
+      if hash then
+        quest_object.o = {hash=hash}
+        bracket[name] = quest_object.o
+      else -- Not going to actually save the quest without a hash.
+        quest_object.o = {}
+      end
     end
     
     local l = QuestHelper_StaticData[self.locale]
@@ -103,7 +135,7 @@ function QuestHelper:GetQuest(name, level, hash)
       quest_object.need_hash = true
     end
     
-    if quest_object.fb.hash and quest_object.fb.hash ~= hash then
+    if hash and quest_object.fb.hash and quest_object.fb.hash ~= hash then
       quest_object.fb = quest_object.fb.alt and quest_object.fb.alt[hash]
       if not quest_object.fb then
         quest_object.fb = {}
