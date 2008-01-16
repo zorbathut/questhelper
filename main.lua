@@ -18,6 +18,7 @@ QuestHelper_Pref =
   scale=1,
   share=true,
   solo=false,
+  show_ants=true,
   filter_level=true,
   filter_zone=false,
   filter_done=false,
@@ -243,6 +244,7 @@ function QuestHelper:OnEvent(event)
     if QuestHelper_Pref.share == nil then QuestHelper_Pref.share = true end
     if QuestHelper_Pref.solo == nil then QuestHelper_Pref.solo = false end
     if QuestHelper_Pref.comm == nil then QuestHelper_Pref.comm = false end
+    if QuestHelper_Pref.show_ants == nil then QuestHelper_Pref.show_ants = true end
     if QuestHelper_Pref.level == nil then QuestHelper_Pref.level = 2 end
     if QuestHelper_Pref.cart_wp == nil then QuestHelper_Pref.cart_wp = true end
     
@@ -621,6 +623,8 @@ function QuestHelper:OnUpdate()
       self.c, self.z, self.x, self.y = nc or self.c, nz or self.z, nx or self.x, ny or self.y
       self.pos[1] = self.zone_nodes[self.c][self.z]
       self.pos[3], self.pos[4] = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)
+      assert(self.pos[3])
+      assert(self.pos[4])
       self.pos[3] = self.pos[3] * self.continent_scales_x[self.c]
       self.pos[4] = self.pos[4] * self.continent_scales_y[self.c]
       for i, n in ipairs(self.pos[1]) do
@@ -630,7 +634,7 @@ function QuestHelper:OnUpdate()
     end
   end
   
-  if self.c and self.c > 0 then
+  if self.c and self.c > 0 and self.z > 0 then
     if self.defered_quest_scan then
       self.defered_quest_scan = false
       self:ScanQuestLog()
