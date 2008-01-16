@@ -1,3 +1,9 @@
+== Version 0.25 Uploaded 01/15/2008 ==
+
+* Added a bunch of emails.
+* Added <code>/qh ants</code>, will toggle the ant trails on and off.
+* Added some asserts when calculating the player's position, let me know if they trigger.
+
 == Version 0.24 Uploaded 01/10/2008 ==
 
 * Removed the graph command. I suspect it caused some people some grief.
