@@ -25,6 +25,23 @@ function QuestHelper:SetIconScale(input)
   end
 end
 
+function QuestHelper:ToggleHide()
+  local current_objective = self.minimap_dodad.objective
+  
+  QuestHelper_Pref.hide = not QuestHelper_Pref.hide
+  if QuestHelper_Pref.hide then
+    self.map_overlay:Hide()
+    self.minimap_dodad:SetObjective(nil)
+    self.minimap_dodad.objective = current_objective
+    self:TextOut("QuestHelper is now |cffff0000hidden|r.")
+  else
+    self.map_overlay:Show()
+    self.minimap_dodad.objective = nil
+    self.minimap_dodad:SetObjective(current_objective)
+    self:TextOut("QuestHelper is now |cff00ff00shown|r.")
+  end
+end
+
 function QuestHelper:ToggleShare()
   QuestHelper_Pref.share = not QuestHelper_Pref.share
   if QuestHelper_Pref.share then
@@ -227,6 +244,10 @@ local commands =
   {"SHARE",
    "Toggles objective sharing between QuestHelper users.",
     {}, QuestHelper.ToggleShare, QuestHelper},
+  
+  {"HIDE",
+   "Hides QuestHelper's modifications to the minimap and world map, and pauses routing calculations.",
+    {}, QuestHelper.ToggleHide, QuestHelper},
   
   {"ANTS",
    "Toggles the world map ant trails on and off.",

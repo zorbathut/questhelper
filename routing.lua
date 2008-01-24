@@ -259,6 +259,8 @@ local function RouteUpdateRoutine(self)
   local distance, extra, route, new_distance, new_extra, new_route, shuffle, insert, point = 0, 0, self.route, 0, 0, {}, {}, 0, nil
   local recheck_pos, new_recheck_pos, new_local_minima = 1, 99999, true
   
+  self.minimap_dodad = minimap_dodad
+  
   while true do
     for i,o in ipairs(route) do
       o.filter_zone = o.location[1] ~= self.pos[1]

@@ -22,7 +22,8 @@ QuestHelper_Pref =
   filter_level=true,
   filter_zone=false,
   filter_done=false,
-  cart_wp=true
+  cart_wp=true,
+  hide=false
  }
 
 -- Character ID identifies the player's charaters by a number instead of a Name/Realm pair. You know, in case
@@ -247,6 +248,7 @@ function QuestHelper:OnEvent(event)
     if QuestHelper_Pref.comm == nil then QuestHelper_Pref.comm = false end
     if QuestHelper_Pref.show_ants == nil then QuestHelper_Pref.show_ants = true end
     if QuestHelper_Pref.level == nil then QuestHelper_Pref.level = 2 end
+    if QuestHelper_Pref.hide == nil then QuestHelper_Pref.hide = false end
     if QuestHelper_Pref.cart_wp == nil then QuestHelper_Pref.cart_wp = true end
     
     self.player_level = UnitLevel("player")
@@ -643,14 +645,14 @@ function QuestHelper:OnUpdate()
       self:ScanQuestLog()
     end
     
-    if coroutine.status(self.update_route) ~= "dead" then
+    if not self.hide and coroutine.status(self.update_route) ~= "dead" then
       local state, err = coroutine.resume(self.update_route, self)
       if not state then self:TextOut("|cffff0000The routing co-routine just exploded|r: |cffffff77"..err.."|r") end
     end
   end
   
   local level = UnitLevel("player")
-  if level >= 58 and self.player_level < 58
+  if level >= 58 and self.player_level < 58 then
     self.defered_graph_reset = true
   end
   self.player_level = level
