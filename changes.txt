@@ -1,3 +1,11 @@
+== Version 0.26 Uploaded 01/24/2008 ==
+
+* As might be expected, more updates to the static data.
+* Added <tt>/qh hide</tt> command, will hide the map icons and stop calculating routes, but continue to collect and share data.
+* Changed how the position weights in the static data were calculated, large values will decay, allowing less popular locations to catch up.
+* Should now not suggest that players under level 58 walk to Shattrath City and use the portals there.
+* Includes some changes based on a patch emailed to me to deal with AddOns that mangle quest names.
+
 == Version 0.25 Uploaded 01/15/2008 ==
 
 * Added a bunch of emails.
