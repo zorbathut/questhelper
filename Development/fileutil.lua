@@ -35,7 +35,7 @@ end or function(filename)
     local c = string.sub(filename, i, i)
     if c == "\\" then
       c = "/"
-    elseif string.find(c, "[^/%.%a%d]") then
+    elseif string.find(c, "[^/%.%-%a%d]") then
       c = "\\"..c
     end
     
@@ -43,6 +43,10 @@ end or function(filename)
   end
   
   return result
+end
+
+local function escapeForPattern(text)
+  return string.gsub(text, "[%%%^%$%.%+%*%-%?%[%]]", function (x) return "%"..x end)
 end
 
 FileUtil.fileHash = function(filename)
@@ -56,7 +60,7 @@ FileUtil.fileHash = function(filename)
   local line = stream:read()
   io.close(stream)
   if line then
-    return select(3, string.find(line, "^([abcdef%d]+)  "..filename.."$"))
+    return select(3, string.find(line, string.format("^([abcdef%%d]+)  %s$", escapeForPattern(filename))))
   end
 end
 

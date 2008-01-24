@@ -39,7 +39,6 @@ local static_alliance_routes =
 local static_shared_routes = 
   {
    {{1,19,0.638,0.387}, {2,21,0.257,0.730}, 210}, -- Ratchet <--> Booty Bay
-   {{2,4,0.587,0.599}, {3,2,0.898,0.502}, 5}, -- Dark Portal
    {{2,5,0.318,0.503}, {2,17,0.347,0.840}, 130}, -- Burning Steppes <--> Searing Gorge
    
    -- More Alliance routes than anything, but without them theres no valid path to these areas for Horde characters.
@@ -47,6 +46,9 @@ local static_shared_routes =
    {{1,5,0.332,0.398}, {1,18,0.548,0.971}, 210}, -- Auberdine <--> Rut'Theran Village
    {{1,5,0.306,0.409}, {1,3,0.2,0.546}, 210} -- Auberdine <--> Azuremyst Isle
   }
+
+-- Darkportal is handled specially, depending on whether or not you're level 58+ or not.
+local dark_portal_route = {{2,4,0.587,0.599}, {3,2,0.898,0.502}, 5}
 
 local static_zone_transitions =
   {
@@ -637,6 +639,15 @@ function QuestHelper:ResetPathing()
   for i, data in ipairs(static_shared_routes) do
     self:CreateAndAddStaticNodePair(data)
   end
+  
+  if self.player_level >= 58 then
+    dark_portal_route[3] = 5
+  else
+    -- If you can't take the route yet, we'll still add it and just pretend it will take a really long time.
+    dark_portal_route[3] = 86400
+  end
+  
+  self:CreateAndAddStaticNodePair(dark_portal_route)
   
   local st = self:CreateTable()
   

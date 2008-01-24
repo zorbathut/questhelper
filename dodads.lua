@@ -717,7 +717,7 @@ function QuestHelper:CreateMipmapDodad()
     self:SetWidth(20*QuestHelper_Pref.scale)
     
     if objective ~= self.objective then
-      if objective then
+      if objective and not QuestHelper_Pref.hide then
         self:Show()
       else
         QuestHelper:HideCartographerWaypoint()

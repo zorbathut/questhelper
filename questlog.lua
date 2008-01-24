@@ -51,10 +51,21 @@ function QuestHelper:GetQuestLogObjective(quest_index, objective_index)
   return category, verb, wanted or text, tonumber(have) or have, tonumber(need) or need
 end
 
+function QuestHelper:FixedGetQuestLogTitle(index)
+  local title, level, qtype, players, header, collapsed, status, daily = GetQuestLogTitle(index)
+  
+  if title and level then
+    local _, _, real_title = string.find(title, "^%["..level.."[^%s]-%] (.+)$")
+    title = real_title or title
+  end
+  
+  return title, level, qtype, players, header, collapsed, status, daily
+end
+
 function QuestHelper:GetQuestLevel(quest_name)
   local index = 1
   while true do
-    local title, level = GetQuestLogTitle(index)
+    local title, level = self:FixedGetQuestLogTitle(index)
     if not title then return 0 end
     if title == quest_name then
       local original_entry = GetQuestLogSelection()
@@ -123,7 +134,7 @@ function QuestHelper:ScanQuestLog()
   
   local index = 1
   while true do
-    local title, level, qtype, players, header, collapsed, status, daily = GetQuestLogTitle(index)
+    local title, level, qtype, players, header, collapsed, status, daily = self:FixedGetQuestLogTitle(index)
     
     if not title then break end
     

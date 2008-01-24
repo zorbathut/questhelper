@@ -162,6 +162,7 @@ local function TidyPositionList(list, min_distance)
   local highest = 0
   
   for i, data in ipairs(list) do
+    data[5] = math.pow(data[5], 0.73575888234288) -- Raising it to this number to make huge numbers seem closer together, the positions are probably correct and not some mistake.
     highest = math.max(highest, data[5])
   end
   
@@ -170,6 +171,7 @@ local function TidyPositionList(list, min_distance)
     if list[i][5] < highest*0.2 then
       table.remove(list, i)
     else
+      list[i][5] = math.max(1, math.floor(list[i][5]+0.5))
       i = i + 1
     end
   end
