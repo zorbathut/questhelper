@@ -11,6 +11,10 @@ Astrolabe\Load.xml
 ChatThrottleLib\ChatThrottleLib.xml
 
 static.lua
+
+lang.lua
+lang_enus.lua
+
 upgrade.lua
 main.lua
 recycle.lua

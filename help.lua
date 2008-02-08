@@ -25,6 +25,21 @@ function QuestHelper:SetIconScale(input)
   end
 end
 
+function QuestHelper:SetLocale(loc)
+  if not loc or loc == "" then
+    self:TextOut("Available Locales:")
+    for loc in pairs(QuestHelper_Translations) do
+      self:TextOut(string.format("  %s%s", self:HighlightText(loc), loc == QuestHelper_Pref.locale and " *" or ""))
+    end
+  elseif QuestHelper_Translations[loc] then
+    QuestHelper_Pref.locale = loc
+    QHFormatSetLocale(loc)
+    self:TextOut("Locale changed to: "..self:HighlightText(loc))
+  else
+    self:TextOut("Locale "..self:HighlightText(tostring(loc) or "UNKNOWN").." isn't known.")
+  end
+end
+
 function QuestHelper:ToggleHide()
   local current_objective = self.minimap_dodad.objective
   
@@ -255,7 +270,11 @@ local commands =
   
   {"SOLO",
    "Toggles solo mode. When enabled, assumes you're playing alone, even when in a party.",
-    {}, QuestHelper.ToggleSolo, QuestHelper}
+    {}, QuestHelper.ToggleSolo, QuestHelper},
+  
+  {"LOCALE",
+   "Select the locale to use for displayed messages.",
+    {}, QuestHelper.SetLocale, QuestHelper}
  }
 
 function QuestHelper:SlashCommand(input)

@@ -9,28 +9,28 @@ QuestHelper = CreateFrame("Frame", "QuestHelper", nil)
 QuestHelper:SetFrameStrata("TOOLTIP")
 
 QuestHelper_SaveVersion = 5
-QuestHelper_Locale = GetLocale()
+QuestHelper_Locale = GetLocale() -- This variable is used only for the collected data, and has nothing to do with displayed text.
 QuestHelper_Quests = {}
 QuestHelper_Objectives = {}
 
 QuestHelper_Pref =
+ {}
+
+QuestHelper_DefaultPref =
  {
-  scale=1,
-  share=true,
-  solo=false,
-  show_ants=true,
   filter_level=true,
   filter_zone=false,
   filter_done=false,
-  cart_wp=true,
-  hide=false
+  share = true,
+  scale = 1,
+  solo = false,
+  comm = false,
+  show_ants = true,
+  level = 2,
+  hide = false,
+  cart_wp = true,
+  locale = GetLocale() -- This variable is used for display puroses, and has nothing to do with the collected data.
  }
-
--- Character ID identifies the player's charaters by a number instead of a Name/Realm pair. You know, in case
--- they want to submit their data anonymously without references to their characters in them.
--- This way the most I can tell is how many characters the submitter has, which probably isn't a big deal.
-QuestHelper_NextCharacterID = 1
-QuestHelper_CharacterID = nil
 
 QuestHelper_FlightInstructors = {}
 QuestHelper_FlightRoutes = {}
@@ -207,19 +207,24 @@ end
 
 function QuestHelper:OnEvent(event)
   if event == "VARIABLES_LOADED" then
+    QHFormatSetLocale(QuestHelper_Pref.locale or GetLocale())
+    
+    if QuestHelper_Locale ~= GetLocale() then
+      QuestHelper:TextOut(QHText("LOCALE_ERROR"))
+      return
+    end
+    
     self.Astrolabe = DongleStub("Astrolabe-0.4")
     
     if not self:ZoneSanity() then
-      QuestHelper:TextOut("I'm refusing to run, out of fear of corrupting your saved data.")
-      QuestHelper:TextOut("Please wait for a patch that will be able to handle the new zone layout.")
+      QuestHelper:TextOut(QHText("ZONE_LAYOUT_ERROR"))
       return
     end
     
     QuestHelper_UpgradeDatabase(_G)
     
     if QuestHelper_SaveVersion ~= 5 then
-      QuestHelper:TextOut("Your saved data isn't compatible with this version of QuestHelper.")
-      QuestHelper:TextOut("Use a new version, or delete your saved variables.")
+      QuestHelper:TextOut(QHText("DOWNGRADE_ERROR"))
       return
     end
     
@@ -243,13 +248,11 @@ function QuestHelper:OnEvent(event)
     
     self:SetScript("OnUpdate", self.OnUpdate)
     
-    if QuestHelper_Pref.share == nil then QuestHelper_Pref.share = true end
-    if QuestHelper_Pref.solo == nil then QuestHelper_Pref.solo = false end
-    if QuestHelper_Pref.comm == nil then QuestHelper_Pref.comm = false end
-    if QuestHelper_Pref.show_ants == nil then QuestHelper_Pref.show_ants = true end
-    if QuestHelper_Pref.level == nil then QuestHelper_Pref.level = 2 end
-    if QuestHelper_Pref.hide == nil then QuestHelper_Pref.hide = false end
-    if QuestHelper_Pref.cart_wp == nil then QuestHelper_Pref.cart_wp = true end
+    for key, def in pairs(QuestHelper_DefaultPref) do
+      if QuestHelper_Pref[key] == nil then
+        QuestHelper_Pref[key] = def
+      end
+    end
     
     self.player_level = UnitLevel("player")
     
@@ -282,7 +285,7 @@ function QuestHelper:OnEvent(event)
     end
     
     if not QuestHelper_Home then
-      self:TextOut("Your home isn't known. When you get a chance, please talk to your innkeeper and reset it.")
+      self:TextOut(QHText("HOME_NOT_KNOWN"))
     end
     
     collectgarbage("collect") -- Free everything we aren't using.
