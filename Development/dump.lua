@@ -238,8 +238,8 @@ function DumpingComplete(buffer, prebuf)
   return result
 end
 
-function ScanAndDumpVariable(variable, name)
+function ScanAndDumpVariable(variable, name, no_scan)
   local buffer, prebuf = CreateBuffer(), CreateBuffer()
-  DumpVariable(buffer, prebuf, ScanVariable(variable), name)
+  DumpVariable(buffer, prebuf, no_scan and variable or ScanVariable(variable), name)
   return DumpingComplete(buffer, prebuf)
 end
