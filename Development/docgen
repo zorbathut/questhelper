@@ -8,12 +8,13 @@
 loadfile("dump.lua")()
 loadfile("fileutil.lua")()
 
+local empty_table = {}
 local items = {}
 
 -- object = getObject(name, list)
 -- .name (string) The name of the documented item.
 -- .list (table) The table to search for the item in.
--- .object (docobj) The object to 
+-- .object (docobj) The object pointed to by name.
 local function getObject(name, list)
   if not list then
     list = items
@@ -25,10 +26,11 @@ local function getObject(name, list)
     name = real_name
   end
   
-  local item = items[name]
+  local item = list[name]
+  
   if not item then
     item = {}
-    items[name] = item
+    list[name] = item
     
     item.name = name
     item.type = "<unknown>"
@@ -47,16 +49,16 @@ local function getObject(name, list)
 end
 
 -- valid = isVariableString(var)
--- var (string) The name of a variable.
--- valid (boolean) True if var is a valid variable name.
+-- .var (string) The name of a variable.
+-- .valid (boolean) True if var is a valid variable name.
 -- Checks if a string would make a valid variable name.
 local function isVariableString(var)
   return string.len(var) > 0 and string.find(var, "^[%a_][%a%d_]*$")
 end
 
 -- array = readList(list)
--- list (string) A comma seperated list of items.
--- array (array) The list, broken up into tokens.
+-- .list (string) A comma seperated list of items.
+-- .array (array) The list, broken up into tokens.
 -- Breaks string containing a comma seperated list of items into tokens.
 -- Returns nil if the list couldn't be parsed.
 local function readVariableList(list)
@@ -74,10 +76,10 @@ local function readVariableList(list)
 end
 
 -- name, arguments, returns = readFunctionLine(line)
--- line (string) The line to read.
--- name(string) The name of the function.
--- arguments (array) An array of arguments to the function.
--- returns (array) An array of return values from the function.
+-- .line (string) The line to read.
+-- .name(string) The name of the function.
+-- .arguments (array) An array of arguments to the function.
+-- .returns (array) An array of return values from the function.
 -- Returns nothing if it couldn't parse the line.
 local function readFunctionLine(line)
   local function_chunk, argument_chunk = select(3, string.find(line, "^(.-)%((.*)%)%s*$"))
@@ -99,22 +101,37 @@ local function readFunctionLine(line)
 end
 
 -- processComment(file, line, comment)
--- file (string) The name of the file the comment came from.
--- line (number) The line number of the file the comment came from.
--- comment (table) An array of strings, the lines making up the comment.
+-- .file (string) The name of the file the comment came from.
+-- .line (number) The line number of the file the comment came from.
+-- .comment (table) An array of strings, the lines making up the comment.
 -- Parses comments to extract information from them.
 local function processComment(file, line, comment)
   local func, arg, ret = readFunctionLine(comment[1])
   
   if func then
     local obj = getObject(func)
-    obj.line = file
+    obj.file = file
     obj.line = line
     obj.type = "function"
     obj.arg = arg
     obj.ret = ret
     
     print((next(ret) and table.concat(ret, ", ") or "<nil>").." = "..func.."("..table.concat(arg, ", ")..")")
+    
+    for i = 2,#comment do
+      local line = comment[i]
+      local item, typename, desc = select(3, string.find(line, "^%s*%.(%a+)%s*%((%a+)%)%s*(.-)%s*$"))
+      
+      if item then
+        local cobj = getObject(func.."."..item)
+        cobj.file = file
+        cobj.line = line
+        cobj.type = typename
+        table.insert(cobj.notes, desc)
+      else
+        table.insert(obj.notes, line)
+      end
+    end
   end
   
   -- TODO: Parse comments.
@@ -125,7 +142,7 @@ local function processComment(file, line, comment)
 end
 
 -- clearTable(tbl)
--- tbl (table) The table to clear.
+-- .tbl (table) The table to clear.
 -- Goes through a table and deletes all its keys.
 local function clearTable(tbl)
   for key in pairs(tbl) do
@@ -134,7 +151,7 @@ local function clearTable(tbl)
 end
 
 -- readLuaFile(file)
--- file (string) The name of the file to read.
+-- .file (string) The name of the file to read.
 -- Reads the comments from a file and passes the comments to [processComment]
 local function readLuaFile(file)
   local stream = io.open(file, "r")
@@ -222,6 +239,29 @@ for i, file in ipairs(arg) do
   readLuaFile(file)
 end
 
+local function HTMLText(text)
+  return string.gsub(text, ".", function (c)
+    if c == "<" then return "&lt;" end
+    if c == ">" then return "&gt;" end
+    if c == " " then return "&nbsp;" end
+    if c == "&" then return "&amp;" end
+    if c == "\"" then return "&quot;" end
+    if c == "\n" then return "<br/>" end
+    return c
+    end)
+end
+
+local function DescriptionText(lines)
+  local result = ""
+  
+  for i, line in ipairs(lines) do
+    -- TODO: Actually parse the lines.
+    result = result.."<p>"..HTMLText(line).."</p>"
+  end
+  
+  return result;
+end
+
 local WriteDocObject
 
 local function WriteDocObjectList(list, prefix, buffer)
@@ -239,11 +279,51 @@ local function WriteDocObjectList(list, prefix, buffer)
   end
 end
 
-local function WriteDocObjectDescription(obj, buffer)
+local function WriteDocObjectDescription(obj, prefix, buffer)
   if not obj then
     buffer:add("<p>No information available.</p>")
+  elseif obj.type == "function" then
+    if #obj.ret > 0 then
+      for i, name in ipairs(obj.ret) do
+        buffer:add("<span class=\"argument\">")
+        buffer:add(name)
+        buffer:add("<div class=\"description\">")
+        WriteDocObjectDescription(obj.children[name], nil, buffer)
+        buffer:add("</div>")
+        buffer:add("</span>")
+        if i ~= #obj.ret then buffer:add(", ") end
+      end
+      buffer:add(" = ")
+    end
+    
+    local first_arg = 1
+    if obj.arg[1] == "self" then
+      first_arg = 2
+      buffer:add((prefix or "???")..":")
+    else
+      buffer:add((prefix and (prefix .. ".")) or "")
+    end
+    
+    buffer:add("<span class=\"argument\">")
+    buffer:add(obj.name)
+    buffer:add("</span>(")
+    
+    for arg = first_arg, #obj.arg do
+      local name = obj.arg[arg]
+      buffer:add("<span class=\"argument\">")
+      buffer:add(name)
+      buffer:add("<div class=\"description\">")
+      WriteDocObjectDescription(obj.children[name], nil, buffer)
+      buffer:add("</div>")
+      buffer:add("</span>")
+      if arg ~= #obj.arg then buffer:add(", ") end
+    end
+    
+    buffer:add(") <span class=\"typename\">function</span>")
+    buffer:add(DescriptionText(obj.notes))
   else
-    buffer:add("<p>TODO: Description</p>")
+    buffer:add("<span class=\"argument\">"..HTMLText(obj.name or "unknown").."</span> <span class=\"typename\">"..HTMLText(obj.type or "unknown").."</span>")
+    buffer:add(DescriptionText(obj.notes))
   end
 end
 
@@ -252,56 +332,8 @@ WriteDocObject = function(obj, prefix, buffer)
     buffer:add("No information available.")
   else
     buffer:add("<a name=\"\">")
-    
-    if obj.type == "function" then
-      if #obj.ret > 0 then
-        for i, name in ipairs(obj.ret) do
-          buffer:add("<span class=\"argument\">")
-          buffer:add(name)
-          buffer:add("<div class=\"description\">")
-          WriteDocObjectDescription(obj.children[name], buffer)
-          buffer:add("</div>")
-          buffer:add("</span>")
-          if i ~= #obj.ret then buffer:add(", ") end
-        end
-        buffer:add(" = ")
-      end
-      
-      if obj.arg[1] == "self" then
-        buffer:add((prefix or "???")..":")
-        buffer:add("<span class=\"argument\">")
-        buffer:add(obj.name)
-        buffer:add("</span>(")
-        for i = 2,#obj.arg do
-          buffer:add("<span class=\"argument\">")
-          buffer:add(obj.arg[i])
-          buffer:add("<div class=\"description\">")
-          WriteDocObjectDescription(obj.children[obj.arg[i]], buffer)
-          buffer:add("</div>")
-          buffer:add("</span>")
-          if i ~= #obj.arg then buffer:add(", ") end
-        end
-      else
-        buffer:add((prefix and (prefix .. ".")) or "")
-        buffer:add("<span class=\"argument\">")
-        buffer:add(obj.name)
-        buffer:add("</span>(")
-        for i, name in ipairs(obj.arg) do
-          buffer:add("<span class=\"argument\">")
-          buffer:add(name)
-          buffer:add("<div class=\"description\">")
-          WriteDocObjectDescription(obj.children[name], buffer)
-          buffer:add("</div>")
-          buffer:add("</span>")
-          if i ~= #obj.arg then buffer:add(", ") end
-        end
-      end
-      buffer:add(") <span class=\"typename\">function</span>")
-    else
-      buffer:add("TODO: Write variable information")
-    end
+    WriteDocObjectDescription(obj, prefix, buffer)
     buffer:add("</a>")
-    WriteDocObjectDescription(obj, buffer)
   end
 end
 

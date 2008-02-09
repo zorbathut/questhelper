@@ -19,6 +19,7 @@ h1
 div.item
  {
   display: block;
+  z-index: 0;
   margin: 10px 10px;
   padding: 5px 5px;
   border: thin solid #000000;
@@ -40,6 +41,7 @@ span.argument div.description
 span.argument:hover div.description
  {
   position: absolute;
+  z-index: 1;
   top: 12px;
   left: 5px;
   min-width: 150px;
