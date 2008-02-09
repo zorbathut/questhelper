@@ -171,7 +171,7 @@ local function TidyPositionList(list, min_distance)
     if list[i][5] < highest*0.2 then
       table.remove(list, i)
     else
-      list[i][5] = math.max(1, math.floor(list[i][5]+0.5))
+      list[i][5] = math.max(1, math.floor(list[i][5]*100/highest+0.5))
       i = i + 1
     end
   end
