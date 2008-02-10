@@ -9,6 +9,7 @@ end
 
 if not cache.removed then cache.removed = {} end
 if not cache.known then cache.known = {} end
+if not cache.ignored then cache.ignored = {} end
 
 loadfile("dump.lua")()
 loadfile("fileutil.lua")()
@@ -29,20 +30,48 @@ local all_input_files, unknown_input_files = {}, {}
 FileUtil.forEachFile("LocalInput", function (name)
   if FileUtil.extension(name) == "lua" then
     local hash = FileUtil.fileHash(name)
-    if hash then
-      local input_name = "Input/"..hash..".lua"
-      if not cache.removed[input_name] then
-        if not cache.known[input_name] then
-          FileUtil.copyFile(name, input_name)
-          unknown_input_files[input_name] = name
-        else
-          cache.known[input_name] = name
+    if cache.ignored[hash] then return end
+    cache.ignored[hash] = true
+    
+    local input = loadfile(name)
+    if input then
+      local data = {}
+      setfenv(input, data)
+      if pcall(input) then
+        if not (data.QuestHelper_Locale and data.QuestHelper_Objectives) then
+          print("! "..name.." isn't a QuestHelper SavedVariables file.")
+          return
+        end
+        
+        local tempname = os.tmpname()
+        local stream = io.open(tempname, "w")
+        if stream then
+          print("Copying/Sorting "..name)
+          stream:write(ScanAndDumpVariable(data, nil, true) or "")
+          io.close(stream)
+          hash = FileUtil.fileHash(tempname)
+          if hash then
+            local input_name = "Input/"..hash..".lua"
+            if not cache.removed[input_name] then
+              if not cache.known[input_name] then
+                FileUtil.copyFile(tempname, input_name)
+                unknown_input_files[input_name] = name
+              else
+                cache.known[input_name] = name
+              end
+            else
+              cache.removed[input_name] = name
+            end
+          else
+            print("!!! Can't get hash of "..tempname..", for "..name)
+          end
+          FileUtil.unlinkFile(tempname)
         end
       else
-        cache.removed[input_name] = name
+        print("!!! "..name.." couldn't be executed.")
       end
     else
-      print("Can't get hash of "..name)
+      print("!!! "..name.." couldn't be loaded.")
     end
   end
 end)
@@ -102,25 +131,34 @@ local function LoadFile(file)
     setfenv(data, loaded)
     data()
     
-    if type(loaded.QuestHelper_Quests) == "table" then for faction, levels in pairs(loaded.QuestHelper_Quests) do
-      if type(levels) == "table" then for level, quest_list in pairs(levels) do
-        if type(quest_list) == "table" then for name, quest in pairs(quest_list) do
-          ProcessQuest(faction, level, name, quest, result)
+    if loaded.QuestHelper_UID then
+      result.uid = loaded.QuestHelper_UID
+      result.time = loaded.QuestHelper_SaveDate
+    else
+      if type(loaded.QuestHelper_Quests) == "table" then for faction, levels in pairs(loaded.QuestHelper_Quests) do
+        if type(levels) == "table" then for level, quest_list in pairs(levels) do
+          if type(quest_list) == "table" then for name, quest in pairs(quest_list) do
+            ProcessQuest(faction, level, name, quest, result)
+          end end
         end end
       end end
-    end end
-    
-    if type(loaded.QuestHelper_Objectives) == "table" then for category, objectives in pairs(loaded.QuestHelper_Objectives) do
-      if type(objectives) == "table" then for name, objective in pairs(objectives) do
-        ProcessObjective(category, name, objective, result)
+      
+      if type(loaded.QuestHelper_Objectives) == "table" then for category, objectives in pairs(loaded.QuestHelper_Objectives) do
+        if type(objectives) == "table" then for name, objective in pairs(objectives) do
+          ProcessObjective(category, name, objective, result)
+        end end
       end end
-    end end
+    end
   end
   
   return result
 end
 
 local function ObsoletedBy(data1, data2)
+  if data1.uid or data2.uid then
+    return data1.uid == data2.uid and (data1.time or 0) >= (data2.time or 0)
+  end
+  
   for key, value in pairs(data1) do
     local value2 = data2[key]
     if value2 == nil or value2 < value then

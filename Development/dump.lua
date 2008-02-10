@@ -240,6 +240,41 @@ end
 
 function ScanAndDumpVariable(variable, name, no_scan)
   local buffer, prebuf = CreateBuffer(), CreateBuffer()
-  DumpVariable(buffer, prebuf, no_scan and variable or ScanVariable(variable), name)
+  
+  if name then
+    DumpVariable(buffer, prebuf, no_scan and variable or ScanVariable(variable), name)
+  else
+    -- If no name is specified, dump each variable in sequence.
+    local sort_table = {}
+    
+    for key, var in pairs(variable) do
+      table.insert(sort_table, key)
+      
+      if not no_scan then
+        ScanVariable(var)
+      end
+    end
+    
+    table.sort(sort_table, function (a, b)
+      if type(a) < type(b) then return true end
+      return type(a) == type(b) and (tostring(a) or "") < (tostring(b) or "")
+    end)
+    
+    for index, i in ipairs(sort_table) do
+      if isSafeString(i) then
+        buffer:add(i)
+        buffer:add("=")
+      else
+        -- A variable that doesn't have a normal name. Why this would be is a mystery.
+        buffer:add("_G[")
+        DumpRecurse(buffer, prebuf, i, 0)
+        buffer:add("]=")
+      end
+      
+      DumpRecurse(buffer, prebuf, variable[i], 1)
+      buffer:add("\n")
+    end
+  end
+  
   return DumpingComplete(buffer, prebuf)
 end

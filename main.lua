@@ -36,6 +36,30 @@ QuestHelper_FlightInstructors = {}
 QuestHelper_FlightRoutes = {}
 QuestHelper_KnownFlightRoutes = {}
 
+QuestHelper_SaveDate = 0
+QuestHelper_UID = nil
+
+function SetUID()
+  if QuestHelper_UID then return end
+  local base = UnitName("player").."/"..GetRealmName().."/"..time().."/"..math.random(0,2147483647)
+  QuestHelper_UID = ""
+  
+  local function hash(text)
+    local a, b = 1, 0
+    for i=1,string.len(text) do
+      a = (a+string.byte(text,i))%65521
+      b = (b+a)%65521
+    end
+    return b*65536+a
+  end
+  
+  for i = 0,64 do
+    local value = hash(base)+math.random(0,2147483647)
+    QuestHelper_UID = QuestHelper_UID .. string.sub("0123456789abcdef", value%16, value%16)
+    base = value .. "/" .. base 
+  end
+end
+
 QuestHelper.tooltip = CreateFrame("GameTooltip", "QuestHelperTooltip", nil, "GameTooltipTemplate")
 QuestHelper.objective_objects = {}
 QuestHelper.user_objectives = {}
@@ -207,6 +231,9 @@ end
 
 function QuestHelper:OnEvent(event)
   if event == "VARIABLES_LOADED" then
+    SetUID()
+    QuestHelper_SaveDate = time()
+    
     QHFormatSetLocale(QuestHelper_Pref.locale or GetLocale())
     
     if QuestHelper_Locale ~= GetLocale() then
