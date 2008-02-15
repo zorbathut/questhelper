@@ -1,5 +1,6 @@
 -- These tables will be filled in later by their specific files.
 QuestHelper_Translations = {}
+QuestHelper_ForcedTranslations = {}
 QuestHelper_TranslationFunctions = {}
 
 local empty_table = {}
@@ -8,11 +9,13 @@ local function nop() -- A dummy function that does nothing, used by QHFormatArra
   return nil
 end
 
-local trans_table, trans_func, trans_func_fb
+local trans_table, transt_table_force, trans_func, trans_func_fb
 
 -- Sets the locale used by QuestHelper. It needn't match the game's locale.
 function QHFormatSetLocale(loc)
-  trans_table = QuestHelper_Translations[loc] or QuestHelper_Translations["enUS"]
+  trans_table_force = QuestHelper_ForcedTranslations[GetLocale()] or empty_table
+  trans_table_fb = QuestHelper_Translations["enUS"]
+  trans_table = QuestHelper_Translations[loc] or transt_table_fb
   trans_func, trans_func_fb = QuestHelper_TranslationFunctions[locale], QuestHelper_TranslationFunctions["enUS"]
   trans_func = trans_func or trans_func_fb
 end
@@ -22,7 +25,7 @@ function QHFormatArray(text, array)
     QHFormatSetLocale(GetLocale())
   end
   
-  text = string.gsub(trans_table[text] or text, "%%([^%d]*)(%d*)", function (op, index)
+  text = string.gsub(trans_table_force[text] or trans_table[text] or trans_table_fb[text] or text, "%%([^%d]*)(%d*)", function (op, index)
     local i = tonumber(index)
     if i then
       -- Pass the selected argument through a function and insert the result.

@@ -1,5 +1,13 @@
 -- Note: This file is used as fallback for locales that don't exist.
 
+-- If the client is using this locale, then strings from this table will always be used, regardless of
+-- the locale selected for displayed text.
+QuestHelper_ForcedTranslations.enUS = 
+ {
+ -- Must match the line in objective text of the quest log. Extracted from '???: x/y', to determine the name of the monster to slay.
+  ["SLAIN_PATTERN"] = "(.*)%sslain$"
+ }
+
 QuestHelper_Translations.enUS =
  {
   ["LOCALE_ERROR"] = "The locale of your saved data doesn't match the locale of your WoW client.",
