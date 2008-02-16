@@ -39,13 +39,13 @@ function QuestHelper:GetQuestLogObjective(quest_index, objective_index)
     have = need
   end
   if category == "monster" then
-    local start = string.find(wanted, "%sslain$", -6)
-    if start then
-      wanted = string.sub(wanted, 1, start-1)
-      verb = "Slay"
+    local noun = select(3, string.find(wanted, QHText("SLAIN_PATTERN")))
+    if noun then
+      wanted = noun
+      verb = QHText("SLAY_VERB")
     end
   elseif category == "item" then
-    verb = "Acquire"
+    verb = QHText("ACQUIRE_VERB")
   end
   
   return category, verb, wanted or text, tonumber(have) or have, tonumber(need) or need
@@ -184,7 +184,7 @@ function QuestHelper:ScanQuestLog()
           local category, verb, wanted, have, need = self:GetQuestLogObjective(index, objective)
           
           if (category == "item" and wanted == " ") or
-             (category == "monster" and wanted == "slain") then
+             (category == "monster" and wanted == QHText("SLAIN_STRING")) then
             self.defered_quest_scan = true
           elseif not lo.objective then
             -- objective is new.
@@ -198,9 +198,9 @@ function QuestHelper:ScanQuestLog()
             end
             
             if verb then
-              lo.reason = verb.." "..self:HighlightText(wanted).." for quest "..self:HighlightText(title).."."
+              lo.reason = QHFormat("OBJECTIVE_REASON", verb, wanted, title)
             else
-              lo.reason = self:HighlightText(wanted).." for quest "..self:HighlightText(title).."."
+              lo.reason = QHFormat("OBJECTIVE_REASON_FALLBACK", wanted, title)
             end
             
             lo.category = category
@@ -253,7 +253,7 @@ function QuestHelper:ScanQuestLog()
       end
       
       if is_new then
-        lq.reason = "Turn in quest "..self:HighlightText(title).."."
+        lq.reason = QHFormat("OBJECTIVE_REASON_TURNIN", title)
         quest:Share()
         self:AddObjectiveWatch(quest, lq.reason)
       end

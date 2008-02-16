@@ -180,7 +180,7 @@ local function ItemAppendPositions(self, objective, weight, why)
     local n = self.qh:GetObjective("monster", npc)
     local faction = n.o.faction or n.fb.faction
     if (not faction or faction == self.qh.faction) then
-      n:AppendPositions(objective, 1, why2.."Purchase from "..self.qh:HighlightText(npc)..".")
+      n:AppendPositions(objective, 1, why2..QHFormat("OBJECTIVE_PURCHASE", npc))
     end
   end end
   
@@ -188,7 +188,7 @@ local function ItemAppendPositions(self, objective, weight, why)
     local n = self.qh:GetObjective("monster", npc)
     local faction = n.o.faction or n.fb.faction
     if (not faction or faction == self.qh.faction) then
-      n:AppendPositions(objective, 1, why2.."Purchase from "..self.qh:HighlightText(npc)..".")
+      n:AppendPositions(objective, 1, why2..QHFormat("OBJECTIVE_PURCHASE", npc))
     end
   end end
   
@@ -200,12 +200,12 @@ local function ItemAppendPositions(self, objective, weight, why)
   
   if self.o.drop then for monster, count in pairs(self.o.drop) do
     local m = self.qh:GetObjective("monster", monster)
-    m:AppendPositions(objective, m.o.looted and count/m.o.looted or 1, why2.."Slay "..self.qh:HighlightText(monster)..".")
+    m:AppendPositions(objective, m.o.looted and count/m.o.looted or 1, why2..QHFormat("OBJECTIVE_SLAY", monster))
   end end
   
   if self.fb.drop then for monster, count in pairs(self.fb.drop) do
     local m = self.qh:GetObjective("monster", monster)
-    m:AppendPositions(self, m.fb.looted and count/m.fb.looted or 1, why2.."Slay "..self.qh:HighlightText(monster)..".")
+    m:AppendPositions(self, m.fb.looted and count/m.fb.looted or 1, why2..QHFormat("OBJECTIVE_SLAY", monster))
   end end
   
   if self.o.pos then for i, p in ipairs(self.o.pos) do
@@ -223,7 +223,7 @@ local function ItemAppendPositions(self, objective, weight, why)
       if data and data.drop then
         for monster, count in pairs(data.drop) do
           local m = self.qh:GetObjective("monster", monster)
-          m:AppendPositions(objective, m.o.looted and count/m.o.looted or 1, why2.."Slay "..self.qh:HighlightText(monster)..".")
+          m:AppendPositions(objective, m.o.looted and count/m.o.looted or 1, why2..QHFormat("OBJECTIVE_SLAY", monster))
         end
       elseif data and data.pos then
         for i, p in ipairs(data.pos) do
@@ -238,7 +238,7 @@ local function ItemAppendPositions(self, objective, weight, why)
       if data and data.drop then
         for monster, count in pairs(data.drop) do
           local m = self.qh:GetObjective("monster", monster)
-          m:AppendPositions(objective, m.fb.looted and count/m.fb.looted or 1, why2.."Slay "..self.qh:HighlightText(monster)..".")
+          m:AppendPositions(objective, m.fb.looted and count/m.fb.looted or 1, why2..QHFormat("OBJECTIVE_SLAY", monster))
         end
       elseif data and data.pos then
         for i, p in ipairs(data.pos) do
@@ -845,12 +845,11 @@ function QuestHelper:ObjectiveObjectDependsOn(objective, needs)
   end
 end
 
-QuestHelper.priority_names = {"Highest", "High", "Normal", "Low", "Lowest"}
-
 function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
   local submenu = self:CreateMenu()
   
-  for i, name in ipairs(self.priority_names) do
+  for i = 1,5 do
+    local name = QHText("PRIORITY"..i)
     local item = self:CreateMenuItem(submenu, name)
     local tex
     
@@ -867,27 +866,26 @@ function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
     item:SetFunction(self.SetObjectivePriorityPrompt, self, obj, i)
   end
   
-  self:CreateMenuItem(menu, "Priority"):SetSubmenu(submenu)
-  
+  self:CreateMenuItem(menu, QHText("PRIORITY")):SetSubmenu(submenu)
   
   if self.sharing then
-    submenu = self:CreateMenu("Sharing")
-    local item = self:CreateMenuItem(submenu, "Enable")
+    submenu = self:CreateMenu(QHText("SHARING"))
+    local item = self:CreateMenuItem(submenu, QHText("ENABLE"))
     local tex = self:CreateIconTexture(item, 10)
     if not obj.want_share then tex:SetVertexColor(1, 1, 1, 0) end
     item:AddTexture(tex, true)
     item:SetFunction(obj.Share, obj)
     
-    local item = self:CreateMenuItem(submenu, "Disable")
+    local item = self:CreateMenuItem(submenu, QHText("DISABLE"))
     local tex = self:CreateIconTexture(item, 10)
     if obj.want_share then tex:SetVertexColor(1, 1, 1, 0) end
     item:AddTexture(tex, true)
     item:SetFunction(obj.Unshare, obj)
     
-    self:CreateMenuItem(menu, "Sharing"):SetSubmenu(submenu)
+    self:CreateMenuItem(menu, QHText("SHARING")):SetSubmenu(submenu)
   end
   
-  self:CreateMenuItem(menu, "Ignore"):SetFunction(self.IgnoreObjective, self, obj)
+  self:CreateMenuItem(menu, QHText("IGNORE")):SetFunction(self.IgnoreObjective, self, obj)
 end
 
 function QuestHelper:IgnoreObjective(objective)
@@ -943,9 +941,9 @@ function QuestHelper:SetObjectivePriorityPrompt(objective, level)
   self:SetObjectivePriority(objective, level)
   if CalcObjectivePriority(objective) ~= level then
     local menu = self:CreateMenu()
-    self:CreateMenuTitle(menu, "The selected priority would be ignored.")
-    self:CreateMenuItem(menu, "Apply same priority to the blocking objectives."):SetFunction(ApplyBlockPriority, objective, level)
-    self:CreateMenuItem(menu, "I'll set the priorities myself."):SetFunction(NOP)
+    self:CreateMenuTitle(menu, QHText("IGNORED_PRIORITY_TITLE"))
+    self:CreateMenuItem(menu, QHText("IGNORED_PRIORITY_FIX")):SetFunction(ApplyBlockPriority, objective, level)
+    self:CreateMenuItem(menu, QHText("IGNORED_PRIORITY_IGNORE")):SetFunction(NOP)
     menu:ShowAtCursor()
   end
 end

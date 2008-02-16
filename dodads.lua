@@ -288,7 +288,7 @@ function QuestHelper:AppendObjectiveToTooltip(o)
     end)
     
     for i, u in ipairs(prog_sort_table) do
-      self.tooltip:AddDoubleLine(u.."'s progress:",
+      self.tooltip:AddDoubleLine(QHFormat("PEER_PROGRESS", u),
                                  self:ProgressString(o.progress[u][1].."/"..o.progress[u][2],
                                  o.progress[u][3]), unpack(theme.tooltip))
       
@@ -299,7 +299,7 @@ function QuestHelper:AppendObjectiveToTooltip(o)
     while table.remove(prog_sort_table) do end
   end
   
-  QuestHelper.tooltip:AddDoubleLine("Estimated travel time:", QuestHelper:TimeString(o.travel_time or 0), unpack(theme.tooltip))
+  QuestHelper.tooltip:AddDoubleLine(QHText("TRAVEL_ESTIMATE"), QHFormat("TRAVEL_ESTIMATE_VALUE", o.travel_time or 0), unpack(theme.tooltip))
   QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\ARIALN.TTF", 11)
   select(2, QuestHelper.tooltip:GetPrevLines()):SetFont("Fonts\\ARIALN.TTF", 11)
 end
@@ -663,7 +663,7 @@ function QuestHelper:CreateMipmapDodad()
               wp.Cancel = QH_CartographerWaypoint_Cancel
               wp.ToString = QH_CartographerWaypoint_ToString
               
-              wp.x, wp.y, wp.Zone, wp.task = x, y, z, t[5] and ("Visit "..QuestHelper:HighlightText(t[5]).." en route to:\n"..self.objective:Reason(true)) or self.objective:Reason(true)
+              wp.x, wp.y, wp.Zone, wp.task = x, y, z, (t[5] and (QHFormat("WAYPOINT_REASON", t[5]).."\n"..self.objective:Reason(true))) or self.objective:Reason(true)
               owp.x, owp.y, owp.z = wp.x, wp.y, wp.Zone
               Cartographer_Waypoints:AddWaypoint(wp)
               QuestHelper.cartographer_wp = wp
@@ -735,7 +735,7 @@ function QuestHelper:CreateMipmapDodad()
       QuestHelper.tooltip:ClearLines()
       
       if self.target[5] then
-        QuestHelper.tooltip:AddLine("Visit "..QuestHelper:HighlightText(self.target[5]).." en route to objective:", unpack(QuestHelper:GetColourTheme().tooltip))
+        QuestHelper.tooltip:AddLine(QHFormat("WAYPOINT_REASON", self.target[5]), unpack(QuestHelper:GetColourTheme().tooltip))
         QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\FRIZQT__.TTF", 14)
       end
       

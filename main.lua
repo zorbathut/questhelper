@@ -327,11 +327,11 @@ function QuestHelper:OnEvent(event)
             self:AppendItemObjectiveDrop(self:GetObjective("item", name), name, target, number)
           else
             local total = 0
-            local _, _, amount = string.find(name, "(%d+) Copper")
+            local _, _, amount = string.find(name, QHText("COPPER_PATTERN"))
             if amount then total = total + amount end
-            _, _, amount = string.find(name, "(%d+) Silver")
+            _, _, amount = string.find(name, QHText("SILVER_PATTERN"))
             if amount then total = total + amount * 100 end
-            _, _, amount = string.find(name, "(%d+) Gold")
+            _, _, amount = string.find(name, QHText("GOLD_PATTERN"))
             if amount then total = total + amount * 10000 end
             
             if total > 0 then
