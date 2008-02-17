@@ -10,17 +10,24 @@ loadfile("fileutil.lua")()
 
 local empty_table = {}
 local items = {}
+local next_anchor = 1
 
 -- object = getObject(name, list)
 -- .name (string) The name of the documented item.
 -- .list (table) The table to search for the item in.
 -- .object (docobj) The object pointed to by name.
-local function getObject(name, list)
+local function getObject(name, list, parent, rel)
   if not list then
     list = items
+    assert(rel == nil)
+    rel = "."
   end
   
-  local _, _, real_name, remainder = string.find(name, "(.-)[%.:](.+)")
+  print("Name: "..name)
+  
+  assert(rel ~= nil)
+  
+  local _, _, real_name, new_rel, remainder = string.find(name, "(.-)%s*([%.:])%s*(.+)")
   
   if real_name then
     name = real_name
@@ -33,18 +40,27 @@ local function getObject(name, list)
     list[name] = item
     
     item.name = name
+    item.fname = (parent and parent.fname and parent.fname .. "." .. name) or name
     item.type = "<unknown>"
     item.file = "<unknown>"
     item.line = -1
+    item.anchor = "anchor_"..next_anchor
+    next_anchor = next_anchor + 1
     
     item.children = {}
     item.notes = {}
   end
   
   if remainder then
-    return getObject(remainder, item.children)
+    if rel ~= "." then
+      print("Name: "..name)
+      print("Remainder: "..remainder)
+      print("Misplaced ':' character?")
+    end
+    
+    return getObject(remainder, item.children, item, new_rel)
   else
-    return item
+    return item, rel
   end
 end
 
@@ -109,12 +125,16 @@ local function processComment(file, line, comment)
   local func, arg, ret = readFunctionLine(comment[1])
   
   if func then
-    local obj = getObject(func)
+    local obj, rel = getObject(func)
     obj.file = file
     obj.line = line
     obj.type = "function"
     obj.arg = arg
     obj.ret = ret
+    
+    if rel == ":" then
+      table.insert(obj.arg, 1, "self")
+    end
     
     print((next(ret) and table.concat(ret, ", ") or "<nil>").." = "..func.."("..table.concat(arg, ", ")..")")
     
@@ -123,7 +143,7 @@ local function processComment(file, line, comment)
       local item, typename, desc = select(3, string.find(line, "^%s*%.(%a+)%s*%((%a+)%)%s*(.-)%s*$"))
       
       if item then
-        local cobj = getObject(func.."."..item)
+        local cobj = getObject(obj.fname.."."..item)
         cobj.file = file
         cobj.line = line
         cobj.type = typename
@@ -323,6 +343,7 @@ local function WriteDocObjectDescription(obj, prefix, buffer)
     buffer:add(DescriptionText(obj.notes))
   else
     buffer:add("<span class=\"argument\">"..HTMLText(obj.name or "unknown").."</span> <span class=\"typename\">"..HTMLText(obj.type or "unknown").."</span>")
+    WriteDocObjectList(obj.children, prefix and (prefix.."."..obj.name) or obj.name, buffer)
     buffer:add(DescriptionText(obj.notes))
   end
 end
@@ -331,7 +352,7 @@ WriteDocObject = function(obj, prefix, buffer)
   if not obj then
     buffer:add("No information available.")
   else
-    buffer:add("<a name=\"\">")
+    buffer:add("<a name=\""..obj.anchor.."\">")
     WriteDocObjectDescription(obj, prefix, buffer)
     buffer:add("</a>")
   end
