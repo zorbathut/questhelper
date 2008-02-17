@@ -1,6 +1,6 @@
 ## Interface: 20300
 ## Title: QuestHelper
-## Author: smariot, vipersniper
+## Author: smariot
 ## Notes: Calculates an optimal route for you to follow while questing.
 ## Version: 0.29
 ## OptionalDeps: Cartographer
