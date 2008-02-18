@@ -44,7 +44,7 @@ local function ProcessEQL3NPCData(eql3)
           local monster = GetObjective("enUS", "monster", npc)
           
           if not monster.pos then monster.pos = {} end
-          table.insert(monster.pos, {c, z, x/100, y/100, 1})
+          table.insert(monster.pos, {QuestHelper_IndexLookup[QuestHelper_Ver01_Zones[c][z]], x/100, y/100, 1})
         end
       end end
     end

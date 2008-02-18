@@ -100,8 +100,8 @@ local function Distance(a, b)
   -- Doing this, because the distances are going to be rounded later, and I don't want it to create 
   -- a situation where if you ran TidyPositionList twice, it would have a different result.
   
-  local x, y = math.floor(a[3]*10000+0.5)/10000-math.floor(b[3]*10000+0.5)/10000,
-               math.floor(a[4]*10000+0.5)/10000-math.floor(b[4]*10000+0.5)/10000
+  local x, y = math.floor(a[2]*10000+0.5)/10000-math.floor(b[2]*10000+0.5)/10000,
+               math.floor(a[3]*10000+0.5)/10000-math.floor(b[3]*10000+0.5)/10000
   
   return math.sqrt(x*x+y*y)
 end
@@ -144,9 +144,9 @@ local function TidyPositionList(list, min_distance)
       end
       if nearest and distance < min_distance then
         local a, b = list[i], list[nearest]
-        a[3] = (a[3]*a[5]+b[3]*b[5])/(a[5]+b[5])
-        a[4] = (a[4]*a[5]+b[4]*b[5])/(a[5]+b[5])
-        a[5] = a[5]+b[5]
+        a[2] = (a[2]*a[4]+b[2]*b[4])/(a[4]+b[4])
+        a[3] = (a[3]*a[4]+b[3]*b[4])/(a[4]+b[4])
+        a[4] = a[4]+b[4]
         table.remove(list, nearest)
         changed = true
       else
@@ -162,35 +162,33 @@ local function TidyPositionList(list, min_distance)
   local highest = 0
   
   for i, data in ipairs(list) do
-    data[5] = math.pow(data[5], 0.73575888234288) -- Raising it to this number to make huge numbers seem closer together, the positions are probably correct and not some mistake.
-    highest = math.max(highest, data[5])
+    data[4] = math.pow(data[4], 0.73575888234288) -- Raising it to this number to make huge numbers seem closer together, the positions are probably correct and not some mistake.
+    highest = math.max(highest, data[4])
   end
   
   local i = 1 -- Remove anything that doesn't seem very likely.
   while i <= #list do
-    if list[i][5] < highest*0.2 then
+    if list[i][4] < highest*0.2 then
       table.remove(list, i)
     else
-      list[i][5] = math.max(1, math.floor(list[i][5]*100/highest+0.5))
+      list[i][4] = math.max(1, math.floor(list[i][4]*100/highest+0.5))
       i = i + 1
     end
   end
   
   for i, j in ipairs(list) do
+    j[2] = math.floor(j[2]*10000+0.5)/10000
     j[3] = math.floor(j[3]*10000+0.5)/10000
-    j[4] = math.floor(j[4]*10000+0.5)/10000
   end
   
   table.sort(list, function(a, b)
-    if a[5] > b[5] then return true end
-    if a[5] < b[5] then return false end
+    if a[4] > b[4] then return true end
+    if a[4] < b[4] then return false end
     if a[1] < b[1] then return true end
     if a[1] > b[1] then return false end
     if a[2] < b[2] then return true end
     if a[2] > b[2] then return false end
-    if a[3] < b[3] then return true end
-    if a[3] > b[3] then return false end
-    return a[4] < b[4]
+    return a[3] < b[3]
   end)
 end
 
@@ -205,7 +203,7 @@ end
 local function PositionListMass(list)
   local mass = 0
   for _, pos in ipairs(list) do
-    mass = mass + pos[5]
+    mass = mass + pos[4]
   end
   return mass
 end
@@ -228,25 +226,24 @@ end
 
 local function MergePositionLists(list, add)
   for _, pos in ipairs(add) do
-    local c, z, x, y, w = pos[1], pos[2], pos[3], pos[4], pos[5] or 1
+    local i, x, y, w = pos[1], pos[2], pos[3], pos[4]
     if type(c) == "number" and
-       QuestHelper_ValidPosition(c, z, x, y) and
        type(w) == "number" and w > 0 then
       local bp, distance = nil, 0
       for i, pos2 in ipairs(list) do
-        if c == pos2[1] and z == pos2[2] then
-          local d = math.sqrt((x-pos2[3])*(x-pos2[3])+(y-pos2[4])*(y-pos2[4]))
+        if i == pos2[1] then
+          local d = math.sqrt((x-pos2[2])*(x-pos2[2])+(y-pos2[3])*(y-pos2[3]))
           if not nearest or d < distance then
             bp, distance = pos2, d
           end
         end
       end
       if bp and distance < 0.03 then
-        bp[3] = (bp[3]*bp[5]+x*w)/(bp[5]+w)
-        bp[4] = (bp[4]*bp[5]+y*w)/(bp[5]+w)
-        bp[5] = bp[5]+w
+        bp[2] = (bp[2]*bp[4]+x*w)/(bp[4]+w)
+        bp[3] = (bp[3]*bp[4]+y*w)/(bp[4]+w)
+        bp[4] = bp[4]+w
       else
-        table.insert(list, {c,z,x,y,w})
+        table.insert(list, {i,x,y,w})
       end
     end
   end
@@ -287,7 +284,7 @@ local function AddQuest(locale, faction, level, name, data)
      and type(level) == "number" and level >= 1 and level <= 100
      and type(name) == "string" and type(data) == "table" then
     
-    local _, _, real_name = string.find(name, "^%["..level.."[^%s]-%] (.+)$")
+    local _, _, real_name = string.find(name, "^%["..level.."[^%s]-%]%s?(.+)$")
     
     if real_name then
       -- The Quest Level AddOn mangles level names.

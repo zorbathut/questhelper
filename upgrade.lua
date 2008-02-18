@@ -60,6 +60,68 @@ QuestHelper_Ver01_Zones =
     [7]="Terokkar Forest",
     [8]="Zangarmarsh"}}
 
+QuestHelper_IndexLookup =
+ {["Orgrimmar"] = 1,
+  ["Ashenvale"] = 2,
+  ["Azuremyst Isle"] = 3,
+  ["Desolace"] = 4,
+  ["Silithus"] = 5,
+  ["Stonetalon Mountains"] = 6,
+  ["Durotar"] = 7,
+  ["Tanaris"] = 8,
+  ["Bloodmyst Isle"] = 9,
+  ["Dustwallow Marsh"] = 10,
+  ["The Barrens"] = 11,
+  ["The Exodar"] = 12,
+  ["Felwood"] = 13,
+  ["Thousand Needles"] = 14,
+  ["Azshara"] = 15,
+  ["Darkshore"] = 16,
+  ["Feralas"] = 17,
+  ["Un'Goro Crater"] = 18,
+  ["Winterspring"] = 19,
+  ["Moonglade"] = 20,
+  ["Darnassus"] = 21,
+  ["Mulgore"] = 22,
+  ["Thunder Bluff"] = 23,
+  ["Teldrassil"] = 24,
+  ["Ironforge"] = 25,
+  ["Alterac Mountains"] = 26,
+  ["Badlands"] = 27,
+  ["Dun Morogh"] = 28,
+  ["Loch Modan"] = 29,
+  ["Redridge Mountains"] = 30,
+  ["Duskwood"] = 31,
+  ["Searing Gorge"] = 32,
+  ["Blasted Lands"] = 33,
+  ["Eastern Plaguelands"] = 34,
+  ["Silverpine Forest"] = 35,
+  ["Stormwind City"] = 36,
+  ["Elwynn Forest"] = 37,
+  ["Stranglethorn Vale"] = 38,
+  ["Arathi Highlands"] = 39,
+  ["Burning Steppes"] = 40,
+  ["Eversong Woods"] = 41,
+  ["The Hinterlands"] = 42,
+  ["Tirisfal Glades"] = 43,
+  ["Ghostlands"] = 44,
+  ["Undercity"] = 45,
+  ["Swamp of Sorrows"] = 46,
+  ["Deadwind Pass"] = 47,
+  ["Hillsbrad Foothills"] = 48,
+  ["Westfall"] = 49,
+  ["Western Plaguelands"] = 50,
+  ["Wetlands"] = 51,
+  ["Silvermoon City"] = 52,
+  ["Shadowmoon Valley"] = 53,
+  ["Blade's Edge Mountains"] = 54,
+  ["Terokkar Forest"] = 55,
+  ["Hellfire Peninsula"] = 56,
+  ["Zangarmarsh"] = 57,
+  ["Nagrand"] = 58,
+  ["Netherstorm"] = 59,
+  ["Shattrath City"] = 60}
+
 function QuestHelper_ValidPosition(c, z, x, y)
   local zd = QuestHelper_Ver01_Zones
   return type(x) == "number" and type(y) == "number" and x > -0.1 and y > -0.1 and x < 1.1 and y < 1.1 and c and zd[c] and z and zd[c][z]
@@ -80,6 +142,22 @@ function QuestHelper_PrunePositionList(list)
   end
   
   return #list > 0 and list or nil
+end
+
+function QuestHelper_ConvertPosition(pos)
+  --print(table.concat(pos, ", "))
+  pos[2] = QuestHelper_IndexLookup[QuestHelper_Ver01_Zones[pos[1]][pos[2]]]
+  table.remove(pos, 1)
+  --print(table.concat(pos, ", "))
+  --print("----")
+end
+
+function QuestHelper_ConvertPositionList(list)
+  if list then
+    for i, pos in pairs(list) do
+      QuestHelper_ConvertPosition(pos)
+    end
+  end
 end
 
 function QuestHelper_UpgradeDatabase(data)
@@ -179,5 +257,34 @@ function QuestHelper_UpgradeDatabase(data)
     -- Zone transitions have been obsoleted by a bug.
     data.QuestHelper_ZoneTransition = nil
     data.QuestHelper_SaveVersion = 5
+  end
+  
+  if data.QuestHelper_SaveVersion == 5 then
+    -- For version 6, I'm converting area positions from a continent/zone index pair to a single index.
+    
+    for faction, level_list in pairs(data.QuestHelper_Quests) do
+      for level, quest_list in pairs(level_list) do
+        for quest_name, quest_data in pairs(quest_list) do
+          QuestHelper_ConvertPositionList(quest_data.pos)
+          if quest_data.item then for name, data in pairs(quest_data.item) do
+            QuestHelper_ConvertPositionList(data.pos)
+          end end
+          if quest_data.alt then for hash, data in pairs(quest_data.alt) do
+            QuestHelper_ConvertPositionList(data.pos)
+            if data.item then for name, data in pairs(data.item) do
+              QuestHelper_ConvertPositionList(data.pos)
+            end end
+          end end
+        end
+      end
+    end
+    
+    for cat, list in pairs(data.QuestHelper_Objectives) do
+      for name, data in pairs(list) do
+        QuestHelper_ConvertPositionList(data.pos)
+      end
+    end
+    
+    data.QuestHelper_SaveVersion = 6
   end
 end

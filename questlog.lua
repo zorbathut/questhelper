@@ -55,7 +55,7 @@ function QuestHelper:FixedGetQuestLogTitle(index)
   local title, level, qtype, players, header, collapsed, status, daily = GetQuestLogTitle(index)
   
   if title and level then
-    local _, _, real_title = string.find(title, "^%["..level.."[^%s]-%] (.+)$")
+    local _, _, real_title = string.find(title, "^%["..level.."[^%s]-%]%s?(.+)$")
     title = real_title or title
   end
   
