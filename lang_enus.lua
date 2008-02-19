@@ -21,6 +21,7 @@ QuestHelper_Translations.enUS =
   DOWNGRADE_ERROR = "Your saved data isn't compatible with this version of QuestHelper. "..
                         "Use a new version, or delete your saved variables.",
   HOME_NOT_KNOWN = "Your home isn't known. When you get a chance, please talk to your innkeeper and reset it.",
+  UNKNOWN_ZONE = "This zone is unknown to QuestHelper: %h1, %h2.", -- %1 = zone, %2 = continent
   
   -- Words used for objectives.
   SLAY_VERB = "Slay",

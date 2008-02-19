@@ -60,7 +60,9 @@ QuestHelper_Ver01_Zones =
     [7]="Terokkar Forest",
     [8]="Zangarmarsh"}}
 
-QuestHelper_IndexLookup =
+QuestHelper_Zones = QuestHelper_Ver01_Zones
+
+QuestHelper_IndexLookup = -- The names in this table will be translated into the current locale.
  {["Orgrimmar"] = 1,
   ["Ashenvale"] = 2,
   ["Azuremyst Isle"] = 3,
@@ -122,19 +124,58 @@ QuestHelper_IndexLookup =
   ["Netherstorm"] = 59,
   ["Shattrath City"] = 60}
 
-function QuestHelper_ValidPosition(c, z, x, y)
-  local zd = QuestHelper_Ver01_Zones
+QuestHelper_ZoneLookup = {}
+
+local untranslated_index = nil
+
+function QuestHelper_BuildZoneLookup(map)
+  QuestHelper_ZoneLookup = {}
+  
+  if GetMapContinents and GetMapZones then
+    -- Called from inside the WoW client.
+    
+    if not untranslated_index then
+      untranslated_index = QuestHelper_IndexLookup
+    end
+    
+    QuestHelper_IndexLookup = {}
+    
+    for name, index in pairs(untranslated_index) do
+      QuestHelper_IndexLookup[map and map[name] or name] = index
+    end
+    
+    for c, cname in pairs({GetMapContinents()}) do
+      for z, zname in pairs({GetMapZones(c)}) do
+        local index = QuestHelper_IndexLookup[zname]
+        if not index then
+          QuestHelper:TextOut(QHFormat("UNKNOWN_ZONE", zname, cname))
+          return false
+        end
+        local pair = {c, z}
+        QuestHelper_ZoneLookup[zname] = pair
+        QuestHelper_ZoneLookup[index] = pair
+      end
+    end
+  else
+    -- Called from some lua script.
+    for name, index
+  end
+end
+
+function QuestHelper_ValidPosition(c, z, x, y, map)
+  local zd = map or QuestHelper_Zones
   return type(x) == "number" and type(y) == "number" and x > -0.1 and y > -0.1 and x < 1.1 and y < 1.1 and c and zd[c] and z and zd[c][z]
 end
 
-function QuestHelper_PrunePositionList(list)
+function QuestHelper_PrunePositionList(list, map)
   if type(list) ~= "table" then
     return nil
   end
   
   local i = 1
   while i <= #list do
-    if QuestHelper_ValidPosition(unpack(list[i])) and type(list[i][5]) == "number" and list[i][5] >= 1 then
+    local pos = list[i]
+    if QuestHelper_ValidPosition(unpack(list[i])) and type(pos[5]) == "number" and pos[5] >= 1 then
       i = i + 1
     else
       local rem = table.remove(list, i)
