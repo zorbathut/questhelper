@@ -639,7 +639,7 @@ function QuestHelper:OnUpdate()
       self.c, self.z, self.x, self.y = nc or self.c, nz or self.z, nx or self.x, ny or self.y
       self.i = QuestHelper_IndexLookup[QuestHelper_Zones[self.c][self.z]]
       
-      self.pos[1] = self.zone_nodes[self.c][self.z]
+      self.pos[1] = self.zone_nodes[self.i]
       self.pos[3], self.pos[4] = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)
       assert(self.pos[3])
       assert(self.pos[4])

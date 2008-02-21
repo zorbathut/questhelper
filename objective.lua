@@ -284,7 +284,7 @@ local function AddLoc(self, index, x, y, w, why)
     
     x = x * self.qh.continent_scales_x[c]
     y = y * self.qh.continent_scales_y[c]
-    local list = self.qh.zone_nodes[c][z]
+    local list = self.qh.zone_nodes[index]
     
     local points = self.p[list]
     if not points then
