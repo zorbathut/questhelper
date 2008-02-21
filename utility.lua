@@ -186,7 +186,7 @@ function QuestHelper:PlayerPosition()
 end
 
 function QuestHelper:UnitPosition(unit)
-  local c, z, x, y = self.Astrolabe:GetUnitPosition(unit)
+  local c, z, x, y = self.Astrolabe:GetUnitPosition(unit,true)
   if c then
     if z == 0 then
       SetMapToCurrentZone()
