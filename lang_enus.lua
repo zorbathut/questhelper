@@ -38,6 +38,8 @@ QuestHelper_Translations.enUS =
   OBJECTIVE_PURCHASE = "Purchase from %h1.",
   OBJECTIVE_SLAY = "Slay %h1.",
   
+  ZONE_BORDER = "%1/%2 border",
+  
   -- Stuff used in objective menus.
   PRIORITY = "Priority",
   PRIORITY1 = "Highest",

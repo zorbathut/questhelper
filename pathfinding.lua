@@ -1,136 +1,198 @@
-local IRONFORGE_PORTAL = {2,14,0.255,0.084, "Ironforge portal site"}
-local STORMWIND_CITY_PORTAL = {2,20,0.387,0.802, "Stormwind City portal site"}
-local DARNASSUS_PORTAL = {1,6,0.397,0.824, "Darnassus portal site"}
-local EXODAR_PORTAL = {1,20,0.476,0.598, "Exodar portal site"}
+-- TODO: Functions for converting locations; remove later.
 
-local SHATTRATH_CITY_PORTAL = {3,6,0.530,0.492, "Shattrath City portal site"}
-local MOONGLADE_PORTAL = {1,12,0.563,0.320, "Moonglade portal site"}
+local function dump(x)
+  local result = "{"..QuestHelper_IndexLookup[QuestHelper_Zones[x[1]][x[2]]]
+  for i = 3, #x do
+    local j = x[i]
+    
+    if type(j) == "string" then
+      j = string.format("%q", j)
+    elseif j == true then
+      j = "true"
+    elseif j == false then
+      j = "false"
+    elseif j == nil then
+      j = "nil"
+    end
+    
+    result = result..", "..j
+  end
+  
+  return result.."}"
+end
 
-local SILVERMOON_CITY_PORTAL = {2,18,0.583,0.192, "Silvermoon City portal site"}
-local UNDERCITY_PORTAL = {2,25,0.846,0.163, "Undercity portal site"}
-local ORGRIMMAR_PORTAL = {1,14,0.386,0.859, "Orgrimmar portal site"}
-local THUNDER_BLUFF_PORTAL = {1,22,0.222,0.168, "Thunder Bluff portal site"}
+local function dump3(x)
+  local result = "{"..QuestHelper_IndexLookup[QuestHelper_Zones[x[1]][x[2]]]..", "..QuestHelper_IndexLookup[QuestHelper_Zones[x[1]][x[3]]]
+  
+  for i = 4, #x do
+    local j = x[i]
+    
+    if type(j) == "string" then
+      j = string.format("%q", j)
+    elseif j == true then
+      j = "true"
+    elseif j == false then
+      j = "false"
+    elseif j == nil then
+      j = "nil"
+    end
+    
+    result = result..", "..j
+  end
+  return result.."}, -- "..QuestHelper_Zones[x[1]][x[2]].." <--> "..QuestHelper_Zones[x[1]][x[3]]
+end
+
+local function dump2(x)
+  result = "{"
+  result = result..dump(x[1])..", "..dump(x[2])
+  
+  for i = 3, #x do
+    local j = x[i]
+    
+    if type(j) == "string" then
+      j = string.format("%q", j)
+    elseif j == true then
+      j = "true"
+    elseif j == false then
+      j = "false"
+    elseif j == nil then
+      j = "nil"
+    end
+    
+    result = result..", "..j
+  end
+  
+  return result.."}"
+end
+
+local IRONFORGE_PORTAL = {25,0.255,0.084, "Ironforge portal site"}
+local STORMWIND_CITY_PORTAL = {36,0.387,0.802, "Stormwind City portal site"}
+local DARNASSUS_PORTAL = {21,0.397,0.824, "Darnassus portal site"}
+local EXODAR_PORTAL = {12,0.476,0.598, "Exodar portal site"}
+
+local SHATTRATH_CITY_PORTAL = {60,0.530,0.492, "Shattrath City portal site"}
+local MOONGLADE_PORTAL = {20,0.563,0.320, "Moonglade portal site"}
+
+local SILVERMOON_CITY_PORTAL = {52,0.583,0.192, "Silvermoon City portal site"}
+local UNDERCITY_PORTAL = {45,0.846,0.163, "Undercity portal site"}
+local ORGRIMMAR_PORTAL = {1,0.386,0.859, "Orgrimmar portal site"}
+local THUNDER_BLUFF_PORTAL = {23,0.222,0.168, "Thunder Bluff portal site"}
 
 local static_horde_routes = 
   {
-   {{1,8,0.505,0.124}, {2,21,0.313,0.303}, 210}, -- Durotar <--> Grom'gol Base Camp
-   {{2,21,0.316,0.289}, {2,24,0.621,0.591}, 210}, -- Grom'gol Base Camp <--> Tirisfal Glades
-   {{2,24,0.605,0.587}, {1,8,0.509,0.141}, 210}, -- Tirisfal Glades <--> Durotar
-   {{2,25,0.549,0.110}, {2,18,0.495,0.148}, 5}, -- Undercity <--> Silvermoon City
+   {{7, 0.505, 0.124}, {38, 0.313, 0.303}, 210}, -- Durotar <--> Grom'gol Base Camp
+   {{38, 0.316, 0.289}, {43, 0.621, 0.591}, 210}, -- Grom'gol Base Camp <--> Tirisfal Glades
+   {{43, 0.605, 0.587}, {7, 0.509, 0.141}, 210}, -- Tirisfal Glades <--> Durotar
+   {{45, 0.549, 0.11}, {52, 0.495, 0.148}, 5}, -- Undercity <--> Silvermoon City
    
-   {{3,6,0.592,0.483}, SILVERMOON_CITY_PORTAL, 5, true, nil, "SILVERMOON_CITY_PORTAL"}, -- Shattrath City <--> Silvermoon City
-   {{3,6,0.528,0.531}, THUNDER_BLUFF_PORTAL, 5, true, nil, "THUNDER_BLUFF_PORTAL"}, -- Shattrath City <--> Thunder Bluff
-   {{3,6,0.522,0.529}, ORGRIMMAR_PORTAL, 5, true, nil, "ORGRIMMAR_PORTAL"}, -- Shattrath City <--> Orgrimmar
-   {{3,6,0.517,0.525}, UNDERCITY_PORTAL, 5, true, nil, "UNDERCITY_PORTAL"} -- Shattrath City <--> Undercity
+   {{60, 0.592, 0.483}, SILVERMOON_CITY_PORTAL, 5, true, nil, "SILVERMOON_CITY_PORTAL"}, -- Shattrath City --> Silvermoon City
+   {{60, 0.528, 0.531}, THUNDER_BLUFF_PORTAL, 5, true, nil, "THUNDER_BLUFF_PORTAL"}, -- Shattrath City --> Thunder Bluff
+   {{60, 0.522, 0.529}, ORGRIMMAR_PORTAL, 5, true, nil, "ORGRIMMAR_PORTAL"}, -- Shattrath City --> Orgrimmar
+   {{60, 0.517, 0.525}, UNDERCITY_PORTAL, 5, true, nil, "UNDERCITY_PORTAL"} -- Shattrath City --> Undercity
   }
 
 local static_alliance_routes = 
   {
-   {{2,20,0.639,0.083}, {2,14,0.764,0.512}, 120}, -- Deeprun Tram
-   {{2,28,0.044,0.569}, {1,5,0.323,0.441}, 210}, --Menethil Harbor <--> Auberdine
-   {{1,9,0.718,0.565}, {2,28,0.047,0.636}, 210}, -- Theramore Isle <--> Menethil Harmor
+   {{36, 0.639, 0.083}, {25, 0.764, 0.512}, 120}, -- Deeprun Tram
+   {{51, 0.044, 0.569}, {16, 0.323, 0.441}, 210}, --Menethil Harbor <--> Auberdine
+   {{10, 0.718, 0.565}, {51, 0.047, 0.636}, 210}, -- Theramore Isle <--> Menethil Harmor
    
-   {{3,6,0.558,0.366}, STORMWIND_CITY_PORTAL, 5, true, nil, "STORMWIND_CITY_PORTAL"}, -- Shattrath City <--> Stormwind City
-   {{3,6,0.563,0.370}, IRONFORGE_PORTAL, 5, true, nil, "IRONFORGE_PORTAL"}, -- Shattrath City <--> Ironforge
-   {{3,6,0.552,0.364}, DARNASSUS_PORTAL, 5, true, nil, "DARNASSUS_PORTAL"}, -- Shattrath City <--> Darnassus
-   {{3,6,0.596,0.467}, EXODAR_PORTAL, 5, true, nil, "EXODAR_PORTAL"} -- Shattrath City <--> Exodar
+   {{60, 0.558, 0.366}, STORMWIND_CITY_PORTAL, 5, true, nil, "STORMWIND_CITY_PORTAL"}, -- Shattrath City --> Stormwind City
+   {{60, 0.563, 0.37}, IRONFORGE_PORTAL, 5, true, nil, "IRONFORGE_PORTAL"}, -- Shattrath City --> Ironforge
+   {{60, 0.552, 0.364}, DARNASSUS_PORTAL, 5, true, nil, "DARNASSUS_PORTAL"}, -- Shattrath City --> Darnassus
+   {{60, 0.596, 0.467}, EXODAR_PORTAL, 5, true, nil, "EXODAR_PORTAL"} -- Shattrath City --> Exodar
   }
 
 local static_shared_routes = 
   {
-   {{1,19,0.638,0.387}, {2,21,0.257,0.730}, 210}, -- Ratchet <--> Booty Bay
-   {{2,5,0.318,0.503}, {2,17,0.347,0.840}, 130}, -- Burning Steppes <--> Searing Gorge
+   {{11, 0.638, 0.387}, {38, 0.257, 0.73}, 210}, -- Ratchet <--> Booty Bay
+   {{40, 0.318, 0.503}, {32, 0.347, 0.84}, 130}, -- Burning Steppes <--> Searing Gorge
    
    -- More Alliance routes than anything, but without them theres no valid path to these areas for Horde characters.
-   {{1,18,0.559,0.896}, {1,6,0.305,0.414}, 5}, -- Rut'Theran Village <--> Darnassus
-   {{1,5,0.332,0.398}, {1,18,0.548,0.971}, 210}, -- Auberdine <--> Rut'Theran Village
-   {{1,5,0.306,0.409}, {1,3,0.2,0.546}, 210} -- Auberdine <--> Azuremyst Isle
+   {{24, 0.559, 0.896}, {21, 0.305, 0.414}, 5}, -- Rut'Theran Village <--> Darnassus
+   {{16, 0.332, 0.398}, {24, 0.548, 0.971}, 210}, -- Auberdine <--> Rut'Theran Village
+   {{16, 0.306, 0.409}, {3, 0.2, 0.546}, 210} -- Auberdine <--> Azuremyst Isle
   }
 
 -- Darkportal is handled specially, depending on whether or not you're level 58+ or not.
-local dark_portal_route = {{2,4,0.587,0.599}, {3,2,0.898,0.502}, 5}
+local dark_portal_route = {{33, 0.587, 0.599}, {56, 0.898, 0.502}, 5}
 
 local static_zone_transitions =
   {
-   {1, 1, 19, 0.687, 0.872}, -- Ashenvale <--> The Barrens
-   {1, 1, 16, 0.423, 0.711}, -- Ashenvale <--> Stonetalon Mountains
-   {1, 1, 2, 0.954, 0.484}, -- Ashenvale <--> Azshara
-   {1, 1, 5, 0.289, 0.144}, -- Ashenvale <--> Darkshore
-   {1, 1, 10, 0.557, 0.290}, -- Ashenvale <--> Felwood
-   {1, 6, 18, 0.894, 0.358}, -- Darnassus <--> Teldrassil
-   {1, 13, 19, 0.697, 0.604}, -- Mulgore <--> The Barrens
-   {1, 13, 22, 0.376, 0.330}, -- Mulgore <--> Thunder Bluff
-   {1, 3, 20, 0.247, 0.494}, -- Azuremyst Isle <--> The Exodar
-   {1, 3, 20, 0.369, 0.469}, -- Azuremyst Isle <--> The Exodar
-   {1, 3, 4, 0.420, 0.013}, -- Azuremyst Isle <--> Bloodmyst Isle
-   {1, 7, 16, 0.539, 0.032}, -- Desolace <--> Stonetalon Mountains
-   {1, 7, 11, 0.428, 0.976}, -- Desolace <--> Feralas
-   {1, 15, 23, 0.865, 0.115}, -- Silithus <--> Un'Goro Crater
-   {1, 8, 19, 0.341, 0.424}, -- Durotar <--> The Barrens
-   {1, 8, 14, 0.455, 0.121}, -- Durotar <--> Orgrimmar
-   {1, 17, 23, 0.269, 0.516}, -- Tanaris <--> Un'Goro Crater
-   {1, 17, 21, 0.512, 0.210}, -- Tanaris <--> Thousand Needles
-   {1, 9, 19, 0.287, 0.472}, -- Dustwallow Marsh <--> The Barrens
-   {1, 9, 19, 0.563, 0.077}, -- Dustwallow Marsh <--> The Barrens
-   {1, 19, 21, 0.442, 0.915}, -- The Barrens <--> Thousand Needles
-   {1, 10, 24, 0.685, 0.060}, -- Felwood <--> Winterspring
-   {1, 10, 12, 0.669, -0.063}, -- Felwood <--> Moonglade
-   {1, 14, 19, 0.118, 0.690}, -- Orgrimmar <--> The Barrens
-   {1, 11, 21, 0.899, 0.460}, -- Feralas <--> Thousand Needles
-   {1, 16, 19, 0.836, 0.973}, -- Stonetalon Mountains <--> The Barrens
-   {2, 1, 13, 0.521, 0.700}, -- Alterac Mountains <--> Hillsbrad Foothills
-   {2, 1, 19, 0.173, 0.482}, -- Alterac Mountains <--> Silverpine Forest
-   {2, 1, 26, 0.807, 0.347}, -- Alterac Mountains <--> Western Plaguelands
-   {2, 2, 28, 0.454, 0.890}, -- Arathi Highlands <--> Wetlands
-   {2, 2, 13, 0.200, 0.293}, -- Arathi Highlands <--> Hillsbrad Foothills
-   {2, 3, 15, 0.490, 0.071}, -- Badlands <--> Loch Modan
-   {2, 3, 17, -0.005, 0.636}, -- Badlands <--> Searing Gorge
-   {2, 4, 22, 0.519, 0.051}, -- Blasted Lands <--> Swamp of Sorrows
-   {2, 5, 16, 0.790, 0.842}, -- Burning Steppes <--> Redridge Mountains
-   {2, 6, 8, 0.324, 0.363}, -- Deadwind Pass <--> Duskwood
-   {2, 6, 22, 0.605, 0.410}, -- Deadwind Pass <--> Swamp of Sorrows
-   {2, 7, 14, 0.534, 0.349}, -- Dun Morogh <--> Ironforge
-   {2, 7, 15, 0.863, 0.514}, -- Dun Morogh <--> Loch Modan
-   {2, 7, 15, 0.844, 0.310}, -- Dun Morogh <--> Loch Modan
-   {2, 8, 10, 0.801, 0.158}, -- Duskwood <--> Elwynn Forest
-   {2, 8, 10, 0.150, 0.214}, -- Duskwood <--> Elwynn Forest
-   {2, 8, 21, 0.447, 0.884}, -- Duskwood <--> Stranglethorn Vale
-   {2, 8, 21, 0.209, 0.863}, -- Duskwood <--> Stranglethorn Vale
-   {2, 8, 16, 0.941, 0.103}, -- Duskwood <--> Redridge Mountains
-   {2, 8, 27, 0.079, 0.638}, -- Duskwood <--> Westfall
-   {2, 9, 26, 0.107, 0.726}, -- Eastern Plaguelands <--> Western Plaguelands
-   {2, 9, 12, 0.625, 0.030}, -- Eastern Plaguelands <--> Ghostlands
-   {2, 10, 20, 0.321, 0.493}, -- Elwynn Forest <--> Stormwind City
-   {2, 10, 27, 0.202, 0.804}, -- Elwynn Forest <--> Westfall
-   {2, 10, 16, 0.944, 0.724}, -- Elwynn Forest <--> Redridge Mountains
-   {2, 11, 18, 0.567, 0.494}, -- Eversong Woods <--> Silvermoon City
-   {2, 11, 12, 0.486, 0.916}, -- Eversong Woods <--> Ghostlands
-   {2, 19, 24, 0.678, 0.049}, -- Silverpine Forest <--> Tirisfal Glades
-   {2, 23, 26, 0.217, 0.264}, -- The Hinterlands <--> Western Plaguelands
-   {2, 24, 25, 0.619, 0.651}, -- Tirisfal Glades <--> Undercity
-   {2, 24, 26, 0.851, 0.703}, -- Tirisfal Glades <--> Western Plaguelands
-   {2, 21, 27, 0.292, 0.024}, -- Stranglethorn Vale <--> Westfall
-   {2, 13, 19, 0.137, 0.458}, -- Hillsbrad Foothills <--> Silverpine Forest
-   {2, 13, 23, 0.899, 0.253}, -- Hillsbrad Foothills <--> The Hinterlands
-   {2, 15, 28, 0.252, 0.000}, -- Loch Modan <--> Wetlands
-   {3, 3, 6, 0.783, 0.545}, -- Nagrand <--> Shattrath City
-   {3, 6, 7, 0.782, 0.492}, -- Shattrath City <--> Terokkar Forest
+   {2, 11, 0.687, 0.872}, -- Ashenvale <--> The Barrens
+   {2, 6, 0.423, 0.711}, -- Ashenvale <--> Stonetalon Mountains
+   {2, 15, 0.954, 0.484}, -- Ashenvale <--> Azshara
+   {2, 16, 0.289, 0.144}, -- Ashenvale <--> Darkshore
+   {2, 13, 0.557, 0.29}, -- Ashenvale <--> Felwood
+   {21, 24, 0.894, 0.358}, -- Darnassus <--> Teldrassil
+   {22, 11, 0.697, 0.604}, -- Mulgore <--> The Barrens
+   {22, 23, 0.376, 0.33}, -- Mulgore <--> Thunder Bluff
+   {3, 12, 0.247, 0.494}, -- Azuremyst Isle <--> The Exodar
+   {3, 12, 0.369, 0.469}, -- Azuremyst Isle <--> The Exodar
+   {3, 9, 0.42, 0.013}, -- Azuremyst Isle <--> Bloodmyst Isle
+   {4, 6, 0.539, 0.032}, -- Desolace <--> Stonetalon Mountains
+   {4, 17, 0.428, 0.976}, -- Desolace <--> Feralas
+   {5, 18, 0.865, 0.115}, -- Silithus <--> Un'Goro Crater
+   {7, 11, 0.341, 0.424}, -- Durotar <--> The Barrens
+   {7, 1, 0.455, 0.121}, -- Durotar <--> Orgrimmar
+   {8, 18, 0.269, 0.516}, -- Tanaris <--> Un'Goro Crater
+   {8, 14, 0.512, 0.21}, -- Tanaris <--> Thousand Needles
+   {10, 11, 0.287, 0.472}, -- Dustwallow Marsh <--> The Barrens
+   {10, 11, 0.563, 0.077}, -- Dustwallow Marsh <--> The Barrens
+   {11, 14, 0.442, 0.915}, -- The Barrens <--> Thousand Needles
+   {13, 19, 0.685, 0.06}, -- Felwood <--> Winterspring
+   {13, 20, 0.669, -0.063}, -- Felwood <--> Moonglade
+   {1, 11, 0.118, 0.69}, -- Orgrimmar <--> The Barrens
+   {17, 14, 0.899, 0.46}, -- Feralas <--> Thousand Needles
+   {6, 11, 0.836, 0.973}, -- Stonetalon Mountains <--> The Barrens
+   {26, 48, 0.521, 0.7}, -- Alterac Mountains <--> Hillsbrad Foothills
+   {26, 35, 0.173, 0.482}, -- Alterac Mountains <--> Silverpine Forest
+   {26, 50, 0.807, 0.347}, -- Alterac Mountains <--> Western Plaguelands
+   {39, 51, 0.454, 0.89}, -- Arathi Highlands <--> Wetlands
+   {39, 48, 0.2, 0.293}, -- Arathi Highlands <--> Hillsbrad Foothills
+   {27, 29, 0.49, 0.071}, -- Badlands <--> Loch Modan
+   {27, 32, -0.005, 0.636}, -- Badlands <--> Searing Gorge
+   {33, 46, 0.519, 0.051}, -- Blasted Lands <--> Swamp of Sorrows
+   {40, 30, 0.79, 0.842}, -- Burning Steppes <--> Redridge Mountains
+   {47, 31, 0.324, 0.363}, -- Deadwind Pass <--> Duskwood
+   {47, 46, 0.605, 0.41}, -- Deadwind Pass <--> Swamp of Sorrows
+   {28, 25, 0.534, 0.349}, -- Dun Morogh <--> Ironforge
+   {28, 29, 0.863, 0.514}, -- Dun Morogh <--> Loch Modan
+   {28, 29, 0.844, 0.31}, -- Dun Morogh <--> Loch Modan
+   {31, 37, 0.801, 0.158}, -- Duskwood <--> Elwynn Forest
+   {31, 37, 0.15, 0.214}, -- Duskwood <--> Elwynn Forest
+   {31, 38, 0.447, 0.884}, -- Duskwood <--> Stranglethorn Vale
+   {31, 38, 0.209, 0.863}, -- Duskwood <--> Stranglethorn Vale
+   {31, 30, 0.941, 0.103}, -- Duskwood <--> Redridge Mountains
+   {31, 49, 0.079, 0.638}, -- Duskwood <--> Westfall
+   {34, 50, 0.107, 0.726}, -- Eastern Plaguelands <--> Western Plaguelands
+   {34, 44, 0.625, 0.03}, -- Eastern Plaguelands <--> Ghostlands
+   {37, 36, 0.321, 0.493}, -- Elwynn Forest <--> Stormwind City
+   {37, 49, 0.202, 0.804}, -- Elwynn Forest <--> Westfall
+   {37, 30, 0.944, 0.724}, -- Elwynn Forest <--> Redridge Mountains
+   {41, 52, 0.567, 0.494}, -- Eversong Woods <--> Silvermoon City
+   {41, 44, 0.486, 0.916}, -- Eversong Woods <--> Ghostlands
+   {35, 43, 0.678, 0.049}, -- Silverpine Forest <--> Tirisfal Glades
+   {42, 50, 0.217, 0.264}, -- The Hinterlands <--> Western Plaguelands
+   {43, 45, 0.619, 0.651}, -- Tirisfal Glades <--> Undercity
+   {43, 50, 0.851, 0.703}, -- Tirisfal Glades <--> Western Plaguelands
+   {38, 49, 0.292, 0.024}, -- Stranglethorn Vale <--> Westfall
+   {48, 35, 0.137, 0.458}, -- Hillsbrad Foothills <--> Silverpine Forest
+   {48, 42, 0.899, 0.253}, -- Hillsbrad Foothills <--> The Hinterlands
+   {29, 51, 0.252, 0}, -- Loch Modan <--> Wetlands
    
    -- These are just guesses, since I haven't actually been to these areas.
-   
-   {3, 1, 4, 0.842, 0.284}, -- Blade's Edge Mountains <--> Netherstorm
-   {3, 1, 8, 0.482, 0.996}, -- Blade's Edge Mountains <--> Zangarmarsh
-   
-   {3, 2, 7, 0.353, 0.901}, -- Hellfire Peninsula <--> Terokkar Forest
-   {3, 2, 8, 0.093, 0.519}, -- Hellfire Peninsula <--> Zangarmarsh
-   
-   {3, 3, 7, 0.800, 0.817}, -- Nagrand <--> Terokkar Forest
-   {3, 3, 8, 0.343, 0.159}, -- Nagrand <--> Zangarmarsh
-   {3, 3, 8, 0.754, 0.331}, -- Nagrand <--> Zangarmarsh
-   
-   {3, 5, 7, 0.208, 0.271}, -- Shadowmoon Vally <--> Terokkar Forest
-   
-   {3, 7, 8, 0.341, 0.098}, -- Terokkar Forest <--> Zangarmarsh
+   {58, 60, 0.783, 0.545}, -- Nagrand <--> Shattrath City
+   {60, 55, 0.782, 0.492}, -- Shattrath City <--> Terokkar Forest
+   {54, 59, 0.842, 0.284}, -- Blade's Edge Mountains <--> Netherstorm
+   {54, 57, 0.482, 0.996}, -- Blade's Edge Mountains <--> Zangarmarsh
+   {56, 55, 0.353, 0.901}, -- Hellfire Peninsula <--> Terokkar Forest
+   {56, 57, 0.093, 0.519}, -- Hellfire Peninsula <--> Zangarmarsh
+   {58, 55, 0.8, 0.817}, -- Nagrand <--> Terokkar Forest
+   {58, 57, 0.343, 0.159}, -- Nagrand <--> Zangarmarsh
+   {58, 57, 0.754, 0.331}, -- Nagrand <--> Zangarmarsh
+   {53, 55, 0.208, 0.271}, -- Shadowmoon Valley <--> Terokkar Forest
+   {55, 57, 0.341, 0.098}, -- Terokkar Forest <--> Zangarmarsh
   }
 
 local walkspeed_multiplier = 1/7 -- Every yard walked takes this many seconds.
@@ -234,11 +296,12 @@ function QuestHelper:CreateGraphNode(c, x, y, n)
     node.y = y
     node.name = n
   else
-    node.c = c[1]
-    node.x, node.y = self.Astrolabe:TranslateWorldMapPosition(c[1], c[2], c[3], c[4], c[1], 0)
+    local cont, zone = unpack(QuestHelper_ZoneLookup[c[1]])
+    node.c = cont
+    node.x, node.y = self.Astrolabe:TranslateWorldMapPosition(cont, zone, c[2], c[3], cont, 0)
     node.x = node.x * self.continent_scales_x[node.c]
     node.y = node.y * self.continent_scales_y[node.c]
-    node.name = c[5] or select(c[2], GetMapZones(c[1]))
+    node.name = c[5] or QuestHelper_NameLookup[c[1]]
   end
   
   node.w = 1
@@ -276,19 +339,19 @@ function QuestHelper:CreateAndAddStaticNodePair(data)
   if data[5] and self.named_nodes[data[5]] then
     node1 = self.named_nodes[data[5]]
   else
-    node1 = self:CreateAndAddZoneNode(self.zone_nodes[data[1][1]][data[1][2]], data[1])
+    node1 = self:CreateAndAddZoneNode(self.zone_nodes[data[1][1]], data[1])
     if data[5] then self.named_nodes[data[5]] = node1 end
   end
   
   if data[6] and self.named_nodes[data[6]] then
     node2 = self.named_nodes[data[6]]
   else
-    node2 = self:CreateAndAddZoneNode(self.zone_nodes[data[2][1]][data[2][2]], data[2])
+    node2 = self:CreateAndAddZoneNode(self.zone_nodes[data[2][1]], data[2])
     if data[6] then self.named_nodes[data[6]] = node2 end
   end
   
-  node1.name = node1.name or "route to "..select(data[2][2], GetMapZones(data[2][1]))
-  node2.name = node2.name or "route to "..select(data[1][2], GetMapZones(data[1][1]))
+  node1.name = node1.name or "route to "..QuestHelper_NameLookup[data[2][1]]
+  node2.name = node2.name or "route to "..QuestHelper_NameLookup[data[1][1]]
   
   node1:Link(node2, data[3])
   
@@ -302,7 +365,7 @@ end
 function QuestHelper:GetNodeByName(name, fallback_data)
   local node = self.named_nodes[name]
   if not node and fallback_data then
-    node = self:CreateAndAddZoneNode(self.zone_nodes[fallback_data[1]][fallback_data[2]], fallback_data)
+    node = self:CreateAndAddZoneNode(self.zone_nodes[fallback_data[1]], fallback_data)
     self.named_nodes[name] = node
   end
   return node
@@ -602,22 +665,10 @@ function QuestHelper:ResetPathing()
     if not cont_heuristic[c] then
       cont_heuristic[c] = {}
     end
-    
-    local cont = zone_nodes[c]
-    if not cont then cont = {} zone_nodes[c] = cont end
-    local z = 1
-    while select(z,GetMapZones(c)) do
-      local zone = cont[z]
-      if not zone then
-        zone = {c=c,z=z}
-        cont[z] = zone
-      else
-        while #zone > 0 do
-          table.remove(zone)
-        end
-      end
-      z = z + 1
-    end
+  end
+  
+  for i, name in pairs(QuestHelper_NameLookup) do
+    zone_nodes[i].c, zone_nodes[i].z = unpack(QuestHelper_ZoneLookup[i])
   end
   
   self:SetupTeleportInfo(self.teleport_info, true)
@@ -652,11 +703,11 @@ function QuestHelper:ResetPathing()
   local st = self:CreateTable()
   
   for i, data in pairs(static_zone_transitions) do
-    st[1], st[2], st[3], st[4] = data[1], data[2], data[4], data[5]
+    st[1], st[2], st[3] = data[1], data[3], data[4]
     
-    self:CreateAndAddTransitionNode(zone_nodes[data[1]][data[2]],
-                                    zone_nodes[data[1]][data[3]],
-                                    st).name = select(data[2],GetMapZones(data[1])).."/"..select(data[3],GetMapZones(data[1])).." border"
+    self:CreateAndAddTransitionNode(zone_nodes[data[1]],
+                                    zone_nodes[data[2]],
+                                    st).name = QHFormat("ZONE_BORDER", QuestHelper_NameLookup[data[1]], QuestHelper_NameLookup[data[2]])
   end
   
   self:ReleaseTable(st)
@@ -706,31 +757,21 @@ function QuestHelper:ResetPathing()
   end
   
   -- Setup the local ids a node exists in.
-  for c=1,3 do
-    local z = 1
-    while select(z,GetMapZones(c)) do
-      local list = zone_nodes[c][z]
-      for i, n in ipairs(list) do
-        n.id_local[z+c*100] = true
-        n.id_to[z+c*100] = true
-        n.id_from[z+c*100] = true
-      end
-      z = z + 1
+  for i, list in pairs(zone_nodes) do
+    for _, n in ipairs(list) do
+      n.id_local[i] = true
+      n.id_to[i] = true
+      n.id_from[i] = true
     end
   end
   
   -- Figure out where each node can come from or go to.
-  for c=1,3 do
-    local z = 1
-    while select(z,GetMapZones(c)) do
-      local list = zone_nodes[c][z]
-      for _, node in ipairs(list) do
-        for n in pairs(node.n) do
-          for id in pairs(n.id_local) do node.id_to[id] = true end
-          for id in pairs(node.id_local) do n.id_from[id] = true end
-        end
+  for i, list in pairs(zone_nodes) do
+    for _, node in ipairs(list) do
+      for n in pairs(node.n) do
+        for id in pairs(n.id_local) do node.id_to[id] = true end
+        for id in pairs(node.id_local) do n.id_from[id] = true end
       end
-      z = z + 1
     end
   end
   
@@ -740,18 +781,13 @@ function QuestHelper:ResetPathing()
   end
   
   -- Will go through each zone and link all the nodes we have so far with every other node.
-  for c=1,3 do
-    local z = 1
-    while select(z,GetMapZones(c)) do
-      local list = zone_nodes[c][z]
-      for i = 1,#list do
-        for j = 1,#list do
-          if shouldLink(list[i], list[j]) then
-            list[i]:Link(list[j], same_cont_heuristic(list[i], list[j]))
-          end
+  for _, list in pairs(zone_nodes) do
+    for i = 1,#list do
+      for j = 1,#list do
+        if shouldLink(list[i], list[j]) then
+          list[i]:Link(list[j], same_cont_heuristic(list[i], list[j]))
         end
       end
-      z = z + 1
     end
   end
   
