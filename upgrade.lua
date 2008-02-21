@@ -124,9 +124,11 @@ QuestHelper_IndexLookup = -- The names in this table will be translated into the
   ["Netherstorm"] = 59,
   ["Shattrath City"] = 60}
 
+-- Maps zone names (current locale) and indexes to a two element array, containing zone index a continent/zone 
 QuestHelper_ZoneLookup = {}
+QuestHelper_NameLookup = {}
 
-local untranslated_index = nil
+local built = false
 
 function QuestHelper_BuildZoneLookup(map)
   QuestHelper_ZoneLookup = {}
@@ -134,17 +136,23 @@ function QuestHelper_BuildZoneLookup(map)
   if GetMapContinents and GetMapZones then
     -- Called from inside the WoW client.
     
-    if not untranslated_index then
-      untranslated_index = QuestHelper_IndexLookup
+    if built then return end
+    
+    built = true
+    
+    if map then
+      local original_lookup = QuestHelper_IndexLookup
+      QuestHelper_IndexLookup = {}
+      
+      for name, index in pairs(original_lookup) do
+        QuestHelper_IndexLookup[map and map[name] or name] = index
+      end
     end
     
-    QuestHelper_IndexLookup = {}
-    
-    for name, index in pairs(untranslated_index) do
-      QuestHelper_IndexLookup[map and map[name] or name] = index
-    end
+    QuestHelper_Zones = {}
     
     for c, cname in pairs({GetMapContinents()}) do
+      QuestHelper_Zones[c] = {}
       for z, zname in pairs({GetMapZones(c)}) do
         local index = QuestHelper_IndexLookup[zname]
         if not index then
@@ -154,20 +162,36 @@ function QuestHelper_BuildZoneLookup(map)
         local pair = {c, z}
         QuestHelper_ZoneLookup[zname] = pair
         QuestHelper_ZoneLookup[index] = pair
+        QuestHelper_NameLookup[index] = zname
+        QuestHelper_Zones[c][z] = zname
       end
     end
   else
     -- Called from some lua script.
-    for name, index
+    for c, list in pairs(QuestHelper_Zones) do
+      for z, name in pairs(list) do
+        local index = QuestHelper_IndexLookup[name]
+        
+        if not index then
+          print(string.format("Index isn't known for %d, %d (%s).", c, z, name))
+          abort()
+        end
+        
+        local pair = {c, z}
+        QuestHelper_ZoneLookup[name] = pair
+        QuestHelper_ZoneLookup[index] = pair
+        QuestHelper_NameLookup[index] = zname
+      end
+    end
   end
 end
 
-function QuestHelper_ValidPosition(c, z, x, y, map)
-  local zd = map or QuestHelper_Zones
+function QuestHelper_ValidPosition(c, z, x, y)
+  local zd = QuestHelper_Zones
   return type(x) == "number" and type(y) == "number" and x > -0.1 and y > -0.1 and x < 1.1 and y < 1.1 and c and zd[c] and z and zd[c][z]
 end
 
-function QuestHelper_PrunePositionList(list, map)
+function QuestHelper_PrunePositionList(list)
   if type(list) ~= "table" then
     return nil
   end
@@ -186,11 +210,8 @@ function QuestHelper_PrunePositionList(list, map)
 end
 
 function QuestHelper_ConvertPosition(pos)
-  --print(table.concat(pos, ", "))
   pos[2] = QuestHelper_IndexLookup[QuestHelper_Ver01_Zones[pos[1]][pos[2]]]
   table.remove(pos, 1)
-  --print(table.concat(pos, ", "))
-  --print("----")
 end
 
 function QuestHelper_ConvertPositionList(list)

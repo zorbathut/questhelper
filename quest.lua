@@ -197,7 +197,7 @@ function QuestHelper:PurgeQuestItem(item_name, item_object)
   end
 end
 
-function QuestHelper:AppendQuestPosition(quest, item_name, c, z, x, y, w)
+function QuestHelper:AppendQuestPosition(quest, item_name, i, x, y, w)
   local item_list = quest.o.item
   
   if not item_list then
@@ -217,9 +217,9 @@ function QuestHelper:AppendQuestPosition(quest, item_name, c, z, x, y, w)
     if item.drop then
       return -- If it's dropped by a monster, don't record the position we got the item at.
     end
-    item.pos = self:AppendPosition({}, c, z, x, y, w)
+    item.pos = self:AppendPosition({}, i, x, y, w)
   else
-    self:AppendPosition(pos, c, z, x, y, w)
+    self:AppendPosition(pos, i, x, y, w)
   end
 end
 

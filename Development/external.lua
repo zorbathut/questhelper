@@ -16,7 +16,7 @@ end
 local EQL3_zone_map = {}
 
 local function GetZone(zone_name)
-  for c, names in ipairs(QuestHelper_Ver01_Zones) do
+  for c, names in ipairs(QuestHelper_Zones) do
     for z, name in ipairs(names) do
       if name == zone_name then
         return c, z

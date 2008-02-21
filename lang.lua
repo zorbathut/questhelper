@@ -1,4 +1,5 @@
 -- These tables will be filled in later by their specific files.
+QuestHelper_ZoneTranslations = {}
 QuestHelper_Translations = {}
 QuestHelper_ForcedTranslations = {}
 QuestHelper_TranslationFunctions = {}

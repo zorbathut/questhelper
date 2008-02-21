@@ -121,8 +121,8 @@ function QuestHelper:ToggleUserObjective(cat, what)
   elseif objective:Known() then
     local name
     if cat == "loc" then
-      local _, _, c, z, x, y = string.find(what, "^(%d+),(%d+),([%d%.]+),([%d%.]+)$")
-      name = "User Objective: "..self:HighlightText(select(z,GetMapZones(c)))..": "..self:HighlightText(x*100)..", "..self:HighlightText(y*100)
+      local _, _, i, x, y = string.find(what, "^(%d+),([%d%.]+),([%d%.]+)$")
+      name = "User Objective: "..self:HighlightText(QuestHelper_NameLookup[tonumber(i)])..": "..self:HighlightText(x*100)..", "..self:HighlightText(y*100)
     else
       name = "User Objective: "..self:HighlightText(string.gsub(cat, "^(.)", string.upper))..": "..self:HighlightText(what)
     end
@@ -141,8 +141,8 @@ function search_frame:CreateResultItem(r, menu)
   local item
   
   if r.cat == "loc" then
-    local _, _, c, z, x, y = string.find(r.what, "^(%d+),(%d+),([%d%.]+),([%d%.]+)$")
-    item = QuestHelper:CreateMenuItem(menu, select(z,GetMapZones(c))..": "..(x*100)..", "..(y*100).." ["..QuestHelper:PercentString(1-r.w).."]")
+    local _, _, i, x, y = string.find(r.what, "^(%d+),([%d%.]+),([%d%.]+)$")
+    item = QuestHelper:CreateMenuItem(menu, QuestHelper_NameLookup[tonumber(i)]..": "..(x*100)..", "..(y*100).." ["..QuestHelper:PercentString(1-r.w).."]")
     item:AddTexture(QuestHelper:CreateIconTexture(item, 6), true)
   else
     item = QuestHelper:CreateMenuItem(menu, r.what .. " ["..QuestHelper:PercentString(1-r.w).."]")
@@ -294,23 +294,14 @@ function search_frame:SearchRoutine(input)
         x, y = x*0.01, y*0.01
         
         if region == "" then
-          self:AddResult("loc", string.format("%d,%d,%.3f,%.3f", QuestHelper.c, QuestHelper.z, x, y), 0)
+          self:AddResult("loc", string.format("%d,%.3f,%.3f", QuestHelper.i, x, y), 0)
         else
-          for c=1,3 do
-            local z = 1
-            while true do
-              local zone_name = select(z,GetMapZones(c))
-              if zone_name then
-                self:AddResult("loc", string.format("%d,%d,%.3f,%.3f", c, z, x, y), fuzzyCompare(region, string.upper(zone_name)))
-                yield_countdown = yield_countdown - 1
-                if yield_countdown == 0 then
-                  yield_countdown = yield_countdown_max
-                  coroutine.yield("Searching: Zones")
-                end
-                z = z + 1
-              else
-                break
-              end
+          for i, name in pairs(QuestHelper_NameLookup) do
+            self:AddResult("loc", string.format("%d,%.3f,%.3f", i, x, y), fuzzyCompare(region, string.upper(name)))
+            yield_countdown = yield_countdown - 1
+            if yield_countdown == 0 then
+              yield_countdown = yield_countdown_max
+              coroutine.yield("Searching: Zones")
             end
           end
         end

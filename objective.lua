@@ -134,21 +134,21 @@ local function ObjectiveAppendPositions(self, objective, weight, why)
   local high = 0
   
   if self.o.pos then for i, p in ipairs(self.o.pos) do
-    high = math.max(high, p[5])
+    high = math.max(high, p[4])
   end end
   
   if self.fb.pos then for i, p in ipairs(self.fb.pos) do
-    high = math.max(high, p[5])
+    high = math.max(high, p[4])
   end end
   
   high = weight/high
   
   if self.o.pos then for i, p in ipairs(self.o.pos) do
-    objective:AddLoc(p[1], p[2], p[3], p[4], p[5]*high, why)
+    objective:AddLoc(p[1], p[2], p[3], p[4]*high, why)
   end end
   
   if self.fb.pos then for i, p in ipairs(self.fb.pos) do
-    objective:AddLoc(p[1], p[2], p[3], p[4], p[5]*high, why)
+    objective:AddLoc(p[1], p[2], p[3], p[4]*high, why)
   end end
 end
 
@@ -209,11 +209,11 @@ local function ItemAppendPositions(self, objective, weight, why)
   end end
   
   if self.o.pos then for i, p in ipairs(self.o.pos) do
-    objective:AddLoc(p[1], p[2], p[3], p[4], p[5], why)
+    objective:AddLoc(p[1], p[2], p[3], p[4], why)
   end end
   
   if self.fb.pos then for i, p in ipairs(self.fb.pos) do
-    objective:AddLoc(p[1], p[2], p[3], p[4], p[5], why)
+    objective:AddLoc(p[1], p[2], p[3], p[4], why)
   end end
   
   if self.quest then
@@ -227,7 +227,7 @@ local function ItemAppendPositions(self, objective, weight, why)
         end
       elseif data and data.pos then
         for i, p in ipairs(data.pos) do
-          objective:AddLoc(p[1], p[2], p[3], p[4], p[5], why)
+          objective:AddLoc(p[1], p[2], p[3], p[4], why)
         end
       end
     end
@@ -242,7 +242,7 @@ local function ItemAppendPositions(self, objective, weight, why)
         end
       elseif data and data.pos then
         for i, p in ipairs(data.pos) do
-          objective:AddLoc(p[1], p[2], p[3], p[4], p[5], why)
+          objective:AddLoc(p[1], p[2], p[3], p[4], why)
         end
       end
     end
@@ -274,10 +274,12 @@ end
 
 
 
-local function AddLoc(self, c, z, x, y, w, why)
+local function AddLoc(self, index, x, y, w, why)
   assert(not self.setup)
   
   if w > 0 then
+    local pair = QuestHelper_ZoneLookup[index]
+    local c, z = pair[1], pair[2]
     x, y = self.qh.Astrolabe:TranslateWorldMapPosition(c, z, x, y, c, 0)
     
     x = x * self.qh.continent_scales_x[c]
@@ -716,8 +718,16 @@ function QuestHelper:GetObjective(category, objective)
     if category == "loc" then
       -- Loc is special, we don't store it, and construct it from the string.
       -- Don't have any error checking here, will assume it's correct.
+      local i
       local _, _, c, z, x, y = string.find(objective,"^(%d+),(%d+),([%d%.]+),([%d%.]+)$")
-      objective_object.o = {pos={{tonumber(c),tonumber(z),tonumber(x),tonumber(y),1}}}
+      
+      if not y then
+        _, _, i, x, y = string.find(objective,"^(%d+),([%d%.]+),([%d%.]+)$")
+      else
+        i = QuestHelper_IndexLookup[QuestHelper_Zone[c][z]]
+      end
+      
+      objective_object.o = {pos={{tonumber(i),tonumber(x),tonumber(y),1}}}
       objective_object.fb = {}
     else
       objective_list = QuestHelper_Objectives[category]
@@ -749,15 +759,15 @@ function QuestHelper:GetObjective(category, objective)
   return objective_object
 end
 
-function QuestHelper:AppendObjectivePosition(objective, c, z, x, y, w)
+function QuestHelper:AppendObjectivePosition(objective, i, x, y, w)
   local pos = objective.o.pos
   if not pos then
     if objective.o.drop then
       return -- If it's dropped by a monster, don't record the position we got the item at.
     end
-    objective.o.pos = self:AppendPosition({}, c, z, x, y, w)
+    objective.o.pos = self:AppendPosition({}, i, x, y, w)
   else
-    self:AppendPosition(pos, c, z, x, y, w)
+    self:AppendPosition(pos, i, x, y, w)
   end
 end
 
@@ -783,16 +793,16 @@ function QuestHelper:AppendItemObjectiveDrop(item_object, item_name, monster_nam
   end
 end
 
-function QuestHelper:AppendItemObjectivePosition(item_object, item_name, c, z, x, y)
+function QuestHelper:AppendItemObjectivePosition(item_object, item_name, i, x, y)
   local quest = self:ItemIsForQuest(item_object, item_name)
   if quest and not item_object.o.vendor and not item_object.o.drop and not item_object.o.pos then
-    self:AppendQuestPosition(quest, item_name, c, z, x, y)
+    self:AppendQuestPosition(quest, item_name, i, x, y)
   else
     if not item_object.o.vendor and not item_object.o.drop and not item_object.o.pos then
       -- Just learned that this item doesn't depend on a quest to drop, remove any quest references to it.
       self:PurgeQuestItem(item_object, item_name)
     end
-    self:AppendObjectivePosition(item_object, c, z, x, y)
+    self:AppendObjectivePosition(item_object, i, x, y)
   end
 end
 

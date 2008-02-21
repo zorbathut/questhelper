@@ -12,6 +12,11 @@ QuestHelper_ForcedTranslations.enUS =
   GOLD_PATTERN = "(%d+) Gold"
  }
 
+QuestHelper_ZoneTranslations.enUS =
+ {
+  -- Maps the locale zone names to the enUS zone names.
+ }
+
 QuestHelper_Translations.enUS =
  {
   -- Messages used when starting.

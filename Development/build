@@ -17,6 +17,8 @@ loadfile("../upgrade.lua")()
 loadfile("compiler.lua")()
 loadfile("external.lua")()
 
+QuestHelper_BuildZoneLookup()
+
 local function saveCache()
   local stream = io.open("build-cache.lua", "w")
   local buffer, prebuf = CreateBuffer(), CreateBuffer()

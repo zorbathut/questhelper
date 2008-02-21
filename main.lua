@@ -8,7 +8,7 @@ QuestHelper = CreateFrame("Frame", "QuestHelper", nil)
 -- Just to make sure it's always 'seen' (there's nothing that can be seen, but still...), and therefore always updating.
 QuestHelper:SetFrameStrata("TOOLTIP")
 
-QuestHelper_SaveVersion = 5
+QuestHelper_SaveVersion = 6
 QuestHelper_Locale = GetLocale() -- This variable is used only for the collected data, and has nothing to do with displayed text.
 QuestHelper_Quests = {}
 QuestHelper_Objectives = {}
@@ -29,7 +29,7 @@ QuestHelper_DefaultPref =
   level = 2,
   hide = false,
   cart_wp = true,
-  locale = GetLocale() -- This variable is used for display puroses, and has nothing to do with the collected data.
+  locale = GetLocale() -- This variable is used for display purposes, and has nothing to do with the collected data.
  }
 
 QuestHelper_FlightInstructors = {}
@@ -209,6 +209,8 @@ function QuestHelper:OnEvent(event)
   if event == "VARIABLES_LOADED" then
     QHFormatSetLocale(QuestHelper_Pref.locale or GetLocale())
     
+    QuestHelper_BuildZoneLookup(QuestHelper_ZoneTranslations[GetLocale()])
+    
     if QuestHelper_Locale ~= GetLocale() then
       QuestHelper:TextOut(QHText("LOCALE_ERROR"))
       return
@@ -223,7 +225,7 @@ function QuestHelper:OnEvent(event)
     
     QuestHelper_UpgradeDatabase(_G)
     
-    if QuestHelper_SaveVersion ~= 5 then
+    if QuestHelper_SaveVersion ~= 6 then
       QuestHelper:TextOut(QHText("DOWNGRADE_ERROR"))
       return
     end
@@ -282,6 +284,11 @@ function QuestHelper:OnEvent(event)
         -- Will delete references to quests that don't belong to your faction.
         QuestHelper_StaticData[self.locale].quest[faction] = nil
       end
+    end
+    
+    if QuestHelper_Home and #QuestHelper_Home == 5 then
+      -- Changed the format, now has 4 elements.
+      QuestHelper_Home = nil
     end
     
     if not QuestHelper_Home then
@@ -353,7 +360,7 @@ function QuestHelper:OnEvent(event)
   if event == "CHAT_MSG_SYSTEM" then
     local _, _, home_name = string.find(arg1, "^(.*) is now your home.$")
     if home_name then
-      if self.c and self.c > 0 and self.z > 0 then
+      if self.i then
         self:TextOut("Your home has been changed. Will reset pathing information.")
         local home = QuestHelper_Home
         if not home then
@@ -361,7 +368,7 @@ function QuestHelper:OnEvent(event)
           QuestHelper_Home = home
         end
         
-        home[1], home[2], home[3], home[4], home[5] = self.c, self.z, self.x, self.y, home_name
+        home[1], home[2], home[3], home[4] = self.i, self.x, self.y, home_name
         self.defered_graph_reset = true
       end
     end
@@ -493,7 +500,7 @@ function QuestHelper:OnEvent(event)
           if not self.pending_flight_data then
             self.pending_flight_data = {}
           end
-          table.insert(self.pending_flight_data, {self.flight_origin, self.flight_hashs, elapsed, c, z, x, y})
+          table.insert(self.pending_flight_data, {self.flight_origin, self.flight_hashs, elapsed, i, x, y})
           self.flight_hashs = nil
         end
       else
@@ -532,8 +539,9 @@ function QuestHelper:OnEvent(event)
       
       if self.pending_flight_data then
         local c, z, x, y = self:UnitPosition("npc")
+        local index = QuestHelper_IndexLookup[QuestHelper_Zones[c][z]]
         for i, data in ipairs(self.pending_flight_data) do
-          if self:Distance(c, z, x, y, data[4], data[5], data[6], data[7]) < 20 then
+          if self:Distance(i, x, y, data[4], data[5], data[6]) < 20 then
             self:TextOut("Thanks.")
             self.flight_hashs = data[2]
             self:GetFlightPathData(c, data[1], start_location, self.flight_hashs[start_location]).real = data[3]
@@ -629,6 +637,8 @@ function QuestHelper:OnUpdate()
     
     if nc > 0 and nz > 0 then
       self.c, self.z, self.x, self.y = nc or self.c, nz or self.z, nx or self.x, ny or self.y
+      self.i = QuestHelper_IndexLookup[QuestHelper_Zones[self.c][self.z]]
+      
       self.pos[1] = self.zone_nodes[self.c][self.z]
       self.pos[3], self.pos[4] = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)
       assert(self.pos[3])

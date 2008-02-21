@@ -47,18 +47,36 @@ end
 function QuestHelper:ZoneSanity()
   local sane = true
   
-  for c=1,32 do
+  for c=1, select("#", GetMapContinents()) do
     local z = 0
     while true do
       z = z + 1
-      local name = select(z,GetMapZones(c))
+      local name = select(z, GetMapZones(c))
       if not name then break end
-      if QuestHelper_Ver01_Zones[c][z] ~= name then
+      if QuestHelper_Zones[c][z] ~= name then
         sane = false
         QuestHelper:TextOut("'"..name.."' has the wrong ID.")
       end
+      
+      local pair = QuestHelper_ZoneLookup[name]
+      if c ~= pair[1] or z ~= pair[2] then
+        sane = false
+        QuestHelper:TextOut("ZoneLookup['"..name.."'] maps to wrong pair.")
+      end
+      
+      local index = QuestHelper_IndexLookup[name]
+      if QuestHelper_ZoneLookup[index] ~= pair then
+        sane = false
+        QuestHelper:TextOut("ZoneLookup['"..name.."'] isn't equal to ZoneLookup["..index.."]")
+      end
+      
+      if QuestHelper_NameLookup[index] ~= name then
+        sane = false
+        QuestHelper:TextOut("NameLookup["..name.."'] doesn't equal '"..name.."'")
+      end
     end
   end
+  
   return sane
 end
 
@@ -164,7 +182,7 @@ function QuestHelper:PercentString(pct)
 end
 
 function QuestHelper:PlayerPosition()
-  return self.c, self.z, self.x, self.y
+  return self.i, self.x, self.y
 end
 
 function QuestHelper:UnitPosition(unit)
@@ -177,17 +195,17 @@ function QuestHelper:UnitPosition(unit)
         x, y = self.Astrolabe:TranslateWorldMapPosition(c, 0, x, y, c, z)
       end
     end
-    return c, z, x, y
+    return QuestHelper_IndexLookup[QuestHelper_Zones[c][z]], x, y
   else
     return self:PlayerPosition()
   end
 end
 
-function QuestHelper:LocationString(c, z, x, y)
-  return ("[|cffffffff%s|r:|cffffffff%d,%d,%.3f,%.3f|r]"):format(select(z,GetMapZones(c)) or "nil", c, z, x, y)
+function QuestHelper:LocationString(i, x, y)
+  return ("[|cffffffff%s|r:|cffffffff%d,%.3f,%.3f|r]"):format(QuestHelper_NameLookup[i] or "nil", i, x, y)
 end
 
-function QuestHelper:Distance(c1, z1, x1, y1, c2, z2, x2, y2)
+function QuestHelper:Distance(i1, x1, y1, i2, x2, y2)
  --[[
   local wrong = false
   if type(c1) ~= "number" then c1 = type(c1) wrong = true end
@@ -210,12 +228,12 @@ function QuestHelper:Distance(c1, z1, x1, y1, c2, z2, x2, y2)
   return d
   ]]
   
-  -- TODO: Deal with extra-zone travel.
-  return self.Astrolabe:ComputeDistance(c1, z1, x1, y1, c2, z2, x2, y2) or 10000
+  local p1, p2 = QuestHelper_ZoneLookup[i1], QuestHelper_ZoneLookup[i2]
+  return self.Astrolabe:ComputeDistance(p1[1], p1[2], x1, y1, p2[1], p2[2], x2, y2) or 10000
 end
 
-function QuestHelper:AppendPosition(list, c, z, x, y, w, min_dist)
-  if not c or c <= 0 or z <= 0 or (x == 0 and y == 0) or x <= -0.1 or y <= -0.1 or x >= 1.1 or y >= 1.1 then
+function QuestHelper:AppendPosition(list, i, x, y, w, min_dist)
+  if (x == 0 and y == 0) or x <= -0.1 or y <= -0.1 or x >= 1.1 or y >= 1.1 then
     return list -- This isn't a real position.
   end
   
@@ -224,8 +242,8 @@ function QuestHelper:AppendPosition(list, c, z, x, y, w, min_dist)
   min_dist = min_dist or 200
   
   for i, p in ipairs(list) do
-    if c == p[1] and z == p[2] then
-      local d = self.Astrolabe:ComputeDistance(c, z, x, y, p[1], p[2], p[3], p[4])
+    if i == p[1] then
+      local d = self.Astrolabe:ComputeDistance(i, x, y, p[1], p[2], p[3])
       if not closest or d < distance then
         closest, distance = i, d
       end
@@ -233,41 +251,41 @@ function QuestHelper:AppendPosition(list, c, z, x, y, w, min_dist)
   end
   if closest and distance < min_dist then
     local p = list[closest]
-    p[3] = (p[3]*p[5]+x*w)/(p[5]+w)
-    p[4] = (p[4]*p[5]+y*w)/(p[5]+w)
-    p[5] = p[5]+w
+    p[2] = (p[2]*p[4]+x*w)/(p[4]+w)
+    p[3] = (p[3]*p[4]+y*w)/(p[4]+w)
+    p[4] = p[4]+w
   else
-    table.insert(list, {c, z, x, y, w})
+    table.insert(list, {i, x, y, w})
   end
   
   return list
 end
 
-function QuestHelper:PositionListDistance(list, c, z, x, y)
+function QuestHelper:PositionListDistance(list, index, x, y)
   local closest, distance = nil, 0
   for i, p in ipairs(list) do
-    local d = self:Distance(c, z, x, y, p[1], p[2], p[3], p[4])
+    local d = self:Distance(index, x, y, p[1], p[2], p[3])
     if not closest or d < distance then
       closest, distance = p, d
     end
   end
   if closest then
-    return distance, closest[1], closest[2], closest[3], closest[4]
+    return distance, closest[1], closest[2], closest[3]
   end
 end
 
-function QuestHelper:PositionListDistance2(list, c1, z1, x1, y1, c2, z2, x2, y2)
+function QuestHelper:PositionListDistance2(list, i1, x1, y1, i2, x2, y2)
   local closest, bd1, bd2, bdt = nil, 0, 0, 0
   for i, p in ipairs(list) do
-    local d1 = self:Distance(c1, z1, x1, y1, p[1], p[2], p[3], p[4])
-    local d2 = self:Distance(c2, z2, x2, y2, p[1], p[2], p[3], p[4])
+    local d1 = self:Distance(i1, x1, y1, p[1], p[2], p[3])
+    local d2 = self:Distance(i2, x2, y2, p[1], p[2], p[3])
     local t = d1+d2
     if not closest or t < bdt then
       closest, bd1, bd2, bdt = p, d1, d2, t
     end
   end
   if closest then
-    return d1, d2, closest[1], closest[2], closest[3], closest[4]
+    return d1, d2, closest[1], closest[2], closest[3]
   end
 end
 
