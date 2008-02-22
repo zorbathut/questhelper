@@ -353,7 +353,7 @@ function QuestHelper_UpgradeDatabase(data)
   if data.QuestHelper_SaveVersion == 5 then
     -- For version 6, I'm converting area positions from a continent/zone index pair to a single index.
     
-    if QuestHelper_FlightRoutes then
+    if data.QuestHelper_FlightRoutes then
       local old_routes = data.QuestHelper_FlightRoutes
       data.QuestHelper_FlightRoutes = {}
       for c, value in pairs(old_routes) do

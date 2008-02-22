@@ -43,12 +43,12 @@ local function ListUpdated(list, static, compare, weight)
 end
 
 local function PositionWeight(a)
-  return a[5]
+  return a[4]
 end
 
 local function PositionCompare(a, b)
-  return a[1] == b[1] and a[2] == b[2] and
-         (a[3]-b[3])*(a[3]-b[3])+(a[4]-b[4])*(a[4]-b[4]) < 0.05*0.05
+  return a[1] == b[1] and
+         (a[2]-b[2])*(a[2]-b[2])+(a[3]-b[3])*(a[3]-b[3]) < 0.05*0.05
 end
 
 local function VendorCompare(a, b)
@@ -105,7 +105,7 @@ local function PositionListMass(list)
   if not list then return 0 end
   local mass = 0
   for _, pos in ipairs(list) do
-    mass = mass + pos[5]
+    mass = mass + pos[4]
   end
   return mass
 end
