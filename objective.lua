@@ -724,7 +724,7 @@ function QuestHelper:GetObjective(category, objective)
       if not y then
         _, _, i, x, y = string.find(objective,"^(%d+),([%d%.]+),([%d%.]+)$")
       else
-        i = QuestHelper_IndexLookup[QuestHelper_Zone[c][z]]
+        i = QuestHelper_IndexLookup[c][z]
       end
       
       objective_object.o = {pos={{tonumber(i),tonumber(x),tonumber(y),1}}}

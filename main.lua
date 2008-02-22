@@ -209,24 +209,25 @@ function QuestHelper:OnEvent(event)
   if event == "VARIABLES_LOADED" then
     QHFormatSetLocale(QuestHelper_Pref.locale or GetLocale())
     
-    QuestHelper_BuildZoneLookup(QuestHelper_ZoneTranslations[GetLocale()])
+    QuestHelper_BuildZoneLookup()
     
     if QuestHelper_Locale ~= GetLocale() then
-      QuestHelper:TextOut(QHText("LOCALE_ERROR"))
+      self:TextOut(QHText("LOCALE_ERROR"))
       return
     end
     
     self.Astrolabe = DongleStub("Astrolabe-0.4")
     
     if not self:ZoneSanity() then
-      QuestHelper:TextOut(QHText("ZONE_LAYOUT_ERROR"))
+      self:TextOut(QHText("ZONE_LAYOUT_ERROR"))
+      message("QuestHelper: "..QHText("ZONE_LAYOUT_ERROR"))
       return
     end
     
     QuestHelper_UpgradeDatabase(_G)
     
     if QuestHelper_SaveVersion ~= 6 then
-      QuestHelper:TextOut(QHText("DOWNGRADE_ERROR"))
+      self:TextOut(QHText("DOWNGRADE_ERROR"))
       return
     end
     
@@ -541,7 +542,7 @@ function QuestHelper:OnEvent(event)
       
       if self.pending_flight_data then
         local c, z, x, y = self:UnitPosition("npc")
-        local index = QuestHelper_IndexLookup[QuestHelper_Zones[c][z]]
+        local index = QuestHelper_IndexLookup[c][z]
         for i, data in ipairs(self.pending_flight_data) do
           if self:Distance(i, x, y, data[4], data[5], data[6]) < 20 then
             self:TextOut("Thanks.")
@@ -640,7 +641,7 @@ function QuestHelper:OnUpdate()
     
     if nc > 0 and nz > 0 then
       self.c, self.z, self.x, self.y = nc or self.c, nz or self.z, nx or self.x, ny or self.y
-      self.i = QuestHelper_IndexLookup[QuestHelper_Zones[self.c][self.z]]
+      self.i = QuestHelper_IndexLookup[self.c][self.z]
       
       self.pos[1] = self.zone_nodes[self.i]
       self.pos[3], self.pos[4] = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)

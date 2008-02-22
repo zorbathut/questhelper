@@ -60,128 +60,147 @@ QuestHelper_Ver01_Zones =
     [7]="Terokkar Forest",
     [8]="Zangarmarsh"}}
 
+-- The zone names here will be translated to the current locale by QuestHelper_BuildZoneLookup.
 QuestHelper_Zones = QuestHelper_Ver01_Zones
 
-QuestHelper_IndexLookup = -- The names in this table will be translated into the current locale.
- {["Orgrimmar"] = 1,
-  ["Ashenvale"] = 2,
-  ["Azuremyst Isle"] = 3,
-  ["Desolace"] = 4,
-  ["Silithus"] = 5,
-  ["Stonetalon Mountains"] = 6,
-  ["Durotar"] = 7,
-  ["Tanaris"] = 8,
-  ["Bloodmyst Isle"] = 9,
-  ["Dustwallow Marsh"] = 10,
-  ["The Barrens"] = 11,
-  ["The Exodar"] = 12,
-  ["Felwood"] = 13,
-  ["Thousand Needles"] = 14,
-  ["Azshara"] = 15,
-  ["Darkshore"] = 16,
-  ["Feralas"] = 17,
-  ["Un'Goro Crater"] = 18,
-  ["Winterspring"] = 19,
-  ["Moonglade"] = 20,
-  ["Darnassus"] = 21,
-  ["Mulgore"] = 22,
-  ["Thunder Bluff"] = 23,
-  ["Teldrassil"] = 24,
-  ["Ironforge"] = 25,
-  ["Alterac Mountains"] = 26,
-  ["Badlands"] = 27,
-  ["Dun Morogh"] = 28,
-  ["Loch Modan"] = 29,
-  ["Redridge Mountains"] = 30,
-  ["Duskwood"] = 31,
-  ["Searing Gorge"] = 32,
-  ["Blasted Lands"] = 33,
-  ["Eastern Plaguelands"] = 34,
-  ["Silverpine Forest"] = 35,
-  ["Stormwind City"] = 36,
-  ["Elwynn Forest"] = 37,
-  ["Stranglethorn Vale"] = 38,
-  ["Arathi Highlands"] = 39,
-  ["Burning Steppes"] = 40,
-  ["Eversong Woods"] = 41,
-  ["The Hinterlands"] = 42,
-  ["Tirisfal Glades"] = 43,
-  ["Ghostlands"] = 44,
-  ["Undercity"] = 45,
-  ["Swamp of Sorrows"] = 46,
-  ["Deadwind Pass"] = 47,
-  ["Hillsbrad Foothills"] = 48,
-  ["Westfall"] = 49,
-  ["Western Plaguelands"] = 50,
-  ["Wetlands"] = 51,
-  ["Silvermoon City"] = 52,
-  ["Shadowmoon Valley"] = 53,
-  ["Blade's Edge Mountains"] = 54,
-  ["Terokkar Forest"] = 55,
-  ["Hellfire Peninsula"] = 56,
-  ["Zangarmarsh"] = 57,
-  ["Nagrand"] = 58,
-  ["Netherstorm"] = 59,
-  ["Shattrath City"] = 60}
+-- This will be translated to [LOCALE_NAME] = INDEX by QuestHelper_BuildZoneLookup.
+-- Additionally, [CONT_INDEX][ZONE_INDEX] = INDEX will also be added.
+QuestHelper_IndexLookup =
+ {["Hinterlands"] = {42, 2, 23},
+  ["Moonglade"] = {20, 1, 12},
+  ["ThousandNeedles"] = {14, 1, 21},
+  ["Winterspring"] = {19, 1, 24},
+  ["BloodmystIsle"] = {9, 1, 4},
+  ["TerokkarForest"] = {55, 3, 7},
+  ["Arathi"] = {39, 2, 2},
+  ["EversongWoods"] = {41, 2, 11},
+  ["Dustwallow"] = {10, 1, 9},
+  ["Badlands"] = {27, 2, 3},
+  ["Darkshore"] = {16, 1, 5},
+  ["Ogrimmar"] = {1, 1, 14},
+  ["BladesEdgeMountains"] = {54, 3, 1},
+  ["Undercity"] = {45, 2, 25},
+  ["Desolace"] = {4, 1, 7},
+  ["Netherstorm"] = {59, 3, 4},
+  ["Barrens"] = {11, 1, 19},
+  ["Tanaris"] = {8, 1, 17},
+  ["Stormwind"] = {36, 2, 20},
+  ["Zangarmarsh"] = {57, 3, 8},
+  ["Durotar"] = {7, 1, 8},
+  ["Hellfire"] = {56, 3, 2},
+  ["Silithus"] = {5, 1, 15},
+  ["ShattrathCity"] = {60, 3, 6},
+  ["ShadowmoonValley"] = {53, 3, 5},
+  ["SwampOfSorrows"] = {46, 2, 22},
+  ["SilvermoonCity"] = {52, 2, 18},
+  ["Darnassis"] = {21, 1, 6},
+  ["AzuremystIsle"] = {3, 1, 3},
+  ["Elwynn"] = {37, 2, 10},
+  ["Stranglethorn"] = {38, 2, 21},
+  ["EasternPlaguelands"] = {34, 2, 9},
+  ["Duskwood"] = {31, 2, 8},
+  ["WesternPlaguelands"] = {50, 2, 26},
+  ["Westfall"] = {49, 2, 27},
+  ["Ashenvale"] = {2, 1, 1},
+  ["Teldrassil"] = {24, 1, 18},
+  ["Redridge"] = {30, 2, 16},
+  ["UngoroCrater"] = {18, 1, 23},
+  ["Mulgore"] = {22, 1, 13},
+  ["Ironforge"] = {25, 2, 14},
+  ["Felwood"] = {13, 1, 10},
+  ["Hilsbrad"] = {48, 2, 13},
+  ["DeadwindPass"] = {47, 2, 6},
+  ["BurningSteppes"] = {40, 2, 5},
+  ["Ghostlands"] = {44, 2, 12},
+  ["Tirisfal"] = {43, 2, 24},
+  ["TheExodar"] = {12, 1, 20},
+  ["Wetlands"] = {51, 2, 28},
+  ["SearingGorge"] = {32, 2, 17},
+  ["BlastedLands"] = {33, 2, 4},
+  ["Silverpine"] = {35, 2, 19},
+  ["LochModan"] = {29, 2, 15},
+  ["Feralas"] = {17, 1, 11},
+  ["DunMorogh"] = {28, 2, 7},
+  ["Alterac"] = {26, 2, 1},
+  ["ThunderBluff"] = {23, 1, 22},
+  ["Aszhara"] = {15, 1, 2},
+  ["StonetalonMountains"] = {6, 1, 16},
+  ["Nagrand"] = {58, 3, 3}}
 
--- Maps zone names (current locale) and indexes to a two element array, containing zone index a continent/zone 
+-- Maps zone names and indexes to a two element array, containing zone index a continent/zone
 QuestHelper_ZoneLookup = {}
+
+-- Maps indexes to zone names.
 QuestHelper_NameLookup = {}
 
 local built = false
 
-function QuestHelper_BuildZoneLookup(map)
-  QuestHelper_ZoneLookup = {}
+function QuestHelper_BuildZoneLookup()
+  if built then return end
+  built = true
   
   if GetMapContinents and GetMapZones then
     -- Called from inside the WoW client.
     
-    if built then return end
-    
-    built = true
-    
-    if map then
-      local original_lookup = QuestHelper_IndexLookup
-      QuestHelper_IndexLookup = {}
-      
-      for name, index in pairs(original_lookup) do
-        QuestHelper_IndexLookup[map and map[name] or name] = index
-      end
-    end
-    
+    local original_lookup, original_zones = QuestHelper_IndexLookup, QuestHelper_Zones
+    QuestHelper_IndexLookup = {}
     QuestHelper_Zones = {}
     
     for c, cname in pairs({GetMapContinents()}) do
       QuestHelper_Zones[c] = {}
       for z, zname in pairs({GetMapZones(c)}) do
-        local index = QuestHelper_IndexLookup[zname]
+        SetMapZoom(c, z)
+        local base_name = GetMapInfo()
+        
+        local index = original_lookup[base_name] and original_lookup[base_name][1]
+        
         if not index then
-          QuestHelper:TextOut(QHFormat("UNKNOWN_ZONE", zname, cname))
-          return false
+          QuestHelper:TextOut(QHFormat("UNKNOWN_ZONE", c, z, zname, base_name or "???", cname))
+        else
+          if QuestHelper_Locale == "enUS" then
+            if original_lookup[base_name][2] ~= c or original_lookup[base_name][3] ~= z then
+              QuestHelper:TextOut(QHFormat("ALTERED_INDEX", base_name, index, c, z))
+            end
+            
+            if original_zones[c][z] ~= zname then
+              QuestHelper:TextOut(QHFormat("ALTERED_ZONE", c, z, zname, original_zones[c][z] or "missing"))
+            end
+          end
+          
+          local pair = {c, z}
+          if not QuestHelper_IndexLookup[c] then QuestHelper_IndexLookup[c] = {} end
+          QuestHelper_IndexLookup[c][z] = index
+          QuestHelper_IndexLookup[zname] = index
+          
+          QuestHelper_NameLookup[index] = zname
+          
+          QuestHelper_ZoneLookup[zname] = pair
+          QuestHelper_ZoneLookup[index] = pair
+          
+          QuestHelper_Zones[c][z] = zname
         end
-        local pair = {c, z}
-        QuestHelper_ZoneLookup[zname] = pair
-        QuestHelper_ZoneLookup[index] = pair
-        QuestHelper_NameLookup[index] = zname
-        QuestHelper_Zones[c][z] = zname
       end
     end
   else
     -- Called from some lua script.
-    for c, list in pairs(QuestHelper_Zones) do
-      for z, name in pairs(list) do
-        local index = QuestHelper_IndexLookup[name]
-        
-        if not index then
-          print(string.format("Index isn't known for %d, %d (%s).", c, z, name))
-          abort()
-        end
-        
-        local pair = {c, z}
-        QuestHelper_ZoneLookup[name] = pair
-        QuestHelper_ZoneLookup[index] = pair
-        QuestHelper_NameLookup[index] = zname
-      end
+    local original_lookup = QuestHelper_IndexLookup
+    QuestHelper_IndexLookup = {}
+    
+    for base_name, i in pairs(original_lookup) do
+      local index = i[1]
+      local pair = {i[2], i[3]}
+      local name = QuestHelper_Zones[pair[1]][pair[2]]
+      
+      assert(index and name)
+      
+      if not QuestHelper_IndexLookup[c] then QuestHelper_IndexLookup[c] = {} end
+      QuestHelper_IndexLookup[c][z] = index
+      QuestHelper_IndexLookup[name] = index
+      
+      QuestHelper_NameLookup[index] = name
+      
+      QuestHelper_ZoneLookup[name] = pair
+      QuestHelper_ZoneLookup[index] = pair
     end
   end
 end
@@ -210,7 +229,7 @@ function QuestHelper_PrunePositionList(list)
 end
 
 function QuestHelper_ConvertPosition(pos)
-  pos[2] = QuestHelper_IndexLookup[QuestHelper_Ver01_Zones[pos[1]][pos[2]]]
+  pos[2] = QuestHelper_IndexLookup[pos[1]][pos[2]]
   table.remove(pos, 1)
 end
 

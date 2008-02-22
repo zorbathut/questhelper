@@ -59,7 +59,8 @@ function QuestHelper:ZoneSanity()
       end
       
       local pair = QuestHelper_ZoneLookup[name]
-      if c ~= pair[1] or z ~= pair[2] then
+      
+      if not pair or c ~= pair[1] or z ~= pair[2] then
         sane = false
         QuestHelper:TextOut("ZoneLookup['"..name.."'] maps to wrong pair.")
       end
@@ -70,9 +71,9 @@ function QuestHelper:ZoneSanity()
         QuestHelper:TextOut("ZoneLookup['"..name.."'] isn't equal to ZoneLookup["..index.."]")
       end
       
-      if QuestHelper_NameLookup[index] ~= name then
+      if not index or QuestHelper_NameLookup[index] ~= name then
         sane = false
-        QuestHelper:TextOut("NameLookup["..name.."'] doesn't equal '"..name.."'")
+        QuestHelper:TextOut("NameLookup["..(index or "???").."'] doesn't equal '"..name.."'")
       end
     end
   end
@@ -195,7 +196,7 @@ function QuestHelper:UnitPosition(unit)
         x, y = self.Astrolabe:TranslateWorldMapPosition(c, 0, x, y, c, z)
       end
     end
-    return QuestHelper_IndexLookup[QuestHelper_Zones[c][z]], x, y
+    return QuestHelper_IndexLookup[c][z], x, y
   else
     return self:PlayerPosition()
   end

@@ -19,7 +19,13 @@ QuestHelper_Translations.enUS =
   DOWNGRADE_ERROR = "Your saved data isn't compatible with this version of QuestHelper. "..
                         "Use a new version, or delete your saved variables.",
   HOME_NOT_KNOWN = "Your home isn't known. When you get a chance, please talk to your innkeeper and reset it.",
-  UNKNOWN_ZONE = "This zone is unknown to QuestHelper: %h1, %h2.", -- %1 = zone, %2 = continent
+  
+  -- %1 = continent index, %2 = zone index, %3 = zone name, %4 = map base name, %5 = continent name
+  UNKNOWN_ZONE = "This zone is unknown to QuestHelper: %1, %2: %h3 (%h4), in %h5.",
+  
+  -- Don't worry too much about translating these, they're only displayed in the enUS client.
+  ALTERED_INDEX = "!!! QuestHelper_IndexLookup entry needs update: [%q1] = {%d2, %d3, %d4}",
+  ALTERED_ZONE = "!!! QuestHelper_Zones entry needs update: [%d1][%d2] = %q3 -- was %4",
   
   -- Words used for objectives.
   SLAY_VERB = "Slay",
@@ -70,5 +76,8 @@ QuestHelper_TranslationFunctions.enUS =
   
   -- Percentage: "%p1" will insert argument 1 as a number representing a fraction.
   -- A value of .3183 will for example be inserted as '31.8%'.
-  ["p"] = function(data) return QuestHelper:PercentString(tonumber(data)) end
+  ["p"] = function(data) return QuestHelper:PercentString(tonumber(data)) end,
+  
+  -- Quote: "%q1" will insert argument 1 as a quoted lua string.
+  ["q"] = function(data) return string.format("%q", data) end
  }
