@@ -272,17 +272,19 @@ function QuestHelper:OnEvent(event)
       end
     end
     
-    for faction in pairs(QuestHelper_StaticData[self.locale].flight_instructors) do
-      if faction ~= self.faction then
-        -- Will delete references to flight instructors that don't belong to your faction.
-        QuestHelper_StaticData[self.locale].flight_instructors[faction] = nil
+    if QuestHelper_StaticData[self.locale] then
+      for faction in pairs(QuestHelper_StaticData[self.locale].flight_instructors) do
+        if faction ~= self.faction then
+          -- Will delete references to flight instructors that don't belong to your faction.
+          QuestHelper_StaticData[self.locale].flight_instructors[faction] = nil
+        end
       end
-    end
-    
-    for faction in pairs(QuestHelper_StaticData[self.locale].quest) do
-      if faction ~= self.faction then
-        -- Will delete references to quests that don't belong to your faction.
-        QuestHelper_StaticData[self.locale].quest[faction] = nil
+      
+      for faction in pairs(QuestHelper_StaticData[self.locale].quest) do
+        if faction ~= self.faction then
+          -- Will delete references to quests that don't belong to your faction.
+          QuestHelper_StaticData[self.locale].quest[faction] = nil
+        end
       end
     end
     
@@ -334,11 +336,11 @@ function QuestHelper:OnEvent(event)
             self:AppendItemObjectiveDrop(self:GetObjective("item", name), name, target, number)
           else
             local total = 0
-            local _, _, amount = string.find(name, QHText("COPPER_PATTERN"))
+            local _, _, amount = string.find(name, "(%d+) "..COPPER)
             if amount then total = total + amount end
-            _, _, amount = string.find(name, QHText("SILVER_PATTERN"))
+            _, _, amount = string.find(name, "(%d+) "..SILVER)
             if amount then total = total + amount * 100 end
-            _, _, amount = string.find(name, QHText("GOLD_PATTERN"))
+            _, _, amount = string.find(name, "(%d+) "..GOLD)
             if amount then total = total + amount * 10000 end
             
             if total > 0 then
@@ -577,6 +579,7 @@ function QuestHelper:OnEvent(event)
             local x, y = TaxiGetSrcX(i,j)-TaxiGetDestX(i,j), TaxiGetSrcY(i,j)-TaxiGetDestY(i,j)
             
             -- It appears that the coordinates do actually use a square aspect ratio. That's a pleasant surprise.
+            -- TODO: I'm concerned this might be affected by scale, need to check this.
             required_time = required_time + math.sqrt(x*x+y*y)
           end
           
@@ -613,7 +616,7 @@ function QuestHelper:OnUpdate()
   local nc, nz, nx, ny = self.Astrolabe:GetCurrentPlayerPosition()
   
   if nc and nc == self.c and map_shown_decay > 0 and self.z > 0 and self.z ~= nz then
-    -- There's a chance astrolable will return the wrong zone if you're messing with the world map, if you can
+    -- There's a chance Astrolable will return the wrong zone if you're messing with the world map, if you can
     -- be seen in that zone but aren't in it.
     local nnx, nny = self.Astrolabe:TranslateWorldMapPosition(nc, nz, nx, ny, nc, self.z)
     if nnx > 0 and nny > 0 and nnx < 1 and nny < 1 then

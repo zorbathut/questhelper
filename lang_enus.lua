@@ -3,14 +3,7 @@
 -- If the client is using this locale, then strings from this table will always be used, regardless of
 -- the locale selected for displayed text.
 QuestHelper_ForcedTranslations.enUS = 
- {
- -- Must match the line in objective text of the quest log. Extracted from '???: x/y', to determine the name of the monster to slay.
-  SLAIN_PATTERN = "(.*)%sslain$",
-  SLAIN_STRING = "slain", -- Should match the string above.
-  COPPER_PATTERN = "(%d+) Copper",
-  SILVER_PATTERN = "(%d+) Silver",
-  GOLD_PATTERN = "(%d+) Gold"
- }
+ {}
 
 QuestHelper_ZoneTranslations.enUS =
  {

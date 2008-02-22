@@ -654,7 +654,7 @@ function QuestHelper:ResetPathing()
     self.continent_scales_y = continent_scales_y
   end
   
-  for c=1,3 do
+  for c=1,select("#", GetMapContinents()) do
     if not continent_scales_x[c] then
       local _, x, y = self.Astrolabe:ComputeDistance(c, 0, 0.25, 0.25, c, 0, 0.75, 0.75)
       
@@ -716,10 +716,13 @@ function QuestHelper:ResetPathing()
   -- Create and link the flight route nodes.
   for c, start_list in pairs(QuestHelper_KnownFlightRoutes) do
     local local_fi = QuestHelper_FlightInstructors[self.faction]
-    local static_fi = QuestHelper_StaticData[self.locale].flight_instructors[self.faction]
+    local static_fi = QuestHelper_StaticData[self.locale] and
+                      QuestHelper_StaticData[self.locale].flight_instructors and
+                      QuestHelper_StaticData[self.locale].flight_instructors[self.faction]
+    
     for start, end_list in pairs(start_list) do
       for dest in pairs(end_list) do
-        local a_npc, b_npc = (local_fi and local_fi[start]) or static_fi[start], (local_fi and local_fi[dest]) or static_fi[dest]
+        local a_npc, b_npc = (local_fi and local_fi[start]) or (static_fi and static_fi[start]), (local_fi and local_fi[dest]) or (static_fi and static_fi[dest])
         
         if a_npc and b_npc then
           local a, b = flight_master_nodes[start], flight_master_nodes[dest]
@@ -814,8 +817,8 @@ function QuestHelper:ResetPathing()
   
   -- TODO: Create a heuristic for this.
   --[[
-  for i = 1,3 do
-    for j = 1,3 do
+  for i = 1,select("#", GetMapContinents()) do
+    for j = 1,select("#", GetMapContinents()) do
       if i == j then
         cont_heuristic[i][j] = same_cont_heuristic
       else

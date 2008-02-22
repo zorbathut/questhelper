@@ -206,33 +206,11 @@ function QuestHelper:LocationString(i, x, y)
 end
 
 function QuestHelper:Distance(i1, x1, y1, i2, x2, y2)
- --[[
-  local wrong = false
-  if type(c1) ~= "number" then c1 = type(c1) wrong = true end
-  if type(z1) ~= "number" then z1 = type(z1) wrong = true end
-  if type(x1) ~= "number" then x1 = type(x1) wrong = true end
-  if type(y1) ~= "number" then y1 = type(y1) wrong = true end
-  if type(c2) ~= "number" then c2 = type(c2) wrong = true end
-  if type(z2) ~= "number" then z2 = type(z2) wrong = true end
-  if type(x2) ~= "number" then x2 = type(x2) wrong = true end
-  if type(y2) ~= "number" then y2 = type(y2) wrong = true end
-  if wrong then
-    self:Error("Invalid distance: ["..c1..", "..z1..", "..x1..", "..y1.."]:["..c2..", "..z2..", "..x2..", "..y2.."]")
-    return 42
-  end
-  local d = self.Astrolabe:ComputeDistance(c1, z1, x1, y1, c2, z2, x2, y2)
-  if not d then
-    self:Error("Can't compute distance: ["..c1..", "..z1..", "..x1..", "..y1.."]:["..c2..", "..z2..", "..x2..", "..y2.."]")
-    return 42
-  end
-  return d
-  ]]
-  
   local p1, p2 = QuestHelper_ZoneLookup[i1], QuestHelper_ZoneLookup[i2]
   return self.Astrolabe:ComputeDistance(p1[1], p1[2], x1, y1, p2[1], p2[2], x2, y2) or 10000
 end
 
-function QuestHelper:AppendPosition(list, i, x, y, w, min_dist)
+function QuestHelper:AppendPosition(list, index, x, y, w, min_dist)
   if (x == 0 and y == 0) or x <= -0.1 or y <= -0.1 or x >= 1.1 or y >= 1.1 then
     return list -- This isn't a real position.
   end
@@ -242,20 +220,21 @@ function QuestHelper:AppendPosition(list, i, x, y, w, min_dist)
   min_dist = min_dist or 200
   
   for i, p in ipairs(list) do
-    if i == p[1] then
-      local d = self.Astrolabe:ComputeDistance(i, x, y, p[1], p[2], p[3])
+    if index == p[1] then
+      local d = self:Distance(index, x, y, p[1], p[2], p[3])
       if not closest or d < distance then
         closest, distance = i, d
       end
     end
   end
+  
   if closest and distance < min_dist then
     local p = list[closest]
     p[2] = (p[2]*p[4]+x*w)/(p[4]+w)
     p[3] = (p[3]*p[4]+y*w)/(p[4]+w)
     p[4] = p[4]+w
   else
-    table.insert(list, {i, x, y, w})
+    table.insert(list, {index, x, y, w})
   end
   
   return list

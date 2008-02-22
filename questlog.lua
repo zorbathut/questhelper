@@ -27,26 +27,51 @@ function QuestHelper:LoadDebugObjective(name, data)
   return obj
 end
 
+local ITEM_PATTERN, REPUTATION_PATTERN, MONSTER_PATTERN, OBJECT_PATTERN = false, false, false, false
+
+local function replacePattern(p)
+  if p == "d" then return "(%d+)" end
+  if p == "s" then return "(.-)" end
+  assert(false)
+end
+
+local function buildPatterns()
+  if not ITEM_PATTERN then
+    ITEM_PATTERN = string.format("^%s$", string.gsub(QUEST_OBJECTS_FOUND, "%%(.)", replacePattern))
+    REPUTATION_PATTERN = string.format("^%s$", string.gsub(QUEST_FACTION_NEEDED, "%%(.)", replacePattern))
+    MONSTER_PATTERN = string.format("^%s$", string.gsub(QUEST_MONSTERS_KILLED, "%%(.)", replacePattern))
+    OBJECT_PATTERN = string.format("^%s$", string.gsub(QUEST_OBJECTS_FOUND, "%%(.)", replacePattern))
+    replacePattern = nil
+  end
+end
+
 function QuestHelper:GetQuestLogObjective(quest_index, objective_index)
   local text, category, done = GetQuestLogLeaderBoard(objective_index, quest_index)
-  local _, _, wanted, have, need = string.find(text, "%s*(.+)%s*:%s*(.+)%s*/%s*(.+)%s*")
-  local verb
-  if not need then
-    have = 0
-    need = 1
-  end
-  if done then
-    have = need
-  end
+  
+  buildPatterns()
+  
+  local _, wanted, verb, have, need
+  
   if category == "monster" then
-    local noun = select(3, string.find(wanted, QHText("SLAIN_PATTERN")))
-    if noun then
-      wanted = noun
-      verb = QHText("SLAY_VERB")
-    end
+    _, _, wanted, have, need = string.find(text, MONSTER_PATTERN)
+    verb = QHText("SLAY_VERB")
   elseif category == "item" then
+    _, _, wanted, have, need = string.find(text, ITEM_PATTERN)
     verb = QHText("ACQUIRE_VERB")
+  elseif category == "reputation" then
+     _, _, wanted, have, need = string.find(text, REPUTATION_PATTERN)
+  elseif category == "object" then
+    _, _, wanted, have, need = string.find(text, OBJECT_PATTERN)
+  elseif category == "event" then
+    wanted, have, need = text, 0, 1
+  else
+    _, _, wanted, have, need = string.find(text, "%s*(.+)%s*:%s*(.+)%s*/%s*(.+)%s*")
+    if not wanted then wanted, have, need = text, 0, 1 end
+    QuestHelper:TextOut("Unhandled event type: "..category)
   end
+  
+  if not need then need = 1 end
+  if done then have = need end
   
   return category, verb, wanted or text, tonumber(have) or have, tonumber(need) or need
 end
@@ -183,8 +208,9 @@ function QuestHelper:ScanQuestLog()
           if not lo then lo = {} lq.goal[objective] = lo end
           local category, verb, wanted, have, need = self:GetQuestLogObjective(index, objective)
           
-          if (category == "item" and wanted == " ") or
-             (category == "monster" and wanted == QHText("SLAIN_STRING")) then
+          if not wanted or not string.find(wanted, "[^%s]") then
+            -- TODO: Remove this message.
+            self:TextOut("Defering quest scan, "..category.." objective not in cache yet.")
             self.defered_quest_scan = true
           elseif not lo.objective then
             -- objective is new.
