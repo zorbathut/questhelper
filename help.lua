@@ -232,7 +232,7 @@ local commands =
   
   {"POS",
     "Prints the player's current position. Exists mainly for my own personal convenience.",
-    {}, function (qh) qh:TextOut(qh:LocationString(qh.c, qh.z, qh.x, qh.y)) end, QuestHelper},
+    {}, function (qh) qh:TextOut(qh:LocationString(qh.i, qh.x, qh.y)) end, QuestHelper},
   
   {"HIDDEN",
    "Compiles a list of objectives that QuestHelper is hiding from you. Depending on the reason, you can also unhide the objective.",
