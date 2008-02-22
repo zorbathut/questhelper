@@ -166,9 +166,17 @@ function QuestHelper:PurgeItemFromQuest(quest, item_name, item_object)
         for i, pos in ipairs(item_data.pos) do
           self:AppendObjectivePosition(item_object, unpack(pos))
         end
-      elseif item_data.drop then
-        for monster, count in pairs(item_data.drop) do
-          self:AppendObjectiveDrop(item_object, monster, count)
+      else
+        if item_data.drop then
+          for monster, count in pairs(item_data.drop) do
+            self:AppendObjectiveDrop(item_object, monster, count)
+          end
+        end
+        
+        if item_data.contained then
+          for item, count in pairs(item_data.contained) do
+            self:AppendItemObjectiveContained(item_object, item, count)
+          end
         end
       end
       

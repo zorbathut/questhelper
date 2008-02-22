@@ -94,6 +94,18 @@ local function ItemKnown(self)
     end
   end end
   
+  if self.o.contained then for item in pairs(self.o.contained) do
+    if self.qh:GetObjective("item", item):Known() then
+      return true
+    end
+  end end
+  
+  if self.fb.contained then for item in pairs(self.fb.contained) do
+    if self.qh:GetObjective("item", item):Known() then
+     return true
+    end
+  end end
+  
   if self.quest then
     local item=self.quest.o.item
     item = item and item[self.obj]
@@ -192,7 +204,7 @@ local function ItemAppendPositions(self, objective, weight, why)
     end
   end end
   
-  if next(self.p, nil) then
+  if next(objective.p, nil) then
     -- If we have points from vendors, then always use vendors. I don't want it telling you to killing the
     -- towns people just because you had to talk to them anyway, and it saves walking to the store.
     return
@@ -205,7 +217,17 @@ local function ItemAppendPositions(self, objective, weight, why)
   
   if self.fb.drop then for monster, count in pairs(self.fb.drop) do
     local m = self.qh:GetObjective("monster", monster)
-    m:AppendPositions(self, m.fb.looted and count/m.fb.looted or 1, why2..QHFormat("OBJECTIVE_SLAY", monster))
+    m:AppendPositions(objective, m.fb.looted and count/m.fb.looted or 1, why2..QHFormat("OBJECTIVE_SLAY", monster))
+  end end
+  
+  if self.o.contained then for item, count in pairs(self.o.contained) do
+    local i = self.qh:GetObjective("item", item)
+    i:AppendPositions(objective, i.o.opened and count/i.o.opened or 1, why2..QHFormat("OBJECTIVE_LOOT", item))
+  end end
+  
+  if self.fb.contained then for item, count in pairs(self.fb.contained) do
+    local i = self.qh:GetObjective("item", item)
+    i:AppendPositions(objective, i.fb.opened and count/i.fb.opened or 1, why2..QHFormat("OBJECTIVE_LOOT", item))
   end end
   
   if self.o.pos then for i, p in ipairs(self.o.pos) do
@@ -762,7 +784,7 @@ end
 function QuestHelper:AppendObjectivePosition(objective, i, x, y, w)
   local pos = objective.o.pos
   if not pos then
-    if objective.o.drop then
+    if objective.o.drop or objective.o.contained then
       return -- If it's dropped by a monster, don't record the position we got the item at.
     end
     objective.o.pos = self:AppendPosition({}, i, x, y, w)
@@ -776,7 +798,7 @@ function QuestHelper:AppendObjectiveDrop(objective, monster, count)
   if drop then
     drop[monster] = (drop[monster] or 0)+(count or 1)
   else
-    drop = {[monster] = count or 1}
+    objective.o.drop = {[monster] = count or 1}
     objective.o.pos = nil -- If it's dropped by a monster, then forget the position we found it at.
   end
 end
@@ -798,11 +820,21 @@ function QuestHelper:AppendItemObjectivePosition(item_object, item_name, i, x, y
   if quest and not item_object.o.vendor and not item_object.o.drop and not item_object.o.pos then
     self:AppendQuestPosition(quest, item_name, i, x, y)
   else
-    if not item_object.o.vendor and not item_object.o.drop and not item_object.o.pos then
+    if not item_object.o.vendor and not item_object.o.drop and not item_object.o.contained and not item_object.o.pos then
       -- Just learned that this item doesn't depend on a quest to drop, remove any quest references to it.
       self:PurgeQuestItem(item_object, item_name)
     end
     self:AppendObjectivePosition(item_object, i, x, y)
+  end
+end
+
+function QuestHelper:AppendItemObjectiveContainer(objective, container_name, count)
+  local container = objective.o.contained
+  if container then
+    container[container_name] = (container[container_name] or 0)+(count or 1)
+  else
+    objective.o.contained = {[container_name] = count or 1}
+    objective.o.pos = nil -- Forget the position.
   end
 end
 

@@ -32,6 +32,7 @@ QuestHelper_Translations.enUS =
   OBJECTIVE_REASON_TURNIN = "Turn in quest %h1.",
   OBJECTIVE_PURCHASE = "Purchase from %h1.",
   OBJECTIVE_SLAY = "Slay %h1.",
+  OBJECTIVE_LOOT = "Loot %h1.",
   
   ZONE_BORDER = "%1/%2 border",
   

@@ -128,6 +128,29 @@ local function TidyDropList(locale, list)
   end
 end
 
+
+local function TidyContainedList(locale, list)
+  local high = 0
+  
+  for item, count in pairs(list) do
+    local item_obj = GetObjective(locale, "item", item)
+    if item_obj.opened and item_obj.opened > 0 then
+      high = math.max(high, math.max(1, math.floor(count))/math.ceil(item_obj.opened))
+    end
+  end
+  
+  for item, count in pairs(list) do
+    local item_obj = GetObjective(locale, "item", item)
+    count = math.max(1, math.floor(count))
+    
+    if item_obj.opened and item_obj.opened > 0 and count/math.ceil(item_obj.opened) > high*0.2 then
+      list[item] = count
+    else
+      list[item] = nil
+    end
+  end
+end
+
 local function TidyPositionList(list, min_distance)
   min_distance = min_distance or 0.03
   while true do
@@ -405,6 +428,9 @@ local function AddObjective(locale, category, name, objective)
         end
       end
     elseif category == "item" then
+      if type(objective.opened) == "number" and objective.opened >= 1 then
+        o.opened = (o.opened or 0) + objective.opened
+      end
       if type(objective.vendor) == "table" then
         if not o.vendor then o.vendor = {} end
         
@@ -425,6 +451,14 @@ local function AddObjective(locale, category, name, objective)
         for monster, count in pairs(objective.drop) do
           if type(monster) == "string" and type(count) == "number" then
             o.drop[monster] = (o.drop[monster] or 0) + count
+          end
+        end
+      end
+      if type(objective.contained) == "table" then
+        if not o.contained then o.contained = {} end
+        for item, count in pairs(objective.contained) do
+          if type(item) == "string" and type(count) == "number" then
+            o.contained[item] = (o.contained[item] or 0) + count
           end
         end
       end
@@ -457,42 +491,41 @@ local function CollapseObjective(locale, objective)
   if not objective.quest then return true end
   objective.quest = nil
   
-  if objective.drop and not next(objective.drop, nil) then objective.drop = nil end
-  if objective.pos and #objective.pos == 0 then objective.pos = nil end
   if objective.vendor and not next(objective.vendor, nil) then objective.vendor = nil end
   
-  if objective.drop then
-    -- Can't call TidyDropList, it might create new Objectives that will get missed. We'll have called it before hand.
+  if objective.pos and (PositionListMass(objective.pos) >
+       ((objective.drop and DropListMass(objective.drop) or 0) +
+        (objective.contained and DropListMass(objective.contained) or 0))) then
+    objective.drop = nil
+    objective.contained = nil
     
-    if not next(objective.drop) or (objective.pos and PositionListMass(objective.pos) > DropListMass(objective.drop)) then
-      objective.drop = nil
-      if objective.pos then
-        TidyPositionList(objective.pos)
-        if not next(objective.pos, nil) then
-          objective.pos = nil
-        end
-      end
-    else
-      objective.pos = nil
-    end
-  elseif objective.pos then
     TidyPositionList(objective.pos)
+    
     if not next(objective.pos, nil) then
       objective.pos = nil
     end
+  else
+    objective.pos = nil
+    
+    if objective.drop and not next(objective.drop) then objective.drop = nil end
+    if objective.contained and not next(objective.contained) then objective.contained = nil end
   end
   
   if objective.looted then
     objective.looted = math.max(1, math.ceil(objective.looted))
   end
   
-  if not objective.vendor or not next(objective.vendor) then
-    objective.vendor = nil
-  else
-    table.sort(objective.vendor)
+  if objective.opened then
+    objective.opened = math.max(1, math.ceil(objective.opened))
   end
   
-  return objective.drop == nil and objective.pos == nil and objective.vendor == nil
+  if objective.vendor and next(objective.vendor) then
+    table.sort(objective.vendor)
+  else
+    objective.vendor = nil
+  end
+  
+  return objective.drop == nil and objective.contained == nil and objective.pos == nil and objective.vendor == nil
 end
 
 local function CollapseFlightRoute(data)
@@ -633,6 +666,7 @@ function CompileFinish()
         for item, data in pairs(quest.item) do
           quest_item_mass[item] = (quest_item_mass[item] or 0)+
                                   (data.drop and DropListMass(data.drop) or 0)+
+                                  (data.contained and DropListMass(data.contained) or 0)+
                                   (data.pos and PositionListMass(data.pos) or 0)
           
           quest_item_quests[item] = quest_item_quests[item] or {}
@@ -716,7 +750,8 @@ function CompileFinish()
         end
         
         local item_mass = (objective.pos and PositionListMass(objective.pos) or 0)+
-                          (objective.drop and DropListMass(objective.drop) or 0)
+                          (objective.drop and DropListMass(objective.drop) or 0)+
+                          (objective.contained and DropListMass(objective.contained) or 0)
         
         if quest_mass > item_mass then
           -- Delete this item, we'll deal with the the quests using the items after.
@@ -729,6 +764,11 @@ function CompileFinish()
                 if quest_item.drop then
                   if not objective.drop then objective.drop = {} end
                   MergeDropLists(objective.drop, quest_item.drop)
+                end
+                
+                if quest_item.contained then
+                  if not objective.contained then objective.contained = {} end
+                  MergeDropLists(objective.contained, quest_item.contained)
                 end
                 
                 if quest_item.pos then
@@ -756,6 +796,13 @@ function CompileFinish()
               TidyDropList(locale, objective.drop)
               for monster, count in pairs(objective.drop) do
                 GetObjective(locale, "monster", monster).quest = true
+              end
+            end
+            
+            if objective.contained then
+              TidyContainedList(locale, objective.contained)
+              for item, count in pairs(objective.contained) do
+                GetObjective(locale, "item", item).quest = true
               end
             end
             
@@ -787,15 +834,28 @@ function CompileFinish()
           TidyDropList(locale, item_data.drop)
         end
         
-        if drop_mass > pos_mass then
+        local contained_mass = 0
+        if item_data.contained then
+          contained_mass = DropListMass(item_data.contained)
+          TidyContainedList(locale, item_data.contained)
+        end
+        
+        if drop_mass+contained_mass > pos_mass then
           item_data.pos = nil
           if item_data.drop then
             for monster, count in pairs(item_data.drop) do
               GetObjective(locale, "monster", monster).quest = true
             end
           end
+          
+          if item_data.contained then
+            for item, count in pairs(item_data.contained) do
+              GetObjective(locale, "item", item).quest = true
+            end
+          end
         else
           item_data.drop = nil
+          item_data.contained = nil
         end
         
         if not item_data.pos and not item_data.drop then

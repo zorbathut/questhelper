@@ -369,10 +369,41 @@ function QuestHelper:OnEvent(event)
         end
       end
     else
-      for i = 1, GetNumLootItems() do
-        local icon, name, number, rarity = GetLootSlotInfo(i)
-        if name and number >= 1 then
-          self:AppendItemObjectivePosition(self:GetObjective("item", name), name, self:PlayerPosition())
+      local container = nil
+      
+      -- Go through the players inventory and look for a locked item, we're probably looting it.
+      for bag = 0,NUM_BAG_SLOTS do
+        for slot = 1,GetContainerNumSlots(bag) do
+          local link = GetContainerItemLink(bag, slot)
+          if link and select(3, GetContainerItemInfo(bag, slot)) then
+            if container == nil then
+              -- Found a locked item and haven't previously assigned to container, assign its name, or false if we fail to parse it.
+              container = select(3, string.find(link, "|h%[(.+)%]|h|r")) or false
+            else
+              -- Already tried to assign to a container. If there are multiple locked items, we give up.
+              container = false
+            end
+          end
+        end
+      end
+      
+      if container then
+        local container_objective = self:GetObjective("item", container)
+        container_objective.o.opened = (container_objective.o.opened or 0) + 1
+        
+        for i = 1, GetNumLootItems() do
+          local icon, name, number, rarity = GetLootSlotInfo(i)
+          if name and number >= 1 then
+            self:AppendItemObjectiveContainer(self:GetObjective("item", name), container, number)
+          end
+        end
+      else
+        -- No idea where the items came from.
+        for i = 1, GetNumLootItems() do
+          local icon, name, number, rarity = GetLootSlotInfo(i)
+          if name and number >= 1 then
+            self:AppendItemObjectivePosition(self:GetObjective("item", name), name, self:PlayerPosition())
+          end
         end
       end
     end
