@@ -226,12 +226,12 @@ end
 
 local function MergePositionLists(list, add)
   for _, pos in ipairs(add) do
-    local i, x, y, w = pos[1], pos[2], pos[3], pos[4]
-    if type(c) == "number" and
+    local index, x, y, w = pos[1], pos[2], pos[3], pos[4]
+    if type(index) == "number" and QuestHelper_NameLookup[index] and
        type(w) == "number" and w > 0 then
       local bp, distance = nil, 0
       for i, pos2 in ipairs(list) do
-        if i == pos2[1] then
+        if index == pos2[1] then
           local d = math.sqrt((x-pos2[2])*(x-pos2[2])+(y-pos2[3])*(y-pos2[3]))
           if not nearest or d < distance then
             bp, distance = pos2, d
@@ -243,7 +243,7 @@ local function MergePositionLists(list, add)
         bp[3] = (bp[3]*bp[4]+y*w)/(bp[4]+w)
         bp[4] = bp[4]+w
       else
-        table.insert(list, {i,x,y,w})
+        table.insert(list, {index,x,y,w})
       end
     end
   end
