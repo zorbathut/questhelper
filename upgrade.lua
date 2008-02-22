@@ -193,8 +193,8 @@ function QuestHelper_BuildZoneLookup()
       
       assert(index and name)
       
-      if not QuestHelper_IndexLookup[c] then QuestHelper_IndexLookup[c] = {} end
-      QuestHelper_IndexLookup[c][z] = index
+      if not QuestHelper_IndexLookup[pair[1]] then QuestHelper_IndexLookup[pair[1]] = {} end
+      QuestHelper_IndexLookup[pair[1]][pair[2]] = index
       QuestHelper_IndexLookup[name] = index
       
       QuestHelper_NameLookup[index] = name

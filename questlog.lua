@@ -209,8 +209,6 @@ function QuestHelper:ScanQuestLog()
           local category, verb, wanted, have, need = self:GetQuestLogObjective(index, objective)
           
           if not wanted or not string.find(wanted, "[^%s]") then
-            -- TODO: Remove this message.
-            self:TextOut("Defering quest scan, "..category.." objective not in cache yet.")
             self.defered_quest_scan = true
           elseif not lo.objective then
             -- objective is new.

@@ -97,7 +97,7 @@ local function ProcessObjective(category, name, objective, result)
   if category ~= "item" then
     local seen = 0
     if objective.pos then for i, pos in pairs(objective.pos) do
-      seen = seen + pos[5]
+      seen = seen + pos[4]
     end end
     
     result[istring..".seen"] = (result[istring..".seen"] or 0) + seen
@@ -135,6 +135,7 @@ local function LoadFile(file)
     
     if loaded.QuestHelper_UID then
       result.uid = loaded.QuestHelper_UID
+      result.loc = loaded.QuestHelper_Locale
       result.time = loaded.QuestHelper_SaveDate
     else
       if type(loaded.QuestHelper_Quests) == "table" then for faction, levels in pairs(loaded.QuestHelper_Quests) do
@@ -157,6 +158,10 @@ local function LoadFile(file)
 end
 
 local function ObsoletedBy(data1, data2)
+  if data1.loc ~= data2.loc then
+    return false
+  end
+  
   if data1.uid or data2.uid then
     return data1.uid == data2.uid and (data1.time or 0) >= (data2.time or 0)
   end

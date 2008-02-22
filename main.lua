@@ -124,7 +124,9 @@ function QuestHelper:ComputeRawFlightScaler(c)
     end
   end
   
-  if QuestHelper_StaticData[self.locale] and QuestHelper_StaticData[self.locale].flight_routes[c] then
+  if QuestHelper_StaticData[self.locale] and
+     QuestHelper_StaticData[self.locale].flight_routes and
+     QuestHelper_StaticData[self.locale].flight_routes[c] then
     for start, end_list in pairs(QuestHelper_StaticData[self.locale].flight_routes[c]) do
       for dest, hash_list in pairs(end_list) do
         for hash, data in pairs(hash_list) do
@@ -273,20 +275,22 @@ function QuestHelper:OnEvent(event)
       end
     end
     
-    if QuestHelper_StaticData[self.locale] then
-      for faction in pairs(QuestHelper_StaticData[self.locale].flight_instructors) do
+    local static = QuestHelper_StaticData[self.locale]
+    
+    if static then
+      if static.flight_instructors then for faction in pairs(static.flight_instructors) do
         if faction ~= self.faction then
           -- Will delete references to flight instructors that don't belong to your faction.
-          QuestHelper_StaticData[self.locale].flight_instructors[faction] = nil
+          static.flight_instructors[faction] = nil
         end
-      end
+      end end
       
-      for faction in pairs(QuestHelper_StaticData[self.locale].quest) do
+      if static.quest then for faction in pairs(static.quest) do
         if faction ~= self.faction then
           -- Will delete references to quests that don't belong to your faction.
-          QuestHelper_StaticData[self.locale].quest[faction] = nil
+          static.quest[faction] = nil
         end
-      end
+      end end
     end
     
     if QuestHelper_Home and #QuestHelper_Home == 5 then
@@ -541,10 +545,9 @@ function QuestHelper:OnEvent(event)
       end
       
       if self.pending_flight_data then
-        local c, z, x, y = self:UnitPosition("npc")
-        local index = QuestHelper_IndexLookup[c][z]
+        local index, x, y = self:UnitPosition("npc")
         for i, data in ipairs(self.pending_flight_data) do
-          if self:Distance(i, x, y, data[4], data[5], data[6]) < 20 then
+          if self:Distance(index, x, y, data[4], data[5], data[6]) < 20 then
             self:TextOut("Thanks.")
             self.flight_hashs = data[2]
             self:GetFlightPathData(c, data[1], start_location, self.flight_hashs[start_location]).real = data[3]
