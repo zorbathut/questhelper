@@ -318,8 +318,17 @@ function QuestHelper:OnEvent(event)
   
   if event == "PLAYER_TARGET_CHANGED" then
     if UnitExists("target") and UnitIsVisible("target") and UnitCreatureType("target") ~= "Critter" and not UnitIsPlayer("target") and not UnitPlayerControlled("target") then
+      local index, x, y = self:UnitPosition("target")
+      local w = 0.1
+      
+      -- Modify the weight based on how far they are from us.
+      -- We don't know the exact location (using our own location), so the farther, the less sure we are that it's correct.
+      if CheckInteractDistance("target", 3) then w = 1
+      elseif CheckInteractDistance("target", 2) then w = 0.89
+      elseif CheckInteractDistance("target", 1) or CheckInteractDistance("target", 4) then w = 0.33 end
+      
       local monster_objective = self:GetObjective("monster", UnitName("target"))
-      self:AppendObjectivePosition(monster_objective, self:UnitPosition("target"))
+      self:AppendObjectivePosition(monster_objective, index, x, y, w)
       monster_objective.o.faction = UnitFactionGroup("target")
       
       local level = UnitLevel("target")
@@ -404,7 +413,13 @@ function QuestHelper:OnEvent(event)
   
   if event == "QUEST_DETAIL" then
     if not self.quest_giver then self.quest_giver = {} end
-    self.quest_giver[GetTitleText()] = UnitName("npc")
+    local npc = UnitName("npc")
+    if npc then
+      -- Some NPCs aren't actually creatures, and so their positions might not be marked by PLAYER_TARGET_CHANGED.
+      local npc_objective = self:GetObjective("monster", npc)
+      self:AppendObjectivePosition(npc_objective, self:UnitPosition("npc"))
+      self.quest_giver[GetTitleText()] = npc
+    end
   end
   
   if event == "QUEST_COMPLETE" or event == "QUEST_PROGRESS" then
@@ -425,6 +440,10 @@ function QuestHelper:OnEvent(event)
       if unit then
         q.o.finish = unit
         q.o.pos = nil
+        
+        -- Some NPCs aren't actually creatures, and so their positions might not be marked by PLAYER_TARGET_CHANGED.
+        local npc_objective = self:GetObjective("monster", unit)
+        self:AppendObjectivePosition(npc_objective, self:UnitPosition("npc"))
       elseif not q.o.finish then
         self:AppendObjectivePosition(q, self:PlayerPosition())
       end
