@@ -221,7 +221,10 @@ stream:write(ScanAndDumpVariable(CompileFinish(), "QuestHelper_StaticData"))
 io.close(stream)
 
 print("Creating: Icons.tga")
-os.execute("convert -background None Data/art.svg ../Art/Icons.tga")
+if not FileUtil.fileExists("../Art/Icons.tga") then
+  print("You'll need to manually create Art/Icons.tga, ImageMagick's SVG support seems to have been broken recently.")
+end
+-- os.execute("convert -background None Data/art.svg ../Art/Icons.tga")
 
 print("Creating: QuestHelper.zip")
 
