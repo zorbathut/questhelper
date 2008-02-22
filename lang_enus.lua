@@ -20,12 +20,8 @@ QuestHelper_Translations.enUS =
                         "Use a new version, or delete your saved variables.",
   HOME_NOT_KNOWN = "Your home isn't known. When you get a chance, please talk to your innkeeper and reset it.",
   
-  -- %1 = continent index, %2 = zone index, %3 = zone name, %4 = map base name, %5 = continent name
-  UNKNOWN_ZONE = "This zone is unknown to QuestHelper: %1, %2: %h3 (%h4), in %h5.",
-  
-  -- Don't worry too much about translating these, they're only displayed in the enUS client.
-  ALTERED_INDEX = "!!! QuestHelper_IndexLookup entry needs update: [%q1] = {%d2, %d3, %d4}",
-  ALTERED_ZONE = "!!! QuestHelper_Zones entry needs update: [%d1][%d2] = %q3 -- was %4",
+  ALTERED_INDEX = "!!! QuestHelper_IndexLookup entry needs update: [%q1] = {%2, %3, %4}",
+  ALTERED_ZONE = "!!! QuestHelper_Zones entry needs update: [%1][%2] = %q3 -- was %4",
   
   -- Words used for objectives.
   SLAY_VERB = "Slay",

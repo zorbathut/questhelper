@@ -150,7 +150,6 @@ local function same_cont_heuristic(a, b)
   return math.sqrt(x*x+y*y)
 end
 
-
 function QuestHelper:ComputeRoute(p1, p2)
   if not p1 or not p2 then QuestHelper:Error("Boom!") end
   local graph = self.world_graph
@@ -601,7 +600,14 @@ function QuestHelper:ResetPathing()
   end
   
   for i, name in pairs(QuestHelper_NameLookup) do
-    if not zone_nodes[i] then zone_nodes[i] = {} end
+    if not zone_nodes[i] then
+      zone_nodes[i] = {}
+    else
+      for key in pairs(zone_nodes[i]) do
+        zone_nodes[i][key] = nil
+      end
+    end
+    
     zone_nodes[i].c, zone_nodes[i].z = unpack(QuestHelper_ZoneLookup[i])
   end
   
@@ -870,6 +876,14 @@ function QuestHelper:ResetPathing()
         self:ReleaseTable(obj.old_sop)
         obj.old_sop = nil
       end
+    end
+  end
+  
+  if self.i then
+    self.pos[1] = self.zone_nodes[self.i]
+    for i, n in ipairs(self.pos[1]) do
+      local a, b = n.x-self.pos[3], n.y-self.pos[4]
+      self.pos[2][i] = math.sqrt(a*a+b*b)
     end
   end
   

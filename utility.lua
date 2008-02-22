@@ -48,11 +48,17 @@ function QuestHelper:ZoneSanity()
   local sane = true
   
   for c=1, select("#", GetMapContinents()) do
-    local z = 0
-    while true do
-      z = z + 1
-      local name = select(z, GetMapZones(c))
-      if not name then break end
+    for z=0, select("#", GetMapZones(c)) do
+      local name
+      
+      if z == 0 then
+        name = select(c, GetMapContinents())
+      else
+        name = select(z, GetMapZones(c))
+      end
+      
+      assert(name)
+      
       if QuestHelper_Zones[c][z] ~= name then
         sane = false
         QuestHelper:TextOut("'"..name.."' has the wrong ID.")

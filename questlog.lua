@@ -65,9 +65,15 @@ function QuestHelper:GetQuestLogObjective(quest_index, objective_index)
   elseif category == "event" then
     wanted, have, need = text, 0, 1
   else
-    _, _, wanted, have, need = string.find(text, "%s*(.+)%s*:%s*(.+)%s*/%s*(.+)%s*")
-    if not wanted then wanted, have, need = text, 0, 1 end
     QuestHelper:TextOut("Unhandled event type: "..category)
+  end
+  
+  if not wanted then
+    _, _, wanted, have, need = string.find(text, "^%s*(.-)%s*:%s*(.-)%s*/%s*(.-)%s*$")
+    if not wanted then
+      _, _, wanted = string.find("^%s*(.-)%s*$")
+      have, need = 0, 1
+    end
   end
   
   if not need then need = 1 end

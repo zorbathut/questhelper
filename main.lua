@@ -57,6 +57,7 @@ function QuestHelper.tooltip:GetPrevLines() -- Just a helper to make life easier
 end
 
 function QuestHelper:GetFlightPathData(c, start_string, end_string, hash)
+  c = QuestHelper_IndexLookup[QuestHelper_ZoneLookup[c][1]][0]
   local cont = QuestHelper_FlightRoutes[c]
   if not cont then
     cont = {}
@@ -80,7 +81,7 @@ function QuestHelper:GetFlightPathData(c, start_string, end_string, hash)
   return data
 end
 
-function QuestHelper:GetFallbackFlightPathData(c, start_string, end_string, hash)
+function QuestHelper:GetFallbackFlightPathData(_, start_string, end_string, hash)
   local l = QuestHelper_StaticData[self.locale]
   local cont = l and l.flight_routes
   local map = cont and cont[start_string]
@@ -89,6 +90,7 @@ function QuestHelper:GetFallbackFlightPathData(c, start_string, end_string, hash
 end
 
 function QuestHelper:PlayerKnowsFlightRoute(c, start_string, end_string, hash)
+  c = QuestHelper_IndexLookup[QuestHelper_ZoneLookup[c][1]][0]
   local cont = QuestHelper_KnownFlightRoutes[c]
   if not cont then
     cont = {}
@@ -109,6 +111,7 @@ function QuestHelper:PlayerKnowsFlightRoute(c, start_string, end_string, hash)
 end
 
 function QuestHelper:ComputeRawFlightScaler(c)
+  c = QuestHelper_IndexLookup[QuestHelper_ZoneLookup[c][1]][0]
   local real, raw = 0, 0
   
   if QuestHelper_FlightRoutes[c] then
@@ -145,6 +148,8 @@ function QuestHelper:ComputeRawFlightScaler(c)
 end
 
 function QuestHelper:GetFlightTime(c, start_string, end_string)
+  c = QuestHelper_IndexLookup[QuestHelper_ZoneLookup[c][1]][0]
+  
   local hash1, hash2
   if QuestHelper_KnownFlightRoutes[c] and
      QuestHelper_KnownFlightRoutes[c][start_string] and 
@@ -468,7 +473,7 @@ function QuestHelper:OnEvent(event)
     if (self.was_flying or UnitOnTaxi("player")) and self.flight_origin and self.flight_start_time then
       local elapsed = GetTime()-self.flight_start_time
       if elapsed > 0 then
-        local c, z, x, y = self:PlayerPosition()
+        local index, x, y = self:PlayerPosition()
         local list = QuestHelper_FlightInstructors[self.faction]
         local end_zone = nil
         if list then
@@ -498,7 +503,7 @@ function QuestHelper:OnEvent(event)
         
         if end_zone then
           if self.flight_hashs[end_zone] then
-            self:GetFlightPathData(c, self.flight_origin, end_zone, self.flight_hashs[end_zone]).real = elapsed
+            self:GetFlightPathData(index, self.flight_origin, end_zone, self.flight_hashs[end_zone]).real = elapsed
           else
             self:TextOut("You shouldn't have been able to fly here. And yet here you are. Reality will never be the same again.")
           end
@@ -507,7 +512,7 @@ function QuestHelper:OnEvent(event)
           if not self.pending_flight_data then
             self.pending_flight_data = {}
           end
-          table.insert(self.pending_flight_data, {self.flight_origin, self.flight_hashs, elapsed, i, x, y})
+          table.insert(self.pending_flight_data, {self.flight_origin, self.flight_hashs, elapsed, index, x, y})
           self.flight_hashs = nil
         end
       else
@@ -550,7 +555,7 @@ function QuestHelper:OnEvent(event)
           if self:Distance(index, x, y, data[4], data[5], data[6]) < 20 then
             self:TextOut("Thanks.")
             self.flight_hashs = data[2]
-            self:GetFlightPathData(c, data[1], start_location, self.flight_hashs[start_location]).real = data[3]
+            self:GetFlightPathData(index, data[1], start_location, self.flight_hashs[start_location]).real = data[3]
             table.remove(self.pending_flight_data, i)
             break
           end
@@ -589,11 +594,12 @@ function QuestHelper:OnEvent(event)
           
           local hash = self:HashString(path_string)
           local end_location = TaxiNodeName(i)
+          local index = QuestHelper_IndexLookup[self.c][0]
           
           self.flight_hashs[end_location] = hash
-          altered = self:PlayerKnowsFlightRoute(self.c, start_location, end_location, hash) or altered
-          altered = self:PlayerKnowsFlightRoute(self.c, end_location, start_location) or altered
-          self:GetFlightPathData(self.c, start_location, end_location, hash).raw = required_time
+          altered = self:PlayerKnowsFlightRoute(index, start_location, end_location, hash) or altered
+          altered = self:PlayerKnowsFlightRoute(index, end_location, start_location) or altered
+          self:GetFlightPathData(index, start_location, end_location, hash).raw = required_time
         end
       end
       
@@ -653,6 +659,10 @@ function QuestHelper:OnUpdate()
       self.pos[3] = self.pos[3] * self.continent_scales_x[self.c]
       self.pos[4] = self.pos[4] * self.continent_scales_y[self.c]
       for i, n in ipairs(self.pos[1]) do
+        if not n.x then
+          for i, j in pairs(n) do self:TextOut("[%q]=%s %s", i, type(j), tostring(j) or "???") end
+          assert(false)
+        end
         local a, b = n.x-self.pos[3], n.y-self.pos[4]
         self.pos[2][i] = math.sqrt(a*a+b*b)
       end

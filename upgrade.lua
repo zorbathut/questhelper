@@ -1,5 +1,6 @@
 QuestHelper_Ver01_Zones =
-  {{[1]="Ashenvale",
+  {{[0]="Kalimdor",
+    [1]="Ashenvale",
     [2]="Azshara",
     [3]="Azuremyst Isle",
     [4]="Bloodmyst Isle",
@@ -23,7 +24,8 @@ QuestHelper_Ver01_Zones =
     [22]="Thunder Bluff",
     [23]="Un'Goro Crater",
     [24]="Winterspring"},
-   {[1]="Alterac Mountains",
+   {[0]="Eastern Kingdoms",
+    [1]="Alterac Mountains",
     [2]="Arathi Highlands",
     [3]="Badlands",
     [4]="Blasted Lands",
@@ -51,7 +53,8 @@ QuestHelper_Ver01_Zones =
     [26]="Western Plaguelands",
     [27]="Westfall",
     [28]="Wetlands"},
-   {[1]="Blade's Edge Mountains",
+   {[0]="Outland",
+    [1]="Blade's Edge Mountains",
     [2]="Hellfire Peninsula",
     [3]="Nagrand",
     [4]="Netherstorm",
@@ -125,7 +128,13 @@ QuestHelper_IndexLookup =
   ["ThunderBluff"] = {23, 1, 22},
   ["Aszhara"] = {15, 1, 2},
   ["StonetalonMountains"] = {6, 1, 16},
-  ["Nagrand"] = {58, 3, 3}}
+  ["Nagrand"] = {58, 3, 3},
+  ["Kalimdor"] = {61, 1, 0},
+  ["Azeroth"] = {62, 2, 0},
+  ["Expansion01"] = {63, 3, 0}}
+
+local next_index = 1
+for i, j in pairs(QuestHelper_IndexLookup) do next_index = math.max(next_index, j[1]+1) end
 
 -- Maps zone names and indexes to a two element array, containing zone index a continent/zone
 QuestHelper_ZoneLookup = {}
@@ -148,14 +157,15 @@ function QuestHelper_BuildZoneLookup()
     
     for c, cname in pairs({GetMapContinents()}) do
       QuestHelper_Zones[c] = {}
-      for z, zname in pairs({GetMapZones(c)}) do
+      for z, zname in pairs({[0] = cname, GetMapZones(c)}) do
         SetMapZoom(c, z)
         local base_name = GetMapInfo()
         
         local index = original_lookup[base_name] and original_lookup[base_name][1]
         
         if not index then
-          QuestHelper:TextOut(QHFormat("UNKNOWN_ZONE", c, z, zname, base_name or "???", cname))
+          QuestHelper:TextOut(QHFormat("ALTERED_INDEX", base_name, next_index, c, z))
+          next_index = next_index + 1
         else
           if QuestHelper_Locale == "enUS" then
             if original_lookup[base_name][2] ~= c or original_lookup[base_name][3] ~= z then
@@ -342,6 +352,14 @@ function QuestHelper_UpgradeDatabase(data)
   
   if data.QuestHelper_SaveVersion == 5 then
     -- For version 6, I'm converting area positions from a continent/zone index pair to a single index.
+    
+    if QuestHelper_FlightRoutes then
+      local old_routes = data.QuestHelper_FlightRoutes
+      data.QuestHelper_FlightRoutes = {}
+      for c, value in pairs(old_routes) do
+        data.QuestHelper_FlightRoutes[QuestHelper_IndexLookup[c][0]] = value
+      end
+    end
     
     for faction, level_list in pairs(data.QuestHelper_Quests) do
       for level, quest_list in pairs(level_list) do
