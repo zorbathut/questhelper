@@ -215,6 +215,10 @@ end
 function QuestHelper:OnEvent(event)
   if event == "VARIABLES_LOADED" then
     QHFormatSetLocale(QuestHelper_Pref.locale or GetLocale())
+    if not QuestHelper_UID then
+      QuestHelper_UID = self:CreateUID()
+    end
+    QuestHelper_SaveDate = time()
     
     QuestHelper_BuildZoneLookup()
     
