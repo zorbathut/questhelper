@@ -231,6 +231,7 @@ function QuestHelper:OnEvent(event)
     end
     
     QuestHelper_UpgradeDatabase(_G)
+    QuestHelper_UpgradeComplete()
     
     if QuestHelper_SaveVersion ~= 6 then
       self:TextOut(QHText("DOWNGRADE_ERROR"))

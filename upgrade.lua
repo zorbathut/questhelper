@@ -1,4 +1,4 @@
-QuestHelper_Ver01_Zones =
+QuestHelper_Zones =
   {{[0]="Kalimdor",
     [1]="Ashenvale",
     [2]="Azshara",
@@ -63,9 +63,6 @@ QuestHelper_Ver01_Zones =
     [6]="Shattrath City",
     [7]="Terokkar Forest",
     [8]="Zangarmarsh"}}
-
--- The zone names here will be translated to the current locale by QuestHelper_BuildZoneLookup.
-QuestHelper_Zones = QuestHelper_Ver01_Zones
 
 -- This will be translated to [LOCALE_NAME] = INDEX by QuestHelper_BuildZoneLookup.
 -- Additionally, [CONT_INDEX][ZONE_INDEX] = INDEX will also be added.
@@ -217,9 +214,13 @@ function QuestHelper_BuildZoneLookup()
   end
 end
 
+local convert_lookup =
+ {{2, 15, 3, 9, 16, 21, 4, 7, 10, 13, 17, 20, 22, 1, 5, 6, 8, 24, 11, 12, 14, 23, 18, 19},
+  {26, 39, 27, 33, 40, 47, 28, 31, 34, 37, 41, 44, 48, 25, 29, 30, 32, 52, 35, 36, 38, 46, 42, 43, 45, 50, 49, 51},
+  {54, 56, 58, 59, 53, 60, 55, 57}}
+
 function QuestHelper_ValidPosition(c, z, x, y)
-  local zd = QuestHelper_Zones
-  return type(x) == "number" and type(y) == "number" and x > -0.1 and y > -0.1 and x < 1.1 and y < 1.1 and c and zd[c] and z and zd[c][z]
+  return type(x) == "number" and type(y) == "number" and x > -0.1 and y > -0.1 and x < 1.1 and y < 1.1 and c and convert_lookup[c] and z and convert_lookup[c][z] and true
 end
 
 function QuestHelper_PrunePositionList(list)
@@ -240,12 +241,12 @@ function QuestHelper_PrunePositionList(list)
   return #list > 0 and list or nil
 end
 
-function QuestHelper_ConvertPosition(pos)
-  pos[2] = QuestHelper_IndexLookup[pos[1]][pos[2]]
+local function QuestHelper_ConvertPosition(pos)
+  pos[2] = convert_lookup[pos[1]][pos[2]]
   table.remove(pos, 1)
 end
 
-function QuestHelper_ConvertPositionList(list)
+local function QuestHelper_ConvertPositionList(list)
   if list then
     for i, pos in pairs(list) do
       QuestHelper_ConvertPosition(pos)
@@ -388,4 +389,18 @@ function QuestHelper_UpgradeDatabase(data)
     
     data.QuestHelper_SaveVersion = 6
   end
+end
+
+function QuestHelper_UpgradeComplete()
+  -- This function deletes everything related to upgrading, as it isn't going to be needed again.
+  built = nil
+  next_index = nil
+  convert_lookup = nil
+  QuestHelper_BuildZoneLookup = nil
+  QuestHelper_ValidPosition = nil
+  QuestHelper_PrunePositionList = nil
+  QuestHelper_ConvertPosition = nil
+  QuestHelper_ConvertPositionList = nil
+  QuestHelper_UpgradeDatabase = nil
+  QuestHelper_UpgradeComplete = nil
 end
