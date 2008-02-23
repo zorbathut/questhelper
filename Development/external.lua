@@ -15,28 +15,15 @@ end
 
 local EQL3_zone_map = {}
 
-local function GetZone(zone_name)
-  for c, names in ipairs(QuestHelper_Zones) do
-    for z, name in ipairs(names) do
-      if name == zone_name then
-        return c, z
-      end
-    end
-  end
-  
-  error("Don't know where "..zone_name.." is!")
-end
-
 local function GenerateEQL3ZoneMapping(eql3)
   for i, name in pairs(eql3.zoneData) do
-    EQL3_zone_map[i] = {GetZone(name)}
+    EQL3_zone_map[i] = QuestHelper_IndexLookup[name]
   end
 end
 
 local function ProcessEQL3NPCData(eql3)
   for npc, data in pairs(eql3.npcData) do
     if data.zone and EQL3_zone_map[data.zone] then
-      local c, z = unpack(EQL3_zone_map[data.zone])
       if data.coords then for i, pos in ipairs(data.coords) do
         local _, _, x, y = pos:find("([%d.]+),([%d.]+)")
         x, y = tonumber(x), tonumber(y)
@@ -44,7 +31,7 @@ local function ProcessEQL3NPCData(eql3)
           local monster = GetObjective("enUS", "monster", npc)
           
           if not monster.pos then monster.pos = {} end
-          table.insert(monster.pos, {QuestHelper_IndexLookup[QuestHelper_Ver01_Zones[c][z]], x/100, y/100, 1})
+          table.insert(monster.pos, {EQL3_zone_map[data.zone], x/100, y/100, 1})
         end
       end end
     end
