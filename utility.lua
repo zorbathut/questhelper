@@ -44,6 +44,20 @@ function QuestHelper:HashString(text)
   return b*65536+a
 end
 
+function QuestHelper:CreateUID()
+  local result = ""
+  local characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  math.randomseed(math.random(0, 2147483647)+GetTime()*100000)
+  local base = GetUnitName("player")..":"..GetRealmName()..":"..math.random(0, 2147483647)..":"..GetTime()..":"..time()
+  
+  for c = 1,32 do
+    local pos = 1+math.floor(self:HashString(result..base..math.random(0, 2147483647))%string.len(characters))
+    result = result .. string.sub(characters, pos, pos)
+  end
+  
+  return result
+end
+
 function QuestHelper:ZoneSanity()
   local sane = true
   
