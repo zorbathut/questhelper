@@ -1,8 +1,3 @@
-if GetLocale() ~= "enUS" then
-  DEFAULT_CHAT_FRAME:AddMessage("|cffffcc77QuestHelper: |rI'm not ready to support your locale yet. Sorry!", 1.0, 0.6, 0.2)
-  return
-end
-
 QuestHelper = CreateFrame("Frame", "QuestHelper", nil)
 
 -- Just to make sure it's always 'seen' (there's nothing that can be seen, but still...), and therefore always updating.
