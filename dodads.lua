@@ -642,8 +642,24 @@ function QuestHelper:CreateMipmapDodad()
           if UnitIsDeadOrGhost("player") then
             QuestHelper:HideCartographerWaypoint()
           else
-            local x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], t[1], QuestHelper.z)
-            local z = select(QuestHelper.z, GetMapZones(t[1]))
+            local x, y, z
+            
+            if QuestHelper.c == t[1] then
+              -- Translate the position to the zone the player is standing in.
+              x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], QuestHelper.c, QuestHelper.z)
+              z = QuestHelper_NameLookup[QuestHelper.i]
+            else
+              -- Try to find the nearest zone on the continent the objective is in.
+              local index, distsqr
+              for z, i in pairs(QuestHelper_IndexLookup[t[1]]) do
+                local _x, _y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], t[1], z)
+                local d = (_x-0.5)*(_x-0.5)+(_y-0.5)*(_y-0.5)
+                if not index or d < distsqr then
+                  index, distsqr, x, y = i, d, _x, _y
+                end
+              end
+              z = QuestHelper_NameLookup[index]
+            end
             
             if QuestHelper.cartographer_wp and (QuestHelper.cartographer_wp.x ~= x or
                                                 QuestHelper.cartographer_wp.y ~= y or
