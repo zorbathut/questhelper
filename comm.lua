@@ -418,23 +418,21 @@ function QuestHelper:HandlePartyChange()
     end
     
     for i = 1,4 do
-      if UnitExists("party"..i) then
-        local name, realm = UnitName("party"..i)
-        
-        if name ~= UNKNOWNOBJECT and not realm then
-          local user = users[name]
-          if not user then
-            user = CreateUser(name)
-            users[name] = user
-          end
-          
-          if not user.syn_req then
-            self:SendData("syn:"..comm_version, name)
-            user.syn_req = true
-          end
-          
-          user.seen = true
+      local name, realm = UnitName("party"..i)
+      -- For some mysterous reason, out of range party members return an empty string as the realm name instead of nil.
+      if name and name ~= UNKNOWNOBJECT and not realm or realm == "" then
+        local user = users[name]
+        if not user then
+          user = CreateUser(name)
+          users[name] = user
         end
+        
+        if not user.syn_req then
+          self:SendData("syn:"..comm_version, name)
+          user.syn_req = true
+        end
+        
+        user.seen = true
       end
     end
     
