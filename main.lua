@@ -662,6 +662,7 @@ function QuestHelper:OnEvent(event)
 end
 
 local map_shown_decay = 0
+local delayed_action = 100
 
 function QuestHelper:OnUpdate()
   if self.Astrolabe.WorldMapVisible then
@@ -672,6 +673,13 @@ function QuestHelper:OnUpdate()
   else
     SetMapToCurrentZone()
   end
+  
+  delayed_action = delayed_action - 1
+  if delayed_action <= 0 then
+    delayed_action = 100
+    self:HandlePartyChange()
+  end
+  
   
   local nc, nz, nx, ny = self.Astrolabe:GetCurrentPlayerPosition()
   
