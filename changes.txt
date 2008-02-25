@@ -1,3 +1,16 @@
+== Version 0.31 Uploaded 02/24/2008 ==
+
+* '''vipersniper tells me I've broken something, causing QuestHelper to not recognize some quests dispite them being in its database. Supposedly it was working properly in 0.29.'''
+* Fixed a problem with the peers you were sharing objectives with disappearing.
+* Fixed a problem asking Astrolabe about a non-existent zone when using Cartographer Waypoints and switching continents.
+* Started support for translations, although nothing has actually been translated.
+* Should hopefully load with locales other than enUS, but as the existing static data isn't compatible, you'll need to start from scratch.
+* Now tracks looted containers.
+
+== Version 0.29 Uploaded 02/08/2008 ==
+
+* Fixed some issues with map behavior.
+
 == Version 0.26 Uploaded 01/24/2008 ==
 
 * As might be expected, more updates to the static data.
