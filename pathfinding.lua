@@ -617,11 +617,11 @@ function QuestHelper:ResetPathing()
     self:TextOut("You can teleport to "..(node.name or "nil").. " in "..self:TimeString(info[1]+info[2]-GetTime()))
   end]]
   
-  if self.faction == "Alliance" then
+  if self.faction == FACTION_ALLIANCE then
     for i, data in ipairs(static_alliance_routes) do
       self:CreateAndAddStaticNodePair(data)
     end
-  elseif self.faction == "Horde" then
+  elseif self.faction == FACTION_HORDE then
     for i, data in ipairs(static_horde_routes) do
       self:CreateAndAddStaticNodePair(data)
     end
