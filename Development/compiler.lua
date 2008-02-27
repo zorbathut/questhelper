@@ -1,3 +1,5 @@
+loadfile("External/wowdata.lua")()
+
 local StaticData = {}
 
 function CreateAverage()
@@ -299,7 +301,8 @@ local function AddQuestItems(quest, list)
 end
 
 local function ValidFaction(faction)
-  return type(faction) == "string" and (faction == "Horde" or faction == "Alliance")
+  -- Faction depends on locale. Will accept any string.
+  return type(faction) == "string" --and (faction == "Horde" or faction == "Alliance")
 end
 
 local function AddQuest(locale, faction, level, name, data)
@@ -654,7 +657,168 @@ function CompileInputFile(filename)
   end
 end
 
+function handleTranslations()
+  for locale, l in pairs(StaticData) do
+    if l.objective then
+      local item_map = {}
+      local monster_map = {}
+      
+      for id, data in pairs(WoWData.item) do
+        if data.name[locale] then
+          item_map[data.name[locale]] = id
+        end
+      end
+      
+      for id, data in pairs(WoWData.npc) do
+        if data.name[locale] then
+          monster_map[data.name[locale]] = id
+        end
+      end
+      
+      if l.objective.item then for name, data in pairs(l.objective.item) do
+        local id = item_map[name]
+        if id then
+          local item = WoWData.item[id]
+          
+          item.quest = item.quest or data.quest
+          
+          if data.opened then
+            item.opened = (item.opened or 0) + data.opened
+            data.opened = nil
+          end
+          
+          if data.pos then
+            if not item.pos then
+              item.pos = data.pos
+            else
+              MergePositionLists(item.pos, data.pos)
+            end
+            
+            data.pos = nil
+          end
+          
+          if data.drop then
+            if not item.drop then
+              item.drop = {}
+            end
+            
+            for name, count in pairs(data.drop) do
+              local id = monster_map[name]
+              if id then
+                item.drop[id] = (item.drop[id] or 0) + count
+                data.drop[name] = nil
+              end
+            end
+          end
+          
+          if data.contained then
+            if not item.contained then
+              item.contained = {}
+            end
+            
+            for name, count in pairs(data.contained) do
+              local id = item_map[name]
+              if id then
+                item.contained[id] = (item.drop[id] or 0) + count
+                data.contained[name] = nil
+              end
+            end
+          end
+        end
+      end end
+      
+      if l.objective.monster then for name, data in pairs(l.objective.monster) do
+        local id = monster_map[name]
+        if id then
+          local npc = WoWData.npc[id]
+          
+          npc.quest = npc.quest or data.quest
+          
+          -- TODO: npc faction.
+          
+          if data.looted then
+            npc.looted = (npc.looted or 0) + data.looted
+            data.looted = nil
+          end
+          
+          if data.pos then
+            if not npc.pos then
+              npc.pos = data.pos
+            else
+              MergePositionLists(npc.pos, data.pos)
+            end
+            
+            data.pos = nil
+          end
+        end
+      end end
+      
+      -- TODO: quest items.
+    end
+  end
+  
+  for id, item in pairs(WoWData.item) do
+    for locale, name in pairs(item.name) do
+      local data = GetObjective(locale, "item", name)
+      
+      data.quest = data.quest or item.quest
+      
+      if item.opened then
+        data.opened = item.opened
+      end
+      
+      if item.pos then
+        data.pos = data.pos or {}
+        MergePositionLists(data.pos, item.pos)
+      end
+      
+      if item.drop then
+        data.drop = data.drop or {}
+        for id, count in pairs(item.drop) do
+          local name = WoWData.npc[id] and WoWData.npc[id].name[locale]
+          if name then
+            data.drop[name] = (data.drop[name] or 0) + count
+          end
+        end
+      end
+      
+      if item.contained then
+        data.contained = data.contained or {}
+        for id, count in pairs(item.contained) do
+          local name = WoWData.item[id] and WoWData.item[id].name[locale]
+          if name then
+            data.contained[name] = (data.contained[name] or 0) + count
+          end
+        end
+      end
+    end
+  end
+  
+  for id, npc in pairs(WoWData.npc) do
+    for locale, name in pairs(npc.name) do
+      local data = GetObjective(locale, "monster", name)
+      
+      data.quest = data.quest or npc.quest
+      
+      -- TODO: npc faction.
+      
+      if npc.looted then
+        data.looted = npc.looted
+      end
+      
+      if npc.pos then
+        data.pos = data.pos or {}
+        MergePositionLists(data.pos, npc.pos)
+      end
+    end
+  end
+  
+  -- TODO: quests.
+end
+
 function CompileFinish()
+  handleTranslations()
+  
   for locale, l in pairs(StaticData) do
     local quest_item_mass = {}
     local quest_item_quests = {}

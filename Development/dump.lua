@@ -14,14 +14,10 @@ local function BufferDump(self)
 end
 
 local function BufferAppend(self, buffer)
-  while true do
-    local chunk = table.remove(buffer, 1)
-    if chunk then
-      BufferAdd(self, chunk)
-    else
-      break
-    end
+  for i=1,#buffer do
+    BufferAdd(self, buffer[i])
   end
+  while table.remove(buffer) do end
 end
 
 function CreateBuffer()

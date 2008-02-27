@@ -1,0 +1,314 @@
+#!/usr/bin/env lua
+
+loadfile("dump.lua")()
+loadfile("xml.lua")()
+loadfile("fileutil.lua")()
+
+local base_directory = "Spider"
+
+function searchFile(file, str)
+  local stream = io.popen(string.format("grep %s -ce %s", FileUtil.quoteFile(file), FileUtil.quoteFile(str)))
+  if stream then
+    local number = tonumber(stream:read())
+    io.close(stream)
+    return number or 0
+  end
+  return 0
+end
+
+function download(url, destfile)
+  assert(type(url) == "string" and type(destfile) == "string")
+  if FileUtil.fileExists(destfile) then
+    return searchFile(destfile, "<td id=\"filecontent\">") > 0
+  end
+  if os.execute(string.format("wget %s -q -N -O %s", FileUtil.quoteFile(url), FileUtil.quoteFile(destfile))) ~= 0 or
+     searchFile(destfile, "<td id=\"filecontent\">") == 0 then
+    -- if FileUtil.fileExists(destfile) then FileUtil.unlinkFile(destfile) end
+    return false
+  end
+  return true
+end
+
+local urls =
+ {
+  enUS = "http://www.wowguru.com/db/%s/id%d/",
+  frFR = "http://fr.wowguru.com/db/%s/id%d/",
+  esES = "http://es.wowguru.com/db/%s/id%d/",
+  deDE = "http://de.wowguru.com/db/%s/id%d/",
+  zhCN = "http://zh.wowguru.com/db/%s/id%d/",
+  --zhTW = "http://tw.wowguru.com/db/%s/id%d/", -- Seems to contain virtually nothing. Not bothering.
+  koKR = "http://ko.wowguru.com/db/%s/id%d/"
+ }
+
+function doDownloads()
+  local classes =
+   {
+    quests = processQuest
+    --"items",
+    --"mobs"
+   }
+  
+  for class, func in pairs(classes) do
+    local index = 1
+    local failures = 0
+    
+    FileUtil.createDirectory(base_directory.."/"..class)
+    
+    for locale in pairs(urls) do
+      FileUtil.createDirectory(base_directory.."/"..class.."/"..locale)
+    end
+    
+    local counts = {}
+    
+    while(failures < 64) do
+      local failed = true
+      
+      for locale, pattern in pairs(urls) do
+        if download(string.format(pattern, class, index), base_directory.."/"..class.."/"..locale.."/"..index) then
+          func(base_directory.."/"..class.."/"..locale.."/"..index, index, locale)
+          failed = false
+          counts[locale] = (counts[locale] or 0) + 1
+        end
+      end
+      
+      if (index % 10) == 0 then
+        print("\n\n\n  "..class)
+        for l, c in pairs(counts) do
+          print(l..": "..c)
+        end
+      end
+      
+      if not failed then
+        failures = 0
+      else
+        failures = failures + 1
+      end
+      
+      index = index + 1
+    end
+  end
+end
+
+local WoWData =
+ {
+  quest = {},
+  item = {},
+  npc = {}
+ }
+
+local wd_loader = loadfile("External/wowdata.lua")
+if wd_loader then
+  wd_loader()
+  wd_loader = nil
+end
+
+function getQuest(id)
+  local q = WoWData.quest[id]
+  if not q then q = {name={},hash={}} WoWData.quest[id] = q end
+  return q
+end
+
+function getNPC(id)
+  local n = WoWData.npc[id]
+  if not n then n = {name={}} WoWData.npc[id] = n end
+  return n
+end
+
+function getItem(id)
+  local i = WoWData.item[id]
+  if not i then i = {name={}} WoWData.item[id] = i end
+  return i
+end
+
+function doTag(tag)
+  if tag == "br /" then return "\n" end
+  print("Unknown Tag: "..tag)
+end
+
+function doEntity(entity)
+  if tag == "amp" then return "&" end
+  if tag == "lt" then return "<" end
+  if tag == "gt" then return ">" end
+  print("Unknown Entity: "..tag)
+end
+
+function htmlToText(input)
+  return string.gsub(string.gsub(input, "<(.-)>", doTag), "&(.-);", doEntity)
+end
+
+function preFix(str, pre)
+  if str then
+    while true do
+      local t = select(3, string.find(str, pre))
+      if t then
+        str = t
+      else break end
+    end
+  end
+  return str
+end
+
+function hashString(text)
+  -- Computes an Adler-32 checksum.
+  local a, b = 1, 0
+  for i=1,string.len(text) do
+    a = (a+string.byte(text,i))%65521
+    b = (b+a)%65521
+  end
+  return b*65536+a
+end
+
+function processQuest(filename, id, locale)
+  file = io.open(filename, "r")
+  if file then
+    local data = correctText(file:read("*a"))
+    io.close(file)
+    
+    local name, desc, req, faction, level, begin_id, begin_name, ends_id, end_name
+    name, data = select(3, string.find(data, "</h3><h3>%s*([^\n]-)%s*</h3>(.*)"))
+    desc, data = select(3, string.find(data or "", "<h2>.-</h2>%s*<blockquote>%s*(.-)%s*</blockquote>(.*)"))
+    req, data = select(3, string.find(data or "", "<h2>.-</h2>%s*<blockquote>%s*(.-)%s*</blockquote>(.*)"))
+    
+    local obj_table, data2 = select(3, string.find(data or "", "^%s-<table>(.-)</table>(.*)"))
+    data = data2 or data
+    
+    if obj_table then
+      string.gsub(obj_table, "<a href=\"/db/(.-)/.-%-id(%d-)\">%s-(.-)%s-</a>", function (t, id, name)
+        id = tonumber(id)
+        if id and name ~= "" then
+          if t == "items" then
+            local i = getItem(id)
+            i.quest = true
+            i.name[locale] = name
+          elseif t == "mobs" then
+            local n = getNPC(id)
+            n.quest = true
+            n.name[locale] = name
+          end
+        end
+      end)
+    end
+    
+    faction = preFix(select(3, string.find(data or "", ">([^\n]-)</div><strong>Faction")), ">(.*)")
+    level = tonumber(preFix(select(3, string.find(data or "", ">([^\n]-)</div><strong>Level")), ">(.*)"))
+    
+    local chunk = preFix(select(3, string.find(data or "", "href=\"(.-)</a></div><strong>Begins")), "href=\"(.*)")
+    begin_id = tonumber(preFix(select(3, string.find(chunk or "", "-id([%d]+)\"")), "-id(.*)"))
+    begin_name = preFix(select(3, string.find(chunk or "", ">([^\n]+)$")), ">(.*)")
+    chunk = preFix(select(3, string.find(data or "", "href=\"(.-)</a></div><strong>Ends")), "href=\"(.*)")
+    end_id = tonumber(preFix(select(3, string.find(chunk or "", "-id([%d]+)\"")), "-id(.*)"))
+    end_name = preFix(select(3, string.find(chunk or "", ">([^\n]+)$")), ">(.*)")
+    
+    print()
+    print("NAME:    "..htmlToText(name or "???"))
+    print("DESC:    "..htmlToText(desc or "???"))
+    print("REQ:     "..htmlToText(req or "???"))
+    print("FACTION: "..htmlToText(faction or "???"))
+    print("LEVEL:   "..(level or "???"))
+    print("BEGIN:   "..htmlToText((begin_name or "???").." (#"..(begin_id or "???")..")"))
+    print("END:     "..htmlToText((end_name or "???").." (#"..(end_id or "???")..")"))
+    
+    if name and level then
+      local q = getQuest(id)
+      q.name[locale] = name
+      q.level = level
+      if req then q.hash[locale] = hashString(req) end
+      
+      if begin_id and begin_name and begin_name ~= "" then
+        local n = getNPC(begin_id)
+        n.quest = true
+        n.name[locale] = begin_name
+        q.begin = begin_id
+      end
+      
+      if end_id and end_name and end_name ~= "" then
+        local n = getNPC(end_id)
+        n.quest = true
+        n.name[locale] = end_name
+        q.finish = end_id
+      end
+    end
+  end
+end
+
+function processItem(filename, id, locale)
+  file = io.open(filename, "r")
+  
+  local lang =
+   {
+    ["English"] = "enUS",
+    ["Fran�ais"] = "frFR",
+    ["Espa�ol"] = "esES",
+    ["Deutsch"] = "deDE",
+    ["&#27721;&#35821;"] = "zhCN",
+    --zhTW = "???",
+    ["&#54620;&#44397;&#50612;"] = "koKR"
+   }
+  
+  if file then
+    local data = file:read("*a")
+    io.close(file)
+    
+    local translist = select(3, string.find(data, "<li>Translations<ul>(.-)</ul>"))
+    local name, l, pattern
+    pattern = "<li><a href=\"http://.-/items/.-id"..id.."/\">(.-)</a> %- (.-)</li>(.-)"
+    
+    while translist do
+      local name, l
+      
+      name, l, translist = select(3, string.find(translist, pattern))
+      
+      if name then
+        if not lang[l] then
+          print("Unknown language: "..string.format("%q", l).." ("..name..")")
+        end
+        --print(l.." = "..(name or "???"))
+      end
+    end
+  end
+end
+
+function processDownloads()
+  local classes =
+   {
+    --quests = processQuest,
+    items = processItem,
+    --"mobs"
+   }
+  
+  for class, func in pairs(classes) do
+    local index = 1
+    local failures = 0
+    
+    while(failures < 256) do
+      local failed = true
+      
+      for locale, pattern in pairs(urls) do
+        local file = base_directory.."/"..class.."/"..locale.."/"..index
+        if searchFile(file, "<td id=\"filecontent\">") > 0 then
+          failed = false
+          func(file, index, locale)
+        end
+      end
+      if not failed then
+        failures = 0
+      else
+        failures = failures + 1
+      end
+      
+      index = index + 1
+    end
+  end
+  
+  return data
+end
+
+doDownloads()
+--processDownloads()
+--processQuest(base_directory.."/quests/enUS/1175", 1175, "enUS")
+
+local stream = io.open("External/wowdata.lua", "w")
+local buffer, prebuf = CreateBuffer(), CreateBuffer()
+DumpVariable(buffer, prebuf, WoWData, "WoWData")
+stream:write(DumpingComplete(buffer, prebuf))
+io.close(stream)
