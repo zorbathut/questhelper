@@ -697,6 +697,8 @@ function handleTranslations()
             data.pos = nil
           end
           
+          -- todo: vendors
+          
           if data.drop then
             if not item.drop then
               item.drop = {}
