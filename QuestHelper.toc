@@ -2,7 +2,7 @@
 ## Title: QuestHelper
 ## Author: smariot, vipersniper
 ## Notes: Calculates an optimal route for you to follow while questing.
-## Version: PTR 2.4 v3
+## Version: PTR 2.4 v4
 ## OptionalDeps: Cartographer
 ## SavedVariables: QuestHelper_SaveVersion QuestHelper_Locale QuestHelper_Quests QuestHelper_Objectives QuestHelper_FlightInstructors QuestHelper_FlightRoutes QuestHelper_Pref QuestHelper_UID QuestHelper_SaveDate
 ## SavedVariablesPerCharacter: QuestHelper_KnownFlightRoutes QuestHelper_Home

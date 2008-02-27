@@ -15,8 +15,8 @@ local trans_table, transt_table_force, trans_func, trans_func_fb
 -- Sets the locale used by QuestHelper. It needn't match the game's locale.
 function QHFormatSetLocale(loc)
   trans_table_force = QuestHelper_ForcedTranslations[GetLocale()] or empty_table
-  trans_table_fb = QuestHelper_Translations["enUS"]
-  trans_table = QuestHelper_Translations[loc] or transt_table_fb
+  trans_table_fb = QuestHelper_Translations["enUS"] or empty_table
+  trans_table = QuestHelper_Translations[loc] or trans_table_fb
   trans_func, trans_func_fb = QuestHelper_TranslationFunctions[locale], QuestHelper_TranslationFunctions["enUS"]
   trans_func = trans_func or trans_func_fb
 end

@@ -1,5 +1,5 @@
 local function BufferAdd(self, text)
-  table.insert(self, text)
+  table.insert(self, tostring(text))
   for i=#self-1, 1, -1 do
     if string.len(self[i]) > string.len(self[i+1]) then break end
     self[i] = self[i]..table.remove(self,i+1)
@@ -10,18 +10,14 @@ local function BufferDump(self)
   for i=#self-1, 1, -1 do
     self[i] = self[i]..table.remove(self)
   end
-  return self[1]
+  return self[1] or ""
 end
 
 local function BufferAppend(self, buffer)
-  while true do
-    local chunk = table.remove(buffer, 1)
-    if chunk then
-      BufferAdd(self, chunk)
-    else
-      break
-    end
+  for i=1,#buffer do
+    BufferAdd(self, buffer[i])
   end
+  while table.remove(buffer) do end
 end
 
 function CreateBuffer()
