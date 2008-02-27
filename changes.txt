@@ -1,3 +1,7 @@
+== Version 0.32 Uploaded 02/27/2008 ==
+
+* Fixed some bugs related to locales, static data contains a few translations for items and npcs but no quests.
+
 == Version 0.31 Uploaded 02/24/2008 ==
 
 * '''vipersniper tells me I've broken something, causing QuestHelper to not recognize some quests dispite them being in its database. Supposedly it was working properly in 0.29.'''
