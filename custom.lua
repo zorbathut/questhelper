@@ -246,7 +246,7 @@ function search_frame:SearchRoutine(input)
       yield_countdown = yield_countdown - 1
       if yield_countdown == 0 then
         yield_countdown = yield_countdown_max
-        coroutine.yield(QHFormat("SEARCHING_STATE", QHFormat("SEARCHING_LOCAL"), QHText("SEARCHING_ITEMS")))
+        coroutine.yield(QHFormat("SEARCHING_STATE", QHFormat("SEARCHING_LOCAL", QHText("SEARCHING_ITEMS"))))
       end
     end end
     
@@ -257,7 +257,7 @@ function search_frame:SearchRoutine(input)
       yield_countdown = yield_countdown - 1
       if yield_countdown == 0 then
         yield_countdown = yield_countdown_max
-        coroutine.yield(QHFormat("SEARCHING_STATE", QHFormat("SEARCHING_STATIC"), QHText("SEARCHING_ITEMS")))
+        coroutine.yield(QHFormat("SEARCHING_STATE", QHFormat("SEARCHING_STATIC", QHText("SEARCHING_ITEMS"))))
       end
     end end
   end
@@ -269,7 +269,7 @@ function search_frame:SearchRoutine(input)
       yield_countdown = yield_countdown - 1
       if yield_countdown == 0 then
         yield_countdown = yield_countdown_max
-        coroutine.yield(QHFormat("SEARCHING_STATE", QHFormat("SEARCHING_LOCAL"), QHText("SEARCHING_NPCS")))
+        coroutine.yield(QHFormat("SEARCHING_STATE", QHFormat("SEARCHING_LOCAL", QHText("SEARCHING_NPCS"))))
       end
     end end
     
@@ -280,7 +280,7 @@ function search_frame:SearchRoutine(input)
       yield_countdown = yield_countdown - 1
       if yield_countdown == 0 then
         yield_countdown = yield_countdown_max
-        coroutine.yield(QHFormat("SEARCHING_STATE", QHFormat("SEARCHING_STATIC"), QHText("SEARCHING_NPCS")))
+        coroutine.yield(QHFormat("SEARCHING_STATE", QHFormat("SEARCHING_STATIC", QHText("SEARCHING_NPCS"))))
       end
     end end
   end
