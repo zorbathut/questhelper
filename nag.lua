@@ -164,7 +164,7 @@ local function CompareStaticObjective(info, cat, name, data, verbose)
     if not static then
       if data.pos or data.drop or data.vendor then
         if verbose then QuestHelper:TextOut(string.gsub(cat, "^(.)", string.upper).." "..QuestHelper:HighlightText(name).." was missing.") end
-        info.new[cat.." objective"] = (info.new[cat.." objective"] or 0)+1
+        info.new[cat.."_obj"] = (info.new[cat.."_obj"] or 0)+1
       end
       return
     end
@@ -183,7 +183,7 @@ local function CompareStaticObjective(info, cat, name, data, verbose)
     end
     
     if updated then
-      info.update[cat.." objective"] = (info.update[cat.." objective"] or 0)+1
+      info.update[cat.."_obj"] = (info.update[cat.."_obj"] or 0)+1
     end
   end
 end
@@ -232,7 +232,7 @@ function QuestHelper:Nag(verbose)
       
       if not data or data ~= npc then
         if verbose then self:TextOut(QuestHelper:HighlightText(faction).." flight master "..QuestHelper:HighlightText(npc).." was missing.") end
-        info.new["flight master"] = (info.new["flight master"] or 0)+1
+        info.new["fp"] = (info.new["fp"] or 0)+1
       end
     end
   end
@@ -251,7 +251,7 @@ function QuestHelper:Nag(verbose)
             static = static and static.real
             if not static then
               if verbose then self:TextOut("Flight time from "..QuestHelper:HighlightText((select(3, string.find(start, "^(.*),")) or start)).." to "..QuestHelper:HighlightText((select(3, string.find(dest, "^(.*),")) or dest)).." was missing.") end
-              info.new["flight route"] = (info.new["flight route"] or 0)+1
+              info.new["route"] = (info.new["route"] or 0)+1
             end
           end
         end
@@ -266,22 +266,22 @@ function QuestHelper:Nag(verbose)
     local count2 = info.update[what]
     if count2 then
       total = total + count2
-      self:TextOut("You have information on "..self:HighlightText(count).." new and "..self:HighlightText(count2).." updated "..self:HighlightText(what.."s")..".")
+      self:TextOut(QHFormat("NAG_MULTIPLE", count, count2, QHText("NAG_"..string.upper(what))))
     else
-      self:TextOut("You have new information on "..self:HighlightText(count.." "..what..(count==1 and "" or "s"))..".")
+      self:TextOut(QHFormat("NAG_NEW", QHFormat(count==1 and "NAG_SINGLE", "NAG_PLURAL", count, QHText("NAG_"..string.upper(what)))))
     end
   end
   
   for what, count in pairs(info.update) do
     if not info.new[what] then
       total = total + count
-      self:TextOut("You have additional information on "..self:HighlightText(count.." "..what..(count==1 and "" or "s"))..".")
+      self:TextOut(QHFormat("NAG_ADDITIONAL", QHFormat(count==1 and "NAG_SINGLE", "NAG_PLURAL", count, QHText("NAG_"..string.upper(what)))))
     end
   end
   
   if total == 0 then
-    self:TextOut("You don't have any information not already in the static database.")
+    self:TextOut(QHText("NAG_NOT_NEW"))
   else
-    self:TextOut("You might consider sharing your data so that others may benefit.")
+    self:TextOut(QHText("NAG_NEW"))
   end
 end

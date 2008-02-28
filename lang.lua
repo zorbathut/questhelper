@@ -10,7 +10,7 @@ local function nop() -- A dummy function that does nothing, used by QHFormatArra
   return nil -- By returning nil, doSub will instead insert the string [???].
 end
 
-local trans_table, transt_table_force, trans_func, trans_func_fb
+local trans_table, trans_table_force, trans_func, trans_func_fb
 
 -- Sets the locale used by QuestHelper. It needn't match the game's locale.
 function QHFormatSetLocale(loc)
@@ -36,9 +36,18 @@ function QHFormatArray(text, array)
     QHFormatSetLocale(GetLocale())
   end
   
+  local old_array = sub_array -- Remember old value, so we can restore it incase this was called recursively.
   sub_array = array
   
-  text = string.gsub(trans_table_force[text] or trans_table[text] or trans_table_fb[text] or text, "%%([^%d]*)(%d*)", doSub)
+  local trans = trans_table_force[text]  or trans_table[text]
+  
+  if not trans then
+    trans = string.format("|cffff0000[%s|||r%s|cffff0000]|r", text, trans_table_fb[text] or "???")
+  end
+  
+  text = string.gsub(trans, "%%([^%d]*)(%d*)", doSub)
+  
+  sub_array = old_array
   
   return text
 end

@@ -410,10 +410,13 @@ function QuestHelper:OnEvent(event)
   end
   
   if event == "CHAT_MSG_SYSTEM" then
-    local _, _, home_name = string.find(arg1, "^(.*) is now your home.$")
+    -- 
+    local _, _, home_name = string.find(arg1, string.format("^%s$", string.gsub(ERR_DEATHBIND_SUCCESS_S, "%%s", "(.-)")))
     if home_name then
       if self.i then
-        self:TextOut("Your home has been changed. Will reset pathing information.")
+        self:TextOut(QHText("HOME_CHANGED"))
+        self:TextOut(QHText("WILL_RESET_PATH"))
+        
         local home = QuestHelper_Home
         if not home then
           home = {}
@@ -458,7 +461,7 @@ function QuestHelper:OnEvent(event)
     if quest then
       local level, hash = self:GetQuestLevel(quest)
       if not level or level < 1 then
-        self:TextOut("Don't know quest level for ".. quest.."!")
+        --self:TextOut("Don't know quest level for ".. quest.."!")
         return
       end
       local q = self:GetQuest(quest, level, hash)
@@ -558,7 +561,7 @@ function QuestHelper:OnEvent(event)
             self:TextOut("You shouldn't have been able to fly here. And yet here you are. Reality will never be the same again.")
           end
         else
-          self:TextOut("Please talk to the local flight master.")
+          self:TextOut(QHText("TALK_TO_FLIGHT_MASTER"))
           if not self.pending_flight_data then
             self.pending_flight_data = {}
           end
@@ -603,7 +606,7 @@ function QuestHelper:OnEvent(event)
         local index, x, y = self:UnitPosition("npc")
         for i, data in ipairs(self.pending_flight_data) do
           if self:Distance(index, x, y, data[4], data[5], data[6]) < 20 then
-            self:TextOut("Thanks.")
+            self:TextOut(QHText("TALK_TO_FLIGHT_MASTER_COMPLETE"))
             self.flight_hashs = data[2]
             self:GetFlightPathData(index, data[1], start_location, self.flight_hashs[start_location]).real = data[3]
             table.remove(self.pending_flight_data, i)
@@ -654,7 +657,8 @@ function QuestHelper:OnEvent(event)
       end
       
       if altered then
-        self:TextOut("The flight routes for your character have been altered. Will recalculate world pathing information.")
+        self:TextOut(QHText("ROUTES_CHANGED"))
+        self:TextOut(QHText("HOME_CHANGED"))
         self.defered_graph_reset = true
       end
     end

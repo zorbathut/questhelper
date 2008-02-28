@@ -27,16 +27,16 @@ end
 
 function QuestHelper:SetLocale(loc)
   if not loc or loc == "" then
-    self:TextOut("Available Locales:")
+    self:TextOut(QHText("LOCALE_LIST_BEGIN"))
     for loc in pairs(QuestHelper_Translations) do
       self:TextOut(string.format("  %s%s", self:HighlightText(loc), loc == QuestHelper_Pref.locale and " *" or ""))
     end
   elseif QuestHelper_Translations[loc] then
     QuestHelper_Pref.locale = loc
     QHFormatSetLocale(loc)
-    self:TextOut("Locale changed to: "..self:HighlightText(loc))
+    self:TextOut(QHFormat("LOCALE_CHANGED", loc))
   else
-    self:TextOut("Locale "..self:HighlightText(tostring(loc) or "UNKNOWN").." isn't known.")
+    self:TextOut(QHFormat("LOCALE_UNKNOWN", tostring(loc) or "UNKNOWN"))
   end
 end
 
