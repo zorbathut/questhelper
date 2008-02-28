@@ -658,7 +658,7 @@ function QuestHelper:OnEvent(event)
       
       if altered then
         self:TextOut(QHText("ROUTES_CHANGED"))
-        self:TextOut(QHText("HOME_CHANGED"))
+        self:TextOut(QHText("WILL_RESET_PATH"))
         self.defered_graph_reset = true
       end
     end
