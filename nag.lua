@@ -266,16 +266,16 @@ function QuestHelper:Nag(verbose)
     local count2 = info.update[what]
     if count2 then
       total = total + count2
-      self:TextOut(QHFormat("NAG_MULTIPLE", count, count2, QHText("NAG_"..string.upper(what))))
+      self:TextOut(QHFormat("NAG_MULTIPLE_NEW", count, count2, QHText("NAG_"..string.upper(what))))
     else
-      self:TextOut(QHFormat("NAG_NEW", QHFormat(count==1 and "NAG_SINGLE", "NAG_PLURAL", count, QHText("NAG_"..string.upper(what)))))
+      self:TextOut(QHFormat("NAG_SINGLE_NEW", QHFormat(count==1 and "NAG_SINGLE" or "NAG_PLURAL", count, QHText("NAG_"..string.upper(what)))))
     end
   end
   
   for what, count in pairs(info.update) do
     if not info.new[what] then
       total = total + count
-      self:TextOut(QHFormat("NAG_ADDITIONAL", QHFormat(count==1 and "NAG_SINGLE", "NAG_PLURAL", count, QHText("NAG_"..string.upper(what)))))
+      self:TextOut(QHFormat("NAG_ADDITIONAL", QHFormat(count==1 and "NAG_SINGLE" or "NAG_PLURAL", count, QHText("NAG_"..string.upper(what)))))
     end
   end
   
