@@ -28,7 +28,7 @@ QuestHelper_Translations.deDE =
   OBJECTIVE_REASON_FALLBACK = "%h1 für das Quest %h2.",
   OBJECTIVE_REASON_TURNIN = "Quest %h1 abgeben.",
   OBJECTIVE_PURCHASE = "Erwerben von %h1.",
-  --OBJECTIVE_TALK = "Talk to %h1.",
+  OBJECTIVE_TALK = "Sprechen Sie mit %h1.", -- Came from Google Translate, no promises this makes sense.
   OBJECTIVE_SLAY = "Töte %h1.",
   OBJECTIVE_LOOT = "Erbeute %h1.",
   
