@@ -98,7 +98,7 @@ QuestHelper_Translations.deDE =
   NAG_SINGLE = "a %2", -- %1 == count (will be 1), %2 == what
   NAG_PLURAL = "%1 %2s",
   
-  NAG_MULTIPLE_NEW = "Du hast Informationen über %h1 neu und %h2 aktualisiert %h3s.",
+  NAG_MULTIPLE_NEW = "Du hast Informationen über %h1 neu und %h2 aktualisiert %h3.",
   NAG_SINGLE_NEW = "Du hast Informationen über neue %h1.",
   NAG_ADDITIONAL = "Du hast zusätzliche Informationen über %h1.",
   

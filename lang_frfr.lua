@@ -100,7 +100,7 @@ QuestHelper_Translations.frFR =
   NAG_SINGLE = "a %2", -- %1 == count (will be 1), %2 == what
   NAG_PLURAL = "%1 %2s",
   
-  NAG_MULTIPLE_NEW = "You have information on %h1 new and %h2 updated %h3s.",
+  NAG_MULTIPLE_NEW = "You have information on %h1 new and %h2 updated %h3.",
   NAG_SINGLE_NEW = "You have new information on %h1.",
   NAG_ADDITIONAL = "You have additional information on %h1.",
   
