@@ -1,5 +1,7 @@
-== Version 0.33c Uploaded 02/28/2008 ==
+== Version 0.33d Uploaded 02/29/2008 ==
 
+* Includes a German localization.
+* Changed the way localized strings are parsed.
 * Nagging was broken, fixed it.
 * Was printing 'HOME_CHANGED' when flight routes were updated.
 * Text displayed while searching was wrong.
