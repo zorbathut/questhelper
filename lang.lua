@@ -6,10 +6,6 @@ QuestHelper_TranslationFunctions = {}
 
 local empty_table = {}
 
-local function nop() -- A dummy function that does nothing, used by QHFormatArray
-  return nil -- By returning nil, doSub will instead insert the string [???].
-end
-
 local trans_table, trans_table_force, trans_func, trans_func_fb
 
 -- Sets the locale used by QuestHelper. It needn't match the game's locale.
@@ -26,7 +22,7 @@ local function doSub(op, index)
   local i = tonumber(index)
   if i then
     -- Pass the selected argument through a function and insert the result.
-    return (trans_func[op] or trans_func_fb[op] or nop)(sub_array[i]) or "[???]"
+    return (trans_func[op] or trans_func_fb[op] or QuestHelper.nop)(sub_array[i]) or "[???]"
   end
   return op..index
 end

@@ -415,7 +415,7 @@ function QuestHelper:OnEvent(event)
   
   if event == "CHAT_MSG_SYSTEM" then
     -- 
-    local _, _, home_name = string.find(arg1, string.format("^%s$", string.gsub(ERR_DEATHBIND_SUCCESS_S, "%%s", "(.-)")))
+    local home_name = self:convertPattern(ERR_DEATHBIND_SUCCESS_S)(arg1)
     if home_name then
       if self.i then
         self:TextOut(QHText("HOME_CHANGED"))

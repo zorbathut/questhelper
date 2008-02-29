@@ -17,7 +17,7 @@ local function QuestAppendPositions(self, objective, weight, why)
   why2 = why and why.."\n" or ""
 
   if self.target then
-    self.target:AppendPositions(self, 1, why2.."Talk to "..self.qh:HighlightText(self.o.finish or self.fb.finish)..".")
+    self.target:AppendPositions(self, 1, why2..QHFormat("OBJECTIVE_TALK", self.o.finish or self.fb.finish))
   elseif self.destination then
     for i, p in ipairs(self.destination) do
       self:AddLoc(p[1], p[2], p[3], p[4], p[5])

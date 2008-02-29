@@ -30,6 +30,7 @@ QuestHelper_Translations.koKR =
   OBJECTIVE_REASON_FALLBACK = "%h1 for quest %h2.",
   OBJECTIVE_REASON_TURNIN = "Turn in quest %h1.",
   OBJECTIVE_PURCHASE = "Purchase from %h1.",
+  OBJECTIVE_TALK = "Talk to %h1.",
   OBJECTIVE_SLAY = "Slay %h1.",
   OBJECTIVE_LOOT = "Loot %h1.",
   

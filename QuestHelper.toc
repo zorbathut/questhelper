@@ -39,3 +39,4 @@ hidden.lua
 nag.lua
 comm.lua
 help.lua
+pattern.lua

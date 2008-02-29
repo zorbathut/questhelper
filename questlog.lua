@@ -29,18 +29,12 @@ end
 
 local ITEM_PATTERN, REPUTATION_PATTERN, MONSTER_PATTERN, OBJECT_PATTERN = false, false, false, false
 
-local function replacePattern(p)
-  if p == "d" then return "(%d+)" end
-  if p == "s" then return "(.-)" end
-  assert(false)
-end
-
 local function buildPatterns()
   if not ITEM_PATTERN then
-    ITEM_PATTERN = string.format("^%s$", string.gsub(QUEST_OBJECTS_FOUND, "%%(.)", replacePattern))
-    REPUTATION_PATTERN = string.format("^%s$", string.gsub(QUEST_FACTION_NEEDED, "%%(.)", replacePattern))
-    MONSTER_PATTERN = string.format("^%s$", string.gsub(QUEST_MONSTERS_KILLED, "%%(.)", replacePattern))
-    OBJECT_PATTERN = string.format("^%s$", string.gsub(QUEST_OBJECTS_FOUND, "%%(.)", replacePattern))
+    ITEM_PATTERN = QuestHelper:convertPattern(QUEST_OBJECTS_FOUND)
+    REPUTATION_PATTERN = QuestHelper:convertPattern(QUEST_FACTION_NEEDED)
+    MONSTER_PATTERN = QuestHelper:convertPattern(QUEST_MONSTERS_KILLED)
+    OBJECT_PATTERN = QuestHelper:convertPattern(QUEST_OBJECTS_FOUND)
     replacePattern = nil
   end
 end
@@ -50,18 +44,18 @@ function QuestHelper:GetQuestLogObjective(quest_index, objective_index)
   
   buildPatterns()
   
-  local _, wanted, verb, have, need
+  local wanted, verb, have, need
   
   if category == "monster" then
-    _, _, wanted, have, need = string.find(text, MONSTER_PATTERN)
+    wanted, have, need = MONSTER_PATTERN(text)
     verb = QHText("SLAY_VERB")
   elseif category == "item" then
-    _, _, wanted, have, need = string.find(text, ITEM_PATTERN)
+    wanted, have, need = ITEM_PATTERN(text)
     verb = QHText("ACQUIRE_VERB")
   elseif category == "reputation" then
-     _, _, wanted, have, need = string.find(text, REPUTATION_PATTERN)
+    wanted, have, need = REPUTATION_PATTERN(text)
   elseif category == "object" then
-    _, _, wanted, have, need = string.find(text, OBJECT_PATTERN)
+    wanted, have, need = OBJECT_PATTERN(text)
   elseif category == "event" then
     wanted, have, need = text, 0, 1
   else
