@@ -270,6 +270,10 @@ function QuestHelper:OnEvent(event)
       self:EnableSharing()
     end
     
+    if QuestHelper_Pref.hide then
+      self.map_overlay:Hide()
+    end
+    
     self:HandlePartyChange()
     self:Nag()
     
