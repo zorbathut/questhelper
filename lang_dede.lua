@@ -6,7 +6,7 @@ QuestHelper_Translations.deDE =
                       "Bitte warte auf einen Patch, der in der Lage ist mit dem neuen Zonen Layout umzugehen",
   DOWNGRADE_ERROR = "Deine gespeicherten Daten sind nicht kompatibel mit dieser Version von QuestHelper."..
                     "Verwende eine neue Version oder lösche deine gespeicherten Variablen.",
-  HOME_NOT_KNOWN = "Dein Zuhause ist nicht bekannt. Bitte sprich bei der nächsten Gelegenheit einen Gastwirt um es zurückzusetzen.",
+  HOME_NOT_KNOWN = "Dein Zuhause ist nicht bekannt. Bitte sprich bei der nächsten Gelegenheit einen Gastwirt an um es zurückzusetzen.",
   
   -- Route related text.
   ROUTES_CHANGED = "Die Flugstrecken für deinen Charakter wurden verändert.",
@@ -21,12 +21,12 @@ QuestHelper_Translations.deDE =
   LOCALE_UNKNOWN = "Die Sprache %h1 ist nicht bekannt.",
   
   -- Words used for objectives.
-  SLAY_VERB = "Töten",
-  ACQUIRE_VERB = "Erbeuten",
+  SLAY_VERB = "Töte",
+  ACQUIRE_VERB = "Erbeute",
   
   OBJECTIVE_REASON = "%1 %h2 für das Quest %h3.", -- %1 is a verb, %2 is a noun (item or monster)
   OBJECTIVE_REASON_FALLBACK = "%h1 für das Quest %h2.",
-  OBJECTIVE_REASON_TURNIN = "Quest %h1 abgeben.",
+  OBJECTIVE_REASON_TURNIN = "Gib das Quest %h1 ab.",
   OBJECTIVE_PURCHASE = "Erwerben von %h1.",
   OBJECTIVE_TALK = "Sprich mit %h1.",
   OBJECTIVE_SLAY = "Töte %h1.",
@@ -37,7 +37,7 @@ QuestHelper_Translations.deDE =
   -- Stuff used in objective menus.
   PRIORITY = "Priorität",
   PRIORITY1 = "Höchste",
-  PRIORITY2 = "Nohe",
+  PRIORITY2 = "Hohe",
   PRIORITY3 = "Normale",
   PRIORITY4 = "Niedrige",
   PRIORITY5 = "Niedrigste",
@@ -116,7 +116,7 @@ QuestHelper_Translations.deDE =
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1's Fortschritte:",
-  TRAVEL_ESTIMATE = "Geschätzte Fahrzeit:",
+  TRAVEL_ESTIMATE = "Geschätzte Reisezeit:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Besuche %h1 auf dem Weg zu:"
  }
