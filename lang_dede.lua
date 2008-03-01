@@ -1,3 +1,5 @@
+-- Please see lang_enus.lua for reference.
+
 QuestHelper_Translations.deDE =
  {
   -- Messages used when starting.
@@ -95,10 +97,10 @@ QuestHelper_Translations.deDE =
   FILTER_LEVEL = "Level",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
-  NAG_SINGLE = "a %2", -- %1 == count (will be 1), %2 == what
-  NAG_PLURAL = "%1 %2s",
+  NAG_SINGLE = "1 %2", -- %1 == count (will be 1), %2 == what
+  NAG_PLURAL = "%1 %s2",
   
-  NAG_MULTIPLE_NEW = "Du hast Informationen über %h1 neu und %h2 aktualisiert %h3.",
+  NAG_MULTIPLE_NEW = "Du hast Informationen über %h1 neu und %h2 aktualisiert %h(%s3).",
   NAG_SINGLE_NEW = "Du hast Informationen über neue %h1.",
   NAG_ADDITIONAL = "Du hast zusätzliche Informationen über %h1.",
   

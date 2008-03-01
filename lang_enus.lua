@@ -1,5 +1,63 @@
 -- Note: This file is used as fallback for locales that don't exist.
 
+--[[
+  
+  SYNTAX REFERENCE
+  
+  All '%' characters mark the position where some text is to be inserted.
+  
+  Following this character is some alphabetical text controlling how the data is
+  to be interpreted, which may be empty.
+  
+  Following that is either a number, the index to the data to insert, or
+  brackets containing some text to transform, which may recursively contain
+  other transformed text.
+  
+  Examples:
+    %1
+      Inserts first argument into string without changing it.
+    
+    %h1
+      Inserts first argument into string and highlights it.
+    
+    %(Hello World)
+      Inserts the text 'Hello World' into the string. Not entirely useful,
+      as you could simply just write 'Hello World'.
+    
+    %h(Hello World)
+      Inserts the text 'Hello World', highlighted so that it stands out.
+    
+    %h(%s(%(cla)%(ss)))
+      This convoluted example demonstrates nesting.
+      First 'cla' and 'ss' are converted into 'class', this is made
+      plural, converting it into 'classes', and then this is highlighted.
+  
+  Transformations:
+    s
+      Makes a string plural.
+    
+    h
+      Highlight some text. Bewarned that highlighting already highlighted text
+      doesn't work as expected.
+    
+    t
+      Insert a time, argument is interpreted as a number representing seconds.
+    
+    p
+      Insert a percentage. Argument should be a number between 0 and 1, text
+      will be shaded from red at 0% to green at 100%.
+    
+    q
+      Quotes some text.
+    
+    Q
+      Inserts a Lua quoted and escaped string.
+  
+  These transformations can made to do different things depending on the locale,
+  if you're translating and need something changed, please ask.
+  
+]]
+
 -- If the client is using this locale, then strings from this table will always be used, regardless of
 -- the locale selected for displayed text.
 QuestHelper_ForcedTranslations.enUS = 
@@ -16,8 +74,8 @@ QuestHelper_Translations.enUS =
   HOME_NOT_KNOWN = "Your home isn't known. When you get a chance, please talk to your innkeeper and reset it.",
   
   -- This text is only printed for the enUS client, don't worry about translating it.
-  ALTERED_INDEX = "!!! QuestHelper_IndexLookup entry needs update: [%q1] = {%2, %3, %4}",
-  ALTERED_ZONE = "!!! QuestHelper_Zones entry needs update: [%1][%2] = %q3 -- was %4",
+  ALTERED_INDEX = "!!! QuestHelper_IndexLookup entry needs update: [%Q1] = {%2, %3, %4}",
+  ALTERED_ZONE = "!!! QuestHelper_Zones entry needs update: [%1][%2] = %Q3 -- was %4",
   
   -- Route related text.
   ROUTES_CHANGED = "The flight routes for your character have been altered.",
@@ -106,10 +164,10 @@ QuestHelper_Translations.enUS =
   FILTER_LEVEL = "level",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
-  NAG_SINGLE = "a %2", -- %1 == count (will be 1), %2 == what
-  NAG_PLURAL = "%1 %2s",
+  NAG_SINGLE = "1 %2", -- %1 == count (will be 1), %2 == what
+  NAG_PLURAL = "%1 %s2",
   
-  NAG_MULTIPLE_NEW = "You have information on %h1 new and %h2 updated %h3.",
+  NAG_MULTIPLE_NEW = "You have information on %h1 new and %h2 updated %h(%s3).",
   NAG_SINGLE_NEW = "You have new information on %h1.",
   NAG_ADDITIONAL = "You have additional information on %h1.",
   
@@ -137,6 +195,24 @@ QuestHelper_TranslationFunctions.enUS =
   -- %1 will insert a copy of argument 1, converted to a string.
   [""] = tostring,
   
+  -- %s1 will insert a copy of argument 1, made plural.
+  -- A value of 'cake' will be inserted as 'cakes'.
+  ["s"] = function(data)
+    if string.find(data, "|r$") then -- String ends in a colour termination code.
+      if string.find(data, "s|r$") then
+        return string.sub(data, -3).."es|r"
+      else
+        return string.sub(data, -3).."s|r"
+      end
+    else
+      if string.find(data, "s$") then
+        return data.."es"
+      else
+        return data.."s"
+      end
+    end
+  end,
+  
   -- Highlight: "%h1" will insert a highlighted copy of argument 1, converted to a string.
   ["h"] = function(data) return QuestHelper:HighlightText(tostring(data)) end,
   
@@ -148,6 +224,9 @@ QuestHelper_TranslationFunctions.enUS =
   -- A value of .3183 will for example be inserted as '31.8%'.
   ["p"] = function(data) return QuestHelper:PercentString(tonumber(data)) end,
   
-  -- Quote: "%q1" will insert argument 1 as a quoted lua string.
-  ["q"] = function(data) return string.format("%q", data) end
+  -- Quote: "%q1" will insert argument 1 as quoted text.
+  ["q"] = function(data) return string.format("“%s”", data) end,
+  
+  -- Lua quote: "%Q1" will insert argument 1 as a quoted lua string.
+  ["Q"] = function(data) return string.format("%q", data) end
  }

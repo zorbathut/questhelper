@@ -1,3 +1,5 @@
+-- Please see lang_enus.lua for reference.
+
 QuestHelper_Translations.koKR =
  {
   --[[ THIS FILE NEEDS TO BE TRANSLATED; REMOVE THIS LINE WHEN COMPLETED.
@@ -9,6 +11,10 @@ QuestHelper_Translations.koKR =
   DOWNGRADE_ERROR = "Your saved data isn't compatible with this version of QuestHelper. "..
                     "Use a new version, or delete your saved variables.",
   HOME_NOT_KNOWN = "Your home isn't known. When you get a chance, please talk to your innkeeper and reset it.",
+  
+  -- This text is only printed for the enUS client, don't worry about translating it.
+  ALTERED_INDEX = "!!! QuestHelper_IndexLookup entry needs update: [%Q1] = {%2, %3, %4}",
+  ALTERED_ZONE = "!!! QuestHelper_Zones entry needs update: [%1][%2] = %Q3 -- was %4",
   
   -- Route related text.
   ROUTES_CHANGED = "The flight routes for your character have been altered.",
@@ -97,10 +103,10 @@ QuestHelper_Translations.koKR =
   FILTER_LEVEL = "level",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
-  NAG_SINGLE = "a %2", -- %1 == count (will be 1), %2 == what
-  NAG_PLURAL = "%1 %2s",
+  NAG_SINGLE = "1 %2", -- %1 == count (will be 1), %2 == what
+  NAG_PLURAL = "%1 %s2",
   
-  NAG_MULTIPLE_NEW = "You have information on %h1 new and %h2 updated %h3.",
+  NAG_MULTIPLE_NEW = "You have information on %h1 new and %h2 updated %h(%s3).",
   NAG_SINGLE_NEW = "You have new information on %h1.",
   NAG_ADDITIONAL = "You have additional information on %h1.",
   

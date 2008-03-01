@@ -27,6 +27,23 @@ local function doSub(op, index)
   return op..index
 end
 
+local next_free = 1
+
+local doTranslation = nil
+
+local function doNest(op, text)
+  next_free = next_free + 1
+  sub_array[next_free] = doTranslation(string.sub(text, 2, -2))
+  return string.format("%%%s%d", op, next_free)
+end
+
+doTranslation = function(text)
+  local old_next_free = next_free
+  text = string.gsub(string.gsub(text, "%%(%a*)(%b())", doNest), "%%(%a*)(%d*)", doSub)
+  next_free = old_next_free
+  return text
+end
+
 function QHFormatArray(text, array)
   if not trans_table then
     QHFormatSetLocale(GetLocale())
@@ -35,15 +52,19 @@ function QHFormatArray(text, array)
   local old_array = sub_array -- Remember old value, so we can restore it incase this was called recursively.
   sub_array = array
   
+  local old_next_free = next_free
+  next_free = #array
+  
   local trans = trans_table_force[text]  or trans_table[text]
   
   if not trans then
     trans = string.format("|cffff0000[%s|||r%s|cffff0000]|r", text, trans_table_fb[text] or "???")
   end
   
-  text = string.gsub(trans, "%%([^%d]*)(%d*)", doSub)
+  text = doTranslation(trans)
   
   sub_array = old_array
+  next_free = old_next_free
   
   return text
 end

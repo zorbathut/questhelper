@@ -1,5 +1,7 @@
-== Version 0.33d Uploaded 02/29/2008 ==
+== Version 0.33e Uploaded 02/29/2008 ==
 
+* Hopefully fixed the cartographer waypoints interface to work in non-english locales.
+* Added ability for translation strings to transform nested text.
 * Includes a German localization.
 * Changed the way localized strings are parsed.
 * Nagging was broken, fixed it.
