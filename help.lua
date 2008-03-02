@@ -190,6 +190,10 @@ function QuestHelper:WantPathingReset()
   self.defered_graph_reset = true
 end
 
+function QuestHelper:PrintVersion()
+  self:TextOut("Version: "..self:HighlightText(GetAddOnMetadata("QuestHelper", "Version") or "Unknown"))
+end
+
 local function RecycleStatusString(fmt, used, free)
   return string.format(fmt, QuestHelper:ProgressString(string.format("%d/%d", used, used+free), ((used+free == 0) and 1) or (1-used/(used+free))))
 end
@@ -203,6 +207,9 @@ end
 
 local commands =
  {
+  {"VERSION",
+   "Displays QuestHelper's version.", {}, QuestHelper.PrintVersion, QuestHelper},
+  
   {"RECALC",
    "Recalculates the world graph and locations for any active objectives.", {}, QuestHelper.WantPathingReset, QuestHelper},
   
