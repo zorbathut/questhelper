@@ -158,12 +158,8 @@ local function LoadFile(file)
 end
 
 local function ObsoletedBy(data1, data2)
-  if data1.loc ~= data2.loc then
-    return false
-  end
-  
   if data1.uid or data2.uid then
-    return data1.uid == data2.uid and (data1.time or 0) >= (data2.time or 0)
+    return data1.loc == data2.loc and data1.uid == data2.uid and (data1.time or 0) >= (data2.time or 0)
   end
   
   for key, value in pairs(data1) do

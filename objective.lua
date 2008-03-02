@@ -977,15 +977,13 @@ local function ApplyBlockPriority(obj, level)
   if obj.priority < level then QuestHelper:SetObjectivePriority(obj, level) end
 end
 
-local function NOP() end
-
 function QuestHelper:SetObjectivePriorityPrompt(objective, level)
   self:SetObjectivePriority(objective, level)
   if CalcObjectivePriority(objective) ~= level then
     local menu = self:CreateMenu()
     self:CreateMenuTitle(menu, QHText("IGNORED_PRIORITY_TITLE"))
     self:CreateMenuItem(menu, QHText("IGNORED_PRIORITY_FIX")):SetFunction(ApplyBlockPriority, objective, level)
-    self:CreateMenuItem(menu, QHText("IGNORED_PRIORITY_IGNORE")):SetFunction(NOP)
+    self:CreateMenuItem(menu, QHText("IGNORED_PRIORITY_IGNORE")):SetFunction(self.nop)
     menu:ShowAtCursor()
   end
 end

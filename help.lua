@@ -27,16 +27,16 @@ end
 
 function QuestHelper:SetLocale(loc)
   if not loc or loc == "" then
-    self:TextOut("Available Locales:")
+    self:TextOut(QHText("LOCALE_LIST_BEGIN"))
     for loc in pairs(QuestHelper_Translations) do
       self:TextOut(string.format("  %s%s", self:HighlightText(loc), loc == QuestHelper_Pref.locale and " *" or ""))
     end
   elseif QuestHelper_Translations[loc] then
     QuestHelper_Pref.locale = loc
     QHFormatSetLocale(loc)
-    self:TextOut("Locale changed to: "..self:HighlightText(loc))
+    self:TextOut(QHFormat("LOCALE_CHANGED", loc))
   else
-    self:TextOut("Locale "..self:HighlightText(tostring(loc) or "UNKNOWN").." isn't known.")
+    self:TextOut(QHFormat("LOCALE_UNKNOWN", tostring(loc) or "UNKNOWN"))
   end
 end
 
@@ -190,6 +190,10 @@ function QuestHelper:WantPathingReset()
   self.defered_graph_reset = true
 end
 
+function QuestHelper:PrintVersion()
+  self:TextOut("Version: "..self:HighlightText(GetAddOnMetadata("QuestHelper", "Version") or "Unknown"))
+end
+
 local function RecycleStatusString(fmt, used, free)
   return string.format(fmt, QuestHelper:ProgressString(string.format("%d/%d", used, used+free), ((used+free == 0) and 1) or (1-used/(used+free))))
 end
@@ -203,6 +207,9 @@ end
 
 local commands =
  {
+  {"VERSION",
+   "Displays QuestHelper's version.", {}, QuestHelper.PrintVersion, QuestHelper},
+  
   {"RECALC",
    "Recalculates the world graph and locations for any active objectives.", {}, QuestHelper.WantPathingReset, QuestHelper},
   

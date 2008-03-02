@@ -1,10 +1,27 @@
+== Version 0.33e Uploaded 03/01/2008 ==
+
+* Hopefully fixed the cartographer waypoints interface to work in non-english locales.
+* Added ability for translation strings to transform nested text.
+* Includes a German localization.
+* Changed the way localized strings are parsed.
+* Nagging was broken, fixed it.
+* Was printing 'HOME_CHANGED' when flight routes were updated.
+* Text displayed while searching was wrong.
+* Map overlays weren't hidden when starting if they were supposed to be.
+
+== Version 0.33 Uploaded 02/28/2008 ==
+
+* Moved more of QuestHelper's strings into lang_enus.lua.
+* Missing translations are now marked using red backets containing the missing token and a fallback translation in English.
+* Fixed a problem with determining the users home in non-english locales.
+* Fixed a problem with sharing location objectives with peers.
+
 == Version 0.32 Uploaded 02/27/2008 ==
 
 * Fixed some bugs related to locales, static data contains a few translations for items and npcs but no quests.
 
 == Version 0.31 Uploaded 02/24/2008 ==
 
-* '''vipersniper tells me I've broken something, causing QuestHelper to not recognize some quests dispite them being in its database. Supposedly it was working properly in 0.29.'''
 * Fixed a problem with the peers you were sharing objectives with disappearing.
 * Fixed a problem asking Astrolabe about a non-existent zone when using Cartographer Waypoints and switching continents.
 * Started support for translations, although nothing has actually been translated.

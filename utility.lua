@@ -34,6 +34,8 @@ function QuestHelper:GetColourTheme()
   return default_colour_theme
 end
 
+QuestHelper.nop = function () end -- Who wouldn't want a function that does nothing?
+
 function QuestHelper:HashString(text)
   -- Computes an Adler-32 checksum.
   local a, b = 1, 0

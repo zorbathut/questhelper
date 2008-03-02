@@ -137,14 +137,22 @@ end
 
 local function SharedObjectiveReason(user, objective)
   if objective.cat == "quest" then
-    return "Wait for "..QuestHelper:HighlightText(user.name).." to turn in "..QuestHelper:HighlightText(select(3, string.find(objective.obj, "^%d+/%d*/(.*)$")) or "something impossible").."."
+    return QHFormat("PEER_TURNIN", user.name, select(3, string.find(objective.obj, "^%d+/%d*/(.*)$")) or "something impossible")
   elseif objective.cat == "loc" then
-    local _, _, c, z = string.find(objective.obj, "^(%d+),(%d+)")
-    return "Help "..QuestHelper:HighlightText(user.name).." reach a location in "..QuestHelper:HighlightText(select(z,GetMapZones(c)) or "the black empty void").."."
+    local i
+    local _, _, c, z, x, y = string.find(objective.obj, "^(%d+),(%d+),([%d%.]+),([%d%.]+)$")
+    
+    if not y then
+      _, _, i, x, y = string.find(objective.obj, "^(%d+),([%d%.]+),([%d%.]+)$")
+    else
+      i = QuestHelper_IndexLookup[c] and QuestHelper_IndexLookup[c][z]
+    end
+    
+    return QHFormat("PEER_LOCATON", user.name, i and QuestHelper_NameLookup[i] or "the black empty void")
   elseif objective.cat == "item" then
-    return "Help "..QuestHelper:HighlightText(user.name).." to acquire "..QuestHelper:HighlightText(objective.obj).."."
+    return QHFormat("PEER_ITEM", user.name, objective.obj)
   else
-    return "Assist "..QuestHelper:HighlightText(user.name).." with "..QuestHelper:HighlightText(objective.obj).."."
+    return QHFormat("PEER_OTHER", user.name, objective.obj)
   end
 end
 
@@ -296,9 +304,9 @@ function QuestHelper:HandleRemoteData(data, name)
       user.version = new_version
       
       if user.version > comm_version then
-        self:TextOut(self:HighlightText(name).." is using a newer protocol version. It might be time to upgrade.")
+        self:TextOut(QHFormat("PEER_NEWER", name))
       elseif user.version < comm_version then
-        self:TextOut(self:HighlightText(name).." is using an older protocol version.")
+        self:TextOut(QHFormat("PEER_OLDER", name))
       end
       
     elseif message_type == "id" then
@@ -350,7 +358,7 @@ function QuestHelper:HandleRemoteData(data, name)
         user.obj[id] = nil
       end
     else
-      self:TextOut("Unknown message type '"..message_type.."' from '"..name.."'.")
+      self:TextOut(QHFormat("UNKNOWN_MESSAGE", message_type, name))
     end
   end
 end

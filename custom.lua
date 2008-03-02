@@ -115,25 +115,25 @@ function QuestHelper:ToggleUserObjective(cat, what)
   local objective = self:GetObjective(cat, what)
   
   if self.user_objectives[objective] then
-    self:TextOut("Removed: "..self.user_objectives[objective])
+    self:TextOut(QHFormat("REMOVED_OBJ", self.user_objectives[objective]))
     self:RemoveObjectiveWatch(objective, self.user_objectives[objective])
     self.user_objectives[objective] = nil
   elseif objective:Known() then
     local name
     if cat == "loc" then
       local _, _, i, x, y = string.find(what, "^(%d+),([%d%.]+),([%d%.]+)$")
-      name = "User Objective: "..self:HighlightText(QuestHelper_NameLookup[tonumber(i)])..": "..self:HighlightText(x*100)..", "..self:HighlightText(y*100)
+      name = QHFormat("USER_OBJ", self:HighlightText(QuestHelper_NameLookup[tonumber(i)])..": "..self:HighlightText(x*100)..", "..self:HighlightText(y*100))
     else
-      name = "User Objective: "..self:HighlightText(string.gsub(cat, "^(.)", string.upper))..": "..self:HighlightText(what)
+      name = QHFormat("USER_OBJ", self:HighlightText(string.gsub(cat, "^(.)", string.upper))..": "..self:HighlightText(what))
     end
     
     objective.priority = 1
     self.user_objectives[objective] = name
     self:AddObjectiveWatch(objective, name)
     
-    self:TextOut("Created: "..name)
+    self:TextOut(QHFormat("CREATED_OBJ", name))
   else
-    self:TextOut("I don't know where you should go for that objective.")
+    self:TextOut(QHText("UNKNOWN_OBJ"))
   end
 end
 
@@ -156,10 +156,10 @@ end
 
 function search_frame:ShowResults()
   local menu = QuestHelper:CreateMenu()
-  QuestHelper:CreateMenuTitle(menu, "Search Results")
+  QuestHelper:CreateMenuTitle(menu, QHText("RESULTS_TITLE"))
   
   if #self.results == 0 then
-    QuestHelper:CreateMenuItem(menu, "There aren't any!")
+    QuestHelper:CreateMenuItem(menu, "NO_RESULTS")
   else
     for i, r in ipairs(self.results) do
       self:CreateResultItem(r, menu)
@@ -246,7 +246,7 @@ function search_frame:SearchRoutine(input)
       yield_countdown = yield_countdown - 1
       if yield_countdown == 0 then
         yield_countdown = yield_countdown_max
-        coroutine.yield("Searching: Local Items")
+        coroutine.yield(QHFormat("SEARCHING_STATE", QHFormat("SEARCHING_LOCAL", QHText("SEARCHING_ITEMS"))))
       end
     end end
     
@@ -257,7 +257,7 @@ function search_frame:SearchRoutine(input)
       yield_countdown = yield_countdown - 1
       if yield_countdown == 0 then
         yield_countdown = yield_countdown_max
-        coroutine.yield("Searching: Static Items")
+        coroutine.yield(QHFormat("SEARCHING_STATE", QHFormat("SEARCHING_STATIC", QHText("SEARCHING_ITEMS"))))
       end
     end end
   end
@@ -269,7 +269,7 @@ function search_frame:SearchRoutine(input)
       yield_countdown = yield_countdown - 1
       if yield_countdown == 0 then
         yield_countdown = yield_countdown_max
-        coroutine.yield("Searching: Local NPCs")
+        coroutine.yield(QHFormat("SEARCHING_STATE", QHFormat("SEARCHING_LOCAL", QHText("SEARCHING_NPCS"))))
       end
     end end
     
@@ -280,7 +280,7 @@ function search_frame:SearchRoutine(input)
       yield_countdown = yield_countdown - 1
       if yield_countdown == 0 then
         yield_countdown = yield_countdown_max
-        coroutine.yield("Searching: Static NPCs")
+        coroutine.yield(QHFormat("SEARCHING_STATE", QHFormat("SEARCHING_STATIC", QHText("SEARCHING_NPCS"))))
       end
     end end
   end
@@ -301,7 +301,7 @@ function search_frame:SearchRoutine(input)
             yield_countdown = yield_countdown - 1
             if yield_countdown == 0 then
               yield_countdown = yield_countdown_max
-              coroutine.yield("Searching: Zones")
+              coroutine.yield(QHFormat("SEARCHING_STATE", QHText("SEARCHING_ZONES")))
             end
           end
         end
@@ -309,7 +309,7 @@ function search_frame:SearchRoutine(input)
     end
   end
   
-  return "Done!"
+  return QHText("SEARCHING_DONE")
 end
 
 local function ReturnArgument(x)

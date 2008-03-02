@@ -661,6 +661,8 @@ function QuestHelper:CreateMipmapDodad()
               z = QuestHelper_NameLookup[index]
             end
             
+            z = Rock("LibBabble-Zone-3.0"):GetReverseLookupTable()[z]
+            
             if QuestHelper.cartographer_wp and (QuestHelper.cartographer_wp.x ~= x or
                                                 QuestHelper.cartographer_wp.y ~= y or
                                                 QuestHelper.cartographer_wp.Zone ~= z) then

@@ -3,7 +3,7 @@ local function HiddenReason(obj)
   for i, j in pairs(obj.after) do
     if i.watched and not i:Known() then
       if not depends then
-        depends = "Depends on '"..i:Reason(true).."'."
+        depends = QHFormat("DEPENDS_ON_SINGLE", i:Reason(true))
       elseif type(depends) == "string" then
         depends = 2
       else
@@ -16,33 +16,33 @@ local function HiddenReason(obj)
     if type(depends) == "string" then
       return depends, false
     else
-      return "Depends on "..depends.." hidden objectives.", false
+      return QHFormat("DEPENDS_ON_COUNT", depends), false
     end
   end
   
   if obj.user_ignore == nil then
     if obj.filter_level and QuestHelper_Pref.filter_level then
-      return "Filtered due to level.", true, "level"
+      return QHText("FILTERED_LEVEL"), true, "level"
     end
     
     if obj.filter_zone and QuestHelper_Pref.filter_zone then
-      return "Filtered due to zone.", true, "zone"
+      return QHText("FILTERED_ZONE"), true, "zone"
     end
     
     if obj.filter_done and QuestHelper_Pref.filter_done then
-      return "Filtered due to completeness.", true, "done"
+      return QHText("FILTERED_COMPLETE"), true, "done"
     end
   elseif obj.user_ignore then
-    return "You requested this objective be hidden.", true
+    return QHText("FILTERED_USER"), true
   end
   
-  return "Don't know how to complete.", false
+  return QHText("FILTERED_UNKNOWN"), false
 end
 
 function QuestHelper:ShowHidden()
   local menu = self:CreateMenu()
   
-  self:CreateMenuTitle(menu, "Hidden Objectives")
+  self:CreateMenuTitle(menu, QHText("HIDDEN_TITLE"))
   
   local empty = true
   
@@ -60,11 +60,11 @@ function QuestHelper:ShowHidden()
       if can_show then
         local menu3 = self:CreateMenu()
         item2:SetSubmenu(menu3)
-        local item3 = self:CreateMenuItem(menu3, "Show.")
+        local item3 = self:CreateMenuItem(menu3, QHText("HIDDEN_SHOW"))
         item3:SetFunction(function (obj) obj.user_ignore = false end, obj)
         
         if filter then
-          item3 = self:CreateMenuItem(menu3, "Disable filter: "..self:HighlightText(filter))
+          item3 = self:CreateMenuItem(menu3, QHFormat("DISABLE_FILTER", QHText("FILTER_"..string.upper(filter))))
           item3:SetFunction(function (filter) QuestHelper_Pref["filter_"..filter] = false end, filter)
         end
         
@@ -74,7 +74,7 @@ function QuestHelper:ShowHidden()
   end
   
   if empty then
-    self:CreateMenuItem(menu, "There are no objectives hidden from you.")
+    self:CreateMenuItem(menu, QHText("HIDDEN_NONE"))
   end
   
   menu:ShowAtCursor()

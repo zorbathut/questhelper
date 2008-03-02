@@ -1,7 +1,7 @@
 local call_count = 0
 
-local map_rpf = 50
-local normal_rpf = 20
+local map_rpf = 25
+local normal_rpf = 10
 
 local function yieldIfNeeded()
   if call_count == QuestHelper.Astrolabe.WorldMapVisible and map_rpf or normal_rpf then

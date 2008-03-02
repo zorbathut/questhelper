@@ -1,70 +1,9 @@
--- Note: This file is used as fallback for locales that don't exist.
+-- Please see lang_enus.lua for reference.
 
---[[
-  
-  SYNTAX REFERENCE
-  
-  All '%' characters mark the position where some text is to be inserted.
-  
-  Following this character is some alphabetical text controlling how the data is
-  to be interpreted, which may be empty.
-  
-  Following that is either a number, the index to the data to insert, or
-  brackets containing some text to transform, which may recursively contain
-  other transformed text.
-  
-  Examples:
-    %1
-      Inserts first argument into string without changing it.
-    
-    %h1
-      Inserts first argument into string and highlights it.
-    
-    %(Hello World)
-      Inserts the text 'Hello World' into the string. Not entirely useful,
-      as you could simply just write 'Hello World'.
-    
-    %h(Hello World)
-      Inserts the text 'Hello World', highlighted so that it stands out.
-    
-    %h(%s(%(cla)%(ss)))
-      This convoluted example demonstrates nesting.
-      First 'cla' and 'ss' are converted into 'class', this is made
-      plural, converting it into 'classes', and then this is highlighted.
-  
-  Transformations:
-    s
-      Makes a string plural.
-    
-    h
-      Highlight some text. Bewarned that highlighting already highlighted text
-      doesn't work as expected.
-    
-    t
-      Insert a time, argument is interpreted as a number representing seconds.
-    
-    p
-      Insert a percentage. Argument should be a number between 0 and 1, text
-      will be shaded from red at 0% to green at 100%.
-    
-    q
-      Quotes some text.
-    
-    Q
-      Inserts a Lua quoted and escaped string.
-  
-  These transformations can made to do different things depending on the locale,
-  if you're translating and need something changed, please ask.
-  
-]]
-
--- If the client is using this locale, then strings from this table will always be used, regardless of
--- the locale selected for displayed text.
-QuestHelper_ForcedTranslations.enUS = 
- {}
-
-QuestHelper_Translations.enUS =
+QuestHelper_Translations.zhCN =
  {
+  --[[ THIS FILE NEEDS TO BE TRANSLATED; REMOVE THIS LINE WHEN COMPLETED.
+  
   -- Messages used when starting.
   LOCALE_ERROR = "The locale of your saved data doesn't match the locale of your WoW client.",
   ZONE_LAYOUT_ERROR = "I'm refusing to run, out of fear of corrupting your saved data. "..
@@ -188,45 +127,6 @@ QuestHelper_Translations.enUS =
   TRAVEL_ESTIMATE = "Estimated travel time:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Visit %h1 en route to:"
- }
-
-QuestHelper_TranslationFunctions.enUS =
- {
-  -- %1 will insert a copy of argument 1, converted to a string.
-  [""] = tostring,
   
-  -- %s1 will insert a copy of argument 1, made plural.
-  -- A value of 'cake' will be inserted as 'cakes'.
-  ["s"] = function(data)
-    if string.find(data, "|r$") then -- String ends in a colour termination code.
-      if string.find(data, "s|r$") then
-        return string.sub(data, -3).."es|r"
-      else
-        return string.sub(data, -3).."s|r"
-      end
-    else
-      if string.find(data, "s$") then
-        return data.."es"
-      else
-        return data.."s"
-      end
-    end
-  end,
-  
-  -- Highlight: "%h1" will insert a highlighted copy of argument 1, converted to a string.
-  ["h"] = function(data) return QuestHelper:HighlightText(tostring(data)) end,
-  
-  -- Time: "%t1" will insert argument 1 as a number representing seconds.
-  -- A value of 9296 will for example be inserted as '2:34:56'.
-  ["t"] = function(data) return QuestHelper:TimeString(tonumber(data)) end,
-  
-  -- Percentage: "%p1" will insert argument 1 as a number representing a fraction.
-  -- A value of .3183 will for example be inserted as '31.8%'.
-  ["p"] = function(data) return QuestHelper:PercentString(tonumber(data)) end,
-  
-  -- Quote: "%q1" will insert argument 1 as quoted text.
-  ["q"] = function(data) return string.format("“%s”", data) end,
-  
-  -- Lua quote: "%Q1" will insert argument 1 as a quoted lua string.
-  ["Q"] = function(data) return string.format("%q", data) end
+  END COMMENT BLOCK; REMOVE THIS LINE WHEN COMPLETED ]]
  }

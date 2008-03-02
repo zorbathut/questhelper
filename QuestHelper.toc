@@ -2,7 +2,7 @@
 ## Title: QuestHelper
 ## Author: smariot, vipersniper
 ## Notes: Calculates an optimal route for you to follow while questing.
-## Version: PTR 2.4 v4
+## Version: PTR 2.4 v5
 ## OptionalDeps: Cartographer
 ## SavedVariables: QuestHelper_SaveVersion QuestHelper_Locale QuestHelper_Quests QuestHelper_Objectives QuestHelper_FlightInstructors QuestHelper_FlightRoutes QuestHelper_Pref QuestHelper_UID QuestHelper_SaveDate
 ## SavedVariablesPerCharacter: QuestHelper_KnownFlightRoutes QuestHelper_Home
@@ -14,6 +14,12 @@ static.lua
 
 lang.lua
 lang_enus.lua
+lang_dede.lua
+lang_frfr.lua
+lang_eses.lua
+lang_zhcn.lua
+lang_zhtw.lua
+lang_kokr.lua
 
 upgrade.lua
 main.lua
@@ -33,3 +39,4 @@ hidden.lua
 nag.lua
 comm.lua
 help.lua
+pattern.lua
