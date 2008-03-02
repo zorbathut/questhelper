@@ -323,23 +323,26 @@ function QuestHelper:OnEvent(event)
   if event == "PLAYER_TARGET_CHANGED" then
     if UnitExists("target") and UnitIsVisible("target") and UnitCreatureType("target") ~= "Critter" and not UnitIsPlayer("target") and not UnitPlayerControlled("target") then
       local index, x, y = self:UnitPosition("target")
-      local w = 0.1
       
-      -- Modify the weight based on how far they are from us.
-      -- We don't know the exact location (using our own location), so the farther, the less sure we are that it's correct.
-      if CheckInteractDistance("target", 3) then w = 1
-      elseif CheckInteractDistance("target", 2) then w = 0.89
-      elseif CheckInteractDistance("target", 1) or CheckInteractDistance("target", 4) then w = 0.33 end
-      
-      local monster_objective = self:GetObjective("monster", UnitName("target"))
-      self:AppendObjectivePosition(monster_objective, index, x, y, w)
-      monster_objective.o.faction = UnitFactionGroup("target")
-      
-      local level = UnitLevel("target")
-      if level and level >= 1 then
-        local w = monster_objective.o.levelw or 0
-        monster_objective.o.level = ((monster_objective.o.level or 0)*w+level)/(w+1)
-        monster_objective.o.levelw = w+1
+      if index then -- Might not have a position if inside an instance.
+        local w = 0.1
+        
+        -- Modify the weight based on how far they are from us.
+        -- We don't know the exact location (using our own location), so the farther, the less sure we are that it's correct.
+        if CheckInteractDistance("target", 3) then w = 1
+        elseif CheckInteractDistance("target", 2) then w = 0.89
+        elseif CheckInteractDistance("target", 1) or CheckInteractDistance("target", 4) then w = 0.33 end
+        
+        local monster_objective = self:GetObjective("monster", UnitName("target"))
+        self:AppendObjectivePosition(monster_objective, index, x, y, w)
+        monster_objective.o.faction = UnitFactionGroup("target")
+        
+        local level = UnitLevel("target")
+        if level and level >= 1 then
+          local w = monster_objective.o.levelw or 0
+          monster_objective.o.level = ((monster_objective.o.level or 0)*w+level)/(w+1)
+          monster_objective.o.levelw = w+1
+        end
       end
     end
   end
@@ -347,10 +350,14 @@ function QuestHelper:OnEvent(event)
   if event == "LOOT_OPENED" then
     local target = UnitName("target")
     if target and UnitIsDead("target") and UnitCreatureType("target") ~= "Critter" and not UnitIsPlayer("target") and not UnitPlayerControlled("target") then
+      local index, x, y = self:UnitPosition("target")
+      
       local monster_objective = self:GetObjective("monster", target)
       monster_objective.o.looted = (monster_objective.o.looted or 0) + 1
       
-      self:AppendObjectivePosition(monster_objective, self:UnitPosition("target"))
+      if index then -- Might not have a position if inside an instance.
+        self:AppendObjectivePosition(monster_objective, index, x, y)
+      end
       
       for i = 1, GetNumLootItems() do
         local icon, name, number, rarity = GetLootSlotInfo(i)
@@ -403,10 +410,14 @@ function QuestHelper:OnEvent(event)
         end
       else
         -- No idea where the items came from.
-        for i = 1, GetNumLootItems() do
-          local icon, name, number, rarity = GetLootSlotInfo(i)
-          if name and number >= 1 then
-            self:AppendItemObjectivePosition(self:GetObjective("item", name), name, self:PlayerPosition())
+        local index, x, y = self:PlayerPosition()
+        
+        if index then
+          for i = 1, GetNumLootItems() do
+            local icon, name, number, rarity = GetLootSlotInfo(i)
+            if name and number >= 1 then
+              self:AppendItemObjectivePosition(self:GetObjective("item", name), name, index, x, y)
+            end
           end
         end
       end
@@ -414,7 +425,6 @@ function QuestHelper:OnEvent(event)
   end
   
   if event == "CHAT_MSG_SYSTEM" then
-    -- 
     local home_name = self:convertPattern(ERR_DEATHBIND_SUCCESS_S)(arg1)
     if home_name then
       if self.i then
@@ -454,9 +464,13 @@ function QuestHelper:OnEvent(event)
     local npc = UnitName("npc")
     if npc then
       -- Some NPCs aren't actually creatures, and so their positions might not be marked by PLAYER_TARGET_CHANGED.
-      local npc_objective = self:GetObjective("monster", npc)
-      self:AppendObjectivePosition(npc_objective, self:UnitPosition("npc"))
-      self.quest_giver[GetTitleText()] = npc
+      local index, x, y = self:UnitPosition("npc")
+      
+      if index then -- Might not have a position if inside an instance.
+        local npc_objective = self:GetObjective("monster", npc)
+        self:AppendObjectivePosition(npc_objective, index, x, y)
+        self.quest_giver[GetTitleText()] = npc
+      end
     end
   end
   
@@ -480,10 +494,16 @@ function QuestHelper:OnEvent(event)
         q.o.pos = nil
         
         -- Some NPCs aren't actually creatures, and so their positions might not be marked by PLAYER_TARGET_CHANGED.
-        local npc_objective = self:GetObjective("monster", unit)
-        self:AppendObjectivePosition(npc_objective, self:UnitPosition("npc"))
+        local index, x, y = self:UnitPosition("npc")
+        if index then -- Might not have a position if inside an instance.
+          local npc_objective = self:GetObjective("monster", unit)
+          self:AppendObjectivePosition(npc_objective, index, x, y)
+        end
       elseif not q.o.finish then
-        self:AppendObjectivePosition(q, self:PlayerPosition())
+        local index, x, y = self:PlayerPosition()
+        if index then -- Might not have a position if inside an instance.
+          self:AppendObjectivePosition(q, index, x, y)
+        end
       end
     end
   end
