@@ -302,13 +302,23 @@ function QuestHelper:OnEvent(event)
       end end
     end
     
-    if QuestHelper_Home and #QuestHelper_Home == 5 then
-      -- Changed the format, now has 4 elements.
+    -- Adding QuestHelper_CharVersion, so I know if I've already converted this characters saved data.
+    if not QuestHelper_CharVersion then
+      -- Changing per-character flight routes, now only storing the flight points they have,
+      -- will attempt to guess the routes from this.
+      for key in pairs(QuestHelper_FlightRoutes) do
+        QuestHelper_FlightRoutes[key] = true
+      end
+      
+      -- Deleting the player's home again.
+      -- But using the new CharVersion variable I'm adding is cleaner that what I was doing, so I'll go with it.
       QuestHelper_Home = nil
+      QuestHelper_CharVersion = 1
     end
     
     if not QuestHelper_Home then
-      self:TextOut(QHText("HOME_NOT_KNOWN"))
+      -- Not going to bother complaining about the player's home not being set, uncomment this when the home is used in routing.
+      -- self:TextOut(QHText("HOME_NOT_KNOWN"))
     end
     
     collectgarbage("collect") -- Free everything we aren't using.

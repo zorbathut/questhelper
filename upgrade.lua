@@ -387,6 +387,16 @@ function QuestHelper_UpgradeDatabase(data)
     
     data.QuestHelper_SaveVersion = 6
   end
+  
+  if data.QuestHelper_SaveVersion == 6 then
+    -- Redoing how flightpaths work, previously collected flightpath data is now obsolete.
+    QuestHelper_FlightRoutes = {}
+    
+    -- FlightInstructors table should be fine, will leave it.
+    -- Upgrading per-character data is handled in main.lua.
+    
+    data.QuestHelper_SaveVersion = 7
+  end
 end
 
 function QuestHelper_UpgradeComplete()
