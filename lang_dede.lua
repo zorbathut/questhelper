@@ -88,7 +88,7 @@ QuestHelper_Translations.deDE =
   FILTERED_ZONE = "Gefiltert wegen Zone.",
   FILTERED_COMPLETE = "Gefiltert wegen Vollständigkeit.",
   FILTERED_USER = "Du möchtest dieses Ziel ausblenden lassen.",
-  FILTERED_UNKNOWN = "Nicht bekannt wie es abgeschlossen werden kann.",
+  FILTERED_UNKNOWN = "Es ist nicht bekannt wie es abgeschlossen werden kann.",
   
   HIDDEN_SHOW = "Zeigen.",
   DISABLE_FILTER = "Filter abschalten: %1",
@@ -100,18 +100,18 @@ QuestHelper_Translations.deDE =
   NAG_SINGLE = "1 %2", -- %1 == count (will be 1), %2 == what
   NAG_PLURAL = "%1 %s2",
   
-  NAG_MULTIPLE_NEW = "Du hast Informationen über %h1 neu und %h2 aktualisiert %h(%s3).",
-  NAG_SINGLE_NEW = "Du hast Informationen über neue %h1.",
+  NAG_MULTIPLE_NEW = "Du hast Informationen über %h1 neue und %h2 aktualisiert %h(%s3).",
+  NAG_SINGLE_NEW = "Du hast neue Informationen über %h1.",
   NAG_ADDITIONAL = "Du hast zusätzliche Informationen über %h1.",
   
   NAG_NOT_NEW = "Du hast keine Informationen, die nicht bereits in der statischen Datenbank sind.",
-  NAG_NEW = "Du solltest in Betracht ziehen deine Daten teilen, damit andere davon profitieren können.",
+  NAG_NEW = "Du solltest in Betracht ziehen deine Daten zu teilen, damit andere davon profitieren können.",
   
-  NAG_FP = "Flugmeister",
-  NAG_QUEST = "Quest",
-  NAG_ROUTE = "Flugroute",
-  NAG_ITEM_OBJ = "Gegenstands Ziel",
-  NAG_OBJECT_OBJ = "Objekt Ziel",
+  NAG_FP = "Flugmeister", -- PLURAL Flugmeister
+  NAG_QUEST = "Quest", -- PLURAL Quests
+  NAG_ROUTE = "Flugroute", -- PLURAL Flugrouten
+  NAG_ITEM_OBJ = "Item Ziel", -- PLURAL Item Ziele
+  NAG_OBJECT_OBJ = "Objekt Ziel", -- ...
   NAG_MONSTER_OBJ = "Monster Ziel",
   NAG_EVENT_OBJ = "Event Ziel",
   NAG_REPUTATION_OBJ = "Ruf Ziel",
