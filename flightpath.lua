@@ -2,8 +2,6 @@ local real_TakeTaxiNode = TakeTaxiNode
 
 assert(type(real_TakeTaxiNode) == "function")
 
-
-
 local name_table = nil
 
 local function BeginNameLookup()
@@ -109,10 +107,6 @@ function QuestHelper:processFlightData(data)
       origin[data.dest] = dest
     end
     
-    if data.hash == 0 then
-      self:TextOut("Distance scalar: "..((data.end_time - data.start_time)/(self:computeLinkTime(data.origin, data.dest) or 1)))
-    end
-    
     dest[data.hash] = data.end_time - data.start_time
     self:TextOut("!!! Flew from "..data.origin.." to "..data.dest.." in "..dest[data.hash].." seconds.")
   end
@@ -145,7 +139,7 @@ local function getTime(tbl, orig, dest, hash)
   return tbl and tbl[hash]
 end
 
-function QuestHelper:computeLinkTime(origin, dest)
+function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
   -- Only works for directly connected flight points.
   
   if origin == dest then
@@ -157,9 +151,11 @@ function QuestHelper:computeLinkTime(origin, dest)
   s = s and s.flight_route
   s = s and s[self.faction]
   
+  hash = hash or 0
+  
   -- Will try to lookup flight time there, failing that, will use the time from there to here.
-  local t = getTime(l, orig, dest, 0) or getTime(s, orig, dest, 0) or
-            getTime(l, dest, orig, 0) or getTime(s, dest, orig, 0)
+  local t = getTime(l, orig, dest, hash) or getTime(s, orig, dest, hash) or
+            getTime(l, dest, orig, hash) or getTime(s, dest, orig, hash) or fallback
   
   if not t then -- Don't have any recored information on this flight time, will estimate based on distances.
     l = QuestHelper_FlightInstructors[self.faction]
@@ -204,11 +200,13 @@ function QuestHelper:addLinkInfo(data, flight_times)
       end
       
       for dest in pairs(list) do
-        local tbl2 = tbl[dest]
-        if not tbl2 then
-          tbl2 = self:CreateTable()
-          tbl[dest] = tbl2
-          tbl2[1] = self:computeLinkTime(origin, dest)
+        if QuestHelper_KnownFlightRoutes[dest] then
+          local tbl2 = tbl[dest]
+          if not tbl2 then
+            tbl2 = self:CreateTable()
+            tbl[dest] = tbl2
+            tbl2[1] = self:computeLinkTime(origin, dest)
+          end
         end
       end
     end
@@ -226,23 +224,59 @@ function QuestHelper:buildFlightTimes()
   s = s and s.flight_links
   s = s and s[self.faction]
   
-  addLinkInfo(l, flight_times)
-  addLinkInfo(s, flight_times)
+  self:addLinkInfo(l, flight_times)
+  self:addLinkInfo(s, flight_times)
   
   local cont = true
   while cont do
     cont = false
-    -- TODO: propogate
+    local origin = nil
+    while true do
+      origin = next(flight_times, origin)
+      if not origin then break end
+      local list = flight_times[origin]
+      
+      for dest, data in pairs(list) do
+        local t = data[1]
+        for dest2, data2 in pairs(flight_times[dest]) do
+          if dest2 ~= origin then
+            local t2 = t+data2[1]
+            local dat = list[dest2]
+            if not dat then
+              dat = self:CreateTable()
+              dat[1], dat[2] = t2, dest
+              list[dest2] = dat
+              cont = true
+            elseif t2 < dat[1] then
+              dat[1], dat[2] = t2, dest
+              cont = true
+            end
+          end
+        end
+      end
+    end
   end
   
-  -- TODO: lookup flight times.
+  -- Attempt to lookup the exact flight times.
+  for orig, list in pairs(flight_times) do
+    for dest, data in pairs(list) do
+      local str
+      
+      while data[2] do
+        str = string.format("%s/%s", str or "", data[2])
+        data = flight_times[data[2]][dest]
+      end
+      
+      data[1] = self:computeLinkTime(orig, dest, str and self:HashString(str) or 0, data[1])
+    end
+  end
   
+  -- Replace the tables with simple times.
   for orig, list in pairs(flight_times) do
     for dest, data in pairs(list) do
       local t = data[1]
       self:ReleaseTable(data)
       list[dest] = t
-      self:TextOut(orig.." --> "..dest..": "..t)
     end
   end
 end
@@ -315,8 +349,6 @@ function QuestHelper:taxiMapOpened()
             t2 = {}
             links[n2] = t2
           end
-          
-          self:TextOut(n1.."/"..n2.." "..(self:computeLinkTime(n1, n2) or "nil").."/"..(self:computeLinkTime(n2, n1) or "nil"))
           
           -- TODO: if we didn't already know about this linkage and its not in the static data, we should set altered to true.
           t1[n2] = true

@@ -305,7 +305,6 @@ function QuestHelper:OnEvent(event)
     end
     
     -- Adding QuestHelper_CharVersion, so I know if I've already converted this characters saved data.
-    self:TextOut(QuestHelper_CharVersion or "No version")
     if not QuestHelper_CharVersion then
       -- Changing per-character flight routes, now only storing the flight points they have,
       -- will attempt to guess the routes from this.
