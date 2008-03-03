@@ -4,7 +4,7 @@
 ## Notes: Calculates an optimal route for you to follow while questing.
 ## Version: 0.33e
 ## OptionalDeps: Cartographer
-## SavedVariables: QuestHelper_SaveVersion QuestHelper_Locale QuestHelper_Quests QuestHelper_Objectives QuestHelper_FlightInstructors QuestHelper_FlightRoutes QuestHelper_Pref QuestHelper_UID QuestHelper_SaveDate
+## SavedVariables: QuestHelper_SaveVersion QuestHelper_Locale QuestHelper_Quests QuestHelper_Objectives QuestHelper_FlightInstructors QuestHelper_FlightLinks QuestHelper_FlightRoutes QuestHelper_Pref QuestHelper_UID QuestHelper_SaveDate
 ## SavedVariablesPerCharacter: QuestHelper_KnownFlightRoutes QuestHelper_Home QuestHelper_CharVersion
 
 Astrolabe\Load.xml
@@ -40,3 +40,4 @@ nag.lua
 comm.lua
 help.lua
 pattern.lua
+flightpath.lua

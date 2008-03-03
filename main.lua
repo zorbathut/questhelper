@@ -28,6 +28,7 @@ QuestHelper_DefaultPref =
  }
 
 QuestHelper_FlightInstructors = {}
+QuestHelper_FlightLinks = {}
 QuestHelper_FlightRoutes = {}
 QuestHelper_KnownFlightRoutes = {}
 
@@ -306,8 +307,8 @@ function QuestHelper:OnEvent(event)
     if not QuestHelper_CharVersion then
       -- Changing per-character flight routes, now only storing the flight points they have,
       -- will attempt to guess the routes from this.
-      for key in pairs(QuestHelper_FlightRoutes) do
-        QuestHelper_FlightRoutes[key] = true
+      for key in pairs(QuestHelper_KnownFlightRoutes) do
+        QuestHelper_KnownFlightRoutes[key] = true
       end
       
       -- Deleting the player's home again.
@@ -699,6 +700,10 @@ function QuestHelper:OnEvent(event)
     end
   end
   --]]
+  
+  if event == "TAXIMAP_OPENED" then
+    self:TaxiMapOpened()
+  end
 end
 
 local map_shown_decay = 0
