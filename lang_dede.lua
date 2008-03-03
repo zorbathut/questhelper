@@ -122,3 +122,19 @@ QuestHelper_Translations.deDE =
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Besuche %h1 auf dem Weg zu:"
  }
+
+local plural_lookup =
+ {
+  quest = "s",
+  ziel = "e",
+  flugroute = "n",
+ }
+
+QuestHelper_TranslationFunctions.deDE =
+ {
+  ["s"] = function(data)
+    local orig, word, append = select(3, string.find(data, "^(.-)([^%s]*)(|r)$"))
+    if not word then orig, word = select(3, string.find(data, "^(.-)([^%s]*)$")) end
+    return string.format("%s%s%s%s", orig, word, (plural_lookup[string.lower(word)] or ""), (append or ""))
+  end
+ }
