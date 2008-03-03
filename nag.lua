@@ -237,6 +237,7 @@ function QuestHelper:Nag(verbose)
     end
   end
   
+  --[[
   for cont, start_list in pairs(QuestHelper_FlightRoutes) do
     for start, dest_list in pairs(start_list) do
       for dest, hash_list in pairs(dest_list) do
@@ -258,6 +259,7 @@ function QuestHelper:Nag(verbose)
       end
     end
   end
+  ]]
   
   local total = 0
   

@@ -46,9 +46,6 @@ TakeTaxiNode = function(id)
           path_hash = QuestHelper:HashString(path_str)
         end
         
-        -- TODO: Use this data for something.
-        QuestHelper:TextOut("Flying from "..origin.." to "..dest..", #"..path_hash)
-        
         local flight_data = QuestHelper.flight_data
         
         if not flight_data then
@@ -112,6 +109,10 @@ function QuestHelper:processFlightData(data)
       origin[data.dest] = dest
     end
     
+    if data.hash == 0 then
+      self:TextOut("Distance scalar: "..((data.end_time - data.start_time)/(self:computeLinkTime(data.origin, data.dest) or 1)))
+    end
+    
     dest[data.hash] = data.end_time - data.start_time
     self:TextOut("!!! Flew from "..data.origin.." to "..data.dest.." in "..dest[data.hash].." seconds.")
   end
@@ -134,6 +135,114 @@ function QuestHelper:getFlightInstructor(area)
     fi_table = static.flight_instructor and static.flight_instructor[self.faction]
     if fi_table then
       return fi_table[area]
+    end
+  end
+end
+
+local function getTime(tbl, orig, dest, hash)
+  tbl = tbl and tbl[orig]
+  tbl = tbl and tbl[dest]
+  return tbl and tbl[hash]
+end
+
+function QuestHelper:computeLinkTime(origin, dest)
+  -- Only works for directly connected flight points.
+  
+  if origin == dest then
+    return 0
+  end
+  
+  local l = QuestHelper_FlightRoutes[self.faction]
+  local s = QuestHelper_StaticData[self.locale]
+  s = s and s.flight_route
+  s = s and s[self.faction]
+  
+  -- Will try to lookup flight time there, failing that, will use the time from there to here.
+  local t = getTime(l, orig, dest, 0) or getTime(s, orig, dest, 0) or
+            getTime(l, dest, orig, 0) or getTime(s, dest, orig, 0)
+  
+  if not t then -- Don't have any recored information on this flight time, will estimate based on distances.
+    l = QuestHelper_FlightInstructors[self.faction]
+    s = QuestHelper_StaticData[self.locale]
+    s = s and s.flight_instructors
+    s = s and s[self.faction]
+    local npc1, npc2 = (l and l[origin]) or (s and s[origin]),
+                       (l and l[dest]) or (s and s[dest])
+    
+    if npc1 and npc2 then
+      local obj1, obj2 = self:GetObjective("monster", npc1), self:GetObjective("monster", npc2)
+      obj1:PrepareRouting()
+      obj2:PrepareRouting()
+      
+      local pos1, pos2 = obj1:Position(), obj2:Position()
+      
+      if pos1 and pos2 then
+        local x, y = pos1[3]-pos2[3], pos1[4]-pos2[4]
+        
+        -- Assumes flying is about 3.6 times faster than walking straight there (assuming you didn't
+        -- have to avoid mountains and whatnot)
+        t = math.sqrt(x*x+y*y)*0.2715
+      end
+      
+      obj2:DoneRouting()
+      obj1:DoneRouting()
+    end
+  end
+  
+  return t
+end
+
+local flight_times = {}
+
+function QuestHelper:addLinkInfo(data, flight_times)
+  if data then
+    for origin, list in pairs(data) do
+      local tbl = flight_times[origin]
+      if not tbl then
+        tbl = self:CreateTable()
+        flight_times[origin] = tbl
+      end
+      
+      for dest in pairs(list) do
+        local tbl2 = tbl[dest]
+        if not tbl2 then
+          tbl2 = self:CreateTable()
+          tbl[dest] = tbl2
+          tbl2[1] = self:computeLinkTime(origin, dest)
+        end
+      end
+    end
+  end
+end
+
+function QuestHelper:buildFlightTimes()
+  for key, list in pairs(flight_times) do
+    self:ReleaseTable(list)
+    flight_times[key] = nil
+  end
+  
+  local l = QuestHelper_FlightLinks[self.faction]
+  local s = QuestHelper_StaticData[self.locale]
+  s = s and s.flight_links
+  s = s and s[self.faction]
+  
+  addLinkInfo(l, flight_times)
+  addLinkInfo(s, flight_times)
+  
+  local cont = true
+  while cont do
+    cont = false
+    -- TODO: propogate
+  end
+  
+  -- TODO: lookup flight times.
+  
+  for orig, list in pairs(flight_times) do
+    for dest, data in pairs(list) do
+      local t = data[1]
+      self:ReleaseTable(data)
+      list[dest] = t
+      self:TextOut(orig.." --> "..dest..": "..t)
     end
   end
 end
@@ -206,6 +315,8 @@ function QuestHelper:taxiMapOpened()
             t2 = {}
             links[n2] = t2
           end
+          
+          self:TextOut(n1.."/"..n2.." "..(self:computeLinkTime(n1, n2) or "nil").."/"..(self:computeLinkTime(n2, n1) or "nil"))
           
           -- TODO: if we didn't already know about this linkage and its not in the static data, we should set altered to true.
           t1[n2] = true
