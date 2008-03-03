@@ -4,6 +4,7 @@ QuestHelper = CreateFrame("Frame", "QuestHelper", nil)
 QuestHelper:SetFrameStrata("TOOLTIP")
 
 QuestHelper_SaveVersion = 7
+QuestHelper_CharVersion = 1
 QuestHelper_Locale = GetLocale() -- This variable is used only for the collected data, and has nothing to do with displayed text.
 QuestHelper_Quests = {}
 QuestHelper_Objectives = {}
@@ -304,12 +305,19 @@ function QuestHelper:OnEvent(event)
     end
     
     -- Adding QuestHelper_CharVersion, so I know if I've already converted this characters saved data.
+    self:TextOut(QuestHelper_CharVersion or "No version")
     if not QuestHelper_CharVersion then
       -- Changing per-character flight routes, now only storing the flight points they have,
       -- will attempt to guess the routes from this.
-      for key in pairs(QuestHelper_KnownFlightRoutes) do
-        QuestHelper_KnownFlightRoutes[key] = true
+      local routes = {}
+      
+      for i, l in pairs(QuestHelper_KnownFlightRoutes) do
+        for key in pairs(l) do
+          routes[key] = true
+        end
       end
+      
+      QuestHelper_KnownFlightRoutes = routes
       
       -- Deleting the player's home again.
       -- But using the new CharVersion variable I'm adding is cleaner that what I was doing, so I'll go with it.
@@ -702,7 +710,15 @@ function QuestHelper:OnEvent(event)
   --]]
   
   if event == "TAXIMAP_OPENED" then
-    self:TaxiMapOpened()
+    self:taxiMapOpened()
+  end
+  
+  if event == "PLAYER_CONTROL_GAINED" then
+    self:flightEnded()
+  end
+  
+  if event == "PLAYER_CONTROL_LOST" then
+    self:flightBegan()
   end
 end
 
