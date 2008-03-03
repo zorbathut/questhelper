@@ -653,6 +653,7 @@ function QuestHelper:ResetPathing()
   self:ReleaseTable(st)
   
   -- Create and link the flight route nodes.
+  --[[
   for c, start_list in pairs(QuestHelper_KnownFlightRoutes) do
     local local_fi = QuestHelper_FlightInstructors[self.faction]
     local static_fi = QuestHelper_StaticData[self.locale] and
@@ -691,6 +692,7 @@ function QuestHelper:ResetPathing()
       end
     end
   end
+  ]]
   
   -- id_from, id_to, and id_local will be used in determining whether there is a point to linking nodes together.
   for i, n in ipairs(self.world_graph.nodes) do
@@ -743,6 +745,7 @@ function QuestHelper:ResetPathing()
   end
   
   -- TODO: This is a work around until I fix shouldLink
+  --[[
   for c, start_list in pairs(QuestHelper_KnownFlightRoutes) do
     for start, end_list in pairs(start_list) do
       for dest in pairs(end_list) do
@@ -753,6 +756,7 @@ function QuestHelper:ResetPathing()
       end
     end
   end
+  ]]
   
   -- TODO: Create a heuristic for this.
   --[[

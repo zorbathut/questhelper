@@ -3,7 +3,7 @@ QuestHelper = CreateFrame("Frame", "QuestHelper", nil)
 -- Just to make sure it's always 'seen' (there's nothing that can be seen, but still...), and therefore always updating.
 QuestHelper:SetFrameStrata("TOOLTIP")
 
-QuestHelper_SaveVersion = 6
+QuestHelper_SaveVersion = 7
 QuestHelper_Locale = GetLocale() -- This variable is used only for the collected data, and has nothing to do with displayed text.
 QuestHelper_Quests = {}
 QuestHelper_Objectives = {}
@@ -233,7 +233,7 @@ function QuestHelper:OnEvent(event)
     QuestHelper_UpgradeDatabase(_G)
     QuestHelper_UpgradeComplete()
     
-    if QuestHelper_SaveVersion ~= 6 then
+    if QuestHelper_SaveVersion ~= 7 then
       self:TextOut(QHText("DOWNGRADE_ERROR"))
       return
     end
@@ -549,6 +549,7 @@ function QuestHelper:OnEvent(event)
     end
   end
   
+  --[[
   if event == "PLAYER_CONTROL_LOST" then
     if self.flight_origin then
       -- We'll check to make sure we were actually on a taxi when we regain control.
@@ -697,6 +698,7 @@ function QuestHelper:OnEvent(event)
       end
     end
   end
+  --]]
 end
 
 local map_shown_decay = 0
