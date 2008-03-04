@@ -45,6 +45,8 @@ TakeTaxiNode = function(id)
         flight_data.origin = origin
         flight_data.dest = dest
         flight_data.hash = path_hash
+        
+        QuestHelper:TextOut("!!! Expect flight time to be: "..QuestHelper:TimeString(QuestHelper.flight_times[origin][dest]))
       end
     end
   end
@@ -99,7 +101,7 @@ function QuestHelper:processFlightData(data)
     end
     
     dest[data.hash] = data.end_time - data.start_time
-    self:TextOut("!!! Flew from "..data.origin.." to "..data.dest.." in "..dest[data.hash].." seconds.")
+    self:TextOut("!!! Flew from "..data.origin.." to "..data.dest.." in "..self:TimeString(dest[data.hash]))
   end
   
   return true
@@ -127,7 +129,55 @@ end
 local function getTime(tbl, orig, dest, hash)
   tbl = tbl and tbl[orig]
   tbl = tbl and tbl[dest]
-  return tbl and tbl[hash]
+  return tbl and tbl[hash] ~= true and tbl[hash]
+end
+
+local function getWalkToFlight(tbl, fi1, fi2)
+  local f, w = 0, 0
+  
+  if tbl then
+    for origin, list in pairs(tbl) do
+      for dest, hashlist in pairs(list) do
+        if type(hashlist[0]) == "number" then
+          local npc1, npc2 = fi1[origin] or fi2[origin], fi1[dest] or fi2[dest]
+          if npc1 and npc2 then
+            local obj1, obj2 = QuestHelper:GetObjective("monster", npc1), QuestHelper:GetObjective("monster", npc2)
+            obj1:PrepareRouting()
+            obj2:PrepareRouting()
+            
+            local pos1, pos2 = obj1:Position(), obj2:Position()
+            
+            if pos1 and pos2 then
+              local x, y = pos1[3]-pos2[3], pos1[4]-pos2[4]
+              w = w + math.sqrt(x*x+y*y)
+              f = f + hashlist[0]
+            end
+            
+            obj2:DoneRouting()
+            obj1:DoneRouting()
+          end
+        end
+      end
+    end
+  end
+  
+  return f, w
+end
+
+function QuestHelper:computeWalkToFlightMult()
+  local l = QuestHelper_FlightRoutes[self.faction]
+  local s = QuestHelper_StaticData[self.locale]
+  s = s and s.flight_route
+  s = s and s[self.faction]
+  
+  local fi1 = QuestHelper_FlightInstructors[self.faction]
+  local fi2 = QuestHelper_StaticData[self.locale]
+  fi2 = fi2 and fi2.flight_instructors
+  fi2 = fi2 and fi2[self.faction]
+  
+  local f1, w1 = getWalkToFlight(l, fi1, fi2)
+  local f2, w2 = getWalkToFlight(s, fi1, fi2)
+  return (f1+f2+0.032876)/(w1+w2+0.1)
 end
 
 function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
@@ -145,8 +195,8 @@ function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
   hash = hash or 0
   
   -- Will try to lookup flight time there, failing that, will use the time from there to here.
-  local t = getTime(l, orig, dest, hash) or getTime(s, orig, dest, hash) or
-            getTime(l, dest, orig, hash) or getTime(s, dest, orig, hash) or fallback
+  local t = getTime(l, origin, dest, hash) or getTime(s, origin, dest, hash) or
+            getTime(l, dest, origin, hash) or getTime(s, dest, origin, hash) or fallback
   
   if not t then -- Don't have any recored information on this flight time, will estimate based on distances.
     l = QuestHelper_FlightInstructors[self.faction]
@@ -166,9 +216,7 @@ function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
       if pos1 and pos2 then
         local x, y = pos1[3]-pos2[3], pos1[4]-pos2[4]
         
-        -- Assumes flying is about 3.6 times faster than walking straight there (assuming you didn't
-        -- have to avoid mountains and whatnot)
-        t = math.sqrt(x*x+y*y)*0.2715
+        t = math.sqrt(x*x+y*y)*self.flight_scalar
       end
       
       obj2:DoneRouting()
@@ -188,8 +236,8 @@ function QuestHelper:addLinkInfo(data, flight_times)
         flight_times[origin] = tbl
       end
       
-      for dest in pairs(list) do
-        if QuestHelper_KnownFlightRoutes[dest] then
+      for dest, hashs in pairs(list) do
+        if QuestHelper_KnownFlightRoutes[dest] and hashs[0] then
           local tbl2 = tbl[dest]
           if not tbl2 then
             tbl2 = self:CreateTable()
@@ -203,6 +251,9 @@ function QuestHelper:addLinkInfo(data, flight_times)
 end
 
 function QuestHelper:buildFlightTimes()
+  self.flight_scalar = self:computeWalkToFlightMult()
+  self:TextOut("Scalar: "..self.flight_scalar)
+  
   local flight_times = self.flight_times
   if not flight_times then
     flight_times = self:CreateTable()
@@ -214,9 +265,9 @@ function QuestHelper:buildFlightTimes()
     flight_times[key] = nil
   end
   
-  local l = QuestHelper_FlightLinks[self.faction]
+  local l = QuestHelper_FlightRoutes[self.faction]
   local s = QuestHelper_StaticData[self.locale]
-  s = s and s.flight_links
+  s = s and s.flight_routes
   s = s and s[self.faction]
   
   self:addLinkInfo(l, flight_times)
@@ -277,16 +328,16 @@ function QuestHelper:buildFlightTimes()
 end
 
 function QuestHelper:taxiMapOpened()
-  local links = QuestHelper_FlightLinks[self.faction]
+  local routes = QuestHelper_FlightRoutes[self.faction]
   
-  if not links then
-    links = {}
-    QuestHelper_FlightLinks[self.faction] = links
+  if not routes then
+    routes = {}
+    QuestHelper_FlightRoutes[self.faction] = routes
   end
   
-  local slinks = QuestHelper_StaticData[self.locale]
-  slinks = slinks and slinks.flight_links
-  slinks = slinks and slinks[self.faction]
+  local sroutes = QuestHelper_StaticData[self.locale]
+  sroutes = sroutes and sroutes.flight_routes
+  sroutes = sroutes and sroutes[self.faction]
   
   local origin, altered = nil, false
   
@@ -331,39 +382,51 @@ function QuestHelper:taxiMapOpened()
     end
     
     for j = 1,NumTaxiNodes() do
-      local routes = GetNumRoutes(j)
-      if routes and i ~= j and routes > 0 and routes < 100 then
-        for k = 1,routes do
+      local node_count = GetNumRoutes(j)
+      if node_count and i ~= j and node_count > 0 and node_count < 100 then
+        for k = 1,node_count do
           local n1, n2 = LookupName(TaxiGetSrcX(j, k), TaxiGetSrcY(j, k)), LookupName(TaxiGetDestX(j, k), TaxiGetDestY(j, k))
           
           assert(n1 and n2 and n1 ~= n2)
           
-          local t1, t2 = links[n1], links[n2]
+          local dest1, dest2 = routes[n1], routes[n2]
           
-          if not t1 then
-            t1 = {}
-            links[n1] = t1
+          if not dest1 then
+            dest1 = {}
+            routes[n1] = dest1
           end
           
-          if not t2 then
-            t2 = {}
-            links[n2] = t2
+          if not dest2 then
+            dest2 = {}
+            routes[n2] = dest2
           end
           
-          if not t1[n2] then
-            if not (slinks and slinks[n1] and slinks[n1][n2]) then
+          local hash1, hash2 = dest1[n2], dest2[n1]
+          
+          if not hash1 then
+            hash1 = {}
+            dest1[n2] = hash1
+          end
+          
+          if not hash2 then
+            hash2 = {}
+            dest2[n1] = hash2
+          end
+          
+          if not hash1[0] then
+            if not (slinks and slinks[n1] and slinks[n1][n2] and slinks[n1][n2][0]) then
               -- hadn't been considering this link in pathing.
               altered = true
             end
-            t1[n2] = true
+            hash1[0] = true
           end
           
-          if not t2[n1] then
-            if not (slinks and slinks[n2] and slinks[n2][n1]) then
+          if not hash2[0] then
+            if not (slinks and slinks[n2] and slinks[n2][n1] and slinks[n2][n1][0]) then
               -- hadn't been considering this link in pathing.
               altered = true
             end
-            t2[n1] = true
+            hash2[0] = true
           end
         end
       end
