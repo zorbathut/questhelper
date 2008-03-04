@@ -2,24 +2,19 @@ local real_TakeTaxiNode = TakeTaxiNode
 
 assert(type(real_TakeTaxiNode) == "function")
 
-local name_table = nil
-
-local function BeginNameLookup()
-  assert(not name_table)
-  name_table = QuestHelper:CreateTable()
-  for i = 1,NumTaxiNodes() do
-    local x, y = TaxiNodePosition(i)
-    name_table[math.floor(x*500)+math.floor(y*500)*500] = TaxiNodeName(i)
-  end
-end
-
 local function LookupName(x, y)
-  return name_table[math.floor(x*500)+math.floor(y*500)*500]
-end
-
-local function EndNameLookup()
-  QuestHelper:ReleaseTable(name_table)
-  name_table = nil
+  local best, d2
+  for i = 1,NumTaxiNodes() do
+    local u, v = TaxiNodePosition(i)
+    u = u - x
+    v = v - y
+    u = u*u+v*v
+    if not best or u < d2 then
+      best, d2 = TaxiNodeName(i), u
+    end
+  end
+  
+  return best
 end
 
 TakeTaxiNode = function(id)
@@ -33,13 +28,9 @@ TakeTaxiNode = function(id)
         if routes > 1 then
           local path_str = ""
           
-          BeginNameLookup()
-          
           for j = 1,routes-1 do
             path_str = string.format("%s/%s", path_str, LookupName(TaxiGetDestX(id, j), TaxiGetDestY(id, j)))
           end
-          
-          EndNameLookup()
           
           path_hash = QuestHelper:HashString(path_str)
         end
@@ -188,8 +179,6 @@ function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
   return t
 end
 
-local flight_times = {}
-
 function QuestHelper:addLinkInfo(data, flight_times)
   if data then
     for origin, list in pairs(data) do
@@ -214,6 +203,12 @@ function QuestHelper:addLinkInfo(data, flight_times)
 end
 
 function QuestHelper:buildFlightTimes()
+  local flight_times = self.flight_times
+  if not flight_times then
+    flight_times = self:CreateTable()
+    self.flight_times = flight_times
+  end
+  
   for key, list in pairs(flight_times) do
     self:ReleaseTable(list)
     flight_times[key] = nil
@@ -283,10 +278,15 @@ end
 
 function QuestHelper:taxiMapOpened()
   local links = QuestHelper_FlightLinks[self.faction]
+  
   if not links then
     links = {}
     QuestHelper_FlightLinks[self.faction] = links
   end
+  
+  local slinks = QuestHelper_StaticData[self.locale]
+  slinks = slinks and slinks.flight_links
+  slinks = slinks and slinks[self.faction]
   
   local origin, altered = nil, false
   
@@ -330,14 +330,14 @@ function QuestHelper:taxiMapOpened()
       self.flight_data = nil
     end
     
-    BeginNameLookup()
-    
     for j = 1,NumTaxiNodes() do
       local routes = GetNumRoutes(j)
       if routes and i ~= j and routes > 0 and routes < 100 then
         for k = 1,routes do
           local n1, n2 = LookupName(TaxiGetSrcX(j, k), TaxiGetSrcY(j, k)), LookupName(TaxiGetDestX(j, k), TaxiGetDestY(j, k))
+          
           assert(n1 and n2 and n1 ~= n2)
+          
           local t1, t2 = links[n1], links[n2]
           
           if not t1 then
@@ -350,20 +350,31 @@ function QuestHelper:taxiMapOpened()
             links[n2] = t2
           end
           
-          -- TODO: if we didn't already know about this linkage and its not in the static data, we should set altered to true.
-          t1[n2] = true
-          t2[n1] = true
+          if not t1[n2] then
+            if not (slinks and slinks[n1] and slinks[n1][n2]) then
+              -- hadn't been considering this link in pathing.
+              altered = true
+            end
+            t1[n2] = true
+          end
+          
+          if not t2[n1] then
+            if not (slinks and slinks[n2] and slinks[n2][n1]) then
+              -- hadn't been considering this link in pathing.
+              altered = true
+            end
+            t2[n1] = true
+          end
         end
       end
     end
-    
-    EndNameLookup()
   end
   
   if altered then
     self:TextOut(QHText("ROUTES_CHANGED"))
     self:TextOut(QHText("WILL_RESET_PATH"))
     self.defered_graph_reset = true
+    self:buildFlightTimes()
   end
 end
 

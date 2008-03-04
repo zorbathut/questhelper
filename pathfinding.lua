@@ -653,46 +653,41 @@ function QuestHelper:ResetPathing()
   self:ReleaseTable(st)
   
   -- Create and link the flight route nodes.
-  --[[
-  for c, start_list in pairs(QuestHelper_KnownFlightRoutes) do
-    local local_fi = QuestHelper_FlightInstructors[self.faction]
-    local static_fi = QuestHelper_StaticData[self.locale] and
-                      QuestHelper_StaticData[self.locale].flight_instructors and
-                      QuestHelper_StaticData[self.locale].flight_instructors[self.faction]
-    
-    for start, end_list in pairs(start_list) do
-      for dest in pairs(end_list) do
-        local a_npc, b_npc = (local_fi and local_fi[start]) or (static_fi and static_fi[start]), (local_fi and local_fi[dest]) or (static_fi and static_fi[dest])
+  local flight_times = self.flight_times
+  if not flight_times then
+    self:buildFlightTimes()
+    flight_times = self.flight_times
+  end
+  
+  for start, list in pairs(flight_times) do
+    for dest, duration in pairs(list) do
+      local a_npc, b_npc = self:getFlightInstructor(start), self:getFlightInstructor(dest)
+      
+      if a_npc and b_npc then
+        local a, b = flight_master_nodes[start], flight_master_nodes[dest]
         
-        if a_npc and b_npc then
-          local a, b = flight_master_nodes[start], flight_master_nodes[dest]
-          
-          if not a then
-            a = getNPCNode(a_npc)
-            if a then
-              flight_master_nodes[start] = a
-              a.name = (select(3, string.find(start, "^(.*),")) or start).." flight point"
-            end
+        if not a then
+          a = getNPCNode(a_npc)
+          if a then
+            flight_master_nodes[start] = a
+            a.name = (select(3, string.find(start, "^(.*),")) or start).." flight point"
           end
-          
-          if not b then
-            b = getNPCNode(b_npc)
-            if b then
-              flight_master_nodes[dest] = b
-              b.name = (select(3, string.find(dest, "^(.*),")) or dest).." flight point"
-            end
+        end
+        
+        if not b then
+          b = getNPCNode(b_npc)
+          if b then
+            flight_master_nodes[dest] = b
+            b.name = (select(3, string.find(dest, "^(.*),")) or dest).." flight point"
           end
-          
-          if a and b then
-            a:Link(b, self:GetFlightTime(c, start, dest))
-          else
-            self:TextOut("Can't link!")
-          end
+        end
+        
+        if a and b then
+          a:Link(b, duration+5)
         end
       end
     end
   end
-  ]]
   
   -- id_from, id_to, and id_local will be used in determining whether there is a point to linking nodes together.
   for i, n in ipairs(self.world_graph.nodes) do
@@ -745,18 +740,14 @@ function QuestHelper:ResetPathing()
   end
   
   -- TODO: This is a work around until I fix shouldLink
-  --[[
-  for c, start_list in pairs(QuestHelper_KnownFlightRoutes) do
-    for start, end_list in pairs(start_list) do
-      for dest in pairs(end_list) do
-        local a, b = flight_master_nodes[start], flight_master_nodes[dest]
-        if a and b then
-          a:Link(b, self:GetFlightTime(c, start, dest))
-        end
+  for start, list in pairs(flight_times) do
+    for dest, duration in pairs(list) do
+      local a, b = flight_master_nodes[start], flight_master_nodes[dest]
+      if a and b then
+        a:Link(b, duration+5)
       end
     end
   end
-  ]]
   
   -- TODO: Create a heuristic for this.
   --[[
