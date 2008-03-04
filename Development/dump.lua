@@ -39,6 +39,10 @@ local function TableCompare(tbl_a, tbl_b)
     if type(av) == "table" then
       local cmp = TableCompare(av, bv)
       if cmp ~= 0 then return cmp end
+    elseif type(av) == "boolean" then
+      if av == bv then return 0
+      elseif av then return 1
+      else return -1 end
     else
       if av < bv then return -1 end
       if av > bv then return 1 end
