@@ -1,3 +1,11 @@
+== Version 0.34 Uploaded 03/03/2008 ==
+
+* Added French localization.
+* Fixed pluralization of German words.
+* Added <code>/qh version</code> command.
+* Not appending verbs to objectives that didn't match the patterns they were supposed to.
+* Loading inside of an instance should no longer cause problems when interacting with NPCs and looting items.
+
 == Version 0.33e Uploaded 03/01/2008 ==
 
 * Hopefully fixed the cartographer waypoints interface to work in non-english locales.
