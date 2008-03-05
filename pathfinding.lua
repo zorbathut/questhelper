@@ -119,7 +119,8 @@ local static_zone_transitions =
    {58, 60, 0.783, 0.545}, -- Nagrand <--> Shattrath City
    {60, 55, 0.782, 0.492}, -- Shattrath City <--> Terokkar Forest
    {54, 59, 0.842, 0.284}, -- Blade's Edge Mountains <--> Netherstorm
-   {54, 57, 0.482, 0.996}, -- Blade's Edge Mountains <--> Zangarmarsh
+   {54, 57, 0.522, 0.996}, -- Blade's Edge Mountains <--> Zangarmarsh
+   {54, 57, 0.312, 0.94}, -- Blade's Edge Mountains <--> Zangarmarsh
    {56, 55, 0.353, 0.901}, -- Hellfire Peninsula <--> Terokkar Forest
    {56, 57, 0.093, 0.519}, -- Hellfire Peninsula <--> Zangarmarsh
    {58, 55, 0.8, 0.817}, -- Nagrand <--> Terokkar Forest
