@@ -1,3 +1,15 @@
+== Version 0.35 Uploaded 03/05/2008 ==
+
+* Nag command will now only provide information for your own faction.
+* Included the northern lifts in Thunder Bluff in pathing.
+* Altered linkage between Blade's Edge Mountains and Zangarmarsh.
+* Fixed bug with finding functions for processing localized text.
+* Rewrote most of the stuff dealing with flight points.
+** Previously collected data regarding flight routes has been deleted, I'm starting over.
+** Should be able to make good guesses as to the flight routes the WoW client would assign you for a specific flight master, by talking to any other flight master on the same continent.
+** When flying, calculates routes from where you're flying to instead of where you are.
+** While flying, displays an estimate of the remaining flight time. Will probably be inaccurate until all the data I deleted is recollected. 
+
 == Version 0.34 Uploaded 03/03/2008 ==
 
 * Added French localization.
