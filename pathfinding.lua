@@ -60,6 +60,7 @@ local static_zone_transitions =
    {21, 24, 0.894, 0.358}, -- Darnassus <--> Teldrassil
    {22, 11, 0.697, 0.604}, -- Mulgore <--> The Barrens
    {22, 23, 0.376, 0.33}, -- Mulgore <--> Thunder Bluff
+   {22, 23, 0.403, 0.193}, -- Mulgore <--> Thunder Bluff
    {3, 12, 0.247, 0.494}, -- Azuremyst Isle <--> The Exodar
    {3, 12, 0.369, 0.469}, -- Azuremyst Isle <--> The Exodar
    {3, 9, 0.42, 0.013}, -- Azuremyst Isle <--> Bloodmyst Isle
