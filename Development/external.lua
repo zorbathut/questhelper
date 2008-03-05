@@ -66,11 +66,11 @@ end
 
 function ProcessExternal()
   local lh_map =
-    {Alliance={["External/LH_AllianceQuests_20.lua"] = "LH_Alliance_20",
+    {[1]={["External/LH_AllianceQuests_20.lua"] = "LH_Alliance_20",
      ["External/LH_AllianceQuests_40.lua"] = "LH_Alliance_40",
      ["External/LH_AllianceQuests_60.lua"] = "LH_Alliance_60",
      ["External/LH_AllianceQuests_80.lua"] = "LH_Alliance_80"},
-     Horde={["External/LH_HordeQuests_20.lua"] = "LH_Horde_20",
+     [2]={["External/LH_HordeQuests_20.lua"] = "LH_Horde_20",
      ["External/LH_HordeQuests_40.lua"] = "LH_Horde_40",
      ["External/LH_HordeQuests_60.lua"] = "LH_Horde_60",
      ["External/LH_HordeQuests_80.lua"] = "LH_Horde_80"}}

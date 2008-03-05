@@ -301,8 +301,7 @@ local function AddQuestItems(quest, list)
 end
 
 local function ValidFaction(faction)
-  -- Faction depends on locale. Will accept any string.
-  return type(faction) == "string" --and (faction == "Horde" or faction == "Alliance")
+  return faction == 1 or faction == 2
 end
 
 local function AddQuest(locale, faction, level, name, data)
@@ -391,7 +390,6 @@ local function AddFlightRoute(locale, faction, start, destination, hash, value)
       hash_list = {}
       end_list[destination] = hash_list
     end
-    print("value:"..(value==true and "true" or value and value or "nil"))
     if value == true then
       hash_list[hash] = hash_list[hash] or true
     else
@@ -401,10 +399,7 @@ local function AddFlightRoute(locale, faction, start, destination, hash, value)
         hash_list[hash] = average
       end
       AppendToAverage(average, value)
-      print("appended")
     end
-  else
-    print("not adding route")
   end
 end
 
@@ -425,10 +420,8 @@ local function AddObjective(locale, category, name, objective)
       if type(objective.looted) == "number" and objective.looted >= 1 then
         o.looted = (o.looted or 0) + objective.looted
       end
-      if type(objective.faction) == "string" then
-        if ValidFaction(objective.faction) then
-          o.faction = objective.faction
-        end
+      if ValidFaction(objective.faction) then
+        o.faction = objective.faction
       end
     elseif category == "item" then
       if type(objective.opened) == "number" and objective.opened >= 1 then
@@ -560,6 +553,7 @@ local function AddInputData(data)
   
   if type(data.QuestHelper_Locale) == "string" then
     local locale = data.QuestHelper_Locale
+    
     if type(data.QuestHelper_Quests) == "table" then for faction, levels in pairs(data.QuestHelper_Quests) do
       if type(levels) == "table" then for level, quest_list in pairs(levels) do
         if type(quest_list) == "table" then for quest_name, quest_data in pairs(quest_list) do
@@ -582,8 +576,8 @@ local function AddInputData(data)
     
     if type(data.QuestHelper_FlightRoutes) == "table" then for faction, start_list in pairs(data.QuestHelper_FlightRoutes) do
       if type(start_list) == "table" then for start, destination_list in pairs(start_list) do
-        if type(destination_list) == "table" then for destination, route_list in pairs(destination_list) do
-          if type(route_list) == "table" then for hash, value in pairs(route_list) do
+        if type(destination_list) == "table" then for destination, hash_list in pairs(destination_list) do
+          if type(hash_list) == "table" then for hash, value in pairs(hash_list) do
             AddFlightRoute(locale, faction, start, destination, hash, value)
           end end
         end end
@@ -726,8 +720,7 @@ function handleTranslations()
           local npc = WoWData.npc[id]
           
           npc.quest = npc.quest or data.quest
-          
-          -- TODO: npc faction.
+          npc.faction = npc.faction or data.faction
           
           if data.looted then
             npc.looted = (npc.looted or 0) + data.looted
@@ -792,8 +785,7 @@ function handleTranslations()
       local data = GetObjective(locale, "monster", name)
       
       data.quest = data.quest or npc.quest
-      
-      -- TODO: npc faction.
+      data.faction = data.faction or npc.faction
       
       if npc.looted then
         data.looted = npc.looted

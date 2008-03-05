@@ -38,8 +38,9 @@ QuestHelper.objective_objects = {}
 QuestHelper.user_objectives = {}
 QuestHelper.quest_objects = {}
 QuestHelper.player_level = 1
-QuestHelper.locale = GetLocale()
-QuestHelper.faction = UnitFactionGroup("player")
+QuestHelper.locale = QuestHelper_Locale
+QuestHelper.faction = (UnitFactionGroup("player") == FACTION_ALLIANCE and 1) or
+                      (UnitFactionGroup("player") == FACTION_HORDE and 2)
 QuestHelper.route = {}
 QuestHelper.to_add = {}
 QuestHelper.to_remove = {}
