@@ -46,7 +46,6 @@ QuestHelper.to_add = {}
 QuestHelper.to_remove = {}
 QuestHelper.quest_log = {}
 QuestHelper.pos = {nil, {}, 0, 0, 1, "You are here.", 0}
-QuestHelper.target_nodes = {}
 QuestHelper.sharing = false -- Will be set to true when sharing with at least one user.
 
 function QuestHelper.tooltip:GetPrevLines() -- Just a helper to make life easier.
@@ -57,9 +56,7 @@ end
 
 function QuestHelper:SetTargetLocation(i, x, y, toffset)
   -- Informs QuestHelper that you're going to be at some location in toffset seconds.
-  
   local c, z = unpack(QuestHelper_ZoneLookup[i])
-  self:TextOut("Target set: "..self:LocationString(i, x, y))
   
   self.target = self:CreateTable()
   self.target[2] = self:CreateTable()
@@ -155,7 +152,7 @@ function QuestHelper:OnEvent(event)
     end
     
     self:HandlePartyChange()
-    self:Nag()
+    self:Nag("all")
     
     for locale in pairs(QuestHelper_StaticData) do
       if locale ~= self.locale then

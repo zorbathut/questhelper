@@ -188,14 +188,12 @@ local function CompareStaticObjective(info, cat, name, data, verbose)
   end
 end
 
-function QuestHelper:Nag(verbose)
-  if verbose == "verbose" then
-    verbose = true
-  else
-    if verbose and verbose ~= "" then
-      self:TextOut("Expect no arguments or 'verbose'.")
-    end
-    verbose = false
+function QuestHelper:Nag(cmd)
+  local verbose, local_only = false, true
+  
+  if cmd then
+    if string.find(cmd, "verbose") then verbose = true end
+    if string.find(cmd, "all") then local_only = false end
   end
   
   local info =
@@ -205,12 +203,14 @@ function QuestHelper:Nag(verbose)
     }
   
   for faction, level_list in pairs(QuestHelper_Quests) do
-    for level, name_list in pairs(level_list) do
-      for name, data in pairs(name_list) do
-        CompareStaticQuest(info, faction, level, name, data.hash, data, verbose)
-        if data.alt then
-          for hash, data in pairs(data.alt) do
-            CompareStaticQuest(info, faction, level, name, hash, data, verbose)
+    if not local_only or faction == self.faction then
+      for level, name_list in pairs(level_list) do
+        for name, data in pairs(name_list) do
+          CompareStaticQuest(info, faction, level, name, data.hash, data, verbose)
+          if data.alt then
+            for hash, data in pairs(data.alt) do
+              CompareStaticQuest(info, faction, level, name, hash, data, verbose)
+            end
           end
         end
       end
@@ -224,33 +224,34 @@ function QuestHelper:Nag(verbose)
   end
   
   for faction, location_list in pairs(QuestHelper_FlightInstructors) do
-    for location, npc in pairs(location_list) do
-      local data = QuestHelper_StaticData[self.locale]
-      data = data and data.flight_instructors
-      data = data and data[faction]
-      data = data and data[location]
-      
-      if not data or data ~= npc then
-        if verbose then self:TextOut(QuestHelper:HighlightText(faction).." flight master "..QuestHelper:HighlightText(npc).." was missing.") end
-        info.new["fp"] = (info.new["fp"] or 0)+1
+    if not local_only or faction == self.faction then
+      for location, npc in pairs(location_list) do
+        local data = QuestHelper_StaticData[self.locale]
+        data = data and data.flight_instructors
+        data = data and data[faction]
+        data = data and data[location]
+        
+        if not data or data ~= npc then
+          if verbose then self:TextOut(QuestHelper:HighlightText(faction).." flight master "..QuestHelper:HighlightText(npc).." was missing.") end
+          info.new["fp"] = (info.new["fp"] or 0)+1
+        end
       end
     end
   end
   
-  --[[
-  for cont, start_list in pairs(QuestHelper_FlightRoutes) do
-    for start, dest_list in pairs(start_list) do
-      for dest, hash_list in pairs(dest_list) do
-        for hash, data in pairs(hash_list) do
-          if data.real then
+  for faction, start_list in pairs(QuestHelper_FlightRoutes) do
+    if not local_only or faction == self.faction then
+      for start, dest_list in pairs(start_list) do
+        for dest, hash_list in pairs(dest_list) do
+          for hash, data in pairs(hash_list) do
             local static = QuestHelper_StaticData[self.locale]
             static = static and static.flight_routes
-            static = static and static[cont]
+            static = static and static[faction]
             static = static and static[start]
             static = static and static[dest]
             static = static and static[hash]
-            static = static and static.real
-            if not static then
+            
+            if not static or static == true and type(data) == "number" then
               if verbose then self:TextOut("Flight time from "..QuestHelper:HighlightText((select(3, string.find(start, "^(.*),")) or start)).." to "..QuestHelper:HighlightText((select(3, string.find(dest, "^(.*),")) or dest)).." was missing.") end
               info.new["route"] = (info.new["route"] or 0)+1
             end
@@ -259,7 +260,6 @@ function QuestHelper:Nag(verbose)
       end
     end
   end
-  ]]
   
   local total = 0
   

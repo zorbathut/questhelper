@@ -45,7 +45,6 @@ TakeTaxiNode = function(id)
         flight_data.origin = origin
         flight_data.dest = dest
         flight_data.hash = path_hash
-        QuestHelper:TextOut("!!! Expect flight time to be: "..QuestHelper:TimeString(QuestHelper.flight_times[origin][dest]))
       end
     end
   end
@@ -74,7 +73,6 @@ function QuestHelper:processFlightData(data)
   local correct = true
   
   if pos[1].c ~= self.c then
-    self:TextOut("!!! Wrong cont.")
     correct = false
   else
     local x, y = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)
@@ -83,7 +81,6 @@ function QuestHelper:processFlightData(data)
     local t = (x-pos[3])*(x-pos[3])+(y-pos[4])*(y-pos[4])
     
     if t > 5*5 then
-      self:TextOut("!!! You're not where you're supposed to be; "..self:TimeString(math.sqrt(t)).." from fp")
       correct = false
     end
   end
@@ -91,7 +88,6 @@ function QuestHelper:processFlightData(data)
   npc_obj:DoneRouting()
   
   if not correct then
-    self:TextOut("!!! You're not where you're supposed to be.")
     return true
   end
   
@@ -115,7 +111,6 @@ function QuestHelper:processFlightData(data)
     end
     
     dest[data.hash] = data.end_time - data.start_time
-    self:TextOut("!!! Flew from "..data.origin.." to "..data.dest.." in "..self:TimeString(dest[data.hash]))
   end
   
   return true
@@ -266,7 +261,6 @@ end
 
 function QuestHelper:buildFlightTimes()
   self.flight_scalar = self:computeWalkToFlightMult()
-  self:TextOut("Scalar: "..self.flight_scalar)
   
   local flight_times = self.flight_times
   if not flight_times then
