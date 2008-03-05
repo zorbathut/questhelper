@@ -45,7 +45,6 @@ TakeTaxiNode = function(id)
         flight_data.origin = origin
         flight_data.dest = dest
         flight_data.hash = path_hash
-        
         QuestHelper:TextOut("!!! Expect flight time to be: "..QuestHelper:TimeString(QuestHelper.flight_times[origin][dest]))
       end
     end
@@ -55,7 +54,7 @@ TakeTaxiNode = function(id)
 end
 
 function QuestHelper:processFlightData(data)
-  local npc = QuestHelper:getFlightInstructor(data.dest)
+  local npc = self:getFlightInstructor(data.dest)
   if not npc then
     self:TextOut(QHText("TALK_TO_FLIGHT_MASTER"))
     return false
@@ -72,14 +71,29 @@ function QuestHelper:processFlightData(data)
     return false
   end
   
-  if pos[1] ~= self.pos[1] or (self.pos[3]-pos[3])*(self.pos[3]-pos[3])+(self.pos[4]-pos[4])*(self.pos[4]-pos[4]) > 5*5 then
-    -- The player doesn't seem to be within 5 seconds walking distance of the destination's flight master.
-    self:TextOut("!!! You're not where you're supposed to be.")
-    npc_obj:DoneRouting()
-    return true
+  local correct = true
+  
+  if pos[1].c ~= self.c then
+    self:TextOut("!!! Wrong cont.")
+    correct = false
+  else
+    local x, y = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)
+    x = x * self.continent_scales_x[self.c]
+    y = y * self.continent_scales_y[self.c]
+    local t = (x-pos[3])*(x-pos[3])+(y-pos[4])*(y-pos[4])
+    
+    if t > 5*5 then
+      self:TextOut("!!! You're not where you're supposed to be; "..self:TimeString(math.sqrt(t)).." from fp")
+      correct = false
+    end
   end
   
   npc_obj:DoneRouting()
+  
+  if not correct then
+    self:TextOut("!!! You're not where you're supposed to be.")
+    return true
+  end
   
   if data.start_time and data.end_time and data.end_time > data.start_time then
     local routes = QuestHelper_FlightRoutes[self.faction]
@@ -441,9 +455,48 @@ function QuestHelper:taxiMapOpened()
   end
 end
 
+local elapsed = 0
+local function flight_updater(frame, delta)
+  elapsed = elapsed + delta
+  if elapsed > 1 then
+    elapsed = elapsed - 1
+    local data = QuestHelper.flight_data
+    if data then
+      frame:SetText(string.format("%s: %s", QuestHelper:HighlightText(select(3, string.find(data.dest, "^(.-),")) or data.dest),
+                                            QuestHelper:TimeString(math.max(0, data.end_time_estimate-time()))))
+    else
+      frame:Hide()
+      frame:SetScript("OnUpdate", nil)
+    end
+  end
+end
+
 function QuestHelper:flightBegan()
   if self.flight_data then
     self.flight_data.start_time = GetTime()
+    local origin, dest = self.flight_data.origin, self.flight_data.dest
+    local eta = self:computeLinkTime(origin, dest, self.flight_data.hash,
+                                     self.flight_times[origin] and self.flight_times[origin][dest]) or 0
+    
+    local npc = self:getFlightInstructor(self.flight_data.dest) -- Will inform QuestHelper that we're going to be at this NPC in whenever.
+    if npc then
+      local npc_obj = self:GetObjective("monster", npc)
+      npc_obj:PrepareRouting()
+      local pos = npc_obj:Position()
+      if pos then
+        local c, z = pos[1].c, pos[1].z
+        local x, y = self.Astrolabe:TranslateWorldMapPosition(c, 0,
+                                                              pos[3]/self.continent_scales_x[c],
+                                                              pos[4]/self.continent_scales_y[c], c, z)
+        
+        self:SetTargetLocation(QuestHelper_IndexLookup[c][z], x, y, eta)
+        
+      end
+      npc_obj:DoneRouting()
+    end
+    
+    self.flight_data.end_time_estimate = time()+eta
+    self:PerformCustomSearch(flight_updater) -- Reusing the search status indicator to display ETA for flight.
   end
 end
 
@@ -456,5 +509,8 @@ function QuestHelper:flightEnded()
       self:ReleaseTable(flight_data)
       self.flight_data = nil
     end
+    
+    self:UnsetTargetLocation()
+    self:StopCustomSearch()
   end
 end

@@ -162,6 +162,13 @@ function QuestHelper:CreateWorldMapWalker()
       
       local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
       
+      if self.frame.target then
+        cur = self.frame.target
+        local t = self.frame:CreateTable()
+        t[1], t[2] = convertLocationToScreen(cur, c, z)
+        table.insert(points, t)
+      end
+      
       for i, obj in pairs(self.frame.route) do
         local path, d = self.frame:ComputeRoute(cur, obj.pos)
         

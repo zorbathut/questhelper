@@ -73,14 +73,14 @@ end
 local search_frame = CreateFrame("Button", nil, UIParent)
 search_frame.text = search_frame:CreateFontString()
 search_frame.text:SetFont("Fonts\\ARIALN.TTF", 15)
-search_frame.text:SetTextColor(0, 0, 0)
+search_frame.text:SetTextColor(1, 1, 1)
 search_frame.text:SetJustifyH("CENTER")
 search_frame.text:SetJustifyV("MIDDLE")
 search_frame.text:SetDrawLayer("OVERLAY")
 search_frame.text:SetAllPoints()
 search_frame.text:Show()
 search_frame.background = search_frame:CreateTexture()
-search_frame.background:SetTexture(1, 1, 1, 0.5)
+search_frame.background:SetTexture(0, 0, 0, 0.5)
 search_frame.background:SetDrawLayer("BACKGROUND")
 search_frame.background:SetAllPoints()
 search_frame.background:Show()
@@ -327,6 +327,20 @@ end
 
 function QuestHelper:PerformSearch(query)
   search_frame:PerformSearch(query)
+end
+
+function QuestHelper:PerformCustomSearch(func)
+  if not search_frame:GetScript("OnUpdate") then
+    search_frame:Show()
+    search_frame:SetScript("OnUpdate", func)
+  end
+end
+
+function QuestHelper:StopCustomSearch()
+  if not search_frame.routine then
+    search_frame:Hide()
+    search_frame:SetScript("OnUpdate", nil)
+  end
 end
 
 SLASH_QuestHelperFind1 = "/qhfind"
