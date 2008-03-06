@@ -237,6 +237,7 @@ function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
 end
 
 function QuestHelper:addLinkInfo(data, flight_times)
+  self:TextOut("---")
   if data then
     for origin, list in pairs(data) do
       local tbl = flight_times[origin]
@@ -292,7 +293,7 @@ function QuestHelper:buildFlightTimes()
       
       for dest, data in pairs(list) do
         local t = data[1]
-        for dest2, data2 in pairs(flight_times[dest]) do
+        if flight_times[dest] then for dest2, data2 in pairs(flight_times[dest]) do
           if dest2 ~= origin then
             local t2 = t+data2[1]
             local dat = list[dest2]
@@ -306,7 +307,7 @@ function QuestHelper:buildFlightTimes()
               cont = true
             end
           end
-        end
+        end end
       end
     end
   end
