@@ -253,13 +253,16 @@ local function QuestHelper_ConvertPositionList(list)
 end
 
 local function QuestHelper_ConvertFaction(locale, faction)
-  if faction == FACTION_ALLIANCE then return 1
-  elseif faction == FACTION_HORDE then return 2
+  if faction == 1 or faction == "Alliance" or faction == FACTION_ALLIANCE then return 1
+  elseif faction == 2 or faction == "Horde" or faction == FACTION_HORDE then return 2
   else
     if locale == "enUS" then
       if faction == "Alliance" then return 1
       elseif faction == "Horde" then return 2 end
     elseif locale == "frFR" then
+      if faction == "Alliance" then return 1
+      elseif faction == "Horde" then return 2 end
+    elseif locale == "deDE" then
       if faction == "Alliance" then return 1
       elseif faction == "Horde" then return 2 end
     end

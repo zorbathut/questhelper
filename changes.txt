@@ -1,3 +1,7 @@
+== Version 0.35b Uploaded 03/05/2008 ==
+
+* Hopefully fixed a little oopsie I made regarding factions and non enUS locales.
+
 == Version 0.35 Uploaded 03/05/2008 ==
 
 * Nag command will now only provide information for your own faction.
