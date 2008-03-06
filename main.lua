@@ -25,6 +25,7 @@ QuestHelper_DefaultPref =
   level = 2,
   hide = false,
   cart_wp = true,
+  flight_time = true,
   locale = GetLocale() -- This variable is used for display purposes, and has nothing to do with the collected data.
  }
 

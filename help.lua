@@ -76,6 +76,33 @@ function QuestHelper:ToggleShare()
   end
 end
 
+function QuestHelper:ToggleFlightTimes()
+  QuestHelper_Pref.flight_time = not QuestHelper_Pref.flight_time
+  if QuestHelper_Pref.flight_time then
+    self:TextOut("The flight timer has been |cff00ff00enabled|r.")
+  else
+    self:TextOut("The flight timer has been |cffff0000disabled|r.")
+  end
+end
+
+function QuestHelper:Purge(code)
+  if code == self.purge_code then
+    QuestHelper_Quests = {}
+    QuestHelper_Objectives = {}
+    QuestHelper_FlightInstructors = {}
+    QuestHelper_FlightRoutes = {}
+    QuestHelper_UID = self:CreateUID()
+    ReloadUI()
+  else
+    if not self.purge_code then self.purge_code = self:CreateUID(8) end
+    QuestHelper:TextOut("THIS COMMAND WILL DELETE ALL YOUR COLLECTED DATA")
+    QuestHelper:TextOut("I would consider this a tragic loss, and would appreciate it if you sent me your saved data before going through with it.")
+    QuestHelper:TextOut("Enter "..self:HighlightText("/qh nag verbose").." to check and see if you're destroying anything important.")
+    QuestHelper:TextOut("See the "..self:HighlightText("How You Can Help").." section on the project website for instructions.")
+    QuestHelper:TextOut("If you're sure you want to go through with this, enter: "..self:HighlightText("/qh purge "..self.purge_code))
+  end
+end
+
 function QuestHelper:ToggleSolo()
   QuestHelper_Pref.solo = not QuestHelper_Pref.solo
   if QuestHelper_Pref.solo then
@@ -212,6 +239,12 @@ local commands =
   
   {"RECALC",
    "Recalculates the world graph and locations for any active objectives.", {}, QuestHelper.WantPathingReset, QuestHelper},
+  
+  {"FTIME",
+   "Toggles display of flight time estimates.", {}, QuestHelper.ToggleFlightTimes, QuestHelper},
+  
+  {"PURGE",
+   "Deletes all QuestHelper's collected data.", {}, QuestHelper.Purge, QuestHelper},
   
   {"FILTER",
    "Automatically ignores/unignores objectives based on criteria.",

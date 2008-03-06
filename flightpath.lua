@@ -237,7 +237,6 @@ function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
 end
 
 function QuestHelper:addLinkInfo(data, flight_times)
-  self:TextOut("---")
   if data then
     for origin, list in pairs(data) do
       local tbl = flight_times[origin]
@@ -490,8 +489,10 @@ function QuestHelper:flightBegan()
       npc_obj:DoneRouting()
     end
     
-    self.flight_data.end_time_estimate = time()+eta
-    self:PerformCustomSearch(flight_updater) -- Reusing the search status indicator to display ETA for flight.
+    if QuestHelper_Pref.flight_time then
+      self.flight_data.end_time_estimate = time()+eta
+      self:PerformCustomSearch(flight_updater) -- Reusing the search status indicator to display ETA for flight.
+    end
   end
 end
 

@@ -1,5 +1,9 @@
-== Version 0.35b Uploaded 03/05/2008 ==
+== Version 0.35f Uploaded 03/05/2008 ==
 
+* Added <code>/qh ftime</code> to toggle display of the flight timer. If you're already flying, it doesn't apply to the current flight.
+* Added <code>/qh purge</code> to delete all your collected data.
+* Removed some text I was using for debugging.
+* Fixed indexing a nil variable.
 * Hopefully fixed a little oopsie I made regarding factions and non enUS locales.
 
 == Version 0.35 Uploaded 03/05/2008 ==
