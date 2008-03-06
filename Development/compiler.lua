@@ -480,6 +480,11 @@ local function CollapseQuest(locale, quest)
     quest.item = nil
   end
   
+  if quest.finish then
+    -- This NPC is for a quest. Need to know them.
+    GetObjective(locale, "monster", quest.finish).quest = true
+  end
+  
   return quest.pos == nil and quest.finish == nil and quest.item == nil
 end
 
