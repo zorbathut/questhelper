@@ -148,7 +148,7 @@ local function getWalkToFlight(tbl, fi1, fi2)
     for origin, list in pairs(tbl) do
       for dest, hashlist in pairs(list) do
         if type(hashlist[0]) == "number" then
-          local npc1, npc2 = fi1[origin] or fi2[origin], fi1[dest] or fi2[dest]
+          local npc1, npc2 = (fi1 and fi1[origin]) or (fi2 and fi2[origin]), (fi1 and fi1[dest]) or (fi2 and fi2[dest])
           if npc1 and npc2 then
             local obj1, obj2 = QuestHelper:GetObjective("monster", npc1), QuestHelper:GetObjective("monster", npc2)
             obj1:PrepareRouting()
@@ -176,7 +176,7 @@ end
 function QuestHelper:computeWalkToFlightMult()
   local l = QuestHelper_FlightRoutes[self.faction]
   local s = QuestHelper_StaticData[self.locale]
-  s = s and s.flight_route
+  s = s and s.flight_routes
   s = s and s[self.faction]
   
   local fi1 = QuestHelper_FlightInstructors[self.faction]
@@ -198,7 +198,7 @@ function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
   
   local l = QuestHelper_FlightRoutes[self.faction]
   local s = QuestHelper_StaticData[self.locale]
-  s = s and s.flight_route
+  s = s and s.flight_routes
   s = s and s[self.faction]
   
   hash = hash or 0
@@ -212,6 +212,7 @@ function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
     s = QuestHelper_StaticData[self.locale]
     s = s and s.flight_instructors
     s = s and s[self.faction]
+    
     local npc1, npc2 = (l and l[origin]) or (s and s[origin]),
                        (l and l[dest]) or (s and s[dest])
     
