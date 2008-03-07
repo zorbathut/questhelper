@@ -354,8 +354,13 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
       self.index = i
       
       if i == 1 then
+        -- if it's the very next objective, give it the green background
         self.bg = QuestHelper:CreateIconTexture(self, 13)
+      elseif not objective:CouldBeFirst() then
+        -- if there are still prerequisites, make it grey
+        self.bg = QuestHelper:CreateIconTexture(self, 16)
       else
+        -- otherwise give it the background selected by the objective
         self.bg = QuestHelper:CreateIconTexture(self, objective.icon_bg)
       end
       
