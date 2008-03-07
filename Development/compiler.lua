@@ -301,8 +301,7 @@ local function AddQuestItems(quest, list)
 end
 
 local function ValidFaction(faction)
-  -- Faction depends on locale. Will accept any string.
-  return type(faction) == "string" --and (faction == "Horde" or faction == "Alliance")
+  return faction == 1 or faction == 2
 end
 
 local function AddQuest(locale, faction, level, name, data)
@@ -360,28 +359,26 @@ local function AddFlightInstructor(locale, faction, location, npc)
   end
 end
 
-local function AddFlightRoute(locale, continent, start, destination, hash, data)
-  if type(continent) == "number" and
+local function AddFlightRoute(locale, faction, start, destination, hash, value)
+  if ValidFaction(faction) and
      type(start) == "string" and
      type(destination) == "string" and
      type(hash) == "number" and
-     type(data) == "table" and
-     type(data.raw) == "number" and 
-     (not data.real or type(data.real) == "number") then
+     ((value == true and hash == 0) or (type(value) == "number" and value > 0)) then
     local l = StaticData[locale]
     if not l then
       l = {}
       StaticData[locale] = l
     end
-    local continent_list = l.flight_routes
-    if not continent_list then
-      continent_list = {}
-      l.flight_routes = continent_list
+    local faction_list = l.flight_routes
+    if not faction_list then
+      faction_list = {}
+      l.flight_routes = faction_list
     end
-    local start_list = continent_list[continent]
+    local start_list = faction_list[faction]
     if not start_list then
       start_list = {}
-      continent_list[continent] = start_list
+      faction_list[faction] = start_list
     end
     local end_list = start_list[start]
     if not end_list then
@@ -393,17 +390,15 @@ local function AddFlightRoute(locale, continent, start, destination, hash, data)
       hash_list = {}
       end_list[destination] = hash_list
     end
-    local route_data = hash_list[hash]
-    if not route_data then
-      route_data = {}
-      hash_list[hash] = route_data
-    end
-    route_data.raw = route_data.raw or data.raw
-    if data.real then
-      if not route_data.real then
-        route_data.real = CreateAverage()
+    if value == true then
+      hash_list[hash] = hash_list[hash] or true
+    else
+      local average = hash_list[hash]
+      if type(average) ~= "table" then
+        average = CreateAverage()
+        hash_list[hash] = average
       end
-      AppendToAverage(route_data.real, data.real)
+      AppendToAverage(average, value)
     end
   end
 end
@@ -425,10 +420,8 @@ local function AddObjective(locale, category, name, objective)
       if type(objective.looted) == "number" and objective.looted >= 1 then
         o.looted = (o.looted or 0) + objective.looted
       end
-      if type(objective.faction) == "string" then
-        if ValidFaction(objective.faction) then
-          o.faction = objective.faction
-        end
+      if ValidFaction(objective.faction) then
+        o.faction = objective.faction
       end
     elseif category == "item" then
       if type(objective.opened) == "number" and objective.opened >= 1 then
@@ -487,6 +480,11 @@ local function CollapseQuest(locale, quest)
     quest.item = nil
   end
   
+  if quest.finish then
+    -- This NPC is for a quest. Need to know them.
+    GetObjective(locale, "monster", quest.finish).quest = true
+  end
+  
   return quest.pos == nil and quest.finish == nil and quest.item == nil
 end
 
@@ -531,15 +529,6 @@ local function CollapseObjective(locale, objective)
   return objective.drop == nil and objective.contained == nil and objective.pos == nil and objective.vendor == nil
 end
 
-local function CollapseFlightRoute(data)
-  data.real = data.real and CollapseAverage(data.real)
-  if data.real then
-    data.real = math.floor(data.real*10+0.5)/10
-    return false
-  end
-  return true
-end
-
 local function AddInputData(data)
   if data.QuestHelper_StaticData then
     -- Importing a static data file.
@@ -569,6 +558,7 @@ local function AddInputData(data)
   
   if type(data.QuestHelper_Locale) == "string" then
     local locale = data.QuestHelper_Locale
+    
     if type(data.QuestHelper_Quests) == "table" then for faction, levels in pairs(data.QuestHelper_Quests) do
       if type(levels) == "table" then for level, quest_list in pairs(levels) do
         if type(quest_list) == "table" then for quest_name, quest_data in pairs(quest_list) do
@@ -589,11 +579,11 @@ local function AddInputData(data)
       end end
     end end
     
-    if type(data.QuestHelper_FlightRoutes) == "table" then for continent, start_list in pairs(data.QuestHelper_FlightRoutes) do
+    if type(data.QuestHelper_FlightRoutes) == "table" then for faction, start_list in pairs(data.QuestHelper_FlightRoutes) do
       if type(start_list) == "table" then for start, destination_list in pairs(start_list) do
-        if type(destination_list) == "table" then for destination, route_list in pairs(destination_list) do
-          if type(route_list) == "table" then for hash, data in pairs(route_list) do
-            AddFlightRoute(locale, continent, start, destination, hash, data)
+        if type(destination_list) == "table" then for destination, hash_list in pairs(destination_list) do
+          if type(hash_list) == "table" then for hash, value in pairs(hash_list) do
+            AddFlightRoute(locale, faction, start, destination, hash, value)
           end end
         end end
       end end
@@ -735,8 +725,7 @@ function handleTranslations()
           local npc = WoWData.npc[id]
           
           npc.quest = npc.quest or data.quest
-          
-          -- TODO: npc faction.
+          npc.faction = npc.faction or data.faction
           
           if data.looted then
             npc.looted = (npc.looted or 0) + data.looted
@@ -801,8 +790,7 @@ function handleTranslations()
       local data = GetObjective(locale, "monster", name)
       
       data.quest = data.quest or npc.quest
-      
-      -- TODO: npc faction.
+      data.faction = data.faction or npc.faction
       
       if npc.looted then
         data.looted = npc.looted
@@ -1050,16 +1038,17 @@ function CompileFinish()
     end
     
     if l.flight_routes then
-      for cont, start_list in pairs(l.flight_routes) do
-        local delete_cont = true
+      for faction, start_list in pairs(l.flight_routes) do
+        local delete_faction = true
         for start, dest_list in pairs(start_list) do
           local delete_start = true
           for dest, hash_list in pairs(dest_list) do
             local delete_dest = true
-            for hash, data in pairs(hash_list) do
-              if CollapseFlightRoute(data) then
-                hash_list[hash] = nil
-              else
+            for hash, value in pairs(hash_list) do
+              if type(value) == "table" then
+                hash_list[hash] = CollapseAverage(value)
+                delete_dest = false
+              elseif value == true and hash == 0 then
                 delete_dest = false
               end
             end
@@ -1072,11 +1061,11 @@ function CompileFinish()
           if delete_start then
             start_list[start] = nil
           else
-            delete_cont = false
+            delete_faction = false
           end
         end
-        if delete_cont then
-          l.flight_routes[cont] = nil
+        if delete_faction then
+          l.flight_routes[faction] = nil
         end
       end
     end

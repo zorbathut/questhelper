@@ -88,7 +88,7 @@ QuestHelper_Translations.deDE =
   FILTERED_ZONE = "Gefiltert wegen Zone.",
   FILTERED_COMPLETE = "Gefiltert wegen Vollständigkeit.",
   FILTERED_USER = "Du möchtest dieses Ziel ausblenden lassen.",
-  FILTERED_UNKNOWN = "Nicht bekannt wie es abgeschlossen werden kann.",
+  FILTERED_UNKNOWN = "Es ist nicht bekannt wie es abgeschlossen werden kann.",
   
   HIDDEN_SHOW = "Zeigen.",
   DISABLE_FILTER = "Filter abschalten: %1",
@@ -100,18 +100,18 @@ QuestHelper_Translations.deDE =
   NAG_SINGLE = "1 %2", -- %1 == count (will be 1), %2 == what
   NAG_PLURAL = "%1 %s2",
   
-  NAG_MULTIPLE_NEW = "Du hast Informationen über %h1 neu und %h2 aktualisiert %h(%s3).",
-  NAG_SINGLE_NEW = "Du hast Informationen über neue %h1.",
+  NAG_MULTIPLE_NEW = "Du hast Informationen über %h1 neue und %h2 aktualisiert %h(%s3).",
+  NAG_SINGLE_NEW = "Du hast neue Informationen über %h1.",
   NAG_ADDITIONAL = "Du hast zusätzliche Informationen über %h1.",
   
   NAG_NOT_NEW = "Du hast keine Informationen, die nicht bereits in der statischen Datenbank sind.",
-  NAG_NEW = "Du solltest in Betracht ziehen deine Daten teilen, damit andere davon profitieren können.",
+  NAG_NEW = "Du solltest in Betracht ziehen deine Daten zu teilen, damit andere davon profitieren können.",
   
-  NAG_FP = "Flugmeister",
-  NAG_QUEST = "Quest",
-  NAG_ROUTE = "Flugroute",
-  NAG_ITEM_OBJ = "Gegenstands Ziel",
-  NAG_OBJECT_OBJ = "Objekt Ziel",
+  NAG_FP = "Flugmeister", -- PLURAL Flugmeister
+  NAG_QUEST = "Quest", -- PLURAL Quests
+  NAG_ROUTE = "Flugroute", -- PLURAL Flugrouten
+  NAG_ITEM_OBJ = "Item Ziel", -- PLURAL Item Ziele
+  NAG_OBJECT_OBJ = "Objekt Ziel", -- ...
   NAG_MONSTER_OBJ = "Monster Ziel",
   NAG_EVENT_OBJ = "Event Ziel",
   NAG_REPUTATION_OBJ = "Ruf Ziel",
@@ -121,4 +121,20 @@ QuestHelper_Translations.deDE =
   TRAVEL_ESTIMATE = "Geschätzte Reisezeit:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Besuche %h1 auf dem Weg zu:"
+ }
+
+local plural_lookup =
+ {
+  quest = "s",
+  ziel = "e",
+  flugroute = "n",
+ }
+
+QuestHelper_TranslationFunctions.deDE =
+ {
+  ["s"] = function(data)
+    local orig, word, append = select(3, string.find(data, "^(.-)([^%s]*)(|r)$"))
+    if not word then orig, word = select(3, string.find(data, "^(.-)([^%s]*)$")) end
+    return string.format("%s%s%s%s", orig, word, (plural_lookup[string.lower(word)] or ""), (append or ""))
+  end
  }

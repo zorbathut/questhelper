@@ -3,7 +3,8 @@ QuestHelper = CreateFrame("Frame", "QuestHelper", nil)
 -- Just to make sure it's always 'seen' (there's nothing that can be seen, but still...), and therefore always updating.
 QuestHelper:SetFrameStrata("TOOLTIP")
 
-QuestHelper_SaveVersion = 6
+QuestHelper_SaveVersion = 7
+QuestHelper_CharVersion = 1
 QuestHelper_Locale = GetLocale() -- This variable is used only for the collected data, and has nothing to do with displayed text.
 QuestHelper_Quests = {}
 QuestHelper_Objectives = {}
@@ -24,10 +25,12 @@ QuestHelper_DefaultPref =
   level = 2,
   hide = false,
   cart_wp = true,
+  flight_time = true,
   locale = GetLocale() -- This variable is used for display purposes, and has nothing to do with the collected data.
  }
 
 QuestHelper_FlightInstructors = {}
+QuestHelper_FlightLinks = {}
 QuestHelper_FlightRoutes = {}
 QuestHelper_KnownFlightRoutes = {}
 
@@ -36,8 +39,13 @@ QuestHelper.objective_objects = {}
 QuestHelper.user_objectives = {}
 QuestHelper.quest_objects = {}
 QuestHelper.player_level = 1
-QuestHelper.locale = GetLocale()
-QuestHelper.faction = UnitFactionGroup("player")
+QuestHelper.locale = QuestHelper_Locale
+
+QuestHelper.faction = (UnitFactionGroup("player") == "Alliance" and 1) or
+                      (UnitFactionGroup("player") == "Horde" and 2)
+
+assert(QuestHelper.faction)
+
 QuestHelper.route = {}
 QuestHelper.to_add = {}
 QuestHelper.to_remove = {}
@@ -51,160 +59,34 @@ function QuestHelper.tooltip:GetPrevLines() -- Just a helper to make life easier
   return _G[name.."TextLeft"..last], _G[name.."TextRight"..last]
 end
 
-function QuestHelper:GetFlightPathData(c, start_string, end_string, hash)
-  c = QuestHelper_IndexLookup[QuestHelper_ZoneLookup[c][1]][0]
-  local cont = QuestHelper_FlightRoutes[c]
-  if not cont then
-    cont = {}
-    QuestHelper_FlightRoutes[c] = cont
-  end
-  local map = cont[start_string]
-  if not map then
-    map = {}
-    cont[start_string] = map
-  end
-  local hash_list = map[end_string]
-  if not hash_list then
-    hash_list = {}
-    map[end_string] = hash_list
-  end
-  local data = hash_list[hash]
-  if not data then
-    data = {}
-    hash_list[hash] = data
-  end
-  return data
-end
-
-function QuestHelper:GetFallbackFlightPathData(_, start_string, end_string, hash)
-  local l = QuestHelper_StaticData[self.locale]
-  local cont = l and l.flight_routes
-  local map = cont and cont[start_string]
-  local hash_list = map and map[end_string]
-  return hash_list and hash_list[hash]
-end
-
-function QuestHelper:PlayerKnowsFlightRoute(c, start_string, end_string, hash)
-  c = QuestHelper_IndexLookup[QuestHelper_ZoneLookup[c][1]][0]
-  local cont = QuestHelper_KnownFlightRoutes[c]
-  if not cont then
-    cont = {}
-    QuestHelper_KnownFlightRoutes[c] = cont
-  end
-  local map = cont[start_string]
-  if not map then
-    map = {}
-    cont[start_string] = map
-  end
+function QuestHelper:SetTargetLocation(i, x, y, toffset)
+  -- Informs QuestHelper that you're going to be at some location in toffset seconds.
+  local c, z = unpack(QuestHelper_ZoneLookup[i])
   
-  if not map[end_string] or (hash and hash ~= map[end_string]) then
-    map[end_string] = hash or map[end_string] or 0
-    return true
-  end
+  self.target = self:CreateTable()
+  self.target[2] = self:CreateTable()
   
-  return false
-end
-
-function QuestHelper:ComputeRawFlightScaler(c)
-  c = QuestHelper_IndexLookup[QuestHelper_ZoneLookup[c][1]][0]
-  local real, raw = 0, 0
+  self.target_time = time()+(toffset or 0)
   
-  if QuestHelper_FlightRoutes[c] then
-    for start, end_list in pairs(QuestHelper_FlightRoutes[c]) do
-      for dest, hash_list in pairs(end_list) do
-        for hash, data in pairs(hash_list) do
-          if data.raw and data.real then
-            real = real + data.real
-            raw = raw + data.raw
-          end
-        end
-      end
-    end
-  end
+  x, y = self.Astrolabe:TranslateWorldMapPosition(c, z, x, y, c, 0)
+  self.target[1] = self.zone_nodes[i]
+  self.target[3] = x * self.continent_scales_x[c]
+  self.target[4] = y * self.continent_scales_y[c]
   
-  if QuestHelper_StaticData[self.locale] and
-     QuestHelper_StaticData[self.locale].flight_routes and
-     QuestHelper_StaticData[self.locale].flight_routes[c] then
-    for start, end_list in pairs(QuestHelper_StaticData[self.locale].flight_routes[c]) do
-      for dest, hash_list in pairs(end_list) do
-        for hash, data in pairs(hash_list) do
-          if data.raw and data.real then
-            real = real + data.real
-            raw = raw + data.raw
-          end
-        end
-      end
-    end
-  end
-  
-  if raw > 0 then
-    return real/raw
+  for i, n in ipairs(self.target[1]) do
+    local a, b = n.x-self.target[3], n.y-self.target[4]
+    self.target[2][i] = math.sqrt(a*a+b*b)
   end
 end
 
-function QuestHelper:GetFlightTime(c, start_string, end_string)
-  c = QuestHelper_IndexLookup[QuestHelper_ZoneLookup[c][1]][0]
-  
-  local hash1, hash2
-  if QuestHelper_KnownFlightRoutes[c] and
-     QuestHelper_KnownFlightRoutes[c][start_string] and 
-     QuestHelper_KnownFlightRoutes[c][start_string][end_string] then
-    hash1 = QuestHelper_KnownFlightRoutes[c][start_string][end_string]
+function QuestHelper:UnsetTargetLocation()
+  -- Unsets the target set above.
+  if self.target then
+    self:ReleaseTable(self.target[2])
+    self:ReleaseTable(self.target)
+    self.target = nil
+    self.target_time = nil
   end
-  
-  local data1 = hash1 and hash1 ~= 0 and self:GetFlightPathData(c, start_string, end_string, hash1)
-  
-  if data1 and data1.real then -- Have we flown and know the exact time there?
-    return data1.real
-  end
-  
-  local fbdata1 = self:GetFallbackFlightPathData(c, start_string, end_string, hash1)
-  
-  if fbdata1 and fbdata1.real then
-    return fbdata1.real
-  end
-  
-  if QuestHelper_KnownFlightRoutes[c] and
-     QuestHelper_KnownFlightRoutes[c][end_string] and 
-     QuestHelper_KnownFlightRoutes[c][end_string][start_string] then
-    hash2 = QuestHelper_KnownFlightRoutes[c][end_string][start_string]
-  end
-  
-  local data2 = hash2 and hash2 ~= 0 and self:GetFlightPathData(c, end_string, start_string, hash2)
-  
-  if data2 and data2.real then -- Have we flown from there to here? We'll use that time instead.
-    return data2.real
-  end
-  
-  local fbdata2 = self:GetFallbackFlightPathData(c, end_string, start_string, hash1)
-  
-  if fbdata2 and fbdata2.real then
-    return fbdata2.real
-  end
-  
-  local scale = self:ComputeRawFlightScaler(c)
-  
-  if scale then
-    if data1 and data1.raw then -- We'll estimate the flight time based on the route distance.
-      return data1.raw * scale
-    end
-    
-    if fbdata1 and fbdata1.raw then
-      return fbdata1.raw * scale
-    end
-    
-    if data2 and data2.raw then
-      return data2.raw * scale
-    end
-    
-    if fbdata2 and fbdata2.raw then
-      return fbdata2.raw * scale
-    end
-  end
-  
-  -- If we got here, then we have absolutely no idea how long the flight will take.
-  -- We'll pretend to know and say three and a half minutes.
-  return 210
 end
 
 function QuestHelper:OnEvent(event)
@@ -233,7 +115,7 @@ function QuestHelper:OnEvent(event)
     QuestHelper_UpgradeDatabase(_G)
     QuestHelper_UpgradeComplete()
     
-    if QuestHelper_SaveVersion ~= 6 then
+    if QuestHelper_SaveVersion ~= 7 then
       self:TextOut(QHText("DOWNGRADE_ERROR"))
       return
     end
@@ -275,7 +157,7 @@ function QuestHelper:OnEvent(event)
     end
     
     self:HandlePartyChange()
-    self:Nag()
+    self:Nag("all")
     
     for locale in pairs(QuestHelper_StaticData) do
       if locale ~= self.locale then
@@ -302,13 +184,29 @@ function QuestHelper:OnEvent(event)
       end end
     end
     
-    if QuestHelper_Home and #QuestHelper_Home == 5 then
-      -- Changed the format, now has 4 elements.
+    -- Adding QuestHelper_CharVersion, so I know if I've already converted this characters saved data.
+    if not QuestHelper_CharVersion then
+      -- Changing per-character flight routes, now only storing the flight points they have,
+      -- will attempt to guess the routes from this.
+      local routes = {}
+      
+      for i, l in pairs(QuestHelper_KnownFlightRoutes) do
+        for key in pairs(l) do
+          routes[key] = true
+        end
+      end
+      
+      QuestHelper_KnownFlightRoutes = routes
+      
+      -- Deleting the player's home again.
+      -- But using the new CharVersion variable I'm adding is cleaner that what I was doing, so I'll go with it.
       QuestHelper_Home = nil
+      QuestHelper_CharVersion = 1
     end
     
     if not QuestHelper_Home then
-      self:TextOut(QHText("HOME_NOT_KNOWN"))
+      -- Not going to bother complaining about the player's home not being set, uncomment this when the home is used in routing.
+      -- self:TextOut(QHText("HOME_NOT_KNOWN"))
     end
     
     collectgarbage("collect") -- Free everything we aren't using.
@@ -539,153 +437,16 @@ function QuestHelper:OnEvent(event)
     end
   end
   
-  if event == "PLAYER_CONTROL_LOST" then
-    if self.flight_origin then
-      -- We'll check to make sure we were actually on a taxi when we regain control.
-      self.flight_start_time = GetTime()
-    end
+  if event == "TAXIMAP_OPENED" then
+    self:taxiMapOpened()
   end
   
   if event == "PLAYER_CONTROL_GAINED" then
-    if (self.was_flying or UnitOnTaxi("player")) and self.flight_origin and self.flight_start_time then
-      local elapsed = GetTime()-self.flight_start_time
-      if elapsed > 0 then
-        local index, x, y = self:PlayerPosition()
-        local list = QuestHelper_FlightInstructors[self.faction]
-        local end_zone = nil
-        if list then
-          local distance
-          for zone, npc in pairs(list) do
-            local npc_objective = self:GetObjective("monster", npc)
-            
-            if npc_objective:Known() then
-              npc_objective:PrepareRouting()
-              
-              local pos = npc_objective:Position()
-              
-              if pos then
-                local d = self:ComputeTravelTime(self.pos, pos)
-                if not end_zone or d < distance then
-                  end_zone, distance = zone, d
-                end
-              end
-              
-              npc_objective:DoneRouting()
-            end
-          end
-          if end_zone and distance > 5 then
-            end_zone = nil
-          end
-        end
-        
-        if end_zone then
-          if self.flight_hashs[end_zone] then
-            self:GetFlightPathData(index, self.flight_origin, end_zone, self.flight_hashs[end_zone]).real = elapsed
-          else
-            self:TextOut("You shouldn't have been able to fly here. And yet here you are. Reality will never be the same again.")
-          end
-        else
-          self:TextOut(QHText("TALK_TO_FLIGHT_MASTER"))
-          if not self.pending_flight_data then
-            self.pending_flight_data = {}
-          end
-          table.insert(self.pending_flight_data, {self.flight_origin, self.flight_hashs, elapsed, index, x, y})
-          self.flight_hashs = nil
-        end
-      else
-        self:TextOut("You arrived at your destination before you left. I love a good temporal paradox!")
-      end
-    end
-    self.was_flying, self.flight_origin, self.flight_start_time = nil, nil, nil
+    self:flightEnded()
   end
   
-  if event == "TAXIMAP_OPENED" then
-    local flight_instructor = UnitName("npc")
-    
-    local start_index = nil
-    for i = 1,NumTaxiNodes() do
-      if GetNumRoutes(i) == 0 then
-        start_index = i
-        break
-      end
-    end
-    
-    if start_index ~= nil then
-      local start_location = TaxiNodeName(start_index)
-      self.flight_origin = start_location
-      
-      if flight_instructor and start_location then
-        local list = QuestHelper_FlightInstructors[self.faction]
-        if not list then
-          list = {}
-          QuestHelper_FlightInstructors[self.faction] = list
-        end
-        if list[start_location] ~= flight_instructor then
-          --self:TextOut("Recorded that "..flight_instructor.." is the "..self.faction.." flight instructor for "..start_location..".")
-          list[start_location] = flight_instructor
-        end
-      end
-      
-      if self.pending_flight_data then
-        local index, x, y = self:UnitPosition("npc")
-        for i, data in ipairs(self.pending_flight_data) do
-          if self:Distance(index, x, y, data[4], data[5], data[6]) < 20 then
-            self:TextOut(QHText("TALK_TO_FLIGHT_MASTER_COMPLETE"))
-            self.flight_hashs = data[2]
-            self:GetFlightPathData(index, data[1], start_location, self.flight_hashs[start_location]).real = data[3]
-            table.remove(self.pending_flight_data, i)
-            break
-          end
-        end
-      end
-      
-      if not self.flight_hashs then
-        self.flight_hashs = {}
-      else
-        while #self.flight_hashs > 0 do
-          table.remove(self.flight_hashs)
-        end
-      end
-      
-      local altered = false
-      
-      for i = 1,NumTaxiNodes() do
-        local routes = GetNumRoutes(i)
-        -- Why Blizzard would tell me there are nine hundred million route nodes instead of returning
-        -- nil when you can't get there is beyond me.
-        if i ~= start_index and routes and routes > 0 and routes < 100 then
-          local required_time = 0
-          local path_string = "PATH"
-          for j=1,routes do
-            path_string=string.format("%s:%d,%d",
-                                      path_string,
-                                      math.floor(TaxiGetDestX(i,j)*100+0.5),
-                                      math.floor(TaxiGetDestY(i,j)*100+0.5))
-            
-            local x, y = TaxiGetSrcX(i,j)-TaxiGetDestX(i,j), TaxiGetSrcY(i,j)-TaxiGetDestY(i,j)
-            
-            -- It appears that the coordinates do actually use a square aspect ratio. That's a pleasant surprise.
-            -- TODO: I'm concerned this might be affected by scale, need to check this.
-            required_time = required_time + math.sqrt(x*x+y*y)
-          end
-          
-          local hash = self:HashString(path_string)
-          local end_location = TaxiNodeName(i)
-          local index = QuestHelper_IndexLookup[self.c][0]
-          
-          self.flight_hashs[end_location] = hash
-          altered = self:PlayerKnowsFlightRoute(index, start_location, end_location, hash) or altered
-          altered = self:PlayerKnowsFlightRoute(index, end_location, start_location) or altered
-          self:GetFlightPathData(index, start_location, end_location, hash).raw = required_time
-        end
-      end
-      
-      if altered then
-        self:TextOut(QHText("ROUTES_CHANGED"))
-        self:TextOut(QHText("WILL_RESET_PATH"))
-        self.defered_graph_reset = true
-      end
-    end
+  if event == "PLAYER_CONTROL_LOST" then
+    self:flightBegan()
   end
 end
 
@@ -730,32 +491,38 @@ function QuestHelper:OnUpdate()
   end
   
   if nc and nz > 0 then
-    if UnitOnTaxi("player") then
-      self.was_flying = true
-    end
-    
     if nc > 0 and nz > 0 then
       self.c, self.z, self.x, self.y = nc or self.c, nz or self.z, nx or self.x, ny or self.y
       self.i = QuestHelper_IndexLookup[self.c][self.z]
       
-      self.pos[1] = self.zone_nodes[self.i]
-      self.pos[3], self.pos[4] = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)
-      assert(self.pos[3])
-      assert(self.pos[4])
-      self.pos[3] = self.pos[3] * self.continent_scales_x[self.c]
-      self.pos[4] = self.pos[4] * self.continent_scales_y[self.c]
-      for i, n in ipairs(self.pos[1]) do
-        if not n.x then
-          for i, j in pairs(n) do self:TextOut("[%q]=%s %s", i, type(j), tostring(j) or "???") end
-          assert(false)
+      if not self.target then
+        self.pos[3], self.pos[4] = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)
+        assert(self.pos[3])
+        assert(self.pos[4])
+        self.pos[1] = self.zone_nodes[self.i]
+        self.pos[3] = self.pos[3] * self.continent_scales_x[self.c]
+        self.pos[4] = self.pos[4] * self.continent_scales_y[self.c]
+        for i, n in ipairs(self.pos[1]) do
+          if not n.x then
+            for i, j in pairs(n) do self:TextOut("[%q]=%s %s", i, type(j), tostring(j) or "???") end
+            assert(false)
+          end
+          local a, b = n.x-self.pos[3], n.y-self.pos[4]
+          self.pos[2][i] = math.sqrt(a*a+b*b)
         end
-        local a, b = n.x-self.pos[3], n.y-self.pos[4]
-        self.pos[2][i] = math.sqrt(a*a+b*b)
       end
     end
   end
   
-  if self.c and self.c > 0 and self.z > 0 then
+  if self.target then
+    self.pos[1], self.pos[3], self.pos[4] = self.target[1], self.target[3], self.target[4]
+    local extra_time = math.max(0, self.target_time-time())
+    for i in ipairs(self.pos[1]) do
+      self.pos[2][i] = self.target[2][i]+extra_time
+    end
+  end
+  
+  if self.pos[1] then
     if self.defered_quest_scan then
       self.defered_quest_scan = false
       self:ScanQuestLog()

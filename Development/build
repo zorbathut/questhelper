@@ -1,5 +1,16 @@
 #!/usr/bin/env lua
 
+local bool compile=true
+
+for i, a in ipairs(arg) do
+  if a == "-compile" then compile = false
+  elseif a == "+compile" then compile = true
+  else
+    print("Unknown option: "..a)
+    return 1
+  end
+end
+
 cache = {}
 local cache_loader = loadfile("build-cache.lua")
 if cache_loader then
@@ -10,6 +21,10 @@ end
 if not cache.removed then cache.removed = {} end
 if not cache.known then cache.known = {} end
 if not cache.ignored then cache.ignored = {} end
+if not cache.uid then cache.uid = {} end
+
+local file2uid = {}
+for uid, data in pairs(cache.uid) do file2uid[data.file] = uid end
 
 loadfile("dump.lua")()
 loadfile("fileutil.lua")()
@@ -19,209 +34,267 @@ loadfile("external.lua")()
 
 QuestHelper_BuildZoneLookup()
 
-local function saveCache()
-  local stream = io.open("build-cache.lua", "w")
-  local buffer, prebuf = CreateBuffer(), CreateBuffer()
-  DumpVariable(buffer, prebuf, cache, "cache")
-  stream:write(DumpingComplete(buffer, prebuf))
-  io.close(stream)
-end
+if compile then
+  local function saveCache()
+    local stream = io.open("build-cache.lua", "w")
+    local buffer, prebuf = CreateBuffer(), CreateBuffer()
+    DumpVariable(buffer, prebuf, cache, "cache")
+    stream:write(DumpingComplete(buffer, prebuf))
+    io.close(stream)
+  end
 
-local all_input_files, unknown_input_files = {}, {}
+  local all_input_files, unknown_input_files = {}, {}
 
-FileUtil.forEachFile("LocalInput", function (name)
-  if FileUtil.extension(name) == "lua" then
-    local hash = FileUtil.fileHash(name)
-    if cache.ignored[hash] then return end
-    cache.ignored[hash] = true
-    
-    local input = loadfile(name)
-    if input then
-      local data = {}
-      setfenv(input, data)
-      if pcall(input) then
-        if not (data.QuestHelper_Locale and data.QuestHelper_Objectives) then
-          print("! "..name.." isn't a QuestHelper SavedVariables file.")
-          return
-        end
-        
-        local tempname = os.tmpname()
-        local stream = io.open(tempname, "w")
-        if stream then
-          print("Copying/Sorting "..name)
-          stream:write(ScanAndDumpVariable(data, nil, true) or "")
-          io.close(stream)
-          hash = FileUtil.fileHash(tempname)
-          if hash then
-            local input_name = "Input/"..hash..".lua"
-            if not cache.removed[input_name] then
-              if not cache.known[input_name] then
-                FileUtil.copyFile(tempname, input_name)
-                unknown_input_files[input_name] = name
+  FileUtil.forEachFile("LocalInput", function (name)
+    if FileUtil.extension(name) == "lua" then
+      local hash = FileUtil.fileHash(name)
+      if cache.ignored[hash] then return end
+      cache.ignored[hash] = true
+      
+      local input = loadfile(name)
+      if input then
+        local data = {}
+        setfenv(input, data)
+        if pcall(input) then
+          if not (data.QuestHelper_Locale and data.QuestHelper_Objectives) then
+            print("! "..name.." isn't a QuestHelper SavedVariables file.")
+            return
+          end
+          
+          local tempname = os.tmpname()
+          local stream = io.open(tempname, "w")
+          if stream then
+            print("Copying/Sorting "..name)
+            stream:write(ScanAndDumpVariable(data, nil, true) or "")
+            io.close(stream)
+            hash = FileUtil.fileHash(tempname)
+            if hash then
+              local input_name = "Input/"..hash..".lua"
+              if not cache.removed[input_name] then
+                if not cache.known[input_name] then
+                  FileUtil.copyFile(tempname, input_name)
+                  unknown_input_files[input_name] = name
+                else
+                  cache.known[input_name] = name
+                end
               else
-                cache.known[input_name] = name
+                cache.removed[input_name] = name
               end
             else
-              cache.removed[input_name] = name
+              print("!!! Can't get hash of "..tempname..", for "..name)
             end
-          else
-            print("!!! Can't get hash of "..tempname..", for "..name)
+            FileUtil.unlinkFile(tempname)
           end
-          FileUtil.unlinkFile(tempname)
+        else
+          print("!!! "..name.." couldn't be executed.")
         end
       else
-        print("!!! "..name.." couldn't be executed.")
+        print("!!! "..name.." couldn't be loaded.")
       end
-    else
-      print("!!! "..name.." couldn't be loaded.")
     end
-  end
-end)
+  end)
 
-FileUtil.forEachFile("Input", function (name)
-  if cache.removed[name] then
-    print("!!! Obsolete: ", cache.removed[name].." ("..name..")")
-    os.remove(name)
-  else
-    if not cache.known[name] then
-      unknown_input_files[name] = unknown_input_files[name] or name
-    end
-    
-    all_input_files[name] = cache.known[name] or unknown_input_files[name]
-  end
-end)
-
-local function ProcessObjective(category, name, objective, result)
-  local istring = "obj."..category.."."..name
-  
-  if category ~= "item" then
-    local seen = 0
-    if objective.pos then for i, pos in pairs(objective.pos) do
-      seen = seen + pos[4]
-    end end
-    
-    result[istring..".seen"] = (result[istring..".seen"] or 0) + seen
-  end
-  
-  if objective.vendor then
-    result[istring..".vend"] = (result[istring..".vend"] or 0) + #objective.vendor
-  end
-  
-  if objective.drop then for monster, count in pairs(objective.drop) do
-    result[istring] = (result[istring] or 0) + count
-  end end
-end
-
-local function ProcessQuest(faction, level, name, quest, result)
-  local qstring = "quest."..faction.."."..level.."."..name
-  result[qstring] = (result[qstring] or 0)+((quest.finish or quest.pos) and 1 or 0)
-  
-  if quest.item then for item_name, data in pairs(quest.item) do
-    ProcessObjective("item", item_name, data, result)
-  end end
-  
-  if quest.alt then for _, quest2 in pairs(quest.alt) do
-    ProcessQuest(faction, level, name, quest2, result)
-  end end
-end
-
-local function LoadFile(file)
-  local data = loadfile(file)
-  local result = {}
-  if data then
-    local loaded = {}
-    setfenv(data, loaded)
-    data()
-    
-    if loaded.QuestHelper_UID then
-      result.uid = loaded.QuestHelper_UID
-      result.loc = loaded.QuestHelper_Locale
-      result.time = loaded.QuestHelper_SaveDate
+  FileUtil.forEachFile("Input", function (name)
+    if cache.removed[name] then
+      print("!!! Obsolete: ", cache.removed[name].." ("..name..")")
+      os.remove(name)
     else
-      if type(loaded.QuestHelper_Quests) == "table" then for faction, levels in pairs(loaded.QuestHelper_Quests) do
-        if type(levels) == "table" then for level, quest_list in pairs(levels) do
-          if type(quest_list) == "table" then for name, quest in pairs(quest_list) do
-            ProcessQuest(faction, level, name, quest, result)
-          end end
-        end end
+      if not cache.known[name] then
+        unknown_input_files[name] = unknown_input_files[name] or name
+      end
+      
+      all_input_files[name] = cache.known[name] or unknown_input_files[name]
+    end
+  end)
+
+  local function ProcessObjective(category, name, objective, result)
+    local istring = "obj."..category.."."..name
+    
+    if category ~= "item" then
+      local seen = 0
+      if objective.pos then for i, pos in pairs(objective.pos) do
+        seen = seen + pos[4]
       end end
       
-      if type(loaded.QuestHelper_Objectives) == "table" then for category, objectives in pairs(loaded.QuestHelper_Objectives) do
-        if type(objectives) == "table" then for name, objective in pairs(objectives) do
-          ProcessObjective(category, name, objective, result)
+      result[istring..".seen"] = (result[istring..".seen"] or 0) + seen
+    end
+    
+    if objective.vendor then
+      result[istring..".vend"] = (result[istring..".vend"] or 0) + #objective.vendor
+    end
+    
+    if objective.drop then for monster, count in pairs(objective.drop) do
+      result[istring] = (result[istring] or 0) + count
+    end end
+  end
+
+  local function ProcessQuest(faction, level, name, quest, result)
+    local qstring = "quest."..faction.."."..level.."."..name
+    result[qstring] = (result[qstring] or 0)+((quest.finish or quest.pos) and 1 or 0)
+    
+    if quest.item then for item_name, data in pairs(quest.item) do
+      ProcessObjective("item", item_name, data, result)
+    end end
+    
+    if quest.alt then for _, quest2 in pairs(quest.alt) do
+      ProcessQuest(faction, level, name, quest2, result)
+    end end
+  end
+
+  local function LoadFile(file)
+    local data = loadfile(file)
+    local result = {}
+    if data then
+      local loaded = {}
+      setfenv(data, loaded)
+      data()
+      
+      QuestHelper_UpgradeDatabase(loaded)
+      
+      if loaded.QuestHelper_UID then
+        result.uid = loaded.QuestHelper_UID
+        result.time = loaded.QuestHelper_SaveDate
+      else
+        if type(loaded.QuestHelper_Quests) == "table" then for faction, levels in pairs(loaded.QuestHelper_Quests) do
+          if type(levels) == "table" then for level, quest_list in pairs(levels) do
+            if type(quest_list) == "table" then for name, quest in pairs(quest_list) do
+              ProcessQuest(faction, level, name, quest, result)
+            end end
+          end end
         end end
-      end end
-    end
-  end
-  
-  return result
-end
-
-local function ObsoletedBy(data1, data2)
-  if data1.uid or data2.uid then
-    return data1.loc == data2.loc and data1.uid == data2.uid and (data1.time or 0) >= (data2.time or 0)
-  end
-  
-  for key, value in pairs(data1) do
-    local value2 = data2[key]
-    if value2 == nil or value2 < value then
-      return false
-    end
-  end
-  return true
-end
-
-local checked = {}
-
-for new_name in pairs(unknown_input_files) do
-  print("Checking: ", unknown_input_files[new_name])
-  local data = LoadFile(new_name)
-  cache.known[new_name] = unknown_input_files[new_name]
-  checked[new_name] = true
-  for existing_name in pairs(all_input_files) do
-    if not checked[existing_name] then
-      local data2 = LoadFile(existing_name)
-      if ObsoletedBy(data, data2) then
-        print("!!! Obsolete: ", unknown_input_files[new_name])
-        print("!!!       By: ", all_input_files[existing_name])
-        print("")
         
-        os.remove(new_name)
-        all_input_files[new_name] = nil
-        cache.removed[new_name] = unknown_input_files[new_name]
-        cache.known[new_name] = nil
-        unknown_input_files[new_name] = nil
-        break
-      elseif ObsoletedBy(data2, data) then
-        print("!!! Obsolete: ", all_input_files[existing_name])
-        print("!!!       By: ", unknown_input_files[new_name])
-        print("")
-        
-        os.remove(existing_name)
-        all_input_files[existing_name] = nil
-        cache.removed[existing_name] = all_input_files[existing_name]
-        cache.known[existing_name] = nil
-        unknown_input_files[existing_name] = nil
+        if type(loaded.QuestHelper_Objectives) == "table" then for category, objectives in pairs(loaded.QuestHelper_Objectives) do
+          if type(objectives) == "table" then for name, objective in pairs(objectives) do
+            ProcessObjective(category, name, objective, result)
+          end end
+        end end
+      end
+    end
+    
+    return result
+  end
+
+  local function ObsoletedBy(data1, data2)
+    if data1.uid or data2.uid then
+      return data1.loc == data2.loc and data1.uid == data2.uid and (data1.time or 0) >= (data2.time or 0)
+    end
+    
+    for key, value in pairs(data1) do
+      local value2 = data2[key]
+      if value2 == nil or value2 < value then
+        return false
+      end
+    end
+    return true
+  end
+
+  local checked = {}
+  local file_data = {}
+
+  for new_name, original_name in pairs(unknown_input_files) do
+    print("Checking: ", original_name)
+    local data = file_data[new_name]
+    if not data then
+      data = LoadFile(new_name)
+      file_data[new_name] = data
+    end
+    cache.known[new_name] = original_name
+    checked[new_name] = true
+    
+    local uid, last_save = data.uid, data.time
+    
+    if uid then
+      local existing = cache.uid[uid]
+      if not existing then
+        cache.uid[uid] = {file=new_name, save=last_save}
+        file2uid[new_name] = uid
+      else
+        if existing.save >= last_save then
+          print("!!! Obsolete: ", original_name)
+          print("!!!       By: ", all_input_files[existing.file])
+          print("")
+          os.remove(new_name)
+          file_data[new_name] = nil
+          all_input_files[new_name] = nil
+          cache.removed[new_name] = original_name
+          cache.known[new_name] = nil
+          unknown_input_files[new_name] = nil
+        else
+          print("!!! Obsolete: ", all_input_files[existing.file])
+          print("!!!       By: ", original_name)
+          print("")
+          
+          os.remove(existing.file)
+          file_data[existing.file] = nil
+          file2uid[existing.file] = nil
+          file2uid[new_name] = uid
+          cache.removed[existing.file] = all_input_files[existing.file]
+          all_input_files[existing.file] = nil
+          cache.known[existing.file] = nil
+          existing.file = new_name
+        end
+      end
+    else
+      for existing_name, existing_original_name in pairs(all_input_files) do
+        if not checked[existing_name] and not file2uid[existing_name] then
+          local data2 = file_data[existing_name]
+          if not data2 then
+            data2 = LoadFile(existing_name)
+            file_data[existing_name] = data2
+          end
+          
+          if not data2.uid then
+            if ObsoletedBy(data, data2) then
+              print("!!! Obsolete: ", original_name)
+              print("!!!       By: ", existing_original_name)
+              print("")
+              
+              os.remove(new_name)
+              file_data[new_name] = nil
+              all_input_files[new_name] = nil
+              cache.removed[new_name] = original_name
+              cache.known[new_name] = nil
+              unknown_input_files[new_name] = nil
+              break
+            elseif ObsoletedBy(data2, data) then
+              print("!!! Obsolete: ", existing_original_name)
+              print("!!!       By: ", original_name)
+              print("")
+              
+              os.remove(existing_name)
+              file_data[existing_name] = nil
+              all_input_files[existing_name] = nil
+              cache.removed[existing_name] = existing_original_name
+              cache.known[existing_name] = nil
+              unknown_input_files[existing_name] = nil
+            end
+          end
+        end
       end
     end
   end
+
+  checked, file_data = nil, nil
+
+  saveCache()
+
+  print("Compiling Lightheaded/eql3 data. . .")
+  ProcessExternal()
+
+  for name, origin in pairs(all_input_files) do
+    print("Compiling: ", origin)
+    CompileInputFile(name)
+  end
+
+  print("Writing: ../static.lua")
+
+  local stream = io.open("../static.lua", "w")
+  stream:write(ScanAndDumpVariable(CompileFinish(), "QuestHelper_StaticData"))
+  io.close(stream)
+elseif not FileUtil.fileExists("../static.lua") then
+  print("../static.lua doesn't exist; you can't skip the compile step.")
+  return 1
 end
-
-saveCache()
-
-print("Compiling Lightheaded/eql3 data. . .")
-ProcessExternal()
-
-for name, origin in pairs(all_input_files) do
-  print("Compiling: ", origin)
-  CompileInputFile(name)
-end
-
-print("Writing: ../static.lua")
-
-local stream = io.open("../static.lua", "w")
-stream:write(ScanAndDumpVariable(CompileFinish(), "QuestHelper_StaticData"))
-io.close(stream)
 
 print("Creating: Icons.tga")
 if not FileUtil.fileExists("../Art/Icons.tga") then

@@ -3,9 +3,10 @@
 ## Author: smariot, vipersniper
 ## Notes: Calculates an optimal route for you to follow while questing.
 ## Version: PTR 2.4 v5
+## Notes-deDE: Berechnet eine optimale Route für dich, der du während dem Questen folgen kannst.
 ## OptionalDeps: Cartographer
 ## SavedVariables: QuestHelper_SaveVersion QuestHelper_Locale QuestHelper_Quests QuestHelper_Objectives QuestHelper_FlightInstructors QuestHelper_FlightRoutes QuestHelper_Pref QuestHelper_UID QuestHelper_SaveDate
-## SavedVariablesPerCharacter: QuestHelper_KnownFlightRoutes QuestHelper_Home
+## SavedVariablesPerCharacter: QuestHelper_KnownFlightRoutes QuestHelper_Home QuestHelper_CharVersion
 
 Astrolabe\Load.xml
 ChatThrottleLib\ChatThrottleLib.xml
@@ -40,3 +41,4 @@ nag.lua
 comm.lua
 help.lua
 pattern.lua
+flightpath.lua

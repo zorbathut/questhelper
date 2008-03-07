@@ -39,6 +39,10 @@ local function TableCompare(tbl_a, tbl_b)
     if type(av) == "table" then
       local cmp = TableCompare(av, bv)
       if cmp ~= 0 then return cmp end
+    elseif type(av) == "boolean" then
+      if av == bv then return 0
+      elseif av then return 1
+      else return -1 end
     else
       if av < bv then return -1 end
       if av > bv then return 1 end
@@ -57,10 +61,24 @@ local table_list = {}
 local table_dat = {}
 
 local function FindSameTable(tbl)
-  local mn, mx = 1, #table_list+1
+  local sz = 0
+  local key = nil
+  while true do
+    key = next(tbl, key)
+    if not key then break end
+    sz = sz + 1
+  end
+  
+  local list = table_list[sz]
+  if not list then
+    list = {}
+    table_list[sz] = list
+  end
+  
+  local mn, mx = 1, #list+1
   while mn ~= mx do
     local m = math.floor((mn+mx)*0.5)
-    local ltbl = table_list[m]
+    local ltbl = list[m]
     local cmp = TableCompare(ltbl, tbl)
     if cmp == -1 then
       mx = m
@@ -71,7 +89,7 @@ local function FindSameTable(tbl)
     end
   end
   
-  table.insert(table_list, mn, tbl)
+  table.insert(list, mn, tbl)
   local dat = {}
   table_dat[tbl] = dat
   return tbl, dat

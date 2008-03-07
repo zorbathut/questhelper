@@ -254,6 +254,25 @@ local function QuestHelper_ConvertPositionList(list)
   end
 end
 
+local function QuestHelper_ConvertFaction(locale, faction)
+  if faction == 1 or faction == "Alliance" or faction == FACTION_ALLIANCE then return 1
+  elseif faction == 2 or faction == "Horde" or faction == FACTION_HORDE then return 2
+  else
+    if locale == "enUS" then
+      if faction == "Alliance" then return 1
+      elseif faction == "Horde" then return 2 end
+    elseif locale == "frFR" then
+      if faction == "Alliance" then return 1
+      elseif faction == "Horde" then return 2 end
+    elseif locale == "deDE" then
+      if faction == "Alliance" then return 1
+      elseif faction == "Horde" then return 2 end
+    end
+    
+    assert(false, "Unknown faction: "..locale.."/'"..faction.."'")
+  end
+end
+
 function QuestHelper_UpgradeDatabase(data)
   if data.QuestHelper_SaveVersion == 1 then
     
@@ -389,6 +408,37 @@ function QuestHelper_UpgradeDatabase(data)
     
     data.QuestHelper_SaveVersion = 6
   end
+  
+  if data.QuestHelper_SaveVersion == 6 then
+    -- Redoing how flightpaths work, previously collected flightpath data is now obsolete.
+    data.QuestHelper_FlightRoutes = {}
+    
+    -- FlightInstructors table should be fine, will leave it.
+    -- Upgrading per-character data is handled in main.lua.
+    
+    -- Also converting factions to numbers, 1 for Alliance, 2 for Horde.
+    local replacement = {}
+    for faction, dat in pairs(data.QuestHelper_Quests) do
+      replacement[QuestHelper_ConvertFaction(data.QuestHelper_Locale, faction)] = dat
+    end
+    data.QuestHelper_Quests = replacement
+    
+    replacement = {}
+    if data.QuestHelper_FlightInstructors then for faction, dat in pairs(data.QuestHelper_FlightInstructors) do
+      replacement[QuestHelper_ConvertFaction(data.QuestHelper_Locale, faction)] = dat
+    end end
+    data.QuestHelper_FlightInstructors = replacement
+    
+    for cat, list in pairs(data.QuestHelper_Objectives) do
+      for name, obj in pairs(list) do
+        if obj.faction then
+          obj.faction = QuestHelper_ConvertFaction(data.QuestHelper_Locale, obj.faction)
+        end
+      end
+    end
+    
+    data.QuestHelper_SaveVersion = 7
+  end
 end
 
 function QuestHelper_UpgradeComplete()
@@ -401,6 +451,7 @@ function QuestHelper_UpgradeComplete()
   QuestHelper_PrunePositionList = nil
   QuestHelper_ConvertPosition = nil
   QuestHelper_ConvertPositionList = nil
+  QuestHelper_ConvertFaction = nil
   QuestHelper_UpgradeDatabase = nil
   QuestHelper_UpgradeComplete = nil
 end

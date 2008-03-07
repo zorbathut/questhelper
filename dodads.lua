@@ -162,6 +162,13 @@ function QuestHelper:CreateWorldMapWalker()
       
       local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
       
+      if self.frame.target then
+        cur = self.frame.target
+        local t = self.frame:CreateTable()
+        t[1], t[2] = convertLocationToScreen(cur, c, z)
+        table.insert(points, t)
+      end
+      
       for i, obj in pairs(self.frame.route) do
         local path, d = self.frame:ComputeRoute(cur, obj.pos)
         
@@ -347,8 +354,13 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
       self.index = i
       
       if i == 1 then
+        -- if it's the very next objective, give it the green background
         self.bg = QuestHelper:CreateIconTexture(self, 13)
+      elseif not objective:CouldBeFirst() then
+        -- if there are still prerequisites, make it grey
+        self.bg = QuestHelper:CreateIconTexture(self, 16)
       else
+        -- otherwise give it the background selected by the objective
         self.bg = QuestHelper:CreateIconTexture(self, objective.icon_bg)
       end
       

@@ -60,6 +60,7 @@ local static_zone_transitions =
    {21, 24, 0.894, 0.358}, -- Darnassus <--> Teldrassil
    {22, 11, 0.697, 0.604}, -- Mulgore <--> The Barrens
    {22, 23, 0.376, 0.33}, -- Mulgore <--> Thunder Bluff
+   {22, 23, 0.403, 0.193}, -- Mulgore <--> Thunder Bluff
    {3, 12, 0.247, 0.494}, -- Azuremyst Isle <--> The Exodar
    {3, 12, 0.369, 0.469}, -- Azuremyst Isle <--> The Exodar
    {3, 9, 0.42, 0.013}, -- Azuremyst Isle <--> Bloodmyst Isle
@@ -118,7 +119,8 @@ local static_zone_transitions =
    {58, 60, 0.783, 0.545}, -- Nagrand <--> Shattrath City
    {60, 55, 0.782, 0.492}, -- Shattrath City <--> Terokkar Forest
    {54, 59, 0.842, 0.284}, -- Blade's Edge Mountains <--> Netherstorm
-   {54, 57, 0.482, 0.996}, -- Blade's Edge Mountains <--> Zangarmarsh
+   {54, 57, 0.522, 0.996}, -- Blade's Edge Mountains <--> Zangarmarsh
+   {54, 57, 0.312, 0.94}, -- Blade's Edge Mountains <--> Zangarmarsh
    {56, 55, 0.353, 0.901}, -- Hellfire Peninsula <--> Terokkar Forest
    {56, 57, 0.093, 0.519}, -- Hellfire Peninsula <--> Zangarmarsh
    {58, 55, 0.8, 0.817}, -- Nagrand <--> Terokkar Forest
@@ -617,11 +619,11 @@ function QuestHelper:ResetPathing()
     self:TextOut("You can teleport to "..(node.name or "nil").. " in "..self:TimeString(info[1]+info[2]-GetTime()))
   end]]
   
-  if self.faction == FACTION_ALLIANCE then
+  if self.faction == 1 then
     for i, data in ipairs(static_alliance_routes) do
       self:CreateAndAddStaticNodePair(data)
     end
-  elseif self.faction == FACTION_HORDE then
+  elseif self.faction == 2 then
     for i, data in ipairs(static_horde_routes) do
       self:CreateAndAddStaticNodePair(data)
     end
@@ -653,40 +655,37 @@ function QuestHelper:ResetPathing()
   self:ReleaseTable(st)
   
   -- Create and link the flight route nodes.
-  for c, start_list in pairs(QuestHelper_KnownFlightRoutes) do
-    local local_fi = QuestHelper_FlightInstructors[self.faction]
-    local static_fi = QuestHelper_StaticData[self.locale] and
-                      QuestHelper_StaticData[self.locale].flight_instructors and
-                      QuestHelper_StaticData[self.locale].flight_instructors[self.faction]
-    
-    for start, end_list in pairs(start_list) do
-      for dest in pairs(end_list) do
-        local a_npc, b_npc = (local_fi and local_fi[start]) or (static_fi and static_fi[start]), (local_fi and local_fi[dest]) or (static_fi and static_fi[dest])
+  local flight_times = self.flight_times
+  if not flight_times then
+    self:buildFlightTimes()
+    flight_times = self.flight_times
+  end
+  
+  for start, list in pairs(flight_times) do
+    for dest, duration in pairs(list) do
+      local a_npc, b_npc = self:getFlightInstructor(start), self:getFlightInstructor(dest)
+      
+      if a_npc and b_npc then
+        local a, b = flight_master_nodes[start], flight_master_nodes[dest]
         
-        if a_npc and b_npc then
-          local a, b = flight_master_nodes[start], flight_master_nodes[dest]
-          
-          if not a then
-            a = getNPCNode(a_npc)
-            if a then
-              flight_master_nodes[start] = a
-              a.name = (select(3, string.find(start, "^(.*),")) or start).." flight point"
-            end
+        if not a then
+          a = getNPCNode(a_npc)
+          if a then
+            flight_master_nodes[start] = a
+            a.name = (select(3, string.find(start, "^(.*),")) or start).." flight point"
           end
-          
-          if not b then
-            b = getNPCNode(b_npc)
-            if b then
-              flight_master_nodes[dest] = b
-              b.name = (select(3, string.find(dest, "^(.*),")) or dest).." flight point"
-            end
+        end
+        
+        if not b then
+          b = getNPCNode(b_npc)
+          if b then
+            flight_master_nodes[dest] = b
+            b.name = (select(3, string.find(dest, "^(.*),")) or dest).." flight point"
           end
-          
-          if a and b then
-            a:Link(b, self:GetFlightTime(c, start, dest))
-          else
-            self:TextOut("Can't link!")
-          end
+        end
+        
+        if a and b then
+          a:Link(b, duration+5)
         end
       end
     end
@@ -743,13 +742,11 @@ function QuestHelper:ResetPathing()
   end
   
   -- TODO: This is a work around until I fix shouldLink
-  for c, start_list in pairs(QuestHelper_KnownFlightRoutes) do
-    for start, end_list in pairs(start_list) do
-      for dest in pairs(end_list) do
-        local a, b = flight_master_nodes[start], flight_master_nodes[dest]
-        if a and b then
-          a:Link(b, self:GetFlightTime(c, start, dest))
-        end
+  for start, list in pairs(flight_times) do
+    for dest, duration in pairs(list) do
+      local a, b = flight_master_nodes[start], flight_master_nodes[dest]
+      if a and b then
+        a:Link(b, duration+5)
       end
     end
   end
