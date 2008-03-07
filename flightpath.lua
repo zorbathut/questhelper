@@ -1,6 +1,8 @@
 local real_TakeTaxiNode = TakeTaxiNode
+local real_TaxiNodeOnButtonEnter= TaxiNodeOnButtonEnter
 
 assert(type(real_TakeTaxiNode) == "function")
+assert(type(real_TaxiNodeOnButtonEnter) == "function")
 
 local function LookupName(x, y)
   local best, d2
@@ -17,7 +19,7 @@ local function LookupName(x, y)
   return best
 end
 
-TakeTaxiNode = function(id)
+local function getRoute(id)
   for i = 1,NumTaxiNodes() do
     if GetNumRoutes(i) == 0 then
       local routes = GetNumRoutes(id)
@@ -35,18 +37,45 @@ TakeTaxiNode = function(id)
           path_hash = QuestHelper:HashString(path_str)
         end
         
-        local flight_data = QuestHelper.flight_data
-        
-        if not flight_data then
-          flight_data = QuestHelper:CreateTable()
-          QuestHelper.flight_data = flight_data
-        end
-        
-        flight_data.origin = origin
-        flight_data.dest = dest
-        flight_data.hash = path_hash
+        return origin, dest, path_hash
       end
     end
+  end
+end
+
+TaxiNodeOnButtonEnter = function(btn)
+  real_TaxiNodeOnButtonEnter(btn)
+  
+  if QuestHelper_Pref.flight_time then
+    local index = btn:GetID()
+    if TaxiNodeGetType(index) == "REACHABLE" then
+      local origin, dest, hash = getRoute(index)
+      local eta = origin and QuestHelper:computeLinkTime(origin, dest, hash, QuestHelper.flight_times[origin] and QuestHelper.flight_times[origin][dest])
+      
+      if eta then -- Going to replace the tooltip.
+        GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
+        GameTooltip:ClearLines()
+        GameTooltip:AddLine(dest, "", 1.0, 1.0, 1.0)
+        GameTooltip:AddDoubleLine(QHText("TRAVEL_ESTIMATE"), QHFormat("TRAVEL_ESTIMATE_VALUE", eta or 0))
+        SetTooltipMoney(GameTooltip, TaxiNodeCost(index))
+        GameTooltip:Show()
+      end
+    end
+  end
+end
+
+TakeTaxiNode = function(id)
+  local origin, dest, hash = getRoute(id)
+  
+  if origin then
+    if not flight_data then
+      flight_data = QuestHelper:CreateTable()
+      QuestHelper.flight_data = flight_data
+    end
+    
+    flight_data.origin = origin
+    flight_data.dest = dest
+    flight_data.hash = hash
   end
   
   real_TakeTaxiNode(id)
