@@ -1,3 +1,9 @@
+== Version 0.36 Uploaded 03/08/2008 ==
+
+* Added ETA to flight node tooltips, requires the display of flight times to be enabled.
+* Fixed a problem preventing flight routes being looked up from the static data.
+* Includes jeskeca's patch to give undoable objectives (incomplete quests for example) grey backgrounds.
+
 == Version 0.35f Uploaded 03/05/2008 ==
 
 * Added <code>/qh ftime</code> to toggle display of the flight timer. If you're already flying, it doesn't apply to the current flight.
