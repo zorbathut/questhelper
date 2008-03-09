@@ -34,6 +34,23 @@ local function reference(tbl)
   return tbl
 end
 
+-- Removes a reference to a table, and then returns that table.
+-- This is similar to release, except the table isn't released if the reference count reaches 0.
+-- 
+-- Assuming the a called function invokes reference on the table, this would make
+--   func(unreference(table))
+-- the same as
+--   func(table) release(table)
+-- 
+-- This function is just a convenience, and the second form is safer in case for
+-- some reason func doesn't actually create their own reference.
+local function unreference(tbl)
+  local ref_count = (rawget(tbl, "ref_count") or 1)
+  assert(ref_count > 0, "Attempt to unreference a table with no references.")
+  rawset(tbl, "ref_count", ref_count-1)
+  return tbl
+end
+
 -- Releases a table.
 -- If the table has a 'ref_count' key, it is decreased, and the table is not released unless this value reached 0.
 -- If the table's metatable has an "onRelease" key, it is invoked before the metatable is removed from the table.
@@ -62,6 +79,9 @@ local function release(tbl)
   for key in pairs(tbl) do tbl[key] = nil end
 end
 
+-- Returns how many tables have been created but not yet released,
+-- and the number of released tables that are available to be
+-- recycled in future table creations.
 local function pool()
   return used, free
 end
@@ -97,10 +117,10 @@ local function set(tbl, value, key, n, ...)
 end
 
 -- Helper for the array(...) function, populates the table.
-local function array_helper(tbl, i, val, ...)
+local function append(tbl, val, ...)
   if val then
-    tbl[i] = val
-    array_helper(tbl, i+1, ...)
+    rawset(tbl, #tbl+1, val)
+    append(tbl, ...)
   end
 end
 
@@ -109,14 +129,16 @@ end
 -- a new table each call.
 local function array(...)
   local tbl = create()
-  array_helper(tbl, 1, ...)
+  append(tbl, ...)
   return tbl
 end
 
 QuestHelper.create = create
 QuestHelper.reference = reference
+QuestHelper.unreference = unreference
 QuestHelper.release = release
 QuestHelper.pool = pool
 QuestHelper.get = get
 QuestHelper.set = set
+QuestHelper.append = append
 QuestHelper.array = array
