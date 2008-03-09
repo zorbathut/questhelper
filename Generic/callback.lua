@@ -8,27 +8,9 @@ local Callback = {}
 
 -- Initiates a callback that will invoke func with some arguments, plus any additional arguments
 -- passed at the time the callback is invoked.
--- If func is a callback, then this function copies it, creates references to anything that callback was marked to release,
--- and then adds any additional arguments.
 function Callback:onCreate(func, ...)
-  -- Callback is organized as an array:
-  --   Element 0 is the function to call.
-  --   Elements 1 through #self are the arguments to pass to that function.
-  --   Elements self.r through -1 are tables to release when the callback is released.
-  
-  if type(func) == "table" then
-    assert(getmetatable(func) == Callback, "Expected callback to copy.")
-    -- Creating a callback to a callback. For this special case, we'll copy it.
-    rawset(self, 0, rawget(func, 0))
-    local r = rawget(func, "r")
-    rawset(self, "r", r)
-    for i = 1,#func do rawset(self, i, rawget(func, i)) end
-    for i = -1,r,-1 do rawset(self, i, reference(rawget(func, i))) end
-  else
-    assert(type(func) == "function", "Expected function as first argument.")
-    rawset(self, 0, func)
-    rawset(self, "r", 0)
-  end
+  rawset(self, 0, func)
+  rawset(self, "r", 0)
   append(self, ...)
 end
 

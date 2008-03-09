@@ -89,38 +89,48 @@ end
 -- Gets a value from nested tables.
 -- get(x, a, b, c) is the same as x[a][b][c], except that if any of the nested tables don't exist,
 -- nil is returned instead of raising an error.
-local function get(tbl, key, ...)
-  if tbl and key then
-    assert(type(tbl) == "table", "Expected table argument.")
-    return get(tbl[key], ...)
+local function get(tbl, ...)
+  assert(type(tbl) == "table", "Expected table argument.")
+  
+  for i = 1,select("#", ...) do
+    tbl = rawget(tbl, select(i, ...))
+    if not tbl then return end
   end
+  
   return tbl
 end
 
 -- Sets a value in a nested table, creating any missing tables if they don't exist.
 -- get(x, y, a, b, c) is the same as x[a][b][c] = y, except that if any of the nested tables don't exist,
 -- they're created.
-local function set(tbl, value, key, n, ...)
-  assert(type(tbl) == "table", "Expected table argument.")
+-- Returns the previous value it replaces.
+local function set(tbl, value, ...)
+  local c = select("#", ...)
   
-  if n then
-    local tbl2 = tbl[key]
-    if not tbl2 then
-      tbl2 = createTable()
-      tbl[key] = tbl2
+  for i = 1,c-1 do
+    local k = select(i, ...)
+    local tbl2 = rawget(tbl, k)
+    if tbl2 then
+      tbl = tbl2
+    else
+      tbl2 = create()
+      rawset(tbl, k, tbl2)
+      tbl = tbl2
     end
-    set(tbl2, value, n, ...)
   end
   
-  tbl[key] = value
-  return value
+  local k = select(c, ...)
+  local oldvalue = rawget(tbl, k)
+  rawset(tbl, k, value)
+  
+  return oldvalue
 end
 
 -- Helper for the array(...) function, populates the table.
-local function append(tbl, val, ...)
-  if val then
-    rawset(tbl, #tbl+1, val)
-    append(tbl, ...)
+local function append(tbl, ...)
+  local base = #tbl
+  for i = 1,select("#", ...) do
+    rawset(tbl, base+i, select(i, ...))
   end
 end
 
