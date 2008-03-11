@@ -1,3 +1,10 @@
+== Version 0.36b Uploaded 03/12/2008 ==
+
+* Should no longer suggest getting the flight point in Moonglade if you're not a Druid.
+* Should hopefully not crash when trying to calculate flight times.
+* An interrupted flight timer should no longer reappear if you lose control of your player.
+* Added an approximation symbol to flight times that are just guesses. Although it won't show up for times that were guessed from taking a known path and reversing it, I didn't bother checking for that case.
+
 == Version 0.36 Uploaded 03/08/2008 ==
 
 * Added ETA to flight node tooltips, requires the display of flight times to be enabled.
