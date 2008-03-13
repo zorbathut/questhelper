@@ -363,6 +363,8 @@ end
 local visited = {}
 
 local function getDataTime(ft, origin, dest)
+  if true then return 60 end
+  
   local str = nil
   local data = ft[origin][dest]
   local t = data[1]
@@ -446,7 +448,7 @@ function QuestHelper:buildFlightTimes()
                 dat[1], dat[2] = data[1]+data2[1], dest
                 local t2 = getDataTime(flight_times, origin, dest2)
                 
-                if t2 and t2 < dat[1] then
+                if t2 and t2 < o1 then
                   dat[1] = t2
                   cont = true
                 else

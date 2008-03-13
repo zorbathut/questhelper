@@ -1,5 +1,6 @@
-== Version 0.36d Uploaded 03/13/2008 ==
+== Version 0.36e Uploaded 03/13/2008 ==
 
+* Should now not lock up your computer.
 * Should no longer suggest getting the flight point in Moonglade if you're not a Druid.
 * Should hopefully not crash when trying to calculate flight times.
 * An interrupted flight timer should no longer reappear if you lose control of your player.
