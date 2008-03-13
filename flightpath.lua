@@ -430,7 +430,13 @@ function QuestHelper:buildFlightTimes()
               dat[1], dat[2] = data[1]+data2[1], dest
               list[dest2] = dat
               dat[1] = getDataTime(flight_times, origin, dest2)
-              cont = true
+              
+              if not dat[1] then
+                self:ReleaseTable(dat)
+                list[dest2] = nil
+              else
+                cont = true
+              end
             else
               local o1, o2 = dat[1], dat[2] -- Temporarly replace old data for the sake of looking up its time.
               if o2 ~= dest then

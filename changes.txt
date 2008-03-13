@@ -1,4 +1,4 @@
-== Version 0.36b Uploaded 03/12/2008 ==
+== Version 0.36c Uploaded 03/13/2008 ==
 
 * Should no longer suggest getting the flight point in Moonglade if you're not a Druid.
 * Should hopefully not crash when trying to calculate flight times.
