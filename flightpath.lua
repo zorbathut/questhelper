@@ -346,10 +346,13 @@ function QuestHelper:addLinkInfo(data, flight_times)
         if origin ~= ignored_fp and QuestHelper_KnownFlightRoutes[dest] and hashs[0] then
           local tbl2 = tbl[dest]
           if not tbl2 then
-            tbl2 = self:CreateTable()
-            tbl[dest] = tbl2
-            tbl2[1] = self:computeLinkTime(origin, dest)
-            tbl2[2] = dest
+            local t = self:computeLinkTime(origin, dest)
+            if t then
+              tbl2 = self:CreateTable()
+              tbl[dest] = tbl2
+              tbl2[1] = t
+              tbl2[2] = dest
+            end
           end
         end
       end
@@ -442,11 +445,12 @@ function QuestHelper:buildFlightTimes()
               if o2 ~= dest then
                 dat[1], dat[2] = data[1]+data2[1], dest
                 local t2 = getDataTime(flight_times, origin, dest2)
-                dat[1], dat[2] = o1, o2
                 
                 if t2 and t2 < dat[1] then
-                  dat[1], dat[2] = t2, dest
+                  dat[1] = t2
                   cont = true
+                else
+                  dat[1], dat[2] = o1, o2
                 end
               end
             end
