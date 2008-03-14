@@ -363,8 +363,6 @@ end
 local visited = {}
 
 local function getDataTime(ft, origin, dest)
-  if true then return 60 end
-  
   local str = nil
   local data = ft[origin][dest]
   local t = data[1]
@@ -518,7 +516,7 @@ function QuestHelper:taxiMapOpened()
       fi_table[origin] = npc
     end
     
-    if not flight_times[origin] then
+    if not self.flight_times[origin] then
       -- If this is true, then we probably either didn't who the flight instructor here was,
       -- or did know but didn't know where.
       -- As we should now know, the flight times should be updated.
