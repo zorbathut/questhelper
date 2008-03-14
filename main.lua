@@ -120,6 +120,8 @@ function QuestHelper:OnEvent(event)
       return
     end
     
+    self.player_level = UnitLevel("player")
+    
     self:ResetPathing()
     
     self:UnregisterEvent("VARIABLES_LOADED")
@@ -145,8 +147,6 @@ function QuestHelper:OnEvent(event)
         QuestHelper_Pref[key] = def
       end
     end
-    
-    self.player_level = UnitLevel("player")
     
     if QuestHelper_Pref.share and not QuestHelper_Pref.solo then
       self:EnableSharing()
