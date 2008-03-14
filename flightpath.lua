@@ -502,9 +502,7 @@ function QuestHelper:taxiMapOpened()
     if not QuestHelper_KnownFlightRoutes[origin] then
       -- Player didn't previously have this flight point, will need to recalculate pathing data to account for it.
       QuestHelper_KnownFlightRoutes[origin] = true
-      self:TextOut(QHText("ROUTES_CHANGED"))
-      self:TextOut(QHText("WILL_RESET_PATH"))
-      self.defered_graph_reset = true
+      altered = true
     end
     
     local npc = UnitName("npc")
@@ -518,6 +516,13 @@ function QuestHelper:taxiMapOpened()
       end
       
       fi_table[origin] = npc
+    end
+    
+    if not flight_times[origin] then
+      -- If this is true, then we probably either didn't who the flight instructor here was,
+      -- or did know but didn't know where.
+      -- As we should now know, the flight times should be updated.
+      altered = true
     end
     
     if self.flight_data and self:processFlightData(self.flight_data) then
