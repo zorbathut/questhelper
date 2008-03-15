@@ -1,3 +1,9 @@
+== Version 0.37 Uploaded 03/15/2008 ==
+
+* Fixed the route through the Dark Portal. The pathing data got calculated before the player's level was set, and thus the route was set to take 24 hours, which was my solution to prevent QuestHelper from directing low level players from wandering into OutLands.
+* I think the previous version had all unknown flight times estimated as taking one minute, which I had done while debugging the lockups. It should now be back to reasonably accurate guessing.
+* Talking to a flightmaster QuestHelper didn't previously know of should now recalculate the pathing data. This mostly applies to non-English users, where QuestHelper hasn't learned them already.
+
 == Version 0.36e Uploaded 03/13/2008 ==
 
 * Should now not lock up your computer.
