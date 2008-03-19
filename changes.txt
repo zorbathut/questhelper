@@ -1,3 +1,7 @@
+== Version 0.38 Uploaded 03/18/2009 ==
+
+* Wrote a spider to copy quest data from www.wowguru.com, to suppliment the dwindling supply of non-English quest data.
+
 == Version 0.37 Uploaded 03/15/2008 ==
 
 * Fixed the route through the Dark Portal. The pathing data got calculated before the player's level was set, and thus the route was set to take 24 hours, which was my solution to prevent QuestHelper from directing low level players from wandering into OutLands.

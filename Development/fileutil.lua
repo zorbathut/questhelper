@@ -14,8 +14,23 @@ local is_windows = os.getenv("HOMEDRIVE") ~= nil or
                    os.getenv("WINDIR") ~= nil or
                    os.getenv("OS") == "Windows_NT"
 
+local home = os.getenv("HOME")
+
+FileUtil.fileName = function(filename)
+  local home_path = select(3, string.find(filename, "^~(.*)$"))
+  
+  if home_path then
+    return (is_windows and (os.getenv("HOMEDRIVE")..os.getenv("HOMEPATH")) or os.getenv("HOME"))..home_path
+  end
+  
+  return filename
+end
+
 FileUtil.quoteFile = is_windows and function(filename)
   -- Escapes file names in Windows, and converts slashes to backslashes.
+  
+  filename = FileUtil.fileName(filename)
+  
   local result = ""
   for i=1,string.len(filename) do
     local c = string.sub(filename, i, i)
@@ -30,6 +45,9 @@ FileUtil.quoteFile = is_windows and function(filename)
   return result
 end or function(filename)
   -- Escapes file names in *nix, and converts backslashes  to slashes.
+  
+  filename = FileUtil.fileName(filename)
+  
   local result = ""
   for i=1,string.len(filename) do
     local c = string.sub(filename, i, i)
@@ -65,7 +83,7 @@ FileUtil.fileHash = function(filename)
 end
 
 FileUtil.fileExists = function(filename)
-  local stream = io.open(filename, "r")
+  local stream = io.open(FileUtil.fileName(filename), "r")
   if stream then
     local exists = stream:read() ~= nil
     io.close(stream)

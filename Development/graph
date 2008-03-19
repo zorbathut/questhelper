@@ -1,0 +1,102 @@
+#!/usr/bin/env lua
+
+-- This script creates a graph of the known quests for the various locales from static.lua using gnuplot.
+
+loadfile("../static.lua")()
+
+plotdata = {}
+
+for locale, data in pairs(QuestHelper_StaticData or {}) do
+  plotdata[locale] = {}
+  
+  for faction in pairs({1, 2}) do
+    levels = data.quest and data.quest[faction] or {}
+    
+    plotdata[locale][faction] = {}
+    
+    for level = 1,70 do
+      local list = levels[level] or {}
+      local count = 0
+      
+      for name, data in pairs(list) do
+        count = count + 1
+        if data.alt then
+          for hash in pairs(data.alt) do
+            count = count + 1
+          end
+        end
+      end
+      
+      plotdata[locale][faction][math.ceil(level/5)] = (plotdata[locale][faction][math.ceil(level/5)] or 0) + count
+    end
+  end
+end
+
+file = io.open("plot.dat", "w")
+
+local use_locale = {}
+
+for level = 1,14 do
+  local line = ""
+  for locale, data in pairs(plotdata) do
+    if data[1][level] > 0 or data[2][level] > 0 then use_locale[locale] = true end
+    line = line .. data[1][level].." "..data[2][level].." "
+  end
+  file:write(line.."\n")
+end
+
+use_locale["koKR"] = false
+use_locale["zhCN"] = false
+use_locale["esES"] = false
+
+io.close(file)
+
+local locale_count = 0
+for locale in pairs(plotdata) do
+  if use_locale[locale] then
+    locale_count = locale_count + 1
+  end
+end
+
+local locale_colour_alliance = {enUS="#ff0000", frFR="#00ff00", deDE="#0000ff", esES="#ffaa00", koKR="#00ffff", zhCN="#ff00ff"}
+local locale_colour_horde = {enUS="#dd0000", frFR="#00dd00", deDE="#0000dd", esES="#dd8800", koKR="#00dddd", zhCN="#dd00dd"}
+
+local command = nil
+local i, j = 1, 1
+for locale in pairs(plotdata) do
+  if use_locale[locale] then
+    local a = (j-0.5)/(locale_count+1)+0.5
+    local b = a + 1/(locale_count+1)
+    
+    command = (command and command..", " or "") .. "\"plot.dat\" using ($0+1):"..i..":($0+"..a.."):($0+"..b..") title \""..locale.."\" lc rgb '"..locale_colour_alliance[locale].."' with boxes"
+    command = (command and command..", " or "") .. "\"plot.dat\" using ($0+1):(-$"..(i+1).."):($0+"..a.."):($0+"..b..") notitle lc rgb '"..locale_colour_horde[locale].."' with boxes"
+    j = j + 1
+  end
+  i = i + 2
+end
+
+local stream = io.popen("gnuplot", "w")
+
+if stream then
+  stream:write("set terminal svg size 800,600\n")
+  stream:write("set output 'locale.svg'\n")
+  --stream:write("set terminal png notransparent size 1024,786\n")
+  --stream:write("set output 'locale.png'\n")
+  --stream:write("set terminal pdf colour\n")
+  --stream:write("set output 'locale.pdf'\n")
+  stream:write("set key title 'Quests'\n")
+  stream:write("set key top left Left reverse samplen 1\n")
+  stream:write("set style fill solid 1 border -1\n")
+  stream:write("set xlabel 'Level'\n")
+  local line = "set xtics ("
+  for i = 0,13 do
+    line = line .. "'" .. i*5+1 .. "-" .. i*5+5 .. "' "..i+1 .. (i==13 and ")\n" or ",")
+  end
+  stream:write(line)
+  stream:write("set ytics out scale 0 ('Alliance' 250, 'Horde' -250)\n")
+  if command then stream:write("plot [0:15]"..command..";\n") end
+  stream:flush()
+  io.close(stream)
+end
+
+os.remove("plot.dat")

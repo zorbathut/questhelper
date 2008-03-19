@@ -403,6 +403,27 @@ local function AddFlightRoute(locale, faction, start, destination, hash, value)
   end
 end
 
+local function addVendor(list, npc)
+  for _, existing in ipairs(list) do
+    if existing == npc then
+      return
+    end
+  end
+  
+  table.insert(list, npc)
+end
+
+local function addVendors(list, to_add)
+  if not list then list = {} end
+  
+  for _, npc in ipairs(to_add) do
+    addVendor(list, npc)
+    local known = false
+  end
+  
+  return list
+end
+
 local function AddObjective(locale, category, name, objective)
   if type(category) == "string"
      and type(name) == "string"
@@ -428,19 +449,7 @@ local function AddObjective(locale, category, name, objective)
         o.opened = (o.opened or 0) + objective.opened
       end
       if type(objective.vendor) == "table" then
-        if not o.vendor then o.vendor = {} end
-        
-        for _, v1 in ipairs(objective.vendor) do
-          local known = false
-          for _, v2 in ipairs(o.vendor) do
-            if v1 == v2 then
-              known = true
-              break
-            end
-          end
-          
-          if not known then table.insert(o.vendor, v1) end
-        end
+        o.vendor = addVendors(o.vendor, objective.vendor)
       end
       if type(objective.drop) == "table" then
         if not o.drop then o.drop = {} end
@@ -652,6 +661,7 @@ function handleTranslations()
     if l.objective then
       local item_map = {}
       local monster_map = {}
+      local quest_map = {}
       
       for id, data in pairs(WoWData.item) do
         if data.name[locale] then
@@ -665,57 +675,81 @@ function handleTranslations()
         end
       end
       
+      for id, data in pairs(WoWData.quest) do
+        if data.name[locale] then
+          quest_map[data.level.."/"..data.hash[locale].."/"..data.name[locale]] = id
+        end
+      end
+      
+      local function item2dat(data, item)
+        if not item then item = {} end
+        
+        item.quest = item.quest or data.quest
+        
+        if data.opened then
+          item.opened = (item.opened or 0) + data.opened
+          data.opened = nil
+        end
+        
+        if data.pos then
+          if not item.pos then
+            item.pos = data.pos
+          else
+            MergePositionLists(item.pos, data.pos)
+          end
+          
+          data.pos = nil
+        end
+        
+        if data.vendor then
+          if not item.vendor then
+            item.vendor = {}
+          end
+          
+          for i, npc in ipairs(data.vendor) do
+            local id = monster_map[npc]
+            if id then
+              addVendor(item.vendor, id)
+            end
+          end
+        end
+        
+        if data.drop then
+          if not item.drop then
+            item.drop = {}
+          end
+          
+          for name, count in pairs(data.drop) do
+            local id = monster_map[name]
+            if id then
+              item.drop[id] = (item.drop[id] or 0) + count
+              data.drop[name] = nil
+            end
+          end
+        end
+        
+        if data.contained then
+          if not item.contained then
+            item.contained = {}
+          end
+          
+          for name, count in pairs(data.contained) do
+            local id = item_map[name]
+            if id then
+              item.contained[id] = (item.contained[id] or 0) + count
+              data.contained[name] = nil
+            end
+          end
+        end
+        
+        return item
+      end
+      
       if l.objective.item then for name, data in pairs(l.objective.item) do
         local id = item_map[name]
         if id then
+          item2dat(data, WoWData.item[id])
           local item = WoWData.item[id]
-          
-          item.quest = item.quest or data.quest
-          
-          if data.opened then
-            item.opened = (item.opened or 0) + data.opened
-            data.opened = nil
-          end
-          
-          if data.pos then
-            if not item.pos then
-              item.pos = data.pos
-            else
-              MergePositionLists(item.pos, data.pos)
-            end
-            
-            data.pos = nil
-          end
-          
-          -- todo: vendors
-          
-          if data.drop then
-            if not item.drop then
-              item.drop = {}
-            end
-            
-            for name, count in pairs(data.drop) do
-              local id = monster_map[name]
-              if id then
-                item.drop[id] = (item.drop[id] or 0) + count
-                data.drop[name] = nil
-              end
-            end
-          end
-          
-          if data.contained then
-            if not item.contained then
-              item.contained = {}
-            end
-            
-            for name, count in pairs(data.contained) do
-              local id = item_map[name]
-              if id then
-                item.contained[id] = (item.drop[id] or 0) + count
-                data.contained[name] = nil
-              end
-            end
-          end
         end
       end end
       
@@ -744,12 +778,50 @@ function handleTranslations()
         end
       end end
       
-      -- TODO: quest items.
+      local function q2static(faction, name, data)
+        local id = quest_map[name]
+        if id then
+          local quest = WoWData.quest[id]
+          quest.faction[faction] = true
+          
+          print("Copying Quest", faction, name)
+          
+          if data.finish and next(data.finish) then
+            quest.finish = monster_map[CollapseDropList(data.finish)] or quest.finish
+          end
+          
+          if data.item then
+            quest.item = quest.item or {}
+            
+            for name, idata in pairs(data.item) do
+              local id = item_map[name]
+              if id then
+                quest.item[id] = item2dat(idata, quest.item[id])
+              end
+            end
+          end
+        end
+      end
+      
+      if l.quest then for faction, fqlist in pairs(l.quest) do
+        for level, qlist in pairs(fqlist) do
+          for name, qdata in pairs(qlist) do
+            if qdata.hash then
+              q2static(faction, level.."/"..qdata.hash.."/"..name, qdata)
+            end
+            
+            if qdata.alt then for hash, qdata2 in pairs(qdata.alt) do
+              q2static(faction, level.."/"..hash.."/"..name, qdata2)
+            end end
+          end
+        end
+      end end
     end
   end
   
   for id, item in pairs(WoWData.item) do
     for locale, name in pairs(item.name) do
+      print("Adding item ", locale, name)
       local data = GetObjective(locale, "item", name)
       
       data.quest = data.quest or item.quest
@@ -761,6 +833,17 @@ function handleTranslations()
       if item.pos then
         data.pos = data.pos or {}
         MergePositionLists(data.pos, item.pos)
+      end
+      
+      if item.vendor then
+        data.vendor = data.vendor or {}
+        
+        for i, id in ipairs(item.vendor) do
+          local name = WoWData.npc[id] and WoWData.npc[id].name[locale]
+          if name then
+            addVendor(data.vendor, name)
+          end
+        end
       end
       
       if item.drop then
@@ -787,6 +870,7 @@ function handleTranslations()
   
   for id, npc in pairs(WoWData.npc) do
     for locale, name in pairs(npc.name) do
+      print("Adding NPC ", locale, name)
       local data = GetObjective(locale, "monster", name)
       
       data.quest = data.quest or npc.quest
@@ -799,6 +883,60 @@ function handleTranslations()
       if npc.pos then
         data.pos = data.pos or {}
         MergePositionLists(data.pos, npc.pos)
+      end
+    end
+  end
+  
+  for id, quest in pairs(WoWData.quest) do
+    for faction in pairs(quest.faction) do
+      for locale, name in pairs(quest.name) do
+        print("Adding Quest ", locale, faction, quest.level, quest.hash[locale], name)
+        local data = GetQuest(locale, faction, quest.level, name, quest.hash[locale])
+        
+        if quest.finish then
+          local fname = WoWData.npc[quest.finish] and WoWData.npc[quest.finish].name[locale]
+          if fname then
+            data.finish = {[fname] = 1}
+          end
+        end
+        
+        if quest.item then
+          for id, item in pairs(quest.item) do
+            local iname = WoWData.item[id] and WoWData.item[id].name[locale]
+            if iname then
+              local qdata = data
+              
+              if not qdata.item then qdata.item = {} end
+              local data = qdata.item[iname] or {}
+              qdata.item[iname] = data
+              
+              if item.pos then
+                data.pos = data.pos or {}
+                MergePositionLists(data.pos, item.pos)
+              end
+              
+              if item.drop then
+                data.drop = data.drop or {}
+                for id, count in pairs(item.drop) do
+                  local name = WoWData.npc[id] and WoWData.npc[id].name[locale]
+                  if name then
+                    data.drop[name] = (data.drop[name] or 0) + count
+                  end
+                end
+              end
+              
+              if item.contained then
+                data.contained = data.contained or {}
+                for id, count in pairs(item.contained) do
+                  local name = WoWData.item[id] and WoWData.item[id].name[locale]
+                  if name then
+                    data.contained[name] = (data.contained[name] or 0) + count
+                  end
+                end
+              end
+            end
+          end
+        end
       end
     end
   end
@@ -828,6 +966,8 @@ function CompileFinish()
         end
       end
     end
+    
+    print("Processing quests ", locale)
     
     for faction, levels in pairs(l.quest) do
       local delete_faction = true
@@ -892,6 +1032,7 @@ function CompileFinish()
       end
     end
     
+    print("Processing quest items ", locale)
     -- Will go through the items and either delete them, or merge the quest items into them, and then
     -- mark the relevent monsters as being quest objectives.
     if l.objective["item"] then 
@@ -1024,6 +1165,8 @@ function CompileFinish()
         end
       end
     end
+    
+    print("Processing objectives ", locale)
     
     for category, objectives in pairs(l.objective) do
       local delete_category = true

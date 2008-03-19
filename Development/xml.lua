@@ -2,6 +2,8 @@
 -- This isn't an exact conversion, and is more special case
 -- to suit my purposes, but it's good enough.
 
+-- This codepage seems to work fine for English, German, French, and I assume Spanish.
+-- I don't know how the other locales are encoded, and I'm sure it will make their already messed up text even more unreadable.
 local codepage =
  {
   [0]=
@@ -61,6 +63,7 @@ function correctText(text)
     end
     
     if not valid then
+      --print("character at "..i.." not valid.")
       local char = codepage[string.byte(text, i)]
       
       for size=1,6 do
@@ -71,6 +74,7 @@ function correctText(text)
            s = s .. string.char(0x80+math.floor(char/char_scale[o])%0x40)
           end
           
+          --print("replaced with '"..s.."'.")
           text = string.format("%s%s%s", string.sub(text, 1,i-1), s, string.sub(text,i+1))
           i = i + size
           e = e + size - 1
@@ -110,7 +114,6 @@ local function readString(data)
       end
       s = s .. c
     end
-    print("readString: '"..s.."'")
     return s
   else
     return readVar(data)
@@ -196,6 +199,13 @@ local function readText(self)
   if c == "&" then
     c = nil
     local s, e, code = string.find(self[1], "^(.-);", p+1)
+    
+    if not s then
+      --print("EOF while reading escape sequence, assuming literal '&' intended.")
+      self[2] = p+1
+      return "&"
+    end
+    
     self[2] = e+1
     
     if code == "amp" then
@@ -206,7 +216,15 @@ local function readText(self)
       return ">", true
     elseif code == "quot" then
       return "\"", true
+    elseif code == "nbsp" then
+      return " ", true
     else
+      if string.find(code, " ") then
+        --print("Escape sequence contains spaces, assuming literal '&' intended.")
+        self[2] = p+1
+        return "&"
+      end
+      
       assert(false, "Unknown entity code: "..code)
     end
   elseif c == "" then
@@ -239,7 +257,7 @@ local function skipTo(self, pattern)
 end
 
 function XMLtoLUA(filename)
-  local stream = io.open(filename, "r")
+  local stream = io.open(FileUtil.fileName(filename), "r")
   if stream then
     local data = {correctText(stream:read("*a")), 1, get=readText, peek=peekText, skipws=skipSpaces, skipto=skipTo}
     io.close(stream)
