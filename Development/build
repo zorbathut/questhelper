@@ -46,7 +46,8 @@ if compile then
   local all_input_files, unknown_input_files = {}, {}
 
   FileUtil.forEachFile("LocalInput", function (name)
-    if FileUtil.extension(name) == "lua" then
+    if FileUtil.extension(name) == "lua" or 
+       FileUtil.extension(name) == "bak" then
       local hash = FileUtil.fileHash(name)
       if cache.ignored[hash] then return end
       cache.ignored[hash] = true
