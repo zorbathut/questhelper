@@ -50,14 +50,24 @@ TaxiNodeOnButtonEnter = function(btn)
     local index = btn:GetID()
     if TaxiNodeGetType(index) == "REACHABLE" then
       local origin, dest, hash = getRoute(index)
-      local eta = origin and QuestHelper:computeLinkTime(origin, dest, hash, QuestHelper.flight_times[origin] and QuestHelper.flight_times[origin][dest])
+      local eta, estimate = nil, false
+      if origin then
+        eta = QuestHelper:computeLinkTime(origin, dest, hash, false)
+        if not eta then
+          eta = QuestHelper.flight_times[origin] and QuestHelper.flight_times[origin][dest]
+          estimate = true
+        end
+      end
       
       if eta then -- Going to replace the tooltip.
         GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
         GameTooltip:ClearLines()
         GameTooltip:AddLine(dest, "", 1.0, 1.0, 1.0)
-        GameTooltip:AddDoubleLine(QHText("TRAVEL_ESTIMATE"), QHFormat("TRAVEL_ESTIMATE_VALUE", eta or 0))
-        SetTooltipMoney(GameTooltip, TaxiNodeCost(index))
+        GameTooltip:AddDoubleLine(QHText("TRAVEL_ESTIMATE"), (estimate and "|cffffffff≈|r " or "")..QHFormat("TRAVEL_ESTIMATE_VALUE", eta))
+        local cost = TaxiNodeCost(index)
+        if cost > 0 then
+          SetTooltipMoney(GameTooltip, cost)
+        end
         GameTooltip:Show()
       end
     end
@@ -68,6 +78,7 @@ TakeTaxiNode = function(id)
   local origin, dest, hash = getRoute(id)
   
   if origin then
+    local flight_data = QuestHelper.flight_data
     if not flight_data then
       flight_data = QuestHelper:CreateTable()
       QuestHelper.flight_data = flight_data
@@ -76,6 +87,9 @@ TakeTaxiNode = function(id)
     flight_data.origin = origin
     flight_data.dest = dest
     flight_data.hash = hash
+    flight_data.start_time = nil
+    flight_data.end_time = nil
+    flight_data.end_time_estimate = nil
   end
   
   real_TakeTaxiNode(id)
@@ -157,7 +171,7 @@ function QuestHelper:getFlightInstructor(area)
   local static = QuestHelper_StaticData[QuestHelper_Locale]
   
   if static then
-    fi_table = static.flight_instructor and static.flight_instructor[self.faction]
+    fi_table = static.flight_instructors and static.flight_instructors[self.faction]
     if fi_table then
       return fi_table[area]
     end
@@ -236,7 +250,7 @@ function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
   local t = getTime(l, origin, dest, hash) or getTime(s, origin, dest, hash) or
             getTime(l, dest, origin, hash) or getTime(s, dest, origin, hash) or fallback
   
-  if not t then -- Don't have any recored information on this flight time, will estimate based on distances.
+  if t == nil then -- Don't have any recored information on this flight time, will estimate based on distances.
     l = QuestHelper_FlightInstructors[self.faction]
     s = QuestHelper_StaticData[self.locale]
     s = s and s.flight_instructors
@@ -266,8 +280,61 @@ function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
   return t
 end
 
+local moonglade_fp = nil
+
 function QuestHelper:addLinkInfo(data, flight_times)
   if data then
+    local ignored_fp = nil
+    
+    if select(2, UnitClass("player")) ~= "DRUID" then
+      -- As only druids can use the flight point in moonglade, we need to figure out
+      -- where it is so we can ignore it.
+      
+      if not moonglade_fp then
+        
+        local fi_table = QuestHelper_FlightInstructors[self.faction]
+        
+        if fi_table then for area, npc in pairs(fi_table) do
+          local npc_obj = self:GetObjective("monster", npc)
+          npc_obj:PrepareRouting()
+          local pos = npc_obj:Position()
+          if pos and QuestHelper_IndexLookup[pos[1].c][pos[1].z] == 20 then
+            moonglade_fp = area
+            npc_obj:DoneRouting()
+            break
+          end
+          npc_obj:DoneRouting()
+        end end
+        
+        if not moonglade_fp then
+          fi_table = QuestHelper_StaticData[QuestHelper_Locale]
+          fi_table = fi_table and fi_table.flight_instructors and fi_table.flight_instructors[self.faction]
+          
+          if fi_table then for area, npc in pairs(fi_table) do
+            local npc_obj = self:GetObjective("monster", npc)
+            npc_obj:PrepareRouting()
+            local pos = npc_obj:Position()
+            if pos and QuestHelper_IndexLookup[pos[1].c][pos[1].z] == 20 then
+              moonglade_fp = area
+              npc_obj:DoneRouting()
+              break
+            end
+            npc_obj:DoneRouting()
+          end end
+        end
+        
+        if not moonglade_fp then
+          -- This will always be unknown for the session, even if you call buildFlightTimes again
+          -- but if it's unknown then you won't be able to
+          -- get the waypoint this session since you're not a druid
+          -- so its all good.
+          moonglade_fp = "unknown"
+        end
+      end
+      
+      ignored_fp = moonglade_fp
+    end
+    
     for origin, list in pairs(data) do
       local tbl = flight_times[origin]
       if not tbl then
@@ -276,17 +343,53 @@ function QuestHelper:addLinkInfo(data, flight_times)
       end
       
       for dest, hashs in pairs(list) do
-        if QuestHelper_KnownFlightRoutes[dest] and hashs[0] then
+        if origin ~= ignored_fp and QuestHelper_KnownFlightRoutes[dest] and hashs[0] then
           local tbl2 = tbl[dest]
           if not tbl2 then
-            tbl2 = self:CreateTable()
-            tbl[dest] = tbl2
-            tbl2[1] = self:computeLinkTime(origin, dest)
+            local t = self:computeLinkTime(origin, dest)
+            if t then
+              tbl2 = self:CreateTable()
+              tbl[dest] = tbl2
+              tbl2[1] = t
+              tbl2[2] = dest
+            end
           end
         end
       end
     end
   end
+end
+
+local visited = {}
+
+local function getDataTime(ft, origin, dest)
+  local str = nil
+  local data = ft[origin][dest]
+  local t = data[1]
+  
+  for key in pairs(visited) do visited[key] = nil end
+  
+  while true do
+    local n = data[2]
+    
+    -- We might be asked about a route that visits the same point multiple times, and
+    -- since this is effectively a linked list, we need to check for this to avoid
+    -- infinite loops.
+    if visited[n] then return end
+    visited[n] = true
+    
+    local temp = QuestHelper:computeLinkTime(origin, n, str and QuestHelper:HashString(str) or 0, false)
+    
+    if temp then
+      t = temp + (n == dest and 0 or ft[n][dest][1])
+    end
+    
+    if n == dest then break end
+    str = string.format("%s/%s", str or "", n)
+    data = ft[n][dest]
+  end
+  
+  return t
 end
 
 function QuestHelper:buildFlightTimes()
@@ -321,37 +424,39 @@ function QuestHelper:buildFlightTimes()
       local list = flight_times[origin]
       
       for dest, data in pairs(list) do
-        local t = data[1]
         if flight_times[dest] then for dest2, data2 in pairs(flight_times[dest]) do
           if dest2 ~= origin then
-            local t2 = t+data2[1]
             local dat = list[dest2]
+            
             if not dat then
               dat = self:CreateTable()
-              dat[1], dat[2] = t2, dest
+              dat[1], dat[2] = data[1]+data2[1], dest
               list[dest2] = dat
-              cont = true
-            elseif t2 < dat[1] then
-              dat[1], dat[2] = t2, dest
-              cont = true
+              dat[1] = getDataTime(flight_times, origin, dest2)
+              
+              if not dat[1] then
+                self:ReleaseTable(dat)
+                list[dest2] = nil
+              else
+                cont = true
+              end
+            else
+              local o1, o2 = dat[1], dat[2] -- Temporarly replace old data for the sake of looking up its time.
+              if o2 ~= dest then
+                dat[1], dat[2] = data[1]+data2[1], dest
+                local t2 = getDataTime(flight_times, origin, dest2)
+                
+                if t2 and t2 < o1 then
+                  dat[1] = t2
+                  cont = true
+                else
+                  dat[1], dat[2] = o1, o2
+                end
+              end
             end
           end
         end end
       end
-    end
-  end
-  
-  -- Attempt to lookup the exact flight times.
-  for orig, list in pairs(flight_times) do
-    for dest, data in pairs(list) do
-      local str
-      
-      while data[2] do
-        str = string.format("%s/%s", str or "", data[2])
-        data = flight_times[data[2]][dest]
-      end
-      
-      data[1] = self:computeLinkTime(orig, dest, str and self:HashString(str) or 0, data[1])
     end
   end
   
@@ -395,9 +500,7 @@ function QuestHelper:taxiMapOpened()
     if not QuestHelper_KnownFlightRoutes[origin] then
       -- Player didn't previously have this flight point, will need to recalculate pathing data to account for it.
       QuestHelper_KnownFlightRoutes[origin] = true
-      self:TextOut(QHText("ROUTES_CHANGED"))
-      self:TextOut(QHText("WILL_RESET_PATH"))
-      self.defered_graph_reset = true
+      altered = true
     end
     
     local npc = UnitName("npc")
@@ -411,6 +514,13 @@ function QuestHelper:taxiMapOpened()
       end
       
       fi_table[origin] = npc
+    end
+    
+    if not self.flight_times[origin] then
+      -- If this is true, then we probably either didn't who the flight instructor here was,
+      -- or did know but didn't know where.
+      -- As we should now know, the flight times should be updated.
+      altered = true
     end
     
     if self.flight_data and self:processFlightData(self.flight_data) then
@@ -496,7 +606,7 @@ local function flight_updater(frame, delta)
 end
 
 function QuestHelper:flightBegan()
-  if self.flight_data then
+  if self.flight_data and not self.flight_data.start_time then
     self.flight_data.start_time = GetTime()
     local origin, dest = self.flight_data.origin, self.flight_data.dest
     local eta = self:computeLinkTime(origin, dest, self.flight_data.hash,
@@ -528,8 +638,8 @@ end
 
 function QuestHelper:flightEnded()
   local flight_data = self.flight_data
-  if flight_data then
-    flight_data.end_time = flight_data.end_time or GetTime()
+  if flight_data and not flight_data.end_time then
+    flight_data.end_time = GetTime()
     
     if self:processFlightData(flight_data) then
       self:ReleaseTable(flight_data)

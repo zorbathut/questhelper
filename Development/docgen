@@ -8,6 +8,14 @@
 loadfile("dump.lua")()
 loadfile("fileutil.lua")()
 
+local default_files =
+  {
+   "../Generic/table.lua",
+   "../Generic/cron.lua",
+   "../Generic/sortedlist.lua",
+   "../Generic/graph.lua"
+  }
+
 local empty_table = {}
 local items = {}
 local next_anchor = 1
@@ -69,7 +77,7 @@ end
 -- .valid (boolean) True if var is a valid variable name.
 -- Checks if a string would make a valid variable name.
 local function isVariableString(var)
-  return string.len(var) > 0 and string.find(var, "^[%a_][%a%d_]*$")
+  return string.len(var) > 0 and string.find(var, "^[%a_][%a%d_]*$") or var == "..."
 end
 
 -- array = readList(list)
@@ -82,7 +90,7 @@ local function readVariableList(list)
   
   for arg in string.gmatch(list, "%s*([^,%s]+)%s*,?") do
     if isVariableString(arg) then
-      table.insert(result, arg)
+      table.insert(result, arg == "..." and "!" or arg)
     else
       return nil
     end
@@ -122,17 +130,29 @@ end
 -- .comment (table) An array of strings, the lines making up the comment.
 -- Parses comments to extract information from them.
 local function processComment(file, line, comment)
+  local obj, rel = nil, nil
+  
+  
   local func, arg, ret = readFunctionLine(comment[1])
   
   if func then
-    local obj, rel = getObject(func)
-    obj.file = file
-    obj.line = line
+    obj, rel = getObject(func)
     obj.type = "function"
     obj.arg = arg
     obj.ret = ret
+  else
+    local var, typename, desc = select(3, string.find(line, "^%s*%.(.-)%s*%((%a+)%)%s*(.-)%s*$"))
+    if var then
+      obj, rel = getObject(func)
+      obj.type = typename
+    end
+  end
+  
+  if obj then
+    obj.file = file
+    obj.line = line
     
-    if rel == ":" then
+    if obj.arg and rel == ":" then
       table.insert(obj.arg, 1, "self")
     end
     
@@ -140,10 +160,10 @@ local function processComment(file, line, comment)
     
     for i = 2,#comment do
       local line = comment[i]
-      local item, typename, desc = select(3, string.find(line, "^%s*%.(%a+)%s*%((%a+)%)%s*(.-)%s*$"))
+      local item, typename, desc = select(3, string.find(line, "^%s*%.(.-)%s*%((%a+)%)%s*(.-)%s*$"))
       
       if item then
-        local cobj = getObject(obj.fname.."."..item)
+        local cobj = getObject(obj.fname.."."..(item == "..." and "!" or item))
         cobj.file = file
         cobj.line = line
         cobj.type = typename
@@ -255,7 +275,7 @@ local function readLuaFile(file)
   io.close(stream)
 end
 
-for i, file in ipairs(arg) do
+for i, file in ipairs(#arg > 0 and arg or default_files) do
   readLuaFile(file)
 end
 
@@ -271,15 +291,32 @@ local function HTMLText(text)
     end)
 end
 
+local function ParseParagraph(text)
+  -- TODO: Do this right.
+  return "<p>"..HTMLText(text).."</p>"
+end
+
 local function DescriptionText(lines)
   local result = ""
+  local paragraph = ""
   
   for i, line in ipairs(lines) do
     -- TODO: Actually parse the lines.
-    result = result.."<p>"..HTMLText(line).."</p>"
+    line = select(3, string.find(line, "^%s*(.-)%s*$"))
+    
+    if line == "" then
+      result = result .. ParseParagraph(paragraph)
+      paragraph = ""
+    else
+      paragraph = paragraph .. " " .. line
+    end
   end
   
-  return result;
+  if paragraph ~= "" then
+    result = result .. ParseParagraph(paragraph)
+  end
+  
+  return result
 end
 
 local WriteDocObject
@@ -306,7 +343,7 @@ local function WriteDocObjectDescription(obj, prefix, buffer)
     if #obj.ret > 0 then
       for i, name in ipairs(obj.ret) do
         buffer:add("<span class=\"argument\">")
-        buffer:add(name)
+        buffer:add(name == "!" and "..." or name)
         buffer:add("<div class=\"description\">")
         WriteDocObjectDescription(obj.children[name], nil, buffer)
         buffer:add("</div>")
@@ -325,13 +362,13 @@ local function WriteDocObjectDescription(obj, prefix, buffer)
     end
     
     buffer:add("<span class=\"argument\">")
-    buffer:add(obj.name)
+    buffer:add(obj.name == "!" and "..." or obj.name)
     buffer:add("</span>(")
     
     for arg = first_arg, #obj.arg do
       local name = obj.arg[arg]
       buffer:add("<span class=\"argument\">")
-      buffer:add(name)
+      buffer:add(name == "!" and "..." or name)
       buffer:add("<div class=\"description\">")
       WriteDocObjectDescription(obj.children[name], nil, buffer)
       buffer:add("</div>")

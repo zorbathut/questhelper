@@ -1,3 +1,27 @@
+== Version 0.38 Uploaded 03/18/2009 ==
+
+* Wrote a spider to copy quest data from www.wowguru.com, to suppliment the dwindling supply of non-English quest data.
+
+== Version 0.37 Uploaded 03/15/2008 ==
+
+* Fixed the route through the Dark Portal. The pathing data got calculated before the player's level was set, and thus the route was set to take 24 hours, which was my solution to prevent QuestHelper from directing low level players from wandering into OutLands.
+* I think the previous version had all unknown flight times estimated as taking one minute, which I had done while debugging the lockups. It should now be back to reasonably accurate guessing.
+* Talking to a flightmaster QuestHelper didn't previously know of should now recalculate the pathing data. This mostly applies to non-English users, where QuestHelper hasn't learned them already.
+
+== Version 0.36e Uploaded 03/13/2008 ==
+
+* Should now not lock up your computer.
+* Should no longer suggest getting the flight point in Moonglade if you're not a Druid.
+* Should hopefully not crash when trying to calculate flight times.
+* An interrupted flight timer should no longer reappear if you lose control of your player.
+* Added an approximation symbol to flight times that are just guesses. Although it won't show up for times that were guessed from taking a known path and reversing it, I didn't bother checking for that case.
+
+== Version 0.36 Uploaded 03/08/2008 ==
+
+* Added ETA to flight node tooltips, requires the display of flight times to be enabled.
+* Fixed a problem preventing flight routes being looked up from the static data.
+* Includes jeskeca's patch to give undoable objectives (incomplete quests for example) grey backgrounds.
+
 == Version 0.35f Uploaded 03/05/2008 ==
 
 * Added <code>/qh ftime</code> to toggle display of the flight timer. If you're already flying, it doesn't apply to the current flight.

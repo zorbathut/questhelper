@@ -57,8 +57,28 @@ function QHFormatArray(text, array)
   
   local trans = trans_table_force[text]  or trans_table[text]
   
-  if not trans then
-    trans = string.format("|cffff0000[%s|||r%s|cffff0000]|r", text, trans_table_fb[text] or "???")
+  while type(trans) ~= "string" do
+    -- The translation doesn't need to be a string, it can be a function which returns a string,
+    -- or an array of strings and functions, of which one will be selected randomly.
+    if type(trans) == "function" then
+      trans = trans(text, array)
+    elseif type(trans) == "table" and #trans > 0 then
+      trans = trans[math.random(1, #trans)]
+    else
+      trans = trans_table_fb[text]
+      
+      while type(trans) ~= "string" do
+        if type(trans) == "function" then
+          trans = trans(text, array)
+        elseif type(trans) == "table" and #trans > 0 then
+          trans = trans[math.random(1, #trans)]
+        else
+          trans = "???"
+        end
+      end
+      
+      trans = string.format("|cffff0000[%s|||r%s|cffff0000]|r", text, trans)
+    end
   end
   
   text = doTranslation(trans)
