@@ -104,7 +104,7 @@ function QuestHelper:OnEvent(event)
       return
     end
     
-    self.Astrolabe = DongleStub("Astrolabe-0.4 QuestHelperPTR")
+    self.Astrolabe = DongleStub("Astrolabe-0.4")
     
     if not self:ZoneSanity() then
       self:TextOut(QHText("ZONE_LAYOUT_ERROR"))

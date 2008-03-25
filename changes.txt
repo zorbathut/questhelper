@@ -1,3 +1,9 @@
+== Version 0.39 Uploaded 03/25/2009 ==
+
+* It appears that the 2.4 patch goes live today. Cross your fingers and hope this still works.
+* Using the WoW_2.4_Data branch of Astrolabe until everything gets updated.
+* I don't know anything about the new zone. QuestHelper has a dummy route linking the existing world to it, but this is just to keep it from breaking, you shouldn't try to follow it.
+
 == Version 0.38 Uploaded 03/18/2009 ==
 
 * Wrote a spider to copy quest data from www.wowguru.com, to suppliment the dwindling supply of non-English quest data.

@@ -44,7 +44,10 @@ local static_shared_routes =
    -- More Alliance routes than anything, but without them theres no valid path to these areas for Horde characters.
    {{24, 0.559, 0.896}, {21, 0.305, 0.414}, 5}, -- Rut'Theran Village <--> Darnassus
    {{16, 0.332, 0.398}, {24, 0.548, 0.971}, 210}, -- Auberdine <--> Rut'Theran Village
-   {{16, 0.306, 0.409}, {3, 0.2, 0.546}, 210} -- Auberdine <--> Azuremyst Isle
+   {{16, 0.306, 0.409}, {3, 0.2, 0.546}, 210}, -- Auberdine <--> Azuremyst Isle
+   
+   -- Route to new zone. Not valid, exists only to keep routing from exploding if you don't have the flight routes there.
+   {{41, 0.5, 0.5}, {64, 0.5, 0.5}, 7200} -- Eversong Woods <--> Sunwell
   }
 
 -- Darkportal is handled specially, depending on whether or not you're level 58+ or not.
