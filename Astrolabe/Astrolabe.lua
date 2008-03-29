@@ -1,7 +1,7 @@
 --[[
 Name: Astrolabe
-Revision: $Rev: 75 $
-$Date: 2008-03-13 12:01:10 -0400 (Thu, 13 Mar 2008) $
+Revision: $Rev: 78 $
+$Date: 2008-03-28 02:05:05 -0400 (Fri, 28 Mar 2008) $
 Author(s): Esamynn (esamynn at wowinterface.com)
 Inspired By: Gatherer by Norganna
              MapLibrary by Kristofer Karlsson (krka at kth.se)
@@ -42,7 +42,7 @@ Note:
 -- DO NOT MAKE CHANGES TO THIS LIBRARY WITHOUT FIRST CHANGING THE LIBRARY_VERSION_MAJOR
 -- STRING (to something unique) OR ELSE YOU MAY BREAK OTHER ADDONS THAT USE THIS LIBRARY!!!
 local LIBRARY_VERSION_MAJOR = "Astrolabe-0.4"
-local LIBRARY_VERSION_MINOR = tonumber(string.match("$Revision: 75 $", "(%d+)") or 1)
+local LIBRARY_VERSION_MINOR = tonumber(string.match("$Revision: 78 $", "(%d+)") or 1)
 
 if not DongleStub then error(LIBRARY_VERSION_MAJOR .. " requires DongleStub.") end
 if not DongleStub:IsNewerVersion(LIBRARY_VERSION_MAJOR, LIBRARY_VERSION_MINOR) then return end
@@ -575,11 +575,14 @@ do
 								end
 							end
 						end
+						if not ( resetIncrementalUpdate ) then
+							lastPosition[1] = C;
+							lastPosition[2] = Z;
+							lastPosition[3] = x;
+							lastPosition[4] = y;
+						end
 					else
 						self:RemoveAllMinimapIcons()
-					end
-					
-					if not ( resetIncrementalUpdate ) then
 						lastPosition[1] = C;
 						lastPosition[2] = Z;
 						lastPosition[3] = x;
