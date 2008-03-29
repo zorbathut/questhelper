@@ -102,7 +102,7 @@ local function ItemKnown(self)
   
   if self.fb.contained then for item in pairs(self.fb.contained) do
     if self.qh:GetObjective("item", item):Known() then
-     return true
+      return true
     end
   end end
   

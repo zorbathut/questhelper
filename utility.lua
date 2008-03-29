@@ -125,6 +125,20 @@ function QuestHelper:HighlightText(text)
                                             theme.message_highlight[3]*255, text)
 end
 
+function QuestHelper:GetUnitID(unit)
+  local id = UnitGUID(unit)
+  
+  if id then
+    return (string.sub(id, 5, 5) == "3") and tonumber(string.sub(id, 6, 12), 16) or nil
+  end
+  
+  return nil
+end
+
+function QuestHelper:GetQuestID(index)
+  return tonumber(select(3, string.find(GetQuestLink(index), "|Hquest:(%d+):")))
+end
+
 -- For future reference:
 --  Hearthstone = 6948
 --  Rune of Teleportation = 17031

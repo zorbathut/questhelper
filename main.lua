@@ -139,6 +139,8 @@ function QuestHelper:OnEvent(event)
     self:RegisterEvent("PARTY_MEMBERS_CHANGED")
     self:RegisterEvent("CHAT_MSG_ADDON")
     self:RegisterEvent("CHAT_MSG_SYSTEM")
+    self:RegisterEvent("BAG_UPDATE")
+    self:RegisterEvent("GOSSIP_SHOW")
     
     self:SetScript("OnUpdate", self.OnUpdate)
     
@@ -218,7 +220,21 @@ function QuestHelper:OnEvent(event)
     end
   end
   
+  if event == "GOSSIP_SHOW" then
+    local name, id = UnitName("npc"), self:GetUnitID("npc")
+    if name and id then
+      self:GetObjective("monster", name).o.id = id
+      --self:TextOut("NPC: "..name.." = "..id)
+    end
+  end
+  
   if event == "PLAYER_TARGET_CHANGED" then
+    local name, id = UnitName("target"), self:GetUnitID("target")
+    if name and id then
+      self:GetObjective("monster", name).o.id = id
+      --self:TextOut("Target: "..name.." = "..id)
+    end
+    
     if UnitExists("target") and UnitIsVisible("target") and UnitCreatureType("target") ~= "Critter" and not UnitIsPlayer("target") and not UnitPlayerControlled("target") then
       local index, x, y = self:UnitPosition("target")
       
@@ -447,6 +463,18 @@ function QuestHelper:OnEvent(event)
   
   if event == "PLAYER_CONTROL_LOST" then
     self:flightBegan()
+  end
+  
+  if event == "BAG_UPDATE" then
+    for slot = 1,GetContainerNumSlots(arg1) do
+      local link = GetContainerItemLink(arg1, slot)
+      if link then
+        local id, name = select(3, string.find(link, "|Hitem:(%d+):.-|h%[(.-)%]|h"))
+        if name then
+          self:GetObjective("item", name).o.id = tonumber(id)
+        end
+      end
+    end
   end
 end
 

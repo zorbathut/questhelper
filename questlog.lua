@@ -195,6 +195,8 @@ function QuestHelper:ScanQuestLog()
         end
         
         
+        quest.o.id = self:GetQuestID(index)
+        
         -- Can't add the objective here, if we don't have it depend on the objectives
         -- first it'll get added and possibly not be doable.
         -- We'll add it after the objectives are determined.
