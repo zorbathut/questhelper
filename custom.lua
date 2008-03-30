@@ -72,7 +72,7 @@ end
 
 local search_frame = CreateFrame("Button", nil, UIParent)
 search_frame.text = search_frame:CreateFontString()
-search_frame.text:SetFont("Fonts\\ARIALN.TTF", 15)
+search_frame.text:SetFont(QuestHelper.font.sans, 15)
 search_frame.text:SetTextColor(1, 1, 1)
 search_frame.text:SetJustifyH("CENTER")
 search_frame.text:SetJustifyV("MIDDLE")

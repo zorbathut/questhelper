@@ -525,5 +525,5 @@ function QuestHelper:CreateMenuTitle(menu, title)
   item:SetScript("OnDragStop", item.OnDragStop)
   item:RegisterForDrag("LeftButton")
   
-  item.text:SetFont("Fonts\\MORPHEUS.TTF", 13)
+  item.text:SetFont(QuestHelper.font.fancy, 13)
 end

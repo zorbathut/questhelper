@@ -46,6 +46,8 @@ QuestHelper.faction = (UnitFactionGroup("player") == "Alliance" and 1) or
 
 assert(QuestHelper.faction)
 
+QuestHelper.font = {serif=GameFontNormal:GetFont(), sans=ChatFontNormal:GetFont(), fancy=QuestTitleFont:GetFont()}
+
 QuestHelper.route = {}
 QuestHelper.to_add = {}
 QuestHelper.to_remove = {}

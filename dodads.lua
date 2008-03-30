@@ -278,7 +278,7 @@ function QuestHelper:AppendObjectiveToTooltip(o)
   local theme = self:GetColourTheme()
   
   self.tooltip:AddLine(o:Reason(), unpack(theme.tooltip))
-  self.tooltip:GetPrevLines():SetFont("Fonts\\FRIZQT__.TTF", 14)
+  self.tooltip:GetPrevLines():SetFont(QuestHelper.font.serif, 14)
   
   if o.progress then
     for user, progress in pairs(o.progress) do
@@ -299,16 +299,16 @@ function QuestHelper:AppendObjectiveToTooltip(o)
                                  self:ProgressString(o.progress[u][1].."/"..o.progress[u][2],
                                  o.progress[u][3]), unpack(theme.tooltip))
       
-      self.tooltip:GetPrevLines():SetFont("Fonts\\ARIALN.TTF", 13)
-      select(2, self.tooltip:GetPrevLines()):SetFont("Fonts\\ARIALN.TTF", 13)
+      self.tooltip:GetPrevLines():SetFont(QuestHelper.font.sans, 13)
+      select(2, self.tooltip:GetPrevLines()):SetFont(QuestHelper.font.sans, 13)
     end
     
     while table.remove(prog_sort_table) do end
   end
   
   QuestHelper.tooltip:AddDoubleLine(QHText("TRAVEL_ESTIMATE"), QHFormat("TRAVEL_ESTIMATE_VALUE", o.travel_time or 0), unpack(theme.tooltip))
-  QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\ARIALN.TTF", 11)
-  select(2, QuestHelper.tooltip:GetPrevLines()):SetFont("Fonts\\ARIALN.TTF", 11)
+  QuestHelper.tooltip:GetPrevLines():SetFont(QuestHelper.font.sans, 11)
+  select(2, QuestHelper.tooltip:GetPrevLines()):SetFont(QuestHelper.font.sans, 11)
 end
 
 function QuestHelper:CreateWorldMapDodad(objective, index)
@@ -326,7 +326,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
         first = false
       else
         QuestHelper.tooltip:AddLine("|c80ff0000  .  .  .  .  .  .|r")
-        QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\ARIALN.TTF", 8)
+        QuestHelper.tooltip:GetPrevLines():SetFont(QuestHelper.font.sans, 8)
       end
       
       QuestHelper:AppendObjectiveToTooltip(o)
@@ -766,7 +766,7 @@ function QuestHelper:CreateMipmapDodad()
       
       if self.target[5] then
         QuestHelper.tooltip:AddLine(QHFormat("WAYPOINT_REASON", self.target[5]), unpack(QuestHelper:GetColourTheme().tooltip))
-        QuestHelper.tooltip:GetPrevLines():SetFont("Fonts\\FRIZQT__.TTF", 14)
+        QuestHelper.tooltip:GetPrevLines():SetFont(QuestHelper.font.serif, 14)
       end
       
       QuestHelper:AppendObjectiveToTooltip(self.objective)
