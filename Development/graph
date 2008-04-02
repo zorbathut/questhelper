@@ -45,7 +45,6 @@ for level = 1,14 do
   file:write(line.."\n")
 end
 
-use_locale["koKR"] = false
 use_locale["zhCN"] = false
 use_locale["esES"] = false
 

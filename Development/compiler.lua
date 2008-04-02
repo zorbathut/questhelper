@@ -318,6 +318,17 @@ local function AddQuest(locale, faction, level, name, data)
     
     local q = GetQuest(locale, faction, level, name, type(data.hash) == "number" and data.hash or nil)
     
+    if type(data.id) == "number" then
+      local wdq = WoWData.quest[data.id]
+      if not wdq then
+        wdq = {name={},hash={},faction={}}
+        WoWData.quest[data.id] = wdq
+      end
+      wdq.name[locale] = name
+      wdq.hash[locale] = data.hash or wdq.hash[locale]
+      wdq.level = level
+    end
+    
     if type(data.finish) == "string" then
       AddQuestEnd(q, data.finish)
     elseif type(data.pos) == "table" then
@@ -438,6 +449,15 @@ local function AddObjective(locale, category, name, objective)
     end
     
     if category == "monster" then
+      if type(objective.id) == "number" then
+        local wdm = WoWData.npc[objective.id]
+        if not wdm then
+          wdm = {name={}}
+          WoWData.npc[objective.id] = wdm
+        end
+        wdm.name[locale] = name
+      end
+      
       if type(objective.looted) == "number" and objective.looted >= 1 then
         o.looted = (o.looted or 0) + objective.looted
       end
@@ -445,6 +465,15 @@ local function AddObjective(locale, category, name, objective)
         o.faction = objective.faction
       end
     elseif category == "item" then
+      if type(objective.id) == "number" then
+        local wdi = WoWData.item[objective.id]
+        if not wdi then
+          wdi = {name={}}
+          WoWData.item[objective.id] = wdi
+        end
+        wdi.name[locale] = name
+      end
+      
       if type(objective.opened) == "number" and objective.opened >= 1 then
         o.opened = (o.opened or 0) + objective.opened
       end

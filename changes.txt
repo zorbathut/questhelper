@@ -1,3 +1,9 @@
+== Version 0.[http://en.wikipedia.org/wiki/Ultimate_Question 42] Uploaded 04/02/2008 ==
+
+* Includes a Korean translation that was sent to me.
+* Now uses the correct fonts so that non-latin characters display properly.
+* Build script now uses the collected IDs from 0.41 to combine data between locales.
+
 == Version 0.41 Uploaded 03/29/2008 ==
 
 * Now collects the IDs of quests, NPCs, and items, using the new QuestLink and UnitGUID functions made availiable in 2.4. If I ever get motivated enough to rewrite QuestHelper, it will use these values.
