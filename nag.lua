@@ -285,5 +285,9 @@ function QuestHelper:Nag(cmd)
     self:TextOut(QHText("NAG_NOT_NEW"))
   else
     self:TextOut(QHText("NAG_NEW"))
+    
+    if total > 20 then
+      DEFAULT_CHAT_FRAME:AddMessage("|TInterface\\AddOns\\QuestHelper\\Art\\Upload.tga:300:90|t")
+    end
   end
 end

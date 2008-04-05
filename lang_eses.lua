@@ -2,131 +2,123 @@
 
 QuestHelper_Translations.esES =
  {
-  --[[ THIS FILE NEEDS TO BE TRANSLATED; REMOVE THIS LINE WHEN COMPLETED.
-  
   -- Messages used when starting.
-  LOCALE_ERROR = "The locale of your saved data doesn't match the locale of your WoW client.",
-  ZONE_LAYOUT_ERROR = "I'm refusing to run, out of fear of corrupting your saved data. "..
-                      "Please wait for a patch that will be able to handle the new zone layout.",
-  DOWNGRADE_ERROR = "Your saved data isn't compatible with this version of QuestHelper. "..
-                    "Use a new version, or delete your saved variables.",
-  HOME_NOT_KNOWN = "Your home isn't known. When you get a chance, please talk to your innkeeper and reset it.",
-  
-  -- This text is only printed for the enUS client, don't worry about translating it.
-  ALTERED_INDEX = "!!! QuestHelper_IndexLookup entry needs update: [%Q1] = {%2, %3, %4}",
-  ALTERED_ZONE = "!!! QuestHelper_Zones entry needs update: [%1][%2] = %Q3 -- was %4",
+  LOCALE_ERROR = "El idioma de su datos guardados no coincide con el idioma de su juego.",
+  ZONE_LAYOUT_ERROR = "Estoy negarse a correr, por temor a dañar sus datos guardados. "..
+                      "Por favor, espere a que un parche que será capaz de manejar la nueva zona de diseño.",
+  DOWNGRADE_ERROR = "Sus datos guardados no es compatible con esta versión de QuestHelper. "..
+                    "Utilice una nueva versión, o borrar tus variables.",
+  HOME_NOT_KNOWN = "Su origen no es conocido. Cuando llegue la oportunidad, por favor, hable con su posadero y restaurarla.",
   
   -- Route related text.
-  ROUTES_CHANGED = "The flight routes for your character have been altered.",
-  HOME_CHANGED = "Your home has been changed.",
-  TALK_TO_FLIGHT_MASTER = "Please talk to the local flight master.",
-  TALK_TO_FLIGHT_MASTER_COMPLETE = "Thanks.",
-  WILL_RESET_PATH = "Will reset pathing information.",
+  ROUTES_CHANGED = "Las rutas de vuelo de su personaje han sido alterados.",
+  HOME_CHANGED = "Su casa ha sido modificada.",
+  TALK_TO_FLIGHT_MASTER = "Por favor, hable con el maestro de vuelo local.",
+  TALK_TO_FLIGHT_MASTER_COMPLETE = "Gracias.",
+  WILL_RESET_PATH = "Se restablecerá pathing información.",
   
   -- Locale switcher.
-  LOCALE_LIST_BEGIN = "Available Locales:",
-  LOCALE_CHANGED = "Locale changed to: %h1",
-  LOCALE_UNKNOWN = "Locale %h1 isn't known.",
+  LOCALE_LIST_BEGIN = "Idiomas:",
+  LOCALE_CHANGED = "Cambiado de idioma: %h1",
+  LOCALE_UNKNOWN = "Idioma %h1 no se conoce.",
   
   -- Words used for objectives.
-  SLAY_VERB = "Slay",
-  ACQUIRE_VERB = "Acquire",
+  SLAY_VERB = "Matar",
+  ACQUIRE_VERB = "Adquirir",
   
-  OBJECTIVE_REASON = "%1 %h2 for quest %h3.", -- %1 is a verb, %2 is a noun (item or monster)
-  OBJECTIVE_REASON_FALLBACK = "%h1 for quest %h2.",
-  OBJECTIVE_REASON_TURNIN = "Turn in quest %h1.",
-  OBJECTIVE_PURCHASE = "Purchase from %h1.",
-  OBJECTIVE_TALK = "Talk to %h1.",
-  OBJECTIVE_SLAY = "Slay %h1.",
-  OBJECTIVE_LOOT = "Loot %h1.",
+  OBJECTIVE_REASON = "%1 %h2 para la búsqueda %h3.", -- %1 is a verb, %2 is a noun (item or monster)
+  OBJECTIVE_REASON_FALLBACK = "%h1 para la búsqueda %h2.",
+  OBJECTIVE_REASON_TURNIN = "A su vez en búsqueda %h1.",
+  OBJECTIVE_PURCHASE = "Compra de %h1.",
+  OBJECTIVE_TALK = "Hable con %h1.",
+  OBJECTIVE_SLAY = "Matar %h1.",
+  OBJECTIVE_LOOT = "Botín %h1.",
   
-  ZONE_BORDER = "%1/%2 border",
+  ZONE_BORDER = "%1/%2 frontera",
   
   -- Stuff used in objective menus.
-  PRIORITY = "Priority",
-  PRIORITY1 = "Highest",
-  PRIORITY2 = "High",
+  PRIORITY = "Prioridad",
+  PRIORITY1 = "Más Alta",
+  PRIORITY2 = "Alta",
   PRIORITY3 = "Normal",
-  PRIORITY4 = "Low",
-  PRIORITY5 = "Lowest",
-  SHARING = "Sharing",
-  ENABLE = "Enable",
-  DISABLE = "Disable",
-  IGNORE = "Ignore",
+  PRIORITY4 = "Baja",
+  PRIORITY5 = "Más bajo",
+  SHARING = "Compartir",
+  ENABLE = "Habilitar",
+  DISABLE = "Desactivar",
+  IGNORE = "Ignorar",
   
-  IGNORED_PRIORITY_TITLE = "The selected priority would be ignored.",
-  IGNORED_PRIORITY_FIX = "Apply same priority to the blocking objectives.",
-  IGNORED_PRIORITY_IGNORE = "I'll set the priorities myself.",
+  IGNORED_PRIORITY_TITLE = "El seleccionado prioridad sería ignorado.",
+  IGNORED_PRIORITY_FIX = "Aplicar misma prioridad a los objetivos de bloqueo.",
+  IGNORED_PRIORITY_IGNORE = "Voy a fijar las prioridades de mí mismo.",
   
   -- Custom objectives.
-  RESULTS_TITLE = "Search Results",
-  NO_RESULTS = "There aren't any!",
-  CREATED_OBJ = "Created: %1",
-  REMOVED_OBJ = "Removed: %1",
-  USER_OBJ = "User Objective: %h1",
-  UNKNOWN_OBJ = "I don't know where you should go for that objective.",
+  RESULTS_TITLE = "Los resultados de la búsqueda",
+  NO_RESULTS = "No hay ninguna!",
+  CREATED_OBJ = "Creado: %1",
+  REMOVED_OBJ = "Eliminado: %1",
+  USER_OBJ = "Objetivo de Usuario: %h1",
+  UNKNOWN_OBJ = "No sé dónde hay que ir para ese objetivo.",
   
-  SEARCHING_STATE = "Searching: %1",
-  SEARCHING_LOCAL = "Local %1",
-  SEARCHING_STATIC = "Static %1",
-  SEARCHING_ITEMS = "Items",
+  SEARCHING_STATE = "Buscando: %1",
+  SEARCHING_LOCAL = "Locales %1",
+  SEARCHING_STATIC = "Estática %1",
+  SEARCHING_ITEMS = "Temas",
   SEARCHING_NPCS = "NPCs",
-  SEARCHING_ZONES = "Zones",
-  SEARCHING_DONE = "Done!",
+  SEARCHING_ZONES = "Zonas",
+  SEARCHING_DONE = "Hecho!",
   
   -- Shared objectives.
-  PEER_TURNIN = "Wait for %h1 to turn in %h2.",
-  PEER_LOCATION = "Help %h1 reach a location in %h2.",
-  PEER_ITEM = "Help %1 to acquire %h2.",
-  PEER_OTHER = "Assist %1 with %h2.",
+  PEER_TURNIN = "Espere a %h1 para terminar %h2.",
+  PEER_LOCATION = "Ayuda %h1 alcanzar un lugar en %h2.",
+  PEER_ITEM = "Ayuda %1 para adquirir %h2",
+  PEER_OTHER = "Ayudar %1 con %h2.",
   
-  PEER_NEWER = "%h1 is using a newer protocol version. It might be time to upgrade.",
-  PEER_OLDER = "%h1 is using an older protocol version.",
+  PEER_NEWER = "%h1 está utilizando una nueva versión de protocolo. Tal vez sea el momento de la actualización.",
+  PEER_OLDER = "%h1 está utilizando una versión de mayor edad de protocolo.",
   
-  UNKNOWN_MESSAGE = "Unknown message type '%1' from '%2'.",
+  UNKNOWN_MESSAGE = "Desconocido tipo de mensaje '%1' en '%2'.",
   
   -- Hidden objectives.
-  HIDDEN_TITLE = "Hidden Objectives",
-  HIDDEN_NONE = "There are no objectives hidden from you.",
-  DEPENDS_ON_SINGLE = "Depends on '%1'.",
-  DEPENDS_ON_COUNT = "Depends on %1 hidden objectives.",
-  FILTERED_LEVEL = "Filtered due to level.",
-  FILTERED_ZONE = "Filtered due to zone.",
-  FILTERED_COMPLETE = "Filtered due to completeness.",
-  FILTERED_USER = "You requested this objective be hidden.",
-  FILTERED_UNKNOWN = "Don't know how to complete.",
+  HIDDEN_TITLE = "Objetivos Ocultos",
+  HIDDEN_NONE = "No hay objetivos ocultos de usted.",
+  DEPENDS_ON_SINGLE = "Depends de '%1'.",
+  DEPENDS_ON_COUNT = "Depende de los objetivos ocultos %1.",
+  FILTERED_LEVEL = "Filtrado por nivel.",
+  FILTERED_ZONE = "Filtrado debido a la zona.",
+  FILTERED_COMPLETE = "Filtrado debido a la exhaustividad.",
+  FILTERED_USER = "Usted pidió este objetivo se oculta.",
+  FILTERED_UNKNOWN = "No sabe cómo llevar a cabo.",
   
-  HIDDEN_SHOW = "Show.",
-  DISABLE_FILTER = "Disable filter: %1",
-  FILTER_DONE = "done",
-  FILTER_ZONE = "zone",
-  FILTER_LEVEL = "level",
+  HIDDEN_SHOW = "Mostrar.",
+  DISABLE_FILTER = "Desactivar el filtro: %1",
+  FILTER_DONE = "hacer",
+  FILTER_ZONE = "zona",
+  FILTER_LEVEL = "nivel",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_SINGLE = "1 %2", -- %1 == count (will be 1), %2 == what
   NAG_PLURAL = "%1 %s2",
   
-  NAG_MULTIPLE_NEW = "You have information on %h1 new and %h2 updated %h(%s3).",
-  NAG_SINGLE_NEW = "You have new information on %h1.",
-  NAG_ADDITIONAL = "You have additional information on %h1.",
+  NAG_MULTIPLE_NEW = "Usted tiene información, %h1 nuevo y %h2 actualizado %h(%s3).",
+  NAG_SINGLE_NEW = "Usted tiene nueva información sobre %h1.",
+  NAG_ADDITIONAL = "Usted tiene información adicional sobre %h1.",
   
-  NAG_NOT_NEW = "You don't have any information not already in the static database.",
-  NAG_NEW = "You might consider sharing your data so that others may benefit.",
+  NAG_NOT_NEW = "Usted no tiene ninguna información que no estén ya en la base de datos estáticos.",
+  NAG_NEW = "Usted podría considerar la posibilidad de compartir sus datos para que otros puedan beneficiarse.",
   
-  NAG_FP = "flight master",
-  NAG_QUEST = "quest",
-  NAG_ROUTE = "flight route",
-  NAG_ITEM_OBJ = "item objective",
-  NAG_OBJECT_OBJ = "object objective",
-  NAG_MONSTER_OBJ = "monster objective",
-  NAG_EVENT_OBJ = "event objective",
-  NAG_REPUTATION_OBJ = "reputation objective",
+  NAG_FP = "maestro de vuelo",
+  NAG_QUEST = "búsqueda",
+  NAG_ROUTE = "ruta de vuelo",
+  NAG_ITEM_OBJ = "tema objetivo",
+  NAG_OBJECT_OBJ = "objeto objetivo",
+  NAG_MONSTER_OBJ = "monstruo objetivo",
+  NAG_EVENT_OBJ = "evento objetivo",
+  NAG_REPUTATION_OBJ = "reputación objetivo",
   
   -- Stuff used by dodads.
-  PEER_PROGRESS = "%1's progress:",
-  TRAVEL_ESTIMATE = "Estimated travel time:",
+  PEER_PROGRESS = "%1 el progreso:",
+  TRAVEL_ESTIMATE = "Tiempo estimado de viaje:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
-  WAYPOINT_REASON = "Visit %h1 en route to:"
-  
-  END COMMENT BLOCK; REMOVE THIS LINE WHEN COMPLETED ]]
+  WAYPOINT_REASON = "Visita %h1 en el camino a:"
  }

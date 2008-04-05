@@ -1,3 +1,8 @@
+== Version 0.43 04/04/2008 ==
+
+* Spam, spam, glorious spam.
+* Includes a probably very broken machine translated Spanish localization.
+
 == Version 0.[http://en.wikipedia.org/wiki/Ultimate_Question 42] Uploaded 04/02/2008 ==
 
 * Includes a Korean translation that was sent to me.

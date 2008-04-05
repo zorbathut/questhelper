@@ -46,7 +46,6 @@ for level = 1,14 do
 end
 
 use_locale["zhCN"] = false
-use_locale["esES"] = false
 
 io.close(file)
 
