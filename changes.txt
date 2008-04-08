@@ -1,4 +1,4 @@
-== Version 0.43 04/04/2008 ==
+== Version 0.43 04/08/2008 ==
 
 * Spam, spam, glorious spam.
 * Includes a probably very broken machine translated Spanish localization.
