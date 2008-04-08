@@ -47,6 +47,8 @@ end
 
 use_locale["zhCN"] = false
 
+local title = {enUS="English", frFR="Français", esES="Español", deDE="Deutsch", koKR="한국어"}
+
 io.close(file)
 
 local locale_count = 0
@@ -66,7 +68,7 @@ for locale in pairs(plotdata) do
     local a = (j-0.5)/(locale_count+1)+0.5
     local b = a + 1/(locale_count+1)
     
-    command = (command and command..", " or "") .. "\"plot.dat\" using ($0+1):"..i..":($0+"..a.."):($0+"..b..") title \""..locale.."\" lc rgb '"..locale_colour_alliance[locale].."' with boxes"
+    command = (command and command..", " or "") .. "\"plot.dat\" using ($0+1):"..i..":($0+"..a.."):($0+"..b..") title \""..title[locale].."\" lc rgb '"..locale_colour_alliance[locale].."' with boxes"
     command = (command and command..", " or "") .. "\"plot.dat\" using ($0+1):(-$"..(i+1).."):($0+"..a.."):($0+"..b..") notitle lc rgb '"..locale_colour_horde[locale].."' with boxes"
     j = j + 1
   end
