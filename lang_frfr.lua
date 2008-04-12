@@ -2,6 +2,9 @@
 
 QuestHelper_Translations.frFR =
  {
+  -- Displayed by locale chooser.
+  LOCALE_NAME = "Français",
+  
   -- Messages used when starting.
   LOCALE_ERROR = "La langue de vos données sauvegardées ne correspond pas à la langue de votre client WoW.",
   ZONE_LAYOUT_ERROR = "Lancement refusé par crainte de corrompre vos données sauvegardées. "..

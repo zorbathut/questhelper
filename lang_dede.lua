@@ -2,6 +2,9 @@
 
 QuestHelper_Translations.deDE =
  {
+  -- Displayed by locale chooser.
+  LOCALE_NAME = "Deutsch",
+  
   -- Messages used when starting.
   LOCALE_ERROR = "Die Sprache deiner gespeicherten Daten stimmt nicht mit der Sprache deines WoW-Clienten überein.",
   ZONE_LAYOUT_ERROR = "Ich weigere mich weiter zu arbeiten, aus Angst deine gespeicherten Daten zu beschädigen."..

@@ -28,14 +28,22 @@ end
 function QuestHelper:SetLocale(loc)
   if not loc or loc == "" then
     self:TextOut(QHText("LOCALE_LIST_BEGIN"))
-    for loc in pairs(QuestHelper_Translations) do
-      self:TextOut(string.format("  %s%s", self:HighlightText(loc), loc == QuestHelper_Pref.locale and " *" or ""))
+    for loc, tbl in pairs(QuestHelper_Translations) do
+      self:TextOut(string.format("  %s%s %s", self:HighlightText(loc),
+                                              loc == QuestHelper_Pref.locale and " *" or "  ",
+                                              tbl.LOCALE_NAME or "???"))
     end
-  elseif QuestHelper_Translations[loc] then
-    QuestHelper_Pref.locale = loc
-    QHFormatSetLocale(loc)
-    self:TextOut(QHFormat("LOCALE_CHANGED", loc))
   else
+    for l, tbl in pairs(QuestHelper_Translations) do
+      if string.find(string.lower(l), "^"..string.lower(loc)) or
+         string.find(string.lower(tbl.LOCALE_NAME or ""), "^"..string.lower(loc)) then
+        QuestHelper_Pref.locale = l
+        QHFormatSetLocale(l)
+        self:TextOut(QHFormat("LOCALE_CHANGED", l))
+        return
+      end
+    end
+    
     self:TextOut(QHFormat("LOCALE_UNKNOWN", tostring(loc) or "UNKNOWN"))
   end
 end

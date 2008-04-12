@@ -2,6 +2,9 @@
 
 QuestHelper_Translations.esES =
  {
+  -- Displayed by locale chooser.
+  LOCALE_NAME = "Español",
+  
   -- Messages used when starting.
   LOCALE_ERROR = "El idioma de su datos guardados no coincide con el idioma de su juego.",
   ZONE_LAYOUT_ERROR = "Estoy negarse a correr, por temor a dañar sus datos guardados. "..

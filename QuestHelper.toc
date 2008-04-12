@@ -18,8 +18,9 @@ lang_enus.lua
 lang_dede.lua
 lang_frfr.lua
 lang_eses.lua
-lang_zhcn.lua
-lang_zhtw.lua
+lang_dadk.lua
+#lang_zhcn.lua
+#lang_zhtw.lua
 lang_kokr.lua
 
 upgrade.lua

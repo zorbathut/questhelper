@@ -1,5 +1,8 @@
 QuestHelper_Translations.daDK =
  {
+  -- Displayed by locale chooser.
+  LOCALE_NAME = "Nederlands",
+  
   -- Messages used when starting.
   LOCALE_ERROR = "Sproget i dine gemte data stemmer ikke med sprogt for til WoW klient.",
   ZONE_LAYOUT_ERROR = "Jeg nægter at løbe, ud af frygt for, at ødelægge dine gemte data. "..

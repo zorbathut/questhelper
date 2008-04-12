@@ -2,6 +2,8 @@
 
 QuestHelper_Translations.koKR =
  {
+  -- Displayed by locale chooser.
+  LOCALE_NAME = "한국어",
   
   -- Messages used when starting.
   LOCALE_ERROR = "저장된 데이터의 로케일이 Wow 클라이언트의 로케일과 맞지 않습니다.",

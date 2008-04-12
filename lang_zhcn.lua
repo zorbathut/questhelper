@@ -4,6 +4,9 @@ QuestHelper_Translations.zhCN =
  {
   --[[ THIS FILE NEEDS TO BE TRANSLATED; REMOVE THIS LINE WHEN COMPLETED.
   
+  -- Displayed by locale chooser.
+  LOCALE_NAME = "English",
+  
   -- Messages used when starting.
   LOCALE_ERROR = "The locale of your saved data doesn't match the locale of your WoW client.",
   ZONE_LAYOUT_ERROR = "I'm refusing to run, out of fear of corrupting your saved data. "..
