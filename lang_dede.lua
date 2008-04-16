@@ -1,4 +1,4 @@
--- Please see lang_enus.lua for reference.
+﻿-- Please see lang_enus.lua for reference.
 
 QuestHelper_Translations.deDE =
  {
@@ -7,7 +7,7 @@ QuestHelper_Translations.deDE =
   
   -- Messages used when starting.
   LOCALE_ERROR = "Die Sprache deiner gespeicherten Daten stimmt nicht mit der Sprache deines WoW-Clienten überein.",
-  ZONE_LAYOUT_ERROR = "Ich weigere mich weiter zu arbeiten, aus Angst deine gespeicherten Daten zu beschädigen."..
+  ZONE_LAYOUT_ERROR = "Ich arbeite nicht weiter, um deine gespeicherten Daten nicht zu beschädigen."..
                       "Bitte warte auf einen Patch, der in der Lage ist mit dem neuen Zonen Layout umzugehen",
   DOWNGRADE_ERROR = "Deine gespeicherten Daten sind nicht kompatibel mit dieser Version von QuestHelper."..
                     "Verwende eine neue Version oder lösche deine gespeicherten Variablen.",
@@ -29,9 +29,9 @@ QuestHelper_Translations.deDE =
   SLAY_VERB = "Töte",
   ACQUIRE_VERB = "Erbeute",
   
-  OBJECTIVE_REASON = "%1 %h2 für das Quest %h3.", -- %1 is a verb, %2 is a noun (item or monster)
-  OBJECTIVE_REASON_FALLBACK = "%h1 für das Quest %h2.",
-  OBJECTIVE_REASON_TURNIN = "Gib das Quest %h1 ab.",
+  OBJECTIVE_REASON = "%1 %h2 für die Quest %h3.", -- %1 is a verb, %2 is a noun (item or monster)
+  OBJECTIVE_REASON_FALLBACK = "%h1 für die Quest %h2.",
+  OBJECTIVE_REASON_TURNIN = "Gib die Quest %h1 ab.",
   OBJECTIVE_PURCHASE = "Erwerben von %h1.",
   OBJECTIVE_TALK = "Sprich mit %h1.",
   OBJECTIVE_SLAY = "Töte %h1.",
@@ -103,7 +103,7 @@ QuestHelper_Translations.deDE =
   NAG_SINGLE = "1 %2", -- %1 == count (will be 1), %2 == what
   NAG_PLURAL = "%1 %s2",
   
-  NAG_MULTIPLE_NEW = "Du hast Informationen über %h1 neue und %h2 aktualisiert %h(%s3).",
+  NAG_MULTIPLE_NEW = "Du hast Informationen über %h1 neue und %h2 aktualisierte %h(%s3).",
   NAG_SINGLE_NEW = "Du hast neue Informationen über %h1.",
   NAG_ADDITIONAL = "Du hast zusätzliche Informationen über %h1.",
   
