@@ -1,0 +1,3 @@
+[submodule "Development/Input"]
+	path = Development/Input
+	url = git://smariot.hopto.org/QuestHelperData.git

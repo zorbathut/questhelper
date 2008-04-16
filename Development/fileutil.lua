@@ -27,9 +27,11 @@ FileUtil.fileName = function(filename)
 end
 
 FileUtil.quoteFile = is_windows and function(filename)
-  -- Escapes file names in Windows, and converts slashes to backslashes.
+  -- Escapes filenames in Windows, and converts slashes to backslashes.
   
   filename = FileUtil.fileName(filename)
+  
+  if filename == "" then return "\"\"" end
   
   local result = ""
   for i=1,string.len(filename) do
@@ -44,9 +46,11 @@ FileUtil.quoteFile = is_windows and function(filename)
   end
   return result
 end or function(filename)
-  -- Escapes file names in *nix, and converts backslashes  to slashes.
+  -- Escapes filenames in *nix, and converts backslashes  to slashes.
   
   filename = FileUtil.fileName(filename)
+  
+  if filename == "" then return "\"\"" end
   
   local result = ""
   for i=1,string.len(filename) do
@@ -83,11 +87,11 @@ FileUtil.fileHash = function(filename)
 end
 
 FileUtil.fileExists = function(filename)
+  -- Works for directories too, it would seem.
   local stream = io.open(FileUtil.fileName(filename), "r")
   if stream then
-    local exists = stream:read() ~= nil
     io.close(stream)
-    return exists
+    return true
   end
   return false
 end
@@ -103,7 +107,7 @@ FileUtil.forEachFile = function(directory, func)
     directory = "."
   end
   
-  local stream = io.popen(string.format(is_windows and "DIR //B %s" or "ls -f1 %s", FileUtil.quoteFile(directory)))
+  local stream = io.popen(string.format(is_windows and "DIR //B %s" or "ls -1 %s", FileUtil.quoteFile(directory)))
   
   if not stream then
     print("Failed to read directory contents: "..directory)
@@ -131,6 +135,18 @@ FileUtil.extension = function(filename)
   return ""
 end
 
+FileUtil.updateSVNRepo = function(url, directory)
+  if FileUtil.fileExists(directory) then
+    if os.execute(string.format("svn up -q %s", FileUtil.quoteFile(directory))) ~= 0 then
+      print("Failed to update svn repository: "..directory.." ("..url..")")
+    end
+  else
+    if os.execute(string.format("svn co -q %s %s", FileUtil.quoteFile(url), FileUtil.quoteFile(directory))) ~= 0 then
+      print("Failed to up fetch svn repository: "..directory.." ("..url..")")
+    end
+  end
+end
+
 FileUtil.createDirectory = function(directory)
   if os.execute(string.format(is_windows and "MD %s" or "mkdir -p %s", FileUtil.quoteFile(directory))) ~= 0 then
     print("Failed to create directory: "..directory)
@@ -151,6 +167,12 @@ end
 
 FileUtil.createZipArchive = function(directory, archive)
   if os.execute(string.format("zip -rq9 %s %s", FileUtil.quoteFile(archive), FileUtil.quoteFile(directory))) ~= 0 then
-    print("Failed to create archive: "..archive)
+    print("Failed to create zip archive: "..archive)
+  end
+end
+
+FileUtil.create7zArchive = function(directory, archive)
+  if os.execute(string.format("7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on archive.7z dir1 %s %s", FileUtil.quoteFile(archive), FileUtil.quoteFile(directory))) ~= 0 then
+    print("Failed to create 7z archive: "..archive)
   end
 end

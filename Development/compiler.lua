@@ -1,4 +1,5 @@
-loadfile("External/wowdata.lua")()
+--loadfile("External/wowdata.lua")()
+WoWData = {item={},quest={},npc={}}
 
 local StaticData = {}
 
@@ -15,7 +16,7 @@ function CollapseAverage(average)
   local to_remove = math.floor(#average*0.2)
   for i = 1,to_remove do
     table.remove(average, 1)
-    table.remove(average, 1)
+    table.remove(average)
   end
   if #average == 0 then 
     return nil

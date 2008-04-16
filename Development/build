@@ -1,12 +1,21 @@
 #!/usr/bin/env lua
 
-local bool compile=true
+local compile=true
+local external=true
+local archive_zip=true
+local archive_7z=false
 
-for i, a in ipairs(arg) do
-  if a == "-compile" then compile = false
-  elseif a == "+compile" then compile = true
+for i, a in ipairs({...}) do
+  local mode, option = select(3, string.find(a, "^([%+%-]?)(.*)$"))
+  
+  mode = mode ~= "-"
+  
+  if option == "zip" then archive_7z = mode
+  elseif option == "7z" then archive_7z = mode
+  elseif option == "compile" then compile = mode
+  elseif option == "external" then external = mode
   else
-    print("Unknown option: "..a)
+    print("Unknown option: "..option)
     return 1
   end
 end
@@ -30,9 +39,14 @@ loadfile("dump.lua")()
 loadfile("fileutil.lua")()
 loadfile("../upgrade.lua")()
 loadfile("compiler.lua")()
-loadfile("external.lua")()
+--loadfile("external.lua")()
 
 QuestHelper_BuildZoneLookup()
+
+if external then
+  FileUtil.updateSVNRepo("http://svn.esamynn.org/astrolabe/trunk", "../Astrolabe")
+  FileUtil.updateSVNRepo("http://svn.wowace.com/wowace/trunk/ChatThrottleLib", "../ChatThrottleLib")
+end
 
 if compile then
   local function saveCache()
@@ -279,8 +293,8 @@ if compile then
 
   saveCache()
 
-  print("Compiling Lightheaded/eql3 data. . .")
-  ProcessExternal()
+  --print("Compiling Lightheaded/eql3 data. . .")
+  --ProcessExternal()
 
   for name, origin in pairs(all_input_files) do
     print("Compiling: ", origin)
@@ -301,41 +315,47 @@ print("Creating: Icons.tga")
 if not FileUtil.fileExists("../Art/Icons.tga") then
   print("You'll need to manually create Art/Icons.tga, ImageMagick's SVG support seems to have been broken recently.")
 end
--- os.execute("convert -background None Data/art.svg ../Art/Icons.tga")
+--FileUtil.convertImage("Data/art.svg", "../Art/Icons.tga")
 
-print("Creating: QuestHelper.zip")
-
-FileUtil.unlinkFile("QuestHelper")
-FileUtil.unlinkFile("../QuestHelper.zip")
-
-FileUtil.createDirectory("QuestHelper")
-FileUtil.createDirectory("QuestHelper/Art")
-FileUtil.createDirectory("QuestHelper/Astrolabe")
-FileUtil.createDirectory("QuestHelper/ChatThrottleLib")
-
-FileUtil.forEachFile("..", function (file)
-  local ext = FileUtil.extension(file)
-  if ext == "toc" or ext == "lua" then
-    FileUtil.copyFile(file, "QuestHelper")
+if archive_zip or archive_7z then
+  FileUtil.unlinkFile("QuestHelper")
+  
+  FileUtil.createDirectory("QuestHelper")
+  FileUtil.createDirectory("QuestHelper/Art")
+  FileUtil.createDirectory("QuestHelper/Astrolabe")
+  FileUtil.createDirectory("QuestHelper/ChatThrottleLib")
+  
+  FileUtil.forEachFile("..", function (file)
+    local ext = FileUtil.extension(file)
+    if ext == "toc" or ext == "lua" then
+      FileUtil.copyFile(file, "QuestHelper")
+    end
+  end)
+  
+  FileUtil.forEachFile("../Art", function (file)
+    local ext = FileUtil.extension(file)
+    if ext == "blp" or ext == "tga" then
+      FileUtil.copyFile(file, "QuestHelper/Art")
+    end
+  end)
+  
+  for i, dir in ipairs({"Astrolabe", "ChatThrottleLib"}) do
+    FileUtil.forEachFile("../"..dir, function (file)
+      FileUtil.copyFile(file, "QuestHelper/"..dir)
+    end)
   end
-end)
-
-FileUtil.forEachFile("../Art", function (file)
-  local ext = FileUtil.extension(file)
-  if ext == "tga" then
-    FileUtil.copyFile(file, "QuestHelper/Art")
+  
+  if archive_zip then
+    FileUtil.unlinkFile("../QuestHelper.zip")
+    FileUtil.createZipArchive("QuestHelper", "../QuestHelper.zip")
   end
-end)
-
-FileUtil.forEachFile("../Astrolabe", function (file)
-  FileUtil.copyFile(file, "QuestHelper/Astrolabe")
-end)
-
-FileUtil.forEachFile("../ChatThrottleLib", function (file)
-  FileUtil.copyFile(file, "QuestHelper/ChatThrottleLib")
-end)
-
-FileUtil.createZipArchive("QuestHelper", "../QuestHelper.zip")
-FileUtil.unlinkFile("QuestHelper")
+  
+  if archive_7z then
+    FileUtil.unlinkFile("../QuestHelper.7z")
+    FileUtil.create7zArchive("QuestHelper", "../QuestHelper.7z")
+  end
+  
+  FileUtil.unlinkFile("QuestHelper")
+end
 
 print("Done!")
