@@ -95,14 +95,14 @@ local function Menu_DoHide(self)
 end
 
 local function Menu_ShowAtCursor(self, auto_release)
-  auto_release = autom_release == nil and true or auto_release
+  auto_release = auto_release == nil and true or auto_release
   self.auto_release = auto_release
   
   local x, y = GetCursorPosition()
   
-  local parent = (QuestHelper.Astrolabe.WorldMapVisible and QuestHelper.map_overlay) or nil
+  local parent = not UIParent:IsVisible() and QuestHelper.map_overlay or nil
   self:SetParent(parent)
-  self.level = (parent or UIParent):GetFrameLevel()+1
+  self.level = (parent or UIParent):GetFrameLevel()+10
   self:ClearAllPoints()
   
   -- Need to call DoShow before setting the position so that the width and height will have been calculated.
