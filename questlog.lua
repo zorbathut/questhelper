@@ -165,7 +165,15 @@ function QuestHelper:ScanQuestLog()
     
     if not title then break end
     
-    players = math.min(5, math.max(1, (players and players ~= 0 and players) or (qtype ~= nil and 5) or 1))
+    if players and players <= 0 then
+      players = nil
+    end
+    
+    if not players then
+      players = qtype == nil and 5 or 1
+    else
+      players = math.min(5, math.max(1, players))
+    end
     
     if not header then
       SelectQuestLogEntry(index)
