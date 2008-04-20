@@ -10,7 +10,7 @@ for i, a in ipairs({...}) do
   
   mode = mode ~= "-"
   
-  if option == "zip" then archive_7z = mode
+  if option == "zip" then archive_zip = mode
   elseif option == "7z" then archive_7z = mode
   elseif option == "compile" then compile = mode
   elseif option == "external" then external = mode
@@ -318,7 +318,7 @@ end
 --FileUtil.convertImage("Data/art.svg", "../Art/Icons.tga")
 
 if archive_zip or archive_7z then
-  FileUtil.unlinkFile("QuestHelper")
+  FileUtil.unlinkDirectory("QuestHelper")
   
   FileUtil.createDirectory("QuestHelper")
   FileUtil.createDirectory("QuestHelper/Art")
@@ -355,7 +355,7 @@ if archive_zip or archive_7z then
     FileUtil.create7zArchive("QuestHelper", "../QuestHelper.7z")
   end
   
-  FileUtil.unlinkFile("QuestHelper")
+  FileUtil.unlinkDirectory("QuestHelper")
 end
 
 print("Done!")
