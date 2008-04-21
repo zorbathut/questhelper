@@ -10,7 +10,7 @@ for i, a in ipairs({...}) do
   
   mode = mode ~= "-"
   
-  if option == "zip" then archive_7z = mode
+  if option == "zip" then archive_zip = mode
   elseif option == "7z" then archive_7z = mode
   elseif option == "compile" then compile = mode
   elseif option == "external" then external = mode
@@ -327,8 +327,19 @@ if archive_zip or archive_7z then
   
   FileUtil.forEachFile("..", function (file)
     local ext = FileUtil.extension(file)
-    if ext == "toc" or ext == "lua" then
+    if ext == "lua" then
       FileUtil.copyFile(file, "QuestHelper")
+    elseif ext == "toc" then
+      -- Modify the version to include the date and hash of the most recent commit.
+      
+      local info = nil
+      local stream = io.popen("git-log -1 --pretty=\"format:, %h, %ai\"", "r")
+      if stream then
+        info = stream:read("*line")
+        io.close(stream)
+      end
+      
+      FileUtil.copyFile(file, "QuestHelper", "^(##%s-Version%s-:.*)$", "%1"..(info or ", unknown revision"))
     end
   end)
   
@@ -346,11 +357,13 @@ if archive_zip or archive_7z then
   end
   
   if archive_zip then
+    print("Creating QuestHelper.zip")
     FileUtil.unlinkFile("../QuestHelper.zip")
     FileUtil.createZipArchive("QuestHelper", "../QuestHelper.zip")
   end
   
   if archive_7z then
+    print("Creating QuestHelper.7z")
     FileUtil.unlinkFile("../QuestHelper.7z")
     FileUtil.create7zArchive("QuestHelper", "../QuestHelper.7z")
   end
