@@ -44,7 +44,9 @@ loadfile("compiler.lua")()
 QuestHelper_BuildZoneLookup()
 
 if external then
+  print("Updating Astrolabe.")
   FileUtil.updateSVNRepo("http://svn.esamynn.org/astrolabe/trunk", "../Astrolabe")
+  print("Updating ChatThrottleLib.")
   FileUtil.updateSVNRepo("http://svn.wowace.com/wowace/trunk/ChatThrottleLib", "../ChatThrottleLib")
 end
 
@@ -55,6 +57,24 @@ if compile then
     DumpVariable(buffer, prebuf, cache, "cache")
     stream:write(DumpingComplete(buffer, prebuf))
     io.close(stream)
+  end
+  
+  -- Download the latest copy of the translated item/npc names.
+  if external then
+    os.execute("wget http://smariot.hopto.org/wowdata.7z -N")
+    
+    if FileUtil.fileExists("wowdata.7z") then
+      local hash = FileUtil.fileHash("wowdata.7z")
+      if cache.wowdata_hash ~= hash then
+        -- If the archive has changed, extract the lua file from the archive.
+        cache.wowdata_hash = hash
+        os.execute("7z e -y wowdata.7z wowdata.lua")
+      end
+    end
+  end
+  
+  if FileUtil.fileExists("wowdata.lua") then
+    loadfile("wowdata.lua")()
   end
 
   local all_input_files, unknown_input_files = {}, {}
