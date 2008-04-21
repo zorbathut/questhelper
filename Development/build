@@ -350,16 +350,30 @@ if archive_zip or archive_7z then
     if ext == "lua" then
       FileUtil.copyFile(file, "QuestHelper")
     elseif ext == "toc" then
-      -- Modify the version to include the date and hash of the most recent commit.
-      
       local info = nil
-      local stream = io.popen("git-log -1 --pretty=\"format:, %h, %ai\"", "r")
+      
+      -- Try to coax git to give us something to use for the version.
+      local stream = io.popen("git describe --tags HEAD", "r")
       if stream then
         info = stream:read("*line")
         io.close(stream)
       end
       
-      FileUtil.copyFile(file, "QuestHelper", "^(##%s-Version%s-:.*)$", "%1"..(info or ", unknown revision"))
+      if not info then
+        -- Didn't get a nice looking tag to use, try to at least get a hash for the version.
+        stream = io.popen("git-log -1 --pretty=\"format:%2-??-%h\"", "r")
+        if stream then
+          info = stream:read("*line")
+          io.close(stream)
+        end
+      end
+      
+      if not info then
+        -- We have no idea what version this is, will use the string already in the TOC.
+        info = "%2"
+      end
+      
+      FileUtil.copyFile(file, "QuestHelper", "^(##%s-Version%s-:%s*)(.*)$", "%1"..info)
     end
   end)
   
