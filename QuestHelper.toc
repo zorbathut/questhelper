@@ -5,6 +5,7 @@
 ## Notes-deDE: Berechnet eine optimale Route für dich, der du während dem Questen folgen kannst.
 ## Notes-frFR: Calcule un itinéraire optimal pour vous de suivre.
 ## Notes-esES: Calcula la mejor ruta a seguir para usted.
+## Notes-esMX: Calcula la mejor ruta a seguir para usted.
 ## Notes-koKR: 노선에 대한 계산을 수행합니다.
 ## Version: 0.43
 ## OptionalDeps: Cartographer
@@ -21,6 +22,7 @@ lang_enus.lua
 lang_dede.lua
 lang_frfr.lua
 lang_eses.lua
+lang_esmx.lua
 lang_dadk.lua
 #lang_zhcn.lua
 #lang_zhtw.lua
