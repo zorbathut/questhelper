@@ -318,7 +318,7 @@ end
 --FileUtil.convertImage("Data/art.svg", "../Art/Icons.tga")
 
 if archive_zip or archive_7z then
-  FileUtil.unlinkFile("QuestHelper")
+  FileUtil.unlinkDirectory("QuestHelper")
   
   FileUtil.createDirectory("QuestHelper")
   FileUtil.createDirectory("QuestHelper/Art")
@@ -368,7 +368,7 @@ if archive_zip or archive_7z then
     FileUtil.create7zArchive("QuestHelper", "../QuestHelper.7z")
   end
   
-  FileUtil.unlinkFile("QuestHelper")
+  FileUtil.unlinkDirectory("QuestHelper")
 end
 
 print("Done!")

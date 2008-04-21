@@ -26,7 +26,8 @@ FileUtil.fileName = function(filename)
   return filename
 end
 
-FileUtil.quoteFile = is_windows and function(filename)
+
+FileUtil.quoteFileWindows = function (filename)
   -- Escapes filenames in Windows, and converts slashes to backslashes.
   
   filename = FileUtil.fileName(filename)
@@ -45,8 +46,11 @@ FileUtil.quoteFile = is_windows and function(filename)
     result = result .. c
   end
   return result
-end or function(filename)
+end
+
+FileUtil.quoteFileNix = function (filename)
   -- Escapes filenames in *nix, and converts backslashes  to slashes.
+  -- Also used directly for URLs, which are always *nix style paths
   
   filename = FileUtil.fileName(filename)
   
@@ -66,6 +70,8 @@ end or function(filename)
   
   return result
 end
+
+FileUtil.quoteFile = is_windows and FileUtil.quoteFileWindows or FileUtil.quoteFileNix
 
 local function escapeForPattern(text)
   return string.gsub(text, "[%%%^%$%.%+%*%-%?%[%]]", function (x) return "%"..x end)
@@ -87,11 +93,11 @@ FileUtil.fileHash = function(filename)
 end
 
 FileUtil.fileExists = function(filename)
-  -- Works for directories too, it would seem.
   local stream = io.open(FileUtil.fileName(filename), "r")
   if stream then
+    local exists = stream:read() ~= nil
     io.close(stream)
-    return true
+    return exists
   end
   return false
 end
@@ -157,7 +163,7 @@ FileUtil.forEachFile = function(directory, func)
     directory = "."
   end
   
-  local stream = io.popen(string.format(is_windows and "DIR //B %s" or "ls -1 %s", FileUtil.quoteFile(directory)))
+  local stream = io.popen(string.format(is_windows and "DIR /B %s" or "ls -1 %s", FileUtil.quoteFile(directory)))
   
   if not stream then
     print("Failed to read directory contents: "..directory)
@@ -186,12 +192,14 @@ FileUtil.extension = function(filename)
 end
 
 FileUtil.updateSVNRepo = function(url, directory)
-  if FileUtil.fileExists(directory) then
+  -- Check for the SVN entries file, which should exist regardless of OS; fileExists doesn't work for directories under Windows.
+  if FileUtil.fileExists(directory.."/.svn/entries") then
     if os.execute(string.format("svn up -q %s", FileUtil.quoteFile(directory))) ~= 0 then
       print("Failed to update svn repository: "..directory.." ("..url..")")
     end
   else
-    if os.execute(string.format("svn co -q %s %s", FileUtil.quoteFile(url), FileUtil.quoteFile(directory))) ~= 0 then
+    -- quoteFile on Windows results in invalid URLs, so just wrap it in quotes and be done with it
+    if os.execute(string.format("svn co -q %s %s", is_windows and "\""..url.."\"" or FileUtil.quoteFile(url), FileUtil.quoteFile(directory))) ~= 0 then
       print("Failed to up fetch svn repository: "..directory.." ("..url..")")
     end
   end
@@ -200,6 +208,12 @@ end
 FileUtil.createDirectory = function(directory)
   if os.execute(string.format(is_windows and "MD %s" or "mkdir -p %s", FileUtil.quoteFile(directory))) ~= 0 then
     print("Failed to create directory: "..directory)
+  end
+end
+
+FileUtil.unlinkDirectory = function(directory)
+  if os.execute(string.format(is_windows and "RMDIR /S /Q %s" or "rm -rf %s", FileUtil.quoteFile(directory))) ~= 0 then
+    print("Failed to unlink directory: "..directory)
   end
 end
 
