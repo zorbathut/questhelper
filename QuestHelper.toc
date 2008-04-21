@@ -3,6 +3,9 @@
 ## Author: smariot, vipersniper
 ## Notes: Calculates an optimal route for you to follow while questing.
 ## Notes-deDE: Berechnet eine optimale Route für dich, der du während dem Questen folgen kannst.
+## Notes-frFR: Calcule un itinéraire optimal pour vous de suivre.
+## Notes-esES: Calcula la mejor ruta a seguir para usted.
+## Notes-koKR: 노선에 대한 계산을 수행합니다.
 ## Version: 0.43
 ## OptionalDeps: Cartographer
 ## SavedVariables: QuestHelper_SaveVersion QuestHelper_Locale QuestHelper_Quests QuestHelper_Objectives QuestHelper_FlightInstructors QuestHelper_FlightRoutes QuestHelper_Pref QuestHelper_UID QuestHelper_SaveDate
