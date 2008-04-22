@@ -4,11 +4,12 @@ local map_rpf = 25
 local normal_rpf = 10
 
 local function yieldIfNeeded()
-  if call_count == QuestHelper.Astrolabe.WorldMapVisible and map_rpf or normal_rpf then
-    call_count = 0
+  -- Make sure we yield every so often.  When QuestHelper is hidden, the routing becomes a background task
+  if call_count <= 0 or QuestHelper_Pref.hide then
+    call_count = call_count + (QuestHelper.Astrolabe.WorldMapVisible and map_rpf or normal_rpf) * QuestHelper_Pref.perf_scale
     coroutine.yield()
   else
-    call_count = call_count + 1
+    call_count = call_count - 1
   end
 end
 

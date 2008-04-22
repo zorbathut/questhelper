@@ -25,6 +25,35 @@ function QuestHelper:SetIconScale(input)
   end
 end
 
+-----------------------------------------------------------------------------------------------
+-- Set / show the Performance Factor
+function QuestHelper:SetPerfFactor(input)
+  if input == "" then
+    self:TextOut("Current Performance Factor is "..self:HighlightText(math.floor(QuestHelper_Pref.perf_scale*100).."%")..".")
+  else
+    local perf = tonumber(input)
+
+    if not perf then
+      local _, _, x = string.find(input, "^%s*([%d%.]+)%s*%%%s*$")
+      perf = tonumber(x)
+      if not perf then
+        self:TextOut("I don't know how to interpret your input.")
+        return
+      end
+      perf = perf * 0.01
+    end
+
+    if perf < 0.1 then
+      self:TextOut("I won't accept a performance factor less than 10%.")
+    elseif perf > 5 then
+      self:TextOut("I won't accept a performance factor more than 500%.")
+    else
+      QuestHelper_Pref.perf_scale = perf
+      self:TextOut("Performance factor set to "..self:HighlightText(math.floor(perf*100+0.5).."%")..".")
+    end
+  end
+end
+
 function QuestHelper:SetLocale(loc)
   if not loc or loc == "" then
     self:TextOut(QHText("LOCALE_LIST_BEGIN"))
@@ -62,6 +91,8 @@ function QuestHelper:ToggleHide()
     self.minimap_dodad.objective = nil
     self.minimap_dodad:SetObjective(current_objective)
     self:TextOut("QuestHelper is now |cff00ff00shown|r.")
+    self:TextOut(QHText("UPDATING_ROUTE"))
+    self:ForceRouteUpdate(4)        -- Let the corutine do some overtime...
   end
 end
 
@@ -322,7 +353,15 @@ local commands =
   
   {"LOCALE",
    "Select the locale to use for displayed messages.",
-    {}, QuestHelper.SetLocale, QuestHelper}
+    {}, QuestHelper.SetLocale, QuestHelper},
+
+  {"PERF",
+   "Sets / shows the Performance Factor.  Higher means more agressive route updating, lower means better performance (better frame rate).  Accepts numbers between 10% and 500%.",
+   {{"/qh perf", "Show current Performance Factor"},
+    {"/qh perf 1", "Sets standard performance"},
+    {"/qh perf 50%", "Does half as much background processing"},
+    {"/qh perf 3", "Computes routes 3 times more aggressively.  Better have some good horsepower!"}},
+    QuestHelper.SetPerfFactor, QuestHelper}
  }
 
 function QuestHelper:SlashCommand(input)
