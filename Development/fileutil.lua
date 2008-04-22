@@ -103,12 +103,11 @@ FileUtil.fileExists = function(filename)
 end
 
 FileUtil.isDirectory = function(filename)
-  -- TODO: Windows version of this.
-  local stream = io.popen(string.format("file -b %s", FileUtil.quoteFile(filename)), "r")
+  local stream = io.popen(string.format(is_windows and "DIR /B /AD %s" or "file -b %s", FileUtil.quoteFile(filename)), "r")
   if stream then
     local result = stream:read("*line")
     io.close(stream)
-    return result == "directory"
+    return is_windows and (result ~= "File Not Found") or (result == "directory")
   end
   error("Failed to execute 'file' command.")
 end
@@ -147,11 +146,11 @@ FileUtil.copyFile = function(in_name, out_name, ...)
         end
         io.close(dest)
       else
-        print("Failed to copy "..in_name.." to "..out_name)
+        print("Failed to copy "..in_name.." to "..out_name.."; couldn't open "..out_name)
       end
       io.close(src)
     else
-      print("Failed to copy "..in_name.." to "..out_name)
+      print("Failed to copy "..in_name.." to "..out_name.."; couldn't open "..in_name)
     end
   elseif os.execute(string.format(is_windows and "COPY %s %s" or "cp %s %s", FileUtil.quoteFile(in_name), FileUtil.quoteFile(out_name))) ~= 0 then
     print("Failed to copy "..in_name.." to "..out_name)
