@@ -34,7 +34,7 @@ function QuestHelper:CreateFrame(parent)
   if frame then
     frame:SetParent(parent)
   else
-    frame = CreateFrame("Button", nil, parent)
+    frame = CreateFrame("Button", string.format("QuestHelperFrame%d",self.used_frames), parent)
   end
   
   frame:SetFrameLevel((parent or UIParent):GetFrameLevel()+1)

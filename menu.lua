@@ -71,6 +71,11 @@ local function Menu_DoShow(self)
   if self.parent then
     self.level = self.parent.parent.level + #self.parent.parent.items + 1
     self:SetFrameLevel(self.level)
+    self:SetFrameStrata(self.parent:GetFrameStrata())   -- It should be sufficient to just set all to "TOOLTIP", but this seemed more versatile...
+  else
+    -- When there's no world map, or the world map is in a window, the menus
+    -- are un-parented.  So make sure they're at a sufficient strata to be seen.
+    self:SetFrameStrata("TOOLTIP")
   end
   
   for i, n in ipairs(self.items) do
@@ -128,7 +133,7 @@ function QuestHelper:CreateMenu()
   
   menu.items = self:CreateTable()
   menu:SetMovable(true)
-  menu:SetFrameStrata("TOOLTIP")
+  menu:SetFrameStrata("TOOLTIP") -- A good default, but we usually re-parent the menus, which clobbers this.
   
   menu.AddItem = Menu_AddItem
   menu.SetCloseFunction = Menu_SetCloseFunction
