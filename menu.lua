@@ -71,6 +71,9 @@ local function Menu_DoShow(self)
   if self.parent then
     self.level = self.parent.parent.level + #self.parent.parent.items + 1
     self:SetFrameLevel(self.level)
+    self:SetFrameStrata(self.parent:GetFrameStrata())   -- It should be sufficient to just set all to "TOOLTIP", but this seemed more versatile...
+  else
+    self:SetFrameStrata("TOOLTIP")
   end
   
   for i, n in ipairs(self.items) do
@@ -128,7 +131,7 @@ function QuestHelper:CreateMenu()
   
   menu.items = self:CreateTable()
   menu:SetMovable(true)
-  menu:SetFrameStrata("TOOLTIP")
+  -- menu:SetFrameStrata("TOOLTIP") -- I think this isn't working because the frame is hidden
   
   menu.AddItem = Menu_AddItem
   menu.SetCloseFunction = Menu_SetCloseFunction
