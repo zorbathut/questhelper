@@ -47,7 +47,7 @@ end
 
 use_locale["zhCN"] = false
 
-local title = {enUS="English", frFR="Français", esES="Español", deDE="Deutsch", koKR="한국어"}
+local title = {enUS="English", frFR="Français", esES="Español (España)", deDE="Deutsch", koKR="한국어", esMX="Español (Mexico)"}
 
 io.close(file)
 
@@ -58,8 +58,8 @@ for locale in pairs(plotdata) do
   end
 end
 
-local locale_colour_alliance = {enUS="#ff0000", frFR="#00ff00", deDE="#0000ff", esES="#ffaa00", koKR="#00ffff", zhCN="#ff00ff"}
-local locale_colour_horde = {enUS="#dd0000", frFR="#00dd00", deDE="#0000dd", esES="#dd8800", koKR="#00dddd", zhCN="#dd00dd"}
+local locale_colour_alliance = {enUS="#ff0000", frFR="#0000aa", deDE="#666666", esES="#ffaa00", koKR="#00aaff", zhCN="#ff00ff", esMX="#dddddd"}
+local locale_colour_horde = {enUS="#dd0000", frFR="#000088", deDE="#44444444", esES="#dd8800", koKR="#0088dd", zhCN="#dd00dd", esMX="#bfbfbf"}
 
 local command = nil
 local i, j = 1, 1

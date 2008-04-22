@@ -1,5 +1,4 @@
---loadfile("External/wowdata.lua")()
-WoWData = {item={},quest={},npc={}}
+WoWData = {item={},quest={},npc={}} -- The build script will replace this with actual data if it can.
 
 local StaticData = {}
 

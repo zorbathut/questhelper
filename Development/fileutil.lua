@@ -71,7 +71,7 @@ FileUtil.quoteFileNix = function (filename)
   return result
 end
 
-FileUtil.quoteFile = is_windows and FileUtil.quoteFileWindows or FileUtil.quoteFileNix;
+FileUtil.quoteFile = is_windows and FileUtil.quoteFileWindows or FileUtil.quoteFileNix
 
 local function escapeForPattern(text)
   return string.gsub(text, "[%%%^%$%.%+%*%-%?%[%]]", function (x) return "%"..x end)
@@ -93,17 +93,67 @@ FileUtil.fileHash = function(filename)
 end
 
 FileUtil.fileExists = function(filename)
-  -- Works for directories too, it would seem.
   local stream = io.open(FileUtil.fileName(filename), "r")
   if stream then
+    local exists = stream:read() ~= nil
     io.close(stream)
-    return true
+    return exists
   end
   return false
 end
 
-FileUtil.copyFile = function(in_name, out_name)
-  if os.execute(string.format(is_windows and "COPY %s %s" or "cp %s %s", FileUtil.quoteFile(in_name), FileUtil.quoteFile(out_name))) ~= 0 then
+FileUtil.isDirectory = function(filename)
+  -- TODO: Windows version of this.
+  local stream = io.popen(string.format("file -b %s", FileUtil.quoteFile(filename)), "r")
+  if stream then
+    local result = stream:read("*line")
+    io.close(stream)
+    return result == "directory"
+  end
+  error("Failed to execute 'file' command.")
+end
+
+-- Extra strings passed to copyFile are pattern/replacement pairs, applied to
+-- each line of the file being copied.
+FileUtil.copyFile = function(in_name, out_name, ...)
+  local extra = select("#", ...)
+  
+  if FileUtil.isDirectory(out_name) then
+    -- If out_name is a directory, change it to a filename.
+    out_name = string.format("%s/%s", out_name, select(3, string.find(in_name, "([^/\\]*)$")))
+  end
+  
+  if extra > 0 then
+    assert(extra%2==0, "Odd number of arguments.")
+    local src = io.open(in_name, "rb")
+    if src then
+      local dest = io.open(out_name, "wb")
+      if dest then
+        while true do
+          local original = src:read("*line")
+          if not original then break end
+          local eol
+          original, eol = select(3, string.find(original, "^(.-)(\r?)$")) -- Try to keep the CR in CRLF codes intact.
+          local replacement = original
+          for i = 1,extra,2 do
+            local a, b = select(i, ...)
+            replacement = string.gsub(replacement, a, b)
+          end
+          
+          -- If we make a line blank, and it wasn't blank before, we omit the line.
+          if original == replacement or replacement ~= "" then
+            dest:write(replacement, eol, "\n")
+          end
+        end
+        io.close(dest)
+      else
+        print("Failed to copy "..in_name.." to "..out_name)
+      end
+      io.close(src)
+    else
+      print("Failed to copy "..in_name.." to "..out_name)
+    end
+  elseif os.execute(string.format(is_windows and "COPY %s %s" or "cp %s %s", FileUtil.quoteFile(in_name), FileUtil.quoteFile(out_name))) ~= 0 then
     print("Failed to copy "..in_name.." to "..out_name)
   end
 end
@@ -186,7 +236,7 @@ FileUtil.createZipArchive = function(directory, archive)
 end
 
 FileUtil.create7zArchive = function(directory, archive)
-  if os.execute(string.format("7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on archive.7z dir1 %s %s", FileUtil.quoteFile(archive), FileUtil.quoteFile(directory))) ~= 0 then
+  if os.execute(string.format("7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on %s %s", FileUtil.quoteFile(archive), FileUtil.quoteFile(directory))) ~= 0 then
     print("Failed to create 7z archive: "..archive)
   end
 end
