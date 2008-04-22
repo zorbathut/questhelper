@@ -1,3 +1,8 @@
+== Version <next release> ===
+
+* Added World Map button to disable/enable QuestHelper (Coming soon: right-click menu on this button for more control)
+* Added slash command '/qh perf' to set a Performance Factor: lower is better performance (i.e. frame rate), higher is more aggressive routing/updating.
+
 == Version 0.43 04/08/2008 ==
 
 * Spam, spam, glorious spam.
