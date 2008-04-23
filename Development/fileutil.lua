@@ -185,7 +185,7 @@ end
 FileUtil.extension = function(filename)
   local ext = select(3, string.find(filename, ".*%.(.-)$"))
   if ext and not string.find(ext, "[/\\]") then
-    return ext
+    return string.lower(ext)
   end
   return ""
 end
@@ -223,8 +223,21 @@ FileUtil.unlinkFile = function(filename)
 end
 
 FileUtil.convertImage = function(source, dest)
-  if os.execute(string.format("convert -background None %s %s", FileUtil.quoteFile(source), FileUtil.quoteFile(dest))) ~= 0 then
-    print("Failed to convert: "..source)
+  if source ~= dest then
+    if FileUtil.extension(source) == "svg" then
+      -- Because convert doesn't properly render SVG files,
+      -- I'm going to instead use rsvg to render them to some temporary location,
+      -- and then use convert on the temporary file.
+      local temp = os.tmpname()..".png"
+      if os.execute(string.format("rsvg -fpng %s %s", FileUtil.quoteFile(source), FileUtil.quoteFile(temp))) ~= 0 then
+        print("Failed to convert: "..source)
+      else
+        FileUtil.convertImage(temp, dest)
+        FileUtil.unlinkFile(temp)
+      end
+    elseif os.execute(string.format("convert -background None %s %s", FileUtil.quoteFile(source), FileUtil.quoteFile(dest))) ~= 0 then
+      print("Failed to convert: "..source)
+    end
   end
 end
 
