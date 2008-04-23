@@ -332,10 +332,10 @@ elseif not FileUtil.fileExists("../static.lua") then
 end
 
 print("Creating: Icons.tga")
-if not FileUtil.fileExists("../Art/Icons.tga") then
-  print("You'll need to manually create Art/Icons.tga, ImageMagick's SVG support seems to have been broken recently.")
-end
---FileUtil.convertImage("Data/art.svg", "../Art/Icons.tga")
+--if not FileUtil.fileExists("../Art/Icons.tga") then
+--  print("You'll need to manually create Art/Icons.tga, ImageMagick's SVG support seems to have been broken recently.")
+--end
+FileUtil.convertImage("Data/art.svg", "../Art/Icons.tga")
 
 if archive_zip or archive_7z then
   FileUtil.unlinkDirectory("QuestHelper")
