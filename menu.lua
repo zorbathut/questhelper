@@ -70,7 +70,6 @@ local function Menu_DoShow(self)
   
   if self.parent then
     self.level = self.parent.parent.level + #self.parent.parent.items + 1
-    self:SetFrameLevel(self.level)
     self:SetFrameStrata(self.parent:GetFrameStrata())   -- It should be sufficient to just set all to "TOOLTIP", but this seemed more versatile...
   else
     -- When there's no world map, or the world map is in a window, the menus
@@ -78,9 +77,12 @@ local function Menu_DoShow(self)
     self:SetFrameStrata("TOOLTIP")
   end
   
+  self:SetFrameLevel(self.level)
+  
   for i, n in ipairs(self.items) do
     n.level = self.level+i
     n:SetFrameLevel(n.level)
+    n:SetFrameStrata(self:GetFrameStrata())
     n:DoShow()
   end
 end
@@ -105,7 +107,7 @@ local function Menu_ShowAtCursor(self, auto_release)
   
   local x, y = GetCursorPosition()
   
-  local parent = not UIParent:IsVisible() and QuestHelper.map_overlay or nil
+  local parent = not UIParent:IsVisible() and QuestHelper.map_overlay or UIParent
   self:SetParent(parent)
   self.level = (parent or UIParent):GetFrameLevel()+10
   self:ClearAllPoints()
@@ -305,13 +307,15 @@ end
 
 local function MenuItem_GetSize(self)
   self:SetScale(1)
+  self.text:SetParent(nil) -- Remove the text's parent so that it doesn't inherit scaling and mess up the dimensions.
   self.text:ClearAllPoints()
   self.text:SetWidth(0)
+  self.text:SetHeight(0)
   
-  self.text_w = self.text:GetWidth()
+  self.text_w = self.text:GetStringWidth()+1
   if self.text_w >= 320 then
     self.text:SetWidth(320)
-    self.text_h = self.text:GetHeight()
+    self.text_h = self.text:GetHeight()+1
     local mn, mx = 100, 321
     while mn ~= mx do
       local w = math.floor((mn+mx)*0.5)
@@ -323,11 +327,14 @@ local function MenuItem_GetSize(self)
       end
     end
     
-    self.text:SetWidth(mn)
     self.text_w = mn+1
+    self.text:SetWidth(self.text_w)
   else
-    self.text_h = self.text:GetHeight()
+    self.text:SetWidth(self.text_w)
+    self.text_h = self.text:GetHeight()+1
   end
+  
+  self.text:SetParent(self)
   
   local w, h = self.text_w+4, self.text_h+4
   
