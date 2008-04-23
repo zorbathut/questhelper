@@ -34,7 +34,7 @@ function QuestHelperWorldMapButton_OnEnter(self)
 
     QuestHelper.tooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT", self:GetWidth(), -5)
     QuestHelper.tooltip:ClearLines()
-    QuestHelper.tooltip:AddLine(QHFormat("QH_BUTTON_TOOLTIP1", QuestHelper_Pref.hide and QHText("QH_BUTTON_SHOW") or QHText("QH_BUTTON_HIDE")),
+    QuestHelper.tooltip:AddLine(QHFormat("QH_BUTTON_TOOLTIP1", QHText(QuestHelper_Pref.hide and "QH_BUTTON_SHOW" or "QH_BUTTON_HIDE")),
                                 unpack(theme.tooltip))
     QuestHelper.tooltip:GetPrevLines():SetFont(QuestHelper.font.serif, 12)
     QuestHelper.tooltip:Show()
