@@ -136,6 +136,7 @@ function QuestHelper:Purge(code)
     QuestHelper_Objectives = {}
     QuestHelper_FlightInstructors = {}
     QuestHelper_FlightRoutes = {}
+    QuestHelper_Locale = GetLocale()
     QuestHelper_UID = self:CreateUID()
     ReloadUI()
   else
