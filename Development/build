@@ -347,7 +347,7 @@ if archive_zip or archive_7z then
   
   FileUtil.forEachFile("..", function (file)
     local ext = FileUtil.extension(file)
-    if ext == "lua" or ext == "toc" then
+    if ext == "lua" or ext == "xml" then
       FileUtil.copyFile(file, "QuestHelper")
     elseif ext == "toc" then
       local info = nil
@@ -356,12 +356,16 @@ if archive_zip or archive_7z then
       local stream = io.popen("git describe --tags HEAD", "r")
       if stream then
         info = stream:read("*line")
+        if info then
+          -- Replace the first dash with a dot.
+          info = string.gsub(info, "-", ".", 1)
+        end
         io.close(stream)
       end
       
       if not info then
         -- Didn't get a nice looking tag to use, try to at least get a hash for the version.
-        stream = io.popen("git-log -1 --pretty=\"format:%2-??-%h\"", "r")
+        stream = io.popen("git-log -1 --pretty=\"format:%2-%h\"", "r")
         if stream then
           info = stream:read("*line")
           io.close(stream)
@@ -373,7 +377,7 @@ if archive_zip or archive_7z then
         info = "%2"
       end
       
-      FileUtil.copyFile(file, "QuestHelper", "^(##%s-Version%s-:%s*)(.*)$", "%1"..info)
+      FileUtil.copyFile(file, "QuestHelper", "^(##%s-Version%s-):%s*(.*)%s*$", "%1: "..info)
     end
   end)
   
