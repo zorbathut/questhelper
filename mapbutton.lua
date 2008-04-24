@@ -24,6 +24,8 @@ function QuestHelperWorldMapButton_OnClick(self, clicked)
     -- Note: if I'm wrong about my assumption, this could leave the tooltip stranded until user mouses
     -- back over the button, but I don't think that's too serious.
     QuestHelperWorldMapButton_OnEnter(self)
+  elseif clicked == "RightButton" and not QuestHelper_Pref.hide then
+    -- TODO: Show menu.
   end
 end
 
@@ -54,7 +56,11 @@ function QuestHelper_InitMapButton()
     end
     button:SetWidth(width)
     button:SetHeight(22)
-
+    
+    -- Desaturate the button texture if QuestHelper is disabled.
+    -- This line is also in QuestHelper:ToggleHide
+    button:GetNormalTexture():SetDesaturated(QuestHelper_Pref.hide)
+    
     -- Add event handlers to provide Tooltip
     button:SetScript("OnEnter", QuestHelperWorldMapButton_OnEnter)
     button:SetScript("OnLeave", function(this)
@@ -63,6 +69,7 @@ function QuestHelper_InitMapButton()
 
     -- Add Click handler
     button:SetScript("OnClick", QuestHelperWorldMapButton_OnClick)
+    button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 
     -- Position it on the World Map frame
 --~     if Cartographer then
