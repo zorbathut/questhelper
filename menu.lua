@@ -37,15 +37,12 @@ local function Menu_OnUpdate(self, elapsed)
   end
   
   self:SetAlpha(self.show_phase)
-  self:SetScale(self.show_phase*0.7+0.3)
 end
 
 local function Menu_DoShow(self)
   self.showing = true
   
   local w, h = 0, 0
-  
-  self:SetScale(1)
   
   for i, c in ipairs(self.items) do
     local cw, ch = c:GetSize()
@@ -306,7 +303,6 @@ local function MenuItem_OnEnter(self)
 end
 
 local function MenuItem_GetSize(self)
-  self:SetScale(1)
   self.text:SetParent(nil) -- Remove the text's parent so that it doesn't inherit scaling and mess up the dimensions.
   self.text:ClearAllPoints()
   self.text:SetWidth(0)
