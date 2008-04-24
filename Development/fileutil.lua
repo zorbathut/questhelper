@@ -183,11 +183,8 @@ FileUtil.forEachFile = function(directory, func)
 end
 
 FileUtil.extension = function(filename)
-  local ext = select(3, string.find(filename, ".*%.(.-)$"))
-  if ext and not string.find(ext, "[/\\]") then
-    return string.lower(ext)
-  end
-  return ""
+  local ext = select(3, string.find(filename, "%.([^%s/\\]-)$"))
+  return ext and string.lower(ext) or ""
 end
 
 FileUtil.updateSVNRepo = function(url, directory)
