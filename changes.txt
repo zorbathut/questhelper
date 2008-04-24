@@ -1,7 +1,14 @@
-== Version <next release> ===
+== Version 0.44 04/24/2008 ==
 
 * Added World Map button to disable/enable QuestHelper (Coming soon: right-click menu on this button for more control)
 * Added slash command '/qh perf' to set a Performance Factor: lower is better performance (i.e. frame rate), higher is more aggressive routing/updating.
+* Made menus smaller, and they are no longer scaled when showing/hiding.
+* <code>/qh locale</code> Now prints the language, and will accept just the language code (en, de, es, etc.)
+* Includes a submitted translation for Danish, as there isn't a Danish version of Warcraft, you'll need to select it using the <code>/qh locale</code> command in order to use it.
+* Includes an updated translations for German and Spanish.
+* Made the Spanish translations for Mexico reference the Spanish translations for Spain.
+* Possibly fixed passing a boolean to math.max in questlog.lua.
+* When using Cartographer Waypoints, if LibRock or LibBabble are missing, QuestHelper will avoid trying to use them to translate the zone name. This will probably still work if you're using an English client, otherwise your best best would be to make sure Cartographer is up to date.
 
 == Version 0.43 04/08/2008 ==
 
