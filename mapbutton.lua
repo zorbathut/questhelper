@@ -43,9 +43,18 @@ function QuestHelperWorldMapButton_OnClick(self, clicked)
     -- Icon Scale
     local submenu = QuestHelper:CreateMenu()
     for pct = 50,120,10 do
-      QuestHelper:CreateMenuItem(submenu, pct.."%"):SetFunction(QuestHelper.SetIconScale, QuestHelper, pct.."%")
+      local item = QuestHelper:CreateMenuItem(submenu, pct.."%")
+      local tex = QuestHelper:CreateIconTexture(item, 10)
+      item:SetFunction(QuestHelper.SetIconScale, QuestHelper, pct.."%")
+      item:AddTexture(tex, true)
+      tex:SetVertexColor(1, 1, 1, QuestHelper_Pref.scale == pct*0.01 and 1 or 0)
     end
     QuestHelper:CreateMenuItem(menu, "Icon Scale"):SetSubmenu(submenu)
+    
+    -- Hidden Objectives
+    submenu = QuestHelper:CreateMenu()
+    QuestHelper:PopulateHidden(submenu)
+    QuestHelper:CreateMenuItem(menu, "Hidden Objectives"):SetSubmenu(submenu)
     
     -- Filters
     submenu = QuestHelper:CreateMenu()
@@ -66,7 +75,11 @@ function QuestHelperWorldMapButton_OnClick(self, clicked)
     -- Locale
     submenu = QuestHelper:CreateMenu()
     for loc, tbl in pairs(QuestHelper_Translations) do
-      QuestHelper:CreateMenuItem(submenu, (tbl.LOCALE_NAME or "???").." ["..loc.."]"):SetFunction(QuestHelper.SetLocale, QuestHelper, loc)
+      local item = QuestHelper:CreateMenuItem(submenu, (tbl.LOCALE_NAME or "???").." ["..loc.."]")
+      local tex = QuestHelper:CreateIconTexture(item, 10)
+      item:SetFunction(QuestHelper.SetLocale, QuestHelper, loc)
+      item:AddTexture(tex, true)
+      tex:SetVertexColor(1, 1, 1, QuestHelper_Pref.locale == loc and 1 or 0)
     end
     QuestHelper:CreateMenuItem(menu, "Locale"):SetSubmenu(submenu)
     
