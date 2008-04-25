@@ -6,10 +6,14 @@
 
    Currently Functionality:
    - Left click on button is equivalent to /qh hide
+   - Right-click on button shows Settings menu
    - Button has tooltip to that effect
+   - Button serves as hook to detect when map is hidden, in order to hide active menus (if any).
 
    History:
-      4-20-2008     Created     Nesher
+      4-20-2008     Nesher      Created
+      4-24-2008     Smariot     Added right-click menu
+      4-24-2008     Nesher      Localized settings menu.  Added hook to hide menus when World Map is hidden.
 --]]
 
 -------------------------------------------------------------------------------------
@@ -113,6 +117,18 @@ function QuestHelperWorldMapButton_OnEnter(self)
 end
 
 -------------------------------------------------------------------------------------
+-- Handle when the world map gets hidden: hide the active menu if any.
+function QuestHelper_WorldMapHidden()
+  if QuestHelper.active_menu then
+    QuestHelper.active_menu:DoHide()
+    if QuestHelper.active_menu.auto_release then
+      QuestHelper.active_menu = nil
+    end
+  end
+end
+
+
+-------------------------------------------------------------------------------------
 -- Set up the Map Button
 function QuestHelper_InitMapButton()
     -- Create the button
@@ -140,6 +156,9 @@ function QuestHelper_InitMapButton()
     -- Add Click handler
     button:SetScript("OnClick", QuestHelperWorldMapButton_OnClick)
     button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+
+    -- Add Hide handler, so we can dismiss any menus when map is closed
+    button:SetScript("OnHide", QuestHelper_WorldMapHidden)
 
     -- Position it on the World Map frame
 --~     if Cartographer then
