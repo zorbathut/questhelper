@@ -315,8 +315,9 @@ local function MenuItem_GetSize(self)
   self.text:SetWidth(0)
   self.text:SetHeight(0)
   
-  self.text_w = self.text:GetStringWidth()+1
+  self.text_w = self.text:GetStringWidth()+20
   if self.text_w >= 320 then
+    -- Clamp width to 320, then ballance the two rows (using a binary search)
     self.text:SetWidth(320)
     self.text_h = self.text:GetHeight()+1
     local mn, mx = 100, 321
