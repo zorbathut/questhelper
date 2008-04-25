@@ -101,7 +101,14 @@ end
 local function Menu_ShowAtCursor(self, auto_release)
   auto_release = auto_release == nil and true or auto_release
   self.auto_release = auto_release
-  
+
+  -- Add a 'Close Menu' item to the end of the menu, if it's not there already
+  if not self.close_item then
+    self.close_item = QuestHelper:CreateMenuItem(self, QHText("MENU_CLOSE"))
+    self.close_item:SetFunction( function() self:DoHide() end )
+  end
+
+  -- Set up the menu position, parentage, etc
   local x, y = GetCursorPosition()
   
   local parent = not UIParent:IsVisible() and QuestHelper.map_overlay or UIParent

@@ -198,6 +198,8 @@ QuestHelper_Translations.enUS =
   QH_BUTTON_TOOLTIP1 = "Left Click: %1 routing information",
   QH_BUTTON_SHOW = "Show",
   QH_BUTTON_HIDE = "Hide",
+
+  MENU_CLOSE = "Close Menu"
  }
 
 QuestHelper_TranslationFunctions.enUS =
