@@ -45,7 +45,7 @@ menu.lua
 hidden.lua
 nag.lua
 comm.lua
+mapbutton.lua
 help.lua
 pattern.lua
 flightpath.lua
-mapbutton.lua
