@@ -135,22 +135,10 @@ local static_zone_transitions =
 
 local walkspeed_multiplier = 1/7 -- Every yard walked takes this many seconds.
 
-local cont_heuristic = {} -- Contains a 2D table of heuristics to use for getting from one continent to another.
-
-local function nil_heuristic(a, b)
-  return 0
-end
-
 QuestHelper.prepared_objectives = {}
 QuestHelper.named_nodes = {}
 
-local function heuristic(a, b)
-  if type(b) ~= "table" then QuestHelper:Error("Boom?!") end
-  QuestHelper:TextOut("c="..a.c.." x="..a.x.." y="..a.y.." to c="..b.c.." x="..b.x.." y="..b.y.."  ="..cont_heuristic[a.c][b.c](a, b))
-  return cont_heuristic[a.c][b.c](a, b)
-end
-
-local function same_cont_heuristic(a, b)
+local function cont_dist(a, b)
   local x, y = a.x-b.x, a.y-b.y
   return math.sqrt(x*x+y*y)
 end
@@ -563,8 +551,6 @@ function QuestHelper:ResetPathing()
   self.prepared_objectives = self.old_prepared_objectives or {}
   self.old_prepared_objectives = to_readd
   
-  self.world_graph:SetHeuristic(nil_heuristic)
-  
   local zone_nodes = self.zone_nodes
   if not zone_nodes then
     zone_nodes = {}
@@ -597,10 +583,6 @@ function QuestHelper:ResetPathing()
       
       continent_scales_x[c] = x*walkspeed_multiplier*2
       continent_scales_y[c] = y*walkspeed_multiplier*2
-    end
-    
-    if not cont_heuristic[c] then
-      cont_heuristic[c] = {}
     end
   end
   
@@ -730,7 +712,7 @@ function QuestHelper:ResetPathing()
     for i = 1,#list do
       for j = 1,#list do
         if shouldLink(list[i], list[j]) then
-          list[i]:Link(list[j], same_cont_heuristic(list[i], list[j]))
+          list[i]:Link(list[j], cont_dist(list[i], list[j]))
         end
       end
     end
@@ -754,54 +736,7 @@ function QuestHelper:ResetPathing()
     end
   end
   
-  -- TODO: Create a heuristic for this.
-  --[[
-  for i = 1,select("#", GetMapContinents()) do
-    for j = 1,select("#", GetMapContinents()) do
-      if i == j then
-        cont_heuristic[i][j] = same_cont_heuristic
-      else
-        local nodes = {}
-        
-        local index = 1
-        local code1 = ""
-        local code2 = ""
-        local single = true
-        
-        for _, start_node in ipairs(self.world_graph.nodes) do
-          if nodeLeavesContinent(start_node, i) then
-            for _, end_node in ipairs(self.world_graph.nodes) do
-              if nodeLeavesContinent(end_node, j) then
-                if self.world_graph:Search(start_node, end_node) then
-                  if isGoodPath(start_node, end_node, i, j) then
-                    if not nodes[start_node] then
-                      nodes[start_node] = "n"..index
-                      code1 = code1.."local "..nodes[start_node].."=math.sqrt(a.x*a.x+a.y*a.y-a.x*("..(2*start_node.x)..")-a.y*("..(2*start_node.y)..")+("..(start_node.x*start_node.x+start_node.y*start_node.y).."))\n"
-                      index = index + 1
-                    end
-                    if not nodes[end_node] then
-                      nodes[end_node] = "n"..index
-                      code1 = code1.."local "..nodes[end_node].."=math.sqrt(b.x*b.x+b.y*b.y-b.x*("..(2*end_node.x)..")-b.y*("..(2*end_node.y)..")+("..(end_node.x*end_node.x+end_node.y*end_node.y).."))\n"
-                      index = index + 1
-                    end
-                    if code2 ~=  "" then code2 = code2 .. ", " single = false end
-                    code2 = code2 .. nodes[start_node] .. "+"..nodes[end_node] .. "+"..(end_node.g)
-                  end
-                end
-              end
-            end
-          end
-        end
-        
-        cont_heuristic[i][j] = loadstring("local a,b = ...\n"..code1.."return "..(single and code2 or ("math.min("..code2..")")))
-      end
-    end
-  end
-  ]]
   -- self.world_graph:SanityCheck()
-  
-  -- TODO: heuristic returns NaNs, fix this.
-  --self.world_graph:SetHeuristic(heuristic)
   
   -- Remove objectives again, since we created some for the flight masters.
   while true do

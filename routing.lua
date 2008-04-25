@@ -420,9 +420,7 @@ local function RouteUpdateRoutine(self)
             end
           end
           
-          while #new_route > 0 do
-            table.remove(new_route)
-          end
+          for i = #new_route, 1, -1 do new_route[i] = nil end
           
           point = route[shuffle[1]]
           insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, 0, 0, point)
@@ -480,9 +478,7 @@ local function RouteUpdateRoutine(self)
         end
       end
       
-      while #new_route > 0 do
-        table.remove(new_route)
-      end
+      for i = #new_route, 1, -1 do new_route[i] = nil end
       
       point = route[shuffle[1]]
       insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, 0, 0, point)

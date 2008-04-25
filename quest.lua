@@ -25,6 +25,20 @@ local function QuestAppendPositions(self, objective, weight, why)
   end
 end
 
+QuestHelper.default_objective_quest_param =
+ {
+  Known = QuestKnown,
+  AppendPositions = QuestAppendPositions
+ }
+
+for key, value in pairs(QuestHelper.default_objective_param) do
+  if not QuestHelper.default_objective_quest_param[key] then
+    QuestHelper.default_objective_quest_param[key] = value
+  end
+end
+
+QuestHelper.default_objective_quest_meta = { __index = QuestHelper.default_objective_quest_param }
+
 function QuestHelper:GetQuest(name, level, hash)
   if not level then
     if QuestHelper_Quests[self.faction] then
@@ -74,8 +88,8 @@ function QuestHelper:GetQuest(name, level, hash)
     quest_object = self:NewObjectiveObject()
     quest_object.icon_id = 7
     quest_object.icon_bg = 15
-    quest_object.AppendPositions = QuestAppendPositions
-    quest_object.Known = QuestKnown
+    setmetatable(quest_object, QuestHelper.default_objective_quest_meta)
+    
     quest_object.cat = "quest"
     quest_object.obj = level.."/"..(hash or "").."/"..name
     

@@ -1,6 +1,7 @@
+local floor = math.floor
+
 local function Graph_Search(self, first, last)
   if first ~= last then
-    local heuristic = self.h
     local open = self.open
     while #open > 0 do table.remove(open) end
     for _, n in ipairs(self.nodes) do n.s = 0 end
@@ -24,18 +25,17 @@ local function Graph_Search(self, first, last)
       for n, d in pairs(current.n) do
         if n.s == 0 then
           -- Haven't visited this node yet.
-          n.g = cd+d
+          local g = cd+d
+          n.g = g
           n.s = 1
           n.p = current
-          n.h = heuristic(n, last)
-          local f = n.g+n.h
           
           local mn, mx = 1, #open+1
           
           while mn ~= mx do
-            local m = math.floor((mn+mx)*0.5)
+            local m = floor((mn+mx)*0.5)
             
-            if open[m].f > f then
+            if open[m].g > g then
               mn = m+1
             else
               mx = m
@@ -43,19 +43,16 @@ local function Graph_Search(self, first, last)
           end
           
           table.insert(open, mn, n)
-          n.f = f
         elseif n.s == 1 then
           local g = cd+d
-          local f = g+n.h
-          if f < n.f then
+          if g < n.g then
             n.g = g
             n.p = current
-            local of = n.f
             local mn, mx = 1, #open
             
             while mn ~= mx do
-              local m = math.floor((mn+mx)*0.5)
-              if open[m].f > of then
+              local m = floor((mn+mx)*0.5)
+              if open[m].g > g then
                 mn = m+1
               else
                 mx = m
@@ -69,9 +66,9 @@ local function Graph_Search(self, first, last)
             table.remove(open, mn)
             
             while mn ~= mx do
-              local m = math.floor((mn+mx)*0.5)
+              local m = floor((mn+mx)*0.5)
               
-              if open[m].f > f then
+              if open[m].g > g then
                 mn = m+1
               else
                 mx = m
@@ -79,7 +76,6 @@ local function Graph_Search(self, first, last)
             end
             
             table.insert(open, mn, n)
-            n.f = f
           end
         end
       end
@@ -93,14 +89,14 @@ local function sanity(list, node)
   local last = nil
   local contains = false
   for i, n in ipairs(list) do
-    if not (not last or last >= n.f) then
+    if not (not last or last >= n.g) then
       for i, n in ipairs(list) do
-        QuestHelper:TextOut(i..") "..n.f)
+        QuestHelper:TextOut(i..") "..n.g)
       end
-      QuestHelper:Error("Order "..i.."/"..#list.." ("..n.f..")")
+      QuestHelper:Error("Order "..i.."/"..#list.." ("..n.g..")")
     end
-    assert(not last or last >= n.f)
-    last = n.f
+    assert(not last or last >= n.g)
+    last = n.g
     if n == node then
       contains = true
     end
@@ -146,42 +142,23 @@ local function Graph_Reset(self)
   end
 end
 
--- Tries to find a path from first to last.
--- heuristic is a function that takes two nodes and estimates how long a path between them would be.
--- If a path is found, last.p will be set to the second last node, it's .p will be set to the third
--- last node, and so on and so forth until you get to first, which will have .p set to nil. So, basically
--- you end up with a reversed linked list.
-
-local function Graph_SetHeuristic(self, heuristic)
-  self.h = heuristic
-end
-
 local function Graph_AddRouteStartNode(self, n, g, end_list) 
-  local heuristic = self.h
   local open = self.open
   
   n.p = nil
   
   if n.s == 3 then
     n.s = 4
-    n.h = n.e*n.w
   elseif n.s == 0 then
     n.s = 1
-    
-    local e = end_list[1]
-    n.h = (heuristic(n, e)+e.e)*e.w
-    for i = 2,#end_list do
-      e = end_list[i]
-      n.h = math.min(n.h, (heuristic(n, e)+e.e)*e.w)
-    end
   else
-    local of = n.f
-    if g+n.h < of then
+    local og = n.g
+    if g < og then
       local mn, mx = 1, #open
       
       while mn ~= mx do
-        local m = math.floor((mn+mx)*0.5)
-        if open[m].f > of then
+        local m = floor((mn+mx)*0.5)
+        if open[m].g > og then
           mn = m+1
         else
           mx = m
@@ -198,14 +175,12 @@ local function Graph_AddRouteStartNode(self, n, g, end_list)
     end
   end
   
-  local f = g+n.h
-  
   local mn, mx = 1, #open+1
   
   while mn ~= mx do
-    local m = math.floor((mn+mx)*0.5)
+    local m = floor((mn+mx)*0.5)
     
-    if open[m].f > f then
+    if open[m].g > g then
       mn = m+1
     else
       mx = m
@@ -215,11 +190,9 @@ local function Graph_AddRouteStartNode(self, n, g, end_list)
   table.insert(open, mn, n)
   
   n.g = g
-  n.f = f
 end
 
 local function Graph_DoRouteSearch(self, end_list)
-  local heuristic = self.h
   local open = self.open
   local end_count = #end_list
   
@@ -238,56 +211,36 @@ local function Graph_DoRouteSearch(self, end_list)
     for n, d in pairs(current.n) do
       if n.s == 0 or n.s == 3 then
         -- Haven't visited this node yet.
+        local g = cd+d
         n.p = current
-        local f
+        n.g = g
         
-        if n.s == 3 then
-          n.s = 4
-          n.h = n.e*n.w
-          n.g = cd+d
-        else
-          n.s = 1
-          n.g = cd+d
-          
-          local e = end_list[1]
-          n.h = (heuristic(n, e)+e.e)*e.w
-          
-          for i = 2,end_count do
-            e = end_list[i]
-            n.h = math.min(n.h, (heuristic(n, e)+e.e)*e.w)
-          end
-        end
-        
-        local f = n.g+n.h
+        n.s = n.s == 3 and 4 or 1
         
         local mn, mx = 1, #open+1
         
         while mn ~= mx do
-          local m = math.floor((mn+mx)*0.5)
+          local m = floor((mn+mx)*0.5)
           
-          if open[m].f > f then
+          if open[m].g > g then
             mn = m+1
           else
             mx = m
           end
         end
         
-        n.f = f
-        
         table.insert(open, mn, n)
-        
       elseif n.s == 1 or n.s == 4 then
         local g = cd+d
-        local f = g+n.h
-        if f < n.f then
+        local og = n.g
+        if g < og then
           n.p = current
-          local of = n.f
           
           local mn, mx = 1, #open
           
           while mn ~= mx do
-            local m = math.floor((mn+mx)*0.5)
-            if open[m].f > of then
+            local m = floor((mn+mx)*0.5)
+            if open[m].g > og then
               mn = m+1
             else
               mx = m
@@ -303,16 +256,16 @@ local function Graph_DoRouteSearch(self, end_list)
           table.remove(open, mn)
           
           while mn ~= mx do
-            local m = math.floor((mn+mx)*0.5)
+            local m = floor((mn+mx)*0.5)
             
-            if open[m].f > f then
+            if open[m].g > g then
               mn = m+1
             else
               mx = m
             end
           end
           
-          n.f = f
+          n.g = g
           table.insert(open, mn, n)
         end
       end
@@ -322,38 +275,29 @@ end
 
 local function Graph_PrepareSearch(self)
   local open = self.open
-  while #open > 0 do table.remove(open) end
-  for _, n in ipairs(self.nodes) do
+  for n in pairs(open) do open[n] = nil end
+  for _, n in pairs(self.nodes) do
     n.s = 0
   end
 end
 
 local function Graph_AddStartNode(self, n, g, end_list) 
-  local heuristic = self.h
   local open = self.open
   
   n.p = n
   
   if n.s == 3 then
     n.s = 4
-    n.h = n.e*n.w
   elseif n.s == 0 then
     n.s = 1
-    
-    local e = end_list[1]
-    n.h = (heuristic(n, e)+e.e)*e.w
-    for i = 2,#end_list do
-      e = end_list[i]
-      n.h = math.min(n.h, (heuristic(n, e)+e.e)*e.w)
-    end
   else
-    local of = n.f
-    if g+n.h < of then
+    local og = n.g
+    if g < og then
       local mn, mx = 1, #open
       
       while mn ~= mx do
-        local m = math.floor((mn+mx)*0.5)
-        if open[m].f > of then
+        local m = floor((mn+mx)*0.5)
+        if open[m].g > og then
           mn = m+1
         else
           mx = m
@@ -370,14 +314,12 @@ local function Graph_AddStartNode(self, n, g, end_list)
     end
   end
   
-  local f = g+n.h
-  
   local mn, mx = 1, #open+1
   
   while mn ~= mx do
-    local m = math.floor((mn+mx)*0.5)
+    local m = floor((mn+mx)*0.5)
     
-    if open[m].f > f then
+    if open[m].g > g then
       mn = m+1
     else
       mx = m
@@ -387,11 +329,9 @@ local function Graph_AddStartNode(self, n, g, end_list)
   table.insert(open, mn, n)
   
   n.g = g
-  n.f = f
 end
 
 local function Graph_DoSearch(self, end_list)
-  local heuristic = self.h
   local open = self.open
   local end_count = #end_list
   
@@ -410,56 +350,36 @@ local function Graph_DoSearch(self, end_list)
     for n, d in pairs(current.n) do
       if n.s == 0 or n.s == 3 then
         -- Haven't visited this node yet.
+        local g = cd+d
+        n.g = g
         n.p = current.p
-        local f
         
-        if n.s == 3 then
-          n.s = 4
-          n.h = n.e*n.w
-          n.g = cd+d
-        else
-          n.s = 1
-          n.g = cd+d
-          
-          local e = end_list[1]
-          n.h = (heuristic(n, e)+e.e)*e.w
-          
-          for i = 2,end_count do
-            e = end_list[i]
-            n.h = math.min(n.h, (heuristic(n, e)+e.e)*e.w)
-          end
-        end
-        
-        local f = n.g+n.h
+        n.s = n.s == 3 and 4 or 1
         
         local mn, mx = 1, #open+1
         
         while mn ~= mx do
-          local m = math.floor((mn+mx)*0.5)
+          local m = floor((mn+mx)*0.5)
           
-          if open[m].f > f then
+          if open[m].g > g then
             mn = m+1
           else
             mx = m
           end
         end
         
-        n.f = f
-        
         table.insert(open, mn, n)
-        
       elseif n.s == 1 or n.s == 4 then
         local g = cd+d
-        local f = g+n.h
-        if f < n.f then
+        local og = n.g
+        if g < og then
           n.p = current.p
-          local of = n.f
           
           local mn, mx = 1, #open
           
           while mn ~= mx do
-            local m = math.floor((mn+mx)*0.5)
-            if open[m].f > of then
+            local m = floor((mn+mx)*0.5)
+            if open[m].g > og then
               mn = m+1
             else
               mx = m
@@ -475,16 +395,16 @@ local function Graph_DoSearch(self, end_list)
           table.remove(open, mn)
           
           while mn ~= mx do
-            local m = math.floor((mn+mx)*0.5)
+            local m = floor((mn+mx)*0.5)
             
-            if open[m].f > f then
+            if open[m].g > g then
               mn = m+1
             else
               mx = m
             end
           end
           
-          n.f = f
+          n.g = g
           table.insert(open, mn, n)
         end
       end
@@ -495,7 +415,6 @@ end
 local removed = {}
 
 local function Graph_DoFullSearch(self, end_list)
-  local heuristic = self.h
   local open = self.open
   local end_count = #end_list
   
@@ -527,55 +446,36 @@ local function Graph_DoFullSearch(self, end_list)
     for n, d in pairs(current.n) do
       if n.s == 0 or n.s == 3 then
         -- Haven't visited this node yet.
+        local g = cd+d
+        n.g = g
         n.p = current.p
-        local f
         
-        if n.s == 3 then
-          n.s = 4
-          n.h = n.e*n.w
-          n.g = cd+d
-        else
-          n.s = 1
-          n.g = cd+d
-          
-          local e = end_list[1]
-          n.h = (heuristic(n, e)+e.e)*e.w
-          for i = 2,end_count do
-            e = end_list[i]
-            n.h = math.min(n.h, (heuristic(n, e)+e.e)*e.w)
-          end
-        end
-        
-        local f = n.g+n.h
+        n.s = n.s == 3 and 4 or 1
         
         local mn, mx = 1, #open+1
         
         while mn ~= mx do
-          local m = math.floor((mn+mx)*0.5)
+          local m = floor((mn+mx)*0.5)
           
-          if open[m].f > f then
+          if open[m].g > g then
             mn = m+1
           else
             mx = m
           end
         end
         
-        n.f = f
-        
         table.insert(open, mn, n)
-        
       elseif n.s == 1 or n.s == 4 then
         local g = cd+d
-        local f = g+n.h
-        if f < n.f then
+        local og = n.g
+        if g < og then
           n.p = current.p
-          local of = n.f
           
           local mn, mx = 1, #open
           
           while mn ~= mx do
-            local m = math.floor((mn+mx)*0.5)
-            if open[m].f > of then
+            local m = floor((mn+mx)*0.5)
+            if open[m].g > og then
               mn = m+1
             else
               mx = m
@@ -591,16 +491,16 @@ local function Graph_DoFullSearch(self, end_list)
           table.remove(open, mn)
           
           while mn ~= mx do
-            local m = math.floor((mn+mx)*0.5)
+            local m = floor((mn+mx)*0.5)
             
-            if open[m].f > f then
+            if open[m].g > g then
               mn = m+1
             else
               mx = m
             end
           end
           
-          n.f = f
+          n.g = g
           table.insert(open, mn, n)
         end
       end
@@ -661,7 +561,6 @@ function QuestHelper:CreateGraph()
   graph.DestroyNode = Graph_DestroyNode
   graph.Reset = Graph_Reset
   
-  graph.SetHeuristic = Graph_SetHeuristic
   graph.PrepareSearch = Graph_PrepareSearch
   
   graph.AddRouteStartNode = Graph_AddRouteStartNode

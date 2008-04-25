@@ -627,31 +627,50 @@ local function ObjectiveUnshare(self)
   self.want_share = false
 end
 
+QuestHelper.default_objective_param =
+ {
+  CouldBeFirst=ObjectiveCouldBeFirst,
+  
+  DefaultKnown=DefaultObjectiveKnown,
+  Known=DummyObjectiveKnown,
+  Reason=ObjectiveReason,
+  
+  AppendPositions=ObjectiveAppendPositions,
+  PrepareRouting=ObjectivePrepareRouting,
+  AddLoc=AddLoc,
+  FinishAddLoc=FinishAddLoc,
+  DoneRouting=DoneRouting,
+  
+  Position=GetPosition,
+  TravelTime=ComputeTravelTime,
+  TravelTime2=ComputeTravelTime2,
+  
+  Share=ObjectiveShare, -- Invoke to share this objective with your peers.
+  Unshare=ObjectiveUnshare, -- Invoke to stop sharing this objective.
+ }
+
+QuestHelper.default_objective_item_param =
+ {
+  Known = ItemKnown,
+  AppendPositions = ItemAppendPositions
+ }
+
+for key, value in pairs(QuestHelper.default_objective_param) do
+  if not QuestHelper.default_objective_item_param[key] then
+    QuestHelper.default_objective_item_param[key] = value
+  end
+end
+
+QuestHelper.default_objective_meta = { __index = QuestHelper.default_objective_param }
+QuestHelper.default_objective_item_meta = { __index = QuestHelper.default_objective_item_param }
+
 function QuestHelper:NewObjectiveObject()
   next_objective_id = next_objective_id+1
   return
-   {
+   setmetatable({
     qh=self,
     id=next_objective_id,
     
-    CouldBeFirst=ObjectiveCouldBeFirst,
-    
-    DefaultKnown=DefaultObjectiveKnown,
-    Known=DummyObjectiveKnown,
-    Reason=ObjectiveReason,
-    
-    AppendPositions=ObjectiveAppendPositions,
-    PrepareRouting=ObjectivePrepareRouting,
-    AddLoc=AddLoc,
-    FinishAddLoc=FinishAddLoc,
-    DoneRouting=DoneRouting,
-    
-    Position=GetPosition,
-    TravelTime=ComputeTravelTime,
-    TravelTime2=ComputeTravelTime2,
-    
-    Share=ObjectiveShare, -- Invoke to share this objective with your peers.
-    Unshare=ObjectiveUnshare, -- Invoke to stop sharing this objective.
     want_share=false, -- True if we want this objective shared.
     is_sharing=false, -- Set to true if we've told other users about this objective.
     
@@ -683,7 +702,7 @@ function QuestHelper:NewObjectiveObject()
     location=nil, -- Will be set to the best position for the node.
     pos=nil, -- Zone node list, distance list, x, y, reason.
     sop=nil ]]
-   }
+   }, QuestHelper.default_objective_meta)
 end
 
 function QuestHelper:GetObjective(category, objective)
@@ -718,8 +737,7 @@ function QuestHelper:GetObjective(category, objective)
     objective_object.obj = objective
     
     if category == "item" then
-      objective_object.Known = ItemKnown
-      objective_object.AppendPositions = ItemAppendPositions
+      setmetatable(objective_object, QuestHelper.default_objective_item_meta)
       objective_object.icon_id = 2
     elseif category == "monster" then
       objective_object.icon_id = 1

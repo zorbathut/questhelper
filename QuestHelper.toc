@@ -31,8 +31,8 @@ lang_kokr.lua
 upgrade.lua
 main.lua
 recycle.lua
-quest.lua
 objective.lua
+quest.lua
 questlog.lua
 utility.lua
 dodads.lua
