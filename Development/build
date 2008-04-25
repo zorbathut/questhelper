@@ -337,6 +337,8 @@ print("Creating: Icons.tga")
 --end
 FileUtil.convertImage("Data/art.svg", "../Art/Icons.tga")
 
+local version_string = "UNKNOWN"
+
 if archive_zip or archive_7z then
   FileUtil.unlinkDirectory("QuestHelper")
   
@@ -377,7 +379,7 @@ if archive_zip or archive_7z then
         info = "%2"
       end
       
-      FileUtil.copyFile(file, "QuestHelper", "^(##%s-Version%s-):%s*(.*)%s*$", "%1: "..info)
+      FileUtil.copyFile(file, "QuestHelper", "^(##%s-Version%s-):%s*(.*)%s*$", function (str, a, b) version_string = string.gsub(info, "%%2", b) return a..": "..version_string end )
     end
   end)
   
@@ -395,15 +397,17 @@ if archive_zip or archive_7z then
   end
   
   if archive_zip then
-    print("Creating QuestHelper.zip")
-    FileUtil.unlinkFile("../QuestHelper.zip")
-    FileUtil.createZipArchive("QuestHelper", "../QuestHelper.zip")
+    local archive = "../QuestHelper-"..version_string..".zip"
+    print("Creating "..archive)
+    FileUtil.unlinkFile(archive)
+    FileUtil.createZipArchive("QuestHelper", archive)
   end
   
   if archive_7z then
-    print("Creating QuestHelper.7z")
-    FileUtil.unlinkFile("../QuestHelper.7z")
-    FileUtil.create7zArchive("QuestHelper", "../QuestHelper.7z")
+    local archive = "../QuestHelper-"..version_string..".7z"
+    print("Creating "..archive)
+    FileUtil.unlinkFile(archive)
+    FileUtil.create7zArchive("QuestHelper", archive)
   end
   
   FileUtil.unlinkDirectory("QuestHelper")
