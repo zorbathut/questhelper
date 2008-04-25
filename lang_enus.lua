@@ -86,7 +86,7 @@ QuestHelper_Translations.enUS =
   TALK_TO_FLIGHT_MASTER = "Please talk to the local flight master.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Thanks.",
   WILL_RESET_PATH = "Will reset pathing information.",
-  UPDATING_ROUTE = "Refreshing route",
+  UPDATING_ROUTE = "Refreshing route.",
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Available Locales:",
@@ -194,8 +194,8 @@ QuestHelper_Translations.enUS =
   WAYPOINT_REASON = "Visit %h1 en route to:",
 
   -- QuestHelper Map Button
-  QH_BUTTON_TEXT = "Quest Helper",
-  QH_BUTTON_TOOLTIP1 = "Left Click: %1 routing information",
+  QH_BUTTON_TEXT = "QuestHelper",
+  QH_BUTTON_TOOLTIP1 = "Left Click: %1 routing information.",
   QH_BUTTON_SHOW = "Show",
   QH_BUTTON_HIDE = "Hide",
 

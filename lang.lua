@@ -77,7 +77,8 @@ function QHFormatArray(text, array)
         end
       end
       
-      trans = string.format("|cffff0000[%s|||r%s|cffff0000]|r", text, trans)
+      -- Uncomment this to have missing translations marked in text.
+      --trans = string.format("|cffff0000[%s|||r%s|cffff0000]|r", text, trans)
     end
   end
   

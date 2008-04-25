@@ -170,7 +170,7 @@ function QuestHelper:ScanQuestLog()
     end
     
     if not players then
-      players = qtype == nil and 5 or 1
+      players = qtype == nil and 1 or 5
     else
       players = math.min(5, math.max(1, players))
     end
@@ -182,7 +182,7 @@ function QuestHelper:ScanQuestLog()
       local lq = quests[quest]
       local is_new = false
       
-      local ignored = party_levels[math.min(5, math.max(1, players or (qtype and 5) or 1))]+QuestHelper_Pref.level < level
+      local ignored = party_levels[players]+QuestHelper_Pref.level < level
       
       if self.quest_giver and self.quest_giver[title] then
         quest.o.start = self.quest_giver[title]

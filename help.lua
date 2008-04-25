@@ -81,6 +81,10 @@ function QuestHelper:ToggleHide()
   local current_objective = self.minimap_dodad.objective
   
   QuestHelper_Pref.hide = not QuestHelper_Pref.hide
+  
+  -- Desaturate the button texture if QuestHelper is disabled.
+  QuestHelperWorldMapButton:GetNormalTexture():SetDesaturated(QuestHelper_Pref.hide)
+  
   if QuestHelper_Pref.hide then
     self.map_overlay:Hide()
     self.minimap_dodad:SetObjective(nil)
@@ -91,7 +95,9 @@ function QuestHelper:ToggleHide()
     self.minimap_dodad.objective = nil
     self.minimap_dodad:SetObjective(current_objective)
     self:TextOut("QuestHelper is now |cff00ff00shown|r.")
-    self:TextOut(QHText("UPDATING_ROUTE"))
+    -- WoW Will lockup inside ForceRouteUpdate, and so the UPDATING_ROUTE message won't appear until afterwards, making
+    -- this message kind of redundant.
+    -- self:TextOut(QHText("UPDATING_ROUTE"))
     self:ForceRouteUpdate(4)        -- Let the corutine do some overtime...
   end
 end
@@ -130,6 +136,7 @@ function QuestHelper:Purge(code)
     QuestHelper_Objectives = {}
     QuestHelper_FlightInstructors = {}
     QuestHelper_FlightRoutes = {}
+    QuestHelper_Locale = GetLocale()
     QuestHelper_UID = self:CreateUID()
     ReloadUI()
   else

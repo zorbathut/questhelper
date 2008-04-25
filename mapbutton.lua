@@ -24,6 +24,66 @@ function QuestHelperWorldMapButton_OnClick(self, clicked)
     -- Note: if I'm wrong about my assumption, this could leave the tooltip stranded until user mouses
     -- back over the button, but I don't think that's too serious.
     QuestHelperWorldMapButton_OnEnter(self)
+  elseif clicked == "RightButton" and not QuestHelper_Pref.hide then
+    -- This is a substitute until a proper menu is created.
+    local menu = QuestHelper:CreateMenu()
+    QuestHelper:CreateMenuTitle(menu, "Settings")
+    
+    -- Flight Timer
+    QuestHelper:CreateMenuItem(menu, QuestHelper_Pref.flight_time and "Disable Flight Timer" or "Enable Flight Timer"):SetFunction(QuestHelper.ToggleFlightTimes, QuestHelper)
+    
+    -- Ant Trails
+    QuestHelper:CreateMenuItem(menu, QuestHelper_Pref.show_ants and "Disable Ant Trails" or "Enable Ant Trails"):SetFunction(QuestHelper.ToggleAnts, QuestHelper)
+    
+    -- Cartographer Waypoints
+    if Cartographer_Waypoints then
+      QuestHelper:CreateMenuItem(menu, QuestHelper_Pref.cart_wp and "Disable Waypoint Arrow" or "Enable Waypoint Arrow"):SetFunction(QuestHelper.ToggleCartWP, QuestHelper)
+    end
+    
+    -- Icon Scale
+    local submenu = QuestHelper:CreateMenu()
+    for pct = 50,120,10 do
+      local item = QuestHelper:CreateMenuItem(submenu, pct.."%")
+      local tex = QuestHelper:CreateIconTexture(item, 10)
+      item:SetFunction(QuestHelper.SetIconScale, QuestHelper, pct.."%")
+      item:AddTexture(tex, true)
+      tex:SetVertexColor(1, 1, 1, QuestHelper_Pref.scale == pct*0.01 and 1 or 0)
+    end
+    QuestHelper:CreateMenuItem(menu, "Icon Scale"):SetSubmenu(submenu)
+    
+    -- Hidden Objectives
+    submenu = QuestHelper:CreateMenu()
+    QuestHelper:PopulateHidden(submenu)
+    QuestHelper:CreateMenuItem(menu, "Hidden Objectives"):SetSubmenu(submenu)
+    
+    -- Filters
+    submenu = QuestHelper:CreateMenu()
+    QuestHelper:CreateMenuItem(submenu, QuestHelper_Pref.filter_zone and "Disable Zone Filter" or "Enable Zone Filter"):SetFunction(QuestHelper.Filter, QuestHelper, "ZONE")
+    QuestHelper:CreateMenuItem(submenu, QuestHelper_Pref.filter_done and "Disable Done Filter" or "Enable Done Filter"):SetFunction(QuestHelper.Filter, QuestHelper, "DONE")
+    QuestHelper:CreateMenuItem(submenu, QuestHelper_Pref.filter_level and "Disable Level Filter" or "Enable Level Filter"):SetFunction(QuestHelper.Filter, QuestHelper, "LEVEL")
+    local submenu2 = QuestHelper:CreateMenu()
+    QuestHelper:CreateMenuItem(submenu, "Level Filter Offset"):SetSubmenu(submenu2)
+    for offset = -5,5 do
+      local menu = QuestHelper:CreateMenuItem(submenu2, (offset > 0 and "+" or "")..offset)
+      menu:SetFunction(QuestHelper.LevelOffset, QuestHelper, offset)
+      local tex = QuestHelper:CreateIconTexture(item, 10)
+      menu:AddTexture(tex, true)
+      tex:SetVertexColor(1, 1, 1, QuestHelper_Pref.level == offset and 1 or 0)
+    end
+    QuestHelper:CreateMenuItem(menu, "Filters"):SetSubmenu(submenu)
+    
+    -- Locale
+    submenu = QuestHelper:CreateMenu()
+    for loc, tbl in pairs(QuestHelper_Translations) do
+      local item = QuestHelper:CreateMenuItem(submenu, (tbl.LOCALE_NAME or "???").." ["..loc.."]")
+      local tex = QuestHelper:CreateIconTexture(item, 10)
+      item:SetFunction(QuestHelper.SetLocale, QuestHelper, loc)
+      item:AddTexture(tex, true)
+      tex:SetVertexColor(1, 1, 1, QuestHelper_Pref.locale == loc and 1 or 0)
+    end
+    QuestHelper:CreateMenuItem(menu, "Locale"):SetSubmenu(submenu)
+    
+    menu:ShowAtCursor()
   end
 end
 
@@ -54,7 +114,11 @@ function QuestHelper_InitMapButton()
     end
     button:SetWidth(width)
     button:SetHeight(22)
-
+    
+    -- Desaturate the button texture if QuestHelper is disabled.
+    -- This line is also in QuestHelper:ToggleHide
+    button:GetNormalTexture():SetDesaturated(QuestHelper_Pref.hide)
+    
     -- Add event handlers to provide Tooltip
     button:SetScript("OnEnter", QuestHelperWorldMapButton_OnEnter)
     button:SetScript("OnLeave", function(this)
@@ -63,6 +127,7 @@ function QuestHelper_InitMapButton()
 
     -- Add Click handler
     button:SetScript("OnClick", QuestHelperWorldMapButton_OnClick)
+    button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 
     -- Position it on the World Map frame
 --~     if Cartographer then

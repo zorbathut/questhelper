@@ -39,11 +39,7 @@ local function HiddenReason(obj)
   return QHText("FILTERED_UNKNOWN"), false
 end
 
-function QuestHelper:ShowHidden()
-  local menu = self:CreateMenu()
-  
-  self:CreateMenuTitle(menu, QHText("HIDDEN_TITLE"))
-  
+function QuestHelper:PopulateHidden(menu)
   local empty = true
   
   for obj in pairs(self.to_add) do
@@ -76,6 +72,12 @@ function QuestHelper:ShowHidden()
   if empty then
     self:CreateMenuItem(menu, QHText("HIDDEN_NONE"))
   end
+end
+
+function QuestHelper:ShowHidden()
+  local menu = self:CreateMenu()
   
+  self:CreateMenuTitle(menu, QHText("HIDDEN_TITLE"))
+  self:PopulateHidden(menu)
   menu:ShowAtCursor()
 end
