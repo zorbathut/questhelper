@@ -196,10 +196,24 @@ QuestHelper_Translations.enUS =
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
   QH_BUTTON_TOOLTIP1 = "Left Click: %1 routing information.",
+  QH_BUTTON_TOOLTIP2 = "Right Click: Show Settings menu.",
   QH_BUTTON_SHOW = "Show",
   QH_BUTTON_HIDE = "Hide",
 
-  MENU_CLOSE = "Close Menu"
+  MENU_CLOSE = "Close Menu",
+  MENU_SETTINGS = "Settings",
+  MENU_ENABLE = "Enable",
+  MENU_DISABLE = "Disable",
+  MENU_FLIGHT_TIMER = "%1 Flight Timer",
+  MENU_ANT_TRAILS = "%1 Ant Trails",
+  MENU_WAYPOINT_ARROW = "%1 Waypoint Arrow",
+  MENU_ZONE_FILTER = "%1 Zone Filter",
+  MENU_DONE_FILTER = "%1 Done Filter",
+  MENU_LEVEL_FILTER = "%1 Level Filter",
+  MENU_LEVEL_OFFSET = "Level Filter Offset",
+  MENU_ICON_SCALE = "Icon Scale",
+  MENU_FILTERS = "Filters",
+  MENU_LOCALE = "Locale"
  }
 
 QuestHelper_TranslationFunctions.enUS =

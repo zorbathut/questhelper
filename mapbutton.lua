@@ -27,17 +27,20 @@ function QuestHelperWorldMapButton_OnClick(self, clicked)
   elseif clicked == "RightButton" and not QuestHelper_Pref.hide then
     -- This is a substitute until a proper menu is created.
     local menu = QuestHelper:CreateMenu()
-    QuestHelper:CreateMenuTitle(menu, "Settings")
+    QuestHelper:CreateMenuTitle(menu, QHText("MENU_SETTINGS"))
     
     -- Flight Timer
-    QuestHelper:CreateMenuItem(menu, QuestHelper_Pref.flight_time and "Disable Flight Timer" or "Enable Flight Timer"):SetFunction(QuestHelper.ToggleFlightTimes, QuestHelper)
+    QuestHelper:CreateMenuItem(menu, QHFormat("MENU_FLIGHT_TIMER", QuestHelper_Pref.flight_time and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
+                    :SetFunction(QuestHelper.ToggleFlightTimes, QuestHelper)
     
     -- Ant Trails
-    QuestHelper:CreateMenuItem(menu, QuestHelper_Pref.show_ants and "Disable Ant Trails" or "Enable Ant Trails"):SetFunction(QuestHelper.ToggleAnts, QuestHelper)
+    QuestHelper:CreateMenuItem(menu, QHFormat("MENU_ANT_TRAILS", QuestHelper_Pref.show_ants and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
+                    :SetFunction(QuestHelper.ToggleAnts, QuestHelper)
     
     -- Cartographer Waypoints
     if Cartographer_Waypoints then
-      QuestHelper:CreateMenuItem(menu, QuestHelper_Pref.cart_wp and "Disable Waypoint Arrow" or "Enable Waypoint Arrow"):SetFunction(QuestHelper.ToggleCartWP, QuestHelper)
+      QuestHelper:CreateMenuItem(menu, QHFormat("MENU_WAYPOINT_ARROW", QuestHelper_Pref.cart_wp and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
+                    :SetFunction(QuestHelper.ToggleCartWP, QuestHelper)
     end
     
     -- Icon Scale
@@ -49,20 +52,24 @@ function QuestHelperWorldMapButton_OnClick(self, clicked)
       item:AddTexture(tex, true)
       tex:SetVertexColor(1, 1, 1, QuestHelper_Pref.scale == pct*0.01 and 1 or 0)
     end
-    QuestHelper:CreateMenuItem(menu, "Icon Scale"):SetSubmenu(submenu)
+    QuestHelper:CreateMenuItem(menu, QHText("MENU_ICON_SCALE")):SetSubmenu(submenu)
     
     -- Hidden Objectives
     submenu = QuestHelper:CreateMenu()
     QuestHelper:PopulateHidden(submenu)
-    QuestHelper:CreateMenuItem(menu, "Hidden Objectives"):SetSubmenu(submenu)
+    QuestHelper:CreateMenuItem(menu, QHText("HIDDEN_TITLE")):SetSubmenu(submenu)
     
     -- Filters
     submenu = QuestHelper:CreateMenu()
-    QuestHelper:CreateMenuItem(submenu, QuestHelper_Pref.filter_zone and "Disable Zone Filter" or "Enable Zone Filter"):SetFunction(QuestHelper.Filter, QuestHelper, "ZONE")
-    QuestHelper:CreateMenuItem(submenu, QuestHelper_Pref.filter_done and "Disable Done Filter" or "Enable Done Filter"):SetFunction(QuestHelper.Filter, QuestHelper, "DONE")
-    QuestHelper:CreateMenuItem(submenu, QuestHelper_Pref.filter_level and "Disable Level Filter" or "Enable Level Filter"):SetFunction(QuestHelper.Filter, QuestHelper, "LEVEL")
+    QuestHelper:CreateMenuItem(submenu, QHFormat("MENU_ZONE_FILTER", QuestHelper_Pref.filter_zone and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
+                    :SetFunction(QuestHelper.Filter, QuestHelper, "ZONE")
+    QuestHelper:CreateMenuItem(submenu, QHFormat("MENU_DONE_FILTER", QuestHelper_Pref.filter_done and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
+                    :SetFunction(QuestHelper.Filter, QuestHelper, "DONE")
+    QuestHelper:CreateMenuItem(submenu, QHFormat("MENU_LEVEL_FILTER", QuestHelper_Pref.filter_level and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
+                    :SetFunction(QuestHelper.Filter, QuestHelper, "LEVEL")
     local submenu2 = QuestHelper:CreateMenu()
-    QuestHelper:CreateMenuItem(submenu, "Level Filter Offset"):SetSubmenu(submenu2)
+    QuestHelper:CreateMenuItem(submenu, QHText("MENU_LEVEL_OFFSET")):SetSubmenu(submenu2)
+
     for offset = -5,5 do
       local menu = QuestHelper:CreateMenuItem(submenu2, (offset > 0 and "+" or "")..offset)
       menu:SetFunction(QuestHelper.LevelOffset, QuestHelper, offset)
@@ -70,7 +77,7 @@ function QuestHelperWorldMapButton_OnClick(self, clicked)
       menu:AddTexture(tex, true)
       tex:SetVertexColor(1, 1, 1, QuestHelper_Pref.level == offset and 1 or 0)
     end
-    QuestHelper:CreateMenuItem(menu, "Filters"):SetSubmenu(submenu)
+    QuestHelper:CreateMenuItem(menu, QHText("MENU_FILTERS")):SetSubmenu(submenu)
     
     -- Locale
     submenu = QuestHelper:CreateMenu()
@@ -81,7 +88,7 @@ function QuestHelperWorldMapButton_OnClick(self, clicked)
       item:AddTexture(tex, true)
       tex:SetVertexColor(1, 1, 1, QuestHelper_Pref.locale == loc and 1 or 0)
     end
-    QuestHelper:CreateMenuItem(menu, "Locale"):SetSubmenu(submenu)
+    QuestHelper:CreateMenuItem(menu, QHText("MENU_LOCALE")):SetSubmenu(submenu)
     
     menu:ShowAtCursor()
   end
@@ -96,6 +103,8 @@ function QuestHelperWorldMapButton_OnEnter(self)
     QuestHelper.tooltip:ClearLines()
     QuestHelper.tooltip:AddLine(QHFormat("QH_BUTTON_TOOLTIP1", QHText(QuestHelper_Pref.hide and "QH_BUTTON_SHOW" or "QH_BUTTON_HIDE")),
                                 unpack(theme.tooltip))
+    QuestHelper.tooltip:GetPrevLines():SetFont(QuestHelper.font.serif, 12)
+    QuestHelper.tooltip:AddLine(QHText("QH_BUTTON_TOOLTIP2"), unpack(theme.tooltip))
     QuestHelper.tooltip:GetPrevLines():SetFont(QuestHelper.font.serif, 12)
     QuestHelper.tooltip:Show()
 end
