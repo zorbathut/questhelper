@@ -107,7 +107,7 @@ function QuestHelper:CreateText(parent, text_str, text_size, text_font, r, g, b,
     text = parent:CreateFontString()
   end
   
-  text:SetFont(text_font or QuestHelper.font.sans, text_size or 11)
+  text:SetFont(text_font or QuestHelper.font.sans, text_size or 12)
   text:SetDrawLayer("OVERLAY")
   text:SetJustifyH("CENTER")
   text:SetJustifyV("MIDDLE")
@@ -158,8 +158,8 @@ function QuestHelper:CreateTexture(parent, r, g, b, a)
   tex:SetVertexColor(1, 1, 1, 1)
   tex:SetDrawLayer("ARTWORK")
   tex:SetBlendMode("BLEND")
-  tex:SetWidth(11)
-  tex:SetHeight(11)
+  tex:SetWidth(12)
+  tex:SetHeight(12)
   tex:Show()
   
   return tex
