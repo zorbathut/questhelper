@@ -104,8 +104,11 @@ function QuestHelperWorldMapButton_OnEnter(self)
     QuestHelper.tooltip:AddLine(QHFormat("QH_BUTTON_TOOLTIP1", QHText(QuestHelper_Pref.hide and "QH_BUTTON_SHOW" or "QH_BUTTON_HIDE")),
                                 unpack(theme.tooltip))
     QuestHelper.tooltip:GetPrevLines():SetFont(QuestHelper.font.serif, 12)
-    QuestHelper.tooltip:AddLine(QHText("QH_BUTTON_TOOLTIP2"), unpack(theme.tooltip))
-    QuestHelper.tooltip:GetPrevLines():SetFont(QuestHelper.font.serif, 12)
+    if not QuestHelper_Pref.hide then
+        -- Add the settings menu tooltip when it's available
+        QuestHelper.tooltip:AddLine(QHText("QH_BUTTON_TOOLTIP2"), unpack(theme.tooltip))
+        QuestHelper.tooltip:GetPrevLines():SetFont(QuestHelper.font.serif, 12)
+    end
     QuestHelper.tooltip:Show()
 end
 
