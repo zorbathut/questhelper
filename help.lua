@@ -278,6 +278,18 @@ function QuestHelper:RecycleInfo()
   self:TextOut(RecycleStatusString("Using %s frame objects.", self.used_frames, #self.free_frames))
 end
 
+function QuestHelper:ToggleMapButton()
+  QuestHelper_Pref.map_button = not QuestHelper_Pref.map_button
+
+  if QuestHelper_Pref.map_button then
+    QuestHelper:InitMapButton()
+    self:TextOut("Map button has been |cff00ff00enabled|r.")
+  else
+    QuestHelper:HideMapButton()
+    self:TextOut("Map button has been |cffff0000disabled|r.  Use '/qh button' to restore it.")
+  end
+end
+
 local commands =
  {
   {"VERSION",
@@ -368,7 +380,15 @@ local commands =
     {"/qh perf 1", "Sets standard performance"},
     {"/qh perf 50%", "Does half as much background processing"},
     {"/qh perf 3", "Computes routes 3 times more aggressively.  Better have some good horsepower!"}},
-    QuestHelper.SetPerfFactor, QuestHelper}
+    QuestHelper.SetPerfFactor, QuestHelper},
+
+  {"BUTTON",
+   "Toggle the QuestHelper button on the World Map frame",
+   {}, QuestHelper.ToggleMapButton, QuestHelper},
+
+  {"SETTINGS",
+   "Show the Settings menu",
+   {}, QuestHelper.DoSettingsMenu, QuestHelper}
  }
 
 function QuestHelper:SlashCommand(input)
