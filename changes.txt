@@ -1,3 +1,7 @@
+== Version <next> ==
+
+* Warsky/Wars120 wants recognition for creating a Dutch translation.
+
 == Version 0.44 04/24/2008 ==
 
 * Added World Map button to disable/enable QuestHelper.
