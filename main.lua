@@ -50,6 +50,54 @@ assert(QuestHelper.faction)
 
 QuestHelper.font = {serif=GameFontNormal:GetFont(), sans=ChatFontNormal:GetFont(), fancy=QuestTitleFont:GetFont()}
 
+function QuestHelper:GetFontPath(list_string, font)
+  if list_string then
+    for name in string.gmatch(list_string, "[^;]+") do
+      if font:SetFont(name, 10) then
+        return name
+      elseif font:SetFont("Interface\\AddOns\\QuestHelper\\Fonts\\"..name, 10) then
+        return "Interface\\AddOns\\QuestHelper\\Fonts\\"..name
+      end
+    end
+  end
+end
+
+function QuestHelper:SetLocaleFonts()
+  self.font.sans = nil
+  self.font.serif = nil
+  self.font.fancy = nil
+  
+  local font = self:CreateText(self)
+  
+  if QuestHelper_Locale ~= QuestHelper_Pref.locale then
+    -- Only use alternate fonts if using a language the client wasn't intended for.
+    local replacements = QuestHelper_SubstituteFonts[QuestHelper_Pref.locale]
+    if replacements then
+      self.font.sans = self:GetFontPath(replacements.sans, font)
+      self.font.serif = self:GetFontPath(replacements.serif, font)
+      self.font.fancy = self:GetFontPath(replacements.fancy, font)
+    end
+  end
+  
+  self.font.sans = self.font.sans or self:GetFontPath(QuestHelper_Pref.locale.."_sans.ttf", font)
+  self.font.serif = self.font.serif or self:GetFontPath(QuestHelper_Pref.locale.."_serif.ttf", font) or self.font.sans
+  self.font.fancy = self.font.fancy or self:GetFontPath(QuestHelper_Pref.locale.."_fancy.ttf", font) or self.font.serif
+  
+  self:ReleaseText(font)
+  
+  self.font.sans = self.font.sans or ChatFontNormal:GetFont()
+  self.font.serif = self.font.serif or GameFontNormal:GetFont()
+  self.font.fancy = self.font.fancy or QuestTitleFont:GetFont()
+  
+  -- Need to change the font of the chat frame, for any messages that QuestHelper displays.
+  -- This should do nothing if not using an alternate font.
+  DEFAULT_CHAT_FRAME:SetFont(self.font.sans, select(2, DEFAULT_CHAT_FRAME:GetFont()))
+  
+  if QuestHelperWorldMapButton then
+    QuestHelperWorldMapButton:SetFont(self.font.serif, select(2, QuestHelperWorldMapButton:GetFont()))
+  end
+end
+
 QuestHelper.route = {}
 QuestHelper.to_add = {}
 QuestHelper.to_remove = {}
@@ -96,6 +144,8 @@ end
 function QuestHelper:OnEvent(event)
   if event == "VARIABLES_LOADED" then
     QHFormatSetLocale(QuestHelper_Pref.locale or GetLocale())
+    self:SetLocaleFonts()
+    
     if not QuestHelper_UID then
       QuestHelper_UID = self:CreateUID()
     end

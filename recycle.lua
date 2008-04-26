@@ -107,7 +107,7 @@ function QuestHelper:CreateText(parent, text_str, text_size, text_font, r, g, b,
     text = parent:CreateFontString()
   end
   
-  text:SetFont(text_font or QuestHelper.font.sans, text_size or 12)
+  text:SetFont(text_font or QuestHelper.font.sans or ChatFontNormal:GetFont(), text_size or 12)
   text:SetDrawLayer("OVERLAY")
   text:SetJustifyH("CENTER")
   text:SetJustifyV("MIDDLE")

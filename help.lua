@@ -68,6 +68,7 @@ function QuestHelper:SetLocale(loc)
          string.find(string.lower(tbl.LOCALE_NAME or ""), "^"..string.lower(loc)) then
         QuestHelper_Pref.locale = l
         QHFormatSetLocale(l)
+        self:SetLocaleFonts()
         self:TextOut(QHFormat("LOCALE_CHANGED", l))
         return
       end

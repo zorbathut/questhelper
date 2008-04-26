@@ -154,7 +154,10 @@ function QuestHelper:InitMapButton()
   if not self.MapButton then
     -- Create the button
     local button = CreateFrame("Button", "QuestHelperWorldMapButton", WorldMapFrame, "UIPanelButtonTemplate")
-
+    
+    -- Assign the font QuestHelper selected for the currect locale.
+    button:SetFont(self.font.serif, select(2, button:GetFont()))
+    
     -- Set up the button
     button:SetText(QHText("QH_BUTTON_TEXT"))
     local width = button:GetTextWidth() + 30
