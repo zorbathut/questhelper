@@ -36,6 +36,10 @@ function QuestHelper:DoSettingsMenu()
                     :SetFunction(self.ToggleCartWP, self)
     end
     
+    -- Map frame button
+    self:CreateMenuItem(menu, QHFormat("MENU_MAP_BUTTON", QuestHelper_Pref.map_button and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
+                    :SetFunction(self.ToggleMapButton, self)
+
     -- Icon Scale
     local submenu = self:CreateMenu()
     for pct = 50,120,10 do

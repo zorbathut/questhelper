@@ -207,6 +207,7 @@ QuestHelper_Translations.enUS =
   MENU_FLIGHT_TIMER = "%1 Flight Timer",
   MENU_ANT_TRAILS = "%1 Ant Trails",
   MENU_WAYPOINT_ARROW = "%1 Waypoint Arrow",
+  MENU_MAP_BUTTON = "%1 Map Button",
   MENU_ZONE_FILTER = "%1 Zone Filter",
   MENU_DONE_FILTER = "%1 Done Filter",
   MENU_LEVEL_FILTER = "%1 Level Filter",

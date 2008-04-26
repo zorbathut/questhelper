@@ -375,7 +375,7 @@ local commands =
     {}, QuestHelper.SetLocale, QuestHelper},
 
   {"PERF",
-   "Sets / shows the Performance Factor.  Higher means more agressive route updating, lower means better performance (better frame rate).  Accepts numbers between 10% and 500%.",
+   "Sets / shows the Route Workload / Performance Factor.  Higher means more agressive route updating, lower means better performance (better frame rate).  Accepts numbers between 10% and 500%.",
    {{"/qh perf", "Show current Performance Factor"},
     {"/qh perf 1", "Sets standard performance"},
     {"/qh perf 50%", "Does half as much background processing"},
