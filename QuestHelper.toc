@@ -27,6 +27,7 @@ lang_eses.lua
 lang_esmx.lua
 lang_dadk.lua
 lang_dudl.lua
+lang_trtr.lua
 #lang_zhcn.lua
 #lang_zhtw.lua
 lang_kokr.lua
