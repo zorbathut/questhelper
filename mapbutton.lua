@@ -95,7 +95,9 @@ function QuestHelper:DoSettingsMenu()
       item:AddTexture(tex, true)
       tex:SetVertexColor(1, 1, 1, QuestHelper_Pref.locale == loc and 1 or 0)
     end
-    self:CreateMenuItem(menu, QHText("MENU_LOCALE")):SetSubmenu(submenu)
+    local item = self:CreateMenuItem(menu, QHText("MENU_LOCALE"))
+    item:AddTexture(self:CreateIconTexture(item, 25), true) -- Add Globe icon to locale menu.
+    item:SetSubmenu(submenu)
     
     menu:ShowAtCursor()
 end
