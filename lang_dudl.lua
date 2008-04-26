@@ -115,12 +115,12 @@ QuestHelper_Translations.duNL =
   
   NAG_FP = "flight master",
   NAG_QUEST = "quest",
-  NAG_ROUTE = "flight route",
-  NAG_ITEM_OBJ = "item objective",
-  NAG_OBJECT_OBJ = "object objective",
-  NAG_MONSTER_OBJ = "monster objective",
-  NAG_EVENT_OBJ = "event objective",
-  NAG_REPUTATION_OBJ = "reputation objective",
+  NAG_ROUTE = "vlucht route",
+  NAG_ITEM_OBJ = "voorwerpsdoel",
+  NAG_OBJECT_OBJ = "object doel",
+  NAG_MONSTER_OBJ = "monster doel",
+  NAG_EVENT_OBJ = "gebeurtenis doel",
+  NAG_REPUTATION_OBJ = "reputatie doel",
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1's voortgang:",
