@@ -4,6 +4,7 @@ local compile=true
 local external=true
 local archive_zip=true
 local archive_7z=false
+local icons=true
 
 for i, a in ipairs({...}) do
   local mode, option = select(3, string.find(a, "^([%+%-]?)(.*)$"))
@@ -14,6 +15,7 @@ for i, a in ipairs({...}) do
   elseif option == "7z" then archive_7z = mode
   elseif option == "compile" then compile = mode
   elseif option == "external" then external = mode
+  elseif option == "icons" then icons = mode
   else
     print("Unknown option: "..option)
     return 1
@@ -331,11 +333,13 @@ elseif not FileUtil.fileExists("../static.lua") then
   return 1
 end
 
-print("Creating: Icons.tga")
---if not FileUtil.fileExists("../Art/Icons.tga") then
---  print("You'll need to manually create Art/Icons.tga, ImageMagick's SVG support seems to have been broken recently.")
---end
-FileUtil.convertImage("Data/art.svg", "../Art/Icons.tga")
+if icons then
+  print("Creating: Icons.tga")
+  --if not FileUtil.fileExists("../Art/Icons.tga") then
+  --  print("You'll need to manually create Art/Icons.tga, ImageMagick's SVG support seems to have been broken recently.")
+  --end
+  FileUtil.convertImage("Data/art.svg", "../Art/Icons.tga")
+end
 
 local version_string = "UNKNOWN"
 
@@ -379,7 +383,7 @@ if archive_zip or archive_7z then
         info = "%2"
       end
       
-      FileUtil.copyFile(file, "QuestHelper", "^(##%s-Version%s-):%s*(.*)%s*$", function (str, a, b) version_string = string.gsub(info, "%%2", b) return a..": "..version_string end )
+      FileUtil.copyFile(file, "QuestHelper", "^(##%s-Version%s-):%s*(.*)%s*$", function (a, b) version_string = string.gsub(info, "%%2", b) return a..": "..version_string end )
     end
   end)
   
