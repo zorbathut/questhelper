@@ -72,6 +72,16 @@ function QuestHelper:DoSettingsMenu()
     end
     self:CreateMenuItem(menu, QHText("MENU_FILTERS")):SetSubmenu(submenu)
     
+    submenu = self:CreateMenu()
+    for scale = 0.2,2,0.2 do
+      local menu = self:CreateMenuItem(submenu, (scale*100).."%")
+      menu:SetFunction(self.SetPerfFactor, self, scale)
+      local tex = self:CreateIconTexture(item, 10)
+      menu:AddTexture(tex, true)
+      tex:SetVertexColor(1, 1, 1, QuestHelper_Pref.perf_scale == scale and 1 or 0)
+    end
+    self:CreateMenuItem(menu, QHText("MENU_PERFORMANCE")):SetSubmenu(submenu)
+    
     -- Locale
     submenu = self:CreateMenu()
     for loc, tbl in pairs(QuestHelper_Translations) do

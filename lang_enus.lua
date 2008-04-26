@@ -213,6 +213,7 @@ QuestHelper_Translations.enUS =
   MENU_LEVEL_OFFSET = "Level Filter Offset",
   MENU_ICON_SCALE = "Icon Scale",
   MENU_FILTERS = "Filters",
+  MENU_PERFORMANCE = "Route Workload Scale",
   MENU_LOCALE = "Locale"
  }
 
