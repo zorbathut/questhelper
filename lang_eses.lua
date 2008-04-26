@@ -9,7 +9,7 @@ QuestHelper_Translations.esES =
   LOCALE_ERROR = "El idioma de su datos guardados no coincide con el idioma del cliente Wow.",
   ZONE_LAYOUT_ERROR = "Me niego a ejecutarme, por miedo a dañar sus datos guardados. "..
                       "Por favor, espere a que un parche que será capaz de manejar el nueva diseño de zona.",
-  DOWNGRADE_ERROR = "Sus datos guardados no son compatibles con esta versión de MisiónHelper. "..
+  DOWNGRADE_ERROR = "Sus datos guardados no son compatibles con esta versión de QuestHelper. "..
                     "Utilice una nueva versión, o borre su variables guardadas.",
   HOME_NOT_KNOWN = "No se conoce su hogar. Cuando tenga una oportunidad, por favor, hable con su posadero para restaurarla.",
   
@@ -29,13 +29,13 @@ QuestHelper_Translations.esES =
   SLAY_VERB = "Matar",
   ACQUIRE_VERB = "Adquirir",
   
-  OBJECTIVE_REASON = "%1 %h2 para la misión %h3.", -- %1 is a verb, %2 is a noun (item or monster)
+  OBJECTIVE_REASON = "%1 %h2 para la misión  %h3.", -- %1 is a verb, %2 is a noun (item or monster)
   OBJECTIVE_REASON_FALLBACK = "%h1 para la misión %h2.",
-  OBJECTIVE_REASON_TURNIN = "A su vez en misión %h1.",
+  OBJECTIVE_REASON_TURNIN = "Entrega la misión %h1.",
   OBJECTIVE_PURCHASE = "Compra de %h1.",
   OBJECTIVE_TALK = "Habla con %h1.",
   OBJECTIVE_SLAY = "Matar %h1.",
-  OBJECTIVE_LOOT = "Botín %h1.",
+  OBJECTIVE_LOOT = "Recoge de %h1.",
   
   ZONE_BORDER = "la frontera %1/%2",
   
