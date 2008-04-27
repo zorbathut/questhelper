@@ -350,6 +350,7 @@ if archive_zip or archive_7z then
   FileUtil.createDirectory("QuestHelper/Art")
   FileUtil.createDirectory("QuestHelper/Astrolabe")
   FileUtil.createDirectory("QuestHelper/ChatThrottleLib")
+  FileUtil.createDirectory("QuestHelper/Fonts")
   
   FileUtil.forEachFile("..", function (file)
     local ext = FileUtil.extension(file)
@@ -391,6 +392,13 @@ if archive_zip or archive_7z then
     local ext = FileUtil.extension(file)
     if ext == "blp" or ext == "tga" then
       FileUtil.copyFile(file, "QuestHelper/Art")
+    end
+  end)
+  
+  FileUtil.forEachFile("../Fonts", function (file)
+    local ext = FileUtil.extension(file)
+    if ext == "txt" or ext == "ttf" then
+      FileUtil.copyFile(file, "QuestHelper/Fonts")
     end
   end)
   
