@@ -215,6 +215,9 @@ local function TidyPositionList(list, min_distance)
     if a[2] > b[2] then return false end
     return a[3] < b[3]
   end)
+  
+  -- Only use the first 5 positions.
+  for i = 6,#list do table.remove(list) end
 end
 
 local function DropListMass(list)
