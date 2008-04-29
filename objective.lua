@@ -179,6 +179,7 @@ local function ObjectivePrepareRouting(self)
     self.nm = QuestHelper:CreateTable()
     self.nm2 = QuestHelper:CreateTable()
     self.nl = QuestHelper:CreateTable()
+    self.distance_cache = QuestHelper:CreateTable()
     
     self:AppendPositions(self, 1, nil)
     self:FinishAddLoc()
@@ -426,9 +427,20 @@ local function GetPosition(self)
   return self.location
 end
 
-local function ComputeTravelTime(self, pos)
+local function ComputeTravelTime(self, pos, nocache)
   assert(self.setup)
   
+  local key
+  if not nocache then
+    if not pos.key then
+      pos.key = math.random()..""
+    end
+    key = pos.key
+    if self.distance_cache[key] then
+      return unpack(self.distance_cache[key])
+    end
+  end
+
   local graph = self.qh.world_graph
   local nl = self.nl
   
@@ -471,12 +483,32 @@ local function ComputeTravelTime(self, pos)
   end
   
   assert(e)
+  if not nocache then
+    local new = self.qh:CreateTable()
+    new[1], new[2] = d, e
+    self.distance_cache[key] = new
+  end
   return d, e
 end
 
-local function ComputeTravelTime2(self, pos1, pos2)
+local function ComputeTravelTime2(self, pos1, pos2, nocache)
   assert(self.setup)
   
+  local key
+  if not nocache then
+    -- We don't want to cache distances involving the player's current position, as that would spam the table
+    if not pos1.key then
+      pos1.key = math.random()..""
+    end
+    if not pos2.key then
+      pos2.key = math.random()..""
+    end
+    key = pos1.key..pos2.key
+    if self.distance_cache[key] then
+      return unpack(self.distance_cache[key])
+    end
+  end
+
   local graph = self.qh.world_graph
   local nl = self.nl
   
@@ -596,6 +628,11 @@ local function ComputeTravelTime2(self, pos1, pos2)
   end
   
   assert(e)
+  if not nocache then
+    local new = self.qh:CreateTable()
+    new[1], new[2], new[3] = d, d2, e
+    self.distance_cache[key] = new
+  end
   return d, d2, e
 end
 

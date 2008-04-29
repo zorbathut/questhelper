@@ -440,8 +440,15 @@ function QuestHelper:ReleaseObjectivePathingInfo(o)
     self:ReleaseTable(o.nm)
     self:ReleaseTable(o.nm2)
     self:ReleaseTable(o.nl)
+
+    for k, v in pairs(o.distance_cache) do
+      self:ReleseTable(v)
+      o.distance_cache[v] = nil
+    end
+    self:ReleaseTable(o.distance_cache)
     
     o.d, o.p, o.nm, o.nm2, o.nl = nil, nil, nil, nil, nil
+    o.distance_cache = nil
     o.pos, o.sop = nil, nil -- ResetPathing will preserve these values if needed.
     o.setup = nil
   end
@@ -762,6 +769,7 @@ function QuestHelper:ResetPathing()
       obj.nm = QuestHelper:CreateTable()
       obj.nm2 = QuestHelper:CreateTable()
       obj.nl = QuestHelper:CreateTable()
+      obj.distance_cache = QuestHelper:CreateTable()
       obj:AppendPositions(obj, 1, nil)
       obj:FinishAddLoc()
       

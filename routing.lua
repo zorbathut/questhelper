@@ -81,7 +81,7 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective)
   -- extra    - The new distance from the first node to the player.
   
   if #array == 0 then
-    extra, objective.pos = objective:TravelTime(self.pos)
+    extra, objective.pos = objective:TravelTime(self.pos, --[[nocache=]]true)
     yieldIfNeeded()
     table.insert(array, 1, objective)
     return 1, 0, extra
@@ -93,7 +93,7 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective)
   
   if low == 1 then
     best_index = 1
-    best_extra, best_len2, bp = objective:TravelTime2(self.pos, array[1].pos)
+    best_extra, best_len2, bp = objective:TravelTime2(self.pos, array[1].pos, --[[nocache=]]true)
     best_total = best_extra+distance+best_len2
   elseif low == #array+1 then
     local o = array[#array]
@@ -186,7 +186,7 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
   -- extra    - The new distance from the first node to the player.
   
   if #array == 0 then
-    extra, objective.sop = objective:TravelTime(self.pos)
+    extra, objective.sop = objective:TravelTime(self.pos, --[[nocache=]]true)
     yieldIfNeeded()
     table.insert(array, 1, objective)
     return 1, 0, extra
@@ -198,7 +198,7 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
   
   if low == 1 then
     best_index = 1
-    best_extra, best_len2, bp = objective:TravelTime2(self.pos, array[1].sop)
+    best_extra, best_len2, bp = objective:TravelTime2(self.pos, array[1].sop, --[[nocache=]]true)
     best_total = best_extra+distance+best_len2
     yieldIfNeeded()
   elseif low == #array+1 then
