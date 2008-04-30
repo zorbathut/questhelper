@@ -50,7 +50,7 @@ function QuestHelper:RemoveIndexFromRoute(array, distance, extra, index)
     table.remove(array, 1)
   elseif index == 1 then
     distance = distance - array[1].len
-    extra = self:ComputeTravelTime(self.pos, array[2].pos)
+    extra = self:ComputeTravelTime(self.pos, array[2].pos, --[[nocache=]] true)
     table.remove(array, 1)
     yieldIfNeeded()
   elseif index == #array then
@@ -67,7 +67,7 @@ function QuestHelper:RemoveIndexFromRoute(array, distance, extra, index)
   return distance, extra
 end
 
-function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective)
+function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective, old_index)
   -- array     - Contains the path you want to insert into.
   -- distance  - How long is the path so far?
   -- extra     - How far is it from the player to the first node?
@@ -116,7 +116,10 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective)
     local a = array[i-1]
     local l1, l2, p = objective:TravelTime2(a.pos, array[i].pos)
     local d = total - a.len + l1 + l2
-    if d < best_total then
+    if d < best_total or (d == best_total and i <= old_index) then
+      -- This spot is the best we've seen so far, or it's the same but closer to the original
+      -- location; we don't want to randomly re-arrange for no benefit...
+      -- In particular, if there are two objectives at the same spot, we don't want to keep switching which comes first.
       bp = p
       best_len1 = l1
       best_len2 = l2
@@ -155,7 +158,7 @@ function QuestHelper:RemoveIndexFromRouteSOP(array, distance, extra, index)
     table.remove(array, 1)
   elseif index == 1 then
     distance = distance - array[1].nel
-    extra = self:ComputeTravelTime(self.pos, array[2].sop)
+    extra = self:ComputeTravelTime(self.pos, array[2].sop, --[[nocache=]] true)
     table.remove(array, 1)
     yieldIfNeeded()
   elseif index == #array then
@@ -172,7 +175,7 @@ function QuestHelper:RemoveIndexFromRouteSOP(array, distance, extra, index)
   return distance, extra
 end
 
-function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objective)
+function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objective, old_index)
   -- array     - Contains the path you want to insert into.
   -- distance  - How long is the path so far?
   -- extra     - How far is it from the player to the first node?
@@ -222,7 +225,9 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
     local a = array[i-1]
     local l1, l2, p = objective:TravelTime2(a.sop, array[i].sop)
     local d = total - a.nel + l1 + l2
-    if d < best_total then
+    if d < best_total or (d == best_total and i <= old_index) then
+      -- This spot is the best we've seen so far, or it's the same but closer to the original
+      -- location; we don't want to randomly re-arrange for no benefit...
       bp = p
       best_len1 = l1
       best_len2 = l2
@@ -363,18 +368,18 @@ local function RouteUpdateRoutine(self)
           CalcObjectivePriority(obj)
           
           if #route == 0 then
-            insert, distance, extra = self:InsertObjectiveIntoRoute(route, 0, 0, obj)
-            insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, 0, 0, obj)
+            insert, distance, extra = self:InsertObjectiveIntoRoute(route, 0, 0, obj, 0)
+            insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, 0, 0, obj, 0)
             
             minimap_dodad:SetObjective(obj)
           else
-            insert, distance, extra = self:InsertObjectiveIntoRoute(route, distance, extra, obj)
+            insert, distance, extra = self:InsertObjectiveIntoRoute(route, distance, extra, obj, 0)
             
             if insert == 1 then
               minimap_dodad:SetObjective(obj)
             end
             
-            insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, obj)
+            insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, obj, 0)
           end
         end
       else
@@ -423,13 +428,13 @@ local function RouteUpdateRoutine(self)
           for i = #new_route, 1, -1 do new_route[i] = nil end
           
           point = route[shuffle[1]]
-          insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, 0, 0, point)
+          insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, 0, 0, point, 0)
           
           -- Insert the rest of the points.
           for i=2,#route do
             point = route[shuffle[i]]
             
-            insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point)
+            insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point, 0)
           end
         end
         new_local_minima = true
@@ -438,7 +443,7 @@ local function RouteUpdateRoutine(self)
       point = route[recheck_pos]
       self.limbo_node = point
       distance, extra = self:RemoveIndexFromRoute(route, distance, extra, recheck_pos)
-      insert, distance, extra = self:InsertObjectiveIntoRoute(route, distance, extra, point)
+      insert, distance, extra = self:InsertObjectiveIntoRoute(route, distance, extra, point, recheck_pos)
       self.limbo_node = nil
       
       if insert == 1 or recheck_pos == 1 then
@@ -447,7 +452,7 @@ local function RouteUpdateRoutine(self)
       
       point = new_route[new_recheck_pos]
       new_distance, new_extra = self:RemoveIndexFromRouteSOP(new_route, new_distance, new_extra, new_recheck_pos)
-      insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point)
+      insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point, new_recheck_pos)
       if insert ~= new_recheck_pos then
         new_local_minima = false
       end
@@ -481,12 +486,12 @@ local function RouteUpdateRoutine(self)
       for i = #new_route, 1, -1 do new_route[i] = nil end
       
       point = route[shuffle[1]]
-      insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, 0, 0, point)
+      insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, 0, 0, point, 0)
       
       -- Insert the rest of the points.
       for i=2,#route do
         point = route[shuffle[i]]
-        insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point)
+        insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point, 0)
       end
       
       recheck_pos = new_recheck_pos
