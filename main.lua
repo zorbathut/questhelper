@@ -144,7 +144,6 @@ end
 function QuestHelper:OnEvent(event)
   if event == "VARIABLES_LOADED" then
     QHFormatSetLocale(QuestHelper_Pref.locale or GetLocale())
-    self:SetLocaleFonts()
     
     if not QuestHelper_UID then
       QuestHelper_UID = self:CreateUID()
@@ -203,6 +202,8 @@ function QuestHelper:OnEvent(event)
         QuestHelper_Pref[key] = def
       end
     end
+    
+    self:SetLocaleFonts()
     
     if QuestHelper_Pref.share and not QuestHelper_Pref.solo then
       self:EnableSharing()
