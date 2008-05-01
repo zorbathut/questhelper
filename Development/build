@@ -355,7 +355,7 @@ if archive_zip or archive_7z then
   FileUtil.forEachFile("..", function (file)
     local ext = FileUtil.extension(file)
     if ext == "lua" or ext == "xml" then
-      FileUtil.copyFile(file, "QuestHelper")
+      FileUtil.copyFile(file, "QuestHelper", "(assert%s*%b())", "--[[ %1 ]]")
     elseif ext == "toc" then
       local info = nil
       
