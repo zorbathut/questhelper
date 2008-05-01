@@ -443,7 +443,7 @@ function QuestHelper:ReleaseObjectivePathingInfo(o)
 
     for k, v in pairs(o.distance_cache) do
       self:ReleaseTable(v)
-      o.distance_cache[v] = nil
+      o.distance_cache[k] = nil
     end
     self:ReleaseTable(o.distance_cache)
     
