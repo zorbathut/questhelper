@@ -282,6 +282,7 @@ function QuestHelper:ScanQuestLog()
           if lo.objective then -- Might not have loaded the objective yet, if it wasn't in the local cache and we defered loading it.
             lo.objective.filter_level = ignored
             lo.objective.filter_done = true
+            lo.objective.filter_blocked = not lo.objective:CouldBeFirst()
           end
         end
       else
@@ -293,6 +294,9 @@ function QuestHelper:ScanQuestLog()
         quest:Share()
         self:AddObjectiveWatch(quest, lq.reason)
       end
+
+      -- Note whether the quest turn-in objective is blocked (i.e. quest not complete)
+      quest.filter_blocked = not quest:CouldBeFirst()
     end
     index = index + 1
   end

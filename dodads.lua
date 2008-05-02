@@ -356,8 +356,9 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
       if i == 1 then
         -- if it's the very next objective, give it the green background
         self.bg = QuestHelper:CreateIconTexture(self, 13)
-      elseif not objective:CouldBeFirst() then
+      elseif objective.filter_blocked then
         -- if there are still prerequisites, make it grey
+        -- We checked status of pre-requisites last time we scanned the quest log, so just check the flag.
         self.bg = QuestHelper:CreateIconTexture(self, 16)
       else
         -- otherwise give it the background selected by the objective

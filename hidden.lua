@@ -32,6 +32,10 @@ local function HiddenReason(obj)
     if obj.filter_done and QuestHelper_Pref.filter_done then
       return QHText("FILTERED_COMPLETE"), true, "done"
     end
+
+    if obj.filter_blocked and QuestHelper_Pref.filter_blocked then
+      return QHText("FILTERED_BLOCKED"), true, "blocked"
+    end
   elseif obj.user_ignore then
     return QHText("FILTERED_USER"), true
   end

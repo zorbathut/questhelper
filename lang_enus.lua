@@ -158,6 +158,7 @@ QuestHelper_Translations.enUS =
   FILTERED_LEVEL = "Filtered due to level.",
   FILTERED_ZONE = "Filtered due to zone.",
   FILTERED_COMPLETE = "Filtered due to completeness.",
+  FILTERED_BLOCKED = "Filtered due to incomplete prior objective",
   FILTERED_USER = "You requested this objective be hidden.",
   FILTERED_UNKNOWN = "Don't know how to complete.",
   
@@ -166,6 +167,7 @@ QuestHelper_Translations.enUS =
   FILTER_DONE = "done",
   FILTER_ZONE = "zone",
   FILTER_LEVEL = "level",
+  FILTER_BLOCKED = "blocked",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_SINGLE = "1 %2", -- %1 == count (will be 1), %2 == what
@@ -210,6 +212,7 @@ QuestHelper_Translations.enUS =
   MENU_MAP_BUTTON = "%1 Map Button",
   MENU_ZONE_FILTER = "%1 Zone Filter",
   MENU_DONE_FILTER = "%1 Done Filter",
+  MENU_BLOCKED_FILTER = "%1 Blocked Filter",
   MENU_LEVEL_FILTER = "%1 Level Filter",
   MENU_LEVEL_OFFSET = "Level Filter Offset",
   MENU_ICON_SCALE = "Icon Scale",

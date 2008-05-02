@@ -236,10 +236,14 @@ function QuestHelper:Filter(input)
   elseif input == "LEVEL" then
     QuestHelper_Pref.filter_level = not QuestHelper_Pref.filter_level
     self:TextOut("Filter "..self:HighlightText("level").." set to "..self:HighlightText(QuestHelper_Pref.filter_level and "active" or "inactive")..".")
+  elseif input == "BLOCKED" or input == "BLOCK" then
+    QuestHelper_Pref.filter_blocked = not QuestHelper_Pref.filter_blocked
+    self:TextOut("Filter "..self:HighlightText("blocked").." set to "..self:HighlightText(QuestHelper_Pref.filter_blocked and "active" or "inactive")..".")
   elseif input == "" then
     self:TextOut("Filter "..self:HighlightText("zone")..": "..self:HighlightText(QuestHelper_Pref.filter_zone and "active" or "inactive"))
     self:TextOut("Filter "..self:HighlightText("level")..": "..self:HighlightText(QuestHelper_Pref.filter_level and "active" or "inactive"))
     self:TextOut("Filter "..self:HighlightText("done")..": "..self:HighlightText(QuestHelper_Pref.filter_done and "active" or "inactive"))
+    self:TextOut("Filter "..self:HighlightText("blocked")..": "..self:HighlightText(QuestHelper_Pref.filter_blocked and "active" or "inactive"))
   else
     self:TextOut("Don't know what you want filtered, expect "..self:HighlightText("zone")..", "..self:HighlightText("done")..", or "..self:HighlightText("level")..".")
   end
@@ -309,7 +313,8 @@ local commands =
    "Automatically ignores/unignores objectives based on criteria.",
    {{"/qh filter zone", "Toggle showing objectives outside the current zone"},
     {"/qh filter done", "Toggle showing objectives for uncompleted quests."},
-    {"/qh filter level", "Toggle showing objectives that are probably too hard."}}, QuestHelper.Filter, QuestHelper},
+    {"/qh filter level", "Toggle showing objectives that are probably too hard."},
+    {"/qh filter blocked", "Toggle showing blocked objectives, such as quest turn-ins for incomplete quests."}}, QuestHelper.Filter, QuestHelper},
   
   {"SCALE",
    "Scales the map icons used by QuestHelper. Will accept values between 50% and 300%.",

@@ -16,7 +16,8 @@ local function DefaultObjectiveKnown(self)
   if self.user_ignore == nil then
     if (self.filter_zone and QuestHelper_Pref.filter_zone) or
        (self.filter_done and QuestHelper_Pref.filter_done) or
-       (self.filter_level and QuestHelper_Pref.filter_level) then
+       (self.filter_level and QuestHelper_Pref.filter_level) or
+       (self.filter_blocked and QuestHelper_Pref.filter_blocked) then
       return false
     end
   elseif self.user_ignore then
