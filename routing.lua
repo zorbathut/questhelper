@@ -3,6 +3,8 @@ local call_count = 0
 local map_rpf = 25
 local normal_rpf = 10
 
+local refine_limit = 1.0e-8      -- Margin by which a new result must be better before we use it, to reduce noise
+
 local function yieldIfNeeded()
   -- Make sure we yield every so often.
   if QuestHelper_Pref.hide then
@@ -43,27 +45,43 @@ function CalcObjectiveIJ(route, obj)
   return i, #route+1
 end
 
-function QuestHelper:RemoveIndexFromRoute(array, distance, extra, index)
+-------------------------------------------------------------------------------
+-- PreRemoveIndexFromRoute: Figure out what things will look like if we remove the
+-- specified item, but don't remove it.
+function QuestHelper:PreRemoveIndexFromRoute(array, distance, extra, index)
+  local skip = 0    -- Revised from prior node to next node, skipping this one
+
   if #array == 1 then
     distance = 0
     extra = 0
-    table.remove(array, 1)
   elseif index == 1 then
     distance = distance - array[1].len
     extra = self:ComputeTravelTime(self.pos, array[2].pos, --[[nocache=]] true)
-    table.remove(array, 1)
     yieldIfNeeded()
   elseif index == #array then
     distance = distance - array[index-1].len
-    table.remove(array, index)
   else
-    local a, b = array[index-1], table.remove(array, index)
+    local a, b = array[index-1], array[index]
     distance = distance - a.len - b.len
-    a.len = self:ComputeTravelTime(a.pos, array[index].pos)
-    distance = distance + a.len
+    skip = self:ComputeTravelTime(a.pos, array[index+1].pos)
     yieldIfNeeded()
+    distance = distance + skip
   end
-  
+
+  return distance, extra, skip
+end
+
+function QuestHelper:RemoveIndexFromRoute(array, distance, extra, index)
+  local skip
+
+  distance, extra, skip = self:PreRemoveIndexFromRoute(array, distance, extra, index)
+
+  if index > 1 then
+    array[index - 1].len = skip
+  end
+
+  table.remove(array, index)
+
   return distance, extra
 end
 
@@ -72,11 +90,12 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective,
   -- distance  - How long is the path so far?
   -- extra     - How far is it from the player to the first node?
   -- objective - Where are we trying to get to?
+  -- old_index - Where was this item before (assuming we're trying to re-evaluate the item's position)
   
   -- In addition, objective needs i and j set, for the min and max indexes it can be inserted into.
   
   -- Returns:
-  -- index    - The index to inserted into.
+  -- index    - The index the node was inserted into (even if unchanged)
   -- distance - The new length of the path.
   -- extra    - The new distance from the first node to the player.
   
@@ -87,11 +106,65 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective,
     return 1, 0, extra
   end
   
-  local best_index, best_extra, best_total, best_len1, best_len2, bp
-  
+  local best_index, best_extra, best_total, best_len1, best_len2, bp, skip_len
+  local orig_distance, orig_extra = distance, extra
+
   local low, high = CalcObjectiveIJ(array, objective)
-  
-  if low == 1 then
+
+  local total = distance+extra
+
+  assert(objective)
+
+  if old_index > 0 then
+    assert(objective == array[old_index], "objective ~= array[old_index]")
+    assert(old_index >= low and old_index <= high, "Item was found in an invalid location! (found at "..old_index..", low="..low..", high="..high..", total="..#array..")")
+
+    -- If we're evaluating the possibility of a new position, then our current info is the best so far
+    best_total, best_extra, best_index = distance+extra, extra, old_index
+
+    -- Now, let's pretend we deleted the item, so we can correctly cost the alternatives
+    distance, extra, skip_len = self:PreRemoveIndexFromRoute(array, distance, extra, old_index)
+    total = distance+extra
+
+    local l1, l2, p
+
+    -- Before we continue, check if this point is actually even better than we thought;
+    -- if items around it moved, we might be able to use a better location for this objective
+    if old_index == 1 then
+      best_len1 = extra
+      l1, l2, p = objective:TravelTime2(self.pos, array[2].pos, --[[nocache=]] true)
+      low = 3       -- Skip the item we're considering moving; we don't want to try to insert before or after it.
+    else
+      best_len1 = array[old_index-1].len
+      low = low - 1     -- The loop below assumes the first location has been checked, but instead we used the old values
+      if old_index == #array then
+        l1, p = objective:TravelTime(array[old_index-1].pos)
+        l2 = 0
+      else
+        l1, l2, p = objective:TravelTime2(array[old_index-1].pos, array[old_index+1].pos)
+      end
+    end
+    yieldIfNeeded()
+
+    local d = total - skip_len + l1 + l2
+    if (d + refine_limit) < best_total then
+      -- Remember the revised values
+      best_total = d
+      bp = p
+      best_len2 = l2
+      if old_index > 1 then
+        best_len1 = l1
+      else
+        best_len1 = 0
+        best_extra = l1
+      end
+    else
+      -- OK, we can't make this position any better, so the current stats are the best
+      best_len2, bp = objective.len, objective.pos
+      best_len1 = old_index == 1 and 0 or array[old_index - 1].len
+    end
+    assert(bp)
+  elseif low == 1 then
     best_index = 1
     best_extra, best_len2, bp = objective:TravelTime2(self.pos, array[1].pos, --[[nocache=]]true)
     best_total = best_extra+distance+best_len2
@@ -110,31 +183,51 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective,
     yieldIfNeeded()
   end
   
-  local total = distance+extra
-  
-  for i = low+1, math.min(#array, high) do
-    local a = array[i-1]
-    local l1, l2, p = objective:TravelTime2(a.pos, array[i].pos)
-    local d = total - a.len + l1 + l2
-    if d < best_total or (d == best_total and i <= old_index) then
-      -- This spot is the best we've seen so far, or it's the same but closer to the original
-      -- location; we don't want to randomly re-arrange for no benefit...
-      -- In particular, if there are two objectives at the same spot, we don't want to keep switching which comes first.
-      bp = p
-      best_len1 = l1
-      best_len2 = l2
-      best_extra = extra
-      best_total = d
-      best_index = i
+  do
+    -- This really is a for loop, but I broke it out for more control
+    local i, limit = low+1, math.min(#array, high)
+    while i < limit do
+      if i == old_index then
+        -- Don't try to insert the item before OR after itself
+        i = i + 2
+      else
+        local l1, l2, p, d
+        if i > 1 then
+          local a = array[i-1]
+          l1, l2, p = objective:TravelTime2(a.pos, array[i].pos)
+          d = total - a.len + l1 + l2
+        else
+          l1, l2, p = objective:TravelTime2(self.pos, array[i].pos)
+          d = total + l1 + l2
+        end
+        if (d + refine_limit) < best_total then
+          -- This spot is the best we've seen so far
+          bp = p
+          best_len1 = l1
+          best_len2 = l2
+          best_extra = (i == 1) and l1 or extra
+          best_total = d
+          best_index = i
+        end
+        yieldIfNeeded()
+        i = i + 1
+      end
     end
-    yieldIfNeeded()
   end
   
-  if high == #array+1 then
+  if high == #array+1 and old_index ~= #array then
+    -- Special case: consider adding item at the end (but only if it wasn't there already)
     local l1, p = objective:TravelTime(array[#array].pos)
     yieldIfNeeded()
     local d = total + l1
-    if d < best_total then
+    if (d + refine_limit) < best_total then
+      if old_index > 0 then
+        -- We're moving this item to the end; need to delete it from its current location
+        table.remove(array, old_index)
+        if old_index > 1 then
+          array[old_index-1].len = skip_len
+        end
+      end
       objective.pos = p
       array[#array].len = l1
       table.insert(array, objective)
@@ -142,36 +235,63 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective,
     end
   end
   
+  if old_index > 0 and best_index ~= old_index then
+    -- It moved, so we'd better remove it
+    table.remove(array, old_index)
+    if old_index > 1 then
+      array[old_index-1].len = skip_len
+    end
+    if best_index > old_index then
+      best_index = best_index - 1
+    end
+  end
+
   assert(bp)
   objective.pos = bp
   if best_index > 1 then array[best_index-1].len = best_len1 end
   objective.len = best_len2
-  table.insert(array, best_index, objective)
+  if best_index ~= old_index then
+    table.insert(array, best_index, objective)
+  end
+  assert(array[best_index] == objective)
   return best_index, best_total-best_extra, best_extra
 end
 
 
-function QuestHelper:RemoveIndexFromRouteSOP(array, distance, extra, index)
+function QuestHelper:PreRemoveIndexFromRouteSOP(array, distance, extra, index)
+  local skip = 0    -- Revised from prior node to next node, skipping this one
+
   if #array == 1 then
     distance = 0
     extra = 0
-    table.remove(array, 1)
   elseif index == 1 then
     distance = distance - array[1].nel
     extra = self:ComputeTravelTime(self.pos, array[2].sop, --[[nocache=]] true)
-    table.remove(array, 1)
     yieldIfNeeded()
   elseif index == #array then
     distance = distance - array[index-1].nel
-    table.remove(array, index)
   else
-    local a, b = array[index-1], table.remove(array, index)
+    local a, b = array[index-1], array[index]
     distance = distance - a.nel - b.nel
-    a.nel = self:ComputeTravelTime(a.sop, array[index].sop)
-    distance = distance + a.nel
+    skip = self:ComputeTravelTime(a.sop, array[index+1].sop)
+    distance = distance + skip
     yieldIfNeeded()
   end
   
+  return distance, extra, skip
+end
+
+function QuestHelper:RemoveIndexFromRouteSOP(array, distance, extra, index)
+  local skip
+
+  distance, extra, skip = self:PreRemoveIndexFromRouteSOP(array, distance, extra, index)
+
+  if index > 1 then
+    array[index - 1].nel = skip
+  end
+
+  table.remove(array, index)
+
   return distance, extra
 end
 
@@ -180,6 +300,7 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
   -- distance  - How long is the path so far?
   -- extra     - How far is it from the player to the first node?
   -- objective - Where are we trying to get to?
+  -- old_index - Where was this item before (assuming we're trying to re-evaluate the item's position)
   
   -- In addition, objective needs i and j set, for the min and max indexes it can be inserted into.
   
@@ -195,11 +316,65 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
     return 1, 0, extra
   end
   
-  local best_index, best_extra, best_total, best_len1, best_len2, bp
-  
+  local best_index, best_extra, best_total, best_len1, best_len2, bp, skip_len
+  local orig_distance, orig_extra = distance, extra
+
   local low, high = CalcObjectiveIJ(array, objective)
-  
-  if low == 1 then
+
+  local total = distance+extra
+
+  assert(objective)
+
+  if old_index > 0 then
+    assert(objective == array[old_index], "objective ~= array[old_index]")
+    assert(old_index >= low and old_index <= high, "Item was found in an invalid location!")
+
+    -- If we're evaluating the possibility of a new position, then our current info is the best so far
+    best_total, best_extra, best_index = distance+extra, extra, old_index
+
+    -- Now, let's pretend we deleted the item, so we can correctly cost the alternatives
+    distance, extra, skip_len = self:PreRemoveIndexFromRouteSOP(array, distance, extra, old_index)
+    total = distance+extra
+
+    local l1, l2, p
+
+    -- Before we continue, check if this point is actually even better than we thought;
+    -- if items around it moved, we might be able to use a better location for this objective
+    if old_index == 1 then
+      best_len1 = extra
+      l1, l2, p = objective:TravelTime2(self.pos, array[2].sop, --[[nocache=]] true)
+      low = 3       -- Skip the item we're considering moving; we don't want to try to insert before or after it.
+    else
+      best_len1 = array[old_index-1].nel
+      low = low - 1     -- The loop below assumes the first location has been checked, but instead we used the old values
+      if old_index == #array then
+        l1, p = objective:TravelTime(array[old_index-1].sop)
+        l2 = 0
+      else
+        l1, l2, p = objective:TravelTime2(array[old_index-1].sop, array[old_index+1].sop)
+      end
+    end
+    yieldIfNeeded()
+
+    local d = total - skip_len + l1 + l2
+    if (d + refine_limit) < best_total then
+      -- Remember the revised values
+      best_total = d
+      bp = p
+      best_len2 = l2
+      if old_index > 1 then
+        best_len1 = l1
+      else
+        best_len1 = 0
+        best_extra = l1
+      end
+    else
+      -- OK, we can't make this position any better, so the current stats are the best
+      best_len2, bp = objective.nel, objective.sop
+      best_len1 = old_index == 1 and 0 or array[old_index - 1].nel
+    end
+    assert(bp)
+  elseif low == 1 then
     best_index = 1
     best_extra, best_len2, bp = objective:TravelTime2(self.pos, array[1].sop, --[[nocache=]]true)
     best_total = best_extra+distance+best_len2
@@ -221,28 +396,51 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
   
   local total = distance+extra
   
-  for i = low+1, math.min(#array, high) do
-    local a = array[i-1]
-    local l1, l2, p = objective:TravelTime2(a.sop, array[i].sop)
-    local d = total - a.nel + l1 + l2
-    if d < best_total or (d == best_total and i <= old_index) then
-      -- This spot is the best we've seen so far, or it's the same but closer to the original
-      -- location; we don't want to randomly re-arrange for no benefit...
-      bp = p
-      best_len1 = l1
-      best_len2 = l2
-      best_extra = extra
-      best_total = d
-      best_index = i
+  do
+    -- This really is a for loop, but I broke it out for more control
+    local i, limit = low+1, math.min(#array, high)
+    while i < limit do
+      if i == old_index then
+        -- Don't try to insert the item before OR after itself
+        i = i + 2
+      else
+        local l1, l2, p, d
+        if i > 1 then
+          local a = array[i-1]
+          l1, l2, p = objective:TravelTime2(a.sop, array[i].sop)
+          d = total - a.nel + l1 + l2
+        else
+          l1, l2, p = objective:TravelTime2(self.pos, array[i].sop)
+          d = total + l1 + l2
+        end
+        if (d + refine_limit) < best_total then
+          -- This spot is the best we've seen so far
+          bp = p
+          best_len1 = l1
+          best_len2 = l2
+          best_extra = (i == 1) and l1 or extra
+          best_total = d
+          best_index = i
+        end
+        yieldIfNeeded()
+        i = i + 1
+      end
     end
-    yieldIfNeeded()
   end
   
-  if high == #array+1 then
-    local l1, p = objective:TravelTime(array[#array].sop)
-    yieldIfNeeded()
-    local d = total + l1
-    if d < best_total then
+  if high == #array+1 and old_index ~= #array then
+    -- Special case: consider adding item at the end (but only if it wasn't there already)
+     local l1, p = objective:TravelTime(array[#array].sop)
+     yieldIfNeeded()
+     local d = total + l1
+    if (d + refine_limit) < best_total then
+      if old_index > 0 then
+        -- We're moving this item to the end; need to delete it from its current location
+        table.remove(array, old_index)
+        if old_index > 1 then
+          array[old_index-1].nel = skip_len
+        end
+      end
       objective.sop = p
       array[#array].nel = l1
       table.insert(array, objective)
@@ -250,11 +448,24 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
     end
   end
   
+  if old_index > 0 and best_index ~= old_index then
+    -- It moved, so we'd better remove it
+    table.remove(array, old_index)
+    if old_index > 1 then
+      array[old_index-1].nel = skip_len
+    end
+    if best_index > old_index then
+      best_index = best_index - 1
+    end
+  end
+
   assert(bp)
   objective.sop = bp
   if best_index > 1 then array[best_index-1].nel = best_len1 end
   objective.nel = best_len2
-  table.insert(array, best_index, objective)
+  if best_index ~= old_index then
+    table.insert(array, best_index, objective)
+  end
   return best_index, best_total-best_extra, best_extra
 end
 
@@ -442,7 +653,6 @@ local function RouteUpdateRoutine(self)
       
       point = route[recheck_pos]
       self.limbo_node = point
-      distance, extra = self:RemoveIndexFromRoute(route, distance, extra, recheck_pos)
       insert, distance, extra = self:InsertObjectiveIntoRoute(route, distance, extra, point, recheck_pos)
       self.limbo_node = nil
       
@@ -451,7 +661,6 @@ local function RouteUpdateRoutine(self)
       end
       
       point = new_route[new_recheck_pos]
-      new_distance, new_extra = self:RemoveIndexFromRouteSOP(new_route, new_distance, new_extra, new_recheck_pos)
       insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point, new_recheck_pos)
       if insert ~= new_recheck_pos then
         new_local_minima = false
