@@ -87,7 +87,7 @@ function QuestHelper:CreateWorldMapWalker()
   local walker = CreateFrame("Button", nil, QuestHelper.map_overlay)
   walker:SetWidth(0)
   walker:SetHeight(0)
-  walker:SetPoint("CENTER", WorldMapFrame, "TOPLEFT", 0, 0)
+  walker:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", 0, 0)
   walker:Show()
   
   walker.phase = 0.0
@@ -135,7 +135,7 @@ function QuestHelper:CreateWorldMapWalker()
               end
               
               dot:ClearAllPoints()
-              dot:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x1*w*(1-p)+x2*w*p, y1*h*(1-p)+y2*h*p)
+              dot:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", x1*w*(1-p)+x2*w*p, y1*h*(1-p)+y2*h*p)
               
               p = p + interval
             end
@@ -406,7 +406,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
             end
             out = out + 1
             
-            tex:SetPoint("CENTER", WorldMapDetailFrame, "TOPLEFT", x*w, -y*h)
+            tex:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", x*w, -y*h)
             tex:SetVertexColor(1,1,1,0)
             tex:SetWidth(x_size)
             tex:SetHeight(y_size)
