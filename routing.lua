@@ -650,9 +650,7 @@ local function RouteUpdateRoutine(self)
       end
       
       point = route[recheck_pos]
-      self.limbo_node = point
       insert, distance, extra = self:InsertObjectiveIntoRoute(route, distance, extra, point, recheck_pos)
-      self.limbo_node = nil
       
       if insert == 1 or recheck_pos == 1 then
         minimap_dodad:SetObjective(route[1])

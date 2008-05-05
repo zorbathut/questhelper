@@ -185,22 +185,20 @@ function QuestHelper:CreateWorldMapWalker()
         table.insert(points, t)
       end
       
-      if not self.frame.limbo_node then
-        for i = 1, #self.frame.route do
-          local dodad = self.map_dodads[i]
-          if not dodad then
-            self.map_dodads[i] = self.frame:CreateWorldMapDodad(self.frame.route[i], i)
-          else
-            self.map_dodads[i]:SetObjective(self.frame.route[i], i)
-          end
+      for i = 1, #self.frame.route do
+        local dodad = self.map_dodads[i]
+        if not dodad then
+          self.map_dodads[i] = self.frame:CreateWorldMapDodad(self.frame.route[i], i)
+        else
+          self.map_dodads[i]:SetObjective(self.frame.route[i], i)
         end
-        
-        for i = #self.frame.route+1,self.used_map_dodads do
-          self.map_dodads[i]:SetObjective(nil, 0)
-        end
-        
-        self.used_map_dodads = #self.frame.route
       end
+
+      for i = #self.frame.route+1,self.used_map_dodads do
+        self.map_dodads[i]:SetObjective(nil, 0)
+      end
+
+      self.used_map_dodads = #self.frame.route
     end
   end
   
@@ -233,21 +231,6 @@ function QuestHelper:GetOverlapObjectives(obj)
   cx, cy = (cx-WorldMapDetailFrame:GetLeft()*es)*ies, (WorldMapDetailFrame:GetTop()*es-cy)*ies
   
   local s = 10*QuestHelper_Pref.scale
-  
-  if self.limbo_node then
-    local o = self.limbo_node
-    local x, y = o.pos[3], o.pos[4]
-    x, y = x / self.continent_scales_x[o.pos[1].c], y / self.continent_scales_y[o.pos[1].c]
-    x, y = self.Astrolabe:TranslateWorldMapPosition(o.pos[1].c, 0, x, y, c, z)
-    
-    if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
-      x, y = x*w, y*h
-      
-      if cx >= x-s and cy >= y-s and cx <= x+s and cy <= y+s then
-        table.insert(list, o)
-      end
-    end
-  end
   
   for i, o in ipairs(self.route) do
     if o == obj then
@@ -587,11 +570,6 @@ function QuestHelper:CreateMipmapDodad()
   icon.bg:SetAllPoints()
   
   function icon:NextObjective()
-    if QuestHelper.limbo_node then
-      -- If an objective is in limbo, don't try to figure out the next objective, because the node in limbo isn't it.
-      return self.objective.pos and self.objective or nil
-    end
-    
     for i, o in ipairs(QuestHelper.route) do
       if not QuestHelper.to_remove[o] and o.pos then
         return o
