@@ -524,28 +524,42 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   return icon
 end
 
-local function QH_CartographerWaypoint_Cancel(self)
-  self.task = nil
-  
-  if QuestHelper.cartographer_wp == self then
-    QuestHelper.cartographer_wp = nil
-  end
-  
-  Waypoint.Cancel(self)
+local callbacks = {}
+local last_c, last_z, last_x, last_y, last_desc
+
+function QuestHelper:AddWaypointCallback(func, ...)
+  local cb = self:CreateTable()
+  callbacks[cb] = true
+  local len = select("#", ...)
+  cb.len = len
+  cb.func = func
+  for i = 1,len do cb[i] = select(i, ...) end
+  cb[len+1] = last_c
+  cb[len+2] = last_z
+  cb[len+3] = last_x
+  cb[len+4] = last_y
+  cb[len+5] = last_desc
+  func(unpack(cb, 1, len+5))
+  return cb
 end
 
-local function QH_CartographerWaypoint_ToString(self)
-  return self.task
+function QuestHelper:RemoveWaypointCallback(cb)
+  callbacks[cb] = nil
+  self:ReleaseTable(cb)
 end
 
-function QuestHelper:HideCartographerWaypoint()
-  if self.cartographer_wp then
-    self.cartographer_wp:Cancel()
-  end
-  
-  if self.old_cartographer_wp_data then
-    self:ReleaseTable(self.old_cartographer_wp_data)
-    self.old_cartographer_wp_data = nil
+function QuestHelper:InvokeWaypointCallbacks(c, z, x, y, desc)
+  if c ~= last_c or z ~= last_z or x ~= last_x or y ~= last_y or desc ~= last_desc then
+    last_c, last_z, last_x, last_y, last_desc = c, z, x, y, desc
+    for cb in pairs(callbacks) do
+      local len = cb.len
+      cb[len+1] = c
+      cb[len+2] = z
+      cb[len+3] = x
+      cb[len+4] = y
+      cb[len+5] = desc
+      cb.func(unpack(cb, 1, len+5))
+    end
   end
 end
 
@@ -629,62 +643,30 @@ function QuestHelper:CreateMipmapDodad()
           self.dot:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -2, 2)
         end
         
-        if QuestHelper_Pref.cart_wp and Cartographer_Waypoints and Waypoint then
-          if UnitIsDeadOrGhost("player") then
-            QuestHelper:HideCartographerWaypoint()
+        if UnitIsDeadOrGhost("player") then
+          QuestHelper:InvokeWaypointCallbacks()
+        else
+          local reason = (t[5] and (QHFormat("WAYPOINT_REASON", t[5]).."\n"..self.objective:Reason(true)))
+                         or self.objective:Reason(true)
+          
+          if QuestHelper.c == t[1] then
+            -- Translate the position to the zone the player is standing in.
+            local c, z = QuestHelper.c, QuestHelper.z
+            local x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], c, z)
+            QuestHelper:InvokeWaypointCallbacks(c, z, x, y, reason)
           else
-            local x, y, z
-            
-            if QuestHelper.c == t[1] then
-              -- Translate the position to the zone the player is standing in.
-              x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], QuestHelper.c, QuestHelper.z)
-              z = QuestHelper_NameLookup[QuestHelper.i]
-            else
-              -- Try to find the nearest zone on the continent the objective is in.
-              local index, distsqr
-              for z, i in pairs(QuestHelper_IndexLookup[t[1]]) do
-                local _x, _y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], t[1], z)
-                local d = (_x-0.5)*(_x-0.5)+(_y-0.5)*(_y-0.5)
-                if not index or d < distsqr then
-                  index, distsqr, x, y = i, d, _x, _y
-                end
-              end
-              z = QuestHelper_NameLookup[index]
-            end
-            
-            if Rock then
-              local LibBabble = Rock("LibBabble-Zone-3.0", false, true)
-              if LibBabble then
-                z = LibBabble:GetReverseLookupTable()[z]
+            -- Try to find the nearest zone on the continent the objective is in.
+            local index, distsqr, x, y
+            for z, i in pairs(QuestHelper_IndexLookup[t[1]]) do
+              local _x, _y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], t[1], z)
+              local d = (_x-0.5)*(_x-0.5)+(_y-0.5)*(_y-0.5)
+              if not index or d < distsqr then
+                index, distsqr, x, y = i, d, _x, _y
               end
             end
-            
-            if QuestHelper.cartographer_wp and (QuestHelper.cartographer_wp.x ~= x or
-                                                QuestHelper.cartographer_wp.y ~= y or
-                                                QuestHelper.cartographer_wp.Zone ~= z) then
-              QuestHelper.cartographer_wp:Cancel()
-            end
-            
-            local owp = QuestHelper.old_cartographer_wp_data
-            
-            if not owp then
-              owp = QuestHelper:CreateTable()
-              QuestHelper.old_cartographer_wp_data = owp
-            end
-            
-            if not QuestHelper.cartographer_wp and (not owp or owp.x ~= x or owp.y ~= y or owp.z ~= z) then
-              local wp = Waypoint:new()
-              wp.Cancel = QH_CartographerWaypoint_Cancel
-              wp.ToString = QH_CartographerWaypoint_ToString
-              
-              wp.x, wp.y, wp.Zone, wp.task = x, y, z, (t[5] and (QHFormat("WAYPOINT_REASON", t[5]).."\n"..self.objective:Reason(true))) or self.objective:Reason(true)
-              owp.x, owp.y, owp.z = wp.x, wp.y, wp.Zone
-              Cartographer_Waypoints:AddWaypoint(wp)
-              QuestHelper.cartographer_wp = wp
-            end
+            local c, z = QuestHelper_IndexLookup[index]
+            QuestHelper:InvokeWaypointCallbacks(c, z, x, y, reason)
           end
-        elseif QuestHelper.cartographer_wp then
-          QuestHelper:HideCartographerWaypoint()
         end
         
         QuestHelper.Astrolabe:PlaceIconOnMinimap(self, unpack(self.target))
@@ -734,7 +716,7 @@ function QuestHelper:CreateMipmapDodad()
       if objective and not QuestHelper_Pref.hide then
         self:Show()
       else
-        QuestHelper:HideCartographerWaypoint()
+        QuestHelper:InvokeWaypointCallbacks()
         self:Hide()
       end
       

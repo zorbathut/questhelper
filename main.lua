@@ -26,6 +26,7 @@ QuestHelper_DefaultPref =
   level = 2,
   hide = false,
   cart_wp = true,
+  tomtom_wp = true,
   flight_time = true,
   locale = GetLocale(), -- This variable is used for display purposes, and has nothing to do with the collected data.
   perf_scale = 1,       -- How much background processing can the current machine handle?  Higher means more load, lower means better performance.
@@ -270,7 +271,15 @@ function QuestHelper:OnEvent(event)
     if QuestHelper_Pref.map_button then
         QuestHelper:InitMapButton()
     end
-
+    
+    if QuestHelper_Pref.cart_wp then
+      self:EnableCartographer()
+    end
+    
+    if QuestHelper_Pref.tomtom_wp then
+      self:EnableTomTom()
+    end
+    
     collectgarbage("collect") -- Free everything we aren't using.
     
     if self.debug_objectives then

@@ -255,14 +255,30 @@ end
 function QuestHelper:ToggleCartWP()
   QuestHelper_Pref.cart_wp = not QuestHelper_Pref.cart_wp
   if QuestHelper_Pref.cart_wp then
+    self:EnableCartographer()
     if Cartographer_Waypoints then
       self:TextOut("Will use "..self:HighlightText("Cartographer Waypoints").." to show objectives.")
     else
       self:TextOut("Would use "..self:HighlightText("Cartographer Waypoints").." to show objectives, except it doesn't seem to be present.")
     end
   else
-    self:HideCartographerWaypoint()
+    self:DisableCartographer()
     self:TextOut("Won't use "..self:HighlightText("Cartographer Waypoints").." to show objectives.")
+  end
+end
+
+function QuestHelper:ToggleTomTomWP()
+  QuestHelper_Pref.tomtom_wp = not QuestHelper_Pref.tomtom_wp
+  if QuestHelper_Pref.tomtom_wp then
+    self:EnableTomTom()
+    if TomTom then
+      self:TextOut("Will use "..self:HighlightText("TomTom").." to show objectives.")
+    else
+      self:TextOut("Would use "..self:HighlightText("TomTom").." to show objectives, except it doesn't seem to be present.")
+    end
+  else
+    self:DisableTomTom()
+    self:TextOut("Won't use "..self:HighlightText("TomTom").." to show objectives.")
   end
 end
 
@@ -362,6 +378,10 @@ local commands =
   {"CARTWP",
    "Toggles displaying the current objective using Cartographer Waypoints.",
     {}, QuestHelper.ToggleCartWP, QuestHelper},
+  
+  {"TOMTOM",
+   "Toggles displaying the current objective using TomTom.",
+    {}, QuestHelper.ToggleTomTomWP, QuestHelper},
   
   {"SHARE",
    "Toggles objective sharing between QuestHelper users.",
