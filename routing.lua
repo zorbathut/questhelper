@@ -176,6 +176,7 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective,
     local o = array[#array]
     o.len, objective.pos = objective:TravelTime(array[#array].pos)
     yieldIfNeeded()
+    if old_index > 0 then table.remove(array, old_index) end
     table.insert(array, objective)
     return #array, distance+o.len, extra
   else
@@ -393,6 +394,7 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
     local o = array[#array]
     o.nel, objective.sop = objective:TravelTime(array[#array].sop)
     yieldIfNeeded()
+    if old_index > 0 then table.remove(array, old_index) end
     table.insert(array, objective)
     return #array, distance+o.nel, extra
   else
