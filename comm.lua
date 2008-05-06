@@ -3,6 +3,7 @@
 local comm_version = 1
 local max_msg_size = 256-4-1-1 -- To allow room for "QHpr\t" ... "\0"
 local max_chunk_size = max_msg_size - 2 -- To allow room for prefix of "x:"
+local enabled_sharing = false
 
 function QuestHelper:SendData(data,name)
   if QuestHelper_Pref.comm then
@@ -230,7 +231,7 @@ function QuestHelper:DoUnshareObjective(objective)
 end
 
 function QuestHelper:HandleRemoteData(data, name)
-  if QuestHelper_Pref.share then
+  if enabled_sharing then
     local user = users[name]
     if not user then
       user = CreateUser(name)
@@ -364,7 +365,7 @@ function QuestHelper:HandleRemoteData(data, name)
 end
 
 function QuestHelper:PumpCommMessages()
-  if shared_users > 0 and QuestHelper_Pref.share then
+  if shared_users > 0 and enabled_sharing then
     local best_level, best_count, best_obj = 3, 255, nil
     
     for i, o in pairs(shared_objectives) do
@@ -420,7 +421,7 @@ function QuestHelper:PumpCommMessages()
 end
 
 function QuestHelper:HandlePartyChange()
-  if QuestHelper_Pref.share then
+  if enabled_sharing then
     for name, user in pairs(users) do
       user.seen = false
     end
@@ -459,8 +460,6 @@ function QuestHelper:HandlePartyChange()
     self.sharing = count > 0
   end
 end
-
-local enabled_sharing = false
 
 function QuestHelper:EnableSharing()
   if not enabled_sharing then
