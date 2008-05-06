@@ -84,7 +84,10 @@ function QuestHelper:ToggleHide()
   QuestHelper_Pref.hide = not QuestHelper_Pref.hide
   
   -- Desaturate the button texture if QuestHelper is disabled.
-  QuestHelperWorldMapButton:GetNormalTexture():SetDesaturated(QuestHelper_Pref.hide)
+  if self.MapButton then
+    -- This should always be true, but just in case...
+    self.MapButton:GetNormalTexture():SetDesaturated(QuestHelper_Pref.hide)
+  end
   
   if QuestHelper_Pref.hide then
     self.map_overlay:Hide()
