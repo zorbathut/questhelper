@@ -494,6 +494,18 @@ local function RouteUpdateRoutine(self)
       else
         CalcObjectivePriority(o)
         
+        if o.swap_before then
+          self:ReleaseTable(o.before)
+          o.before = o.swap_before
+          o.swap_before = nil
+        end
+        
+        if o.swap_after then
+          self:ReleaseTable(o.after)
+          o.after = o.swap_after
+          o.swap_after = nil
+        end
+        
         if o.is_sharing ~= o.want_share then
           o.is_sharing = o.want_share
           

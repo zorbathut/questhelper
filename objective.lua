@@ -931,15 +931,32 @@ function QuestHelper:ObjectiveObjectDependsOn(objective, needs)
   assert(objective ~= needs) -- If this was true, ObjectiveIsKnown would get in an infinite loop.
   -- TODO: Needs sanity checking, especially now that dependencies can be assigned by remote users.
   
-  if not objective.after[needs] then
+  
+  -- We store the new relationships in objective.swap_[before|after],
+  -- creating and copying them from objective.[before|after],
+  -- the routing coroutine will check for those, swap them, and release the originals
+  -- when it gets to a safe place to do so.
+  
+  if not (objective.swap_after or objective.after)[needs] then
     if objective.peer then
       for u, l in pairs(objective.peer) do
         -- Make sure other users know that the dependencies for this objective changed.
         objective.peer[u] = math.min(l, 1)
       end
     end
-    objective.after[needs] = true
-    needs.before[objective] = true
+    
+    if not objective.swap_after then
+      objective.swap_after = self:CreateTable()
+      for key,value in pairs(objective.after) do objective.swap_after[key] = value end
+    end
+    
+    if not needs.swap_before then
+      needs.swap_before = self:CreateTable()
+      for key,value in pairs(needs.before) do needs.swap_before[key] = value end
+    end
+    
+    objective.swap_after[needs] = true
+    needs.swap_before[objective] = true
   end
 end
 
