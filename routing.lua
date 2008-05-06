@@ -97,6 +97,8 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective,
   -- distance - The new length of the path.
   -- extra    - The new distance from the first node to the player.
   
+  assert(objective)
+
   if #array == 0 then
     extra, objective.pos = objective:TravelTime(self.pos, --[[nocache=]]true)
     yieldIfNeeded()
@@ -107,22 +109,21 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective,
   local best_index, best_extra, best_total, best_len1, best_len2, bp, skip_len
   local orig_distance, orig_extra = distance, extra
 
+  if old_index > 0 then
+    assert(objective == array[old_index], "objective ~= array[old_index]")
+
+    -- We're considering a move, so evaluate what things would look like without this objective
+    distance, extra, skip_len = self:PreRemoveIndexFromRoute(array, distance, extra, old_index)
+  end
+
   local low, high = CalcObjectiveIJ(array, objective)
 
   local total = distance+extra
 
-  assert(objective)
-
-  if old_index > 0 then
-    assert(objective == array[old_index], "objective ~= array[old_index]")
-    assert(old_index >= low and old_index <= high, "Item was found in an invalid location! (found at "..old_index..", low="..low..", high="..high..", total="..#array..")")
-
+  if old_index >= low and old_index <= high then
     -- If we're evaluating the possibility of a new position, then our current info is the best so far
-    best_total, best_extra, best_index = distance+extra, extra, old_index
-
-    -- Now, let's pretend we deleted the item, so we can correctly cost the alternatives
-    distance, extra, skip_len = self:PreRemoveIndexFromRoute(array, distance, extra, old_index)
-    total = distance+extra
+    -- But if the priority was just changed, then we'll most definately be moving it, so don't bother with this.
+    best_total, best_extra, best_index = orig_distance+orig_extra, extra, old_index
 
     local l1, l2, p
 
@@ -130,7 +131,12 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective,
     -- if items around it moved, we might be able to use a better location for this objective
     if old_index == 1 then
       best_len1 = extra
-      l1, l2, p = objective:TravelTime2(self.pos, array[2].pos, --[[nocache=]] true)
+      if #array == 1 then
+        l1, p = objective:TravelTime(self.pos, --[[nocache=]] true)
+        l2 = 0
+      else
+        l1, l2, p = objective:TravelTime2(self.pos, array[2].pos, --[[nocache=]] true)
+      end
       low = 3       -- Skip the item we're considering moving; we don't want to try to insert before or after it.
     else
       best_len1 = array[old_index-1].len
@@ -307,6 +313,8 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
   -- distance - The new length of the path.
   -- extra    - The new distance from the first node to the player.
   
+  assert(objective)
+
   if #array == 0 then
     extra, objective.sop = objective:TravelTime(self.pos, --[[nocache=]]true)
     yieldIfNeeded()
@@ -317,22 +325,21 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
   local best_index, best_extra, best_total, best_len1, best_len2, bp, skip_len
   local orig_distance, orig_extra = distance, extra
 
+  if old_index > 0 then
+    assert(objective == array[old_index], "objective ~= array[old_index]")
+
+    -- We're considering a move, so evaluate what things would look like without this objective
+    distance, extra, skip_len = self:PreRemoveIndexFromRouteSOP(array, distance, extra, old_index)
+  end
+
   local low, high = CalcObjectiveIJ(array, objective)
 
   local total = distance+extra
 
-  assert(objective)
-
-  if old_index > 0 then
-    assert(objective == array[old_index], "objective ~= array[old_index]")
-    assert(old_index >= low and old_index <= high, "Item was found in an invalid location!")
-
+  if old_index >= low and old_index <= high then
     -- If we're evaluating the possibility of a new position, then our current info is the best so far
-    best_total, best_extra, best_index = distance+extra, extra, old_index
-
-    -- Now, let's pretend we deleted the item, so we can correctly cost the alternatives
-    distance, extra, skip_len = self:PreRemoveIndexFromRouteSOP(array, distance, extra, old_index)
-    total = distance+extra
+    -- But if the priority was just changed, then we'll most definately be moving it, so don't bother with this.
+    best_total, best_extra, best_index = orig_distance+orig_extra, extra, old_index
 
     local l1, l2, p
 
@@ -340,7 +347,12 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
     -- if items around it moved, we might be able to use a better location for this objective
     if old_index == 1 then
       best_len1 = extra
-      l1, l2, p = objective:TravelTime2(self.pos, array[2].sop, --[[nocache=]] true)
+      if #array == 1 then
+        l1, p = objective:TravelTime(self.pos, --[[nocache=]] true)
+        l2 = 0
+      else
+        l1, l2, p = objective:TravelTime2(self.pos, array[2].sop, --[[nocache=]] true)
+      end
       low = 3       -- Skip the item we're considering moving; we don't want to try to insert before or after it.
     else
       best_len1 = array[old_index-1].nel

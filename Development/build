@@ -5,6 +5,7 @@ local external=true
 local archive_zip=true
 local archive_7z=false
 local icons=true
+local debug_build=false
 
 for i, a in ipairs({...}) do
   local mode, option = select(3, string.find(a, "^([%+%-]?)(.*)$"))
@@ -16,6 +17,7 @@ for i, a in ipairs({...}) do
   elseif option == "compile" then compile = mode
   elseif option == "external" then external = mode
   elseif option == "icons" then icons = mode
+  elseif option == "debug" then debug_build = mode
   else
     print("Unknown option: "..option)
     return 1
@@ -355,7 +357,11 @@ if archive_zip or archive_7z then
   FileUtil.forEachFile("..", function (file)
     local ext = FileUtil.extension(file)
     if ext == "lua" or ext == "xml" then
-      FileUtil.copyFile(file, "QuestHelper", "(assert%s*%b())", "--[[ %1 ]]")
+      if debug_build then
+        FileUtil.copyFile(file, "QuestHelper")
+      else
+        FileUtil.copyFile(file, "QuestHelper", "(assert%s*%b())", "--[[ %1 ]]")
+      end
     elseif ext == "toc" then
       local info = nil
       
