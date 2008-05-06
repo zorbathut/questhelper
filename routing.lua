@@ -131,7 +131,12 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective,
     -- if items around it moved, we might be able to use a better location for this objective
     if old_index == 1 then
       best_len1 = extra
-      l1, l2, p = objective:TravelTime2(self.pos, array[2].pos, --[[nocache=]] true)
+      if #array == 1 then
+        l1, p = objective:TravelTime(self.pos, --[[nocache=]] true)
+        l2 = 0
+      else
+        l1, l2, p = objective:TravelTime2(self.pos, array[2].pos, --[[nocache=]] true)
+      end
       low = 3       -- Skip the item we're considering moving; we don't want to try to insert before or after it.
     else
       best_len1 = array[old_index-1].len
@@ -342,7 +347,12 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
     -- if items around it moved, we might be able to use a better location for this objective
     if old_index == 1 then
       best_len1 = extra
-      l1, l2, p = objective:TravelTime2(self.pos, array[2].sop, --[[nocache=]] true)
+      if #array == 1 then
+        l1, p = objective:TravelTime(self.pos, --[[nocache=]] true)
+        l2 = 0
+      else
+        l1, l2, p = objective:TravelTime2(self.pos, array[2].sop, --[[nocache=]] true)
+      end
       low = 3       -- Skip the item we're considering moving; we don't want to try to insert before or after it.
     else
       best_len1 = array[old_index-1].nel
