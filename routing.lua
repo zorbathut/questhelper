@@ -240,25 +240,27 @@ function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective,
     end
   end
   
-  if old_index > 0 and best_index ~= old_index then
-    -- It moved, so we'd better remove it
-    table.remove(array, old_index)
-    if old_index > 1 then
-      array[old_index-1].len = skip_len
+if best_index ~= old_index then
+    if old_index > 0 then
+      -- It moved, so we'd better remove it
+      table.remove(array, old_index)
+      if old_index > 1 then
+        array[old_index-1].len = skip_len
+      end
+      if best_index > old_index then
+        best_index = best_index - 1
+      end
     end
-    if best_index > old_index then
-      best_index = best_index - 1
-    end
+    
+    table.insert(array, best_index, objective)
   end
 
   assert(bp)
   objective.pos = bp
-  if best_index > 1 then array[best_index-1].len = best_len1 end
   objective.len = best_len2
-  if best_index ~= old_index then
-    table.insert(array, best_index, objective)
-  end
+  if best_index > 1 then array[best_index-1].len = best_len1 end
   assert(array[best_index] == objective)
+  
   return best_index, best_total-best_extra, best_extra
 end
 
@@ -460,24 +462,27 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
     end
   end
   
-  if old_index > 0 and best_index ~= old_index then
-    -- It moved, so we'd better remove it
-    table.remove(array, old_index)
-    if old_index > 1 then
-      array[old_index-1].nel = skip_len
+  if best_index ~= old_index then
+    if old_index > 0 then
+      -- It moved, so we'd better remove it
+      table.remove(array, old_index)
+      if old_index > 1 then
+        array[old_index-1].nel = skip_len
+      end
+      if best_index > old_index then
+        best_index = best_index - 1
+      end
     end
-    if best_index > old_index then
-      best_index = best_index - 1
-    end
+    
+    table.insert(array, best_index, objective)
   end
 
   assert(bp)
   objective.sop = bp
-  if best_index > 1 then array[best_index-1].nel = best_len1 end
   objective.nel = best_len2
-  if best_index ~= old_index then
-    table.insert(array, best_index, objective)
-  end
+  if best_index > 1 then array[best_index-1].nel = best_len1 end
+  assert(array[best_index] == objective)
+  
   return best_index, best_total-best_extra, best_extra
 end
 
@@ -684,6 +689,7 @@ local function RouteUpdateRoutine(self)
       
       point = new_route[new_recheck_pos]
       insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point, new_recheck_pos)
+      
       if insert ~= new_recheck_pos then
         new_local_minima = false
       end
