@@ -1,14 +1,17 @@
-== Version 0.45 04/27/2008 ==
+== Version 0.45 05/06/2008 ==
 
 * Added new filter option: '<code>/qh filter blocked</code>' will hide objectives which can't be accomplished yet, such as turn-ins for incomplete quests.
-* Resolved issue which caused route to change around repeatedly
+* Resolved issue which caused route to change around repeatedly.
+* <code>/qh share</code> and <code>/qh solo</code> should now be working again.
+* Added support for using TomTom in place of Cartographer Waypoints.
 * Warsky/Wars120 wants recognition for creating a Dutch translation.
 * Includes submitted Turkish translation.
+* Custom fonts can be placed in Fonts directory, see the readme.txt file there for information.
 * Added Globe icon to locale menu.
 * Added option to hide the map button '<code>/qh button</code>'.
 * Includes update to the Spanish translation.
 * Added performance scaling option to menu.
-* Did some stuff to try to improve performance - some small, some drastic
+* Did some stuff to try to improve performance - some small, some drastic.
 * Made menus one point bigger.
 * Fixed translation name for Danish.
 * Added slash command for settings menu '<code>/qh settings</code>'.
