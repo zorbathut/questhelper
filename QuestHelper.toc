@@ -53,6 +53,8 @@ mapbutton.lua
 help.lua
 pattern.lua
 flightpath.lua
+progress.lua
+tracker.lua
 
 cartographer.lua
 tomtom.lua

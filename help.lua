@@ -134,6 +134,19 @@ function QuestHelper:ToggleFlightTimes()
   end
 end
 
+function QuestHelper:ToggleTrack()
+  QuestHelper_Pref.track = not QuestHelper_Pref.track
+  if QuestHelper_Pref.track then
+    QuestWatchFrame:SetAlpha(0)
+    self.tracker:Show()
+    self:TextOut("The quest tracker has been |cff00ff00enabled|r.")
+  else
+    QuestWatchFrame:SetAlpha(1)
+    self.tracker:Hide()
+    self:TextOut("The quest tracker has been |cffff0000disabled|r.")
+  end
+end
+
 function QuestHelper:Purge(code)
   if code == self.purge_code then
     QuestHelper_Quests = {}
@@ -382,6 +395,10 @@ local commands =
   {"TOMTOM",
    "Toggles displaying the current objective using TomTom.",
     {}, QuestHelper.ToggleTomTomWP, QuestHelper},
+  
+  {"TRACK",
+   "Toggles the visibility of the objective tracker.",
+    {}, QuestHelper.ToggleTrack, QuestHelper},
   
   {"SHARE",
    "Toggles objective sharing between QuestHelper users.",

@@ -211,6 +211,7 @@ function QuestHelper:ScanQuestLog()
         is_new = true
       end
       
+      lq.index = index
       lq.removed = false
       
       if GetNumQuestLeaderBoards(index) > 0 then
@@ -218,6 +219,7 @@ function QuestHelper:ScanQuestLog()
         for objective = 1, GetNumQuestLeaderBoards(index) do
           local lo = lq.goal[objective]
           if not lo then lo = {} lq.goal[objective] = lo end
+          
           local category, verb, wanted, have, need = self:GetQuestLogObjective(index, objective)
           
           if not wanted or not string.find(wanted, "[^%s]") then
@@ -326,4 +328,8 @@ function QuestHelper:ScanQuestLog()
   end
   
   SelectQuestLogEntry(original_entry)
+  
+  if QuestHelper_Pref.track then
+    self.tracker:update()
+  end
 end
