@@ -32,8 +32,14 @@ function QuestHelper:DoSettingsMenu()
     
     -- Cartographer Waypoints
     if Cartographer_Waypoints then
-      self:CreateMenuItem(menu, QHFormat("MENU_WAYPOINT_ARROW", QuestHelper_Pref.cart_wp and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
+      self:CreateMenuItem(menu, QHFormat("MENU_WAYPOINT_ARROW", QuestHelper_Pref.cart_wp and QHText("MENU_DISABLE") or QHText("MENU_ENABLE"))..(TomTom and " (Cartographer Waypoints)" or ""))
                     :SetFunction(self.ToggleCartWP, self)
+    end
+    
+    -- TomTom
+    if TomTom then
+      self:CreateMenuItem(menu, QHFormat("MENU_WAYPOINT_ARROW", QuestHelper_Pref.tomtom_wp and QHText("MENU_DISABLE") or QHText("MENU_ENABLE"))..(Cartographer_Waypoints and " (TomTom)" or ""))
+                    :SetFunction(self.ToggleTomTomWP, self)
     end
     
     -- Map frame button
