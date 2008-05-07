@@ -355,7 +355,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
       self.dot:SetPoint("TOPLEFT", self, "TOPLEFT", 3*QuestHelper_Pref.scale, -3*QuestHelper_Pref.scale)
       self.dot:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -3*QuestHelper_Pref.scale, 3*QuestHelper_Pref.scale)
       
-      QuestHelper.Astrolabe:PlaceIconOnWorldMap(WorldMapDetailFrame, self, convertLocation(objective.pos))
+      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(objective.pos))
     else
       self.objective = nil
       self:Hide()
@@ -479,7 +479,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   
   function icon:OnEvent(event)
     if self.objective and self.objective.pos then
-      QuestHelper.Astrolabe:PlaceIconOnWorldMap(WorldMapDetailFrame, self, convertLocation(self.objective.pos))
+      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(self.objective.pos))
     else
       self.objective = nil
       self:Hide()
