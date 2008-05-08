@@ -19,6 +19,7 @@ QuestHelper_DefaultPref =
   filter_done=false,
   filter_blocked=false, -- Hides blocked objectives, such as quest turn-ins for incomplete quests
   track=true,
+  tooltip=true,
   share = true,
   scale = 1,
   solo = false,

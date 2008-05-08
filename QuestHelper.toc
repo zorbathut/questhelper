@@ -55,6 +55,7 @@ pattern.lua
 flightpath.lua
 progress.lua
 tracker.lua
+objtips.lua
 
 cartographer.lua
 tomtom.lua

@@ -218,7 +218,11 @@ QuestHelper_Translations.enUS =
   MENU_ICON_SCALE = "Icon Scale",
   MENU_FILTERS = "Filters",
   MENU_PERFORMANCE = "Route Workload Scale",
-  MENU_LOCALE = "Locale"
+  MENU_LOCALE = "Locale",
+  
+  -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
+  -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
+  TOOLTIP_WATCHED = "Watched by QuestHelper"
  }
 
 QuestHelper_TranslationFunctions.enUS =
