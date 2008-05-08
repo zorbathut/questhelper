@@ -15,8 +15,8 @@ local function convertNodeToScreen(n, c, z)
   return QuestHelper.Astrolabe:TranslateWorldMapPosition(n.c, 0, n.x/QuestHelper.continent_scales_x[n.c], n.y/QuestHelper.continent_scales_y[n.c], c, z)
 end
 
-QuestHelper.map_overlay = CreateFrame("FRAME", nil, WorldMapButton)
-QuestHelper.map_overlay:SetFrameLevel(WorldMapButton:GetFrameLevel()+1)
+QuestHelper.map_overlay = CreateFrame("FRAME", nil, WorldMapDetailFrame)
+QuestHelper.map_overlay:SetFrameLevel(WorldMapDetailFrame:GetFrameLevel()+1)
 QuestHelper.map_overlay:SetAllPoints()
 QuestHelper.map_overlay:SetFrameStrata("FULLSCREEN")
 
@@ -107,7 +107,7 @@ function QuestHelper:CreateWorldMapWalker()
       self.phase = self.phase + elapsed * 0.66
       while self.phase > 1 do self.phase = self.phase - 1 end
       
-      local w, h = WorldMapDetailFrame:GetWidth(), -WorldMapDetailFrame:GetHeight()
+      local w, h = QuestHelper.map_overlay:GetWidth(), -QuestHelper.map_overlay:GetHeight()
       
       local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
       
@@ -211,7 +211,7 @@ function QuestHelper:CreateWorldMapWalker()
 end
 
 function QuestHelper:GetOverlapObjectives(obj)
-  local w, h = WorldMapDetailFrame:GetWidth(), WorldMapDetailFrame:GetHeight()
+  local w, h = self.map_overlay:GetWidth(), self.map_overlay:GetHeight()
   local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
   
   local list = self.overlap_list
@@ -225,10 +225,10 @@ function QuestHelper:GetOverlapObjectives(obj)
   
   local cx, cy = GetCursorPosition()
   
-  local es = WorldMapDetailFrame:GetEffectiveScale()
+  local es = QuestHelper.map_overlay:GetEffectiveScale()
   local ies = 1/es
   
-  cx, cy = (cx-WorldMapDetailFrame:GetLeft()*es)*ies, (WorldMapDetailFrame:GetTop()*es-cy)*ies
+  cx, cy = (cx-self.map_overlay:GetLeft()*es)*ies, (self.map_overlay:GetTop()*es-cy)*ies
   
   local s = 10*QuestHelper_Pref.scale
   
@@ -374,7 +374,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   end
   
   function icon:SetGlow(list)
-    local w, h = WorldMapDetailFrame:GetWidth(), WorldMapDetailFrame:GetHeight()
+    local w, h = QuestHelper.map_overlay:GetWidth(), QuestHelper.map_overlay:GetHeight()
     local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
     local _, x_size, y_size = QuestHelper.Astrolabe:ComputeDistance(c, z, 0.25, 0.25, c, z, 0.75, 0.75)
     
