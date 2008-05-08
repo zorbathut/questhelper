@@ -52,6 +52,70 @@ local function ObjectiveReason(self, short)
   return reason
 end
 
+local function Uses(self, obj, text)
+  assert(self ~= obj)
+  local uses, used = self.uses, obj.used
+  
+  if not uses then
+    uses = QuestHelper:CreateTable()
+    self.uses = uses
+  end
+  
+  if not used then
+    used = QuestHelper:CreateTable()
+    obj.used = used
+  end
+  
+  if not uses[obj] then
+    uses[obj] = true
+    used[self] = text
+    obj:MarkUsed()
+  end
+end
+
+local function DoMarkUsed(self)
+  -- Objectives should call 'self:Uses(objective, text)' to mark objectives they use by don't directly depend on.
+  -- This information is used in tooltips.
+  -- text is passed to QHFormat with the name of the objective being used.
+end
+
+local function MarkUsed(self)
+  if not self.marked_used then
+    self.marked_used = 1
+    self:DoMarkUsed()
+  else
+    self.marked_used = self.marked_used + 1
+  end
+end
+
+local function MarkUnused(self)
+  assert(self.marked_used)
+  
+  if self.marked_used == 1 then
+    local uses = self.uses
+    
+    if uses then
+      for obj in pairs(uses) do
+        obj.used[self] = nil
+        obj:MarkUnused()
+      end
+      
+      QuestHelper:ReleaseTable(uses)
+      self.uses = nil
+    end
+    
+    if self.used then
+      assert(not next(self.used))
+      QuestHelper:ReleaseTable(used)
+      self.used = nil
+    end
+    
+    self.marked_used = nil
+  else
+    self.marked_used = self.marked_used - 1
+  end
+end
+
 local function DummyObjectiveKnown(self)
   return (self.o.pos or self.fb.pos) and DefaultObjectiveKnown(self)
 end
@@ -273,7 +337,61 @@ local function ItemAppendPositions(self, objective, weight, why)
   end
 end
 
-
+local function ItemDoMarkUsed(self)
+  if self.o.vendor then for i, npc in ipairs(self.o.vendor) do
+    local n = self.qh:GetObjective("monster", npc)
+    local faction = n.o.faction or n.fb.faction
+    if (not faction or faction == self.qh.faction) then
+      self:Uses(n, "TOOLTIP_PURCHASE")
+    end
+  end end
+  
+  if self.fb.vendor then for i, npc in ipairs(self.fb.vendor) do
+    local n = self.qh:GetObjective("monster", npc)
+    local faction = n.o.faction or n.fb.faction
+    if (not faction or faction == self.qh.faction) then
+      self:Uses(n, "TOOLTIP_PURCHASE")
+    end
+  end end
+  
+  if self.o.drop then for monster, count in pairs(self.o.drop) do
+    self:Uses(self.qh:GetObjective("monster", monster), "TOOLTIP_SLAY")
+  end end
+  
+  if self.fb.drop then for monster, count in pairs(self.fb.drop) do
+    self:Uses(self.qh:GetObjective("monster", monster), "TOOLTIP_SLAY")
+  end end
+  
+  if self.o.contained then for item, count in pairs(self.o.contained) do
+    self:Uses(self.qh:GetObjective("item", item), "TOOLTIP_LOOT")
+  end end
+  
+  if self.fb.contained then for item, count in pairs(self.fb.contained) do
+    self:Uses(self.qh:GetObjective("item", item), "TOOLTIP_LOOT")
+  end end
+  
+  if self.quest then
+    local item_list=self.quest.o.item
+    if item_list then
+      local data = item_list[self.obj]
+      if data and data.drop then
+        for monster, count in pairs(data.drop) do
+          self:Uses(self.qh:GetObjective("monster", monster), "TOOLTIP_SLAY")
+        end
+      end
+    end
+    
+    item_list=self.quest.fb.item
+    if item_list then 
+      local data = item_list[self.obj]
+      if data and data.drop then
+        for monster, count in pairs(data.drop) do
+          self:Uses(self.qh:GetObjective("monster", monster), "TOOLTIP_SLAY")
+        end
+      end
+    end
+  end
+end
 
 
 
@@ -669,6 +787,11 @@ QuestHelper.default_objective_param =
  {
   CouldBeFirst=ObjectiveCouldBeFirst,
   
+  Uses=Uses,
+  DoMarkUsed=DoMarkUsed,
+  MarkUsed=MarkUsed,
+  MarkUnused=MarkUnused,
+  
   DefaultKnown=DefaultObjectiveKnown,
   Known=DummyObjectiveKnown,
   Reason=ObjectiveReason,
@@ -690,7 +813,8 @@ QuestHelper.default_objective_param =
 QuestHelper.default_objective_item_param =
  {
   Known = ItemKnown,
-  AppendPositions = ItemAppendPositions
+  AppendPositions = ItemAppendPositions,
+  DoMarkUsed = ItemDoMarkUsed
  }
 
 for key, value in pairs(QuestHelper.default_objective_param) do
@@ -901,6 +1025,8 @@ function QuestHelper:AddObjectiveWatch(objective, reason)
   
   if not next(objective.reasons, nil) then
     objective.watched = true
+    objective:MarkUsed()
+    
     if self.to_remove[objective] then
       self.to_remove[objective] = nil
     else
@@ -915,7 +1041,9 @@ function QuestHelper:RemoveObjectiveWatch(objective, reason)
   if objective.reasons[reason] == 1 then
     objective.reasons[reason] = nil
     if not next(objective.reasons, nil) then
+      objective:MarkUnused()
       objective.watched = false
+      
       if self.to_add[objective] then
         self.to_add[objective] = nil
       else

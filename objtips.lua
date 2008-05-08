@@ -1,25 +1,41 @@
 local real_GameTooltipOnShow = GameTooltip:GetScript("OnShow") or QuestHelper.nop
 
+local function addObjectiveObjTip(objective, gap)
+  if objective.watched or objective.progress then
+    if gap then
+      GameTooltip:AddLine(" ") -- Add a gap between what we're adding and what's already there.
+    end
+    
+    if objective.quest then
+      GameTooltip:AddLine(QHFormat("TOOLTIP_QUEST", string.match(objective.quest.obj or "", "^%d*/%d*/(.*)$") or "???"), 1, 1, 1)
+    end
+    
+    if objective.progress then
+      QuestHelper:AppendObjectiveProgressToTooltip(objective, GameTooltip)
+    else
+      GameTooltip:AddLine(QHText("TOOLTIP_WATCHED"), unpack(QuestHelper:GetColourTheme().tooltip))
+    end
+    
+    -- Calling Show again to cause the tooltip's dimensions to be recalculated.
+    -- Since the frame should already be shown, the OnShow event shouldn't be called again.
+    GameTooltip:Show()
+  end
+  
+  if objective.used then
+    for obj, text in pairs(objective.used) do
+      GameTooltip:AddLine(" ")
+      GameTooltip:AddLine(QHFormat(text, obj.obj), 1, 1, 1)
+      addObjectiveObjTip(obj, false)
+    end
+  end
+end
+
 local function addObjectiveTip(cat, obj)
   local list = QuestHelper.objective_objects[cat]
   if list then
     local objective = list[obj]
-    if objective and (objective.watched or objective.progress) then
-      GameTooltip:AddLine(" ") -- Add a gap between what we're adding and what's already there.
-      
-      if objective.quest then
-        GameTooltip:AddLine((string.match(objective.quest.obj or "", "^%d*/%d*/(.*)$") or "(???)"), .92, .87, 0)
-      end
-      
-      if objective.progress then
-        QuestHelper:AppendObjectiveProgressToTooltip(objective, GameTooltip)
-      else
-        GameTooltip:AddLine(QHText("TOOLTIP_WATCHED"), unpack(QuestHelper:GetColourTheme().tooltip))
-      end
-      
-      -- Calling Show again to cause the tooltip's dimensions to be recalculated.
-      -- Since the frame should already be shown, the OnShow event shouldn't be called again.
-      GameTooltip:Show()
+    if objective then
+      addObjectiveObjTip(objective, true)
     end
   end
 end

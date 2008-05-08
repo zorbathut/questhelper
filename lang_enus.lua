@@ -222,7 +222,11 @@ QuestHelper_Translations.enUS =
   
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
   -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
-  TOOLTIP_WATCHED = "Watched by QuestHelper"
+  TOOLTIP_WATCHED = "Watched by QuestHelper",
+  TOOLTIP_QUEST = "For Quest %h1.",
+  TOOLTIP_PURCHASE = "Purchase %h1.",
+  TOOLTIP_SLAY = "Slay for %h1.",
+  TOOLTIP_LOOT = "Loot for %h1."
  }
 
 QuestHelper_TranslationFunctions.enUS =
