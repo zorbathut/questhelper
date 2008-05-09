@@ -270,7 +270,11 @@ function QuestHelper:ToggleCartWP()
   if QuestHelper_Pref.cart_wp then
     self:EnableCartographer()
     if Cartographer_Waypoints then
-      self:TextOut("Will use "..self:HighlightText("Cartographer Waypoints").." to show objectives.")
+      if Waypoint and Waypoint.prototype then
+        self:TextOut("Would use "..self:HightlightText("Cartographer Waypoints").." to show objectives, but another mod is interfering with it.")
+      else
+        self:TextOut("Will use "..self:HighlightText("Cartographer Waypoints").." to show objectives.")
+      end
     else
       self:TextOut("Would use "..self:HighlightText("Cartographer Waypoints").." to show objectives, except it doesn't seem to be present.")
     end

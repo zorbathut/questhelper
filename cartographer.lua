@@ -15,7 +15,7 @@ local function cartographer_wp_update(c, z, x, y, desc)
 end
 
 function QuestHelper:EnableCartographer()
-  if Cartographer_Waypoints then
+  if Cartographer_Waypoints and Waypoint and not Waypoint.prototype then
     if not QuestHelperPoint then
       QuestHelperPoint = Waypoint:new()
       QuestHelperPoint.ShowOnMap = false
