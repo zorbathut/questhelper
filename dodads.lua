@@ -15,8 +15,8 @@ local function convertNodeToScreen(n, c, z)
   return QuestHelper.Astrolabe:TranslateWorldMapPosition(n.c, 0, n.x/QuestHelper.continent_scales_x[n.c], n.y/QuestHelper.continent_scales_y[n.c], c, z)
 end
 
-QuestHelper.map_overlay = CreateFrame("FRAME", nil, WorldMapButton)
-QuestHelper.map_overlay:SetFrameLevel(WorldMapButton:GetFrameLevel()+1)
+QuestHelper.map_overlay = CreateFrame("FRAME", nil, WorldMapDetailFrame)
+QuestHelper.map_overlay:SetFrameLevel(WorldMapDetailFrame:GetFrameLevel()+1)
 QuestHelper.map_overlay:SetAllPoints()
 QuestHelper.map_overlay:SetFrameStrata("FULLSCREEN")
 
@@ -107,7 +107,7 @@ function QuestHelper:CreateWorldMapWalker()
       self.phase = self.phase + elapsed * 0.66
       while self.phase > 1 do self.phase = self.phase - 1 end
       
-      local w, h = WorldMapDetailFrame:GetWidth(), -WorldMapDetailFrame:GetHeight()
+      local w, h = QuestHelper.map_overlay:GetWidth(), -QuestHelper.map_overlay:GetHeight()
       
       local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
       
@@ -211,7 +211,7 @@ function QuestHelper:CreateWorldMapWalker()
 end
 
 function QuestHelper:GetOverlapObjectives(obj)
-  local w, h = WorldMapDetailFrame:GetWidth(), WorldMapDetailFrame:GetHeight()
+  local w, h = self.map_overlay:GetWidth(), self.map_overlay:GetHeight()
   local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
   
   local list = self.overlap_list
@@ -225,10 +225,10 @@ function QuestHelper:GetOverlapObjectives(obj)
   
   local cx, cy = GetCursorPosition()
   
-  local es = WorldMapDetailFrame:GetEffectiveScale()
+  local es = QuestHelper.map_overlay:GetEffectiveScale()
   local ies = 1/es
   
-  cx, cy = (cx-WorldMapDetailFrame:GetLeft()*es)*ies, (WorldMapDetailFrame:GetTop()*es-cy)*ies
+  cx, cy = (cx-self.map_overlay:GetLeft()*es)*ies, (self.map_overlay:GetTop()*es-cy)*ies
   
   local s = 10*QuestHelper_Pref.scale
   
@@ -257,13 +257,10 @@ end
 
 local prog_sort_table = {}
 
-function QuestHelper:AppendObjectiveToTooltip(o)
-  local theme = self:GetColourTheme()
-  
-  self.tooltip:AddLine(o:Reason(), unpack(theme.tooltip))
-  self.tooltip:GetPrevLines():SetFont(QuestHelper.font.serif, 14)
-  
+function QuestHelper:AppendObjectiveProgressToTooltip(o, tooltip, font)
   if o.progress then
+    local theme = self:GetColourTheme()
+    
     for user, progress in pairs(o.progress) do
       table.insert(prog_sort_table, user)
     end
@@ -278,20 +275,34 @@ function QuestHelper:AppendObjectiveToTooltip(o)
     end)
     
     for i, u in ipairs(prog_sort_table) do
-      self.tooltip:AddDoubleLine(QHFormat("PEER_PROGRESS", u),
+      tooltip:AddDoubleLine(QHFormat("PEER_PROGRESS", u),
                                  self:ProgressString(o.progress[u][1].."/"..o.progress[u][2],
                                  o.progress[u][3]), unpack(theme.tooltip))
       
-      self.tooltip:GetPrevLines():SetFont(QuestHelper.font.sans, 13)
-      select(2, self.tooltip:GetPrevLines()):SetFont(QuestHelper.font.sans, 13)
+      if font then
+        local last, name = tooltip:NumLines(), tooltip:GetName()
+        local left, right = _G[name.."TextLeft"..last], _G[name.."TextRight"..last]
+        
+        left:SetFont(font, 13)
+        right:SetFont(font, 13)
+      end
     end
     
     while table.remove(prog_sort_table) do end
   end
+end
+
+function QuestHelper:AppendObjectiveToTooltip(o)
+  local theme = self:GetColourTheme()
   
-  QuestHelper.tooltip:AddDoubleLine(QHText("TRAVEL_ESTIMATE"), QHFormat("TRAVEL_ESTIMATE_VALUE", o.travel_time or 0), unpack(theme.tooltip))
-  QuestHelper.tooltip:GetPrevLines():SetFont(QuestHelper.font.sans, 11)
-  select(2, QuestHelper.tooltip:GetPrevLines()):SetFont(QuestHelper.font.sans, 11)
+  self.tooltip:AddLine(o:Reason(), unpack(theme.tooltip))
+  self.tooltip:GetPrevLines():SetFont(self.font.serif, 14)
+  
+  self:AppendObjectiveProgressToTooltip(o, self.tooltip, QuestHelper.font.sans)
+  
+  self.tooltip:AddDoubleLine(QHText("TRAVEL_ESTIMATE"), QHFormat("TRAVEL_ESTIMATE_VALUE", o.travel_time or 0), unpack(theme.tooltip))
+  self.tooltip:GetPrevLines():SetFont(self.font.sans, 11)
+  select(2, self.tooltip:GetPrevLines()):SetFont(self.font.sans, 11)
 end
 
 function QuestHelper:CreateWorldMapDodad(objective, index)
@@ -363,7 +374,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   end
   
   function icon:SetGlow(list)
-    local w, h = WorldMapDetailFrame:GetWidth(), WorldMapDetailFrame:GetHeight()
+    local w, h = QuestHelper.map_overlay:GetWidth(), QuestHelper.map_overlay:GetHeight()
     local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
     local _, x_size, y_size = QuestHelper.Astrolabe:ComputeDistance(c, z, 0.25, 0.25, c, z, 0.75, 0.75)
     
@@ -449,6 +460,22 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
     end
     
     if self.glow_list then
+      -- You know, these numbers are harmonics of pi. Would SETI detected them, or would they just be seen as noise?
+      -- I'd vote for the later.
+      --
+      -- Pi - circumference over diameter - when was the last time you actually cared about diameters in math?
+      -- 
+      -- Pretty much everything in computer geometry depends on the pythagorean theorem, which you can use for
+      -- circles, spheres, and hyper-spheres, if you use radius.
+      -- 
+      -- It's even the basis of special relativity, with time being multiplied by c so that you get a distance
+      -- that you can use with the spatial dimensions. We're all in agreement that space traveling aliens are
+      -- going to know about relativity, right?
+      -- 
+      -- And if you ever do trig, a full circle would be exactly (circumference over radius) radians instead of
+      -- (circumference over diameter)*2 radians.
+      -- 
+      -- Obviously aliens are much more likely to prefer 6.283185307179586... as constant than our pi.
       local r, g, b = math.sin(self.phase)*0.25+0.75,
                       math.sin(self.phase+2.094395102393195492308428922186335256131446266250070547316629728)*0.25+0.75,
                       math.sin(self.phase+4.188790204786390984616857844372670512262892532500141094633259456)*0.25+0.75

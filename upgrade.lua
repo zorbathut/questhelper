@@ -439,6 +439,21 @@ function QuestHelper_UpgradeDatabase(data)
     
     data.QuestHelper_SaveVersion = 7
   end
+  
+  if data.QuestHelper_SaveVersion == 7 then
+    -- It sure took me long enough to discover that I broke vendor objectives.
+    -- their factions were strings and didn't match the number value of QuestHelper.faction
+    
+    for cat, list in pairs(data.QuestHelper_Objectives) do
+      for name, obj in pairs(list) do
+        if type(obj.faction) == "string" then
+          obj.faction = (obj.faction == "Alliance" and 1) or (obj.faction == "Horde" and 2) or nil
+        end
+      end
+    end
+    
+    data.QuestHelper_SaveVersion = 8
+  end
 end
 
 function QuestHelper_UpgradeComplete()

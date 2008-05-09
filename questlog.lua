@@ -230,10 +230,7 @@ function QuestHelper:ScanQuestLog()
             lo.objective.o.quest = true -- If I ever decide to prune the DB, I'll have the stuff actually used in quests marked.
             self:ObjectiveObjectDependsOn(quest, lo.objective)
             
-            if category == "item" then
-              -- So the objective knows in what context we're getting the item.
-              lo.objective.quest = quest
-            end
+            lo.objective.quest = quest
             
             if verb then
               lo.reason = QHFormat("OBJECTIVE_REASON", verb, wanted, title)

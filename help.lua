@@ -147,6 +147,15 @@ function QuestHelper:ToggleTrack()
   end
 end
 
+function QuestHelper:ToggleTooltip()
+  QuestHelper_Pref.tooltip = not QuestHelper_Pref.tooltip
+  if QuestHelper_Pref.tooltip then
+    self:TextOut("Objectuve tooltip information has been |cff00ff00enabled|r.")
+  else
+    self:TextOut("Objectuve tooltip information has been |cffff0000disabled|r.")
+  end
+end
+
 function QuestHelper:Purge(code)
   if code == self.purge_code then
     QuestHelper_Quests = {}
@@ -403,6 +412,10 @@ local commands =
   {"TRACK",
    "Toggles the visibility of the objective tracker.",
     {}, QuestHelper.ToggleTrack, QuestHelper},
+  
+  {"TOOLTIP",
+   "Toggles appending information about tracked items and NPCs to their tooltips.",
+    {}, QuestHelper.ToggleTooltip, QuestHelper},
   
   {"SHARE",
    "Toggles objective sharing between QuestHelper users.",
