@@ -106,7 +106,7 @@ local function MarkUnused(self)
     
     if self.used then
       assert(not next(self.used))
-      QuestHelper:ReleaseTable(used)
+      QuestHelper:ReleaseTable(self.used)
       self.used = nil
     end
     
