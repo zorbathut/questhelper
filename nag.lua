@@ -1,3 +1,5 @@
+QuestHelper_File["nag.lua"] = "Development Version"
+
 local function FindStaticQuest(faction, level, name, hash)
   local data = QuestHelper_StaticData[QuestHelper.locale]
   data = data and data.quest

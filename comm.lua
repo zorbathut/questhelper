@@ -1,3 +1,4 @@
+QuestHelper_File["comm.lua"] = "Development Version"
 
 -- We can't send more than 256 bytes per message.
 local comm_version = 1

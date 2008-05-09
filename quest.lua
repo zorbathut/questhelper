@@ -1,3 +1,5 @@
+QuestHelper_File["quest.lua"] = "Development Version"
+
 local function QuestKnown(self)
   if not self.target and not self.destination then
     if self.o.finish then

@@ -1,5 +1,6 @@
-local call_count = 0
+QuestHelper_File["routing.lua"] = "Development Version"
 
+local call_count = 0
 
 local refine_limit = 1.0e-8      -- Margin by which a new result must be better before we use it, to reduce noise
 

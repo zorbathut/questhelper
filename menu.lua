@@ -1,3 +1,5 @@
+QuestHelper_File["menu.lua"] = "Development Version"
+
 QuestHelper.active_menu = nil
 
 local function Menu_AddItem(self, item)

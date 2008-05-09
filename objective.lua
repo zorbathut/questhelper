@@ -1,3 +1,5 @@
+QuestHelper_File["objective.lua"] = "Development Version"
+
 local function ObjectiveCouldBeFirst(self)
   if (self.user_ignore == nil and self.auto_ignore) or self.user_ignore then
     return false

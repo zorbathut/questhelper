@@ -1,3 +1,5 @@
+QuestHelper_File["custom.lua"] = "Development Version"
+
 -- This next bit of stuff is for fuzzy string comarisons.
 
 local row, prow = {}, {}

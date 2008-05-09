@@ -1,3 +1,5 @@
+QuestHelper_File["tracker.lua"] = "Development Version"
+
 local tracker = CreateFrame("Frame", nil, UIParent)
 
 QuestHelper.tracker = tracker

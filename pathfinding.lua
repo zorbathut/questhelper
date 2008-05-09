@@ -1,3 +1,5 @@
+QuestHelper_File["pathfinding.lua"] = "Development Version"
+
 local IRONFORGE_PORTAL = {25,0.255,0.084, "Ironforge portal site"}
 local STORMWIND_CITY_PORTAL = {36,0.387,0.802, "Stormwind City portal site"}
 local DARNASSUS_PORTAL = {21,0.397,0.824, "Darnassus portal site"}

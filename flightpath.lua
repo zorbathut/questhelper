@@ -1,3 +1,5 @@
+QuestHelper_File["flightpath.lua"] = "Development Version"
+
 local real_TakeTaxiNode = TakeTaxiNode
 local real_TaxiNodeOnButtonEnter= TaxiNodeOnButtonEnter
 

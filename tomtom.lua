@@ -1,3 +1,5 @@
+QuestHelper_File["tomtom.lua"] = "Development Version"
+
 local tomtom_cb
 local tomtom_uid
 

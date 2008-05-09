@@ -1,3 +1,5 @@
+QuestHelper_File["dodads.lua"] = "Development Version"
+
 local ofs = 0.000723339 * (GetScreenHeight()/GetScreenWidth() + 1/3) * 70.4;
 local radius = ofs / 1.166666666666667;
 

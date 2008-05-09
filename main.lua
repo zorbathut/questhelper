@@ -1,3 +1,5 @@
+QuestHelper_File["main.lua"] = "Development Version"
+
 QuestHelper = CreateFrame("Frame", "QuestHelper", nil)
 
 -- Just to make sure it's always 'seen' (there's nothing that can be seen, but still...), and therefore always updating.
@@ -147,6 +149,64 @@ end
 
 function QuestHelper:OnEvent(event)
   if event == "VARIABLES_LOADED" then
+    local file_problem = false
+    local expected_version = GetAddOnMetadata("QuestHelper", "Version")
+    
+    local expected_files =
+      {
+       ["upgrade.lua"] = true,
+       ["main.lua"] = true,
+       ["recycle.lua"] = true,
+       ["objective.lua"] = true,
+       ["quest.lua"] = true,
+       ["questlog.lua"] = true,
+       ["utility.lua"] = true,
+       ["dodads.lua"] = true,
+       ["graph.lua"] = true,
+       ["teleport.lua"] = true,
+       ["pathfinding.lua"] = true,
+       ["routing.lua"] = true,
+       ["custom.lua"] = true,
+       ["menu.lua"] = true,
+       ["hidden.lua"] = true,
+       ["nag.lua"] = true,
+       ["comm.lua"] = true,
+       ["mapbutton.lua"] = true,
+       ["help.lua"] = true,
+       ["pattern.lua"] = true,
+       ["flightpath.lua"] = true,
+       ["tracker.lua"] = true,
+       ["objtips.lua"] = true,
+       ["cartographer.lua"] = true,
+       ["tomtom.lua"] = true
+      }
+    
+    for file, version in pairs(QuestHelper_File) do
+      if not expected_files[file] then
+        DEFAULT_CHAT_FRAME:AddMessage("Unexpected QuestHelper file: "..file)
+        file_problem = true
+      elseif version ~= expected_version then
+        DEFAULT_CHAT_FRAME:AddMessage("Wrong version of QuestHelper file: "..file.." (was '"..version.."', should be '"..expected_version.."')")
+        file_problem = true
+      end
+    end
+    
+    for file in pairs(expected_files) do
+      if not QuestHelper_File[file] then
+        DEFAULT_CHAT_FRAME:AddMessage("Missing QuestHelper file: "..file)
+        file_problem = true
+      end
+    end
+    
+    -- Don't need this table anymore.
+    QuestHelper_File = nil
+    
+    if file_problem then
+      DEFAULT_CHAT_FRAME:AddMessage("QuestHelper hasn't been installed properly.")
+      message("QuestHelper hasn't been installed properly.")
+      return
+    end
+    
     QHFormatSetLocale(QuestHelper_Pref.locale or GetLocale())
     
     if not QuestHelper_UID then

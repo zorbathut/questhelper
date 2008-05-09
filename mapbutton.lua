@@ -1,3 +1,5 @@
+QuestHelper_File["mapbutton.lua"] = "Development Version"
+
 --[[
    mapbutton.lua
 

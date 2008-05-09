@@ -1,3 +1,5 @@
+QuestHelper_File["hidden.lua"] = "Development Version"
+
 local function HiddenReason(obj)
   local depends
   for i, j in pairs(obj.after) do

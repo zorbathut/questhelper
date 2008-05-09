@@ -1,3 +1,5 @@
+QuestHelper_File["questlog.lua"] = "Development Version"
+
 --[[QuestHelper.debug_objectives =
  {
   ["Harbinger of Doom"] =

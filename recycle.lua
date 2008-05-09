@@ -1,3 +1,5 @@
+QuestHelper_File["recycle.lua"] = "Development Version"
+
 QuestHelper.used_tables = 0
 QuestHelper.free_tables = {}
 

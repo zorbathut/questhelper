@@ -1,3 +1,5 @@
+QuestHelper_File["pattern.lua"] = "Development Version"
+
 -- The following junk is for building functions to parse strings for various locales.
 
 local varindex, varswap = 0, {}

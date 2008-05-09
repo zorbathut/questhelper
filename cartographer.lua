@@ -1,3 +1,5 @@
+QuestHelper_File["cartographer.lua"] = "Development Version"
+
 local cartographer_cb
 local cartographer_wp
 

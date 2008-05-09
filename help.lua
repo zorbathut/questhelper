@@ -1,3 +1,5 @@
+QuestHelper_File["help.lua"] = "Development Version"
+
 function QuestHelper:SetIconScale(input)
   if input == "" then
     self:TextOut("Current icon scale is "..self:HighlightText(math.floor(QuestHelper_Pref.scale*100+0.5).."%")..".")

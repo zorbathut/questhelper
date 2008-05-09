@@ -1,3 +1,5 @@
+QuestHelper_File["graph.lua"] = "Development Version"
+
 local floor = math.floor
 
 local function Graph_Search(self, first, last)

@@ -1,3 +1,6 @@
+QuestHelper_File = {}
+QuestHelper_File["upgrade.lua"] = "Development Version"
+
 QuestHelper_Zones =
   {{[0]="Kalimdor",
     [1]="Ashenvale",

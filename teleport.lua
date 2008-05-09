@@ -1,3 +1,5 @@
+QuestHelper_File["teleport.lua"] = "Development Version"
+
 function QuestHelper:CreateTeleportInfo()
   local info = self:CreateTable()
   info.node = self:CreateTable()

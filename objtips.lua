@@ -1,3 +1,5 @@
+QuestHelper_File["objtips.lua"] = "Development Version"
+
 local real_GameTooltipOnShow = GameTooltip:GetScript("OnShow") or QuestHelper.nop
 
 local function addObjectiveObjTip(objective, gap)

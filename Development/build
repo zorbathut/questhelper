@@ -354,43 +354,49 @@ if archive_zip or archive_7z then
   FileUtil.createDirectory("QuestHelper/ChatThrottleLib")
   FileUtil.createDirectory("QuestHelper/Fonts")
   
+  local info = nil
+  
+  -- Try to coax git to give us something to use for the version.
+  local stream = io.popen("git describe --tags HEAD", "r")
+  if stream then
+    info = stream:read("*line")
+    if info then
+      -- Replace the first dash with a dot.
+      info = string.gsub(info, "^(.*)%-(.*)%-g(.*)$", "%1%.%2%-%3", 1)
+    end
+    io.close(stream)
+  end
+  
+  if not info then
+    -- Didn't get a nice looking tag to use, try to at least get a hash for the version.
+    stream = io.popen("git-log -1 --pretty=\"format:%2-%h\"", "r")
+    if stream then
+      info = stream:read("*line")
+      io.close(stream)
+    end
+  end
+  
+  if not info then
+    -- We have no idea what version this is, will use the string already in the TOC.
+    info = "%2"
+  end
+  
+  FileUtil.copyFile("../QuestHelper.toc", "QuestHelper", "^(##%s-Version%s-):%s*(.*)%s*$",
+    function (a, b)
+      version_string = string.gsub(info, "%%2", b) return a..": "..version_string
+    end)
+  
+  local file_version_pattern = "%1"..string.format("%q", version_string)
+  
   FileUtil.forEachFile("..", function (file)
     local ext = FileUtil.extension(file)
     if ext == "lua" or ext == "xml" then
       if debug_build then
         FileUtil.copyFile(file, "QuestHelper")
       else
-        FileUtil.copyFile(file, "QuestHelper", "(assert%s*%b())", "--[[ %1 ]]")
+        FileUtil.copyFile(file, "QuestHelper", "(assert%s*%b())", "--[[ %1 ]]",
+                                               "^(QuestHelper_File%[[^%]]*%]%s*=%s*).+$", file_version_pattern)
       end
-    elseif ext == "toc" then
-      local info = nil
-      
-      -- Try to coax git to give us something to use for the version.
-      local stream = io.popen("git describe --tags HEAD", "r")
-      if stream then
-        info = stream:read("*line")
-        if info then
-          -- Replace the first dash with a dot.
-          info = string.gsub(info, "-", ".", 1)
-        end
-        io.close(stream)
-      end
-      
-      if not info then
-        -- Didn't get a nice looking tag to use, try to at least get a hash for the version.
-        stream = io.popen("git-log -1 --pretty=\"format:%2-%h\"", "r")
-        if stream then
-          info = stream:read("*line")
-          io.close(stream)
-        end
-      end
-      
-      if not info then
-        -- We have no idea what version this is, will use the string already in the TOC.
-        info = "%2"
-      end
-      
-      FileUtil.copyFile(file, "QuestHelper", "^(##%s-Version%s-):%s*(.*)%s*$", function (a, b) version_string = string.gsub(info, "%%2", b) return a..": "..version_string end )
     end
   end)
   
