@@ -172,7 +172,7 @@ function QuestHelper:OnEvent(event)
     QuestHelper_UpgradeDatabase(_G)
     QuestHelper_UpgradeComplete()
     
-    if QuestHelper_SaveVersion ~= 7 then
+    if QuestHelper_SaveVersion ~= 8 then
       self:TextOut(QHText("DOWNGRADE_ERROR"))
       return
     end
@@ -325,7 +325,9 @@ function QuestHelper:OnEvent(event)
         
         local monster_objective = self:GetObjective("monster", UnitName("target"))
         self:AppendObjectivePosition(monster_objective, index, x, y, w)
-        monster_objective.o.faction = UnitFactionGroup("target")
+        
+        monster_objective.o.faction = (UnitFactionGroup("target") == "Alliance" and 1) or
+                                      (UnitFactionGroup("target") == "Horde" and 2) or nil
         
         local level = UnitLevel("target")
         if level and level >= 1 then
