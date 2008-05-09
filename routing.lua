@@ -1,6 +1,7 @@
 QuestHelper_File["routing.lua"] = "Development Version"
 
 local call_count = 0
+local route_pass = 0
 
 local refine_limit = 1.0e-8      -- Margin by which a new result must be better before we use it, to reduce noise
 
@@ -10,7 +11,7 @@ local function yieldIfNeeded()
     -- When QuestHelper is hidden, the routing becomes a background task
     coroutine.yield()
   elseif call_count <= 0 then
-    call_count = call_count + 10 * QuestHelper_Pref.perf_scale
+    call_count = call_count + 10 * QuestHelper_Pref.perf_scale * ((route_pass > 0) and 5 or 1)
     coroutine.yield()
   else
     call_count = call_count - 1
@@ -487,7 +488,6 @@ function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objecti
   return best_index, best_total-best_extra, best_extra
 end
 
-local route_pass = 0
 local map_walker
 
 local function RouteUpdateRoutine(self)
@@ -759,7 +759,7 @@ end
 
 function QuestHelper:ForceRouteUpdate(passes)
   route_pass = math.max(2, passes or 0)
-  
+--[[
   while route_pass ~= 0 do
     if coroutine.status(self.update_route) == "dead" then
       break
@@ -771,6 +771,7 @@ function QuestHelper:ForceRouteUpdate(passes)
       break
     end
   end
+--]]
 end
 
 QuestHelper.update_route = coroutine.create(RouteUpdateRoutine)
