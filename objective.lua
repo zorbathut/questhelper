@@ -1029,6 +1029,21 @@ function QuestHelper:AddObjectiveWatch(objective, reason)
     objective.watched = true
     objective:MarkUsed()
     
+    objective.filter_blocked = false
+    for obj in pairs(objective.swap_after or objective.after) do
+      if obj.watched then
+        objective.filter_blocked = true
+        break
+      end
+    end
+    
+    for obj in pairs(objective.swap_before or objective.before) do
+      if obj.watched then
+        obj.filter_blocked = true
+        break
+      end
+    end
+    
     if self.to_remove[objective] then
       self.to_remove[objective] = nil
     else
@@ -1045,6 +1060,18 @@ function QuestHelper:RemoveObjectiveWatch(objective, reason)
     if not next(objective.reasons, nil) then
       objective:MarkUnused()
       objective.watched = false
+      
+      for obj in pairs(objective.swap_before or objective.before) do
+        if obj.watched then
+          obj.filter_blocked = false
+          for obj2 in pairs(obj.swap_after or obj.after) do
+            if obj2.watched then
+              obj.filter_blocked = true
+              break
+            end
+          end
+        end
+      end
       
       if self.to_add[objective] then
         self.to_add[objective] = nil
@@ -1083,6 +1110,10 @@ function QuestHelper:ObjectiveObjectDependsOn(objective, needs)
     if not needs.swap_before then
       needs.swap_before = self:CreateTable()
       for key,value in pairs(needs.before) do needs.swap_before[key] = value end
+    end
+    
+    if needs.watched then
+      objective.filter_blocked = true
     end
     
     objective.swap_after[needs] = true

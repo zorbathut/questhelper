@@ -354,7 +354,8 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
         self.bg = QuestHelper:CreateIconTexture(self, 13)
       elseif objective.filter_blocked then
         -- if there are still prerequisites, make it grey
-        -- We checked status of pre-requisites last time we scanned the quest log, so just check the flag.
+        -- filter_blocked is updated by [Add|Remove]ObjectiveWatch and ObjectiveObjectDependsOn,
+        -- and will be true if there are other objectives that need to be completed before this one.
         self.bg = QuestHelper:CreateIconTexture(self, 16)
       else
         -- otherwise give it the background selected by the objective

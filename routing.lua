@@ -506,7 +506,7 @@ local function RouteUpdateRoutine(self)
       if not o:Known() then
         -- Objective was probably made to depend on an objective that we don't know about yet.
         -- We add it to both lists, because although we need to remove it, we need it added again when we can.
-        -- This creats an inconsistancy, but it'll get fixed in the removal loop before anything has a chance to
+        -- This creates an inconsistancy, but it'll get fixed in the removal loop before anything has a chance to
         -- explode from it.
         
         self.to_remove[o] = true
