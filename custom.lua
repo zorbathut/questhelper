@@ -161,7 +161,7 @@ function search_frame:ShowResults()
   QuestHelper:CreateMenuTitle(menu, QHText("RESULTS_TITLE"))
   
   if #self.results == 0 then
-    QuestHelper:CreateMenuItem(menu, "NO_RESULTS")
+    QuestHelper:CreateMenuItem(menu, QHText("NO_RESULTS"))
   else
     for i, r in ipairs(self.results) do
       self:CreateResultItem(r, menu)
