@@ -1,7 +1,12 @@
 QuestHelper_File["recycle.lua"] = "Development Version"
 
 QuestHelper.used_tables = 0
-QuestHelper.free_tables = {}
+
+QuestHelper.weak_key_meta = {__mode="k"}
+QuestHelper.weak_value_meta = {__mode="v"}
+QuestHelper.free_tables = setmetatable({}, QuestHelper.weak_key_meta)
+
+local unused_meta = {__index=error, __newindex=error}
 
 QuestHelper.used_textures = 0
 QuestHelper.free_textures = {}
@@ -13,20 +18,27 @@ QuestHelper.used_frames = 0
 QuestHelper.free_frames = {}
 
 function QuestHelper:CreateTable()
+  local tbl = next(self.free_tables)
   self.used_tables = self.used_tables + 1
-  return table.remove(self.free_tables) or {}
+  
+  if tbl then
+    self.free_tables[tbl] = nil
+    return setmetatable(tbl, nil)
+  else
+    return {}
+  end
 end
 
 function QuestHelper:ReleaseTable(tbl)
   assert(type(tbl) == "table")
-  for i,t in ipairs(self.free_tables) do assert(t ~= tbl) end
+  assert(not self.free_tables[tbl])
   
   for key in pairs(tbl) do
     tbl[key] = nil
   end
   
   self.used_tables = self.used_tables - 1
-  table.insert(self.free_tables, tbl)
+  self.free_tables[setmetatable(tbl, unused_meta)] = true
 end
 
 function QuestHelper:CreateFrame(parent)

@@ -246,7 +246,7 @@ local function ObjectivePrepareRouting(self)
     self.nm = QuestHelper:CreateTable()
     self.nm2 = QuestHelper:CreateTable()
     self.nl = QuestHelper:CreateTable()
-    self.distance_cache = QuestHelper:CreateTable()
+    self.distance_cache = setmetatable(QuestHelper:CreateTable(), QuestHelper.weak_value_meta)
     
     self:AppendPositions(self, 1, nil)
     self:FinishAddLoc()
