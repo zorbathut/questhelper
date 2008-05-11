@@ -1040,7 +1040,6 @@ function QuestHelper:AddObjectiveWatch(objective, reason)
     for obj in pairs(objective.swap_before or objective.before) do
       if obj.watched then
         obj.filter_blocked = true
-        break
       end
     end
     
