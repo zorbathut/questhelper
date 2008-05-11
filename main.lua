@@ -347,7 +347,7 @@ function QuestHelper:OnEvent(event)
     end
     
     if QuestHelper_Pref.track then
-      QuestWatchFrame:SetAlpha(0)
+      self.tracker:HideDefaultTracker()
       self.tracker:Show()
     end
     

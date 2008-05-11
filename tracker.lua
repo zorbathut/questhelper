@@ -1,6 +1,6 @@
 QuestHelper_File["tracker.lua"] = "Development Version"
 
-local tracker = CreateFrame("Frame", nil, UIParent)
+local tracker = CreateFrame("Frame", "QuestHelperQuestWatchFrame", UIParent)
 
 QuestHelper.tracker = tracker
 
@@ -254,3 +254,66 @@ function tracker:update(delta)
 end
 
 tracker:SetScript("OnUpdate", tracker.update)
+
+-------------------------------------------------------------------------------------------------
+-- This batch of stuff is to make sure the original tracker (and any modifications) stay hidden
+
+local orig_TrackerOnShow = QuestWatchFrame:GetScript("OnShow")
+local orig_TrackerBackdropOnShow   -- bEQL (and perhaps other mods) add a backdrop to the tracker
+local TrackerBackdropFound = false
+
+local function TrackerBackdropOnShow(self, ...)
+  if QuestHelper_Pref.track then
+    TrackerBackdropFound:Hide()
+  end
+
+  if orig_TrackerBackdropOnShow then
+    orig_TrackerBackdropOnShow(self, ...)
+  end
+end
+
+function tracker:HideDefaultTracker()
+  -- The easy part: hide the original tracker
+  QuestWatchFrame:Hide()
+
+  -- The harder part: check if a known backdrop is present (but we don't already know about it).
+  -- If it is, make sure it's hidden, and hook its OnShow to make sure it stays that way.
+  -- Unfortunately, I can't figure out a good time to check for this once, so we'll just have
+  -- to keep checking.  Hopefully, this won't happen too often.
+  if not TrackerBackdropFound then
+    if QuestWatchFrameBackdrop then
+      -- Found bEQL's QuestWatchFrameBackdrop...
+      TrackerBackdropFound = QuestWatchFrameBackdrop
+    end
+
+    if TrackerBackdropFound then
+      -- OK, we found something - so hide it, and make sure it doesn't rear its ugly head again
+      TrackerBackdropFound:Hide()
+
+      orig_TrackerBackdropOnShow = TrackerBackdropFound:GetScript("OnShow")
+      TrackerBackdropFound:SetScript("OnShow", TrackerBackdropOnShow)
+    end
+  end
+end
+
+function tracker:ShowDefaultTracker()
+  assert(not QuestHelper_Pref.track)
+
+  QuestWatchFrame:Show()
+
+  if TrackerBackdropFound then
+    TrackerBackdropFound:Show()
+  end
+end
+
+local function QuestWatchFrameOnShow(self, ...)
+  if QuestHelper_Pref.track then
+    tracker:HideDefaultTracker()
+  end
+
+  if orig_TrackerOnShow then
+    orig_TrackerOnShow(self, ...)
+  end
+end
+
+QuestWatchFrame:SetScript("OnShow", QuestWatchFrameOnShow)

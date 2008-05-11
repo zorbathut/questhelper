@@ -139,11 +139,11 @@ end
 function QuestHelper:ToggleTrack()
   QuestHelper_Pref.track = not QuestHelper_Pref.track
   if QuestHelper_Pref.track then
-    QuestWatchFrame:SetAlpha(0)
+    self.tracker:HideDefaultTracker()
     self.tracker:Show()
     self:TextOut("The quest tracker has been |cff00ff00enabled|r.")
   else
-    QuestWatchFrame:SetAlpha(1)
+    self.tracker:ShowDefaultTracker()
     self.tracker:Hide()
     self:TextOut("The quest tracker has been |cffff0000disabled|r.")
   end
