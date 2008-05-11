@@ -186,8 +186,11 @@ function QuestHelper:OnEvent(event)
         DEFAULT_CHAT_FRAME:AddMessage("Unexpected QuestHelper file: "..file)
         file_problem = true
       elseif version ~= expected_version then
-        DEFAULT_CHAT_FRAME:AddMessage("Wrong version of QuestHelper file: "..file.." (was '"..version.."', should be '"..expected_version.."')")
-        file_problem = true
+        DEFAULT_CHAT_FRAME:AddMessage("Wrong version of QuestHelper file: "..file.." (found '"..version.."', should be '"..expected_version.."')")
+        if version ~= "Development Version" then
+          -- Developers are allowed to mix dev versions with release versions
+          file_problem = true
+        end
       end
     end
     
@@ -204,6 +207,7 @@ function QuestHelper:OnEvent(event)
     if file_problem then
       DEFAULT_CHAT_FRAME:AddMessage("QuestHelper hasn't been installed properly.")
       message("QuestHelper hasn't been installed properly.")
+      QuestHelper = nil     -- Just in case anybody else is checking for us, we're not home
       return
     end
     
