@@ -638,7 +638,7 @@ function QuestHelper:CreateMipmapDodad()
       
       self:Show()
       
-      if self.recalc_timeout == 0 then
+      if self.recalc_timeout == 0 and not QuestHelper.graph_in_limbo then
         self.recalc_timeout = 50
         
         self.objective = self:NextObjective()

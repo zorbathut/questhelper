@@ -655,55 +655,57 @@ function QuestHelper:OnUpdate()
     end
 
 
-    local nc, nz, nx, ny = self.Astrolabe:GetCurrentPlayerPosition()
+    if not self.graph_in_limbo then
+      local nc, nz, nx, ny = self.Astrolabe:GetCurrentPlayerPosition()
 
-    if nc and nc == self.c and map_shown_decay > 0 and self.z > 0 and self.z ~= nz then
-      -- There's a chance Astrolable will return the wrong zone if you're messing with the world map, if you can
-      -- be seen in that zone but aren't in it.
-      local nnx, nny = self.Astrolabe:TranslateWorldMapPosition(nc, nz, nx, ny, nc, self.z)
-      if nnx > 0 and nny > 0 and nnx < 1 and nny < 1 then
-        nz, nx, ny = self.z, nnx, nny
+      if nc and nc == self.c and map_shown_decay > 0 and self.z > 0 and self.z ~= nz then
+        -- There's a chance Astrolable will return the wrong zone if you're messing with the world map, if you can
+        -- be seen in that zone but aren't in it.
+        local nnx, nny = self.Astrolabe:TranslateWorldMapPosition(nc, nz, nx, ny, nc, self.z)
+        if nnx > 0 and nny > 0 and nnx < 1 and nny < 1 then
+          nz, nx, ny = self.z, nnx, nny
+        end
       end
-    end
 
-    if nc and nc > 0 and nz == 0 and nc == self.c and self.z > 0 then
-      nx, ny = self.Astrolabe:TranslateWorldMapPosition(nc, nz, nx, ny, nc, self.z)
-      if nx and ny and nx > -0.1 and ny > -0.1 and nx < 1.1 and ny < 1.1 then
-        nz = self.z
-      else
-        nc, nz, nx, ny = nil, nil, nil, nil
+      if nc and nc > 0 and nz == 0 and nc == self.c and self.z > 0 then
+        nx, ny = self.Astrolabe:TranslateWorldMapPosition(nc, nz, nx, ny, nc, self.z)
+        if nx and ny and nx > -0.1 and ny > -0.1 and nx < 1.1 and ny < 1.1 then
+          nz = self.z
+        else
+          nc, nz, nx, ny = nil, nil, nil, nil
+        end
       end
-    end
 
-    if nc and nz > 0 then
-      if nc > 0 and nz > 0 then
-        self.c, self.z, self.x, self.y = nc or self.c, nz or self.z, nx or self.x, ny or self.y
-        self.i = QuestHelper_IndexLookup[self.c][self.z]
+      if nc and nz > 0 then
+        if nc > 0 and nz > 0 then
+          self.c, self.z, self.x, self.y = nc or self.c, nz or self.z, nx or self.x, ny or self.y
+          self.i = QuestHelper_IndexLookup[self.c][self.z]
 
-        if not self.target then
-          self.pos[3], self.pos[4] = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)
-          assert(self.pos[3])
-          assert(self.pos[4])
-          self.pos[1] = self.zone_nodes[self.i]
-          self.pos[3] = self.pos[3] * self.continent_scales_x[self.c]
-          self.pos[4] = self.pos[4] * self.continent_scales_y[self.c]
-          for i, n in ipairs(self.pos[1]) do
-            if not n.x then
-              for i, j in pairs(n) do self:TextOut("[%q]=%s %s", i, type(j), tostring(j) or "???") end
-              assert(false)
+          if not self.target then
+            self.pos[3], self.pos[4] = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)
+            assert(self.pos[3])
+            assert(self.pos[4])
+            self.pos[1] = self.zone_nodes[self.i]
+            self.pos[3] = self.pos[3] * self.continent_scales_x[self.c]
+            self.pos[4] = self.pos[4] * self.continent_scales_y[self.c]
+            for i, n in ipairs(self.pos[1]) do
+              if not n.x then
+                for i, j in pairs(n) do self:TextOut("[%q]=%s %s", i, type(j), tostring(j) or "???") end
+                assert(false)
+              end
+              local a, b = n.x-self.pos[3], n.y-self.pos[4]
+              self.pos[2][i] = math.sqrt(a*a+b*b)
             end
-            local a, b = n.x-self.pos[3], n.y-self.pos[4]
-            self.pos[2][i] = math.sqrt(a*a+b*b)
           end
         end
       end
-    end
 
-    if self.target then
-      self.pos[1], self.pos[3], self.pos[4] = self.target[1], self.target[3], self.target[4]
-      local extra_time = math.max(0, self.target_time-time())
-      for i in ipairs(self.pos[1]) do
-        self.pos[2][i] = self.target[2][i]+extra_time
+      if self.target then
+        self.pos[1], self.pos[3], self.pos[4] = self.target[1], self.target[3], self.target[4]
+        local extra_time = math.max(0, self.target_time-time())
+        for i in ipairs(self.pos[1]) do
+          self.pos[2][i] = self.target[2][i]+extra_time
+        end
       end
     end
 
@@ -713,10 +715,7 @@ function QuestHelper:OnUpdate()
         self:ScanQuestLog()
       end
 
-      if coroutine.status(self.update_route) ~= "dead" then
-        local state, err = coroutine.resume(self.update_route, self)
-        if not state then self:TextOut("|cffff0000The routing co-routine just exploded|r: |cffffff77"..err.."|r") end
-      end
+      self:RunCoroutine()
     end
 
     local level = UnitLevel("player")

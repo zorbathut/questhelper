@@ -459,6 +459,8 @@ function QuestHelper:buildFlightTimes()
           end
         end end
       end
+
+      self:yieldIfNeeded()
     end
   end
   
@@ -587,7 +589,8 @@ function QuestHelper:taxiMapOpened()
     self:TextOut(QHText("ROUTES_CHANGED"))
     self:TextOut(QHText("WILL_RESET_PATH"))
     self.defered_graph_reset = true
-    self:buildFlightTimes()
+    self.defered_flight_times = true
+    --self:buildFlightTimes()
   end
 end
 
