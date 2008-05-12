@@ -2,6 +2,17 @@ QuestHelper_File["menu.lua"] = "Development Version"
 
 QuestHelper.active_menu = nil
 
+local menuBorderInset = 4
+local menuBackdrop = {
+    bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+    edgeSize = 16,
+    tile = true,
+    tileSize = 16,
+    insets = { left = menuBorderInset, right = menuBorderInset, top = menuBorderInset, bottom = menuBorderInset }}
+local menuBackdropColor = { 0, 0, 0, 0.65 }
+local menuBackdropBorderColor = { 1, 1, 1, 0.7 }
+
 local function Menu_AddItem(self, item)
   item:ClearAllPoints()
   item:SetParent(self)
@@ -52,10 +63,10 @@ local function Menu_DoShow(self)
     h = h + ch
   end
   
-  local y = 0
+  local y = menuBorderInset
   
-  self:SetWidth(w)
-  self:SetHeight(h)
+  self:SetWidth(w+2*menuBorderInset)
+  self:SetHeight(h+2*menuBorderInset)
   self:Show()
   self:SetScript("OnUpdate", self.OnUpdate)
   
@@ -63,7 +74,7 @@ local function Menu_DoShow(self)
     local cw, ch = c:GetSize()
     c:ClearAllPoints()
     c:SetSize(w, ch)
-    c:SetPoint("TOPLEFT", self, "TOPLEFT", 0, -y)
+    c:SetPoint("TOPLEFT", self, "TOPLEFT", menuBorderInset, -y)
     y = y + ch
   end
   
@@ -135,6 +146,7 @@ local function Menu_ShowAtCursor(self, auto_release)
   QuestHelper.active_menu = self
 end
 
+
 function QuestHelper:CreateMenu()
   local menu = self:CreateFrame(UIParent)
   menu:Hide()
@@ -142,6 +154,9 @@ function QuestHelper:CreateMenu()
   menu.items = self:CreateTable()
   menu:SetMovable(true)
   menu:SetFrameStrata("TOOLTIP") -- A good default, but we usually re-parent the menus, which clobbers this.
+  menu:SetBackdrop(menuBackdrop)
+  menu:SetBackdropColor(unpack(menuBackdropColor))
+  menu:SetBackdropBorderColor(unpack(menuBackdropBorderColor))
   
   menu.AddItem = Menu_AddItem
   menu.SetCloseFunction = Menu_SetCloseFunction
