@@ -104,7 +104,7 @@ function QuestHelper:ReleaseFrame(frame)
   frame:SetMovable(false)
   frame:RegisterForDrag()
   frame:RegisterForClicks()
-  frame:SetBackdrop()
+  frame:SetBackdrop(nil)
   frame:SetScale(1)
   frame:SetAlpha(1)
   
