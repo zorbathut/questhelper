@@ -286,7 +286,7 @@ function QuestHelper:CreateAndAddStaticNodePair(data)
     node2:Link(node1, data[3])
   end
   
-  self:yieldIfNeeded()
+  self:yieldIfNeeded(0.1)
   return node1, node2
 end
 
@@ -417,12 +417,12 @@ function QuestHelper:CreateAndAddTransitionNode(z1, z2, pos)
     if not z2_has then table.insert(z2, closest) end
     
     self.world_graph:DestroyNode(node)
-    self:yieldIfNeeded()
+    self:yieldIfNeeded(0.2)
     return closest
   else
     table.insert(z1, node)
     if z1 ~= z2 then table.insert(z2, node) end
-    self:yieldIfNeeded()
+    self:yieldIfNeeded(0.1)
     return node
   end
 end
@@ -445,12 +445,13 @@ function QuestHelper:ReleaseObjectivePathingInfo(o)
     self:ReleaseTable(o.nm)
     self:ReleaseTable(o.nm2)
     self:ReleaseTable(o.nl)
-
-    for k, v in pairs(o.distance_cache) do
+    
+    local cache = o.distance_cache
+    for k, v in pairs(cache) do
       self:ReleaseTable(v)
-      o.distance_cache[k] = nil
+      cache[k] = nil
     end
-    self:ReleaseTable(o.distance_cache)
+    self:ReleaseTable(cache)
     
     o.d, o.p, o.nm, o.nm2, o.nl = nil, nil, nil, nil, nil
     o.distance_cache = nil
@@ -544,16 +545,8 @@ function QuestHelper:ResetPathing()
       table.remove(self.prepared_objectives, i)
       self:ReleaseObjectivePathingInfo(o)
     else
-      if o.pos then
-        o.old_pos = self:CreateTable()
-        o.old_pos[1], o.old_pos[2], o.old_pos[3] = o.pos[1].c, o.pos[3], o.pos[4]
-      end
-      
-      if o.sop then
-        o.old_sop = self:CreateTable()
-        o.old_sop[1], o.old_sop[2], o.old_sop[3] = o.sop[1].c, o.sop[3], o.sop[4]
-      end
-      
+      -- Routing should reset the positions of objectives in the route after the reset is complete.
+      o.pos = nil
       self:ReleaseObjectivePathingInfo(o)
       i = i + 1
     end
@@ -580,7 +573,7 @@ function QuestHelper:ResetPathing()
   end
   
   self.world_graph:Reset()
-  self:yieldIfNeeded()
+  self:yieldIfNeeded(0.1)
   
   local continent_scales_x, continent_scales_y = self.continent_scales_x, self.continent_scales_y
   if not continent_scales_x then
@@ -612,7 +605,7 @@ function QuestHelper:ResetPathing()
   end
   
   self:SetupTeleportInfo(self.teleport_info, true)
-  self:yieldIfNeeded()
+  self:yieldIfNeeded(0.1)
   
   --[[for node, info in pairs(self.teleport_info.node) do
     self:TextOut("You can teleport to "..(node.name or "nil").. " in "..self:TimeString(info[1]+info[2]-GetTime()))
@@ -688,7 +681,7 @@ function QuestHelper:ResetPathing()
         end
       end
     end
-    self:yieldIfNeeded()
+    self:yieldIfNeeded(0.1)
   end
   
   -- id_from, id_to, and id_local will be used in determining whether there is a point to linking nodes together.
@@ -733,7 +726,7 @@ function QuestHelper:ResetPathing()
     end
   end
   
-  self:yieldIfNeeded()
+  self:yieldIfNeeded(0.1)
 
   -- We don't need to know where the nodes can go or come from now.
   for i, n in ipairs(self.world_graph.nodes) do
@@ -753,7 +746,7 @@ function QuestHelper:ResetPathing()
     end
   end
   
-  self:yieldIfNeeded()
+  self:yieldIfNeeded(0.1)
   -- self.world_graph:SanityCheck()
   
   -- Remove objectives again, since we created some for the flight masters.
@@ -783,53 +776,6 @@ function QuestHelper:ResetPathing()
       obj.distance_cache = QuestHelper:CreateTable()
       obj:AppendPositions(obj, 1, nil)
       obj:FinishAddLoc()
-      
-      -- Make sure the objectives still contain the positions set by routing.
-      -- The might have shifted slightly, but there's not much I can do about that.
-      
-      if obj.old_pos then
-        local p, d = nil, 0
-        
-        for z, pl in pairs(obj.p) do
-          for i, point in ipairs(pl) do
-            if obj.old_pos[1] == point[1].c then
-              local x, y = obj.old_pos[2]-point[3], obj.old_pos[3]-point[4]
-              local d2 = x*x+y*y
-              if not p or d2 < d then
-                p, d = point, d2
-              end
-            end
-          end
-        end
-        
-        assert(p)
-        
-        obj.pos = p
-        self:ReleaseTable(obj.old_pos)
-        obj.old_pos = nil
-      end
-      
-      if obj.old_sop then
-        local p, d = nil, 0
-        
-        for z, pl in pairs(obj.p) do
-          for i, point in ipairs(pl) do
-            if obj.old_sop[1] == point[1].c then
-              local x, y = obj.old_sop[2]-point[3], obj.old_sop[3]-point[4]
-              local d2 = x*x+y*y
-              if not p or d2 < d then
-                p, d = point, d2
-              end
-            end
-          end
-        end
-        
-        assert(p)
-        
-        obj.sop = p
-        self:ReleaseTable(obj.old_sop)
-        obj.old_sop = nil
-      end
     end
   end
   

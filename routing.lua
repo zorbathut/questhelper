@@ -1,23 +1,32 @@
 QuestHelper_File["routing.lua"] = "Development Version"
 
-local call_count = 0
+local work_done = 0
 local route_pass = 0
 local coroutine_running = false
 
-local refine_limit = 1.0e-8      -- Margin by which a new result must be better before we use it, to reduce noise
-
-function QuestHelper:yieldIfNeeded()
-  -- Make sure we yield every so often.
-  if not coroutine_running then
-    return
-  elseif QuestHelper_Pref.hide then
-    -- When QuestHelper is hidden, the routing becomes a background task
-    coroutine.yield()
-  elseif call_count <= 0 then
-    call_count = call_count + 10 * QuestHelper_Pref.perf_scale * ((route_pass > 0) and 5 or 1)
-    coroutine.yield()
-  else
-    call_count = call_count - 1
+function QuestHelper:yieldIfNeeded(work)
+  if coroutine_running then
+    -- Under normal circemstances, this will need to be called an average of 10 times
+    -- for every unit of work done.
+    
+    -- I consider a call to TravelTime2 to be worth one unit of work.
+    -- I consider TravelTime to be worth .5 units.
+    -- I consider ComputeTravelTime to be worth .3 units of work.
+    
+    -- That's just as a rough guide, they depend greatly on where the positions are,
+    -- and I'm happy enough to just fudge it.
+    
+    work_done = work_done + work
+                  / QuestHelper_Pref.perf_scale -- Scale work done by global preference.
+                  * (QuestHelper_Pref.hide and 5 or 1) -- If hidden, work is overvalued.
+                  * ((route_pass > 0) and 0.02 or .1) -- average 50 calls per work unit if forced, 10 calls per unit otherwise.
+    
+    -- If lots of work is done, we will yeild multiple times in succession
+    -- to maintain the average.
+    while work_done >= 1 do
+      work_done = work_done - 1
+      coroutine.yield()
+    end
   end
 end
 
@@ -34,10 +43,38 @@ local function CalcObjectivePriority(obj)
   return priority
 end
 
-function CalcObjectiveIJ(route, obj)
+local Route = {}
+Route.__index = Route
+
+--[[function Route:sanity()
+  local len = #self
+  local distance = 0
+  
+  for i = 1,len-1 do
+    distance = distance + self[i].len
+  end
+  
+  assert(math.abs(self.distance-distance) < 0.000000001, "Distance error: "..(self.distance-distance))
+  
+  for i = 1,len do
+    assert(self.index[self[i].obj] == i, i.."/"..#self..": Bad index")
+    assert(self[i].pos == self[i].obj.position, i.."/"..#self..": Bad location")
+  end
+  
+  for obj, i in pairs(self.index) do
+    assert(self[i].obj == obj, "Extra index.")
+  end
+  
+  for i = 1,len-1 do
+    assert(math.abs(self[i].len - QuestHelper:ComputeTravelTime(self[i].pos, self[i+1].pos)) < 0.000001, i.."/"..#self..": Bad length")
+  end
+end--]]
+
+function Route:findObjectiveRange(obj)
   local i = 1
   
-  for p, o in ipairs(route) do
+  for p, info in ipairs(self) do
+    local o = info.obj
     if obj.real_priority > o.real_priority or obj.after[o] then
       i = p+1
     elseif obj.real_priority < o.real_priority or obj.before[o] then
@@ -45,465 +82,444 @@ function CalcObjectiveIJ(route, obj)
     end
   end
   
-  return i, #route+1
+  return i, #self+1
 end
 
--------------------------------------------------------------------------------
--- PreRemoveIndexFromRoute: Figure out what things will look like if we remove the
--- specified item, but don't remove it.
-function QuestHelper:PreRemoveIndexFromRoute(array, distance, extra, index)
-  local skip = 0    -- Revised from prior node to next node, skipping this one
+function Route:addObjective(obj)
+  --self:sanity()
+  
+  local indexes = self.index
+  local len = #self
+  local info = QuestHelper:CreateTable()
+  assert(not indexes[obj])
+  
+  info.obj = obj
+  
+  if len == 0 then
+    self[1] = info
+    indexes[obj] = 1
+    info.pos = obj.location
+    return 1
+  end
+  
+  local player_pos = QuestHelper.pos
+  local pos = obj.location
+  local c, x, y = pos[1].c, pos[3], pos[4]
+  
+  local mn, mx = self:findObjectiveRange(obj)
+  local index, distsqr
+  
+  for i = mn, math.min(mx, len) do
+    local p = self[i].pos
+    if c == p[1].c then
+      local u, v = p[3]-x, p[4]-y
+      local d2 = u*u+v*v
+      if not index or d2 < distsqr then
+        index, distsqr = i, d2
+      end
+    end
+  end
+  
+  if not index then
+    -- No nodes with the same continent already.
+    -- If the same continent as the player, add to start of list, otherwise add to end of the list.
+    index = c == player_pos[1].c and mn or mx
+  end
+  
+  -- The next question, do I insert at that point, or do I insert after it?
+  if index ~= mx and index <= len then
+    local p1 = self[index].pos
+    
+    if p1[1].c == c then
+      local p0
+      
+      if index == 1 then
+        p0 = player_pos
+      else
+        p0 = self[index-1].pos
+      end
+      
+      local oldstart, newstart
+      
+      if p0[1].c == c then
+        local u, v = p0[3]-x, p0[4]-y
+        newstart = math.sqrt(u*u+v*v)
+        u, v = p0[3]-p1[3], p0[4]-p1[4]
+        oldstart = math.sqrt(u*u+v*v)
+      else
+        newstart = 0
+        oldstart = 0
+      end
+      
+      local p2
+      if index ~= len then
+        p2 = self[index+1].pos
+      end
+      
+      local oldend, newend
+      if p2 and p2[1].c == c then
+        local u, v = p2[3]-x, p2[4]-y
+        newend = math.sqrt(u*u+v*v)
+        u, v = p2[3]-p1[3], p2[4]-p1[4]
+        oldend = math.sqrt(u*u+v*v)
+      else
+        newend = 0
+        oldend = 0
+      end
+      
+      if oldstart+newend < newstart+oldend then
+        index = index + 1
+      end
+      
+    end
+  end
+  
+  QuestHelper:yieldIfNeeded((mn-mx+3)*0.05) -- The above checks don't require much effort.
+  
+  if index > len then
+    local pos = obj.location
+    info.pos = pos
+    local previnfo = self[index-1]
+    assert(previnfo)
+    local d
+    d, previnfo.pos = previnfo.obj:TravelTime(pos)
+    previnfo.len = d
+    self.distance = self.distance + d
+    QuestHelper:yieldIfNeeded(0.5)
+  else
+    local d1, d2
+    
+    if index == 1 then
+      d1, d2, info.pos = obj:TravelTime2(QuestHelper.pos, self[index].pos)
+      info.len = d2
+      self.distance = self.distance + d2
+    else
+      local previnfo = self[index-1]
+      d1, d2, info.pos = obj:TravelTime2(previnfo.pos, self[index].pos)
+      info.len = d2
+      self.distance = self.distance + (d1 - previnfo.len + d2)
+      previnfo.len = d1
+    end
+    
+    QuestHelper:yieldIfNeeded(1)
+  end
+  
+  -- Finally, insert the objective.
+  table.insert(self, index, info)
+  indexes[obj] = index
+  
+  -- Fix indexes of shifted elements.
+  for i = index+1,#self do
+    local obj = self[i].obj
+    assert(indexes[obj] == i-1)
+    indexes[obj] = i
+  end
+  
+  --self:sanity()
+  
+  return index
+end
 
-  if #array == 1 then
-    distance = 0
-    extra = 0
+function Route:removeObjective(obj)
+  --self:sanity()
+  
+  local indexes = self.index
+  local index = indexes[obj]
+  
+  assert(index)
+  local info = self[index]
+  assert(info.obj == obj)
+  
+  if index == #self then
+    if index ~= 1 then
+      self.distance = self.distance - self[index-1].len
+      self[index-1].len = nil
+    else
+    end
   elseif index == 1 then
-    distance = distance - array[1].len
-    extra = self:ComputeTravelTime(self.pos, array[2].pos, --[[nocache=]] true)
-    self:yieldIfNeeded()
-  elseif index == #array then
-    distance = distance - array[index-1].len
+    self.distance = self.distance - info.len
   else
-    local a, b = array[index-1], array[index]
-    distance = distance - a.len - b.len
-    skip = self:ComputeTravelTime(a.pos, array[index+1].pos)
-    self:yieldIfNeeded()
-    distance = distance + skip
+    local info1 = self[index-1]
+    local d
+    d, info1.pos = info1.obj:TravelTime(self[index+1].pos, true)
+    self.distance = self.distance + (d - info1.len - info.len)
+    info1.len = d
+    QuestHelper:yieldIfNeeded(.5)
   end
-
-  return distance, extra, skip
+  
+  QuestHelper:ReleaseTable(info)
+  indexes[obj] = nil
+  table.remove(self, index)
+  
+  if index ~= 1 then
+    local info1 = self[index-1]
+    
+    if index <= #self then
+      local len
+    else
+    end
+  end
+  
+  for i = index,#self do
+    -- Fix indexes of shifted elements.
+    local obj = self[i].obj
+    indexes[obj] = indexes[obj]-1
+  end
+  
+  --self:sanity()
+  
+  return index
 end
 
-function QuestHelper:RemoveIndexFromRoute(array, distance, extra, index)
-  local skip
-
-  distance, extra, skip = self:PreRemoveIndexFromRoute(array, distance, extra, index)
-
-  if index > 1 then
-    array[index - 1].len = skip
+local seen = {}
+function Route:breed(route_map)
+  local indexes = self.index
+  
+  local p1, p2 = nil
+  local f1, f2 = nil
+  
+  for r in pairs(route_map) do
+    local f = r.fitness*math.random()
+    if not p1 then
+      p1, f1 = r, f
+    elseif not p2 then
+      if f > f1 then
+        p2, f2 = r, f
+      else
+        p1, f1, p2, f2 = r, f, p1, f1
+      end
+    elseif f > f2 then
+      p1, f1, p2, f2 = p2, f2, r, f
+    elseif f > f1 then
+      p1, f1 = r, f
+    end
   end
-
-  table.remove(array, index)
-
-  return distance, extra
+  
+  if math.random() > 0.5 then
+    p1, p2 = p2, p1
+  end
+  
+  local len = #self
+  assert(len > 1)
+  
+  local i = math.random(1,len)
+  local j = i+math.floor((len-2)*(math.random()*.5+.4))
+  
+  if j > len then j = j - len end
+  
+  local input = i+math.floor(0.5+math.random()^2*len-math.random()^2*len)
+  
+  if input < 1 then
+    input = input + len
+  elseif input > len then
+    input = input - len
+  end
+  
+  if i > j then
+    -- Keeping edges.
+    for p = i,len do
+      local info = p1[p]
+      local obj = info.obj
+      assert(not seen[obj])
+      
+      seen[obj] = info.pos
+      indexes[obj] = p
+    end
+    
+    for p = 1,j do
+      local info = p1[p]
+      local obj = info.obj
+      assert(not seen[obj])
+      
+      seen[obj] = info.pos
+      indexes[obj] = p
+    end
+    
+    for p = j+1,i-1 do
+      if input > len then input = 1 end
+      local info = p2[input]
+      local obj = info.obj
+      
+      while seen[obj] do
+        input = input + 1
+        if input > len then input = 1 end
+        info = p2[input]
+        obj = info.obj
+      end
+      
+      seen[obj] = info.pos
+      indexes[obj] = p
+      input = input + 1
+    end
+  else
+    -- Keeping center
+    for p = i,j do
+      local info = p1[p]
+      local obj = info.obj
+      seen[obj] = info.pos
+      indexes[obj] = p
+    end
+    
+    for p = 1,i-1 do
+      if input > len then input = 1 end
+      local info = p2[input]
+      local obj = info.obj
+      
+      while seen[obj] do
+        input = input + 1
+        if input > len then input = 1 end
+        info = p2[input]
+        obj = info.obj
+      end
+      
+      seen[obj] = info.pos
+      indexes[obj] = p
+      input = input + 1
+    end
+    
+    for p = j+1,len do
+      if input > len then input = 1 end
+      local info = p2[input]
+      local obj = info.obj
+      
+      while seen[obj] do
+        input = input + 1
+        if input > len then input = 1 end
+        info = p2[input]
+        obj = info.obj
+      end
+      
+      seen[obj] = info.pos
+      indexes[obj] = p
+      input = input + 1
+    end
+  end
+  
+  for obj, index in pairs(indexes) do
+    local info = self[index]
+    info.obj = obj
+    info.pos = seen[obj]
+    seen[obj] = nil
+  end
+  
+  local i = 1
+  while i <= #self do
+    -- Make sure all the objectives have valid positions in the list.
+    local info = self[i]
+    local mn, mx = self:findObjectiveRange(info.obj)
+    if i < mn then
+      table.insert(self, mn, info)
+      table.remove(self, i)
+    elseif i > mx then
+      table.remove(self, i)
+      table.insert(self, mx, info)
+    else
+      i = i + 1
+    end
+  end
+  
+  local distance = 0
+  local next_info = self[2]
+  local prev_info = self[1]
+  local next_pos = next_info.pos
+  local prev_pos = QuestHelper.pos
+  
+  QuestHelper:yieldIfNeeded(len*0.02)
+  
+  prev_info.len, prev_pos = select(2, prev_info.obj:TravelTime2(QuestHelper.pos, next_pos, false))
+  QuestHelper:yieldIfNeeded(1)
+  
+  prev_info.pos = prev_pos
+  
+  indexes[self[1].obj] = 1
+  indexes[self[len].obj] = len
+  
+  for i = 2, len-1 do
+    local d1, d2
+    local info = next_info
+    local pos = next_pos
+    next_info = self[i+1]
+    next_pos = next_info.pos
+    
+    indexes[info.obj] = i
+    
+    d1, d2, pos = info.obj:TravelTime2(prev_pos, next_pos, true)
+    QuestHelper:yieldIfNeeded(1)
+    
+    prev_info.len = d1
+    info.len = d2
+    prev_info = info
+    prev_pos = pos
+    info.pos = pos
+    distance = distance + d1
+  end
+  
+  self.distance = distance + prev_info.len
+  
+  --self:sanity()
 end
 
-function QuestHelper:InsertObjectiveIntoRoute(array, distance, extra, objective, old_index)
-  -- array     - Contains the path you want to insert into.
-  -- distance  - How long is the path so far?
-  -- extra     - How far is it from the player to the first node?
-  -- objective - Where are we trying to get to?
-  -- old_index - Where was this item before (assuming we're trying to re-evaluate the item's position)
-  
-  -- In addition, objective needs i and j set, for the min and max indexes it can be inserted into.
-  
-  -- Returns:
-  -- index    - The index the node was inserted into (even if unchanged)
-  -- distance - The new length of the path.
-  -- extra    - The new distance from the first node to the player.
-  
-  assert(objective)
-
-  if #array == 0 then
-    extra, objective.pos = objective:TravelTime(self.pos, --[[nocache=]]true)
-    self:yieldIfNeeded()
-    table.insert(array, 1, objective)
-    return 1, 0, extra
+function Route:pathResetBegin()
+  for i, info in ipairs(self) do
+    local pos = info.pos
+    info[1], info[2], info[3] = pos[1].c, pos[3], pos[4]
   end
-  
-  local best_index, best_extra, best_total, best_len1, best_len2, bp, skip_len
-  local orig_distance, orig_extra = distance, extra
+end
 
-  if old_index > 0 then
-    assert(objective == array[old_index], "objective ~= array[old_index]")
-
-    -- We're considering a move, so evaluate what things would look like without this objective
-    distance, extra, skip_len = self:PreRemoveIndexFromRoute(array, distance, extra, old_index)
-  end
-
-  local low, high = CalcObjectiveIJ(array, objective)
-
-  local total = distance+extra
-
-  if old_index >= low and old_index <= high then
-    -- If we're evaluating the possibility of a new position, then our current info is the best so far
-    -- But if the priority was just changed, then we'll most definately be moving it, so don't bother with this.
-    best_total, best_extra, best_index = orig_distance+orig_extra, extra, old_index
-
-    local l1, l2, p
-
-    -- Before we continue, check if this point is actually even better than we thought;
-    -- if items around it moved, we might be able to use a better location for this objective
-    if old_index == 1 then
-      best_len1 = extra
-      if #array == 1 then
-        l1, p = objective:TravelTime(self.pos, --[[nocache=]] true)
-        l2 = 0
-      else
-        l1, l2, p = objective:TravelTime2(self.pos, array[2].pos, --[[nocache=]] true)
-      end
-      low = 3       -- Skip the item we're considering moving; we don't want to try to insert before or after it.
-    else
-      best_len1 = array[old_index-1].len
-      low = low - 1     -- The loop below assumes the first location has been checked, but instead we used the old values
-      if old_index == #array then
-        l1, p = objective:TravelTime(array[old_index-1].pos)
-        l2 = 0
-      else
-        l1, l2, p = objective:TravelTime2(array[old_index-1].pos, array[old_index+1].pos)
-      end
-    end
-    self:yieldIfNeeded()
-
-    local d = total - skip_len + l1 + l2
-    if (d + refine_limit) < best_total then
-      -- Remember the revised values
-      best_total = d
-      bp = p
-      best_len2 = l2
-      if old_index > 1 then
-        best_len1 = l1
-      else
-        best_len1 = 0
-        best_extra = l1
-      end
-    else
-      -- OK, we can't make this position any better, so the current stats are the best
-      best_len2, bp = objective.len, objective.pos
-      best_len1 = old_index == 1 and 0 or array[old_index - 1].len
-    end
-    assert(bp)
-  elseif low == 1 then
-    best_index = 1
-    best_extra, best_len2, bp = objective:TravelTime2(self.pos, array[1].pos, --[[nocache=]]true)
-    best_total = best_extra+distance+best_len2
-  elseif low == #array+1 then
-    local o = array[#array]
-    o.len, objective.pos = objective:TravelTime(array[#array].pos)
-    self:yieldIfNeeded()
-    if old_index > 0 then table.remove(array, old_index) end
-    table.insert(array, objective)
-    return #array, distance+o.len, extra
-  else
-    local a = array[low-1]
-    best_index = low
-    best_len1, best_len2, bp = objective:TravelTime2(a.pos, array[low].pos)
-    best_extra = extra
-    best_total = distance - a.len + best_len1 + best_len2 + extra
-    self:yieldIfNeeded()
-  end
-  
-  do
-    -- This really is a for loop, but I broke it out for more control
-    local i, limit = low+1, math.min(#array, high)
-    while i < limit do
-      if i == old_index then
-        -- Don't try to insert the item before OR after itself
-        i = i + 2
-      else
-        local l1, l2, p, d
-        if i > 1 then
-          local a = array[i-1]
-          l1, l2, p = objective:TravelTime2(a.pos, array[i].pos)
-          d = total - a.len + l1 + l2
-        else
-          l1, l2, p = objective:TravelTime2(self.pos, array[i].pos)
-          d = total + l1 + l2
+function Route:pathResetEnd()
+  for i, info in ipairs(self) do
+    -- Try to find a new position for this objective, near where we had it originally.
+    local p, d = nil, 0
+    
+    local a, b, c = info[1], info[2], info[3]
+    
+    for z, pl in pairs(info.obj.p) do
+      for i, point in ipairs(pl) do
+        if a == point[1].c then
+          local x, y = b-point[3], c-point[4]
+          local d2 = x*x+y*y
+          if not p or d2 < d then
+            p, d = point, d2
+          end
         end
-        if (d + refine_limit) < best_total then
-          -- This spot is the best we've seen so far
-          bp = p
-          best_len1 = l1
-          best_len2 = l2
-          best_extra = (i == 1) and l1 or extra
-          best_total = d
-          best_index = i
-        end
-        self:yieldIfNeeded()
-        i = i + 1
-      end
-    end
-  end
-  
-  if high == #array+1 and old_index ~= #array then
-    -- Special case: consider adding item at the end (but only if it wasn't there already)
-    local l1, p = objective:TravelTime(array[#array].pos)
-    self:yieldIfNeeded()
-    local d = total + l1
-    if (d + refine_limit) < best_total then
-      if old_index > 0 then
-        -- We're moving this item to the end; need to delete it from its current location
-        table.remove(array, old_index)
-        if old_index > 1 then
-          array[old_index-1].len = skip_len
-        end
-      end
-      objective.pos = p
-      array[#array].len = l1
-      table.insert(array, objective)
-      return #array, d-extra, extra
-    end
-  end
-  
-if best_index ~= old_index then
-    if old_index > 0 then
-      -- It moved, so we'd better remove it
-      table.remove(array, old_index)
-      if old_index > 1 then
-        array[old_index-1].len = skip_len
-      end
-      if best_index > old_index then
-        best_index = best_index - 1
       end
     end
     
-    table.insert(array, best_index, objective)
-  end
-
-  assert(bp)
-  objective.pos = bp
-  objective.len = best_len2
-  if best_index > 1 then array[best_index-1].len = best_len1 end
-  assert(array[best_index] == objective)
-  
-  return best_index, best_total-best_extra, best_extra
-end
-
-
-function QuestHelper:PreRemoveIndexFromRouteSOP(array, distance, extra, index)
-  local skip = 0    -- Revised from prior node to next node, skipping this one
-
-  if #array == 1 then
-    distance = 0
-    extra = 0
-  elseif index == 1 then
-    distance = distance - array[1].nel
-    extra = self:ComputeTravelTime(self.pos, array[2].sop, --[[nocache=]] true)
-    self:yieldIfNeeded()
-  elseif index == #array then
-    distance = distance - array[index-1].nel
-  else
-    local a, b = array[index-1], array[index]
-    distance = distance - a.nel - b.nel
-    skip = self:ComputeTravelTime(a.sop, array[index+1].sop)
-    distance = distance + skip
-    self:yieldIfNeeded()
-  end
-  
-  return distance, extra, skip
-end
-
-function QuestHelper:RemoveIndexFromRouteSOP(array, distance, extra, index)
-  local skip
-
-  distance, extra, skip = self:PreRemoveIndexFromRouteSOP(array, distance, extra, index)
-
-  if index > 1 then
-    array[index - 1].nel = skip
-  end
-
-  table.remove(array, index)
-
-  return distance, extra
-end
-
-function QuestHelper:InsertObjectiveIntoRouteSOP(array, distance, extra, objective, old_index)
-  -- array     - Contains the path you want to insert into.
-  -- distance  - How long is the path so far?
-  -- extra     - How far is it from the player to the first node?
-  -- objective - Where are we trying to get to?
-  -- old_index - Where was this item before (assuming we're trying to re-evaluate the item's position)
-  
-  -- In addition, objective needs i and j set, for the min and max indexes it can be inserted into.
-  
-  -- Returns:
-  -- index    - The index to inserted into.
-  -- distance - The new length of the path.
-  -- extra    - The new distance from the first node to the player.
-  
-  assert(objective)
-
-  if #array == 0 then
-    extra, objective.sop = objective:TravelTime(self.pos, --[[nocache=]]true)
-    self:yieldIfNeeded()
-    table.insert(array, 1, objective)
-    return 1, 0, extra
-  end
-  
-  local best_index, best_extra, best_total, best_len1, best_len2, bp, skip_len
-  local orig_distance, orig_extra = distance, extra
-
-  if old_index > 0 then
-    assert(objective == array[old_index], "objective ~= array[old_index]")
-
-    -- We're considering a move, so evaluate what things would look like without this objective
-    distance, extra, skip_len = self:PreRemoveIndexFromRouteSOP(array, distance, extra, old_index)
-  end
-
-  local low, high = CalcObjectiveIJ(array, objective)
-
-  local total = distance+extra
-
-  if old_index >= low and old_index <= high then
-    -- If we're evaluating the possibility of a new position, then our current info is the best so far
-    -- But if the priority was just changed, then we'll most definately be moving it, so don't bother with this.
-    best_total, best_extra, best_index = orig_distance+orig_extra, extra, old_index
-
-    local l1, l2, p
-
-    -- Before we continue, check if this point is actually even better than we thought;
-    -- if items around it moved, we might be able to use a better location for this objective
-    if old_index == 1 then
-      best_len1 = extra
-      if #array == 1 then
-        l1, p = objective:TravelTime(self.pos, --[[nocache=]] true)
-        l2 = 0
-      else
-        l1, l2, p = objective:TravelTime2(self.pos, array[2].sop, --[[nocache=]] true)
-      end
-      low = 3       -- Skip the item we're considering moving; we don't want to try to insert before or after it.
-    else
-      best_len1 = array[old_index-1].nel
-      low = low - 1     -- The loop below assumes the first location has been checked, but instead we used the old values
-      if old_index == #array then
-        l1, p = objective:TravelTime(array[old_index-1].sop)
-        l2 = 0
-      else
-        l1, l2, p = objective:TravelTime2(array[old_index-1].sop, array[old_index+1].sop)
-      end
-    end
-    self:yieldIfNeeded()
-
-    local d = total - skip_len + l1 + l2
-    if (d + refine_limit) < best_total then
-      -- Remember the revised values
-      best_total = d
-      bp = p
-      best_len2 = l2
-      if old_index > 1 then
-        best_len1 = l1
-      else
-        best_len1 = 0
-        best_extra = l1
-      end
-    else
-      -- OK, we can't make this position any better, so the current stats are the best
-      best_len2, bp = objective.nel, objective.sop
-      best_len1 = old_index == 1 and 0 or array[old_index - 1].nel
-    end
-    assert(bp)
-  elseif low == 1 then
-    best_index = 1
-    best_extra, best_len2, bp = objective:TravelTime2(self.pos, array[1].sop, --[[nocache=]]true)
-    best_total = best_extra+distance+best_len2
-    self:yieldIfNeeded()
-  elseif low == #array+1 then
-    local o = array[#array]
-    o.nel, objective.sop = objective:TravelTime(array[#array].sop)
-    self:yieldIfNeeded()
-    if old_index > 0 then table.remove(array, old_index) end
-    table.insert(array, objective)
-    return #array, distance+o.nel, extra
-  else
-    local a = array[low-1]
-    best_index = low
-    best_len1, best_len2, bp = objective:TravelTime2(a.sop, array[low].sop)
-    best_extra = extra
-    best_total = distance - a.nel + best_len1 + best_len2 + extra
-    self:yieldIfNeeded()
-  end
-  
-  local total = distance+extra
-  
-  do
-    -- This really is a for loop, but I broke it out for more control
-    local i, limit = low+1, math.min(#array, high)
-    while i < limit do
-      if i == old_index then
-        -- Don't try to insert the item before OR after itself
-        i = i + 2
-      else
-        local l1, l2, p, d
-        if i > 1 then
-          local a = array[i-1]
-          l1, l2, p = objective:TravelTime2(a.sop, array[i].sop)
-          d = total - a.nel + l1 + l2
-        else
-          l1, l2, p = objective:TravelTime2(self.pos, array[i].sop)
-          d = total + l1 + l2
-        end
-        if (d + refine_limit) < best_total then
-          -- This spot is the best we've seen so far
-          bp = p
-          best_len1 = l1
-          best_len2 = l2
-          best_extra = (i == 1) and l1 or extra
-          best_total = d
-          best_index = i
-        end
-        self:yieldIfNeeded()
-        i = i + 1
-      end
-    end
-  end
-  
-  if high == #array+1 and old_index ~= #array then
-    -- Special case: consider adding item at the end (but only if it wasn't there already)
-     local l1, p = objective:TravelTime(array[#array].sop)
-     self:yieldIfNeeded()
-     local d = total + l1
-    if (d + refine_limit) < best_total then
-      if old_index > 0 then
-        -- We're moving this item to the end; need to delete it from its current location
-        table.remove(array, old_index)
-        if old_index > 1 then
-          array[old_index-1].nel = skip_len
-        end
-      end
-      objective.sop = p
-      array[#array].nel = l1
-      table.insert(array, objective)
-      return #array, d-extra, extra
-    end
-  end
-  
-  if best_index ~= old_index then
-    if old_index > 0 then
-      -- It moved, so we'd better remove it
-      table.remove(array, old_index)
-      if old_index > 1 then
-        array[old_index-1].nel = skip_len
-      end
-      if best_index > old_index then
-        best_index = best_index - 1
-      end
-    end
+    -- Assuming that there will still be positions on the same continents as before, i.e., locations are only added and not removed.
+    assert(p)
     
-    table.insert(array, best_index, objective)
+    info.pos = p
   end
-
-  assert(bp)
-  objective.sop = bp
-  objective.nel = best_len2
-  if best_index > 1 then array[best_index-1].nel = best_len1 end
-  assert(array[best_index] == objective)
-  
-  return best_index, best_total-best_extra, best_extra
 end
-
-local map_walker
 
 local function RouteUpdateRoutine(self)
-  map_walker = self:CreateWorldMapWalker()
+  local map_walker = self:CreateWorldMapWalker()
   local minimap_dodad = self:CreateMipmapDodad()
-  local swap_table = {}
-  local distance, extra, route, new_distance, new_extra, new_route, shuffle, insert, point = 0, 0, self.route, 0, 0, {}, {}, 0, nil
-  local recheck_pos, new_recheck_pos, new_local_minima = 1, 99999, true
-  
   self.minimap_dodad = minimap_dodad
   
+  local add_swap = {}
+  local route = self.route
+  local to_add, to_remove = self.to_add, self.to_remove
+  
+  local routes = {}
+  
+  for i = 1,15 do -- Create some empty routes to use for our population.
+    routes[setmetatable({index={},distance=0}, Route)] = true
+  end
+  
+  -- All the routes are the same right now, so it doesn't matter which we're considering the best.
+  local best_route = next(routes)
+  
+  local recheck_position = 0
+  
   while true do
-    for i,o in ipairs(route) do
+    local changed = false
+    
+    if #route > 0 then
+      recheck_position = recheck_position + 1
+      if recheck_position > #route then recheck_position = 1 end
+      local o = route[recheck_position]
+      
       o.filter_zone = o.location[1] ~= self.pos[1]
       
       if not o:Known() then
@@ -512,11 +528,9 @@ local function RouteUpdateRoutine(self)
         -- This creates an inconsistancy, but it'll get fixed in the removal loop before anything has a chance to
         -- explode from it.
         
-        self.to_remove[o] = true
-        self.to_add[o] = true
+        to_remove[o] = true
+        to_add[o] = true
       else
-        CalcObjectivePriority(o)
-        
         if o.swap_before then
           self:ReleaseTable(o.before)
           o.before = o.swap_before
@@ -538,58 +552,70 @@ local function RouteUpdateRoutine(self)
             self:DoUnshareObjective(o)
           end
         end
+        
+        CalcObjectivePriority(o)
+        
+        local mn, mx = best_route:findObjectiveRange(o)
+        local old_index = best_route.index[o]
+        if old_index < mn or old_index > mx then
+          -- Make sure the objective in best_route is still in a valid position.
+          -- Won't worry about other routes, they should forced into valid configurations by breeding.
+          
+          best_route:removeObjective(o)
+          local new_index = best_route:addObjective(o)
+          
+          if old_index > new_index then
+            old_index, new_index = new_index, old_index
+          end
+          
+          for i = old_index, new_index do
+            local info = best_route[i]
+            local obj = info.obj
+            obj.pos = info.pos
+            route[i] = obj
+          end
+          
+          if old_index == 1 then
+            minimap_dodad:SetObjective(route[1])
+          end
+          
+          changed = true
+        end
       end
     end
     
-    local original_size = #route
-    
     -- Remove any waypoints if needed.
     while true do
-      local obj = next(self.to_remove)
+      local obj = next(to_remove)
       if not obj then break end
-      self.to_remove[obj] = nil
+      to_remove[obj] = nil
       
       if obj.is_sharing then
         obj.is_sharing = false
         self:DoUnshareObjective(obj)
       end
       
-      self:ReleaseTeleportInfo(obj.tele_pos)
-      self:ReleaseTeleportInfo(obj.tele_sop)
-      obj.tele_pos, obj.tele_sop = nil, nil
-      
-      for i, o in ipairs(route) do
-        if o == obj then
-          if i == 1 then
-            if #route == 1 then
-              minimap_dodad:SetObjective(nil)
-            else
-              minimap_dodad:SetObjective(route[2])
-            end
+      for r in pairs(routes) do
+        if r == best_route then
+          local index = r:removeObjective(obj)
+          table.remove(route, index)
+          if index == 1 then
+            minimap_dodad:SetObjective(route[1])
           end
-          
-          if recheck_pos > i then recheck_pos = recheck_pos - 1 end
-          
-          distance, extra = self:RemoveIndexFromRoute(route, distance, extra, i)
-          break
-        end
-      end
-      
-      for i, o in ipairs(new_route) do
-        if o == obj then
-          if new_recheck_pos > i then new_recheck_pos = new_recheck_pos - 1 end
-          new_distance, new_extra = self:RemoveIndexFromRouteSOP(new_route, new_distance, new_extra, i)
-          break
+        else
+          r:removeObjective(obj)
         end
       end
       
       obj:DoneRouting()
+      changed = true
     end
     
+    -- Add any waypoints if needed
     while true do
-      local obj = next(self.to_add)
+      local obj = next(to_add)
       if not obj then break end
-      self.to_add[obj] = nil
+      to_add[obj] = nil
       
       if obj:Known() then
         obj:PrepareRouting()
@@ -599,11 +625,8 @@ local function RouteUpdateRoutine(self)
         if obj.filter_zone and QuestHelper_Pref.filter_zone then
           -- Not going to add it, wrong zone.
           obj:DoneRouting()
-          swap_table[obj] = true
+          add_swap[obj] = true
         else
-          obj.tele_pos = self:CreateTeleportInfo()
-          obj.tele_sop = self:CreateTeleportInfo()
-          
           if not obj.is_sharing and obj.want_share then
             obj.is_sharing = true
             self:DoShareObjective(obj)
@@ -611,187 +634,143 @@ local function RouteUpdateRoutine(self)
           
           CalcObjectivePriority(obj)
           
-          if #route == 0 then
-            insert, distance, extra = self:InsertObjectiveIntoRoute(route, 0, 0, obj, 0)
-            insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, 0, 0, obj, 0)
-            
-            minimap_dodad:SetObjective(obj)
-          else
-            insert, distance, extra = self:InsertObjectiveIntoRoute(route, distance, extra, obj, 0)
-            
-            if insert == 1 then
-              minimap_dodad:SetObjective(obj)
+          for r in pairs(routes) do
+            if r == best_route then
+              local index = r:addObjective(obj)
+              obj.pos = r[index].pos
+              table.insert(route, index, obj)
+              if index == 1 then
+                minimap_dodad:SetObjective(route[1])
+              end
+            else
+              r:addObjective(obj)
             end
-            
-            insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, obj, 0)
           end
+          
+          changed = true
         end
       else
-        swap_table[obj] = true
+        add_swap[obj] = true
       end
     end
     
-    for obj in pairs(swap_table) do
+    for obj in pairs(add_swap) do
       -- If one of the objectives we were considering adding was removed, it would be in both lists.
       -- That would be bad. We can't remove it because we haven't actually added it yet, so
       -- handle that special case here.
-      if self.to_remove[obj] then
-        self.to_remove[obj] = nil
-        self.to_add[obj] = nil
+      if to_remove[obj] then
+        to_remove[obj] = nil
+        to_add[obj] = nil
+        add_swap[obj] = nil
       end
     end
     
-    self.to_add, swap_table = swap_table, self.to_add
+    to_add, add_swap = add_swap, to_add
+    self.to_add = to_add
     
-    -- If size decreased, all the old indexes need to be reset.
-    if #route < original_size then
-      for i=1,#route do
-        shuffle[i] = i
+    if #best_route > 1 then
+      -- If there is 2 or more objectives, randomly combine routes to (hopefully) create something better than we had before.
+      local best, max_fitness
+      local pos = self.pos
+      
+      for r in pairs(routes) do
+        local fit = 1/(self:ComputeTravelTime(pos, r[1].pos)+r.distance)
+        r.fitness = fit
+        if not best or fit > max_fitness then
+          best, max_fitness = r, fit
+        end
+        self:yieldIfNeeded(.3)
       end
-    end
-    
-    -- Append new indexes to shuffle.
-    for i=original_size+1,#route do
-      shuffle[i] = i
-    end
-    
-    if #route > 0 then
-      if recheck_pos > #route then recheck_pos = 1 end
-      if new_recheck_pos > #route then
-        new_recheck_pos = 1
-        if new_local_minima then
-          -- Start try something new, we can't seem to get what we have to be any better.
-          
-          for i=1,#route-1 do -- Shuffling the order we'll add the nodes in.
-            local r = math.random(i, #route)
-            if r ~= i then
-              shuffle[i], shuffle[r] = shuffle[r], shuffle[i]
-            end
-          end
-          
-          for i = #new_route, 1, -1 do new_route[i] = nil end
-          
-          point = route[shuffle[1]]
-          insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, 0, 0, point, 0)
-          
-          -- Insert the rest of the points.
-          for i=2,#route do
-            point = route[shuffle[i]]
-            
-            insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point, 0)
+      
+      local to_breed, score
+      
+      for r in pairs(routes) do
+        if r ~= best then
+          local s = math.random()*r.fitness
+          if not to_breed or s < score then
+            to_breed, score = r, s
           end
         end
-        new_local_minima = true
       end
       
-      point = route[recheck_pos]
-      insert, distance, extra = self:InsertObjectiveIntoRoute(route, distance, extra, point, recheck_pos)
+      to_breed:breed(routes)
       
-      if insert == 1 or recheck_pos == 1 then
-        minimap_dodad:SetObjective(route[1])
+      if 1/(self:ComputeTravelTime(pos, to_breed[1].pos)+to_breed.distance) > max_fitness then
+        best = to_breed
       end
       
-      point = new_route[new_recheck_pos]
-      insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point, new_recheck_pos)
+      self:yieldIfNeeded(.3)
       
-      if insert ~= new_recheck_pos then
-        new_local_minima = false
-      end
-      
-      recheck_pos = recheck_pos + 1
-      new_recheck_pos = new_recheck_pos + 1
-    end
-    
-    if new_distance+new_extra+0.001 < distance+extra then
-      for i, node in ipairs(route) do
-        node.len = node.nel
-        node.tele_pos, node.tele_sop = node.tele_sop, node.tele_pos
-        node.pos, node.sop = node.sop, node.pos
-      end
-      
-      route, new_route = new_route, route
-      distance, new_distance = new_distance, distance
-      extra, new_extra = new_extra, extra
-      
-      self.route = route
-      
-      minimap_dodad:SetObjective(route[1])
-      
-      for i=1,#route-1 do -- Shuffling the order we'll add the nodes in.
-        local r = math.random(i, #route)
-        if r ~= i then
-          shuffle[i], shuffle[r] = shuffle[r], shuffle[i]
+      if best ~= best_route then
+        best_route = best
+        
+        for i, info in ipairs(best) do
+          local obj = info.obj
+          obj.pos = info.pos
+          route[i] = obj
         end
+        
+        changed = true
       end
-      
-      for i = #new_route, 1, -1 do new_route[i] = nil end
-      
-      point = route[shuffle[1]]
-      insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, 0, 0, point, 0)
-      
-      -- Insert the rest of the points.
-      for i=2,#route do
-        point = route[shuffle[i]]
-        insert, new_distance, new_extra = self:InsertObjectiveIntoRouteSOP(new_route, new_distance, new_extra, point, 0)
-      end
-      
-      recheck_pos = new_recheck_pos
-      new_recheck_pos = 1
-      new_local_minima = true
     end
-    
-    -- Thats enough work for now, we'll continue next frame.
-    if route_pass > 0 then
-      route_pass = route_pass - 1
-    end
-    
-    map_walker:RouteChanged()
-    
-    call_count = 0
-    
-    self:SetupTeleportInfo(self.teleport_info)
     
     if self.defered_flight_times then
       self:buildFlightTimes()
       self.defered_flight_times = false
-      self:yieldIfNeeded()
+      assert(self.defered_graph_reset)
     end
-
+    
     if self.defered_graph_reset then
+      for r in pairs(routes) do
+        r:pathResetBegin()
+      end
+      
+      self:yieldIfNeeded(10)
       self.graph_in_limbo = true
       self:ResetPathing()
       self.graph_in_limbo = false
       self.defered_graph_reset = false
+      
+      for r in pairs(routes) do
+        r:pathResetEnd()
+      end
+      
+      for i, info in ipairs(best_route) do
+        local obj = info.obj
+        obj.pos = info.pos
+        route[i] = obj
+      end
+      
+      self:yieldIfNeeded(9)
     end
     
-    coroutine.yield()
+    if changed then
+      map_walker:RouteChanged()
+    end
+    
+    assert(#route == #best_route)
+    
+    if route_pass > 0 then
+      route_pass = route_pass - 1
+    end
+    
+    self:yieldIfNeeded(1)
   end
 end
 
+local update_route = coroutine.create(RouteUpdateRoutine)
+
 function QuestHelper:RunCoroutine()
-  if coroutine.status(self.update_route) ~= "dead" then
+  if coroutine.status(update_route) ~= "dead" then
     coroutine_running = true
-    local state, err = coroutine.resume(self.update_route, self)
+    local state, err = coroutine.resume(update_route, self)
     coroutine_running = false
-    if not state then self:TextOut("|cffff0000The routing co-routine just exploded|r: |cffffff77"..err.."|r") end
+    if not state then
+      self:TextOut("|cffff0000The routing co-routine just exploded|r: |cffffff77"..tostring(err).."|r")
+    end
   end
 end
 
 function QuestHelper:ForceRouteUpdate(passes)
-  route_pass = math.max(2, passes or 0)
---[[
-  while route_pass ~= 0 do
-    if coroutine.status(self.update_route) == "dead" then
-      break
-    end
-    
-    local state, err = coroutine.resume(self.update_route, self)
-    if not state then
-      self:TextOut("|cffff0000The routing co-routine just exploded|r: |cffffff77"..err.."|r")
-      break
-    end
-  end
---]]
+  route_pass = math.max(2, passes or 1)
 end
-
-QuestHelper.update_route = coroutine.create(RouteUpdateRoutine)

@@ -458,9 +458,8 @@ function QuestHelper:buildFlightTimes()
             end
           end
         end end
+        self:yieldIfNeeded(.1)
       end
-
-      self:yieldIfNeeded()
     end
   end
   
