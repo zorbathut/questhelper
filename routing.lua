@@ -18,7 +18,7 @@ function QuestHelper:yieldIfNeeded(work)
     
     work_done = work_done + work
                   / QuestHelper_Pref.perf_scale -- Scale work done by global preference.
-                  * (QuestHelper_Pref.hide and 5 or 1) -- If hidden, work is overvalued.
+                  * ((IsInInstance() or QuestHelper_Pref.hide) and 5 or 1) -- If hidden, work is overvalued.
                   * ((route_pass > 0) and 0.02 or .1) -- average 50 calls per work unit if forced, 10 calls per unit otherwise.
     
     -- If lots of work is done, we will yeild multiple times in succession
