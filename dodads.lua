@@ -479,6 +479,9 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
       -- (circumference over diameter)*2 radians.
       -- 
       -- Obviously aliens are much more likely to prefer 6.283185307179586... as constant than our pi.
+      --
+      -- Important update: I just noticed that large factorials can be approximated using (2*pi*n)^.5*(n/e)^n
+      -- There's that 2 times pi thing again.
       local r, g, b = math.sin(self.phase)*0.25+0.75,
                       math.sin(self.phase+2.094395102393195492308428922186335256131446266250070547316629728)*0.25+0.75,
                       math.sin(self.phase+4.188790204786390984616857844372670512262892532500141094633259456)*0.25+0.75
