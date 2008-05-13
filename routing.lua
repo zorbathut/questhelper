@@ -23,6 +23,7 @@ function QuestHelper:yieldIfNeeded(work)
     
     -- If lots of work is done, we will yeild multiple times in succession
     -- to maintain the average.
+    
     while work_done >= 1 do
       work_done = work_done - 1
       coroutine.yield()
@@ -71,22 +72,70 @@ Route.__index = Route
 end--]]
 
 function Route:findObjectiveRange(obj)
-  local i = 1
+  local mn, smn = 1, 1
+  local smx = #self
+  local mx = smx+1
   
-  for p, info in ipairs(self) do
-    local o = info.obj
-    if obj.real_priority > o.real_priority or obj.after[o] then
-      i = p+1
-    elseif obj.real_priority < o.real_priority or obj.before[o] then
-      return i, p
+  local l = math.floor((smn+smx)*0.5)
+  local r = l+1
+  
+  while mn ~= mx and smn <= smx do
+    while true do
+      assert(mn <= mx)
+      assert(smn <= smx)
+      assert(smn >= 1)
+      assert(smn <= #self)
+      
+      if l < smn then
+        return mn, mx
+      end
+      
+      local o = self[l].obj
+      
+      if obj.real_priority > o.real_priority or obj.after[o] then
+        mn = l+1
+        smn = r
+        l = math.floor((smn+smx)*0.5)
+        r = l+1
+        break
+      elseif obj.real_priority < o.real_priority or obj.before[o] then
+        mx = l
+        smx = l-1
+        l = math.floor((smn+smx)*0.5)
+        r = l+1
+        break
+      end
+      
+      if r > smx then
+        return mn, mx
+      end
+      
+      o = self[r].obj
+      
+      if obj.real_priority > o.real_priority or obj.after[o] then
+        mn = r+1
+        smn = r+1
+        l = math.floor((smn+smx)*0.5)
+        r = l+1
+        break
+      elseif obj.real_priority < o.real_priority or obj.before[o] then
+        mx = r
+        smx = l-1
+        l = math.floor((smn+smx)*0.5)
+        r = l+1
+        break
+      end
+      
+      l = l - 1
+      r = r + 1
     end
   end
   
-  return i, #self+1
+  return mn, mx
 end
 
 function Route:addObjective(obj)
-  --self:sanity()
+  -- self:sanity()
   
   local indexes = self.index
   local len = #self
@@ -209,7 +258,7 @@ function Route:addObjective(obj)
   indexes[obj] = index
   
   -- Fix indexes of shifted elements.
-  for i = index+1,#self do
+  for i = index+1,len+1 do
     local obj = self[i].obj
     assert(indexes[obj] == i-1)
     indexes[obj] = i
@@ -271,9 +320,12 @@ function Route:removeObjective(obj)
   return index
 end
 
+local links = {}
 local seen = {}
+
 function Route:breed(route_map)
   local indexes = self.index
+  local len = #self
   
   local p1, p2 = nil
   local f1, f2 = nil
@@ -295,111 +347,130 @@ function Route:breed(route_map)
     end
   end
   
-  if math.random() > 0.5 then
-    p1, p2 = p2, p1
-  end
-  
-  local len = #self
-  assert(len > 1)
-  
-  local i = math.random(1,len)
-  local j = i+math.floor((len-2)*(math.random()*.5+.4))
-  
-  if j > len then j = j - len end
-  
-  local input = i+math.floor(0.5+math.random()^2*len-math.random()^2*len)
-  
-  if input < 1 then
-    input = input + len
-  elseif input > len then
-    input = input - len
-  end
-  
-  if i > j then
-    -- Keeping edges.
-    for p = i,len do
-      local info = p1[p]
-      local obj = info.obj
-      assert(not seen[obj])
-      
-      seen[obj] = info.pos
-      indexes[obj] = p
+  for i = 1,len do
+    local tbl = QuestHelper:CreateTable()
+    local obj = p1[i].obj
+    links[obj] = tbl
+    
+    if i ~= 1 then
+      table.insert(tbl, p1[i-1])
     end
     
-    for p = 1,j do
-      local info = p1[p]
-      local obj = info.obj
-      assert(not seen[obj])
-      
-      seen[obj] = info.pos
-      indexes[obj] = p
-    end
-    
-    for p = j+1,i-1 do
-      if input > len then input = 1 end
-      local info = p2[input]
-      local obj = info.obj
-      
-      while seen[obj] do
-        input = input + 1
-        if input > len then input = 1 end
-        info = p2[input]
-        obj = info.obj
+    if i ~= len then
+      local info = p1[i+1]
+      local obj2 = info.obj
+      if obj.real_priority <= obj2.real_priority or obj.before[obj2] then
+        table.insert(tbl, info)
       end
-      
-      seen[obj] = info.pos
-      indexes[obj] = p
-      input = input + 1
-    end
-  else
-    -- Keeping center
-    for p = i,j do
-      local info = p1[p]
-      local obj = info.obj
-      seen[obj] = info.pos
-      indexes[obj] = p
-    end
-    
-    for p = 1,i-1 do
-      if input > len then input = 1 end
-      local info = p2[input]
-      local obj = info.obj
-      
-      while seen[obj] do
-        input = input + 1
-        if input > len then input = 1 end
-        info = p2[input]
-        obj = info.obj
-      end
-      
-      seen[obj] = info.pos
-      indexes[obj] = p
-      input = input + 1
-    end
-    
-    for p = j+1,len do
-      if input > len then input = 1 end
-      local info = p2[input]
-      local obj = info.obj
-      
-      while seen[obj] do
-        input = input + 1
-        if input > len then input = 1 end
-        info = p2[input]
-        obj = info.obj
-      end
-      
-      seen[obj] = info.pos
-      indexes[obj] = p
-      input = input + 1
     end
   end
   
-  for obj, index in pairs(indexes) do
-    local info = self[index]
-    info.obj = obj
-    info.pos = seen[obj]
+  for i = 1,len do
+    local obj = p2[i].obj
+    local tbl = links[obj]
+    assert(tbl)
+    
+    if i ~= 1 then
+      table.insert(tbl, p2[i-1])
+    end
+    
+    if i ~= len then
+      local info = p2[i+1]
+      local obj2 = info.obj
+      if obj.real_priority <= obj2.real_priority or obj.before[obj2] then
+        table.insert(tbl, info)
+      end
+    end
+  end
+  
+  local info = (math.random() > 0.5 and p1 or p2)[1]
+  local obj = info.obj
+  indexes[obj] = 1
+  seen[obj] = info.pos
+  last = links[obj]
+  links[obj] = nil
+  
+  for index = 2,len do
+    local len = #last
+    local i = math.random(1, len)
+    local info = last[i]
+    obj = info.obj
+    local link = links[obj]
+    
+    while not link do
+      len = len - 1
+      
+      if len == 0 then
+        -- Sweet, we've created a loop and now we're stuck.
+        
+        assert(next(links))
+        
+        local r
+        for i, v in pairs(links) do
+          assert(v)
+          local r2 = math.random()
+          if not r or r2 > r then
+            obj, link, r = i, v, r2
+          end
+        end
+        
+        assert(r)
+        
+        if math.random() > 0.5 then
+          info = p1[p1.index[obj]]
+        else
+          info = p2[p2.index[obj]]
+        end
+        
+        assert(obj)
+        assert(link)
+        assert(info)
+        
+        break
+      else
+        table.remove(last, i)
+        i = math.random(1, len)
+        info = last[i]
+        obj = info.obj
+        link = links[obj]
+      end
+    end
+    
+    indexes[obj] = index
+    seen[obj] = info.pos
+    assert(info.obj == obj)
+    
+    links[obj] = nil
+    QuestHelper:ReleaseTable(last)
+    last = link
+  end
+  
+  QuestHelper:ReleaseTable(last)
+  
+  for obj, i in pairs(indexes) do
+    local info = self[i]
+    info.obj, info.pos = obj, seen[obj]
     seen[obj] = nil
+  end
+  
+  local duplicate = true
+  
+  for i = 1,len do
+    local obj = self[i].obj
+    if obj ~= p1[i].obj or obj ~= p2[i].obj then
+      duplicate = false
+      break
+    end
+  end
+  
+  if duplicate then
+    -- If we ended up being an exact clone of our parents, then we'll reverse a random range.
+    local i = math.random(1, len-1)
+    local j = math.random(i+1, len)
+    
+    for k = 0, j-i-1 do
+      self[i+k], self[j-k] = self[j-k], self[i+k]
+    end
   end
   
   local i = 1
@@ -457,6 +528,8 @@ function Route:breed(route_map)
   self.distance = distance + prev_info.len
   
   --self:sanity()
+  --p1:sanity()
+  --p2:sanity()
 end
 
 function Route:pathResetBegin()
@@ -670,16 +743,24 @@ local function RouteUpdateRoutine(self)
     
     if #best_route > 1 then
       -- If there is 2 or more objectives, randomly combine routes to (hopefully) create something better than we had before.
-      local best, max_fitness
       local pos = self.pos
       
+      -- Calculate best_route first, so that if other routes are identical, we don't risk swapping with them and
+      -- updating the map_walker.
+      local best, max_fitness = best_route, 1/(self:ComputeTravelTime(pos, best_route[1].pos)+best_route.distance)
+      best_route.fitness = max_fitness
+      
+      self:yieldIfNeeded(.3)
+      
       for r in pairs(routes) do
-        local fit = 1/(self:ComputeTravelTime(pos, r[1].pos)+r.distance)
-        r.fitness = fit
-        if not best or fit > max_fitness then
-          best, max_fitness = r, fit
+        if r ~= best_route then
+          local fit = 1/(self:ComputeTravelTime(pos, r[1].pos)+r.distance)
+          r.fitness = fit
+          if fit > max_fitness then
+            best, max_fitness = r, fit
+          end
+          self:yieldIfNeeded(.3)
         end
-        self:yieldIfNeeded(.3)
       end
       
       local to_breed, score
@@ -709,6 +790,8 @@ local function RouteUpdateRoutine(self)
           obj.pos = info.pos
           route[i] = obj
         end
+        
+        minimap_dodad:SetObjective(route[1])
         
         changed = true
       end
@@ -741,6 +824,8 @@ local function RouteUpdateRoutine(self)
         route[i] = obj
       end
       
+      minimap_dodad:SetObjective(route[1])
+      
       self:yieldIfNeeded(9)
     end
     
@@ -758,7 +843,35 @@ local function RouteUpdateRoutine(self)
   end
 end
 
-local update_route = coroutine.create(RouteUpdateRoutine)
+local update_route
+
+if coroutine.coco then
+  -- coco allows yielding across c boundries, which allows me to use xpcall to get
+  -- stack traces for coroutines without calls to yield resulting in thermal nuclear meltdown.
+  
+  -- This isn't part of WoW, I was using it in my driver program: Development/routetest
+  
+  update_route = coroutine.create(
+    function()
+      local state, err = xpcall(
+        function()
+          RouteUpdateRoutine(QuestHelper)
+        end,
+      function (err)
+        if debugstack then
+          return tostring(err).."\n"..debugstack(2)
+        else
+          return debug.traceback(tostring(err), 2)
+        end
+      end)
+      
+      if not state then
+        error(err, 0)
+      end
+    end)
+else
+  update_route = coroutine.create(RouteUpdateRoutine)
+end
 
 function QuestHelper:RunCoroutine()
   if coroutine.status(update_route) ~= "dead" then

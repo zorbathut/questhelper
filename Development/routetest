@@ -1,0 +1,220 @@
+#!/usr/bin/env lua
+
+function IsInInstance() return false end
+QuestHelper = {}
+QuestHelper_File = {}
+QuestHelper_Pref = {perf_scale=1}
+
+loadfile("../routing.lua")()
+
+local colours =
+ {
+  [30] = {0, 0, 0},
+  [31] = {.5, 0, 0},
+  [32] = {0, .5, 0},
+  [33] = {.5, .5, 0},
+  [34] = {0, 0, .5},
+  [35] = {.5, 0, .5},
+  [36] = {0, .5, .5},
+  [37] = {.7, .7, .7},
+  [90] = {.4, .4, .4},
+  [91] = {1, 0, 0},
+  [92] = {0, 1, 0},
+  [93] = {1, 1, 0},
+  [94] = {0, 0, 1},
+  [95] = {1, 0, 1},
+  [96] = {0, 1, 1},
+  [97] = {1, 1, 1}
+ }
+
+local function colour(a, r, g, b)
+  local best, dist
+  a, r, g, b = tonumber(a, 16), tonumber(r, 16), tonumber(g, 16), tonumber(b, 16)
+  
+  if r and g and b and a then
+    a = a*0.00001537870049980776624375240292195309496347558631295655517108804306
+    r, g, b = r*a, g*a, b*a
+    
+    for code, values in pairs(colours) do
+      local u, v, w = values[1]-r, values[2]-g, values[3]-b
+      local d = u*u+v*v+w*w
+      if not best or d < dist then
+        best, dist = code, d
+      end
+    end
+    
+    return ("\027[%dm"):format(best)
+  end
+  
+  -- Not a valid colour code, keep original string.
+  return
+end
+
+local function convertcodes(text)
+  return (text:gsub("|c(..)(..)(..)(..)", colour):gsub("|r", "\027[93m"):gsub("||", "|"))
+end
+
+local function ts(x)
+ return x ~= nil and (tostring(x) or "???") or "nil"
+end
+
+-- We'll also create a print function that understands Warcraft's colour codes.
+function QuestHelper:TextOut(...)
+  local c = select("#", ...)
+  
+  if c > 0 then
+    io.write("\027[96mQuestHelper: \027[93m")
+    io.write(convertcodes(ts(...)))
+    
+    if c > 1 then
+      for c = 2,c do
+        io.write("\027[97m, \027[93m")
+        io.write(convertcodes(ts(select(c, ...))))
+      end
+    end
+    
+    io.write("\027[39m\n")
+  end
+end
+
+QuestHelper.to_add = {}
+QuestHelper.route = {}
+QuestHelper.to_remove = {}
+
+local mem = {}
+
+function QuestHelper:CreateTable()
+  local tbl = next(mem)
+  if tbl then
+    mem[tbl] = nil
+    return tbl
+  else
+    return {}
+  end
+end
+
+function QuestHelper:ReleaseTable(tbl)
+  assert(not mem[tbl])
+  mem[tbl] = true
+  for key in pairs(tbl) do tbl[key] = nil end
+end
+
+function QuestHelper:ComputeTravelTime(a, b)
+  local x, y = a[3]-b[3], a[4]-b[4]
+  return math.sqrt(x*x+y*y)
+end
+
+function QuestHelper:CreateWorldMapWalker()
+  return
+   {
+    RouteChanged = function()
+      io.write("Route changed: ")
+      
+      for i, obj in ipairs(QuestHelper.route) do
+        io.write(obj.name, " ")
+      end
+      
+      if #QuestHelper.route == 0 then
+        io.write("<empty route>")
+      end
+      
+      io.write("\n")
+    end
+   }
+end
+
+function QuestHelper:CreateMipmapDodad()
+  return
+   {
+    SetObjective = function(self, obj)
+      print("First objective set to "..(obj and obj.name or "(NONE)"))
+    end
+   }
+end
+
+local function createNode(name, x, y)
+  return
+   {
+    name = name,
+    position = {{c=1}, nil, x, y},
+    before = {},
+    after = {},
+    prepared = 0,
+    priority = 3,
+    real_priority = 3,
+    Known = function ()
+      return true
+    end,
+    PrepareRouting = function (self)
+      self.location = self.position
+      self.prepared = self.prepared + 1
+    end,
+    DoneRouting = function (self)
+      assert(self.prepared > 0)
+      if self.prepared == 1 then
+        self.location = nil
+      end
+      self.prepared = self.prepared - 1
+    end,
+    TravelTime = function(self, pos)
+      if not pos then error("Oh no!", 2) end
+      assert(self.prepared > 0)
+      local x, y = self.position[3]-pos[3], self.position[4]-pos[4]
+      return math.sqrt(x*x+y*y), self.position
+    end,
+    TravelTime2 = function(self, pos1, pos2)
+      assert(self.prepared > 0)
+      if not pos1 then error("Oh no1!", 2) end
+      if not pos2 then error("Oh no2!", 2) end
+      local x1, y1 = self.position[3]-pos1[3], self.position[4]-pos1[4]
+      local x2, y2 = self.position[3]-pos2[3], self.position[4]-pos2[4]
+      return math.sqrt(x1*x1+y1*y1), math.sqrt(x2*x2+y2*y2), self.position
+    end
+   }
+end
+
+QuestHelper.pos = {{c=1}, nil, 3, 13}
+
+QuestHelper.to_add[createNode("01", 10, 14)] = true
+QuestHelper.to_add[createNode("02", 10, 10)] = true
+QuestHelper.to_add[createNode("03", 5, 8)] = true
+QuestHelper.to_add[createNode("04", 14, 8)] = true
+QuestHelper.to_add[createNode("05", 2, 5)] = true
+QuestHelper.to_add[createNode("06", 10, 5)] = true
+QuestHelper.to_add[createNode("07", 7, 2)] = true
+QuestHelper.to_add[createNode("08", 13, 3)] = true
+QuestHelper.to_add[createNode("09", 14, 13)] = true
+QuestHelper.to_add[createNode("10", 6, 5)] = true
+QuestHelper.to_add[createNode("11", 7, 12)] = true
+QuestHelper.to_add[createNode("12", 3, 2)] = true
+QuestHelper.to_add[createNode("13", 8, 8)] = true
+QuestHelper.to_add[createNode("14", 10, 2)] = true
+QuestHelper.to_add[createNode("15", 2, 10)] = true
+QuestHelper.to_add[createNode("16", 11, 7)] = true
+
+local future_remove = {}
+for o in pairs(QuestHelper.to_add) do
+  future_remove[o] = true
+end
+
+local count = 0
+
+while true do
+  QuestHelper:RunCoroutine()
+  
+  count = count + 1
+  
+  if count == 500000 then
+    print("Now removing objectives.")
+    for o in pairs(future_remove) do
+      QuestHelper.to_remove[o] = true
+    end
+  end
+  
+  if #QuestHelper.route == 0 then break end
+  
+  --[[for i, o in ipairs(QuestHelper.route) do
+    io.write(o.name, " ")
+  end
+  io.write("\n")]]
+end
