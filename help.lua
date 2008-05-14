@@ -1,8 +1,12 @@
 QuestHelper_File["help.lua"] = "Development Version"
 
-function QuestHelper:SetIconScale(input)
+function QuestHelper:scaleString(val)
+  return self:HighlightText(math.floor(val*100+0.5).."%")
+end
+
+function QuestHelper:genericSetScale(varname, name, mn, mx, input, onchange, ...)
   if input == "" then
-    self:TextOut("Current icon scale is "..self:HighlightText(math.floor(QuestHelper_Pref.scale*100+0.5).."%")..".")
+    self:TextOut(string.format("Current %s scale is %s.", name, self:scaleString(QuestHelper_Pref[varname])))
   else
     local scale = tonumber(input)
     
@@ -16,42 +20,16 @@ function QuestHelper:SetIconScale(input)
       scale = scale * 0.01
     end
     
-    if scale < 0.5 then
-      self:TextOut("I won't accept a scale less than 50%.")
-    elseif scale > 3 then
-      self:TextOut("I won't accept a scale more than 300%.")
+    if scale < mn then
+      self:TextOut(string.format("I won't accept a scale less than %s.", self:scaleString(mn)))
+    elseif scale > mx then
+      self:TextOut(string.format("I won't accept a scale more than %s.", self:scaleString(mx)))
     else
-      QuestHelper_Pref.scale = scale
-      self:TextOut("Icon scale set to "..self:HighlightText(math.floor(scale*100+0.5).."%")..".")
-    end
-  end
-end
-
------------------------------------------------------------------------------------------------
--- Set / show the Performance Factor
-function QuestHelper:SetPerfFactor(input)
-  if input == "" then
-    self:TextOut("Current Performance Factor is "..self:HighlightText(math.floor(QuestHelper_Pref.perf_scale*100).."%")..".")
-  else
-    local perf = tonumber(input)
-
-    if not perf then
-      local _, _, x = string.find(input, "^%s*([%d%.]+)%s*%%%s*$")
-      perf = tonumber(x)
-      if not perf then
-        self:TextOut("I don't know how to interpret your input.")
-        return
+      QuestHelper_Pref[varname] = scale
+      self:TextOut(string.format("Set %s scale set to %s.", name, self:scaleString(scale)))
+      if onchange then
+        onchange(...)
       end
-      perf = perf * 0.01
-    end
-
-    if perf < 0.1 then
-      self:TextOut("I won't accept a performance factor less than 10%.")
-    elseif perf > 5 then
-      self:TextOut("I won't accept a performance factor more than 500%.")
-    else
-      QuestHelper_Pref.perf_scale = perf
-      self:TextOut("Performance factor set to "..self:HighlightText(math.floor(perf*100+0.5).."%")..".")
     end
   end
 end
@@ -367,7 +345,14 @@ local commands =
    "Scales the map icons used by QuestHelper. Will accept values between 50% and 300%.",
    {{"/qh scale 1", "Uses the default icon size."},
     {"/qh scale 2", "Makes icons twice their default size."},
-    {"/qh scale 80%", "Makes icons slightly smaller than their default size."}}, QuestHelper.SetIconScale, QuestHelper},
+    {"/qh scale 80%", "Makes icons slightly smaller than their default size."}},
+    QuestHelper.genericSetScale, QuestHelper, "scale", "icon scale", .5, 3},
+  
+  {"TSCALE",
+   "Scales the quest tracker provided by QuestHelper. Will accept values between 50% and 300%.",
+   {},
+   function (input) QuestHelper:genericSetScale("track_scale", "tracker scale", .5, 2, input,
+     function() QuestHelper.tracker:SetScale(QuestHelper_Pref.track_scale) end) end},
   
   {"NAG",
    "Tells you if you have anything that's missing from the static database.",
@@ -445,8 +430,8 @@ local commands =
     {"/qh perf 1", "Sets standard performance"},
     {"/qh perf 50%", "Does half as much background processing"},
     {"/qh perf 3", "Computes routes 3 times more aggressively.  Better have some good horsepower!"}},
-    QuestHelper.SetPerfFactor, QuestHelper},
-
+    QuestHelper.genericSetScale, QuestHelper, "perf_scale", "performance factor", .1, 5},
+  
   {"BUTTON",
    "Toggle the QuestHelper button on the World Map frame",
    {}, QuestHelper.ToggleMapButton, QuestHelper},
@@ -468,7 +453,7 @@ function QuestHelper:SlashCommand(input)
     if data[1] == command then
       local st = self:CreateTable()
       
-      for i = 5,#data do table.insert(st, data[5]) end
+      for i = 5,#data do table.insert(st, data[i]) end
       table.insert(st, argument)
       
       if type(data[4]) == "function" then

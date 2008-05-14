@@ -21,6 +21,7 @@ QuestHelper_DefaultPref =
   filter_done=false,
   filter_blocked=false, -- Hides blocked objectives, such as quest turn-ins for incomplete quests
   track=true,
+  track_scale=1,
   tooltip=true,
   share = true,
   scale = 1,
@@ -345,6 +346,8 @@ function QuestHelper:OnEvent(event)
     if QuestHelper_Pref.tomtom_wp then
       self:EnableTomTom()
     end
+    
+    self.tracker:SetScale(QuestHelper_Pref.track_scale)
     
     if QuestHelper_Pref.track then
       self.tracker:HideDefaultTracker()
