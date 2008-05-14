@@ -259,9 +259,11 @@ end
 
 local prog_sort_table = {}
 
-function QuestHelper:AppendObjectiveProgressToTooltip(o, tooltip, font)
+function QuestHelper:AppendObjectiveProgressToTooltip(o, tooltip, font, depth)
   if o.progress then
     local theme = self:GetColourTheme()
+    
+    local indent = ("  "):rep(depth or 0)
     
     for user, progress in pairs(o.progress) do
       table.insert(prog_sort_table, user)
@@ -277,9 +279,9 @@ function QuestHelper:AppendObjectiveProgressToTooltip(o, tooltip, font)
     end)
     
     for i, u in ipairs(prog_sort_table) do
-      tooltip:AddDoubleLine(QHFormat("PEER_PROGRESS", u),
-                                 self:ProgressString(o.progress[u][1].."/"..o.progress[u][2],
-                                 o.progress[u][3]), unpack(theme.tooltip))
+      tooltip:AddDoubleLine(indent..QHFormat("PEER_PROGRESS", u),
+                            self:ProgressString(o.progress[u][1].."/"..o.progress[u][2],
+                            o.progress[u][3]), unpack(theme.tooltip))
       
       if font then
         local last, name = tooltip:NumLines(), tooltip:GetName()

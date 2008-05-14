@@ -2,20 +2,22 @@ QuestHelper_File["objtips.lua"] = "Development Version"
 
 local real_GameTooltipOnShow = GameTooltip:GetScript("OnShow") or QuestHelper.nop
 
-local function addObjectiveObjTip(objective, gap)
+local function addObjectiveObjTip(objective, depth)
   if objective.watched or objective.progress then
     if gap then
       GameTooltip:AddLine(" ") -- Add a gap between what we're adding and what's already there.
     end
     
     if objective.quest then
-      GameTooltip:AddLine(QHFormat("TOOLTIP_QUEST", string.match(objective.quest.obj or "", "^%d*/%d*/(.*)$") or "???"), 1, 1, 1)
+      GameTooltip:AddLine(("  "):rep(depth)..QHFormat("TOOLTIP_QUEST", string.match(objective.quest.obj or "", "^%d*/%d*/(.*)$") or "???"), 1, 1, 1)
+      
+      depth = depth + 1
     end
     
     if objective.progress then
-      QuestHelper:AppendObjectiveProgressToTooltip(objective, GameTooltip)
+      QuestHelper:AppendObjectiveProgressToTooltip(objective, GameTooltip, nil, depth)
     else
-      GameTooltip:AddLine(QHText("TOOLTIP_WATCHED"), unpack(QuestHelper:GetColourTheme().tooltip))
+      GameTooltip:AddLine(("  "):rep(depth)..QHText("TOOLTIP_WATCHED"), unpack(QuestHelper:GetColourTheme().tooltip))
     end
     
     -- Calling Show again to cause the tooltip's dimensions to be recalculated.
@@ -25,9 +27,8 @@ local function addObjectiveObjTip(objective, gap)
   
   if objective.used then
     for obj, text in pairs(objective.used) do
-      GameTooltip:AddLine(" ")
-      GameTooltip:AddLine(QHFormat(text, obj.obj), 1, 1, 1)
-      addObjectiveObjTip(obj, false)
+      GameTooltip:AddLine(("  "):rep(depth)..QHFormat(text, obj.obj), 1, 1, 1)
+      addObjectiveObjTip(obj, depth+1)
     end
   end
 end
@@ -37,7 +38,7 @@ local function addObjectiveTip(cat, obj)
   if list then
     local objective = list[obj]
     if objective then
-      addObjectiveObjTip(objective, true)
+      addObjectiveObjTip(objective, 0)
     end
   end
 end
