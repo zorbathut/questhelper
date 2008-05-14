@@ -421,13 +421,9 @@ function QuestHelper:OnEvent(event)
           if number and number >= 1 then
             self:AppendItemObjectiveDrop(self:GetObjective("item", name), name, target, number)
           else
-            local total = 0
-            local _, _, amount = string.find(name, "(%d+) "..COPPER)
-            if amount then total = total + amount end
-            _, _, amount = string.find(name, "(%d+) "..SILVER)
-            if amount then total = total + amount * 100 end
-            _, _, amount = string.find(name, "(%d+) "..GOLD)
-            if amount then total = total + amount * 10000 end
+            local total = (name:match(COPPER_AMOUNT:gsub("%%d", "%(%%d+%)")) or 0) +
+                          (name:match(SILVER_AMOUNT:gsub("%%d", "%(%%d+%)")) or 0) * 100 +
+                          (name:match(GOLD_AMOUNT:gsub("%%d", "%(%%d+%)")) or 0) * 10000
             
             if total > 0 then
               self:AppendObjectiveDrop(self:GetObjective("item", "money"), target, total)
