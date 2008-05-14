@@ -1,6 +1,6 @@
 == Version 0.46 05/14/2008 ==
 
-* Replaced the COPPER, SIVLER, and GOLD strings that Blizzard renamed.
+* Replaced the COPPER, SILVER, and GOLD strings that Blizzard renamed.
 * Added a replacement for the built in quest tracker that automatically populates itself and sorts itself to reflect QuestHelper's route.
 ** It only includes your own quests and objectives.
 ** Right click on a quest name to open that quest in your questlog.

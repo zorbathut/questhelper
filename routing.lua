@@ -47,30 +47,6 @@ end
 local Route = {}
 Route.__index = Route
 
---[[function Route:sanity()
-  local len = #self
-  local distance = 0
-  
-  for i = 1,len-1 do
-    distance = distance + self[i].len
-  end
-  
-  assert(math.abs(self.distance-distance) < 0.000000001, "Distance error: "..(self.distance-distance))
-  
-  for i = 1,len do
-    assert(self.index[self[i].obj] == i, i.."/"..#self..": Bad index")
-    assert(self[i].pos == self[i].obj.position, i.."/"..#self..": Bad location")
-  end
-  
-  for obj, i in pairs(self.index) do
-    assert(self[i].obj == obj, "Extra index.")
-  end
-  
-  for i = 1,len-1 do
-    assert(math.abs(self[i].len - QuestHelper:ComputeTravelTime(self[i].pos, self[i+1].pos)) < 0.000001, i.."/"..#self..": Bad length")
-  end
-end--]]
-
 function Route:findObjectiveRange(obj)
   local mn, smn = 1, 1
   local smx = #self
@@ -134,9 +110,7 @@ function Route:findObjectiveRange(obj)
   return mn, mx
 end
 
-function Route:addObjective(obj)
-  -- self:sanity()
-  
+function Route:addObjective(obj)  
   local indexes = self.index
   local len = #self
   local info = QuestHelper:CreateTable()
@@ -264,14 +238,10 @@ function Route:addObjective(obj)
     indexes[obj] = i
   end
   
-  --self:sanity()
-  
   return index
 end
 
 function Route:removeObjective(obj)
-  --self:sanity()
-  
   local indexes = self.index
   local index = indexes[obj]
   
@@ -314,8 +284,6 @@ function Route:removeObjective(obj)
     local obj = self[i].obj
     indexes[obj] = indexes[obj]-1
   end
-  
-  --self:sanity()
   
   return index
 end
@@ -523,10 +491,6 @@ function Route:breed(route_map)
   end
   
   self.distance = distance + prev_info.len
-  
-  --self:sanity()
-  --p1:sanity()
-  --p2:sanity()
 end
 
 function Route:pathResetBegin()
