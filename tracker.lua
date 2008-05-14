@@ -76,6 +76,30 @@ local function itemfadeout(item, delta)
   item:SetPoint("TOPLEFT", tracker, "TOPLEFT", item.x, item.y)
 end
 
+local function itemclick(item, button)
+  if button == "RightButton" then
+    local text = item.text:GetText()
+    local index = 1
+    while true do
+      local title = GetQuestLogTitle(index)
+      if not title then break end
+      
+      if title == text then
+        if QuestLogFrame:IsShown() and GetQuestLogSelection() == index then
+          QuestLogFrame:Hide()
+        else
+          QuestLog_SetSelection(index)
+          QuestLogFrame:Show()
+        end
+        
+        return
+      end
+      
+      index = index + 1
+    end
+  end
+end
+
 local function addItem(name, obj, y, quest)
   local x = quest and 4 or 20
   local item = used_items[obj]
@@ -112,6 +136,11 @@ local function addItem(name, obj, y, quest)
   local w, h = item.text:GetWidth(), item.text:GetHeight()
   item:SetWidth(w)
   item:SetHeight(h)
+  
+  if quest then
+    item:SetScript("OnMouseDown", itemclick)
+    item:EnableMouse(true)
+  end
   
   if item.dx ~= x or item.dy ~= y then
     item.sx, item.sy, item.dx, item.dy = item.x, item.y, x, y
@@ -232,6 +261,8 @@ function tracker:update(delta)
         item.t = 0
         item.sx, item.sy = item.x, item.y
         item.dx, item.dy = item.x+30, item.y
+        item:SetScript("OnMouseDown", nil)
+        item:EnableMouse(false)
         item:SetScript("OnUpdate", itemfadeout)
       end
     end
