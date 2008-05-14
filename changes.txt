@@ -1,3 +1,24 @@
+== Version 0.46 05/14/2008 ==
+
+* Replaced the COPPER, SIVLER, and GOLD strings that Blizzard renamed.
+* Added a replacement for the built in quest tracker that automatically populates itself and sorts itself to reflect QuestHelper's route.
+** It only includes your own quests and objectives.
+** Right click on a quest name to open that quest in your questlog.
+** It can't be configured and you can't manually add or remove quests from it.
+** You may disable it and restore the built in quest tracker by typing '<code>/qh track</code>'.
+* Added objective information to the tooltips of items and monsters.
+** They include information on the progress of party members also using QuestHelper.
+** You may disable this by typing '<code>/qh tooltip</code>'.
+* QuestHelper should dedicate less CPU time to routing when inside instances.
+* The pathing resets and flight time calculations now happen in a coroutine, so as to not lock up the game while the magic is happening.
+* Offended creationists by reimplementing routing using genetic algorithms.
+* Menus were given borders, and made more opaque.
+* Included an update for the Danish translation.
+* Will verify that QuestHelper's files all came from the same version, to ensure you installed or upgraded it properly.
+* Fixed a bug that sometimes broke the blocked objective filter an made objectives appear complete when there weren't.
+* Fixed a bug involving factions that broke objectives involving buying things from vendors.
+* Made some changes requested by the author of AlphaMap.
+
 == Version 0.45 05/06/2008 ==
 
 * Added new filter option: '<code>/qh filter blocked</code>' will hide objectives which can't be accomplished yet, such as turn-ins for incomplete quests.
