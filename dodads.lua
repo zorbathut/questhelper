@@ -17,8 +17,8 @@ local function convertNodeToScreen(n, c, z)
   return QuestHelper.Astrolabe:TranslateWorldMapPosition(n.c, 0, n.x/QuestHelper.continent_scales_x[n.c], n.y/QuestHelper.continent_scales_y[n.c], c, z)
 end
 
-QuestHelper.map_overlay = CreateFrame("FRAME", nil, WorldMapDetailFrame)
-QuestHelper.map_overlay:SetFrameLevel(WorldMapDetailFrame:GetFrameLevel()+1)
+QuestHelper.map_overlay = CreateFrame("FRAME", nil, WorldMapButton)
+QuestHelper.map_overlay:SetFrameLevel(WorldMapButton:GetFrameLevel()+1)
 QuestHelper.map_overlay:SetAllPoints()
 QuestHelper.map_overlay:SetFrameStrata("FULLSCREEN")
 
