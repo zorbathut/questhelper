@@ -2,43 +2,39 @@ QuestHelper_File["objtips.lua"] = "Development Version"
 
 local real_GameTooltipOnShow = GameTooltip:GetScript("OnShow") or QuestHelper.nop
 
-local function addObjectiveObjTip(objective, depth)
+local function addObjectiveObjTip(tooltip, objective, depth)
   if objective.watched or objective.progress then
-    if gap then
-      GameTooltip:AddLine(" ") -- Add a gap between what we're adding and what's already there.
-    end
-    
     if objective.quest then
-      GameTooltip:AddLine(("  "):rep(depth)..QHFormat("TOOLTIP_QUEST", string.match(objective.quest.obj or "", "^%d*/%d*/(.*)$") or "???"), 1, 1, 1)
+      tooltip:AddLine(("  "):rep(depth)..QHFormat("TOOLTIP_QUEST", string.match(objective.quest.obj or "", "^%d*/%d*/(.*)$") or "???"), 1, 1, 1)
       
       depth = depth + 1
     end
     
     if objective.progress then
-      QuestHelper:AppendObjectiveProgressToTooltip(objective, GameTooltip, nil, depth)
+      QuestHelper:AppendObjectiveProgressToTooltip(objective, tooltip, nil, depth)
     else
-      GameTooltip:AddLine(("  "):rep(depth)..QHText("TOOLTIP_WATCHED"), unpack(QuestHelper:GetColourTheme().tooltip))
+      tooltip:AddLine(("  "):rep(depth)..QHText("TOOLTIP_WATCHED"), unpack(QuestHelper:GetColourTheme().tooltip))
     end
     
     -- Calling Show again to cause the tooltip's dimensions to be recalculated.
     -- Since the frame should already be shown, the OnShow event shouldn't be called again.
-    GameTooltip:Show()
+    tooltip:Show()
   end
   
   if objective.used then
     for obj, text in pairs(objective.used) do
-      GameTooltip:AddLine(("  "):rep(depth)..QHFormat(text, obj.obj), 1, 1, 1)
-      addObjectiveObjTip(obj, depth+1)
+      tooltip:AddLine(("  "):rep(depth)..QHFormat(text, obj.obj), 1, 1, 1)
+      addObjectiveObjTip(tooltip, obj, depth+1)
     end
   end
 end
 
-local function addObjectiveTip(cat, obj)
+local function addObjectiveTip(tooltip, cat, obj)
   local list = QuestHelper.objective_objects[cat]
   if list then
     local objective = list[obj]
     if objective then
-      addObjectiveObjTip(objective, 0)
+      addObjectiveObjTip(tooltip, objective, 0)
     end
   end
 end
@@ -53,11 +49,11 @@ GameTooltip:SetScript("OnShow", function(self, ...)
     local monster, item = self:GetUnit(), self:GetItem()
     
     if monster then
-      addObjectiveTip("monster", monster)
+      addObjectiveTip(self, "monster", monster)
     end
     
     if item then
-      addObjectiveTip("item", item)
+      addObjectiveTip(self, "item", item)
     end
   end
   
