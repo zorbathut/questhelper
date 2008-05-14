@@ -327,63 +327,55 @@ function Route:breed(route_map)
   local indexes = self.index
   local len = #self
   
-  local p1, p2 = nil
-  local f1, f2 = nil
+  local info
+  local r
   
-  for r in pairs(route_map) do
-    local f = r.fitness*math.random()
-    if not p1 then
-      p1, f1 = r, f
-    elseif not p2 then
-      if f > f1 then
-        p2, f2 = r, f
-      else
-        p1, f1, p2, f2 = r, f, p1, f1
+  local prev_pos = QuestHelper.pos
+  
+  for route in pairs(route_map) do
+    local fit = route.fitness
+    local pos = route[1].pos
+    local w
+    
+    if prev_pos[1].c == pos[1].c then
+      local u, v = prev_pos[3]-pos[3], prev_pos[4]-pos[4]
+      w = math.sqrt(u*u+v*v)
+    else
+      w = 500
+    end
+    
+    w = fit * math.random() / w
+    
+    if not info or w > r then
+      info, r = route[1], w
+    end
+    
+    for i = 1,len do
+      local obj = route[i].obj
+      local tbl = links[obj]
+      if not tbl then
+        tbl = QuestHelper:CreateTable()
+        links[obj] = tbl
       end
-    elseif f > f2 then
-      p1, f1, p2, f2 = p2, f2, r, f
-    elseif f > f1 then
-      p1, f1 = r, f
-    end
-  end
-  
-  for i = 1,len do
-    local tbl = QuestHelper:CreateTable()
-    local obj = p1[i].obj
-    links[obj] = tbl
-    
-    if i ~= 1 then
-      table.insert(tbl, p1[i-1])
-    end
-    
-    if i ~= len then
-      local info = p1[i+1]
-      local obj2 = info.obj
-      if obj.real_priority <= obj2.real_priority or obj.before[obj2] then
-        table.insert(tbl, info)
+      
+      if i ~= 1 then
+        local info = route[i-1]
+        local obj2 = info.obj
+        tbl[info] = (tbl[info] or 0) + fit
       end
-    end
-  end
-  
-  for i = 1,len do
-    local obj = p2[i].obj
-    local tbl = links[obj]
-    assert(tbl)
-    
-    if i ~= 1 then
-      table.insert(tbl, p2[i-1])
-    end
-    
-    if i ~= len then
-      local info = p2[i+1]
-      local obj2 = info.obj
-      if obj.real_priority <= obj2.real_priority or obj.before[obj2] then
-        table.insert(tbl, info)
+      
+      if i ~= len then
+        local info = route[i+1]
+        local obj2 = info.obj
+        if obj.real_priority <= obj2.real_priority or obj.before[obj2] then
+          tbl[info] = (tbl[info] or 0) + fit
+        end
       end
     end
+    
+    QuestHelper:yieldIfNeeded(0.01*len)
   end
   
-  local info = (math.random() > 0.5 and p1 or p2)[1]
   local obj = info.obj
   indexes[obj] = 1
   seen[obj] = info.pos
@@ -391,58 +383,63 @@ function Route:breed(route_map)
   links[obj] = nil
   
   for index = 2,len do
-    local len = #last
-    local i = math.random(1, len)
-    local info = last[i]
-    obj = info.obj
-    local link = links[obj]
+    info = nil
+    local c = 1
     
-    while not link do
-      len = len - 1
-      
-      if len == 0 then
-        -- Sweet, we've created a loop and now we're stuck.
-        
-        assert(next(links))
-        
-        local r
-        for i, v in pairs(links) do
-          assert(v)
-          local r2 = math.random()
-          if not r or r2 > r then
-            obj, link, r = i, v, r2
-          end
-        end
-        
-        assert(r)
-        
-        if math.random() > 0.5 then
-          info = p1[p1.index[obj]]
+    for i, weight in pairs(last) do
+      if links[i.obj] then
+        local w
+        local pos = i.pos
+        if prev_pos[1].c == pos[1].c then
+          local u, v = prev_pos[3]-pos[3], prev_pos[4]-pos[4]
+          w = math.sqrt(u*u+v*v)
         else
-          info = p2[p2.index[obj]]
+          w = 500
         end
         
-        assert(obj)
-        assert(link)
-        assert(info)
+        w = weight * math.random() / w
         
-        break
-      else
-        table.remove(last, i)
-        i = math.random(1, len)
-        info = last[i]
-        obj = info.obj
-        link = links[obj]
+        if not info or w > r then
+          info, r = i, w
+        end
       end
+      c = c + 1
     end
     
+    if not info then
+      for obj in pairs(links) do
+        local pos = obj.pos
+        local w
+        if prev_pos[1].c == pos[1].c then
+          local u, v = prev_pos[3]-pos[3], prev_pos[4]-pos[4]
+          w = math.sqrt(u*u+v*v)
+        else
+          w = 500
+        end
+        
+        w = math.random() / w
+        
+        if not info or w > r then
+          local route = next(route_map)
+          info, r = route[route.index[obj]], w
+        end
+      end
+      
+      assert(info)
+    end
+    
+    obj = info.obj
+    local link = links[obj]
     indexes[obj] = index
-    seen[obj] = info.pos
+    prev_pos = info.pos
+    seen[obj] = prev_pos
     assert(info.obj == obj)
     
     links[obj] = nil
     QuestHelper:ReleaseTable(last)
     last = link
+    
+    QuestHelper:yieldIfNeeded(0.01*c)
   end
   
   QuestHelper:ReleaseTable(last)
@@ -453,23 +450,23 @@ function Route:breed(route_map)
     seen[obj] = nil
   end
   
-  local duplicate = true
+  --[[for i, info in ipairs(self) do
+    io.write(info.obj.name, " ")
+  end io.write("\n")]]
   
-  for i = 1,len do
-    local obj = self[i].obj
-    if obj ~= p1[i].obj or obj ~= p2[i].obj then
-      duplicate = false
-      break
-    end
-  end
-  
-  if duplicate then
-    -- If we ended up being an exact clone of our parents, then we'll reverse a random range.
+  if math.random() > 0.2 then
+    -- If we ended up being an exact clone of our parents, then we'll make some random changes.
     local i = math.random(1, len-1)
     local j = math.random(i+1, len)
     
-    for k = 0, j-i-1 do
-      self[i+k], self[j-k] = self[j-k], self[i+k]
+    if math.random() > 0.9 then
+      -- Reverse a chunk of the route
+      for k = 0, j-i-1 do
+        self[i+k], self[j-k] = self[j-k], self[i+k]
+      end
+    else
+      -- Swap two nodes.
+      self[i], self[j] = self[j], self[i]
     end
   end
   
@@ -495,7 +492,7 @@ function Route:breed(route_map)
   local next_pos = next_info.pos
   local prev_pos = QuestHelper.pos
   
-  QuestHelper:yieldIfNeeded(len*0.02)
+  QuestHelper:yieldIfNeeded(0.03*len)
   
   prev_info.len, prev_pos = select(2, prev_info.obj:TravelTime2(QuestHelper.pos, next_pos, false))
   QuestHelper:yieldIfNeeded(1)

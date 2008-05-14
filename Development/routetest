@@ -5,7 +5,41 @@ QuestHelper = {}
 QuestHelper_File = {}
 QuestHelper_Pref = {perf_scale=1}
 
+math.randomseed(os.time())
+
 loadfile("../routing.lua")()
+
+function QuestHelper:DumpRoute(file)
+  local stream = io.open(file or "routetest.svg", "w")
+  if stream then
+    stream:write([[<?xml version="1.0" standalone="no"?>]], "\n",
+                 [[<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">]], "\n",
+                 [[<svg width="512" height="512">]], "\n")
+    
+    stream:write([[<circle cx="]], self.pos[3]*32, [[" cy="]], self.pos[4]*32,
+                 [[" r="16" fill="green" stroke="black" stroke-width="1" />]], "\n")
+    for i, obj in pairs(self.route) do
+      stream:write([[<circle cx="]], obj.pos[3]*32, [[" cy="]], obj.pos[4]*32,
+                   [[" r="16" fill="yellow" stroke="black" stroke-width="1" />]], "\n")
+    end
+    
+    
+    stream:write([[<polyline points="]])
+    stream:write(self.pos[3]*32,",",self.pos[4]*32)
+    for i, obj in pairs(self.route) do
+      stream:write(",",obj.pos[3]*32,",",obj.pos[4]*32)
+    end
+    stream:write([[" fill="none" stroke="orange" stroke-width="4"/>]], "\n")
+    
+    stream:write([[<text x="]], self.pos[3]*32, [[" y="]], self.pos[4]*32, [[" fill="black" font-size="12" text-anchor="middle">]], "player", "</text>\n")
+    for i, obj in pairs(self.route) do
+      stream:write([[<text x="]], obj.pos[3]*32, [[" y="]], obj.pos[4]*32, [[" fill="black" font-size="12" text-anchor="middle">]], obj.name, "</text>\n")
+    end
+    
+    stream:write("</svg>\n")
+    io.close(stream)
+  end
+end
 
 local colours =
  {
@@ -119,6 +153,8 @@ function QuestHelper:CreateWorldMapWalker()
       end
       
       io.write("\n")
+      
+      self:DumpRoute()
     end
    }
 end
@@ -173,24 +209,23 @@ local function createNode(name, x, y)
    }
 end
 
-QuestHelper.pos = {{c=1}, nil, 3, 13}
+QuestHelper.pos = {{c=1}, nil, 8, 8}
 
-QuestHelper.to_add[createNode("01", 10, 14)] = true
-QuestHelper.to_add[createNode("02", 10, 10)] = true
-QuestHelper.to_add[createNode("03", 5, 8)] = true
-QuestHelper.to_add[createNode("04", 14, 8)] = true
-QuestHelper.to_add[createNode("05", 2, 5)] = true
-QuestHelper.to_add[createNode("06", 10, 5)] = true
-QuestHelper.to_add[createNode("07", 7, 2)] = true
-QuestHelper.to_add[createNode("08", 13, 3)] = true
-QuestHelper.to_add[createNode("09", 14, 13)] = true
-QuestHelper.to_add[createNode("10", 6, 5)] = true
-QuestHelper.to_add[createNode("11", 7, 12)] = true
-QuestHelper.to_add[createNode("12", 3, 2)] = true
-QuestHelper.to_add[createNode("13", 8, 8)] = true
-QuestHelper.to_add[createNode("14", 10, 2)] = true
-QuestHelper.to_add[createNode("15", 2, 10)] = true
-QuestHelper.to_add[createNode("16", 11, 7)] = true
+for i = 1,30 do
+  QuestHelper.to_add[createNode(string.format("R%02d", i),math.random()*15+1, math.random()*15+1)] = true
+end
+
+for i = 1,20 do
+  QuestHelper.to_add[createNode(string.format("O%02d", i),8+math.cos(i/10*math.pi)*7, 8+math.sin(i/10*math.pi)*7)] = true
+end
+
+for i = 1,18 do
+  QuestHelper.to_add[createNode(string.format("M%02d", i),8+math.cos(i/9*math.pi)*5, 8+math.sin(i/9*math.pi)*5)] = true
+end
+
+for i = 1,10 do
+  QuestHelper.to_add[createNode(string.format("I%02d", i),8+math.cos(i/5*math.pi)*3, 8+math.sin(i/5*math.pi)*3)] = true
+end
 
 local future_remove = {}
 for o in pairs(QuestHelper.to_add) do
