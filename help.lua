@@ -320,7 +320,35 @@ function QuestHelper:ToggleMapButton()
   end
 end
 
-local commands =
+function QuestHelper:ChangeLog()
+  self:ShowText(QuestHelper_ChangeLog, string.format("QuestHelper %s ChangeLog", QuestHelper_Version))
+end
+
+local commands
+
+function QuestHelper:Help(argument)
+  local text = ""
+  local argument = argument and argument:upper() or ""
+  
+  for i, data in ipairs(commands) do
+    if data[1]:find(argument, 1, true) then
+      text = string.format("%s|cffff8000%s|r   %s\n", text, data[1], data[2])
+      
+      if #data[3] > 0 then
+        text = string.format("%s\n  %s\n", text, #data[3] == 1 and "Example:" or "Examples:")
+        for i, pair in ipairs(data[3]) do
+          text = string.format("%s    |cff40bbff%s|r\n      %s\n", text, pair[1], pair[2])
+        end
+      end
+      
+      text = text .. "\n"
+    end
+  end
+  
+  self:ShowText(text == "" and ("No commands containing '.."..argument.."..'") or text, "QuestHelper Slash Commands")
+end
+
+commands =
  {
   {"VERSION",
    "Displays QuestHelper's version.", {}, QuestHelper.PrintVersion, QuestHelper},
@@ -438,7 +466,15 @@ local commands =
 
   {"SETTINGS",
    "Show the Settings menu",
-   {}, QuestHelper.DoSettingsMenu, QuestHelper}
+   {}, QuestHelper.DoSettingsMenu, QuestHelper},
+  
+  {"CHANGES",
+   "Displays a summary of changes recently made to QuestHelper. This is always displayed when an upgrade is detected.",
+   {}, QuestHelper.ChangeLog, QuestHelper},
+  
+  {"HELP",
+   "Displays a list of help commands. Listed commands are filtered by the passed string.",
+   {}, QuestHelper.Help, QuestHelper}
  }
 
 function QuestHelper:SlashCommand(input)
@@ -467,30 +503,7 @@ function QuestHelper:SlashCommand(input)
     end
   end
   
-  if command == "HELP" then
-    argument = string.upper(argument)
-    
-    for i, data in ipairs(commands) do
-      if data[1] == argument then
-        DEFAULT_CHAT_FRAME:AddMessage(data[1], 1.0, 0.8, 0.4)
-        DEFAULT_CHAT_FRAME:AddMessage("  "..data[2], 1.0, 0.6, 0.2)
-        if #data[3] > 0 then
-          DEFAULT_CHAT_FRAME:AddMessage(#data[3] == 1 and "  Example:" or "  Examples:", 1.0, 0.6, 0.2)
-          for i, pair in ipairs(data[3]) do
-            DEFAULT_CHAT_FRAME:AddMessage("    "..pair[1], 1.0, 1.0, 1.0)
-            DEFAULT_CHAT_FRAME:AddMessage("      "..pair[2], 1.0, 0.6, 0.2)
-          end
-        end
-        return
-      end
-    end
-  end
-  
-  DEFAULT_CHAT_FRAME:AddMessage("Available Commands:", 1.0, 0.6, 0.2)
-  
-  for i, data in ipairs(commands) do
-    DEFAULT_CHAT_FRAME:AddMessage("  "..string.lower(data[1]), 1.0, 0.6, 0.2)
-  end
+  self:Help()
 end
 
 SLASH_QuestHelper1 = "/qh"

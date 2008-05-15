@@ -362,8 +362,7 @@ function QuestHelper:OnEvent(event)
     local version = GetAddOnMetadata("QuestHelper", "Version") or "Unknown"
     if QuestHelper_Version ~= version then
       QuestHelper_Version = version
-      self:ShowText(QuestHelper_ChangeLog,
-                    string.format("QuestHelper %s ChangeLog", QuestHelper_Version))
+      self:ChangeLog()
     end
     
     collectgarbage("collect") -- Free everything we aren't using.
