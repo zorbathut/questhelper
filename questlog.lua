@@ -177,7 +177,8 @@ function QuestHelper:ScanQuestLog()
       players = math.min(5, math.max(1, players))
     end
     
-    if not header then
+    -- Quest was failed if status is -1.
+    if not header and status ~= -1 then
       SelectQuestLogEntry(index)
       local hash = self:HashString(select(2, GetQuestLogQuestText()))
       local quest = self:GetQuest(title, level, hash)
