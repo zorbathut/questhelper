@@ -366,8 +366,15 @@ commands =
    "Automatically ignores/unignores objectives based on criteria.",
    {{"/qh filter zone", "Toggle showing objectives outside the current zone"},
     {"/qh filter done", "Toggle showing objectives for uncompleted quests."},
-    {"/qh filter level", "Toggle showing objectives that are probably too hard."},
+    {"/qh filter level", "Toggle showing objectives that are probably too hard, by considering the levels of you and your party members, and the offset set by the level command."},
     {"/qh filter blocked", "Toggle showing blocked objectives, such as quest turn-ins for incomplete quests."}}, QuestHelper.Filter, QuestHelper},
+  
+  {"LEVEL",
+   "Adjusts the level offset used by the level filter. Naturally, the level filter must be turned on to have an effect.",
+   {{"/qh level", "See information related to the level filter."},
+    {"/qh level 0", "Only allow objectives at below your current level."},
+    {"/qh level +2", "Allow objectives up to two levels above your current level."},
+    {"/qh level -1", "Only allow objectives below your current level."}}, QuestHelper.LevelOffset, QuestHelper},
   
   {"SCALE",
    "Scales the map icons used by QuestHelper. Will accept values between 50% and 300%.",
@@ -387,13 +394,6 @@ commands =
     {{"/qh nag", "Prints just the summary of changes."},
      {"/qh nag verbose", "Prints the specific changes that were found."}}, QuestHelper.Nag, QuestHelper},
   
-  {"LEVEL",
-   "Adjusts the level offset used by the level filter. Naturally, the level filter must be turned on to have an effect.",
-   {{"/qh level", "See information related to the level filter."},
-    {"/qh level 0", "Only allow objectives at below your current level."},
-    {"/qh level +2", "Allow objectives up to two levels above your current level."},
-    {"/qh level -1", "Only allow objectives below your current level."}}, QuestHelper.LevelOffset, QuestHelper},
-  
   {"POS",
     "Prints the player's current position. Exists mainly for my own personal convenience.",
     {}, function (qh) qh:TextOut(qh:LocationString(qh.i, qh.x, qh.y)) end, QuestHelper},
@@ -406,7 +406,10 @@ commands =
    "Search for an item, location, or npc.",
    {{"/qh find item rune of teleport", "Finds a reagent vendor."},
     {"/qh find npc bragok", "Finds the Ratchet flight point."},
-    {"/qh find loc stormwind 50 60", "Finds the Stormwind auction house."}}, QuestHelper.PerformSearch, QuestHelper},
+    {"/qh find loc stormwind 50 60", "Finds the Stormwind auction house."},
+    {"/qh find loc 50 50", "Finds the center of the zone you're in."},
+    {"/qh find something", "Searches for something in all categories."},
+    {"/qh find", "Lists objectives you manually created so that you can remove them."}}, QuestHelper.PerformSearch, QuestHelper},
   
   {"COMM",
    "Toggles showing of the communication between QuestHelper users. Exists mainly for my own personal convenience.",
@@ -425,7 +428,7 @@ commands =
     {}, QuestHelper.ToggleTomTomWP, QuestHelper},
   
   {"TRACK",
-   "Toggles the visibility of the objective tracker.",
+   "Toggles the visibility of the QuestHelper's replacement quest tracker.",
     {}, QuestHelper.ToggleTrack, QuestHelper},
   
   {"TOOLTIP",
@@ -441,11 +444,11 @@ commands =
     {}, QuestHelper.ToggleHide, QuestHelper},
   
   {"ANTS",
-   "Toggles the world map ant trails on and off.",
+   "Toggles the display of trails on the world map on and off.",
     {}, QuestHelper.ToggleAnts, QuestHelper},
   
   {"SOLO",
-   "Toggles solo mode. When enabled, assumes you're playing alone, even when in a party.",
+   "Toggles solo mode. When enabled, assumes your party members don't exist. Objective sharing with party members will also be disabled.",
     {}, QuestHelper.ToggleSolo, QuestHelper},
   
   {"LOCALE",
@@ -453,7 +456,7 @@ commands =
     {}, QuestHelper.SetLocale, QuestHelper},
 
   {"PERF",
-   "Sets / shows the Route Workload / Performance Factor.  Higher means more agressive route updating, lower means better performance (better frame rate).  Accepts numbers between 10% and 500%.",
+   "Sets or shows the route workload. Higher means more agressive route updating, lower means better performance Accepts numbers between 10% and 500%.",
    {{"/qh perf", "Show current Performance Factor"},
     {"/qh perf 1", "Sets standard performance"},
     {"/qh perf 50%", "Does half as much background processing"},
@@ -461,11 +464,11 @@ commands =
     QuestHelper.genericSetScale, QuestHelper, "perf_scale", "performance factor", .1, 5},
   
   {"BUTTON",
-   "Toggle the QuestHelper button on the World Map frame",
+   "Toggles the display of QuestHelper's button on the world map.",
    {}, QuestHelper.ToggleMapButton, QuestHelper},
 
   {"SETTINGS",
-   "Show the Settings menu",
+   "Opens the Settings menu at the current cursor location. Note that not all settings can be changed through the menu.",
    {}, QuestHelper.DoSettingsMenu, QuestHelper},
   
   {"CHANGES",
