@@ -359,6 +359,13 @@ function QuestHelper:OnEvent(event)
       self.tracker:Show()
     end
     
+    local version = GetAddOnMetadata("QuestHelper", "Version") or "Unknown"
+    if QuestHelper_Version ~= version then
+      QuestHelper_Version = version
+      self:ShowText(QuestHelper_ChangeLog,
+                    string.format("QuestHelper %s ChangeLog", QuestHelper_Version))
+    end
+    
     collectgarbage("collect") -- Free everything we aren't using.
     
     if self.debug_objectives then

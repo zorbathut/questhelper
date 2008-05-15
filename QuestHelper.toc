@@ -9,7 +9,7 @@
 ## Notes-koKR: 노선에 대한 계산을 수행합니다.
 ## Version: Development Version
 ## OptionalDeps: Cartographer, TomTom
-## SavedVariables: QuestHelper_SaveVersion QuestHelper_Locale QuestHelper_Quests QuestHelper_Objectives QuestHelper_FlightInstructors QuestHelper_FlightRoutes QuestHelper_Pref QuestHelper_UID QuestHelper_SaveDate
+## SavedVariables: QuestHelper_Version QuestHelper_SaveVersion QuestHelper_Locale QuestHelper_Quests QuestHelper_Objectives QuestHelper_FlightInstructors QuestHelper_FlightRoutes QuestHelper_Pref QuestHelper_UID QuestHelper_SaveDate
 ## SavedVariablesPerCharacter: QuestHelper_KnownFlightRoutes QuestHelper_Home QuestHelper_CharVersion
 ## X-Website: http://wow.curse.com/downloads/details/9924/
 ## X-Embeds: Astrolabe, ChatThrottleLib
@@ -18,6 +18,7 @@ Astrolabe\Load.xml
 ChatThrottleLib\ChatThrottleLib.xml
 
 static.lua
+changes.lua
 
 lang.lua
 lang_enus.lua
@@ -56,6 +57,7 @@ pattern.lua
 flightpath.lua
 tracker.lua
 objtips.lua
+textviewer.lua
 
 cartographer.lua
 tomtom.lua

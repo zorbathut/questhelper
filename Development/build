@@ -6,6 +6,7 @@ local archive_zip=true
 local archive_7z=false
 local icons=true
 local debug_build=false
+local changes_lua = true
 
 for i, a in ipairs({...}) do
   local mode, option = select(3, string.find(a, "^([%+%-]?)(.*)$"))
@@ -17,6 +18,7 @@ for i, a in ipairs({...}) do
   elseif option == "compile" then compile = mode
   elseif option == "external" then external = mode
   elseif option == "icons" then icons = mode
+  elseif option == "changes" then changes_lua = mode
   elseif option == "debug" then debug_build = mode
   else
     print("Unknown option: "..option)
@@ -46,6 +48,57 @@ loadfile("compiler.lua")()
 --loadfile("external.lua")()
 
 QuestHelper_BuildZoneLookup()
+
+if changes_lua then
+  local stream = io.open("../changes.txt", "r")
+  
+  if stream then
+    local function linkparse(a, b)
+      b = b:gsub("^%s*(.-)%s*$", "%1")
+      if b == "" then
+        return a
+      else
+        return b
+      end
+    end
+    
+    local function totext(text)
+      return text:gsub("%[%s*([^%s%]]+)(.-)%]", linkparse)
+                 :gsub("<code>(.-)</code>", "|cff40bbff%1|r")
+                 :gsub("^%s*==%s*(.-)%s*==%s*$", "|cffffff00       %1|r\n")
+                 :gsub("^%*%*%s", "    • ")
+                 :gsub("^%*%s", "• ").."\n"
+    end
+    
+    local count = 0
+    local text = ""
+    
+    while true do
+      line = stream:read("*l")
+      if not line then break end
+      if line:find("^%s*==.*==%s*$") then
+        count = count + 1
+        if count == 6 then
+          break
+        end
+        text = text .. (count == 1 and "" or "\n") .. totext(line)
+      elseif not line:find("^%s*$") then
+        text = text .. totext(line)
+      end
+    end
+    
+    io.close(stream)
+    stream = io.open("../changes.lua", "w")
+    if stream then
+      stream:write(("QuestHelper_ChangeLog=%q\n"):format(text))
+      io.close(stream)
+    else
+      print("Error writing ../changes.lua")
+    end
+  else
+    print("Error opening ../changes.txt")
+  end
+end
 
 if external then
   print("Updating Astrolabe.")
