@@ -528,8 +528,7 @@ end
 
 local function RouteUpdateRoutine(self)
   local map_walker = self:CreateWorldMapWalker()
-  local minimap_dodad = self:CreateMipmapDodad()
-  self.minimap_dodad = minimap_dodad
+  local minimap_dodad = self.minimap_dodad
   
   local add_swap = {}
   local route = self.route
