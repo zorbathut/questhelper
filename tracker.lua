@@ -78,18 +78,41 @@ end
 
 local function itemclick(item, button)
   if button == "RightButton" then
-    local text = item.text:GetText()
+    local quest = item.quest
     local index = 1
     while true do
       local title = GetQuestLogTitle(index)
       if not title then break end
       
-      if title == text then
-        if QuestLogFrame:IsShown() and GetQuestLogSelection() == index then
-          QuestLogFrame:Hide()
+      if title == quest then
+        if UberQuest then
+          -- UberQuest needs a little extra effort to work properly.
+          
+          if UberQuest_List:IsShown() and GetQuestLogSelection() == index then
+            ToggleQuestLog()
+          else
+            QuestLog_SetSelection(index)
+            
+            -- By hiding the list, the replaced ToggleQuestLog function should try to reshow it
+            -- and in the process update the frames to reflect the selected quest.
+            UberQuest_List:Hide()
+            UberQuest_Details:Show()
+            ToggleQuestLog()
+          end
         else
-          QuestLog_SetSelection(index)
-          QuestLogFrame:Show()
+          -- This code seems to work properly with the builtin questlog, as well as bEQL and DoubleWide.
+          
+          if QuestLogFrame:IsShown() and GetQuestLogSelection() == index then
+            -- If the selected quest is already being shown, hide it.
+            ToggleQuestLog()
+          else
+            -- Otherwise, select it and show it.
+            QuestLog_SetSelection(index)
+            
+            if not QuestLogFrame:IsShown() then
+              ToggleQuestLog()
+            end
+          end
         end
         
         return
@@ -132,6 +155,7 @@ local function addItem(name, obj, y, quest)
   
   item.used = true
   
+  item.quest = quest
   item.text:SetText(name)
   local w, h = item.text:GetWidth(), item.text:GetHeight()
   item:SetWidth(w)
@@ -149,6 +173,58 @@ local function addItem(name, obj, y, quest)
   end
   
   return w+x+4, h
+end
+
+local function ccode(r1, g1, b1, r2, g2, b2, p)
+  local ip
+  p, ip = p*255, 255-p*255
+  return string.format("|cff%02x%02x%02x", r1*ip+r2*p, g1*ip+g2*p, b1*ip+b2*p)
+end
+
+local function qname(index)
+  local title, level, qtype, players, header, collapsed, status, daily = QuestHelper:FixedGetQuestLogTitle(index)
+  
+  if QuestHelper_Pref.track_level then
+    -- Append levels to quests.
+    
+    if qtype then
+      title = string.format("[%d+] %s", level, title)
+    elseif players and players > 1 then
+      title = string.format("[%dG%d] %s", level, players, title)
+    else
+      title = string.format("[%d] %s", level, title)
+    end
+  end
+  
+  if QuestHelper_Pref.track_qcolour then
+    local player_level = QuestHelper.player_level
+    local delta = level - player_level
+    
+    local colour
+    
+    if delta >= 5 then
+      colour = "|cffff0000"
+    elseif delta >= 0 then
+      colour = ccode(1, 1, 0, 1, 0, 0, delta/5)
+    else
+      local grey
+      
+      if player_level >= 60 then grey = player_level - 9
+      elseif player_level >= 40 then grey = player_level - math.floor(player_level/5) - 1
+      elseif player_level >= 6 then grey = player_level - math.floor(player_level/10) - 5
+      else grey = 0 end
+      
+      if level > grey then
+        colour = ccode(0, 1, 0, 1, 1, 0, (grey-level)/(grey-player_level))
+      else
+        colour = ccode(.4, .4, .4, .2, .8, .2, (1-level)/(1-grey))
+      end
+    end
+    
+    title = string.format("%s%s", colour, title)
+  end
+  
+  return title
 end
 
 local resizing = false
@@ -187,6 +263,7 @@ function tracker:update(delta)
     local added = 0
     local x, y = 4, 4
     local gap = 0
+    local track_size = QuestHelper_Pref.track_size
     
     for obj, item in pairs(used_items) do
       item.used = false
@@ -200,7 +277,7 @@ function tracker:update(delta)
           seen[info] = true
           added = added + 1
           
-          local w, h = addItem(GetQuestLogTitle(info.index), obj, -(y+gap), true)
+          local w, h = addItem(qname(info.index), obj, -(y+gap), GetQuestLogTitle(info.index))
           x = math.max(x, w)
           y = y + h + gap
           
@@ -215,7 +292,7 @@ function tracker:update(delta)
               local name = reverse_map[subobj]
               if name then
                 added = added + 1
-                w, h = addItem(name, subobj, -y, false)
+                w, h = addItem(name, subobj, -y)
                 x = math.max(x, w)
                 y = y + h
               end
@@ -227,12 +304,12 @@ function tracker:update(delta)
           end
         end
         
-        if added > 8 then
+        if added > track_size then
           break
         end
       end
       
-      if added > 8 then
+      if added > track_size then
         break
       end
       
@@ -242,13 +319,13 @@ function tracker:update(delta)
         seen[info] = true
         added = added + 1
         
-        local w, h = addItem(GetQuestLogTitle(info.index), foo, -(y+gap), true)
+        local w, h = addItem(qname(info.index), foo, -(y+gap), GetQuestLogTitle(info.index))
         x = math.max(x, w)
         y = y + h + gap
         gap = 2
       end
       
-      if added > 8 then
+      if added > track_size then
         break
       end
     end
