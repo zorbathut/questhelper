@@ -285,7 +285,10 @@ function tracker:update(delta)
           
           if info.goal then
             for i, subinfo in pairs(info.goal) do
-              reverse_map[subinfo.objective] = GetQuestLogLeaderBoard(i, info.index)
+              local obj = subinfo.objective
+              if obj then
+                reverse_map[obj] = GetQuestLogLeaderBoard(i, info.index)
+              end
             end
           
             for i, subobj in ipairs(QuestHelper.route) do
