@@ -354,7 +354,7 @@ function QuestHelper:OnEvent(event)
     
     self.tracker:SetScale(QuestHelper_Pref.track_scale)
     
-    if QuestHelper_Pref.track then
+    if QuestHelper_Pref.track and not QuestHelper_Pref.hide then
       self.tracker:HideDefaultTracker()
       self.tracker:Show()
     end

@@ -419,8 +419,6 @@ function tracker:HideDefaultTracker()
 end
 
 function tracker:ShowDefaultTracker()
-  assert(not QuestHelper_Pref.track)
-
   QuestWatchFrame:Show()
 
   if TrackerBackdropFound then

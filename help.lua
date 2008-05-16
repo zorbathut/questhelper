@@ -75,11 +75,21 @@ function QuestHelper:ToggleHide()
   end
   
   if QuestHelper_Pref.hide then
+    if QuestHelper_Pref.track then
+      self.tracker:ShowDefaultTracker()
+      self.tracker:Hide()
+    end
+    
     self.map_overlay:Hide()
     self.minimap_dodad:SetObjective(nil)
     self.minimap_dodad.objective = current_objective
     self:TextOut("QuestHelper is now |cffff0000hidden|r.")
   else
+    if QuestHelper_Pref.track then
+      self.tracker:HideDefaultTracker()
+      self.tracker:Show()
+    end
+    
     self.map_overlay:Show()
     self.minimap_dodad.objective = nil
     self.minimap_dodad:SetObjective(current_objective)
