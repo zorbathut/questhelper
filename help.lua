@@ -11,8 +11,8 @@ function QuestHelper:genericSetScale(varname, name, mn, mx, input, onchange, ...
     local scale = tonumber(input)
     
     if not scale then
-      local _, _, x = string.find(input, "^%s*([%d%.]+)%s*%%%s*$")
-      scale = tonumber(x)
+      local x = string.match(input or "", "^%s*([%d%.]+)%s*%%%s*$")
+      scale = tonumber(x) or 0
       if not scale then
         self:TextOut("I don't know how to interpret your input.")
         return
@@ -421,7 +421,7 @@ commands =
   {"TSCALE",
    "Scales the quest tracker provided by QuestHelper. Will accept values between 50% and 300%.",
    {},
-   QuestHelper.TrackerScale, self},
+   QuestHelper.TrackerScale, QuestHelper},
   
   {"TLEVEL",
    "Toggles display of levels in the quest tracker provided by QuestHelper.",
