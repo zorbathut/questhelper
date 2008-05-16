@@ -213,7 +213,7 @@ function Route:addObjective(obj)
     local d1, d2
     
     if index == 1 then
-      d1, d2, info.pos = obj:TravelTime2(QuestHelper.pos, self[index].pos)
+      d1, d2, info.pos = obj:TravelTime2(QuestHelper.pos, self[index].pos, --[[nocache=]] true)
       info.len = d2
       self.distance = self.distance + d2
     else
@@ -260,7 +260,7 @@ function Route:removeObjective(obj)
   else
     local info1 = self[index-1]
     local d
-    d, info1.pos = info1.obj:TravelTime(self[index+1].pos, true)
+    d, info1.pos = info1.obj:TravelTime(self[index+1].pos)
     self.distance = self.distance + (d - info1.len - info.len)
     info1.len = d
     QuestHelper:yieldIfNeeded(.5)
@@ -462,7 +462,7 @@ function Route:breed(route_map)
   
   QuestHelper:yieldIfNeeded(0.03*len)
   
-  prev_info.len, prev_pos = select(2, prev_info.obj:TravelTime2(QuestHelper.pos, next_pos, false))
+  prev_info.len, prev_pos = select(2, prev_info.obj:TravelTime2(QuestHelper.pos, next_pos, --[[nocache=]] true))
   QuestHelper:yieldIfNeeded(1)
   
   prev_info.pos = prev_pos
@@ -479,7 +479,7 @@ function Route:breed(route_map)
     
     indexes[info.obj] = i
     
-    d1, d2, pos = info.obj:TravelTime2(prev_pos, next_pos, true)
+    d1, d2, pos = info.obj:TravelTime2(prev_pos, next_pos)
     QuestHelper:yieldIfNeeded(1)
     
     prev_info.len = d1
