@@ -484,7 +484,10 @@ end
 
 function tracker:ShowDefaultTracker()
   QuestWatchFrame:Show()
-
+  
+   -- Make sure the default tracker is up to date on what what's being watched and what isn't.
+  QuestWatch_Update()
+  
   if TrackerBackdropFound then
     TrackerBackdropFound:Show()
   end
