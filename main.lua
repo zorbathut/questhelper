@@ -184,7 +184,8 @@ function QuestHelper:OnEvent(event)
        ["tracker.lua"] = true,
        ["objtips.lua"] = true,
        ["cartographer.lua"] = true,
-       ["tomtom.lua"] = true
+       ["tomtom.lua"] = true,
+       ["textviewer.lua"] = true
       }
     
     for file, version in pairs(QuestHelper_File) do

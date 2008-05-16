@@ -1,3 +1,5 @@
+QuestHelper_File["textviewer.lua"] = "Development Version"
+
 local viewer
 
 local function viewer_mousewheel(self, dir)
