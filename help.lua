@@ -162,6 +162,16 @@ function QuestHelper:ToggleTrackQColour()
   self.tracker:reset()
 end
 
+function QuestHelper:ToggleTrackOColour()
+  QuestHelper_Pref.track_ocolour = not QuestHelper_Pref.track_ocolour
+  if QuestHelper_Pref.track_ocolour then
+    self:TextOut("Colour for objective progress in quest tracker has been |cff00ff00enabled|r.")
+  else
+    self:TextOut("Colour for objective progress in quest tracker has been |cffff0000disabled|r.")
+  end
+  self.tracker:reset()
+end
+
 function QuestHelper:ToggleTooltip()
   QuestHelper_Pref.tooltip = not QuestHelper_Pref.tooltip
   if QuestHelper_Pref.tooltip then
@@ -407,7 +417,7 @@ commands =
   {"LEVEL",
    "Adjusts the level offset used by the level filter. Naturally, the level filter must be turned on to have an effect.",
    {{"/qh level", "See information related to the level filter."},
-    {"/qh level 0", "Only allow objectives at below your current level."},
+    {"/qh level 0", "Only allow objectives at or below your current level."},
     {"/qh level +2", "Allow objectives up to two levels above your current level."},
     {"/qh level -1", "Only allow objectives below your current level."}}, QuestHelper.LevelOffset, QuestHelper},
   
@@ -417,6 +427,14 @@ commands =
     {"/qh scale 2", "Makes icons twice their default size."},
     {"/qh scale 80%", "Makes icons slightly smaller than their default size."}},
     QuestHelper.genericSetScale, QuestHelper, "scale", "icon scale", .5, 3},
+  
+  {"TOOLTIP",
+   "Toggles appending information about tracked items and NPCs to their tooltips.",
+    {}, QuestHelper.ToggleTooltip, QuestHelper},
+  
+  {"TRACK",
+   "Toggles the visibility of the QuestHelper's replacement quest tracker.",
+    {}, QuestHelper.ToggleTrack, QuestHelper},
   
   {"TSCALE",
    "Scales the quest tracker provided by QuestHelper. Will accept values between 50% and 300%.",
@@ -430,6 +448,10 @@ commands =
   {"TQCOL",
    "Toggles display of colours for the difficulty level of quests in the quest tracker provided by QuestHelper.",
    {}, QuestHelper.ToggleTrackQColour, QuestHelper},
+  
+  {"TOCOL",
+   "Toggles display of colours for objective progress in the quest tracker provided by QuestHelper.",
+   {}, QuestHelper.ToggleTrackOColour, QuestHelper},
   
   {"NAG",
    "Tells you if you have anything that's missing from the static database.",
@@ -468,14 +490,6 @@ commands =
   {"TOMTOM",
    "Toggles displaying the current objective using TomTom.",
     {}, QuestHelper.ToggleTomTomWP, QuestHelper},
-  
-  {"TRACK",
-   "Toggles the visibility of the QuestHelper's replacement quest tracker.",
-    {}, QuestHelper.ToggleTrack, QuestHelper},
-  
-  {"TOOLTIP",
-   "Toggles appending information about tracked items and NPCs to their tooltips.",
-    {}, QuestHelper.ToggleTooltip, QuestHelper},
   
   {"SHARE",
    "Toggles objective sharing between QuestHelper users.",

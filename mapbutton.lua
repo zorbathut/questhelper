@@ -76,6 +76,8 @@ function QuestHelper:DoSettingsMenu()
                     :SetFunction(self.ToggleTrackLevel, self)
     self:CreateMenuItem(submenu, QHFormat("MENU_TRACKER_QCOLOUR", QuestHelper_Pref.track_qcolour and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
                     :SetFunction(self.ToggleTrackQColour, self)
+    self:CreateMenuItem(submenu, QHFormat("MENU_TRACKER_OCOLOUR", QuestHelper_Pref.track_ocolour and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
+                    :SetFunction(self.ToggleTrackOColour, self)
     local submenu2 = self:CreateMenu()
     for pct = 60,120,10 do
       local item = self:CreateMenuItem(submenu2, pct.."%")

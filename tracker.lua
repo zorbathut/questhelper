@@ -227,6 +227,23 @@ local function qname(index)
   return title
 end
 
+local function oname(text)
+  if QuestHelper_Pref.track_ocolour then
+    local mn, mx = text:match("%s*(.-)%s*/%s*(.-)%s*")
+    local mnn, mxn = tonumber(mn), tonumber(mx)
+    
+    if mnn and mxn then
+      pct = mnn == mxn or mxn == 0 and 1 or mnn/mxn
+    else
+      pct = mn == mx and 1 or 0
+    end
+    
+    text = string.format("%s%s", pct < 0.5 and ccode(1, 0, 0, 1, 1, 0, pct*2) or ccode(1, 1, 0, 0, 1, 0, pct*2-1), text)
+  end
+  
+  return text
+end
+
 local function removeUnusedItem(obj, item)
   unused_items[item] = true
   used_items[obj] = nil
@@ -314,7 +331,7 @@ function tracker:update(delta)
               local name = reverse_map[subobj]
               if name then
                 added = added + 1
-                w, h = addItem(name, subobj, -y)
+                w, h = addItem(oname(name), subobj, -y)
                 x = math.max(x, w)
                 y = y + h
               end

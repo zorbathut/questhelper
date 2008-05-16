@@ -24,6 +24,7 @@ QuestHelper_DefaultPref =
   track_scale=1,
   track_level=true,
   track_qcolour=true,
+  track_ocolour=true,
   track_size=8,
   tooltip=true,
   share = true,
