@@ -14,7 +14,7 @@ tracker.dw, tracker.dh = 200, 100
 local in_tracker = 0
 
 minbutton:SetFrameLevel(tracker:GetFrameLevel()+2)
-minbutton:Show()
+minbutton:Hide()
 minbutton:SetPoint("TOPRIGHT", QuestWatchFrame)
 minbutton:SetWidth(10)
 minbutton:SetHeight(5)
@@ -327,6 +327,7 @@ function tracker:update(delta)
   local x, y = GetCursorPosition()
   local s = 1/self:GetEffectiveScale()
   x, y = x*s, y*s
+
   local inside = x >= self:GetLeft() and y >= self:GetBottom() and x < self:GetRight() and y < self:GetTop()
   if inside ~= was_inside then
     was_inside = inside
@@ -448,12 +449,12 @@ local orig_TrackerBackdropOnShow   -- bEQL (and perhaps other mods) add a backdr
 local TrackerBackdropFound = false
 
 local function TrackerBackdropOnShow(self, ...)
-  if QuestHelper_Pref.track then
+  if QuestHelper_Pref.track and not QuestHelper_Pref.hide then
     TrackerBackdropFound:Hide()
   end
 
   if orig_TrackerBackdropOnShow then
-    orig_TrackerBackdropOnShow(self, ...)
+    return orig_TrackerBackdropOnShow(self, ...)
   end
 end
 
@@ -490,12 +491,12 @@ function tracker:ShowDefaultTracker()
 end
 
 local function QuestWatchFrameOnShow(self, ...)
-  if QuestHelper_Pref.track then
+  if QuestHelper_Pref.track and not QuestHelper_Pref.hide then
     tracker:HideDefaultTracker()
   end
 
   if orig_TrackerOnShow then
-    orig_TrackerOnShow(self, ...)
+    return orig_TrackerOnShow(self, ...)
   end
 end
 
