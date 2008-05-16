@@ -21,6 +21,7 @@ QuestHelper_DefaultPref =
   filter_done=false,
   filter_blocked=false, -- Hides blocked objectives, such as quest turn-ins for incomplete quests
   track=true,
+  track_minimized=false,
   track_scale=1,
   track_level=true,
   track_qcolour=true,
@@ -356,8 +357,7 @@ function QuestHelper:OnEvent(event)
     self.tracker:SetScale(QuestHelper_Pref.track_scale)
     
     if QuestHelper_Pref.track and not QuestHelper_Pref.hide then
-      self.tracker:HideDefaultTracker()
-      self.tracker:Show()
+      self:ShowTracker()
     end
     
     local version = GetAddOnMetadata("QuestHelper", "Version") or "Unknown"

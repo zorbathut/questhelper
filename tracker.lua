@@ -1,6 +1,7 @@
 QuestHelper_File["tracker.lua"] = "Development Version"
 
 local tracker = CreateFrame("Frame", "QuestHelperQuestWatchFrame", UIParent)
+local minbutton = CreateFrame("Button", "QuestHelperQuestWatchFrameMinimizeButton", UIParent)
 
 QuestHelper.tracker = tracker
 
@@ -9,6 +10,34 @@ tracker:SetPoint("TOPRIGHT", QuestWatchFrame)
 tracker:SetWidth(200)
 tracker:SetHeight(100)
 tracker.dw, tracker.dh = 200, 100
+
+local in_tracker = 0
+
+minbutton:SetFrameLevel(tracker:GetFrameLevel()+2)
+minbutton:Show()
+minbutton:SetPoint("TOPRIGHT", QuestWatchFrame)
+minbutton:SetWidth(10)
+minbutton:SetHeight(5)
+local minbutton_tex = minbutton:CreateTexture()
+minbutton_tex:SetAllPoints()
+minbutton_tex:SetTexture(.8, .8, .8)
+
+minbutton:SetScript("OnClick", function ()
+  QuestHelper_Pref.track_minimized = not QuestHelper_Pref.track_minimized
+  if QuestHelper_Pref.track_minimized then
+    tracker:Hide()
+  else
+    tracker:Show()
+  end
+end)
+
+minbutton:SetScript("OnEnter", function (self)
+  self:SetAlpha(1)
+end)
+
+minbutton:SetScript("OnLeave", function (self)
+  self:SetAlpha(QuestHelper_Pref.track_minimized and .3 or .5)
+end)
 
 local unused_items = {}
 local used_items = {}
@@ -260,6 +289,7 @@ local resizing = false
 local check_delay = 4
 local seen = {}
 local reverse_map = {}
+local was_inside = false
 
 function tracker:reset()
   for obj, item in pairs(used_items) do
@@ -288,6 +318,20 @@ function tracker:update(delta)
       local it = 1-t
       self:SetWidth(self.sw*it+self.dw*t)
       self:SetHeight(self.sh*it+self.dh*t)
+    end
+  end
+  
+  local x, y = GetCursorPosition()
+  -- Manually checking if the mouse is in the frame, because if I used on OnEnter, i'd have to enable mouse input,
+  -- and if I did that, it would prevent the player from using the mouse to change the view if they clicked inside
+  -- the tracker.
+  local inside = x >= self:GetLeft() and y >= self:GetBottom() and x < self:GetRight() and y < self:GetTop()
+  if inside ~= was_inside then
+    was_inside = inside
+    if inside then
+      minbutton:Show()
+    elseif not QuestHelper_Pref.track_minimized then
+      minbutton:Hide()
     end
   end
   
@@ -454,3 +498,22 @@ local function QuestWatchFrameOnShow(self, ...)
 end
 
 QuestWatchFrame:SetScript("OnShow", QuestWatchFrameOnShow)
+
+function QuestHelper:ShowTracker()
+  tracker:HideDefaultTracker()
+  
+  if QuestHelper_Pref.track_minimized then
+    minbutton:Show()
+    minbutton:SetAlpha(.3)
+  else
+    minbutton:SetAlpha(.5)
+    tracker:Show()
+  end
+end
+
+function QuestHelper:HideTracker()
+  tracker:ShowDefaultTracker()
+  tracker:Hide()
+  minbutton:Hide()
+end
+

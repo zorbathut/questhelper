@@ -76,8 +76,7 @@ function QuestHelper:ToggleHide()
   
   if QuestHelper_Pref.hide then
     if QuestHelper_Pref.track then
-      self.tracker:ShowDefaultTracker()
-      self.tracker:Hide()
+      self:HideTracker()
     end
     
     self.map_overlay:Hide()
@@ -86,8 +85,7 @@ function QuestHelper:ToggleHide()
     self:TextOut("QuestHelper is now |cffff0000hidden|r.")
   else
     if QuestHelper_Pref.track then
-      self.tracker:HideDefaultTracker()
-      self.tracker:Show()
+      self:ShowTracker()
     end
     
     self.map_overlay:Show()
@@ -132,12 +130,10 @@ end
 function QuestHelper:ToggleTrack()
   QuestHelper_Pref.track = not QuestHelper_Pref.track
   if QuestHelper_Pref.track then
-    self.tracker:HideDefaultTracker()
-    self.tracker:Show()
+    self:ShowTracker()
     self:TextOut("The quest tracker has been |cff00ff00enabled|r.")
   else
-    self.tracker:ShowDefaultTracker()
-    self.tracker:Hide()
+    self:HideTracker()
     self:TextOut("The quest tracker has been |cffff0000disabled|r.")
   end
 end
