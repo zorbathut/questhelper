@@ -36,6 +36,7 @@ end
 function QuestHelper:ShowText(text, title)
   if not viewer then
     viewer = CreateFrame("Frame", "QuestHelperTextViewer", nil) -- With no parent, this will always be visible.
+    viewer:SetFrameStrata("FULLSCREEN_DIALOG")
     viewer:SetPoint("CENTER", UIParent)
     viewer:EnableMouseWheel(true)
     viewer:EnableMouse(true)
