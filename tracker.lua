@@ -321,10 +321,12 @@ function tracker:update(delta)
     end
   end
   
-  local x, y = GetCursorPosition()
   -- Manually checking if the mouse is in the frame, because if I used on OnEnter, i'd have to enable mouse input,
   -- and if I did that, it would prevent the player from using the mouse to change the view if they clicked inside
   -- the tracker.
+  local x, y = GetCursorPosition()
+  local s = 1/self:GetEffectiveScale()
+  x, y = x*s, y*s
   local inside = x >= self:GetLeft() and y >= self:GetBottom() and x < self:GetRight() and y < self:GetTop()
   if inside ~= was_inside then
     was_inside = inside
