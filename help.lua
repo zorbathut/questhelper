@@ -34,6 +34,11 @@ function QuestHelper:genericSetScale(varname, name, mn, mx, input, onchange, ...
   end
 end
 
+function QuestHelper:TrackerScale(scale)
+  QuestHelper:genericSetScale("track_scale", "tracker scale", .5, 2, scale,
+                              function() QuestHelper.tracker:SetScale(QuestHelper_Pref.track_scale) end)
+end
+
 function QuestHelper:SetLocale(loc)
   if not loc or loc == "" then
     self:TextOut(QHText("LOCALE_LIST_BEGIN"))
@@ -125,6 +130,26 @@ function QuestHelper:ToggleTrack()
     self.tracker:Hide()
     self:TextOut("The quest tracker has been |cffff0000disabled|r.")
   end
+end
+
+function QuestHelper:ToggleTrackLevel()
+  QuestHelper_Pref.track_level = not QuestHelper_Pref.track_level
+  if QuestHelper_Pref.track_level then
+    self:TextOut("Display of levels in the quest tracker has been |cff00ff00enabled|r.")
+  else
+    self:TextOut("Display of levels in the quest tracker has been |cffff0000disabled|r.")
+  end
+  self.tracker:reset()
+end
+
+function QuestHelper:ToggleTrackQColour()
+  QuestHelper_Pref.track_qcolour = not QuestHelper_Pref.track_qcolour
+  if QuestHelper_Pref.track_qcolour then
+    self:TextOut("Colour for quest difficulty in quest tracker has been |cff00ff00enabled|r.")
+  else
+    self:TextOut("Colour for quest difficulty in quest tracker has been |cffff0000disabled|r.")
+  end
+  self.tracker:reset()
 end
 
 function QuestHelper:ToggleTooltip()
@@ -345,7 +370,7 @@ function QuestHelper:Help(argument)
     end
   end
   
-  self:ShowText(text == "" and ("No commands containing '.."..argument.."..'") or text, "QuestHelper Slash Commands")
+  self:ShowText(text == "" and ("No commands containing '"..argument.."'") or text, "QuestHelper Slash Commands")
 end
 
 commands =
@@ -386,8 +411,15 @@ commands =
   {"TSCALE",
    "Scales the quest tracker provided by QuestHelper. Will accept values between 50% and 300%.",
    {},
-   function (input) QuestHelper:genericSetScale("track_scale", "tracker scale", .5, 2, input,
-     function() QuestHelper.tracker:SetScale(QuestHelper_Pref.track_scale) end) end},
+   QuestHelper.TrackerScale, self},
+  
+  {"TLEVEL",
+   "Toggles display of levels in the quest tracker provided by QuestHelper.",
+   {}, QuestHelper.ToggleTrackLevel, QuestHelper},
+  
+  {"TQCOL",
+   "Toggles display of colours for the difficulty level of quests in the quest tracker provided by QuestHelper.",
+   {}, QuestHelper.ToggleTrackQColour, QuestHelper},
   
   {"NAG",
    "Tells you if you have anything that's missing from the static database.",

@@ -32,6 +32,10 @@ function QuestHelper:DoSettingsMenu()
     self:CreateMenuItem(menu, QHFormat("MENU_ANT_TRAILS", QuestHelper_Pref.show_ants and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
                     :SetFunction(self.ToggleAnts, self)
     
+    -- Objective Tooltips
+    self:CreateMenuItem(menu, QHFormat("MENU_OBJECTIVE_TIPS", QuestHelper_Pref.show_ants and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
+                    :SetFunction(self.ToggleTooltip, self)
+    
     -- Cartographer Waypoints
     if Cartographer_Waypoints then
       self:CreateMenuItem(menu, QHFormat("MENU_WAYPOINT_ARROW", QuestHelper_Pref.cart_wp and QHText("MENU_DISABLE") or QHText("MENU_ENABLE"))..(TomTom and " (Cartographer Waypoints)" or ""))
@@ -53,7 +57,7 @@ function QuestHelper:DoSettingsMenu()
     for pct = 50,120,10 do
       local item = self:CreateMenuItem(submenu, pct.."%")
       local tex = self:CreateIconTexture(item, 10)
-      item:SetFunction(self.SetIconScale, QuestHelper, pct.."%")
+      item:SetFunction(QuestHelper.genericSetScale, QuestHelper, "scale", "icon scale", .5, 3, pct.."%")
       item:AddTexture(tex, true)
       tex:SetVertexColor(1, 1, 1, QuestHelper_Pref.scale == pct*0.01 and 1 or 0)
     end
@@ -63,6 +67,25 @@ function QuestHelper:DoSettingsMenu()
     submenu = self:CreateMenu()
     self:PopulateHidden(submenu)
     self:CreateMenuItem(menu, QHText("HIDDEN_TITLE")):SetSubmenu(submenu)
+    
+    -- Tracker Options
+    submenu = self:CreateMenu()
+    self:CreateMenuItem(submenu, QHFormat("MENU_QUEST_TRACKER", QuestHelper_Pref.track and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
+                    :SetFunction(self.ToggleTrack, self)
+    self:CreateMenuItem(submenu, QHFormat("MENU_TRACKER_LEVEL", QuestHelper_Pref.track_level and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
+                    :SetFunction(self.ToggleTrackLevel, self)
+    self:CreateMenuItem(submenu, QHFormat("MENU_TRACKER_QCOLOUR", QuestHelper_Pref.track_qcolour and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
+                    :SetFunction(self.ToggleTrackQColour, self)
+    local submenu2 = self:CreateMenu()
+    for pct = 60,120,10 do
+      local item = self:CreateMenuItem(submenu2, pct.."%")
+      local tex = self:CreateIconTexture(item, 10)
+      item:SetFunction(self.TrackerScale, QuestHelper, pct.."%")
+      item:AddTexture(tex, true)
+      tex:SetVertexColor(1, 1, 1, QuestHelper_Pref.track_scale == pct*0.01 and 1 or 0)
+    end
+    self:CreateMenuItem(submenu, QHText("MENU_TRACKER_SCALE")):SetSubmenu(submenu2)
+    self:CreateMenuItem(menu, QHText("MENU_TRACKER_OPTIONS")):SetSubmenu(submenu)
     
     -- Filters
     submenu = self:CreateMenu()
@@ -74,9 +97,9 @@ function QuestHelper:DoSettingsMenu()
                     :SetFunction(self.Filter, self, "BLOCKED")
     self:CreateMenuItem(submenu, QHFormat("MENU_LEVEL_FILTER", QuestHelper_Pref.filter_level and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
                     :SetFunction(self.Filter, self, "LEVEL")
-    local submenu2 = self:CreateMenu()
+    submenu2 = self:CreateMenu()
     self:CreateMenuItem(submenu, QHText("MENU_LEVEL_OFFSET")):SetSubmenu(submenu2)
-
+    
     for offset = -5,5 do
       local menu = self:CreateMenuItem(submenu2, (offset > 0 and "+" or "")..offset)
       menu:SetFunction(self.LevelOffset, self, offset)
@@ -89,7 +112,7 @@ function QuestHelper:DoSettingsMenu()
     submenu = self:CreateMenu()
     for scale = 0.2,2,0.2 do
       local menu = self:CreateMenuItem(submenu, (scale*100).."%")
-      menu:SetFunction(self.SetPerfFactor, self, scale)
+      menu:SetFunction(QuestHelper.genericSetScale, QuestHelper, "perf_scale", "performance factor", .1, 5, scale)
       local tex = self:CreateIconTexture(item, 10)
       menu:AddTexture(tex, true)
       tex:SetVertexColor(1, 1, 1, QuestHelper_Pref.perf_scale == scale and 1 or 0)

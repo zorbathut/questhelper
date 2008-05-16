@@ -227,10 +227,29 @@ local function qname(index)
   return title
 end
 
+local function removeUnusedItem(obj, item)
+  unused_items[item] = true
+  used_items[obj] = nil
+  item.used = false
+  item.t = 0
+  item.sx, item.sy = item.x, item.y
+  item.dx, item.dy = item.x+30, item.y
+  item:SetScript("OnMouseDown", nil)
+  item:EnableMouse(false)
+  item:SetScript("OnUpdate", itemfadeout)
+end
+
 local resizing = false
 local check_delay = 4
 local seen = {}
 local reverse_map = {}
+
+function tracker:reset()
+  for obj, item in pairs(used_items) do
+    removeUnusedItem(obj, item)
+    check_delay = 5
+  end
+end
 
 function tracker:update(delta)
   if not delta then
@@ -335,15 +354,7 @@ function tracker:update(delta)
     
     for obj, item in pairs(used_items) do
       if not item.used then
-        unused_items[item] = true
-        used_items[obj] = nil
-        item.used = false
-        item.t = 0
-        item.sx, item.sy = item.x, item.y
-        item.dx, item.dy = item.x+30, item.y
-        item:SetScript("OnMouseDown", nil)
-        item:EnableMouse(false)
-        item:SetScript("OnUpdate", itemfadeout)
+        removeUnusedItem(obj, item)
       end
     end
     
