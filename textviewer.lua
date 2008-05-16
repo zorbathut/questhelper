@@ -45,6 +45,9 @@ function QuestHelper:ShowText(text, title)
     viewer:SetScript("OnMouseWheel", viewer_mousewheel)
     viewer:SetScript("OnMouseDown", viewer_mousedown)
     
+    -- This will cause it to be hidden if Esc is pressed.
+    table.insert(UISpecialFrames, viewer:GetName())
+    
     viewer.title = viewer:CreateFontString()
     viewer.title:SetFont(self.font.serif, 14)
     viewer.title:SetPoint("TOPLEFT", viewer, 8, -8)
