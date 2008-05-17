@@ -676,7 +676,7 @@ local function RouteUpdateRoutine(self)
       if recheck_position > #route then recheck_position = 1 end
       local o = route[recheck_position]
       
-      o.filter_zone = o.location[1] ~= self.pos[1]
+      o.filter_zone = o.p[pos[1]] == nil
       
       if not o:Known() then
         -- Objective was probably made to depend on an objective that we don't know about yet.
@@ -773,7 +773,7 @@ local function RouteUpdateRoutine(self)
       if obj:Known() then
         obj:PrepareRouting()
         
-        obj.filter_zone = obj.location[1] ~= self.pos[1]
+        obj.filter_zone = obj.p[pos[1]] == nil
         
         if obj.filter_zone and QuestHelper_Pref.filter_zone then
           -- Not going to add it, wrong zone.
@@ -823,7 +823,6 @@ local function RouteUpdateRoutine(self)
     
     if #best_route > 1 then
       -- If there is 2 or more objectives, randomly combine routes to (hopefully) create something better than we had before.
-      local pos = self.pos
       
       -- Calculate best_route first, so that if other routes are identical, we don't risk swapping with them and
       -- updating the map_walker.
