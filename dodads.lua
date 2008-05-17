@@ -165,6 +165,7 @@ function QuestHelper:CreateWorldMapWalker()
       local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
       
       if self.frame.target then
+        travel_time = math.max(0, self.frame.target_time-time())
         cur = self.frame.target
         local t = self.frame:CreateTable()
         t[1], t[2] = convertLocationToScreen(cur, c, z)
@@ -650,7 +651,15 @@ function QuestHelper:CreateMipmapDodad()
           return
         end
         
-        local path, travel_time = QuestHelper:ComputeRoute(QuestHelper.pos, self.objective.pos)
+        local path, travel_time
+        
+        if QuestHelper.target then
+          path, travel_time = QuestHelper:ComputeRoute(QuestHelper.target, self.objective.pos)
+          travel_time = travel_time + math.max(0, QuestHelper.target_time-time())
+        else
+          path, travel_time = QuestHelper:ComputeRoute(QuestHelper.pos, self.objective.pos)
+        end
+        
         local t = self.target
         local id = self.objective.icon_id
         t[1], t[2], t[3], t[4] = convertLocation(self.objective.pos)

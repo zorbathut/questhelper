@@ -715,8 +715,8 @@ function QuestHelper:OnUpdate()
       if self.target then
         self.pos[1], self.pos[3], self.pos[4] = self.target[1], self.target[3], self.target[4]
         local extra_time = math.max(0, self.target_time-time())
-        for i in ipairs(self.pos[1]) do
-          self.pos[2][i] = self.target[2][i]+extra_time
+        for i, t in ipairs(self.target[2]) do
+          self.pos[2][i] = t+extra_time
         end
       end
     end
