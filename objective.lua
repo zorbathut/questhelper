@@ -548,6 +548,7 @@ local function GetPosition(self)
   return self.location
 end
 
+-- Note: Pos is the starting point, the objective is the destination.
 local function ComputeTravelTime(self, pos, nocache)
   assert(self.setup)
   
@@ -612,6 +613,7 @@ local function ComputeTravelTime(self, pos, nocache)
   return d, e
 end
 
+-- Note: pos1 is the starting point, pos2 is the ending point, the objective is somewhere between them.
 local function ComputeTravelTime2(self, pos1, pos2, nocache)
   assert(self.setup)
   

@@ -110,7 +110,7 @@ function Route:findObjectiveRange(obj)
   return mn, mx
 end
 
-function Route:addObjective(obj)  
+function Route:addObjectiveFast(obj)
   local indexes = self.index
   local len = #self
   local info = QuestHelper:CreateTable()
@@ -205,10 +205,10 @@ function Route:addObjective(obj)
     local previnfo = self[index-1]
     assert(previnfo)
     local d
-    d, previnfo.pos = previnfo.obj:TravelTime(pos)
+    d, obj.pos = obj:TravelTime(pos, previnfo.pos)
+    QuestHelper:yieldIfNeeded(0.5)
     previnfo.len = d
     self.distance = self.distance + d
-    QuestHelper:yieldIfNeeded(0.5)
   else
     local d1, d2
     
@@ -241,6 +241,90 @@ function Route:addObjective(obj)
   return index
 end
 
+function Route:addObjectiveBest(obj, extra, mn, mx)
+  local indexes = self.index
+  local len = #self
+  local info = QuestHelper:CreateTable()
+  assert(not indexes[obj])
+  
+  info.obj = obj
+  
+  if len == 0 then
+    self[1] = info
+    indexes[obj] = 1
+    info.pos = obj.location
+    return 1
+  end
+  
+  local best_index, best_delta, best_d1, best_d2, best_p
+  local no_cache, prev_pos, prev_len
+  local mn, mx = self:findObjectiveRange(obj)
+  
+  if mn == 1 then
+    no_cache, prev_pos = true, QuestHelper.pos
+    prev_len = QuestHelper:ComputeTravelTime(prev_pos, self[1].pos)
+    QuestHelper:yieldIfNeeded(0.3)
+  else
+    local pinfo = self[mn-1]
+    no_cache, prev_pos, prev_len = false, pinfo.pos, pinfo.len
+  end
+  
+  for i = mn, math.min(mx, len) do
+    local info = self[i]
+    local pos = info.pos
+    
+    local d1, d2, p = obj:TravelTime2(prev_pos, pos, no_cache)
+    
+    QuestHelper:yieldIfNeeded(1)
+    
+    local delta = d1 - prev_len + d2
+    
+    if not best_index or delta < best_delta then
+      best_index, best_delta, best_d1, best_d2, best_p = i, delta, d1, d2, p
+    end
+    
+    prev_pos = pos
+    prev_len = info.len
+    no_cache = false
+  end
+  
+  if mx > len then
+    local delta, p = obj:TravelTime(prev_pos, no_cache)
+    
+    QuestHelper:yieldIfNeeded(.5)
+    
+    if not best_index or delta < best_delta then
+      info.pos = p
+      
+      info.len = nil
+      self[len].len = delta
+      self.distance = self.distance + delta
+      table.insert(self, mx, info)
+      indexes[obj] = mx
+      return mx
+    end
+  end
+  
+  info.pos = best_p
+  info.len = best_d2
+  
+  if best_index == 1 then
+    self.distance = self.distance + best_d2
+  else
+    local pinfo = self[best_index-1]
+    self.distance = self.distance + (best_d1 - pinfo.len + best_d2)
+    pinfo.len = best_d1
+  end
+  
+  table.insert(self, best_index, info)
+  
+  for i = 1,len+1 do
+    indexes[self[i].obj] = i
+  end
+  
+  return best_index
+end
+
 function Route:removeObjective(obj)
   local indexes = self.index
   local index = indexes[obj]
@@ -254,16 +338,30 @@ function Route:removeObjective(obj)
       self.distance = self.distance - self[index-1].len
       self[index-1].len = nil
     else
+      self.distance = 0
     end
   elseif index == 1 then
     self.distance = self.distance - info.len
   else
     local info1 = self[index-1]
-    local d
-    d, info1.pos = info1.obj:TravelTime(self[index+1].pos)
-    self.distance = self.distance + (d - info1.len - info.len)
-    info1.len = d
-    QuestHelper:yieldIfNeeded(.5)
+    local info2 = index > 2 and self[index-2]
+    local prev_pos = info2 and info2.pos or QuestHelper.pos
+    assert(not info2 or info2.pos, (index-2).." doesn't have a position?")
+    local d1, d2
+    assert(QuestHelper.pos)
+    assert(prev_pos)
+    d1, d2, info1.pos = info1.obj:TravelTime2(prev_pos, self[index+1].pos)
+    
+    if info2 then
+      self.distance = self.distance + (d2 - info1.len + d1 - info2.len - info.len)
+      info2.len = d1
+    else
+      self.distance = self.distance + (d2 - info1.len - info.len)
+    end
+    
+    info1.len = d2
+    
+    QuestHelper:yieldIfNeeded(1)
   end
   
   QuestHelper:ReleaseTable(info)
@@ -282,7 +380,8 @@ function Route:removeObjective(obj)
   for i = index,#self do
     -- Fix indexes of shifted elements.
     local obj = self[i].obj
-    indexes[obj] = indexes[obj]-1
+    assert(indexes[obj] == i+1)
+    indexes[obj] = i
   end
   
   return index
@@ -422,19 +521,14 @@ function Route:breed(route_map)
     io.write(info.obj.name, " ")
   end io.write("\n")]]
   
-  if math.random() > 0.2 then
-    -- If we ended up being an exact clone of our parents, then we'll make some random changes.
-    local i = math.random(1, len-1)
-    local j = math.random(i+1, len)
+  while math.random() > 0.3 do
+    local l = math.floor(math.random()^1.6*(len-1))+1
+    local i = math.random(1, len-l)
+    local j = i+l
     
-    if math.random() > 0.9 then
-      -- Reverse a chunk of the route
-      for k = 0, j-i-1 do
-        self[i+k], self[j-k] = self[j-k], self[i+k]
-      end
-    else
-      -- Swap two nodes.
-      self[i], self[j] = self[j], self[i]
+    -- Reverse a chunk of the route
+    for k = 0, j-i-1 do
+      self[i+k], self[j-k] = self[j-k], self[i+k]
     end
   end
   
@@ -535,6 +629,7 @@ local function RouteUpdateRoutine(self)
   local to_add, to_remove = self.to_add, self.to_remove
   
   local routes = {}
+  local pos = QuestHelper.pos
   
   for i = 1,15 do -- Create some empty routes to use for our population.
     routes[setmetatable({index={},distance=0}, Route)] = true
@@ -546,6 +641,34 @@ local function RouteUpdateRoutine(self)
   local recheck_position = 0
   
   while true do
+    -- Update the player's position data.
+    if self.target then
+      -- We know the player will be at the target location at target_time, so fudge the numbers
+      -- to pretend we're traveling there.
+      
+      pos[1], pos[3], pos[4] = self.target[1], self.target[3], self.target[4]
+      local extra_time = math.max(0, self.target_time-time())
+      for i, t in ipairs(self.target[2]) do
+        pos[2][i] = t+extra_time
+      end
+    else
+      pos[3], pos[4] = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)
+      assert(pos[3])
+      assert(pos[4])
+      pos[1] = self.zone_nodes[self.i]
+      pos[3], pos[4] = pos[3] * self.continent_scales_x[self.c], pos[4] * self.continent_scales_y[self.c]
+      
+      for i, n in ipairs(pos[1]) do
+        if not n.x then
+          for i, j in pairs(n) do self:TextOut("[%q]=%s %s", i, type(j), tostring(j) or "???") end
+          assert(false)
+        end
+        
+        local a, b = n.x-pos[3], n.y-pos[4]
+        pos[2][i] = math.sqrt(a*a+b*b)
+      end
+    end
+    
     local changed = false
     
     if #route > 0 then
@@ -588,26 +711,23 @@ local function RouteUpdateRoutine(self)
         
         CalcObjectivePriority(o)
         
-        local mn, mx = best_route:findObjectiveRange(o)
-        local old_index = best_route.index[o]
-        if old_index < mn or old_index > mx then
-          -- Make sure the objective in best_route is still in a valid position.
-          -- Won't worry about other routes, they should forced into valid configurations by breeding.
-          
-          best_route:removeObjective(o)
-          local new_index = best_route:addObjective(o)
-          
-          if old_index > new_index then
-            old_index, new_index = new_index, old_index
-          end
-          
-          for i = old_index, new_index do
-            local info = best_route[i]
-            local obj = info.obj
-            obj.pos = info.pos
-            route[i] = obj
-          end
-          
+        -- Make sure the objective in best_route is still in a valid position.
+        -- Won't worry about other routes, they should forced into valid configurations by breeding.
+        local old_index = best_route:removeObjective(o)
+        local new_index = best_route:addObjectiveBest(o)
+        
+        if old_index > new_index then
+          old_index, new_index = new_index, old_index
+        end
+        
+        for i = math.max(1, old_index-1), new_index do
+          local info = best_route[i]
+          local obj = info.obj
+          obj.pos = info.pos
+          route[i] = obj
+        end
+        
+        if old_index ~= new_index then
           if old_index == 1 then
             minimap_dodad:SetObjective(route[1])
           end
@@ -669,14 +789,14 @@ local function RouteUpdateRoutine(self)
           
           for r in pairs(routes) do
             if r == best_route then
-              local index = r:addObjective(obj)
+              local index = r:addObjectiveBest(obj)
               obj.pos = r[index].pos
               table.insert(route, index, obj)
               if index == 1 then
                 minimap_dodad:SetObjective(route[1])
               end
             else
-              r:addObjective(obj)
+              r:addObjectiveFast(obj)
             end
           end
           
