@@ -4,16 +4,18 @@ local real_GameTooltipOnShow = GameTooltip:GetScript("OnShow") or QuestHelper.no
 
 local function addObjectiveObjTip(tooltip, objective, depth)
   if objective.watched or objective.progress then
+    local depth2 = depth
+    
     if objective.quest then
-      tooltip:AddLine(("  "):rep(depth)..QHFormat("TOOLTIP_QUEST", string.match(objective.quest.obj or "", "^%d*/%d*/(.*)$") or "???"), 1, 1, 1)
+      tooltip:AddLine(("  "):rep(depth2)..QHFormat("TOOLTIP_QUEST", string.match(objective.quest.obj or "", "^%d*/%d*/(.*)$") or "???"), 1, 1, 1)
       
-      depth = depth + 1
+      depth2 = depth2 + 1
     end
     
     if objective.progress then
-      QuestHelper:AppendObjectiveProgressToTooltip(objective, tooltip, nil, depth)
+      QuestHelper:AppendObjectiveProgressToTooltip(objective, tooltip, nil, depth2)
     else
-      tooltip:AddLine(("  "):rep(depth)..QHText("TOOLTIP_WATCHED"), unpack(QuestHelper:GetColourTheme().tooltip))
+      tooltip:AddLine(("  "):rep(depth2)..QHText("TOOLTIP_WATCHED"), unpack(QuestHelper:GetColourTheme().tooltip))
     end
     
     -- Calling Show again to cause the tooltip's dimensions to be recalculated.
