@@ -404,9 +404,9 @@ function tracker:update(delta)
               local seen_sum, seen_max, seen_have, seen_need = 0, 0, QuestHelper:CreateTable(), QuestHelper:CreateTable()
               
               for user, progress in pairs(obj.progress) do
-                seen_sum = seen_sum + progress[1]
+                seen_sum = seen_sum + progress[3]
                 seen_max = seen_max + 1
-                seen_have[progress[3]] = true
+                seen_have[progress[1]] = true
                 seen_need[progress[2]] = true
               end
               
