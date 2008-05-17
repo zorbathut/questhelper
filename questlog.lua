@@ -246,15 +246,11 @@ function QuestHelper:ScanQuestLog()
             lo.have = have
             lo.need = need
             
-            QuestHelper:SetObjectiveProgress(lo.objective, UnitName("player"), have, need)
-            
             if have ~= need then -- If the objective isn't complete, watch it.
               lo.objective:Share()
               self:AddObjectiveWatch(lo.objective, lo.reason)
             end
           elseif lo.have ~= have then
-            QuestHelper:SetObjectiveProgress(lo.objective, UnitName("player"), have, need)
-            
             if lo.objective.peer then
               for u, l in pairs(lo.objective.peer) do
                 -- Peers don't know about our progress.
@@ -284,6 +280,7 @@ function QuestHelper:ScanQuestLog()
           if lo.objective then -- Might not have loaded the objective yet, if it wasn't in the local cache and we defered loading it.
             lo.objective.filter_level = ignored
             lo.objective.filter_done = true
+            self:SetObjectiveProgress(lo.objective, UnitName("player"), have, need)
           end
         end
       else
@@ -304,11 +301,11 @@ function QuestHelper:ScanQuestLog()
       if lq.goal then
         for i, lo in ipairs(lq.goal) do
           if lo.objective and lo.have ~= lo.need then
-            QuestHelper:SetObjectiveProgress(lo.objective, UnitName("player"), nil, nil)
-            
             lo.objective:Unshare()
             self:RemoveObjectiveWatch(lo.objective, lo.reason)
           end
+          
+          self:SetObjectiveProgress(lo.objective, UnitName("player"), nil, nil)
         end
       end
       
