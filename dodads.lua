@@ -621,7 +621,7 @@ function QuestHelper:CreateMipmapDodad()
   
   function icon:NextObjective()
     for i, o in ipairs(QuestHelper.route) do
-      if not QuestHelper.to_remove[o] and o.pos then
+      if not QuestHelper.to_remove[o] and o.pos and not o.filter_blocked then
         return o
       end
     end
