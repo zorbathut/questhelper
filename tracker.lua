@@ -210,19 +210,9 @@ local function ccode(r1, g1, b1, r2, g2, b2, p)
   return string.format("|cff%02x%02x%02x", r1*ip+r2*p, g1*ip+g2*p, b1*ip+b2*p)
 end
 
-local function qname(index)
-  local title, level, qtype, players, header, collapsed, status, daily = QuestHelper:FixedGetQuestLogTitle(index)
-  
+local function qname(title, level)
   if QuestHelper_Pref.track_level then
-    -- Append levels to quests.
-    
-    if qtype then
-      title = string.format("[%d+] %s", level, title)
-    elseif players and players > 1 then
-      title = string.format("[%dG%d] %s", level, players, title)
-    else
-      title = string.format("[%d] %s", level, title)
-    end
+    title = string.format("[%d] %s", level, title)
   end
   
   if QuestHelper_Pref.track_qcolour then
@@ -256,17 +246,8 @@ local function qname(index)
   return title
 end
 
-local function oname(text)
+local function oname(text, pct)
   if QuestHelper_Pref.track_ocolour then
-    local mn, mx = text:match("%s*(.-)%s*/%s*(.-)%s*")
-    local mnn, mxn = tonumber(mn), tonumber(mx)
-    
-    if mnn and mxn then
-      pct = mnn == mxn or mxn == 0 and 1 or mnn/mxn
-    else
-      pct = mn == mx and 1 or 0
-    end
-    
     text = string.format("%s%s", pct < 0.5 and ccode(1, 0, 0, 1, 1, 0, pct*2) or ccode(1, 1, 0, 0, 1, 0, pct*2-1), text)
   end
   
@@ -288,8 +269,29 @@ end
 local resizing = false
 local check_delay = 4
 local seen = {}
-local reverse_map = {}
+local obj_list = {}
+local obj_index_lookup = {}
 local was_inside = false
+
+-- We go over the route one for each filter in this list. If the function returns true, then
+-- we add that objective to the route.
+local quest_filters =
+ {
+  function(obj)
+    -- First filter, check for watched quests so that they appear at the start of the list.
+    local info = QuestHelper.quest_log[obj]
+    return info and info.index and IsQuestWatched(info.index)
+  end,
+  
+  function ()
+    -- Last filter, add anything that wasn't caught by other filters, assuming there's still space left.
+    return true
+  end
+ }
+
+local function objlist_sort(a, b)
+  return obj_index_lookup[a] < obj_index_lookup[b]
+end
 
 function tracker:reset()
   for obj, item in pairs(used_items) do
@@ -352,68 +354,113 @@ function tracker:update(delta)
       item.used = false
     end
     
-    for i, foo in ipairs(QuestHelper.route) do
-      for obj in pairs(foo.before) do
-        local info = quests[obj]
+    for i, objective in pairs(QuestHelper.route) do
+      if objective.watched then
+        obj_index_lookup[objective] = i
+      end
+    end
+    
+    for i, filter in ipairs(quest_filters) do
+      for i, objective in ipairs(QuestHelper.route) do
+        local quest
         
-        if info and not seen[info] then
-          seen[info] = true
-          added = added + 1
+        if objective.cat == "quest" then
+          quest = objective
+        else
+          quest = objective.quest
+        end
+        
+        if quest and quest.watched and not seen[quest] and filter(quest) then
+          seen[quest] = true
           
-          local w, h = addItem(qname(info.index), obj, -(y+gap), GetQuestLogTitle(info.index))
+          local level, name = string.match(quest.obj, "^(%d+)/%d*/(.*)$")
+          
+          if not level then
+            level, name = string.match(quest.obj, "^(%d+)/(.*)$")
+            if not level then
+              level, name = 1, quest.obj
+            end
+          end
+          
+          level = tonumber(level) or 1
+          
+          added = added + 1
+          local w, h = addItem(qname(name, level), quest, -(y+gap), name)
           x = math.max(x, w)
           y = y + h + gap
           
-          gap = 2
-          
-          if info.goal then
-            for i, subinfo in pairs(info.goal) do
-              local obj = subinfo.objective
-              if obj then
-                reverse_map[obj] = GetQuestLogLeaderBoard(i, info.index)
-              end
-            end
-          
-            for i, subobj in ipairs(QuestHelper.route) do
-              local name = reverse_map[subobj]
-              if name then
-                added = added + 1
-                w, h = addItem(oname(name), subobj, -y)
-                x = math.max(x, w)
-                y = y + h
-              end
-            end
-            
-            for key in pairs(reverse_map) do
-              reverse_map[key] = nil
+          for obj in pairs(quest.swap_after or quest.after) do
+            if obj_index_lookup[obj] then
+              table.insert(obj_list, obj)
             end
           end
+          
+          table.sort(obj_list, objlist_sort)
+          
+          for i, obj in ipairs(obj_list) do
+            local pct, text = 0, obj.obj
+            
+            if obj.progress then
+              local seen_sum, seen_max, seen_have, seen_need = 0, 0, QuestHelper:CreateTable(), QuestHelper:CreateTable()
+              
+              for user, progress in pairs(obj.progress) do
+                seen_sum = seen_sum + progress[1]
+                seen_max = seen_max + 1
+                seen_have[progress[3]] = true
+                seen_need[progress[2]] = true
+              end
+              
+              if seen_max > 0 then
+                pct = seen_sum / seen_max
+                local list = QuestHelper:CreateTable()
+                
+                for val in pairs(seen_have) do
+                  table.insert(list, val)
+                end
+                
+                table.sort(list)
+                
+                local have = table.concat(list,",")
+                
+                for i = #list,1,-1 do
+                  list[i] = nil
+                end
+                
+                for val in pairs(seen_need) do
+                  table.insert(list, val)
+                end
+                
+                table.sort(list)
+                
+                local need = table.concat(list,",")
+                
+                text = string.format((tonumber(have) and tonumber(need) and QUEST_ITEMS_NEEDED) or QUEST_FACTION_NEEDED, 
+                                     text, have, need)
+                
+                QuestHelper:ReleaseTable(list)
+              end
+              
+              QuestHelper:ReleaseTable(seen_have)
+              QuestHelper:ReleaseTable(seen_need)
+            end
+            
+            added = added + 1
+            w, h = addItem(oname(text, pct), obj, -y)
+            x = math.max(x, w)
+            y = y + h
+          end
+          
+          for i = #obj_list, 1, -1 do obj_list[i] = nil end
+          
+          if added > track_size then
+            break
+          end
         end
-        
-        if added > track_size then
-          break
-        end
       end
-      
-      if added > track_size then
-        break
-      end
-      
-      local info = quests[foo]
-      if info and not seen[info] then
-        -- Since we should have ran into the quest's objective first, we'll assume this quest doesn't have any.
-        seen[info] = true
-        added = added + 1
-        
-        local w, h = addItem(qname(info.index), foo, -(y+gap), GetQuestLogTitle(info.index))
-        x = math.max(x, w)
-        y = y + h + gap
-        gap = 2
-      end
-      
-      if added > track_size then
-        break
-      end
+    end
+    
+    for obj in pairs(obj_index_lookup) do
+      obj_index_lookup[obj] = nil
     end
     
     for obj, item in pairs(used_items) do
@@ -423,7 +470,7 @@ function tracker:update(delta)
     end
     
     for key in pairs(seen) do
-      seen[key] = false
+      seen[key] = nil
     end
     
     y = y+4

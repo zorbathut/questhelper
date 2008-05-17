@@ -1,6 +1,6 @@
 == Version 0.47 ??/??/???? ==
 
-* Added an in-game copy of the changelog, to be displayed when an upgrade is detected, or when the used types '<code>/qh changes</code>'.
+* Added an in-game copy of the changelog, to be displayed when an upgrade is detected, or when the user types '<code>/qh changes</code>'.
 * Made some changes to the quest tracker:
 ** Option to add quest levels to quest names: <code>/qh tlevel</code>
 ** Option to colour quest names by their difficulty: <code>/qh tqcol</code>
@@ -9,7 +9,9 @@
 ** The above options were also added to the settings menu.
 ** Added a small button to quickly minimize or restore the quest tracker. This isn't the same as hiding the quest tracker, which will hide that button as well and restore the original.
 ** Hiding QuestHelper will also hide the quest tracker.
-** Note: The quest tracker doesn't currently honour your list of watched quests, nor move quests that have recently had progress made to them to the top of the list, but I intend to do have it do this in a future release.
+** Will now force quests tracked by the original quest tracker to be put at the top of the list.
+** Will include the quests of your party members, if sharing is enabled and they are also using QuestHelper.
+** Will display the progress of your party members as a comma seperated list, although the list will only include unique values, so if everyone's progress is the same, this will appear as a single number.
 * Fixed a bug with objective icons inheriting their alpha value from the map frame, which Cartographer can hide.
 * Fixed a bug in routing, was caching the objective locations.
 * QuestHelper won't try to track objectives for failed quests.

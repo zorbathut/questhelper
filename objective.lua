@@ -881,9 +881,9 @@ function QuestHelper:GetObjective(category, objective)
   
   if not objective_object then
     if category == "quest" then
-      local _, _, level, hash, name = string.find(objective, "^(%d+)/(%d*)/(.*)$")
+      local level, hash, name = string.match(objective, "^(%d+)/(%d*)/(.*)$")
       if not level then
-        _, _, level, name = string.find(objective, "^(%d+)/(.*)$")
+        level, name = string.match(objective, "^(%d+)/(.*)$")
         if not level then
           name = objective
         end
