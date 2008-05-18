@@ -365,6 +365,27 @@ function QuestHelper:ChangeLog()
   self:ShowText(QuestHelper_ChangeLog, string.format("QuestHelper %s ChangeLog", QuestHelper_Version))
 end
 
+function QuestHelper:Submit()
+  self:ShowText([[
+|TInterface\AddOns\QuestHelper\Art\Upload.tga:100:300|t
+Your data can't be submitted automatically, since AddOns can't interact with anything outside of World of Warcraft.
+
+To do this would require me to create some third party software, and I don't want to include such software with QuestHelper, because that's the kind of thing that ill intended people are likely to tamper with.
+
+World of Warcraft stores QuestHelper's data in a file named |cff40bbffQuestHelper.lua|r.
+
+To find this file, first find the the directory you installed World of Warcraft to. In Windows, this defaults to |cff40bbffC:\Program Files\World of Warcraft|r, and on Mac, I believe this is |cff40bbff/Applications/World of Warcraft|r.
+
+If you're using Windows Vista, Windows might protect the Program Files directory from changes, and redirect Warcraft's saved data to |cff40bbffC:\Users\|cffff8000USER|cff40bbff\AppData\Local\VirtualStore\Program Files\World of Warcraft|r.
+
+In that directory, the needed file is in |cff40bbffWTF/Account/|cffff8000ACCOUNT|cff40bbff/SavedVariables|r, replacing ACCOUNT with the name of your account, and in that directory, you should find |cff40bbffQuestHelper.lua|r.
+
+There are other directories with the names of the realms where your characters are stored, |cffffff00but don't enter them|r. They contain information specific to your characters, such as the flight points they know about, and don't contain the quest information I want.
+
+After you find |cff40bbffQuestHelper.lua|r, you can email it to me here: |cff40bbffqhaddon@gamil.com|r
+]], "How To Submit Your Data")
+end
+
 local commands
 
 function QuestHelper:Help(argument)
@@ -526,6 +547,10 @@ commands =
   {"CHANGES",
    "Displays a summary of changes recently made to QuestHelper. This is always displayed when an upgrade is detected.",
    {}, QuestHelper.ChangeLog, QuestHelper},
+  
+  {"SUBMIT",
+   "Displays instructions for submitting your collected data.",
+   {}, QuestHelper.Submit, QuestHelper},
   
   {"HELP",
    "Displays a list of help commands. Listed commands are filtered by the passed string.",
