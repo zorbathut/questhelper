@@ -820,38 +820,32 @@ local function RouteUpdateRoutine(self)
       if not obj then break end
       to_add[obj] = nil
       
+      obj.filter_zone = obj.p[pos[1]] == nil
+      
       if obj:Known() then
         obj:PrepareRouting()
         
-        obj.filter_zone = obj.p[pos[1]] == nil
-        
-        if obj.filter_zone and QuestHelper_Pref.filter_zone then
-          -- Not going to add it, wrong zone.
-          obj:DoneRouting()
-          add_swap[obj] = true
-        else
-          if not obj.is_sharing and obj.want_share then
-            obj.is_sharing = true
-            self:DoShareObjective(obj)
-          end
-          
-          CalcObjectivePriority(obj)
-          
-          for r in pairs(routes) do
-            if r == best_route then
-              local index = r:addObjectiveBest(obj)
-              obj.pos = r[index].pos
-              table.insert(route, index, obj)
-              if index == 1 then
-                minimap_dodad:SetObjective(route[1])
-              end
-            else
-              r:addObjectiveFast(obj)
-            end
-          end
-          
-          changed = true
+        if not obj.is_sharing and obj.want_share then
+          obj.is_sharing = true
+          self:DoShareObjective(obj)
         end
+        
+        CalcObjectivePriority(obj)
+        
+        for r in pairs(routes) do
+          if r == best_route then
+            local index = r:addObjectiveBest(obj)
+            obj.pos = r[index].pos
+            table.insert(route, index, obj)
+            if index == 1 then
+              minimap_dodad:SetObjective(route[1])
+            end
+          else
+            r:addObjectiveFast(obj)
+          end
+        end
+        
+        changed = true
       else
         add_swap[obj] = true
       end
