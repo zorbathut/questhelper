@@ -47,6 +47,42 @@ end
 local Route = {}
 Route.__index = Route
 
+function Route:sanity()
+  local assert = assert
+  
+  if QuestHelper.Error then
+    assert = function(a, b)
+      if not a then
+        QuestHelper:Error(b or "Assertion Failed")
+      end
+    end
+  end
+  
+  local l = 0
+  
+  for i = 1,#self-1 do
+    assert(self[i].len)
+    l = l + self[i].len
+  end
+  
+  assert(math.abs(l-self.distance) < 0.0001)
+  
+  for i, info in ipairs(self) do
+    assert(self.index[info.obj] == i)
+  end
+  
+  for obj, i in pairs(self.index) do
+    assert(self[i].obj == obj)
+  end
+  
+  --[[for i = 1, #self-1 do
+    local l = QuestHelper:ComputeTravelTime(self[i].pos, self[i+1].pos)
+    assert(math.abs(l-self[i].len) < 0.0001)
+  end]]
+  
+  return true
+end
+
 function Route:findObjectiveRange(obj)
   local mn, smn = 1, 1
   local smx = #self
@@ -111,6 +147,7 @@ function Route:findObjectiveRange(obj)
 end
 
 function Route:addObjectiveFast(obj)
+  assert(self:sanity())
   local indexes = self.index
   local len = #self
   local info = QuestHelper:CreateTable()
@@ -121,7 +158,7 @@ function Route:addObjectiveFast(obj)
   if len == 0 then
     self[1] = info
     indexes[obj] = 1
-    info.pos = obj.location
+    info.pos = select(2, obj:TravelTime(QuestHelper.pos, true))
     return 1
   end
   
@@ -238,10 +275,14 @@ function Route:addObjectiveFast(obj)
     indexes[obj] = i
   end
   
+  assert(self:sanity())
+  
   return index
 end
 
-function Route:addObjectiveBest(obj, extra, mn, mx)
+function Route:addObjectiveBest(obj)
+  assert(self:sanity())
+  
   local indexes = self.index
   local len = #self
   local info = QuestHelper:CreateTable()
@@ -252,7 +293,7 @@ function Route:addObjectiveBest(obj, extra, mn, mx)
   if len == 0 then
     self[1] = info
     indexes[obj] = 1
-    info.pos = obj.location
+    info.pos = select(2, obj:TravelTime(QuestHelper.pos, true))
     return 1
   end
   
@@ -270,6 +311,8 @@ function Route:addObjectiveBest(obj, extra, mn, mx)
   end
   
   for i = mn, math.min(mx, len) do
+    assert((i == 1 and prev_pos == QuestHelper.pos) or prev_pos == self[i-1].pos)
+    
     local info = self[i]
     local pos = info.pos
     
@@ -277,7 +320,7 @@ function Route:addObjectiveBest(obj, extra, mn, mx)
     
     QuestHelper:yieldIfNeeded(1)
     
-    local delta = d1 - prev_len + d2
+    local delta = d1 + d2 - prev_len
     
     if not best_index or delta < best_delta then
       best_index, best_delta, best_d1, best_d2, best_p = i, delta, d1, d2, p
@@ -289,18 +332,22 @@ function Route:addObjectiveBest(obj, extra, mn, mx)
   end
   
   if mx > len then
+    assert(mx == len+1)
+    assert(prev_pos == self[len].pos)
     local delta, p = obj:TravelTime(prev_pos, no_cache)
     
     QuestHelper:yieldIfNeeded(.5)
     
     if not best_index or delta < best_delta then
       info.pos = p
-      
       info.len = nil
       self[len].len = delta
       self.distance = self.distance + delta
-      table.insert(self, mx, info)
+      table.insert(self, info)
       indexes[obj] = mx
+      
+      assert(self:sanity())
+      
       return mx
     end
   end
@@ -318,14 +365,21 @@ function Route:addObjectiveBest(obj, extra, mn, mx)
   
   table.insert(self, best_index, info)
   
-  for i = 1,len+1 do
+  indexes[obj] = best_index
+  
+  for i = best_index+1,len+1 do
+    assert(indexes[self[i].obj] == i-1)
     indexes[self[i].obj] = i
   end
+  
+  assert(self:sanity())
   
   return best_index
 end
 
 function Route:removeObjective(obj)
+  assert(self:sanity())
+  
   local indexes = self.index
   local index = indexes[obj]
   
@@ -346,11 +400,10 @@ function Route:removeObjective(obj)
     local info1 = self[index-1]
     local info2 = index > 2 and self[index-2]
     local prev_pos = info2 and info2.pos or QuestHelper.pos
-    assert(not info2 or info2.pos, (index-2).." doesn't have a position?")
     local d1, d2
-    assert(QuestHelper.pos)
-    assert(prev_pos)
+    
     d1, d2, info1.pos = info1.obj:TravelTime2(prev_pos, self[index+1].pos)
+    QuestHelper:yieldIfNeeded(1)
     
     if info2 then
       self.distance = self.distance + (d2 - info1.len + d1 - info2.len - info.len)
@@ -360,22 +413,11 @@ function Route:removeObjective(obj)
     end
     
     info1.len = d2
-    
-    QuestHelper:yieldIfNeeded(1)
   end
   
   QuestHelper:ReleaseTable(info)
   indexes[obj] = nil
   table.remove(self, index)
-  
-  if index ~= 1 then
-    local info1 = self[index-1]
-    
-    if index <= #self then
-      local len
-    else
-    end
-  end
   
   for i = index,#self do
     -- Fix indexes of shifted elements.
@@ -383,6 +425,8 @@ function Route:removeObjective(obj)
     assert(indexes[obj] == i+1)
     indexes[obj] = i
   end
+  
+  assert(self:sanity())
   
   return index
 end
@@ -400,6 +444,7 @@ function Route:breed(route_map)
   local prev_pos = QuestHelper.pos
   
   for route in pairs(route_map) do
+    assert(route:sanity())
     local fit = route.fitness
     local pos = route[1].pos
     local w
@@ -517,10 +562,6 @@ function Route:breed(route_map)
     seen[obj] = nil
   end
   
-  --[[for i, info in ipairs(self) do
-    io.write(info.obj.name, " ")
-  end io.write("\n")]]
-  
   while math.random() > 0.3 do
     local l = math.floor(math.random()^1.6*(len-1))+1
     local i = math.random(1, len-l)
@@ -585,6 +626,8 @@ function Route:breed(route_map)
   end
   
   self.distance = distance + prev_info.len
+  
+  assert(self:sanity())
 end
 
 function Route:pathResetBegin()

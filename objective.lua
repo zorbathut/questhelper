@@ -554,6 +554,7 @@ local function ComputeTravelTime(self, pos, nocache)
   
   local key
   if not nocache then
+    assert(pos ~= QuestHelper.pos)
     if not pos.key then
       pos.key = math.random()..""
     end
@@ -619,6 +620,8 @@ local function ComputeTravelTime2(self, pos1, pos2, nocache)
   
   local key
   if not nocache then
+    assert(pos1 ~= QuestHelper.pos)
+    assert(pos2 ~= QuestHelper.pos)
     -- We don't want to cache distances involving the player's current position, as that would spam the table
     if not pos1.key then
       pos1.key = math.random()..""
