@@ -179,6 +179,7 @@ QuestHelper_Translations.enUS =
   
   NAG_NOT_NEW = "You don't have any information not already in the static database.",
   NAG_NEW = "You might consider sharing your data so that others may benefit.",
+  NAG_INSTRUCTIONS = "Type %h(/qh submit) for instructions on submitting data.",
   
   NAG_FP = "flight master",
   NAG_QUEST = "quest",
