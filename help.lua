@@ -512,6 +512,10 @@ commands =
    "Toggles objective sharing between QuestHelper users.",
     {}, QuestHelper.ToggleShare, QuestHelper},
   
+  {"SOLO",
+   "Toggles solo mode. When enabled, assumes your party members don't exist. Objective sharing with party members will also be disabled.",
+    {}, QuestHelper.ToggleSolo, QuestHelper},
+  
   {"HIDE",
    "Hides QuestHelper's modifications to the minimap and world map, and pauses routing calculations.",
     {}, QuestHelper.ToggleHide, QuestHelper},
@@ -519,10 +523,6 @@ commands =
   {"ANTS",
    "Toggles the display of trails on the world map on and off.",
     {}, QuestHelper.ToggleAnts, QuestHelper},
-  
-  {"SOLO",
-   "Toggles solo mode. When enabled, assumes your party members don't exist. Objective sharing with party members will also be disabled.",
-    {}, QuestHelper.ToggleSolo, QuestHelper},
   
   {"LOCALE",
    "Select the locale to use for displayed messages.",
