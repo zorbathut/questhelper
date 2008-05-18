@@ -280,7 +280,25 @@ local quest_filters =
   function(obj)
     -- First filter, check for watched quests so that they appear at the start of the list.
     local info = QuestHelper.quest_log[obj]
-    return info and info.index and IsQuestWatched(info.index)
+    if info then
+      local index = info.index
+      if index then
+        if UberQuest then
+          -- UberQuest has it's own way of tracking quests.
+          local uq_settings = UberQuest_Config[UnitName("player")]
+          if uq_settings then
+            local list = uq_settings.selected
+            if list then
+              return list[GetQuestLogTitle(index)]
+            end
+          end
+        else
+          return IsQuestWatched(index)
+        end
+      end
+    end
+    
+    return false
   end,
   
   function ()
