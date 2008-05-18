@@ -399,10 +399,17 @@ function Route:removeObjective(obj)
   else
     local info1 = self[index-1]
     local info2 = index > 2 and self[index-2]
-    local prev_pos = info2 and info2.pos or QuestHelper.pos
+    local prev_pos, no_cache
+    
+    if info2 then
+      prev_pos, no_cache = info2.pos, false
+    else
+      prev_pos, no_cache = QuestHelper.pos, true
+    end
+    
     local d1, d2
     
-    d1, d2, info1.pos = info1.obj:TravelTime2(prev_pos, self[index+1].pos)
+    d1, d2, info1.pos = info1.obj:TravelTime2(prev_pos, self[index+1].pos, no_cache)
     QuestHelper:yieldIfNeeded(1)
     
     if info2 then
