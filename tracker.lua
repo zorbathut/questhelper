@@ -312,41 +312,32 @@ local check_delay = 4
 local seen = {}
 local obj_list = {}
 local obj_index_lookup = {}
+local quest_lookup = {}
 local was_inside = false
 
--- We go over the route one for each filter in this list. If the function returns true, then
--- we add that objective to the route.
-local quest_filters =
- {
-  function(obj)
-    -- First filter, check for watched quests so that they appear at the start of the list.
-    local info = QuestHelper.quest_log[obj]
-    if info then
-      local index = info.index
-      if index then
-        if UberQuest then
-          -- UberQuest has it's own way of tracking quests.
-          local uq_settings = UberQuest_Config[UnitName("player")]
-          if uq_settings then
-            local list = uq_settings.selected
-            if list then
-              return list[GetQuestLogTitle(index)]
-            end
+local function watched_filter(obj)
+  -- Check if an objective is being watched.
+  local info = QuestHelper.quest_log[obj]
+  if info then
+    local index = info.index
+    if index then
+      if UberQuest then
+        -- UberQuest has it's own way of tracking quests.
+        local uq_settings = UberQuest_Config[UnitName("player")]
+        if uq_settings then
+          local list = uq_settings.selected
+          if list then
+            return list[GetQuestLogTitle(index)]
           end
-        else
-          return IsQuestWatched(index)
         end
+      else
+        return IsQuestWatched(index)
       end
     end
-    
-    return false
-  end,
-  
-  function ()
-    -- Last filter, add anything that wasn't caught by other filters, assuming there's still space left.
-    return true
   end
- }
+  
+  return false
+end
 
 local function objlist_sort(a, b)
   return obj_index_lookup[a] < obj_index_lookup[b]
@@ -355,15 +346,111 @@ end
 function tracker:reset()
   for obj, item in pairs(used_items) do
     removeUnusedItem(obj, item)
-    check_delay = 5
+    check_delay = 1e99
   end
+end
+
+local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
+  local count = 0
+  local quest
+  
+  if objective.cat == "quest" then
+    quest = objective
+  else
+    quest = objective.quest
+  end
+  
+  if quest and quest.watched and not seen[quest] and (not filter or filter(quest)) then
+    seen[quest] = true
+    
+    local level, name = string.match(quest.obj, "^(%d+)/%d*/(.*)$")
+    
+    if not level then
+      level, name = string.match(quest.obj, "^(%d+)/(.*)$")
+      if not level then
+        level, name = 1, quest.obj
+      end
+    end
+    
+    level = tonumber(level) or 1
+    
+    count = count + 1
+    local w, h = addItem(qname(name, level), quest, -(y+gap), name)
+    x = math.max(x, w)
+    y = y + h + gap
+    
+    for obj in pairs(quest.swap_after or quest.after) do
+      if obj_index_lookup[obj] then
+        table.insert(obj_list, obj)
+      end
+    end
+    
+    table.sort(obj_list, objlist_sort)
+    
+    for i, obj in ipairs(obj_list) do
+      local pct, text = 0, obj.obj
+      
+      if obj.progress then
+        local seen_sum, seen_max, seen_have, seen_need = 0, 0, QuestHelper:CreateTable(), QuestHelper:CreateTable()
+        
+        for user, progress in pairs(obj.progress) do
+          seen_sum = seen_sum + progress[3]
+          seen_max = seen_max + 1
+          seen_have[progress[1]] = true
+          seen_need[progress[2]] = true
+        end
+        
+        if seen_max > 0 then
+          pct = seen_sum / seen_max
+          local list = QuestHelper:CreateTable()
+          
+          for val in pairs(seen_have) do
+            table.insert(list, val)
+          end
+          
+          table.sort(list)
+          
+          local have = table.concat(list,",")
+          
+          for i = #list,1,-1 do
+            list[i] = nil
+          end
+          
+          for val in pairs(seen_need) do
+            table.insert(list, val)
+          end
+          
+          table.sort(list)
+          
+          local need = table.concat(list,",")
+          
+          text = string.format((tonumber(have) and tonumber(need) and QUEST_ITEMS_NEEDED) or QUEST_FACTION_NEEDED, 
+                               text, have, need)
+          
+          QuestHelper:ReleaseTable(list)
+        end
+        
+        QuestHelper:ReleaseTable(seen_have)
+        QuestHelper:ReleaseTable(seen_need)
+      end
+      
+      count = count + 1
+      w, h = addItem(oname(text, pct), obj, -y)
+      x = math.max(x, w)
+      y = y + h
+    end
+    
+    for i = #obj_list, 1, -1 do obj_list[i] = nil end
+  end
+  
+  return x, y, gap, count
 end
 
 function tracker:update(delta)
   if not delta then
     -- This is called without a value when the questlog is updated.
     -- We'll make sure we update the display on the next update.
-    check_delay = 5
+    check_delay = 1e99
     return
   end
   
@@ -419,107 +506,70 @@ function tracker:update(delta)
       end
     end
     
-    for i, filter in ipairs(quest_filters) do
-      for i, objective in ipairs(QuestHelper.route) do
-        local quest
-        
-        if objective.cat == "quest" then
-          quest = objective
-        else
-          quest = objective.quest
+    for q, data in pairs(QuestHelper.quest_log) do
+      quest_lookup[data.index] = q
+    end
+    
+    -- Add Quests that are watched but not in the route.
+    if UberQuest then
+      local uq_settings = UberQuest_Config[UnitName("player")]
+      if uq_settings then
+        local list = uq_settings.selected
+        if list then
+          local i = 1
+          while true do
+            local name = GetQuestLogTitle(i)
+            if not name then break end
+            quest_lookup[name] = quest_lookup[i]
+            i = i + 1
+          end
+          for name in pairs(list) do
+            local q = quest_lookup[name]
+            if q and not obj_index_lookup[q] then
+              local count
+              x, y, gap, count = addobj(q, seen, obj_index_lookup, nil, x, y, gap)
+              added = added + count
+            end
+          end
         end
+      end
+    else
+      for i = 1,GetNumQuestWatches() do
+        local q = quest_lookup[GetQuestIndexForWatch(i)]
+        if q and not obj_index_lookup[q] then
+          local count
+          x, y, gap, count = addobj(q, seen, obj_index_lookup, nil, x, y, gap)
+          added = added + count
+        end
+      end
+    end
+    
+    -- Add Quests that are watched and are in the route.
+    for i, objective in ipairs(QuestHelper.route) do
+      local count
+      x, y, gap, count = addobj(objective, seen, obj_index_lookup, watched_filter, x, y, gap)
+      added = added + count
+    end
+    
+    -- Add Quests that aren't watched and are in the route.
+    if added <= track_size then
+      for i, objective in ipairs(QuestHelper.route) do
+        local count
+        x, y, gap, count = addobj(objective, seen, obj_index_lookup, nil, x, y, gap)
+        added = added + count
         
-        if quest and quest.watched and not seen[quest] and filter(quest) then
-          seen[quest] = true
-          
-          local level, name = string.match(quest.obj, "^(%d+)/%d*/(.*)$")
-          
-          if not level then
-            level, name = string.match(quest.obj, "^(%d+)/(.*)$")
-            if not level then
-              level, name = 1, quest.obj
-            end
-          end
-          
-          level = tonumber(level) or 1
-          
-          added = added + 1
-          local w, h = addItem(qname(name, level), quest, -(y+gap), name)
-          x = math.max(x, w)
-          y = y + h + gap
-          
-          for obj in pairs(quest.swap_after or quest.after) do
-            if obj_index_lookup[obj] then
-              table.insert(obj_list, obj)
-            end
-          end
-          
-          table.sort(obj_list, objlist_sort)
-          
-          for i, obj in ipairs(obj_list) do
-            local pct, text = 0, obj.obj
-            
-            if obj.progress then
-              local seen_sum, seen_max, seen_have, seen_need = 0, 0, QuestHelper:CreateTable(), QuestHelper:CreateTable()
-              
-              for user, progress in pairs(obj.progress) do
-                seen_sum = seen_sum + progress[3]
-                seen_max = seen_max + 1
-                seen_have[progress[1]] = true
-                seen_need[progress[2]] = true
-              end
-              
-              if seen_max > 0 then
-                pct = seen_sum / seen_max
-                local list = QuestHelper:CreateTable()
-                
-                for val in pairs(seen_have) do
-                  table.insert(list, val)
-                end
-                
-                table.sort(list)
-                
-                local have = table.concat(list,",")
-                
-                for i = #list,1,-1 do
-                  list[i] = nil
-                end
-                
-                for val in pairs(seen_need) do
-                  table.insert(list, val)
-                end
-                
-                table.sort(list)
-                
-                local need = table.concat(list,",")
-                
-                text = string.format((tonumber(have) and tonumber(need) and QUEST_ITEMS_NEEDED) or QUEST_FACTION_NEEDED, 
-                                     text, have, need)
-                
-                QuestHelper:ReleaseTable(list)
-              end
-              
-              QuestHelper:ReleaseTable(seen_have)
-              QuestHelper:ReleaseTable(seen_need)
-            end
-            
-            added = added + 1
-            w, h = addItem(oname(text, pct), obj, -y)
-            x = math.max(x, w)
-            y = y + h
-          end
-          
-          for i = #obj_list, 1, -1 do obj_list[i] = nil end
-          
-          if added > track_size then
-            break
-          end
+        if added > track_size then
+          break
         end
       end
     end
     
     for obj in pairs(obj_index_lookup) do
       obj_index_lookup[obj] = nil
+    end
+    
+    for key in pairs(quest_lookup) do
+      quest_lookup[key] = nil
     end
     
     for obj, item in pairs(used_items) do
