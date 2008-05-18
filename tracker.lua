@@ -378,6 +378,7 @@ local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
     local w, h = addItem(qname(name, level), quest, -(y+gap), name)
     x = math.max(x, w)
     y = y + h + gap
+    gap = 2
     
     for obj in pairs(quest.swap_after or quest.after) do
       if obj_index_lookup[obj] then
@@ -550,6 +551,9 @@ function tracker:update(delta)
       x, y, gap, count = addobj(objective, seen, obj_index_lookup, watched_filter, x, y, gap)
       added = added + count
     end
+    
+    -- Add an extra large gap to seperate the watched objectives from the automatic objectives.
+    gap = gap * 5
     
     -- Add Quests that aren't watched and are in the route.
     if added <= track_size then
