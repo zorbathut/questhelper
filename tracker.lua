@@ -597,6 +597,19 @@ end
 
 tracker:SetScript("OnUpdate", tracker.update)
 
+-- Some hooks to update the tracker when quests are added or removed.
+local orig_AddQuestWatch, orig_RemoveQuestWatch = AddQuestWatch, RemoveQuestWatch
+
+function AddQuestWatch(...)
+  tracker:update()
+  return orig_AddQuestWatch(...)
+end
+
+function RemoveQuestWatch(...)
+  tracker:update()
+  return orig_RemoveQuestWatch(...)
+end
+
 -------------------------------------------------------------------------------------------------
 -- This batch of stuff is to make sure the original tracker (and any modifications) stay hidden
 
