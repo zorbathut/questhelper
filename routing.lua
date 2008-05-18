@@ -69,6 +69,7 @@ function Route:sanity()
   
   for i, info in ipairs(self) do
     assert(self.index[info.obj] == i)
+    assert(info.pos)
   end
   
   for obj, i in pairs(self.index) do
@@ -238,11 +239,11 @@ function Route:addObjectiveFast(obj)
   
   if index > len then
     local pos = obj.location
-    info.pos = pos
     local previnfo = self[index-1]
     assert(previnfo)
     local d
-    d, obj.pos = obj:TravelTime(pos, previnfo.pos)
+    d, info.pos = obj:TravelTime(previnfo.pos)
+    assert(info.pos)
     QuestHelper:yieldIfNeeded(0.5)
     previnfo.len = d
     self.distance = self.distance + d
@@ -529,11 +530,17 @@ function Route:breed(route_map)
       for obj in pairs(links) do
         local pos = obj.pos
         local w
-        if prev_pos[1].c == pos[1].c then
+        if prev_pos[1] == pos[1] then
+          -- Same zone
           local u, v = prev_pos[3]-pos[3], prev_pos[4]-pos[4]
           w = math.sqrt(u*u+v*v)
+        elseif prev_pos[1].c == pos[1].c then
+          -- Same continent. -- Assume twices as long.
+          local u, v = prev_pos[3]-pos[3], prev_pos[4]-pos[4]
+          w = 2*math.sqrt(u*u+v*v)
         else
-          w = 500
+          -- Different continent. Assume fixed value of 5 minutes.
+          w = 300
         end
         
         w = math.random() / w
@@ -688,7 +695,7 @@ local function RouteUpdateRoutine(self)
   -- All the routes are the same right now, so it doesn't matter which we're considering the best.
   local best_route = next(routes)
   
-  local recheck_position = 0
+  local recheck_position = 1
   
   while true do
     -- Update the player's position data.
@@ -722,11 +729,11 @@ local function RouteUpdateRoutine(self)
     local changed = false
     
     if #route > 0 then
-      recheck_position = recheck_position + 1
       if recheck_position > #route then recheck_position = 1 end
       local o = route[recheck_position]
       
-      o.filter_zone = o.p[pos[1]] == nil
+      assert(o.zones)
+      o.filter_zone = o.zones[pos[1].i] == nil
       
       if not o:Known() then
         -- Objective was probably made to depend on an objective that we don't know about yet.
@@ -777,7 +784,10 @@ local function RouteUpdateRoutine(self)
           route[i] = obj
         end
         
-        if old_index ~= new_index then
+        if old_index == new_index then
+          -- We don't advance recheck_position unless the node doesn't get moved.
+          recheck_position = recheck_position + 1
+        else
           if old_index == 1 then
             minimap_dodad:SetObjective(route[1])
           end
@@ -820,32 +830,40 @@ local function RouteUpdateRoutine(self)
       if not obj then break end
       to_add[obj] = nil
       
-      obj.filter_zone = obj.p[pos[1]] == nil
+      obj.filter_zone = obj.zones and obj.zones[pos[1].i] == nil
       
       if obj:Known() then
         obj:PrepareRouting()
         
-        if not obj.is_sharing and obj.want_share then
-          obj.is_sharing = true
-          self:DoShareObjective(obj)
-        end
+        obj.filter_zone = obj.zones[pos[1].i] == nil
         
-        CalcObjectivePriority(obj)
-        
-        for r in pairs(routes) do
-          if r == best_route then
-            local index = r:addObjectiveBest(obj)
-            obj.pos = r[index].pos
-            table.insert(route, index, obj)
-            if index == 1 then
-              minimap_dodad:SetObjective(route[1])
-            end
-          else
-            r:addObjectiveFast(obj)
+        if obj.filter_zone and QuestHelper_Pref.filter_zone then
+          -- Not going to add it, wrong zone.
+          obj:DoneRouting()
+          add_swap[obj] = true
+        else
+          if not obj.is_sharing and obj.want_share then
+            obj.is_sharing = true
+            self:DoShareObjective(obj)
           end
+          
+          CalcObjectivePriority(obj)
+          
+          for r in pairs(routes) do
+            if r == best_route then
+              local index = r:addObjectiveBest(obj)
+              obj.pos = r[index].pos
+              table.insert(route, index, obj)
+              if index == 1 then
+                minimap_dodad:SetObjective(route[1])
+              end
+            else
+              r:addObjectiveFast(obj)
+            end
+          end
+          
+          changed = true
         end
-        
-        changed = true
       else
         add_swap[obj] = true
       end

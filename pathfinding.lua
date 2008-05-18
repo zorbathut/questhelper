@@ -594,14 +594,14 @@ function QuestHelper:ResetPathing()
   
   for i, name in pairs(QuestHelper_NameLookup) do
     if not zone_nodes[i] then
-      zone_nodes[i] = {}
+      local z = {}
+      zone_nodes[i] = z
+      z.i, z.c, z.z = i, unpack(QuestHelper_ZoneLookup[i])
     else
       for key in pairs(zone_nodes[i]) do
         zone_nodes[i][key] = nil
       end
     end
-    
-    zone_nodes[i].c, zone_nodes[i].z = unpack(QuestHelper_ZoneLookup[i])
   end
   
   self:SetupTeleportInfo(self.teleport_info, true)

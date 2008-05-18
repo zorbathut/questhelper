@@ -467,6 +467,14 @@ local function FinishAddLoc(self)
     end
   end
   
+  if not self.zones then
+    -- Not using CreateTable, because it will not be released when routing is complete.
+    self.zones = {}
+  else
+    -- We could remove the already known zones, but I'm operating under the assumtion that locations will only be added,
+    -- not removed, so this isn't necessary.
+  end
+  
   -- Remove probably useless locations.
   for z, pl in pairs(self.p) do
     local remove_zone = true
@@ -483,6 +491,8 @@ local function FinishAddLoc(self)
     if remove_zone then
       QuestHelper:ReleaseTable(self.p[z])
       self.p[z] = nil
+    else
+      self.zones[z.i] = true
     end
   end
   

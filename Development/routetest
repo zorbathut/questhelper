@@ -1,5 +1,9 @@
 #!/usr/bin/env lua
 
+-- You can use this with regular lua, but if you use something
+-- luajit, you'll be able to get stack traces when things go
+-- wrong in the coroutine.
+
 function IsInInstance() return false end
 QuestHelper = {}
 QuestHelper_File = {}
@@ -168,6 +172,18 @@ function QuestHelper:CreateMipmapDodad()
    }
 end
 
+QuestHelper.pos, QuestHelper.i, QuestHelper.c, QuestHelper.z, QuestHelper.x, QuestHelper.y = {nil, {}}, 1, 1, 1, math.random()*14+1, math.random()*14+1
+QuestHelper.zone_nodes = {{c=1,z=1,i=1}}
+QuestHelper.continent_scales_x = {1}
+QuestHelper.continent_scales_y = {1}
+
+QuestHelper.Astrolabe =
+ {
+  TranslateWorldMapPosition = function(self, c, z, x, y, c2, z2)
+    return x, y
+  end
+ }
+
 local function createNode(name, x, y)
   return
    {
@@ -178,6 +194,8 @@ local function createNode(name, x, y)
     prepared = 0,
     priority = 3,
     real_priority = 3,
+    p = QuestHelper.zone_nodes[QuestHelper.i],
+    zones = {[QuestHelper.i] = true},
     Known = function ()
       return true
     end,
@@ -209,8 +227,6 @@ local function createNode(name, x, y)
    }
 end
 
-QuestHelper.pos = {{c=1}, nil, 8, 8}
-
 for i = 1,30 do
   QuestHelper.to_add[createNode(string.format("R%02d", i),math.random()*15+1, math.random()*15+1)] = true
 end
@@ -233,6 +249,8 @@ for o in pairs(QuestHelper.to_add) do
 end
 
 local count = 0
+
+QuestHelper.minimap_dodad = QuestHelper:CreateMipmapDodad()
 
 while true do
   QuestHelper:RunCoroutine()
