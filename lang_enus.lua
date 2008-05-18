@@ -214,6 +214,7 @@ QuestHelper_Translations.enUS =
   MENU_TRACKER_QCOLOUR = "%1 Quest Difficulty Colours",
   MENU_TRACKER_OCOLOUR = "%1 Objective Progress Colours",
   MENU_TRACKER_SCALE = "Tracker Scale",
+  MENU_TRACKER_RESET = "Reset Position",
   MENU_FLIGHT_TIMER = "%1 Flight Timer",
   MENU_ANT_TRAILS = "%1 Ant Trails",
   MENU_WAYPOINT_ARROW = "%1 Waypoint Arrow",

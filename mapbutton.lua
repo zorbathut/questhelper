@@ -95,6 +95,8 @@ function QuestHelper:DoSettingsMenu()
       tex:SetVertexColor(1, 1, 1, QuestHelper_Pref.track_scale == pct*0.01 and 1 or 0)
     end
     self:CreateMenuItem(submenu, QHText("MENU_TRACKER_SCALE")):SetSubmenu(submenu2)
+    self:CreateMenuItem(submenu, QHText("MENU_TRACKER_RESET"))
+                    :SetFunction(self.ResetTrackerPosition, self)
     self:CreateMenuItem(menu, QHText("MENU_TRACKER_OPTIONS")):SetSubmenu(submenu)
     
     -- Filters

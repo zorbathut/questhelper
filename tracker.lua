@@ -6,21 +6,47 @@ local minbutton = CreateFrame("Button", "QuestHelperQuestWatchFrameMinimizeButto
 QuestHelper.tracker = tracker
 
 tracker:Hide()
-tracker:SetPoint("TOPRIGHT", QuestWatchFrame)
 tracker:SetWidth(200)
 tracker:SetHeight(100)
 tracker.dw, tracker.dh = 200, 100
 
 local in_tracker = 0
 
-minbutton:SetFrameLevel(tracker:GetFrameLevel()+2)
+minbutton:SetFrameStrata("DIALOG")
 minbutton:Hide()
 minbutton:SetPoint("TOPRIGHT", QuestWatchFrame)
+minbutton:SetMovable(true)
+minbutton:SetUserPlaced(true)
 minbutton:SetWidth(10)
 minbutton:SetHeight(5)
 local minbutton_tex = minbutton:CreateTexture()
 minbutton_tex:SetAllPoints()
 minbutton_tex:SetTexture(.8, .8, .8)
+
+tracker:SetPoint("CENTER", minbutton)
+
+function minbutton:moved()
+  local x, y = self:GetCenter()
+  local w, h = UIParent:GetWidth(), UIParent:GetHeight()
+  local anchor = (y < h*.45 and "BOTTOM" or y > h*.55 and "TOP" or "")..(x < w*.45 and "LEFT" or x > w*.55 and "RIGHT" or "")
+  
+  tracker:ClearAllPoints()
+  tracker:SetPoint("CENTER", self)
+  
+  if anchor ~= "" then
+    tracker:SetPoint(anchor, self)
+  end
+end
+
+function QuestHelper:ResetTrackerPosition()
+  minbutton:ClearAllPoints()
+  minbutton:SetPoint("TOPRIGHT", QuestWatchFrame)
+  minbutton:moved()
+  self:TextOut("Quest tracker postion reset.")
+end
+
+minbutton:SetScript("OnEvent", minbutton.moved)
+minbutton:RegisterEvent("DISPLAY_SIZE_CHANGED")
 
 minbutton:SetScript("OnClick", function ()
   QuestHelper_Pref.track_minimized = not QuestHelper_Pref.track_minimized
@@ -29,6 +55,21 @@ minbutton:SetScript("OnClick", function ()
   else
     tracker:Show()
   end
+end)
+
+minbutton:RegisterForDrag("LeftButton")
+
+minbutton:SetScript("OnDragStart", function(self)
+  if self:IsVisible() then
+    self:StartMoving()
+    self:SetScript("OnUpdate", self.moved)
+  end
+end)
+
+minbutton:SetScript("OnDragStop", function(self)
+  self:SetScript("OnUpdate", nil)
+  self:StopMovingOrSizing()
+  self:moved()
 end)
 
 minbutton:SetScript("OnEnter", function (self)
@@ -352,9 +393,9 @@ function tracker:update(delta)
   if inside ~= was_inside then
     was_inside = inside
     if inside then
-      minbutton:Show()
+      minbutton:SetAlpha(.7)
     elseif not QuestHelper_Pref.track_minimized then
-      minbutton:Hide()
+      minbutton:SetAlpha(0)
     end
   end
   
@@ -572,12 +613,12 @@ QuestWatchFrame:SetScript("OnShow", QuestWatchFrameOnShow)
 
 function QuestHelper:ShowTracker()
   tracker:HideDefaultTracker()
+  minbutton:Show()
   
   if QuestHelper_Pref.track_minimized then
-    minbutton:Show()
     minbutton:SetAlpha(.3)
   else
-    minbutton:SetAlpha(.5)
+    minbutton:SetAlpha(0)
     tracker:Show()
   end
 end

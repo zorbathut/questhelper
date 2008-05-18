@@ -52,12 +52,12 @@ hidden.lua
 nag.lua
 comm.lua
 mapbutton.lua
-help.lua
 pattern.lua
 flightpath.lua
 tracker.lua
 objtips.lua
 textviewer.lua
+help.lua
 
 cartographer.lua
 tomtom.lua

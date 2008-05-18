@@ -470,6 +470,10 @@ commands =
    "Toggles display of colours for objective progress in the quest tracker provided by QuestHelper.",
    {}, QuestHelper.ToggleTrackOColour, QuestHelper},
   
+  {"TRESET",
+   "Reset's the position of the quest tracker provided by QuestHelper, in cause you move it somewhere inaccessable.",
+   {}, QuestHelper.ResetTrackerPosition, QuestHelper},
+  
   {"NAG",
    "Tells you if you have anything that's missing from the static database.",
     {{"/qh nag", "Prints just the summary of changes."},
