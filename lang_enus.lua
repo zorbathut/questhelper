@@ -226,6 +226,10 @@ QuestHelper_Translations.enUS =
   MENU_FILTERS = "Filters",
   MENU_PERFORMANCE = "Route Workload Scale",
   MENU_LOCALE = "Locale",
+  MENU_HELP = "Help",
+  MENU_HELP_SLASH = "Slash Commands",
+  MENU_HELP_CHANGES = "Change Log",
+  MENU_HELP_SUBMIT = "Submitting Data",
   
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
   -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.

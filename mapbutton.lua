@@ -134,6 +134,13 @@ function QuestHelper:DoSettingsMenu()
     item:AddTexture(self:CreateIconTexture(item, 25), true) -- Add Globe icon to locale menu.
     item:SetSubmenu(submenu)
     
+    -- Stuff to read.
+    submenu = self:CreateMenu()
+    self:CreateMenuItem(submenu, QHText("MENU_HELP_SLASH")):SetFunction(self.Help, self)
+    self:CreateMenuItem(submenu, QHText("MENU_HELP_CHANGES")):SetFunction(self.ChangeLog, self)
+    self:CreateMenuItem(submenu, QHText("MENU_HELP_SUBMIT")):SetFunction(self.Submit, self)
+    self:CreateMenuItem(menu, QHText("MENU_HELP")):SetSubmenu(submenu)
+    
     menu:ShowAtCursor()
 end
 
