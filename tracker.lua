@@ -413,7 +413,7 @@ local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
           
           table.sort(list)
           
-          local have = table.concat(list,",")
+          local have = table.concat(list, ", ")
           
           for i = #list,1,-1 do
             list[i] = nil
@@ -423,12 +423,17 @@ local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
             table.insert(list, val)
           end
           
-          table.sort(list)
-          
-          local need = table.concat(list,",")
-          
-          text = string.format((tonumber(have) and tonumber(need) and QUEST_ITEMS_NEEDED) or QUEST_FACTION_NEEDED, 
-                               text, have, need)
+          if #list ~= 1 or list[1] ~= 1 then
+            -- If there is only one thing needed, ignore the progress, it's redundant.
+            -- It's either shown or it isn't.
+            
+            table.sort(list)
+            
+            local need = table.concat(list, ", ")
+            
+            text = string.format((tonumber(have) and tonumber(need) and QUEST_ITEMS_NEEDED) or QUEST_FACTION_NEEDED, 
+                                 text, have, need)
+          end
           
           QuestHelper:ReleaseTable(list)
         end
