@@ -784,10 +784,13 @@ local function RouteUpdateRoutine(self)
           route[i] = obj
         end
         
-        if old_index == new_index then
+        --if old_index == new_index then
           -- We don't advance recheck_position unless the node doesn't get moved.
+          -- TODO: As the this code is apparently bugged, it's gotten into an infinite loop of constantly swapping
+          -- and hence never advancing. As a work around for now, we'll always advance.
           recheck_position = recheck_position + 1
-        else
+        --else
+        if old_index ~= new_index then
           if old_index == 1 then
             minimap_dodad:SetObjective(route[1])
           end
