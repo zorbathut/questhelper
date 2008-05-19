@@ -593,14 +593,16 @@ function QuestHelper:ResetPathing()
   end
   
   for i, name in pairs(QuestHelper_NameLookup) do
-    if not zone_nodes[i] then
-      local z = {}
+    local z = zone_nodes[i]
+    if not z then
+      z = {}
       zone_nodes[i] = z
       z.i, z.c, z.z = i, unpack(QuestHelper_ZoneLookup[i])
     else
-      for key in pairs(zone_nodes[i]) do
-        zone_nodes[i][key] = nil
+      for key in pairs(z) do
+        z[key] = nil
       end
+      z.i, z.c, z.z = i, unpack(QuestHelper_ZoneLookup[i])
     end
   end
   
