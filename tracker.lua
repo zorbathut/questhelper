@@ -47,6 +47,7 @@ end
 
 minbutton:SetScript("OnEvent", minbutton.moved)
 minbutton:RegisterEvent("DISPLAY_SIZE_CHANGED")
+minbutton:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 minbutton:SetScript("OnClick", function ()
   QuestHelper_Pref.track_minimized = not QuestHelper_Pref.track_minimized
