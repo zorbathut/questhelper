@@ -340,7 +340,7 @@ local function watched_filter(obj)
 end
 
 local function objlist_sort(a, b)
-  return obj_index_lookup[a] < obj_index_lookup[b]
+  return (obj_index_lookup[a] or 0) < (obj_index_lookup[b] or 0)
 end
 
 function tracker:reset()
@@ -381,7 +381,7 @@ local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
     gap = 2
     
     for obj in pairs(quest.swap_after or quest.after) do
-      if obj_index_lookup[obj] then
+      if obj.progress then
         table.insert(obj_list, obj)
       end
     end
@@ -390,9 +390,10 @@ local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
     
     for i, obj in ipairs(obj_list) do
       local pct, text = 0, obj.obj
+      local seen_sum, seen_max = 0, 0
       
       if obj.progress then
-        local seen_sum, seen_max, seen_have, seen_need = 0, 0, QuestHelper:CreateTable(), QuestHelper:CreateTable()
+        local seen_have, seen_need = QuestHelper:CreateTable(), QuestHelper:CreateTable()
         
         for user, progress in pairs(obj.progress) do
           seen_sum = seen_sum + progress[3]
@@ -435,10 +436,12 @@ local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
         QuestHelper:ReleaseTable(seen_need)
       end
       
-      count = count + 1
-      w, h = addItem(oname(text, pct), obj, -y)
-      x = math.max(x, w)
-      y = y + h
+      if seen_sum ~= seen_max then
+        count = count + 1
+        w, h = addItem(oname(text, pct), obj, -y)
+        x = math.max(x, w)
+        y = y + h
+      end
     end
     
     for i = #obj_list, 1, -1 do obj_list[i] = nil end
