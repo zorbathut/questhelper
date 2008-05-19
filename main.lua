@@ -218,6 +218,12 @@ function QuestHelper:OnEvent(event)
       return
     end
     
+    if not QuestHelper_StaticData then
+      -- If there is no static data for some mysterious reason, create an empty table so that
+      -- other parts of the code can carry on as usual, using locally collected data if it exists.
+      QuestHelper_StaticData = {}
+    end
+    
     QHFormatSetLocale(QuestHelper_Pref.locale or GetLocale())
     
     if not QuestHelper_UID then
