@@ -67,7 +67,7 @@ QuestHelper_Translations.enUS =
   LOCALE_NAME = "English",
   
   -- Messages used when starting.
-  LOCALE_ERROR = "The locale of your saved data doesn't match the locale of your WoW client.",
+  LOCALE_ERROR = "The locale of your saved data doesn't match the locale of your WoW client. To use QuestHelper you'll need to either change the locale back, or delete the data by typing %h(/qh purge).",
   ZONE_LAYOUT_ERROR = "I'm refusing to run, out of fear of corrupting your saved data. "..
                       "Please wait for a patch that will be able to handle the new zone layout.",
   DOWNGRADE_ERROR = "Your saved data isn't compatible with this version of QuestHelper. "..
