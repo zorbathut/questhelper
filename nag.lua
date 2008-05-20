@@ -25,6 +25,10 @@ local function ListUpdated(list, static, compare, weight)
   
   local high = 0
   
+  if #static >= 5 then
+    return false
+  end
+  
   for _, b in ipairs(static) do
     high = math.max(high, weight(b))
   end
@@ -85,7 +89,9 @@ local function DropListUpdated(list, static)
     local monster_obj1 = QuestHelper:GetObjective("monster", name)
     local monster_obj2 = FindStaticObjective("monster", name)
     
-    local looted = math.ceil((monster_obj1.looted or 0)+((monster_obj2 and monster_obj2.looted) or 0))
+    if monster_obj1.o.looted then QuestHelper:TextOut(monster_obj1.o.looted) end
+    
+    local looted = math.ceil((monster_obj1.o.looted or 0)+((monster_obj2 and monster_obj2.looted) or 0))
     if looted > 0 then
       v = math.max(1, math.floor(v))/looted
       if v > high*0.2 and not static[name] then return true end
