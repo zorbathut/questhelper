@@ -709,20 +709,24 @@ local function RouteUpdateRoutine(self)
         pos[2][i] = t+extra_time
       end
     else
-      pos[3], pos[4] = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)
-      assert(pos[3])
-      assert(pos[4])
-      pos[1] = self.zone_nodes[self.i]
-      pos[3], pos[4] = pos[3] * self.continent_scales_x[self.c], pos[4] * self.continent_scales_y[self.c]
-      
-      for i, n in ipairs(pos[1]) do
-        if not n.x then
-          for i, j in pairs(n) do self:TextOut("[%q]=%s %s", i, type(j), tostring(j) or "???") end
-          assert(false)
-        end
+      if not pos[1] -- Need a valid position, in case the player was dead when they loaded the game.
+        or not UnitIsDeadOrGhost("player") then
+        -- Don't update the player's position if they're dead, assume they'll be returning to their corpse.
+        pos[3], pos[4] = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)
+        assert(pos[3])
+        assert(pos[4])
+        pos[1] = self.zone_nodes[self.i]
+        pos[3], pos[4] = pos[3] * self.continent_scales_x[self.c], pos[4] * self.continent_scales_y[self.c]
         
-        local a, b = n.x-pos[3], n.y-pos[4]
-        pos[2][i] = math.sqrt(a*a+b*b)
+        for i, n in ipairs(pos[1]) do
+          if not n.x then
+            for i, j in pairs(n) do self:TextOut("[%q]=%s %s", i, type(j), tostring(j) or "???") end
+            assert(false)
+          end
+          
+          local a, b = n.x-pos[3], n.y-pos[4]
+          pos[2][i] = math.sqrt(a*a+b*b)
+        end
       end
     end
     
