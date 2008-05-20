@@ -382,7 +382,7 @@ In that directory, the needed file is in |cff40bbffWTF/Account/|cffff8000ACCOUNT
 
 There are other directories with the names of the realms where your characters are stored, |cffffff00but don't enter them|r. They contain information specific to your characters, such as the flight points they know about, and don't contain the quest information I want.
 
-After you find |cff40bbffQuestHelper.lua|r, you can email it to me here: |cff40bbffqhaddon@gamil.com|r
+After you find |cff40bbffQuestHelper.lua|r, you can email it to me here: |cff40bbffqhaddon@gmail.com|r
 ]], "How To Submit Your Data")
 end
 
