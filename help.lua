@@ -291,7 +291,7 @@ function QuestHelper:Filter(input)
     self:TextOut("Filter "..self:HighlightText("done")..": "..self:HighlightText(QuestHelper_Pref.filter_done and "active" or "inactive"))
     self:TextOut("Filter "..self:HighlightText("blocked")..": "..self:HighlightText(QuestHelper_Pref.filter_blocked and "active" or "inactive"))
   else
-    self:TextOut("Don't know what you want filtered, expect "..self:HighlightText("zone")..", "..self:HighlightText("done")..", or "..self:HighlightText("level")..".")
+    self:TextOut("Don't know what you want filtered, expect "..self:HighlightText("zone")..", "..self:HighlightText("done")..", "..self:HighlightText("level")..", or "..self:HighlightText("blocked")..".")
   end
 end
 
