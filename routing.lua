@@ -76,10 +76,10 @@ function Route:sanity()
     assert(self[i].obj == obj)
   end
   
-  --[[for i = 1, #self-1 do
-    local l = QuestHelper:ComputeTravelTime(self[i].pos, self[i+1].pos)
-    assert(math.abs(l-self[i].len) < 0.0001)
-  end]]
+  --for i = 1, #self-1 do
+  --  local l = QuestHelper:ComputeTravelTime(self[i].pos, self[i+1].pos)
+  --  assert(math.abs(l-self[i].len) < 0.0001)
+  --end
   
   return true
 end

@@ -1,19 +1,23 @@
-== Version 0.47 ??/??/???? ==
+== Version 0.47 05/20/2008 ==
 
-* Added an in-game copy of the changelog, to be displayed when an upgrade is detected, or when the user types '<code>/qh changes</code>'.
+* Added an in-game copy of the change log, to be displayed when an upgrade is detected.
+* The zone filter has been fixed, and will consider whether any of the known locations for an objective are where the player is or is flying to. Before, only the most probable location was considered.
 * Made some changes to the quest tracker:
+** The progress for objectives for which only one thing is required is omitted. It's either there or it isn't.
 ** Option to add quest levels to quest names: <code>/qh tlevel</code>
 ** Option to colour quest names by their difficulty: <code>/qh tqcol</code>
 ** Option to colour objectives by their progress: <code>/qh tocol</code>
 ** Option to scale the quest tracker: <code>/qh tscale</code>
-** The above options were also added to the settings menu.
-** Added a small button to quickly minimize or restore the quest tracker. This isn't the same as hiding the quest tracker, which will hide that button as well and restore the original.
-** Hiding QuestHelper will also hide the quest tracker.
-** Will now force quests tracked by the original quest tracker to be put at the top of the list.
+** Added a small button to quickly minimize or restore the quest tracker. The button will be invisible unless the cursor is over the quest tracker, and transparent when the quest tracker is minimized.
+** The quest tracker can be repositioned by dragging the above button. The tracker will be re-anchored to the button depending on where on the screen it is placed so that when it changes size, it will grow away from the edges of the screen.
+** The position of the quest tracker can be reset with this command: <code>/qh treset</code>
+** Hiding QuestHelper will now also hide the quest tracker.
+** Will now force watched quests to be put at the top of the list, with a small gap seperating them from the automatically added quests. You can use the builtin quest log, beql, or DoubleWide to manage quest watches. Other addons might also work if they hook Blizzard's original quest watch functions properly. I also tried to make this work properly with UberQuest, but your milage may vary.
 ** Will include the quests of your party members, if sharing is enabled and they are also using QuestHelper.
 ** Will display the progress of your party members as a comma seperated list, although the list will only include unique values, so if everyone's progress is the same, this will appear as a single number.
-* Fixed a bug with objective icons inheriting their alpha value from the map frame, which Cartographer can hide.
+* Fixed a bug with objective icons inheriting their alpha value from the map frame, which Cartographer could hide.
 * Fixed a bug in routing, was caching the objective locations.
+* Assumes that if you die, you'll need to return to your body.
 * QuestHelper won't try to track objectives for failed quests.
 * Includes a submitted Russian translation.
 
