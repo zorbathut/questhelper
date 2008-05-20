@@ -1159,14 +1159,14 @@ function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
   self:CreateMenuItem(menu, QHText("PRIORITY")):SetSubmenu(submenu)
   
   if self.sharing then
-    submenu = self:CreateMenu(QHText("SHARING"))
-    local item = self:CreateMenuItem(submenu, QHText("ENABLE"))
+    submenu = self:CreateMenu()
+    local item = self:CreateMenuItem(submenu, QHText("SHARING_ENABLE"))
     local tex = self:CreateIconTexture(item, 10)
     if not obj.want_share then tex:SetVertexColor(1, 1, 1, 0) end
     item:AddTexture(tex, true)
     item:SetFunction(obj.Share, obj)
     
-    local item = self:CreateMenuItem(submenu, QHText("DISABLE"))
+    local item = self:CreateMenuItem(submenu, QHText("SHARING_DISABLE"))
     local tex = self:CreateIconTexture(item, 10)
     if obj.want_share then tex:SetVertexColor(1, 1, 1, 0) end
     item:AddTexture(tex, true)

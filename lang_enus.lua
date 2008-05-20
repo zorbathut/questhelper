@@ -27,14 +27,12 @@
     %h(Hello World)
       Inserts the text 'Hello World', highlighted so that it stands out.
     
-    %h(%s(%(cla)%(ss)))
+    %h(%q(%(cla)%(ss)))
       This convoluted example demonstrates nesting.
       First 'cla' and 'ss' are converted into 'class', this is made
-      plural, converting it into 'classes', and then this is highlighted.
+      quoted, converting it into '"classes"', and then this is highlighted.
   
   Transformations:
-    s
-      Makes a string plural.
     
     h
       Highlight some text. Bewarned that highlighting already highlighted text
@@ -76,10 +74,6 @@ QuestHelper_Translations.enUS =
                     "Use a new version, or delete your saved variables.",
   HOME_NOT_KNOWN = "Your home isn't known. When you get a chance, please talk to your innkeeper and reset it.",
   
-  -- This text is only printed for the enUS client, don't worry about translating it.
-  ALTERED_INDEX = "!!! QuestHelper_IndexLookup entry needs update: [%Q1] = {%2, %3, %4}",
-  ALTERED_ZONE = "!!! QuestHelper_Zones entry needs update: [%1][%2] = %Q3 -- was %4",
-  
   -- Route related text.
   ROUTES_CHANGED = "The flight routes for your character have been altered.",
   HOME_CHANGED = "Your home has been changed.",
@@ -115,8 +109,8 @@ QuestHelper_Translations.enUS =
   PRIORITY4 = "Low",
   PRIORITY5 = "Lowest",
   SHARING = "Sharing",
-  ENABLE = "Enable",
-  DISABLE = "Disable",
+  SHARING_ENABLE = "Share",
+  SHARING_DISABLE = "Don't Share",
   IGNORE = "Ignore",
   
   IGNORED_PRIORITY_TITLE = "The selected priority would be ignored.",
@@ -170,25 +164,31 @@ QuestHelper_Translations.enUS =
   FILTER_BLOCKED = "blocked",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
-  NAG_SINGLE = "1 %2", -- %1 == count (will be 1), %2 == what
-  NAG_PLURAL = "%1 %s2",
-  
-  NAG_MULTIPLE_NEW = "You have information on %h1 new and %h2 updated %h(%s3).",
-  NAG_SINGLE_NEW = "You have new information on %h1.",
-  NAG_ADDITIONAL = "You have additional information on %h1.",
+  NAG_MULTIPLE_NEW = "You have %h(new information) on %h1, and %h(updated information) on %h2.",
+  NAG_SINGLE_NEW = "You have %h(new information) on %h1.",
+  NAG_ADDITIONAL = "You have %h(additional information) on %h1.",
   
   NAG_NOT_NEW = "You don't have any information not already in the static database.",
   NAG_NEW = "You might consider sharing your data so that others may benefit.",
   NAG_INSTRUCTIONS = "Type %h(/qh submit) for instructions on submitting data.",
   
-  NAG_FP = "flight master",
-  NAG_QUEST = "quest",
-  NAG_ROUTE = "flight route",
-  NAG_ITEM_OBJ = "item objective",
-  NAG_OBJECT_OBJ = "object objective",
-  NAG_MONSTER_OBJ = "monster objective",
-  NAG_EVENT_OBJ = "event objective",
-  NAG_REPUTATION_OBJ = "reputation objective",
+  NAG_SINGLE_FP = "a flight master",
+  NAG_SINGLE_QUEST = "a quest",
+  NAG_SINGLE_ROUTE = "a flight route",
+  NAG_SINGLE_ITEM_OBJ = "an item objective",
+  NAG_SINGLE_OBJECT_OBJ = "an object objective",
+  NAG_SINGLE_MONSTER_OBJ = "a monster objective",
+  NAG_SINGLE_EVENT_OBJ = "an event objective",
+  NAG_SINGLE_REPUTATION_OBJ = "a reputation objective",
+  
+  NAG_MULTIPLE_FP = "%1 flight masters",
+  NAG_MULTIPLE_QUEST = "%1 quests",
+  NAG_MULTIPLE_ROUTE = "%1 flight routes",
+  NAG_MULTIPLE_ITEM_OBJ = "%1 item objectives",
+  NAG_MULTIPLE_OBJECT_OBJ = "%1 object objectives",
+  NAG_MULTIPLE_MONSTER_OBJ = "%1 monster objectives",
+  NAG_MULTIPLE_EVENT_OBJ = "%1 event objectives",
+  NAG_MULTIPLE_REPUTATION_OBJ = "%1 reputation objectives",
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1's progress:",
@@ -249,24 +249,6 @@ QuestHelper_TranslationFunctions.enUS =
  {
   -- %1 will insert a copy of argument 1, converted to a string.
   [""] = tostring,
-  
-  -- %s1 will insert a copy of argument 1, made plural.
-  -- A value of 'cake' will be inserted as 'cakes'.
-  ["s"] = function(data)
-    if string.find(data, "|r$") then -- String ends in a colour termination code.
-      if string.find(data, "s|r$") then
-        return string.sub(data, -3).."es|r"
-      else
-        return string.sub(data, -3).."s|r"
-      end
-    else
-      if string.find(data, "s$") then
-        return data.."es"
-      else
-        return data.."s"
-      end
-    end
-  end,
   
   -- Highlight: "%h1" will insert a highlighted copy of argument 1, converted to a string.
   ["h"] = function(data) return QuestHelper:HighlightText(tostring(data)) end,

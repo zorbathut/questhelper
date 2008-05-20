@@ -266,20 +266,27 @@ function QuestHelper:Nag(cmd)
   local total = 0
   
   for what, count in pairs(info.new) do
+    local what1 = count == 1 and QHText("NAG_SINGLE_"..string.upper(what)) or
+                                   QHFormat("NAG_MULTIPLE_"..string.upper(what), count)
+    
     total = total + count
     local count2 = info.update[what]
     if count2 then
       total = total + count2
-      self:TextOut(QHFormat("NAG_MULTIPLE_NEW", count, count2, QHText("NAG_"..string.upper(what))))
+      local what2 = count2 == 1 and QHText("NAG_SINGLE_"..string.upper(what)) or
+                                    QHFormat("NAG_MULTIPLE_"..string.upper(what), count2)
+      self:TextOut(QHFormat("NAG_MULTIPLE_NEW", what1, what2))
     else
-      self:TextOut(QHFormat("NAG_SINGLE_NEW", QHFormat(count==1 and "NAG_SINGLE" or "NAG_PLURAL", count, QHText("NAG_"..string.upper(what)))))
+      self:TextOut(QHFormat("NAG_SINGLE_NEW", what1))
     end
   end
   
   for what, count in pairs(info.update) do
     if not info.new[what] then
+      local what = count == 1 and QHText("NAG_SINGLE_"..string.upper(what)) or
+                                  QHFormat("NAG_MULTIPLE_"..string.upper(what), count)
       total = total + count
-      self:TextOut(QHFormat("NAG_ADDITIONAL", QHFormat(count==1 and "NAG_SINGLE" or "NAG_PLURAL", count, QHText("NAG_"..string.upper(what)))))
+      self:TextOut(QHFormat("NAG_ADDITIONAL", what))
     end
   end
   

@@ -165,17 +165,20 @@ function QuestHelper_BuildZoneLookup()
         
         local index = original_lookup[base_name] and original_lookup[base_name][1]
         
+        local altered_index = "!!! QuestHelper_IndexLookup entry needs update: [%q] = {%s, %s, %s}"
+        local altered_zone = "!!! QuestHelper_Zones entry needs update: [%s][%s] = %q -- was %s"
+        
         if not index then
-          QuestHelper:TextOut(QHFormat("ALTERED_INDEX", base_name, next_index, c, z))
+          QuestHelper:TextOut(altered_index:format(base_name, next_index, c, z))
           next_index = next_index + 1
         else
           if QuestHelper_Locale == "enUS" then
             if original_lookup[base_name][2] ~= c or original_lookup[base_name][3] ~= z then
-              QuestHelper:TextOut(QHFormat("ALTERED_INDEX", base_name, index, c, z))
+              QuestHelper:TextOut(altered_index:format(base_name, index, c, z))
             end
             
             if original_zones[c][z] ~= zname then
-              QuestHelper:TextOut(QHFormat("ALTERED_ZONE", c, z, zname, original_zones[c][z] or "missing"))
+              QuestHelper:TextOut(altered_zone:format(c, z, zname, original_zones[c][z] or "missing"))
             end
           end
           
