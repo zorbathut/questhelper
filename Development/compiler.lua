@@ -431,8 +431,9 @@ local function addVendors(list, to_add)
   if not list then list = {} end
   
   for _, npc in ipairs(to_add) do
-    addVendor(list, npc)
-    local known = false
+    if npc ~= "Unknown" then
+      addVendor(list, npc)
+    end
   end
   
   return list
@@ -441,6 +442,7 @@ end
 local function AddObjective(locale, category, name, objective)
   if type(category) == "string"
      and type(name) == "string"
+     and name ~= "Unknown"
      and type(objective) == "table" then
     local o = GetObjective(locale, category, name)
     
@@ -486,7 +488,7 @@ local function AddObjective(locale, category, name, objective)
       if type(objective.drop) == "table" then
         if not o.drop then o.drop = {} end
         for monster, count in pairs(objective.drop) do
-          if type(monster) == "string" and type(count) == "number" then
+          if type(monster) == "string" and monster ~= "Unknown" and type(count) == "number" then
             o.drop[monster] = (o.drop[monster] or 0) + count
           end
         end
