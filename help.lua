@@ -476,7 +476,7 @@ commands =
   
   {"NAG",
    "Tells you if you have anything that's missing from the static database. It can only check quests from your own faction, as the quests of your opposing faction are ommitted to save memory.",
-     {"/qh nag verbose", "Prints the specific changes that were found."}, QuestHelper.Nag, QuestHelper},
+     {{"/qh nag verbose", "Prints the specific changes that were found."}}, QuestHelper.Nag, QuestHelper},
   
   {"POS",
     "Prints the player's current position. Exists mainly for my own personal convenience.",
