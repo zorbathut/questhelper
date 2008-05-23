@@ -13,8 +13,8 @@ function QHFormatSetLocale(loc)
   trans_table_force = QuestHelper_ForcedTranslations[GetLocale()] or empty_table
   trans_table_fb = QuestHelper_Translations["enUS"] or empty_table
   trans_table = QuestHelper_Translations[loc] or trans_table_fb
-  trans_func, trans_func_fb = QuestHelper_TranslationFunctions[loc], QuestHelper_TranslationFunctions["enUS"]
-  trans_func = trans_func or trans_func_fb
+  trans_func_fb = QuestHelper_TranslationFunctions["enUS"] or empty_table
+  trans_func = QuestHelper_TranslationFunctions[loc] or trans_func_fb
 end
 
 local sub_array = nil
@@ -22,7 +22,7 @@ local function doSub(op, index)
   local i = tonumber(index)
   if i then
     -- Pass the selected argument through a function and insert the result.
-    return (trans_func[op] or trans_func_fb[op] or QuestHelper.nop)(sub_array[i]) or "[???]"
+    return (trans_func[op] or trans_func_fb[op] or QuestHelper.nop)(sub_array[i] or "") or "[???]"
   end
   return op..index
 end
