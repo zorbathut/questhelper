@@ -4,41 +4,42 @@ QuestHelper_Translations.esES =
  {
   -- Displayed by locale chooser.
   LOCALE_NAME = "Español",
-  
+
   -- Messages used when starting.
-  LOCALE_ERROR = "El idioma de su datos guardados no coincide con el idioma del cliente Wow.",
+  LOCALE_ERROR = "El idioma de su datos guardados no coincide con el idioma del cliente Wow. Para utilizar QuestHelper tendrá que cambiar la configuración regional de vuelta, o borrar los datos tecleando %h(/qh purge).",
   ZONE_LAYOUT_ERROR = "Me niego a ejecutarme, por miedo a dañar sus datos guardados. "..
                       "Por favor, espere a que un parche que será capaz de manejar el nueva diseño de zona.",
   DOWNGRADE_ERROR = "Sus datos guardados no son compatibles con esta versión de QuestHelper. "..
                     "Utilice una nueva versión, o borre su variables guardadas.",
-  HOME_NOT_KNOWN = "No se conoce su hogar. Cuando tenga una oportunidad, por favor, hable con su posadero para restaurarla.",
-  
+  HOME_NOT_KNOWN = "Su hogar es desconocido. Cuando tenga la oportunidad, por favor, hable con su posadero para restaurarla.",
+
   -- Route related text.
   ROUTES_CHANGED = "Las rutas de vuelo de su personaje han sido alteradas.",
   HOME_CHANGED = "Su hogar ha sido modificado.",
   TALK_TO_FLIGHT_MASTER = "Por favor, hable con el maestro de vuelo local.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Gracias.",
   WILL_RESET_PATH = "Se restablecerá la información de rutas.",
-  
+  UPDATING_ROUTE = "Actualizando ruta.",
+
   -- Locale switcher.
-  LOCALE_LIST_BEGIN = "Idiomas:",
+  LOCALE_LIST_BEGIN = "Idiomas Disponibles:",
   LOCALE_CHANGED = "Idioma cambiado a: %h1",
   LOCALE_UNKNOWN = "El Idioma %h1 es desconocido.",
-  
+
   -- Words used for objectives.
   SLAY_VERB = "Matar",
   ACQUIRE_VERB = "Adquirir",
-  
-  OBJECTIVE_REASON = "%1 %h2 para la misión  %h3.", -- %1 is a verb, %2 is a noun (item or monster)
+
+  OBJECTIVE_REASON = "%1 %h2 para la misión %h3.", -- %1 is a verb, %2 is a noun (item or monster)
   OBJECTIVE_REASON_FALLBACK = "%h1 para la misión %h2.",
-  OBJECTIVE_REASON_TURNIN = "Entrega la misión %h1.",
+  OBJECTIVE_REASON_TURNIN = "Regresa a la misión %h1.",
   OBJECTIVE_PURCHASE = "Compra de %h1.",
   OBJECTIVE_TALK = "Habla con %h1.",
   OBJECTIVE_SLAY = "Matar %h1.",
-  OBJECTIVE_LOOT = "Recoge de %h1.",
-  
+  OBJECTIVE_LOOT = "Recoger de %h1.",
+
   ZONE_BORDER = "la frontera %1/%2",
-  
+
   -- Stuff used in objective menus.
   PRIORITY = "Prioridad",
   PRIORITY1 = "La más Alta",
@@ -50,78 +51,135 @@ QuestHelper_Translations.esES =
   ENABLE = "Activar",
   DISABLE = "Desactivar",
   IGNORE = "Ignorar",
-  
+
   IGNORED_PRIORITY_TITLE = "La prioridad seleccionada podria ser ignorada.",
-  IGNORED_PRIORITY_FIX = "Aplique la misma prioridad a los objetivos que bloquean.",
-  IGNORED_PRIORITY_IGNORE = "Voy a fijar las prioridades de mí mismo.",
-  
+  IGNORED_PRIORITY_FIX = "Aplique la misma prioridad a los objetivos de bloqueo.",
+  IGNORED_PRIORITY_IGNORE = "Voy a fijar las prioridades a mí mismo.",
+
   -- Custom objectives.
   RESULTS_TITLE = "Resultados de la búsqueda",
-  NO_RESULTS = "No hay ninguno!",
+  NO_RESULTS = "¡No hay ninguno!",
   CREATED_OBJ = "Creado: %1",
   REMOVED_OBJ = "Eliminado: %1",
   USER_OBJ = "Objetivo de Usuario: %h1",
   UNKNOWN_OBJ = "No sé dónde hay que ir para ese objetivo.",
-  
+
   SEARCHING_STATE = "Buscando: %1",
   SEARCHING_LOCAL = "Locales %1",
   SEARCHING_STATIC = "Estáticas %1",
-  SEARCHING_ITEMS = "Items",
+  SEARCHING_ITEMS = "Objetos",
   SEARCHING_NPCS = "NPCs",
   SEARCHING_ZONES = "Zonas",
-  SEARCHING_DONE = "Hecho!",
-  
+  SEARCHING_DONE = "¡Hecho!",
+
   -- Shared objectives.
   PEER_TURNIN = "Espere a %h1 a que entregue %h2.",
   PEER_LOCATION = "Ayuda a %h1 a alcanzar un lugar en %h2.",
   PEER_ITEM = "Ayuda a %1 a adquirir %h2",
   PEER_OTHER = "Ayudar a %1 con %h2.",
-  
+
   PEER_NEWER = "%h1 está utilizando una nueva versión de protocolo. Tal vez sea el momento de actualizarse.",
   PEER_OLDER = "%h1 está utilizando una versión mas antigua del protocolo.",
-  
+
   UNKNOWN_MESSAGE = "Tipo de mensaje desconocido '%1' desde '%2'.",
-  
+
   -- Hidden objectives.
   HIDDEN_TITLE = "Objetivos Ocultos",
   HIDDEN_NONE = "No hay objetivos ocultos de usted.",
   DEPENDS_ON_SINGLE = "Depende de '%1'.",
   DEPENDS_ON_COUNT = "Depende de los objetivos ocultos %1.",
-  FILTERED_LEVEL = "Filtrado por nivel.",
+  FILTERED_LEVEL = "Filtrado debido al nivel.",
   FILTERED_ZONE = "Filtrado debido a la zona.",
   FILTERED_COMPLETE = "Filtrado debido a completados.",
-  FILTERED_USER = "Usted pidió que este objetivo se ocultara.",
-  FILTERED_UNKNOWN = "Desconozco cómo llevar a cabo.",
-  
+  FILTERED_BLOCKED = "Filtrado debido al objetivo anterior incompleto",
+  FILTERED_USER = "Pidió que este objetivo se ocultara.",
+  FILTERED_UNKNOWN = "Desconozco cómo llevarlo a cabo.",
+
   HIDDEN_SHOW = "Mostrar.",
   DISABLE_FILTER = "Desactivar el filtro: %1",
   FILTER_DONE = "hecho",
   FILTER_ZONE = "zona",
   FILTER_LEVEL = "nivel",
-  
+  FILTER_BLOCKED = "bloqueado",
+
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
-  NAG_SINGLE = "1 %2", -- %1 == count (will be 1), %2 == what
-  NAG_PLURAL = "%1 %s2",
-  
-  NAG_MULTIPLE_NEW = "Usted tiene información sobre %h1 nuevas y %h2 actualizadas %h(%s3).",
-  NAG_SINGLE_NEW = "Usted tiene información nueva sobre %h1.",
-  NAG_ADDITIONAL = "Usted tiene información adicional sobre %h1.",
-  
-  NAG_NOT_NEW = "Usted no tiene ninguna información que no estén ya en la base de datos estáticos.",
-  NAG_NEW = "Usted podría considerar la posibilidad de compartir sus datos para que otros puedan beneficiarse.",
-  
-  NAG_FP = "maestro de vuelo",
-  NAG_QUEST = "misión",
-  NAG_ROUTE = "ruta de vuelo",
-  NAG_ITEM_OBJ = "item objetivo",
-  NAG_OBJECT_OBJ = "objeto objetivo",
-  NAG_MONSTER_OBJ = "monstruo objetivo",
-  NAG_EVENT_OBJ = "evento objetivo",
-  NAG_REPUTATION_OBJ = "reputación objetivo",
-  
+  NAG_MULTIPLE_NEW = "Tiene %h(nueva información) sobre %h1, y %h(información actualizada) sobre %h2.",
+  NAG_SINGLE_NEW = "Tiene %h(nueva información) sobre %h1.",
+  NAG_ADDITIONAL = "Tiene %h(información adicional) sobre %h1.",
+
+  NAG_NOT_NEW = "No tiene ninguna información que no estén ya en la base de datos estáticos.",
+  NAG_NEW = "Podría considerar la posibilidad de compartir sus datos para que otros puedan beneficiarse.",
+  NAG_INSTRUCTIONS = "Teclee %h(/qh submit) para obtener instrucciones sobre la presentación de datos.",
+
+  NAG_SINGLE_FP = "un maestro de vuelo",
+  NAG_SINGLE_QUEST = "una misión",
+  NAG_SINGLE_ROUTE = "una ruta de vuelo",
+  NAG_SINGLE_ITEM_OBJ = "un elemento (objetivo)",
+  NAG_SINGLE_OBJECT_OBJ = "un objeto (objetivo)",
+  NAG_SINGLE_MONSTER_OBJ = "un monstruo (objetivo)",
+  NAG_SINGLE_EVENT_OBJ = "un evento (objetivo)",
+  NAG_SINGLE_REPUTATION_OBJ = "una reputación (objetivo)",
+
+  NAG_MULTIPLE_FP = "%1 maestros de vuelo",
+  NAG_MULTIPLE_QUEST = "%1 misiones",
+  NAG_MULTIPLE_ROUTE = "%1 rutas de vuelo",
+  NAG_MULTIPLE_ITEM_OBJ = "%1 elementos (objetivo)",
+  NAG_MULTIPLE_OBJECT_OBJ = "%1 objetos (objetivo)",
+  NAG_MULTIPLE_MONSTER_OBJ = "%1 monstruos (objetivo)",
+  NAG_MULTIPLE_EVENT_OBJ = "%1 eventos (objetivo)",
+  NAG_MULTIPLE_REPUTATION_OBJ = "%1 reputaciones (objetivo)",
+
   -- Stuff used by dodads.
-  PEER_PROGRESS = "progreso de %1:",
+  PEER_PROGRESS = "Progreso de %1:",
   TRAVEL_ESTIMATE = "Tiempo estimado de viaje:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
-  WAYPOINT_REASON = "Visita %h1 en camino a:"
+  WAYPOINT_REASON = "Visita %h1 de camino a:",
+
+  -- QuestHelper Map Button
+  QH_BUTTON_TEXT = "QuestHelper",
+  QH_BUTTON_TOOLTIP1 = "Click-Izquierdo: %1 informacion de Ruta.",
+  QH_BUTTON_TOOLTIP2 = "Click-Derecho: Muestra menu de configuración.",
+  QH_BUTTON_SHOW = "Mostrar",
+  QH_BUTTON_HIDE = "Ocultar",
+
+  MENU_CLOSE = "Cerrar Menu",
+  MENU_SETTINGS = "Configuracion",
+  MENU_ENABLE = "Activar",
+  MENU_DISABLE = "Desactivar",
+  MENU_OBJECTIVE_TIPS = "%1 Bocadillos de Misión",
+  MENU_TRACKER_OPTIONS = "Rastreader de Misión",
+  MENU_QUEST_TRACKER = "%1 Rastreader de Misión",
+  MENU_TRACKER_LEVEL = "%1 Niveles de Misión",
+  MENU_TRACKER_QCOLOUR = "%1 Colores Dificultad de Misión",
+  MENU_TRACKER_OCOLOUR = "%1 Colores Progreso de Objetivo",
+  MENU_TRACKER_SCALE = "Escala del Rastreador",
+  MENU_TRACKER_RESET = "Reiniciar Posición",
+  MENU_FLIGHT_TIMER = "%1 Temporizador de Vuelo",
+  MENU_ANT_TRAILS = "%1 Rastro de Hormigas",
+  MENU_WAYPOINT_ARROW = "%1 Flecha de Punto de Ruta",
+  MENU_MAP_BUTTON = "%1 Botón del Mapa",
+  MENU_ZONE_FILTER = "%1 Filtro de Zona",
+  MENU_DONE_FILTER = "%1 Filtro de Hecho",
+  MENU_BLOCKED_FILTER = "%1 Filtro de Bloqueado",
+  MENU_LEVEL_FILTER = "%1 Filtro de Nivel",
+  MENU_LEVEL_OFFSET = "Margen del Filtro de Nivel",
+  MENU_ICON_SCALE = "Escala del Icono",
+  MENU_FILTERS = "Filtros",
+  MENU_PERFORMANCE = "Escala de Route Workload",
+  MENU_LOCALE = "Idioma",
+  MENU_PARTY = "Grupo",
+  MENU_PARTY_SHARE = "%1 Compartir Objetivo",
+  MENU_PARTY_SOLO = "%1 Ignorar Grupo",
+  MENU_HELP = "Ayuda",
+  MENU_HELP_SLASH = "Comandos Slash",
+  MENU_HELP_CHANGES = "Registro de Cambios",
+  MENU_HELP_SUBMIT = "Enviar Datos",
+
+  -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
+  -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
+  TOOLTIP_WATCHED = "Visto por QuestHelper",
+  TOOLTIP_QUEST = "Para Misión %h1.",
+  TOOLTIP_PURCHASE = "Comprar %h1.",
+  TOOLTIP_SLAY = "Matar para %h1.",
+  TOOLTIP_LOOT = "Botín para %h1."
  }
