@@ -276,8 +276,6 @@ function QuestHelper:OnEvent(event)
     self:RegisterEvent("BAG_UPDATE")
     self:RegisterEvent("GOSSIP_SHOW")
     
-    self:SetScript("OnUpdate", self.OnUpdate)
-    
     for key, def in pairs(QuestHelper_DefaultPref) do
       if QuestHelper_Pref[key] == nil then
         QuestHelper_Pref[key] = def
@@ -372,6 +370,8 @@ function QuestHelper:OnEvent(event)
       QuestHelper_Version = version
       self:ChangeLog()
     end
+    
+    self:SetScript("OnUpdate", self.OnUpdate)
     
     collectgarbage("collect") -- Free everything we aren't using.
     
