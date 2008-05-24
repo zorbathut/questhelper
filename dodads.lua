@@ -575,7 +575,11 @@ function QuestHelper:AddWaypointCallback(func, ...)
   cb[len+3] = last_x
   cb[len+4] = last_y
   cb[len+5] = last_desc
-  func(unpack(cb, 1, len+5))
+  
+  if last_c then
+    func(unpack(cb, 1, len+5))
+  end
+  
   return cb
 end
 
