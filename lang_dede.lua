@@ -8,7 +8,7 @@ QuestHelper_Translations["deDE"] =
   -- Messages used when starting.
   LOCALE_ERROR = "Die Sprache deiner gespeicherten Daten stimmt nicht mit der Sprache deines WoW-Clienten überein.",
   ZONE_LAYOUT_ERROR = "Ich arbeite nicht weiter, um deine gespeicherten Daten nicht zu beschädigen.Bitte warte auf einen Patch, der in der Lage ist mit dem neuen Zonen Layout umzugehen",
-  DOWNGRADE_ERROR = "Deine gespeicherten Daten sind nicht kompatibel mit dieser Version von QuestHelper.Verwende eine neue Version oder lösche deine gespeicherten Variablen.",
+  DOWNGRADE_ERROR = "Deine gespeicherten Daten sind nicht kompatibel mit dieser Version von QuestHelper. Verwende eine neue Version oder lösche deine gespeicherten Variablen.",
   HOME_NOT_KNOWN = "Dein Zuhause ist nicht bekannt. Bitte sprich bei der nächsten Gelegenheit einen Gastwirt an um es zurückzusetzen.",
   
   -- Route related text.
@@ -79,7 +79,7 @@ QuestHelper_Translations["deDE"] =
   PEER_NEWER = "%h1 verwendet eine neuere Protokoll Version. Vielleicht ist es Zeit zum Aktualisieren.",
   PEER_OLDER = "%h1 verwendet eine ältere Protokoll Version.",
   
-  UNKNOWN_MESSAGE = "Unbekannter Narichten Typ '%1' von '%2'.",
+  UNKNOWN_MESSAGE = "Unbekannter Nachrichten Typ '%1' von '%2'.",
   
   -- Hidden objectives.
   HIDDEN_TITLE = "Versteckte Ziele",
@@ -180,6 +180,5 @@ QuestHelper_Translations["deDE"] =
   TOOLTIP_PURCHASE = "Kaufe %h1.",
   TOOLTIP_SLAY = "Töte für %h1.",
   TOOLTIP_LOOT = "Erbeute für %h1."
-
  }
 

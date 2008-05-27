@@ -1,21 +1,15 @@
 -- Please see lang_enus.lua for reference.
 
-QuestHelper_Translations.frFR =
+QuestHelper_Translations["frFR"] =
  {
   -- Displayed by locale chooser.
   LOCALE_NAME = "Français",
   
   -- Messages used when starting.
   LOCALE_ERROR = "La langue de vos données sauvegardées ne correspond pas à la langue de votre client WoW.",
-  ZONE_LAYOUT_ERROR = "Lancement refusé par crainte de corrompre vos données sauvegardées. "..
-                      "Veuillez attendre la sortie d'un patch capable de prendre en charge la nouvelle zone.",
-  DOWNGRADE_ERROR = "Vos données ne sont pas compatibles avec cette version de QuestHelper. "..
-                    "Télécharger une version récente ou supprimer les variables sauvegardées.",
+  ZONE_LAYOUT_ERROR = "Lancement refusé par crainte de corrompre vos données sauvegardées. Veuillez attendre la sortie d'un patch capable de prendre en charge la nouvelle zone.",
+  DOWNGRADE_ERROR = "Vos données ne sont pas compatibles avec cette version de QuestHelper. Télécharger une version récente ou supprimer les variables sauvegardées.",
   HOME_NOT_KNOWN = "Vous n'avez pas d'auberge définie. Lors d'une prochaine visite à votre aubergiste; réinitialiser-là.",
-  
-  -- This text is only printed for the enUS client, don't worry about translating it.
-  ALTERED_INDEX = "!!! QuestHelper_IndexLookup entry needs update: [%Q1] = {%2, %3, %4}",
-  ALTERED_ZONE = "!!! QuestHelper_Zones entry needs update: [%1][%2] = %Q3 -- was %4",
   
   -- Route related text.
   ROUTES_CHANGED = "Les itinéraires de vol de votre personnage ont été modifiés.",
@@ -23,6 +17,7 @@ QuestHelper_Translations.frFR =
   TALK_TO_FLIGHT_MASTER = "Parler au maître des vols local.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Merci.",
   WILL_RESET_PATH = "Réinitialisation des informations de route.",
+  UPDATING_ROUTE = nil,
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Langues disponibles:",
@@ -33,7 +28,7 @@ QuestHelper_Translations.frFR =
   SLAY_VERB = "Tuer",
   ACQUIRE_VERB = "Obtenir",
   
-  OBJECTIVE_REASON = "%1 %h2 pour la quête %h3.", -- %1 est un verbe, %2 est un nom (objet ou monstre)
+  OBJECTIVE_REASON = "%1 %h2 pour la quête %h3.", -- %1 is a verb, %2 is a noun (item or monster)
   OBJECTIVE_REASON_FALLBACK = "%h1 pour la quête %h2.",
   OBJECTIVE_REASON_TURNIN = "Poursuivre avec la quête %h1.",
   OBJECTIVE_PURCHASE = "A acheter auprès de %h1.",
@@ -51,8 +46,8 @@ QuestHelper_Translations.frFR =
   PRIORITY4 = "Basse",
   PRIORITY5 = "La plus basse",
   SHARING = "Partage",
-  ENABLE = "Activée",
-  DISABLE = "Désactivée",
+  SHARING_ENABLE = nil,
+  SHARING_DISABLE = nil,
   IGNORE = "Ignore",
   
   IGNORED_PRIORITY_TITLE = "La priorité sélectionnée sera ignorée.",
@@ -94,6 +89,7 @@ QuestHelper_Translations.frFR =
   FILTERED_LEVEL = "Filtré a cause du niveau.",
   FILTERED_ZONE = "Filtré à cquse de la zone.",
   FILTERED_COMPLETE = "Filtré car complété.",
+  FILTERED_BLOCKED = nil,
   FILTERED_USER = "Vous avez demandé à caché cet objectif.",
   FILTERED_UNKNOWN = "Ne sais pas comment finaliser.",
   
@@ -102,30 +98,87 @@ QuestHelper_Translations.frFR =
   FILTER_DONE = "fini",
   FILTER_ZONE = "zone",
   FILTER_LEVEL = "niveau",
+  FILTER_BLOCKED = "bloqué",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
-  NAG_SINGLE = "1 %2", -- %1 == count (will be 1), %2 == what
-  NAG_PLURAL = "%1 %s2",
-  
   NAG_MULTIPLE_NEW = "Vous avez des informations nouvelles pour %h1 et mises à jour pour %h2 %h(%s3).",
   NAG_SINGLE_NEW = "Vous avez des informations nouvelles pour %h1.",
   NAG_ADDITIONAL = "Vous avez des informations complémentaires pour %h1.",
   
   NAG_NOT_NEW = "Vous n'avez auncune information qui n'est pas déjà dans la base de données statique.",
   NAG_NEW = "Vous devez penser à partager vos données pour le bénéfice des autres joueurs.",
+  NAG_INSTRUCTIONS = nil,
   
-  NAG_FP = "maître des vols",
-  NAG_QUEST = "quête",
-  NAG_ROUTE = "plan de vol",
-  NAG_ITEM_OBJ = "objectif d'item",
-  NAG_OBJECT_OBJ = "objective d'objet",
-  NAG_MONSTER_OBJ = "objectif de monstre",
-  NAG_EVENT_OBJ = "objectif d'évènement",
-  NAG_REPUTATION_OBJ = "objectif de réputation",
+  NAG_SINGLE_FP = "Un maitre de vol",
+  NAG_SINGLE_QUEST = "une quete",
+  NAG_SINGLE_ROUTE = "Chemin de vol",
+  NAG_SINGLE_ITEM_OBJ = nil,
+  NAG_SINGLE_OBJECT_OBJ = nil,
+  NAG_SINGLE_MONSTER_OBJ = nil,
+  NAG_SINGLE_EVENT_OBJ = nil,
+  NAG_SINGLE_REPUTATION_OBJ = nil,
+  
+  NAG_MULTIPLE_FP = "%1 maitre de vol",
+  NAG_MULTIPLE_QUEST = "%1 quetes",
+  NAG_MULTIPLE_ROUTE = nil,
+  NAG_MULTIPLE_ITEM_OBJ = nil,
+  NAG_MULTIPLE_OBJECT_OBJ = nil,
+  NAG_MULTIPLE_MONSTER_OBJ = nil,
+  NAG_MULTIPLE_EVENT_OBJ = nil,
+  NAG_MULTIPLE_REPUTATION_OBJ = nil,
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1 est en cours:",
   TRAVEL_ESTIMATE = "Temps de voyage estimé:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
-  WAYPOINT_REASON = "Visitez %h1 en route vers:"
+  WAYPOINT_REASON = "Visitez %h1 en route vers:",
+
+  -- QuestHelper Map Button
+  QH_BUTTON_TEXT = "QuestHelper",
+  QH_BUTTON_TOOLTIP1 = nil,
+  QH_BUTTON_TOOLTIP2 = "Clique Droit : Montrer le menu d'option",
+  QH_BUTTON_SHOW = "Montrer",
+  QH_BUTTON_HIDE = "Cacher",
+
+  MENU_CLOSE = "Fermer le Menu",
+  MENU_SETTINGS = "Options",
+  MENU_ENABLE = "Activé",
+  MENU_DISABLE = "Desactivé",
+  MENU_OBJECTIVE_TIPS = nil,
+  MENU_TRACKER_OPTIONS = nil,
+  MENU_QUEST_TRACKER = nil,
+  MENU_TRACKER_LEVEL = nil,
+  MENU_TRACKER_QCOLOUR = "%1 Couleurs de difficulté des quetes",
+  MENU_TRACKER_OCOLOUR = nil,
+  MENU_TRACKER_SCALE = nil,
+  MENU_TRACKER_RESET = "Reset position",
+  MENU_FLIGHT_TIMER = "%1 Temps de vol",
+  MENU_ANT_TRAILS = nil,
+  MENU_WAYPOINT_ARROW = nil,
+  MENU_MAP_BUTTON = nil,
+  MENU_ZONE_FILTER = nil,
+  MENU_DONE_FILTER = nil,
+  MENU_BLOCKED_FILTER = nil,
+  MENU_LEVEL_FILTER = nil,
+  MENU_LEVEL_OFFSET = nil,
+  MENU_ICON_SCALE = "Position d'iconnes",
+  MENU_FILTERS = "Filtre",
+  MENU_PERFORMANCE = nil,
+  MENU_LOCALE = "Local",
+  MENU_PARTY = "Equipe",
+  MENU_PARTY_SHARE = nil,
+  MENU_PARTY_SOLO = nil,
+  MENU_HELP = "Aide",
+  MENU_HELP_SLASH = nil,
+  MENU_HELP_CHANGES = "Changer les log",
+  MENU_HELP_SUBMIT = "Envoi de données",
+  
+  -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
+  -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
+  TOOLTIP_WATCHED = nil,
+  TOOLTIP_QUEST = "Pour la quete %h1",
+  TOOLTIP_PURCHASE = nil,
+  TOOLTIP_SLAY = nil,
+  TOOLTIP_LOOT = nil
  }
+
