@@ -2,37 +2,23 @@ QuestHelper_File["textviewer.lua"] = "Development Version"
 
 local viewer
 
-local function viewer_mousewheel(self, dir)
-  local range = self.scrollframe:GetVerticalScrollRange()
-  local pos = math.max(0, math.min(range, self.scrollframe:GetVerticalScroll()-dir*25))
-  self.scrollframe:SetVerticalScroll(pos)
-  self.scrollbutton:SetPoint("TOP", self, "TOP", 0, -(pos/range*(self:GetHeight()-32)+8))
-end
-
-local function viewer_mousedown(self)
-  self.text:SetText("")
-  self:Hide()
-end
-
-local function scrollbutton_scrolling(self)
-  local vtop, vbottom = viewer:GetTop()-8, viewer:GetBottom()+24
-  local top = math.max(vbottom, math.min(vtop, select(2, GetCursorPosition()) - self.mouse_base + self.base))
-  viewer.scrollframe:SetVerticalScroll((vtop-top)/(vtop-vbottom)*viewer.scrollframe:GetVerticalScrollRange())
-  self:SetPoint("TOP", viewer, "TOP", 0, top-viewer:GetTop())
-end
-
-local function scrollbutton_mousedown(self, btn)
-  if btn == "LeftButton" then
-    self.base = self:GetTop()
-    self.mouse_base = select(2, GetCursorPosition())
-    self:SetScript("OnUpdate", scrollbutton_scrolling)
+local function viewer_cancelmove(self)
+  if self.isMoving then
+    self:StopMovingOrSizing()
+    self.isMoving = false
   end
 end
 
-local function scrollbutton_mouseup(self, btn)
-  if btn == "LeftButton" then
-    self:SetScript("OnUpdate", nil)
+local function viewer_mousedown(self, button)
+  if button == "LeftButton" then
+    self:StartMoving()
+    self.isMoving = true
   end
+end
+
+local function viewer_closebutton(self)
+  viewer.text:SetText("")
+  viewer:Hide()
 end
 
 function QuestHelper:ShowText(text, title)
@@ -40,10 +26,11 @@ function QuestHelper:ShowText(text, title)
     viewer = CreateFrame("Frame", "QuestHelperTextViewer", nil) -- With no parent, this will always be visible.
     viewer:SetFrameStrata("FULLSCREEN_DIALOG")
     viewer:SetPoint("CENTER", UIParent)
-    viewer:EnableMouseWheel(true)
     viewer:EnableMouse(true)
-    viewer:SetScript("OnMouseWheel", viewer_mousewheel)
+    viewer:SetMovable(true)
     viewer:SetScript("OnMouseDown", viewer_mousedown)
+    viewer:SetScript("OnMouseUp", viewer_cancelmove)
+    viewer:SetScript("OnHide", viewer_cancelmove)
     
     -- This will cause it to be hidden if Esc is pressed.
     table.insert(UISpecialFrames, viewer:GetName())
@@ -63,9 +50,21 @@ function QuestHelper:ShowText(text, title)
     viewer:SetBackdropColor(0, 0, 0, 0.8)
     viewer:SetBackdropBorderColor(1, 1, 1, 0.7)
     
-    viewer.scrollframe = CreateFrame("ScrollFrame", "QuestHelperTextViewer_ScrollFrame", viewer)
+    viewer.scrollframe = CreateFrame("ScrollFrame", "QuestHelperTextViewer_ScrollFrame", viewer, "UIPanelScrollFrameTemplate")
     viewer.scrollframe:SetPoint("LEFT", viewer, "LEFT", 8, 0)
     viewer.scrollframe:SetPoint("TOP", viewer.title, "BOTTOM", 0, -4)
+
+    viewer.scrollbar = QuestHelperTextViewer_ScrollFrameScrollBar
+    viewer.scrollbar:SetBackdrop({                      -- Note: These settings are coppied from UIPanelScrollBarTemplateLightBorder in UIPanelTemplates.xml
+      edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+      edgeSize = 12,
+      tileSize = 16,
+      insets = { left = 0, right = 0, top = 5, bottom = 5 }})
+    viewer.scrollbar:SetThumbTexture(self:CreateIconTexture(viewer.scrollbar, 26))  -- Use the snazzy blue thumb
+
+    viewer.closebutton = CreateFrame("Button", "QuestHelperTextViewer_CloseButton", viewer, "UIPanelCloseButton")
+    viewer.closebutton:SetPoint("TOPRIGHT", viewer)
+    viewer.closebutton:SetScript("OnClick", viewer_closebutton)
     
     viewer.frame = CreateFrame("Frame", "QuestHelperTextViewer_Frame", viewer.scrollframe)
     viewer.scrollframe:SetScrollChild(viewer.frame)
@@ -74,23 +73,12 @@ function QuestHelper:ShowText(text, title)
     viewer.text:SetFont(self.font.sans, 12)
     viewer.text:SetJustifyH("LEFT")
     viewer.text:SetPoint("TOPLEFT", viewer.frame)
-    
-    viewer.scrollbutton = CreateFrame("Frame", "QuestHelperTextViewer_ScrollButton", viewer)
-    viewer.scrollbutton:SetWidth(16)
-    viewer.scrollbutton:SetHeight(16)
-    viewer.scrollbutton.texture = self:CreateIconTexture(viewer.scrollbutton, 26)
-    viewer.scrollbutton.texture:SetAllPoints()
-    viewer.scrollbutton:EnableMouse(true)
-    viewer.scrollbutton:SetScript("OnMouseDown", scrollbutton_mousedown)
-    viewer.scrollbutton:SetScript("OnMouseUp", scrollbutton_mouseup)
   end
   
   viewer:Show()
   viewer.title:SetText(title or "QuestHelper")
   viewer.text:SetText(text or "No text.")
   viewer.scrollframe:SetVerticalScroll(0)
-  viewer.scrollbutton:ClearAllPoints()
-  viewer.scrollbutton:SetPoint("TOPRIGHT", viewer, "TOPRIGHT", -8, -8)
   
   local w = math.min(600, math.max(100, viewer.text:GetStringWidth()))
   viewer.text:SetWidth(w)
@@ -105,13 +93,23 @@ function QuestHelper:ShowText(text, title)
     viewer.frame:SetHeight(400)
     viewer.scrollframe:SetHeight(400)
     viewer:SetHeight(420+title_h)
-    viewer:SetWidth(w+32)
-    viewer.scrollbutton:Show()
+    viewer:SetWidth(w+38)
+    viewer.scrollbar:Show()
   else
     viewer.frame:SetHeight(h)
     viewer.scrollframe:SetHeight(h)
     viewer:SetHeight(h+20+title_h)
-    viewer.scrollbutton:Hide()
+    viewer.scrollbar:Hide()
+    --[[
+    WoW Bug: For some reason, setting the thumb texture on the scrollbar causes the following scenario:
+      1. Display the viewer with scrollable text (eg /qh)
+      2. Display the viewer with smaller text (eg /qh help filter)
+    The second time the viewer is displayed, the close button doesn't show its normal state.
+    When you hover over it, the glow appears.  If you press the left button over it, the depressed state appears.
+    If you drag off of it, then release, the normal state appears, and the button is fine until you repeat 1 & 2.
+    ]]
+    viewer.closebutton:SetButtonState("PUSHED")   -- Workaround: there's a wierd quirk that's causing it to not show sometimes...
+    viewer.closebutton:SetButtonState("NORMAL")   -- Workaround, part 2
   end
   
   
