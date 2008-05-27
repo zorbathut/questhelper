@@ -5,6 +5,8 @@
 -- wrong in the coroutine.
 
 function IsInInstance() return false end
+function UnitIsDeadOrGhost() return false end
+
 QuestHelper = {}
 QuestHelper_File = {}
 QuestHelper_Pref = {perf_scale=1}
@@ -228,7 +230,7 @@ local function createNode(name, x, y)
 end
 
 for i = 1,30 do
-  QuestHelper.to_add[createNode(string.format("R%02d", i),math.random()*15+1, math.random()*15+1)] = true
+  QuestHelper.to_add[createNode(string.format("R%02d", i),math.random()*14+1, math.random()*14+1)] = true
 end
 
 for i = 1,20 do
