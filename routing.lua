@@ -1,5 +1,9 @@
 QuestHelper_File["routing.lua"] = "Development Version"
 
+-- Constants:
+local improve_margin = 1e-8
+
+-- Module Status:
 local work_done = 0
 local route_pass = 0
 local coroutine_running = false
@@ -281,7 +285,7 @@ function Route:addObjectiveFast(obj)
   return index
 end
 
-function Route:addObjectiveBest(obj)
+function Route:addObjectiveBest(obj, old_index, old_distance)
   assert(self:sanity())
   
   local indexes = self.index
@@ -301,7 +305,19 @@ function Route:addObjectiveBest(obj)
   local best_index, best_delta, best_d1, best_d2, best_p
   local no_cache, prev_pos, prev_len
   local mn, mx = self:findObjectiveRange(obj)
-  
+
+  if old_index and mn <= old_index and old_index <= mx then
+    -- We're trying to re-evaluate it, and it could remain in the same place.
+    -- So that place is our starting best known place.
+    best_index, best_delta = old_index, old_distance - self.distance
+
+    if best_delta < 0 then
+      -- Somehow, removing the objective actually made the route worse...
+      -- Just re-figure things from scratch.
+      best_index, best_delta = nil, nil
+    end
+  end
+
   if mn == 1 then
     no_cache, prev_pos = true, QuestHelper.pos
     prev_len = QuestHelper:ComputeTravelTime(prev_pos, self[1].pos)
@@ -323,7 +339,13 @@ function Route:addObjectiveBest(obj)
     
     local delta = d1 + d2 - prev_len
     
-    if not best_index or delta < best_delta then
+    if not best_index or ((delta + improve_margin) < best_delta) or ((i == best_index) and not best_d1) then
+      -- Best so far is:
+      --  * First item we reach
+      --  * Better than previous best
+      --  * We're looking at our best already.  But we just got here; how could this be best?
+      --    If this was our prior location and we didn't find anything better earlier in the route,
+      --    that's how.  Save the specifics, 'cause we didn't compute them when setting up.
       best_index, best_delta, best_d1, best_d2, best_p = i, delta, d1, d2, p
     end
     
@@ -339,20 +361,20 @@ function Route:addObjectiveBest(obj)
     
     QuestHelper:yieldIfNeeded(.5)
     
-    if not best_index or delta < best_delta then
+    if not best_index or ((delta + improve_margin) < best_delta) or ((mx == best_index) and not best_d1) then
       info.pos = p
       info.len = nil
       self[len].len = delta
       self.distance = self.distance + delta
       table.insert(self, info)
       indexes[obj] = mx
-      
+
       assert(self:sanity())
       
       return mx
     end
   end
-  
+
   info.pos = best_p
   info.len = best_d2
   
@@ -774,8 +796,8 @@ local function RouteUpdateRoutine(self)
         
         -- Make sure the objective in best_route is still in a valid position.
         -- Won't worry about other routes, they should forced into valid configurations by breeding.
-        local old_index = best_route:removeObjective(o)
-        local new_index = best_route:addObjectiveBest(o)
+        local old_distance, old_index = best_route.distance, best_route:removeObjective(o)
+        local new_index = best_route:addObjectiveBest(o, old_index, old_distance)
         
         if old_index > new_index then
           old_index, new_index = new_index, old_index
@@ -924,7 +946,7 @@ local function RouteUpdateRoutine(self)
       
       to_breed:breed(routes)
       
-      if 1/(self:ComputeTravelTime(pos, to_breed[1].pos)+to_breed.distance) > max_fitness then
+      if 1/(self:ComputeTravelTime(pos, to_breed[1].pos)+to_breed.distance+improve_margin) > max_fitness then
         best = to_breed
       end
       
