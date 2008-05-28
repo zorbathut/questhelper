@@ -96,13 +96,8 @@ function Route:findObjectiveRange(obj)
   local l = math.floor((smn+smx)*0.5)
   local r = l+1
   
-  while mn ~= mx and smn <= smx do
+  while true do
     while true do
-      assert(mn <= mx)
-      assert(smn <= smx)
-      assert(smn >= 1)
-      assert(smn <= #self)
-      
       if l < smn then
         return mn, mx
       end
@@ -147,8 +142,6 @@ function Route:findObjectiveRange(obj)
       r = r + 1
     end
   end
-  
-  return mn, mx
 end
 
 function Route:addObjectiveFast(obj)
@@ -610,17 +603,33 @@ function Route:breed(route_map)
   end
   
   local i = 1
-  while i <= #self do
-    -- Make sure all the objectives have valid positions in the list.
-    local info = self[i]
-    local mn, mx = self:findObjectiveRange(info.obj)
-    if i < mn then
-      table.insert(self, mn, info)
-      table.remove(self, i)
-    elseif i > mx then
-      table.remove(self, i)
-      table.insert(self, mx, info)
-    else
+  local invalid = true
+  while invalid do
+    invalid = false
+    while i <= #self do
+      -- Make sure all the objectives have valid positions in the list.
+      local info = self[i]
+      local mn, mx = self:findObjectiveRange(info.obj)
+      if i < mn then
+        -- In theory, 'i' shouldn't be increased here, as the next
+        -- element will be shifted down into the current position.
+        
+        -- However, it is possible for an infinite loop to be created
+        -- by this, with a small range of objectives constantly
+        -- being shifted.
+        
+        -- So, I mark the route as invalid and go through it another time.
+        -- It's probably still possible to get into an infinite loop,
+        -- but it seems much less likely.
+        
+        table.insert(self, mn, info)
+        table.remove(self, i)
+        invalid = true
+      elseif i > mx then
+        table.remove(self, i)
+        table.insert(self, mx, info)
+        invalid = true
+      end
       i = i + 1
     end
   end

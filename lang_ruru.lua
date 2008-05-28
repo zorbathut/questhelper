@@ -1,26 +1,15 @@
 -- Please see lang_enus.lua for reference.
 
-QuestHelper_SubstituteFonts.ruRU =
- {
-  sans = "Fonts\\ARIALN.TTF"
- }
-
-QuestHelper_Translations.ruRU =
+QuestHelper_Translations["ruRU"] =
  {
   -- Displayed by locale chooser.
   LOCALE_NAME = "Русский",
   
   -- Messages used when starting.
   LOCALE_ERROR = "Локализация ваших сохранённых данных не соответствует локализации вашего ВоВ клиента.",
-  ZONE_LAYOUT_ERROR = "Боюсь, при загрузке вы потеряете все свои сохранённые данные "..
-                      "Пожалуйста, дождитесь выхода патча для обновления информации по новым зонам.",
-  DOWNGRADE_ERROR = "Ваши сохранённые данные не подходят для этой версии КвестХэлпера. "..
-                    "Используйте новую версию, или удалите старые данные.",
+  ZONE_LAYOUT_ERROR = "Боюсь, при загрузке вы потеряете все свои сохранённые данные Пожалуйста, дождитесь выхода патча для обновления информации по новым зонам.",
+  DOWNGRADE_ERROR = "Ваши сохранённые данные не подходят для этой версии КвестХэлпера. Используйте новую версию, или удалите старые данные.",
   HOME_NOT_KNOWN = "Местоположение вашего дома неизвестно. Когда будет возможность, пожалуйста, поговорите с Инкипером и обновите информацию о вашем доме.",
-  
-  -- This text is only printed for the enUS client, don't worry about translating it.
-  ALTERED_INDEX = "!!! QuestHelper_IndexLookup entry needs update: [%Q1] = {%2, %3, %4}",
-  ALTERED_ZONE = "!!! QuestHelper_Zones entry needs update: [%1][%2] = %Q3 -- was %4",
   
   -- Route related text.
   ROUTES_CHANGED = "Маршруты полётов для вашего персонажа обновлены.",
@@ -57,8 +46,8 @@ QuestHelper_Translations.ruRU =
   PRIORITY4 = "Низкий",
   PRIORITY5 = "Самый низкий",
   SHARING = "Раздача",
-  ENABLE = "Вкл",
-  DISABLE = "Откл",
+  SHARING_ENABLE = "Поделиться",
+  SHARING_DISABLE = "Не Делиться",
   IGNORE = "Игнор",
   
   IGNORED_PRIORITY_TITLE = "Выбранный приоритет будет проигнорирован.",
@@ -112,24 +101,31 @@ QuestHelper_Translations.ruRU =
   FILTER_BLOCKED = "заблокировано",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
-  NAG_SINGLE = "1 %2", -- %1 == count (will be 1), %2 == what
-  NAG_PLURAL = "%1 %s2",
-  
   NAG_MULTIPLE_NEW = "У вас есть новая информация по %h1 и %h2 обновлен %h(%s3).",
   NAG_SINGLE_NEW = "У вас есть новая информация по %h1.",
   NAG_ADDITIONAL = "У вас есть дополнительная информация по %h1.",
   
   NAG_NOT_NEW = "У вас нет информации которой не было бы в статичной базе.",
   NAG_NEW = "Если вы раздадите свою информацию другим, им это сильно пригодиться.",
+  NAG_INSTRUCTIONS = nil,
   
-  NAG_FP = "мастер полётов",
-  NAG_QUEST = "квест",
-  NAG_ROUTE = "маршрут полёта",
-  NAG_ITEM_OBJ = "предмет",
-  NAG_OBJECT_OBJ = "объект",
-  NAG_MONSTER_OBJ = "монстр",
-  NAG_EVENT_OBJ = "событие",
-  NAG_REPUTATION_OBJ = "репутация",
+  NAG_SINGLE_FP = nil,
+  NAG_SINGLE_QUEST = "Задание",
+  NAG_SINGLE_ROUTE = "Путь полёта",
+  NAG_SINGLE_ITEM_OBJ = nil,
+  NAG_SINGLE_OBJECT_OBJ = nil,
+  NAG_SINGLE_MONSTER_OBJ = nil,
+  NAG_SINGLE_EVENT_OBJ = nil,
+  NAG_SINGLE_REPUTATION_OBJ = nil,
+  
+  NAG_MULTIPLE_FP = nil,
+  NAG_MULTIPLE_QUEST = nil,
+  NAG_MULTIPLE_ROUTE = nil,
+  NAG_MULTIPLE_ITEM_OBJ = nil,
+  NAG_MULTIPLE_OBJECT_OBJ = nil,
+  NAG_MULTIPLE_MONSTER_OBJ = nil,
+  NAG_MULTIPLE_EVENT_OBJ = nil,
+  NAG_MULTIPLE_REPUTATION_OBJ = nil,
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1's прогресс:",
@@ -148,6 +144,14 @@ QuestHelper_Translations.ruRU =
   MENU_SETTINGS = "Настройки",
   MENU_ENABLE = "Показать",
   MENU_DISABLE = "Скрыть",
+  MENU_OBJECTIVE_TIPS = nil,
+  MENU_TRACKER_OPTIONS = nil,
+  MENU_QUEST_TRACKER = nil,
+  MENU_TRACKER_LEVEL = "Уровни Заданий",
+  MENU_TRACKER_QCOLOUR = nil,
+  MENU_TRACKER_OCOLOUR = nil,
+  MENU_TRACKER_SCALE = nil,
+  MENU_TRACKER_RESET = nil,
   MENU_FLIGHT_TIMER = "%1 Таймер полёта",
   MENU_ANT_TRAILS = "%1 Оптимальный путь",
   MENU_WAYPOINT_ARROW = "%1 Направляющую стрелку",
@@ -160,5 +164,21 @@ QuestHelper_Translations.ruRU =
   MENU_ICON_SCALE = "Размер иконки",
   MENU_FILTERS = "Фильтры",
   MENU_PERFORMANCE = "Настройки производительности",
-  MENU_LOCALE = "Локализация"
+  MENU_LOCALE = "Локализация",
+  MENU_PARTY = "Группа",
+  MENU_PARTY_SHARE = nil,
+  MENU_PARTY_SOLO = nil,
+  MENU_HELP = "Помошь",
+  MENU_HELP_SLASH = nil,
+  MENU_HELP_CHANGES = nil,
+  MENU_HELP_SUBMIT = nil,
+  
+  -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
+  -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
+  TOOLTIP_WATCHED = nil,
+  TOOLTIP_QUEST = nil,
+  TOOLTIP_PURCHASE = nil,
+  TOOLTIP_SLAY = nil,
+  TOOLTIP_LOOT = nil
  }
+
