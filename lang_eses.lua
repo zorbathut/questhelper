@@ -1,18 +1,16 @@
 -- Please see lang_enus.lua for reference.
 
-QuestHelper_Translations.esES =
+QuestHelper_Translations["esES"] =
  {
   -- Displayed by locale chooser.
   LOCALE_NAME = "Español",
-
+  
   -- Messages used when starting.
   LOCALE_ERROR = "El idioma de su datos guardados no coincide con el idioma del cliente Wow. Para utilizar QuestHelper tendrá que cambiar la configuración regional de vuelta, o borrar los datos tecleando %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Me niego a ejecutarme, por miedo a dañar sus datos guardados. "..
-                      "Por favor, espere a que un parche que será capaz de manejar el nueva diseño de zona.",
-  DOWNGRADE_ERROR = "Sus datos guardados no son compatibles con esta versión de QuestHelper. "..
-                    "Utilice una nueva versión, o borre su variables guardadas.",
+  ZONE_LAYOUT_ERROR = "Me niego a ejecutarme, por miedo a dañar sus datos guardados. Por favor, espere a que un parche que será capaz de manejar el nueva diseño de zona.",
+  DOWNGRADE_ERROR = "Sus datos guardados no son compatibles con esta versión de QuestHelper. Utilice una nueva versión, o borre su variables guardadas.",
   HOME_NOT_KNOWN = "Su hogar es desconocido. Cuando tenga la oportunidad, por favor, hable con su posadero para restaurarla.",
-
+  
   -- Route related text.
   ROUTES_CHANGED = "Las rutas de vuelo de su personaje han sido alteradas.",
   HOME_CHANGED = "Su hogar ha sido modificado.",
@@ -20,16 +18,16 @@ QuestHelper_Translations.esES =
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Gracias.",
   WILL_RESET_PATH = "Se restablecerá la información de rutas.",
   UPDATING_ROUTE = "Actualizando ruta.",
-
+  
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Idiomas Disponibles:",
   LOCALE_CHANGED = "Idioma cambiado a: %h1",
   LOCALE_UNKNOWN = "El Idioma %h1 es desconocido.",
-
+  
   -- Words used for objectives.
   SLAY_VERB = "Matar",
   ACQUIRE_VERB = "Adquirir",
-
+  
   OBJECTIVE_REASON = "%1 %h2 para la misión %h3.", -- %1 is a verb, %2 is a noun (item or monster)
   OBJECTIVE_REASON_FALLBACK = "%h1 para la misión %h2.",
   OBJECTIVE_REASON_TURNIN = "Regresa a la misión %h1.",
@@ -37,9 +35,9 @@ QuestHelper_Translations.esES =
   OBJECTIVE_TALK = "Habla con %h1.",
   OBJECTIVE_SLAY = "Matar %h1.",
   OBJECTIVE_LOOT = "Recoger de %h1.",
-
+  
   ZONE_BORDER = "la frontera %1/%2",
-
+  
   -- Stuff used in objective menus.
   PRIORITY = "Prioridad",
   PRIORITY1 = "La más Alta",
@@ -48,14 +46,14 @@ QuestHelper_Translations.esES =
   PRIORITY4 = "Baja",
   PRIORITY5 = "La más baja",
   SHARING = "Compartir",
-  ENABLE = "Activar",
-  DISABLE = "Desactivar",
+  SHARING_ENABLE = "Compartir",
+  SHARING_DISABLE = "No Compartir",
   IGNORE = "Ignorar",
-
+  
   IGNORED_PRIORITY_TITLE = "La prioridad seleccionada podria ser ignorada.",
   IGNORED_PRIORITY_FIX = "Aplique la misma prioridad a los objetivos de bloqueo.",
   IGNORED_PRIORITY_IGNORE = "Voy a fijar las prioridades a mí mismo.",
-
+  
   -- Custom objectives.
   RESULTS_TITLE = "Resultados de la búsqueda",
   NO_RESULTS = "¡No hay ninguno!",
@@ -63,7 +61,7 @@ QuestHelper_Translations.esES =
   REMOVED_OBJ = "Eliminado: %1",
   USER_OBJ = "Objetivo de Usuario: %h1",
   UNKNOWN_OBJ = "No sé dónde hay que ir para ese objetivo.",
-
+  
   SEARCHING_STATE = "Buscando: %1",
   SEARCHING_LOCAL = "Locales %1",
   SEARCHING_STATIC = "Estáticas %1",
@@ -71,18 +69,18 @@ QuestHelper_Translations.esES =
   SEARCHING_NPCS = "NPCs",
   SEARCHING_ZONES = "Zonas",
   SEARCHING_DONE = "¡Hecho!",
-
+  
   -- Shared objectives.
   PEER_TURNIN = "Espere a %h1 a que entregue %h2.",
   PEER_LOCATION = "Ayuda a %h1 a alcanzar un lugar en %h2.",
   PEER_ITEM = "Ayuda a %1 a adquirir %h2",
   PEER_OTHER = "Ayudar a %1 con %h2.",
-
+  
   PEER_NEWER = "%h1 está utilizando una nueva versión de protocolo. Tal vez sea el momento de actualizarse.",
   PEER_OLDER = "%h1 está utilizando una versión mas antigua del protocolo.",
-
+  
   UNKNOWN_MESSAGE = "Tipo de mensaje desconocido '%1' desde '%2'.",
-
+  
   -- Hidden objectives.
   HIDDEN_TITLE = "Objetivos Ocultos",
   HIDDEN_NONE = "No hay objetivos ocultos de usted.",
@@ -94,23 +92,23 @@ QuestHelper_Translations.esES =
   FILTERED_BLOCKED = "Filtrado debido al objetivo anterior incompleto",
   FILTERED_USER = "Pidió que este objetivo se ocultara.",
   FILTERED_UNKNOWN = "Desconozco cómo llevarlo a cabo.",
-
+  
   HIDDEN_SHOW = "Mostrar.",
   DISABLE_FILTER = "Desactivar el filtro: %1",
   FILTER_DONE = "hecho",
   FILTER_ZONE = "zona",
   FILTER_LEVEL = "nivel",
   FILTER_BLOCKED = "bloqueado",
-
+  
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Tiene %h(nueva información) sobre %h1, y %h(información actualizada) sobre %h2.",
   NAG_SINGLE_NEW = "Tiene %h(nueva información) sobre %h1.",
   NAG_ADDITIONAL = "Tiene %h(información adicional) sobre %h1.",
-
+  
   NAG_NOT_NEW = "No tiene ninguna información que no estén ya en la base de datos estáticos.",
   NAG_NEW = "Podría considerar la posibilidad de compartir sus datos para que otros puedan beneficiarse.",
   NAG_INSTRUCTIONS = "Teclee %h(/qh submit) para obtener instrucciones sobre la presentación de datos.",
-
+  
   NAG_SINGLE_FP = "un maestro de vuelo",
   NAG_SINGLE_QUEST = "una misión",
   NAG_SINGLE_ROUTE = "una ruta de vuelo",
@@ -119,7 +117,7 @@ QuestHelper_Translations.esES =
   NAG_SINGLE_MONSTER_OBJ = "un monstruo (objetivo)",
   NAG_SINGLE_EVENT_OBJ = "un evento (objetivo)",
   NAG_SINGLE_REPUTATION_OBJ = "una reputación (objetivo)",
-
+  
   NAG_MULTIPLE_FP = "%1 maestros de vuelo",
   NAG_MULTIPLE_QUEST = "%1 misiones",
   NAG_MULTIPLE_ROUTE = "%1 rutas de vuelo",
@@ -128,7 +126,7 @@ QuestHelper_Translations.esES =
   NAG_MULTIPLE_MONSTER_OBJ = "%1 monstruos (objetivo)",
   NAG_MULTIPLE_EVENT_OBJ = "%1 eventos (objetivo)",
   NAG_MULTIPLE_REPUTATION_OBJ = "%1 reputaciones (objetivo)",
-
+  
   -- Stuff used by dodads.
   PEER_PROGRESS = "Progreso de %1:",
   TRAVEL_ESTIMATE = "Tiempo estimado de viaje:",
@@ -174,7 +172,7 @@ QuestHelper_Translations.esES =
   MENU_HELP_SLASH = "Comandos Slash",
   MENU_HELP_CHANGES = "Registro de Cambios",
   MENU_HELP_SUBMIT = "Enviar Datos",
-
+  
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
   -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
   TOOLTIP_WATCHED = "Visto por QuestHelper",
@@ -183,3 +181,4 @@ QuestHelper_Translations.esES =
   TOOLTIP_SLAY = "Matar para %h1.",
   TOOLTIP_LOOT = "Botín para %h1."
  }
+
