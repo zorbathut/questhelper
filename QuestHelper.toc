@@ -27,13 +27,13 @@ lang_frfr.lua
 lang_eses.lua
 lang_esmx.lua
 lang_dadk.lua
-lang_dudl.lua
+lang_nlnl.lua
 lang_trtr.lua
 lang_ruru.lua
 lang_svse.lua
 lang_itit.lua
 #lang_zhcn.lua
-#lang_zhtw.lua
+lang_zhtw.lua
 lang_kokr.lua
 
 upgrade.lua

@@ -1,135 +1,184 @@
 -- Please see lang_enus.lua for reference.
 
-QuestHelper_Translations.zhTW =
+QuestHelper_Translations["zhTW"] =
  {
-  --[[ THIS FILE NEEDS TO BE TRANSLATED; REMOVE THIS LINE WHEN COMPLETED.
-  
   -- Displayed by locale chooser.
-  LOCALE_NAME = "English",
+  LOCALE_NAME = "繁體中文",
   
   -- Messages used when starting.
-  LOCALE_ERROR = "The locale of your saved data doesn't match the locale of your WoW client.",
-  ZONE_LAYOUT_ERROR = "I'm refusing to run, out of fear of corrupting your saved data. "..
-                      "Please wait for a patch that will be able to handle the new zone layout.",
-  DOWNGRADE_ERROR = "Your saved data isn't compatible with this version of QuestHelper. "..
-                    "Use a new version, or delete your saved variables.",
-  HOME_NOT_KNOWN = "Your home isn't known. When you get a chance, please talk to your innkeeper and reset it.",
-  
-  -- This text is only printed for the enUS client, don't worry about translating it.
-  ALTERED_INDEX = "!!! QuestHelper_IndexLookup entry needs update: [%Q1] = {%2, %3, %4}",
-  ALTERED_ZONE = "!!! QuestHelper_Zones entry needs update: [%1][%2] = %Q3 -- was %4",
+  LOCALE_ERROR = nil,
+  ZONE_LAYOUT_ERROR = nil,
+  DOWNGRADE_ERROR = "存檔資料與目前的版本不合，請更新版本，或是將原有的記錄檔刪除！",
+  HOME_NOT_KNOWN = nil,
   
   -- Route related text.
-  ROUTES_CHANGED = "The flight routes for your character have been altered.",
-  HOME_CHANGED = "Your home has been changed.",
-  TALK_TO_FLIGHT_MASTER = "Please talk to the local flight master.",
-  TALK_TO_FLIGHT_MASTER_COMPLETE = "Thanks.",
-  WILL_RESET_PATH = "Will reset pathing information.",
+  ROUTES_CHANGED = nil,
+  HOME_CHANGED = "爐石地點已變更",
+  TALK_TO_FLIGHT_MASTER = "與飛行管理員交談",
+  TALK_TO_FLIGHT_MASTER_COMPLETE = "謝謝！",
+  WILL_RESET_PATH = "將重設路線訊息",
+  UPDATING_ROUTE = "更新路線",
   
   -- Locale switcher.
-  LOCALE_LIST_BEGIN = "Available Locales:",
-  LOCALE_CHANGED = "Locale changed to: %h1",
-  LOCALE_UNKNOWN = "Locale %h1 isn't known.",
+  LOCALE_LIST_BEGIN = "可選擇語系",
+  LOCALE_CHANGED = "變更使用語系為： %h1",
+  LOCALE_UNKNOWN = "%h1 是個未知的語系",
   
   -- Words used for objectives.
-  SLAY_VERB = "Slay",
-  ACQUIRE_VERB = "Acquire",
+  SLAY_VERB = "殺死",
+  ACQUIRE_VERB = "需要",
   
-  OBJECTIVE_REASON = "%1 %h2 for quest %h3.", -- %1 is a verb, %2 is a noun (item or monster)
-  OBJECTIVE_REASON_FALLBACK = "%h1 for quest %h2.",
-  OBJECTIVE_REASON_TURNIN = "Turn in quest %h1.",
-  OBJECTIVE_PURCHASE = "Purchase from %h1.",
-  OBJECTIVE_TALK = "Talk to %h1.",
-  OBJECTIVE_SLAY = "Slay %h1.",
-  OBJECTIVE_LOOT = "Loot %h1.",
+  OBJECTIVE_REASON = nil, -- %1 is a verb, %2 is a noun (item or monster)
+  OBJECTIVE_REASON_FALLBACK = nil,
+  OBJECTIVE_REASON_TURNIN = nil,
+  OBJECTIVE_PURCHASE = nil,
+  OBJECTIVE_TALK = "與 %1 交談",
+  OBJECTIVE_SLAY = "殺死 %h1",
+  OBJECTIVE_LOOT = "拾取 %h1",
   
-  ZONE_BORDER = "%1/%2 border",
+  ZONE_BORDER = nil,
   
   -- Stuff used in objective menus.
-  PRIORITY = "Priority",
-  PRIORITY1 = "Highest",
-  PRIORITY2 = "High",
-  PRIORITY3 = "Normal",
-  PRIORITY4 = "Low",
-  PRIORITY5 = "Lowest",
-  SHARING = "Sharing",
-  ENABLE = "Enable",
-  DISABLE = "Disable",
-  IGNORE = "Ignore",
+  PRIORITY = "優先度",
+  PRIORITY1 = "最高",
+  PRIORITY2 = "高",
+  PRIORITY3 = "一般",
+  PRIORITY4 = "低",
+  PRIORITY5 = "最低",
+  SHARING = "分享中！",
+  SHARING_ENABLE = "分享",
+  SHARING_DISABLE = "不分享",
+  IGNORE = "忽略",
   
-  IGNORED_PRIORITY_TITLE = "The selected priority would be ignored.",
-  IGNORED_PRIORITY_FIX = "Apply same priority to the blocking objectives.",
-  IGNORED_PRIORITY_IGNORE = "I'll set the priorities myself.",
+  IGNORED_PRIORITY_TITLE = nil,
+  IGNORED_PRIORITY_FIX = nil,
+  IGNORED_PRIORITY_IGNORE = "自訂優先度",
   
   -- Custom objectives.
-  RESULTS_TITLE = "Search Results",
-  NO_RESULTS = "There aren't any!",
-  CREATED_OBJ = "Created: %1",
-  REMOVED_OBJ = "Removed: %1",
-  USER_OBJ = "User Objective: %h1",
-  UNKNOWN_OBJ = "I don't know where you should go for that objective.",
+  RESULTS_TITLE = "搜尋結果",
+  NO_RESULTS = nil,
+  CREATED_OBJ = "製造了 %1",
+  REMOVED_OBJ = "移除： %1",
+  USER_OBJ = nil,
+  UNKNOWN_OBJ = nil,
   
-  SEARCHING_STATE = "Searching: %1",
-  SEARCHING_LOCAL = "Local %1",
-  SEARCHING_STATIC = "Static %1",
-  SEARCHING_ITEMS = "Items",
+  SEARCHING_STATE = "搜尋中： %1",
+  SEARCHING_LOCAL = nil,
+  SEARCHING_STATIC = "狀態 %1",
+  SEARCHING_ITEMS = "物品",
   SEARCHING_NPCS = "NPCs",
-  SEARCHING_ZONES = "Zones",
-  SEARCHING_DONE = "Done!",
+  SEARCHING_ZONES = "地區",
+  SEARCHING_DONE = "完成！",
   
   -- Shared objectives.
-  PEER_TURNIN = "Wait for %h1 to turn in %h2.",
-  PEER_LOCATION = "Help %h1 reach a location in %h2.",
-  PEER_ITEM = "Help %1 to acquire %h2.",
-  PEER_OTHER = "Assist %1 with %h2.",
+  PEER_TURNIN = nil,
+  PEER_LOCATION = nil,
+  PEER_ITEM = nil,
+  PEER_OTHER = nil,
   
-  PEER_NEWER = "%h1 is using a newer protocol version. It might be time to upgrade.",
-  PEER_OLDER = "%h1 is using an older protocol version.",
+  PEER_NEWER = nil,
+  PEER_OLDER = nil,
   
-  UNKNOWN_MESSAGE = "Unknown message type '%1' from '%2'.",
+  UNKNOWN_MESSAGE = nil,
   
   -- Hidden objectives.
-  HIDDEN_TITLE = "Hidden Objectives",
-  HIDDEN_NONE = "There are no objectives hidden from you.",
-  DEPENDS_ON_SINGLE = "Depends on '%1'.",
-  DEPENDS_ON_COUNT = "Depends on %1 hidden objectives.",
-  FILTERED_LEVEL = "Filtered due to level.",
-  FILTERED_ZONE = "Filtered due to zone.",
-  FILTERED_COMPLETE = "Filtered due to completeness.",
-  FILTERED_USER = "You requested this objective be hidden.",
-  FILTERED_UNKNOWN = "Don't know how to complete.",
+  HIDDEN_TITLE = "隱藏的目標",
+  HIDDEN_NONE = nil,
+  DEPENDS_ON_SINGLE = nil,
+  DEPENDS_ON_COUNT = nil,
+  FILTERED_LEVEL = nil,
+  FILTERED_ZONE = nil,
+  FILTERED_COMPLETE = nil,
+  FILTERED_BLOCKED = nil,
+  FILTERED_USER = nil,
+  FILTERED_UNKNOWN = "不知道如何完成任務",
   
-  HIDDEN_SHOW = "Show.",
-  DISABLE_FILTER = "Disable filter: %1",
-  FILTER_DONE = "done",
-  FILTER_ZONE = "zone",
-  FILTER_LEVEL = "level",
+  HIDDEN_SHOW = "顯示",
+  DISABLE_FILTER = nil,
+  FILTER_DONE = "完成",
+  FILTER_ZONE = "地區",
+  FILTER_LEVEL = "等級",
+  FILTER_BLOCKED = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
-  NAG_SINGLE = "1 %2", -- %1 == count (will be 1), %2 == what
-  NAG_PLURAL = "%1 %s2",
+  NAG_MULTIPLE_NEW = nil,
+  NAG_SINGLE_NEW = nil,
+  NAG_ADDITIONAL = nil,
   
-  NAG_MULTIPLE_NEW = "You have information on %h1 new and %h2 updated %h(%s3).",
-  NAG_SINGLE_NEW = "You have new information on %h1.",
-  NAG_ADDITIONAL = "You have additional information on %h1.",
+  NAG_NOT_NEW = nil,
+  NAG_NEW = nil,
+  NAG_INSTRUCTIONS = nil,
   
-  NAG_NOT_NEW = "You don't have any information not already in the static database.",
-  NAG_NEW = "You might consider sharing your data so that others may benefit.",
+  NAG_SINGLE_FP = nil,
+  NAG_SINGLE_QUEST = nil,
+  NAG_SINGLE_ROUTE = nil,
+  NAG_SINGLE_ITEM_OBJ = nil,
+  NAG_SINGLE_OBJECT_OBJ = nil,
+  NAG_SINGLE_MONSTER_OBJ = nil,
+  NAG_SINGLE_EVENT_OBJ = nil,
+  NAG_SINGLE_REPUTATION_OBJ = nil,
   
-  NAG_FP = "flight master",
-  NAG_QUEST = "quest",
-  NAG_ROUTE = "flight route",
-  NAG_ITEM_OBJ = "item objective",
-  NAG_OBJECT_OBJ = "object objective",
-  NAG_MONSTER_OBJ = "monster objective",
-  NAG_EVENT_OBJ = "event objective",
-  NAG_REPUTATION_OBJ = "reputation objective",
+  NAG_MULTIPLE_FP = nil,
+  NAG_MULTIPLE_QUEST = nil,
+  NAG_MULTIPLE_ROUTE = nil,
+  NAG_MULTIPLE_ITEM_OBJ = nil,
+  NAG_MULTIPLE_OBJECT_OBJ = nil,
+  NAG_MULTIPLE_MONSTER_OBJ = nil,
+  NAG_MULTIPLE_EVENT_OBJ = nil,
+  NAG_MULTIPLE_REPUTATION_OBJ = nil,
   
   -- Stuff used by dodads.
-  PEER_PROGRESS = "%1's progress:",
-  TRAVEL_ESTIMATE = "Estimated travel time:",
-  TRAVEL_ESTIMATE_VALUE = "%t1",
-  WAYPOINT_REASON = "Visit %h1 en route to:"
+  PEER_PROGRESS = "%1 目前的進度",
+  TRAVEL_ESTIMATE = "剩餘時間：",
+  TRAVEL_ESTIMATE_VALUE = nil,
+  WAYPOINT_REASON = nil,
+
+  -- QuestHelper Map Button
+  QH_BUTTON_TEXT = nil,
+  QH_BUTTON_TOOLTIP1 = "左鍵： %1 路線訊息",
+  QH_BUTTON_TOOLTIP2 = "右鍵： 顯示設定選單",
+  QH_BUTTON_SHOW = "顯示",
+  QH_BUTTON_HIDE = "隱藏",
+
+  MENU_CLOSE = "關閉選單",
+  MENU_SETTINGS = "設定",
+  MENU_ENABLE = "啟用",
+  MENU_DISABLE = "停用",
+  MENU_OBJECTIVE_TIPS = "%1 任務目標提示",
+  MENU_TRACKER_OPTIONS = nil,
+  MENU_QUEST_TRACKER = nil,
+  MENU_TRACKER_LEVEL = nil,
+  MENU_TRACKER_QCOLOUR = nil,
+  MENU_TRACKER_OCOLOUR = nil,
+  MENU_TRACKER_SCALE = nil,
+  MENU_TRACKER_RESET = nil,
+  MENU_FLIGHT_TIMER = nil,
+  MENU_ANT_TRAILS = nil,
+  MENU_WAYPOINT_ARROW = nil,
+  MENU_MAP_BUTTON = "%1 地圖按鈕",
+  MENU_ZONE_FILTER = nil,
+  MENU_DONE_FILTER = nil,
+  MENU_BLOCKED_FILTER = nil,
+  MENU_LEVEL_FILTER = nil,
+  MENU_LEVEL_OFFSET = nil,
+  MENU_ICON_SCALE = "圖示尺寸",
+  MENU_FILTERS = nil,
+  MENU_PERFORMANCE = nil,
+  MENU_LOCALE = "語系",
+  MENU_PARTY = "小隊",
+  MENU_PARTY_SHARE = "分享 %1 任務",
+  MENU_PARTY_SOLO = nil,
+  MENU_HELP = "幫助",
+  MENU_HELP_SLASH = nil,
+  MENU_HELP_CHANGES = "變更記錄檔",
+  MENU_HELP_SUBMIT = "送出資料",
   
-  END COMMENT BLOCK; REMOVE THIS LINE WHEN COMPLETED ]]
+  -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
+  -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
+  TOOLTIP_WATCHED = nil,
+  TOOLTIP_QUEST = nil,
+  TOOLTIP_PURCHASE = nil,
+  TOOLTIP_SLAY = nil,
+  TOOLTIP_LOOT = nil
  }
+
