@@ -285,11 +285,15 @@ function QuestHelper:Filter(input)
   elseif input == "BLOCKED" or input == "BLOCK" then
     QuestHelper_Pref.filter_blocked = not QuestHelper_Pref.filter_blocked
     self:TextOut("Filter "..self:HighlightText("blocked").." set to "..self:HighlightText(QuestHelper_Pref.filter_blocked and "active" or "inactive")..".")
+  elseif input == "WATCHED" or input == "WATCH" then
+    QuestHelper_Pref.filter_watched = not QuestHelper_Pref.filter_watched
+    self:TextOut("Filter "..self:HighlightText("watched").." set to "..self:HighlightText(QuestHelper_Pref.filter_watched and "active" or "inactive")..".")
   elseif input == "" then
     self:TextOut("Filter "..self:HighlightText("zone")..": "..self:HighlightText(QuestHelper_Pref.filter_zone and "active" or "inactive"))
     self:TextOut("Filter "..self:HighlightText("level")..": "..self:HighlightText(QuestHelper_Pref.filter_level and "active" or "inactive"))
     self:TextOut("Filter "..self:HighlightText("done")..": "..self:HighlightText(QuestHelper_Pref.filter_done and "active" or "inactive"))
     self:TextOut("Filter "..self:HighlightText("blocked")..": "..self:HighlightText(QuestHelper_Pref.filter_blocked and "active" or "inactive"))
+    self:TextOut("Filter "..self:HighlightText("watched")..": "..self:HighlightText(QuestHelper_Pref.filter_watched and "active" or "inactive"))
   else
     self:TextOut("Don't know what you want filtered, expect "..self:HighlightText("zone")..", "..self:HighlightText("done")..", "..self:HighlightText("level")..", or "..self:HighlightText("blocked")..".")
   end
@@ -429,7 +433,9 @@ commands =
    {{"/qh filter zone", "Toggle showing objectives outside the current zone"},
     {"/qh filter done", "Toggle showing objectives for uncompleted quests."},
     {"/qh filter level", "Toggle showing objectives that are probably too hard, by considering the levels of you and your party members, and the offset set by the level command."},
-    {"/qh filter blocked", "Toggle showing blocked objectives, such as quest turn-ins for incomplete quests."}}, QuestHelper.Filter, QuestHelper},
+    {"/qh filter blocked", "Toggle showing blocked objectives, such as quest turn-ins for incomplete quests."},
+    {"/qh filter watched", "Toggle limiting to objectives watched in the Quest Log"}
+    }, QuestHelper.Filter, QuestHelper},
   
   {"LEVEL",
    "Adjusts the level offset used by the level filter. Naturally, the level filter must be turned on to have an effect.",

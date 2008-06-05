@@ -19,7 +19,8 @@ local function DefaultObjectiveKnown(self)
     if (self.filter_zone and QuestHelper_Pref.filter_zone) or
        (self.filter_done and QuestHelper_Pref.filter_done) or
        (self.filter_level and QuestHelper_Pref.filter_level) or
-       (self.filter_blocked and QuestHelper_Pref.filter_blocked) then
+       (self.filter_blocked and QuestHelper_Pref.filter_blocked) or
+       (self.filter_watched and QuestHelper_Pref.filter_watched) then
       return false
     end
   elseif self.user_ignore then
@@ -562,15 +563,17 @@ end
 local function ComputeTravelTime(self, pos, nocache)
   assert(self.setup)
   
-  local key
+  local key, cached
   if not nocache then
     assert(pos ~= QuestHelper.pos)
     if not pos.key then
       pos.key = math.random()..""
     end
     key = pos.key
-    if self.distance_cache[key] then
-      return unpack(self.distance_cache[key])
+    cached = self.distance_cache[key]
+    if cached then
+      -- To test the caching, comment out this line and un-comment the 'if' at the end of the function.
+      return unpack(cached)
     end
   end
 
@@ -617,9 +620,12 @@ local function ComputeTravelTime(self, pos, nocache)
   
   assert(e)
   if not nocache then
-    local new = self.qh:CreateTable()
-    new[1], new[2] = d, e
-    self.distance_cache[key] = new
+    assert( not cached or (cached[1] == d and cached[2] == e))
+--    if not cached then
+      local new = self.qh:CreateTable()
+      new[1], new[2] = d, e
+      self.distance_cache[key] = new
+--    end
   end
   return d, e
 end
@@ -628,7 +634,7 @@ end
 local function ComputeTravelTime2(self, pos1, pos2, nocache)
   assert(self.setup)
   
-  local key
+  local key, cached
   if not nocache then
     assert(pos1 ~= QuestHelper.pos)
     assert(pos2 ~= QuestHelper.pos)
@@ -640,8 +646,10 @@ local function ComputeTravelTime2(self, pos1, pos2, nocache)
       pos2.key = math.random()..""
     end
     key = pos1.key..pos2.key
-    if self.distance_cache[key] then
-      return unpack(self.distance_cache[key])
+    cached = self.distance_cache[key]
+    if cached then
+      -- To test the caching, comment out this line and un-comment the 'if' at the end of the function.
+      return unpack(cached)
     end
   end
 
@@ -765,9 +773,12 @@ local function ComputeTravelTime2(self, pos1, pos2, nocache)
   
   assert(e)
   if not nocache then
-    local new = self.qh:CreateTable()
-    new[1], new[2], new[3] = d, d2, e
-    self.distance_cache[key] = new
+    assert( not cached or (cached[1] == d and cached[2] == d2 and cached[3] == e))
+--    if not cached then
+      local new = self.qh:CreateTable()
+      new[1], new[2], new[3] = d, d2, e
+      self.distance_cache[key] = new
+--    end
   end
   return d, d2, e
 end
@@ -789,6 +800,38 @@ local function DoneRouting(self)
     self.setup_count = self.setup_count - 1
   end
 end
+
+local function IsObjectiveWatched(self)
+  -- Check if an objective is being watched.  Note that this is an external query, not a simple Selector.
+  local info
+
+  if self.cat == "quest" then
+    info = QuestHelper.quest_log[self]
+  else
+    info = QuestHelper.quest_log[self.quest]
+  end
+
+  if info then
+    local index = info.index
+    if index then
+      if UberQuest then
+        -- UberQuest has it's own way of tracking quests.
+        local uq_settings = UberQuest_Config[UnitName("player")]
+        if uq_settings then
+          local list = uq_settings.selected
+          if list then
+            return list[GetQuestLogTitle(index)]
+          end
+        end
+      else
+        return IsQuestWatched(index)
+      end
+    end
+  end
+
+  return false
+end
+
 
 local next_objective_id = 0
 
@@ -822,6 +865,8 @@ QuestHelper.default_objective_param =
   Position=GetPosition,
   TravelTime=ComputeTravelTime,
   TravelTime2=ComputeTravelTime2,
+
+  IsWatched=IsObjectiveWatched,
   
   Share=ObjectiveShare, -- Invoke to share this objective with your peers.
   Unshare=ObjectiveUnshare, -- Invoke to stop sharing this objective.

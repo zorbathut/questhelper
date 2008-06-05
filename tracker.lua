@@ -317,27 +317,7 @@ local quest_lookup = {}
 local was_inside = false
 
 local function watched_filter(obj)
-  -- Check if an objective is being watched.
-  local info = QuestHelper.quest_log[obj]
-  if info then
-    local index = info.index
-    if index then
-      if UberQuest then
-        -- UberQuest has it's own way of tracking quests.
-        local uq_settings = UberQuest_Config[UnitName("player")]
-        if uq_settings then
-          local list = uq_settings.selected
-          if list then
-            return list[GetQuestLogTitle(index)]
-          end
-        end
-      else
-        return IsQuestWatched(index)
-      end
-    end
-  end
-  
-  return false
+  return obj:IsWatched()
 end
 
 local function objlist_sort(a, b)

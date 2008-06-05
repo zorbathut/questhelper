@@ -769,6 +769,7 @@ local function RouteUpdateRoutine(self)
       
       assert(o.zones)
       o.filter_zone = o.zones[pos[1].i] == nil
+      o.filter_watched = not o:IsWatched()
       
       if not o:Known() then
         -- Objective was probably made to depend on an objective that we don't know about yet.
@@ -869,6 +870,7 @@ local function RouteUpdateRoutine(self)
       to_add[obj] = nil
       
       obj.filter_zone = obj.zones and obj.zones[pos[1].i] == nil
+      obj.filter_watched = not obj:IsWatched()
       
       if obj:Known() then
         obj:PrepareRouting()

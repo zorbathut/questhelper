@@ -153,6 +153,7 @@ QuestHelper_Translations.enUS =
   FILTERED_ZONE = "Filtered due to zone.",
   FILTERED_COMPLETE = "Filtered due to completeness.",
   FILTERED_BLOCKED = "Filtered due to incomplete prior objective",
+  FILTERED_UNWATCHED = "Filtered due to not being Tracked in the Quest Log",
   FILTERED_USER = "You requested this objective be hidden.",
   FILTERED_UNKNOWN = "Don't know how to complete.",
   
@@ -222,6 +223,7 @@ QuestHelper_Translations.enUS =
   MENU_ZONE_FILTER = "%1 Zone Filter",
   MENU_DONE_FILTER = "%1 Done Filter",
   MENU_BLOCKED_FILTER = "%1 Blocked Filter",
+  MENU_WATCHED_FILTER = "%1 Watched Filter",
   MENU_LEVEL_FILTER = "%1 Level Filter",
   MENU_LEVEL_OFFSET = "Level Filter Offset",
   MENU_ICON_SCALE = "Icon Scale",
