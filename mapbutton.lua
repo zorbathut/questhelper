@@ -33,7 +33,7 @@ function QuestHelper:DoSettingsMenu()
                     :SetFunction(self.ToggleAnts, self)
     
     -- Objective Tooltips
-    self:CreateMenuItem(menu, QHFormat("MENU_OBJECTIVE_TIPS", QuestHelper_Pref.show_ants and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
+    self:CreateMenuItem(menu, QHFormat("MENU_OBJECTIVE_TIPS", QuestHelper_Pref.tooltip and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
                     :SetFunction(self.ToggleTooltip, self)
     
     -- Cartographer Waypoints

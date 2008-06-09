@@ -171,9 +171,9 @@ end
 function QuestHelper:ToggleTooltip()
   QuestHelper_Pref.tooltip = not QuestHelper_Pref.tooltip
   if QuestHelper_Pref.tooltip then
-    self:TextOut("Objectuve tooltip information has been |cff00ff00enabled|r.")
+    self:TextOut("Objective tooltip information has been |cff00ff00enabled|r.")
   else
-    self:TextOut("Objectuve tooltip information has been |cffff0000disabled|r.")
+    self:TextOut("Objective tooltip information has been |cffff0000disabled|r.")
   end
 end
 
