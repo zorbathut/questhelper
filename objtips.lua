@@ -48,7 +48,8 @@ GameTooltip:SetScript("OnShow", function(self, ...)
   end
   
   if QuestHelper_Pref.tooltip then
-    local monster, item = self:GetUnit(), self:GetItem()
+    -- Apparantly, sometimes InventoryOnPar invokes our tooltip function with something that doesn't have GetItem method.
+    local monster, item = self.GetUnit and self:GetUnit(), self.GetItem and self:GetItem()
     
     if monster then
       addObjectiveTip(self, "monster", monster)
