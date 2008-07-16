@@ -296,7 +296,9 @@ function QuestHelper:OnEvent(event)
     end
     
     self:HandlePartyChange()
-    self:Nag("all")
+    
+    -- Not nagging; my email isn't working properly and I don't want to worry about it.
+    --self:Nag("all")
     
     for locale in pairs(QuestHelper_StaticData) do
       if locale ~= self.locale then
