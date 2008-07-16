@@ -327,7 +327,7 @@ local function MenuItem_OnEnter(self)
 end
 
 local function MenuItem_GetSize(self)
-  -- self.text:SetParent(nil) -- Remove the text's parent so that it doesn't inherit scaling and mess up the dimensions.
+  self.text:SetParent(UIParent) -- Remove the text's parent so that it doesn't inherit scaling and mess up the dimensions.
   self.text:ClearAllPoints()
   self.text:SetWidth(0)
   self.text:SetHeight(0)

@@ -147,7 +147,7 @@ function QuestHelper:ReleaseText(text)
   end
   
   text:Hide()
-  text:SetParent(QuestHelper)       -- Can't have a nil parent, so just make the mod's (invisible) frame be the parent
+  text:SetParent(UIParent)
   text:ClearAllPoints()
   self.used_text = self.used_text - 1
   table.insert(self.free_text, text)
@@ -225,7 +225,7 @@ function QuestHelper:ReleaseTexture(tex)
   end
   
   tex:Hide()
-  tex:SetParent(QuestHelper)    -- Can't have a nil parent
+  tex:SetParent(UIParent)
   tex:ClearAllPoints()
   self.used_textures = self.used_textures - 1
   table.insert(self.free_textures, tex)

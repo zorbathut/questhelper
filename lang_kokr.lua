@@ -1,21 +1,15 @@
 -- Please see lang_enus.lua for reference.
 
-QuestHelper_Translations.koKR =
+QuestHelper_Translations["koKR"] =
  {
   -- Displayed by locale chooser.
   LOCALE_NAME = "한국어",
   
   -- Messages used when starting.
   LOCALE_ERROR = "저장된 데이터의 로케일이 Wow 클라이언트의 로케일과 맞지 않습니다.",
-  ZONE_LAYOUT_ERROR = "세이브된 데이터와 충돌의 위험이 있기 때문에 애드온을 실행하지 않습니다. "..
-                      "새로운 지역을 처리 할 수 있는 패치가 나올때까지 기다려주세요.",
-  DOWNGRADE_ERROR = "저장된 데이터는 이 버전의 QuestHelper와 맞지 않습니다. "..
-                    "새로운 버전을 사용하거나, 저장된 데이터를 삭제하세요.",
+  ZONE_LAYOUT_ERROR = "세이브된 데이터와 충돌의 위험이 있기 때문에 애드온을 실행하지 않습니다. 새로운 지역을 처리 할 수 있는 패치가 나올때까지 기다려주세요.",
+  DOWNGRADE_ERROR = "저장된 데이터는 이 버전의 QuestHelper와 맞지 않습니다. 새로운 버전을 사용하거나, 저장된 데이터를 삭제하세요.",
   HOME_NOT_KNOWN = "귀환 장소를 알 수 없습니다. 기회가 될 때, 여관주인에게 말을 걸어 재설정 하세요..",
-  
-  -- This text is only printed for the enUS client, don't worry about translating it.
-  ALTERED_INDEX = "!!! QuestHelper_IndexLookup entry needs update: [%Q1] = {%2, %3, %4}",
-  ALTERED_ZONE = "!!! QuestHelper_Zones entry needs update: [%1][%2] = %Q3 -- was %4",
   
   -- Route related text.
   ROUTES_CHANGED = "당신의 이동 경로가 변경되었습니다.",
@@ -23,6 +17,7 @@ QuestHelper_Translations.koKR =
   TALK_TO_FLIGHT_MASTER = "이 지역의 비행 조련사에게 이야기 하세요.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "완료",
   WILL_RESET_PATH = "이동 정보가 재설정 됩니다.",
+  UPDATING_ROUTE = nil,
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "이용 가능한 로케일 :",
@@ -51,8 +46,8 @@ QuestHelper_Translations.koKR =
   PRIORITY4 = "낮음",
   PRIORITY5 = "매우 낮음",
   SHARING = "공유",
-  ENABLE = "이용 가능",
-  DISABLE = "이용 불가",
+  SHARING_ENABLE = nil,
+  SHARING_DISABLE = nil,
   IGNORE = "무시",
   
   IGNORED_PRIORITY_TITLE = "선택된 중요도는 무시됩니다.",
@@ -94,6 +89,7 @@ QuestHelper_Translations.koKR =
   FILTERED_LEVEL = "레벨에 따른 분류.",
   FILTERED_ZONE = "지역에 따른 분류.",
   FILTERED_COMPLETE = "완료 상태에 따른 분류.",
+  FILTERED_BLOCKED = nil,
   FILTERED_USER = "이 목적을 감추길 요청하였음.",
   FILTERED_UNKNOWN = "완료 방법을 알 수 없음.",
   
@@ -102,42 +98,87 @@ QuestHelper_Translations.koKR =
   FILTER_DONE = "완료",
   FILTER_ZONE = "지역",
   FILTER_LEVEL = "레벨",
+  FILTER_BLOCKED = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
-  NAG_SINGLE = "1 %2", -- %1 == count (will be 1), %2 == what
-  NAG_PLURAL = "%1 %s2",
-  
   NAG_MULTIPLE_NEW = "%h1과 %h2의 정보 그리고, %h(%s3)지역의 정보를 갱신하였습니다.",
   NAG_SINGLE_NEW = "%h1의 새로운 정보를 얻었습니다.",
   NAG_ADDITIONAL = "%h1의 추가 정보를 얻었습니다.",
   
   NAG_NOT_NEW = "당신의 전역 데이터베이스에 어떠한 정보도 가지고 있지 않습니다.",
   NAG_NEW = "다른 사람들에게 도움이 될 지도 모르니 당신의 데이터 공유를 고려해 보십시오.",
+  NAG_INSTRUCTIONS = nil,
   
-  NAG_FP = "비행 조련사",
-  NAG_QUEST = "퀘스트",
-  NAG_ROUTE = "이동 경로",
-  NAG_ITEM_OBJ = "아이템 목적",
-  NAG_OBJECT_OBJ = "목표 목적",
-  NAG_MONSTER_OBJ = "몬스터 목적",
-  NAG_EVENT_OBJ = "이벤트 목적",
-  NAG_REPUTATION_OBJ = "평판 목적",
+  NAG_SINGLE_FP = nil,
+  NAG_SINGLE_QUEST = nil,
+  NAG_SINGLE_ROUTE = nil,
+  NAG_SINGLE_ITEM_OBJ = nil,
+  NAG_SINGLE_OBJECT_OBJ = nil,
+  NAG_SINGLE_MONSTER_OBJ = nil,
+  NAG_SINGLE_EVENT_OBJ = nil,
+  NAG_SINGLE_REPUTATION_OBJ = nil,
+  
+  NAG_MULTIPLE_FP = nil,
+  NAG_MULTIPLE_QUEST = nil,
+  NAG_MULTIPLE_ROUTE = nil,
+  NAG_MULTIPLE_ITEM_OBJ = nil,
+  NAG_MULTIPLE_OBJECT_OBJ = nil,
+  NAG_MULTIPLE_MONSTER_OBJ = nil,
+  NAG_MULTIPLE_EVENT_OBJ = nil,
+  NAG_MULTIPLE_REPUTATION_OBJ = nil,
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1의 진행상황 :",
   TRAVEL_ESTIMATE = "계산된 여행 시간 :",
   TRAVEL_ESTIMATE_VALUE = "%t1",
-  WAYPOINT_REASON = "이곳을 통하여 %h1을 방문하라 :"
+  WAYPOINT_REASON = "이곳을 통하여 %h1을 방문하라 :",
+
+  -- QuestHelper Map Button
+  QH_BUTTON_TEXT = nil,
+  QH_BUTTON_TOOLTIP1 = nil,
+  QH_BUTTON_TOOLTIP2 = nil,
+  QH_BUTTON_SHOW = nil,
+  QH_BUTTON_HIDE = nil,
+
+  MENU_CLOSE = nil,
+  MENU_SETTINGS = nil,
+  MENU_ENABLE = nil,
+  MENU_DISABLE = nil,
+  MENU_OBJECTIVE_TIPS = nil,
+  MENU_TRACKER_OPTIONS = nil,
+  MENU_QUEST_TRACKER = nil,
+  MENU_TRACKER_LEVEL = nil,
+  MENU_TRACKER_QCOLOUR = nil,
+  MENU_TRACKER_OCOLOUR = nil,
+  MENU_TRACKER_SCALE = nil,
+  MENU_TRACKER_RESET = nil,
+  MENU_FLIGHT_TIMER = nil,
+  MENU_ANT_TRAILS = nil,
+  MENU_WAYPOINT_ARROW = nil,
+  MENU_MAP_BUTTON = nil,
+  MENU_ZONE_FILTER = nil,
+  MENU_DONE_FILTER = nil,
+  MENU_BLOCKED_FILTER = nil,
+  MENU_LEVEL_FILTER = nil,
+  MENU_LEVEL_OFFSET = nil,
+  MENU_ICON_SCALE = nil,
+  MENU_FILTERS = nil,
+  MENU_PERFORMANCE = nil,
+  MENU_LOCALE = nil,
+  MENU_PARTY = nil,
+  MENU_PARTY_SHARE = nil,
+  MENU_PARTY_SOLO = nil,
+  MENU_HELP = nil,
+  MENU_HELP_SLASH = nil,
+  MENU_HELP_CHANGES = nil,
+  MENU_HELP_SUBMIT = nil,
   
+  -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
+  -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
+  TOOLTIP_WATCHED = nil,
+  TOOLTIP_QUEST = nil,
+  TOOLTIP_PURCHASE = nil,
+  TOOLTIP_SLAY = nil,
+  TOOLTIP_LOOT = nil
  }
- 
- QuestHelper_TranslationFunctions.koKR =
- {
-  ["s"] = function(data)
-    if string.find(data, "s$") then
-        return data.."들"
-      else
-        return data.."들"
-      end
-    end,
- }
+

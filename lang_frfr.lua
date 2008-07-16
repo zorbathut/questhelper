@@ -33,7 +33,7 @@ QuestHelper_Translations["frFR"] =
   OBJECTIVE_REASON_TURNIN = "Poursuivre avec la quête %h1.",
   OBJECTIVE_PURCHASE = "A acheter auprès de %h1.",
   OBJECTIVE_TALK = "Parler à %h1.",
-  OBJECTIVE_SLAY = "Tuez %h1.",
+  OBJECTIVE_SLAY = "Tuer %h1.",
   OBJECTIVE_LOOT = "Loot %h1.",
   
   ZONE_BORDER = "%1/%2 bordure",
@@ -68,15 +68,15 @@ QuestHelper_Translations["frFR"] =
   SEARCHING_ITEMS = "Objets",
   SEARCHING_NPCS = "NPCs",
   SEARCHING_ZONES = "Zones",
-  SEARCHING_DONE = "Ok!",
+  SEARCHING_DONE = "Terminé !",
   
   -- Shared objectives.
-  PEER_TURNIN = "Attendez pour %h1 pour poursuivre avec %h2.",
+  PEER_TURNIN = "Attendre %h1 pour poursuivre avec %h2.",
   PEER_LOCATION = "Aider %h1 à rallier la position %h2.",
   PEER_ITEM = "Aider %1 à obtenir %h2.",
   PEER_OTHER = "Assister %1 avec %h2.",
   
-  PEER_NEWER = "%h1 utilise une nouvelle version. Penser à faire une mise à jour.",
+  PEER_NEWER = "%h1 utilise une nouvelle version. Pensez à faire une mise à jour.",
   PEER_OLDER = "%h1 utilise une ancienne version.",
   
   UNKNOWN_MESSAGE = "Type de message inconnu '%1' de '%2'.",
@@ -87,7 +87,7 @@ QuestHelper_Translations["frFR"] =
   DEPENDS_ON_SINGLE = "Dépends de '%1'.",
   DEPENDS_ON_COUNT = "Dépends de %1 objectifs cachés.",
   FILTERED_LEVEL = "Filtré a cause du niveau.",
-  FILTERED_ZONE = "Filtré à cquse de la zone.",
+  FILTERED_ZONE = "Filtré à cause de la zone.",
   FILTERED_COMPLETE = "Filtré car complété.",
   FILTERED_BLOCKED = "Filtré car un objectif précédent n'a pas été complété",
   FILTERED_USER = "Vous avez demandé à caché cet objectif.",
@@ -120,18 +120,18 @@ QuestHelper_Translations["frFR"] =
   
   NAG_MULTIPLE_FP = "%1 maitres de vol",
   NAG_MULTIPLE_QUEST = "%1 quetes",
-  NAG_MULTIPLE_ROUTE = nil,
+  NAG_MULTIPLE_ROUTE = "Chemins de vol",
   NAG_MULTIPLE_ITEM_OBJ = nil,
   NAG_MULTIPLE_OBJECT_OBJ = nil,
   NAG_MULTIPLE_MONSTER_OBJ = nil,
   NAG_MULTIPLE_EVENT_OBJ = nil,
-  NAG_MULTIPLE_REPUTATION_OBJ = nil,
+  NAG_MULTIPLE_REPUTATION_OBJ = "Objectifs de réputation",
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1 est en cours:",
   TRAVEL_ESTIMATE = "Temps de voyage estimé:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
-  WAYPOINT_REASON = "Visitez %h1 en route vers:",
+  WAYPOINT_REASON = "Visiter %h1 en route vers:",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -144,24 +144,24 @@ QuestHelper_Translations["frFR"] =
   MENU_SETTINGS = "Options",
   MENU_ENABLE = "Activer",
   MENU_DISABLE = "Desactiver",
-  MENU_OBJECTIVE_TIPS = nil,
+  MENU_OBJECTIVE_TIPS = "%1 Descriptif d'Objectif",
   MENU_TRACKER_OPTIONS = nil,
   MENU_QUEST_TRACKER = "%1 Suivi de Quête",
   MENU_TRACKER_LEVEL = "%1 Niveaux de Quête",
   MENU_TRACKER_QCOLOUR = "%1 Couleurs de difficulté des quêtes",
   MENU_TRACKER_OCOLOUR = "%1 Couleurs des Objectifs en Cours",
   MENU_TRACKER_SCALE = nil,
-  MENU_TRACKER_RESET = "Reset position",
+  MENU_TRACKER_RESET = "Réinitialiser position",
   MENU_FLIGHT_TIMER = "%1 Temps de vol",
   MENU_ANT_TRAILS = nil,
   MENU_WAYPOINT_ARROW = nil,
   MENU_MAP_BUTTON = "%1 Bouton de la Carte",
-  MENU_ZONE_FILTER = nil,
+  MENU_ZONE_FILTER = "Filtre de zone",
   MENU_DONE_FILTER = "%1 Filtre effectué",
   MENU_BLOCKED_FILTER = "%1 Filtre Bloqué",
   MENU_LEVEL_FILTER = "%1 Filtre de Niveau",
   MENU_LEVEL_OFFSET = nil,
-  MENU_ICON_SCALE = "Position d'iconnes",
+  MENU_ICON_SCALE = "Position d'icones",
   MENU_FILTERS = "Filtres",
   MENU_PERFORMANCE = nil,
   MENU_LOCALE = "Langue",
@@ -176,9 +176,9 @@ QuestHelper_Translations["frFR"] =
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
   -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
   TOOLTIP_WATCHED = "Vu par QuestHelper",
-  TOOLTIP_QUEST = "Pour la quete %h1",
+  TOOLTIP_QUEST = "Pour la quête %h1",
   TOOLTIP_PURCHASE = "Acheter %h1",
-  TOOLTIP_SLAY = "Tuer pour %h1",
-  TOOLTIP_LOOT = "Butin pour %h1"
+  TOOLTIP_SLAY = "A tuer pour %h1",
+  TOOLTIP_LOOT = "Looter %h1"
  }
 

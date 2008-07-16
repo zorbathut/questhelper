@@ -35,6 +35,11 @@ lang_itit.lua
 #lang_zhcn.lua
 lang_zhtw.lua
 lang_kokr.lua
+lang_trtr.lua
+lang_huhu.lua
+lang_itit.lua
+lang_ptbr.lua
+lang_ptpt.lua
 
 upgrade.lua
 main.lua
