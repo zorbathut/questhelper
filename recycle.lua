@@ -2,8 +2,8 @@ QuestHelper_File["recycle.lua"] = "Development Version"
 
 QuestHelper.used_tables = 0
 
-QuestHelper.weak_key_meta = {__mode="k"}
-QuestHelper.weak_value_meta = {__mode="v"}
+QuestHelper.weak_key_meta = {--[[__mode="k"]]}
+QuestHelper.weak_value_meta = {--[[__mode="v"]]}
 QuestHelper.free_tables = setmetatable({}, QuestHelper.weak_key_meta)
 
 local unused_meta = {__index=error, __newindex=error}
@@ -99,7 +99,7 @@ function QuestHelper:ReleaseFrame(frame)
   end
   
   frame:Hide()
-  frame:SetParent(nil)
+  frame:SetParent(QuestHelper)
   frame:ClearAllPoints()
   frame:SetMovable(false)
   frame:RegisterForDrag()
@@ -147,7 +147,7 @@ function QuestHelper:ReleaseText(text)
   end
   
   text:Hide()
-  text:SetParent(nil)
+  text:SetParent(QuestHelper)       -- Can't have a nil parent, so just make the mod's (invisible) frame be the parent
   text:ClearAllPoints()
   self.used_text = self.used_text - 1
   table.insert(self.free_text, text)
@@ -225,7 +225,7 @@ function QuestHelper:ReleaseTexture(tex)
   end
   
   tex:Hide()
-  tex:SetParent(nil)
+  tex:SetParent(QuestHelper)    -- Can't have a nil parent
   tex:ClearAllPoints()
   self.used_textures = self.used_textures - 1
   table.insert(self.free_textures, tex)
