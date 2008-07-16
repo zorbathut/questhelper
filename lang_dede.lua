@@ -7,7 +7,7 @@ QuestHelper_Translations["deDE"] =
   
   -- Messages used when starting.
   LOCALE_ERROR = "Die Sprache deiner gespeicherten Daten stimmt nicht mit der Sprache deines WoW-Clienten überein.",
-  ZONE_LAYOUT_ERROR = "Ich arbeite nicht weiter, um deine gespeicherten Daten nicht zu beschädigen.Bitte warte auf einen Patch, der in der Lage ist mit dem neuen Zonen Layout umzugehen",
+  ZONE_LAYOUT_ERROR = "Ich arbeite nicht weiter, um deine gespeicherten Daten nicht zu beschädigen. Bitte warte auf einen Patch, der in der Lage ist mit dem neuen Zonen Layout umzugehen",
   DOWNGRADE_ERROR = "Deine gespeicherten Daten sind nicht kompatibel mit dieser Version von QuestHelper. Verwende eine neue Version oder lösche deine gespeicherten Variablen.",
   HOME_NOT_KNOWN = "Dein Zuhause ist nicht bekannt. Bitte sprich bei der nächsten Gelegenheit einen Gastwirt an um es zurückzusetzen.",
   
@@ -176,7 +176,7 @@ QuestHelper_Translations["deDE"] =
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
   -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
   TOOLTIP_WATCHED = "Beobachtet durch QuestHelper",
-  TOOLTIP_QUEST = "Für das Quest %h1.",
+  TOOLTIP_QUEST = "Für die Quest %h1.",
   TOOLTIP_PURCHASE = "Kaufe %h1.",
   TOOLTIP_SLAY = "Töte für %h1.",
   TOOLTIP_LOOT = "Erbeute für %h1."

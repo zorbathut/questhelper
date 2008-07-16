@@ -7,9 +7,9 @@ QuestHelper_Translations["esES"] =
   
   -- Messages used when starting.
   LOCALE_ERROR = "El idioma de su datos guardados no coincide con el idioma del cliente Wow. Para utilizar QuestHelper tendrá que cambiar la configuración regional de vuelta, o borrar los datos tecleando %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Me niego a ejecutarme, por miedo a dañar sus datos guardados. Por favor, espere a que un parche que será capaz de manejar el nueva diseño de zona.",
+  ZONE_LAYOUT_ERROR = "Me niego a ejecutarme, por temor a dañar sus datos guardados. Por favor, espere a un nuevo parche que será capaz de manejar el nuevo diseño de zona.",
   DOWNGRADE_ERROR = "Sus datos guardados no son compatibles con esta versión de QuestHelper. Utilice una nueva versión, o borre su variables guardadas.",
-  HOME_NOT_KNOWN = "Su hogar es desconocido. Cuando tenga la oportunidad, por favor, hable con su posadero para restaurarla.",
+  HOME_NOT_KNOWN = "Se desconoce la posición de su hogar. Cuando pueda, por favor, hable con su posadero para restaurarla.",
   
   -- Route related text.
   ROUTES_CHANGED = "Las rutas de vuelo de su personaje han sido alteradas.",
@@ -52,7 +52,7 @@ QuestHelper_Translations["esES"] =
   
   IGNORED_PRIORITY_TITLE = "La prioridad seleccionada podria ser ignorada.",
   IGNORED_PRIORITY_FIX = "Aplique la misma prioridad a los objetivos de bloqueo.",
-  IGNORED_PRIORITY_IGNORE = "Voy a fijar las prioridades a mí mismo.",
+  IGNORED_PRIORITY_IGNORE = "Voy a fijarme las prioridades a mí mismo.",
   
   -- Custom objectives.
   RESULTS_TITLE = "Resultados de la búsqueda",
@@ -83,7 +83,7 @@ QuestHelper_Translations["esES"] =
   
   -- Hidden objectives.
   HIDDEN_TITLE = "Objetivos Ocultos",
-  HIDDEN_NONE = "No hay objetivos ocultos de usted.",
+  HIDDEN_NONE = "No tiene objetivos ocultos",
   DEPENDS_ON_SINGLE = "Depende de '%1'.",
   DEPENDS_ON_COUNT = "Depende de los objetivos ocultos %1.",
   FILTERED_LEVEL = "Filtrado debido al nivel.",
