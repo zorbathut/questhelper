@@ -1,3 +1,11 @@
+== Version 0.48 07/16/2008 ==
+
+* Fixed a compatability problem with WoW patch 2.4.3
+* Refined routing algorithms, hopefully reducing random fluctuations
+* Changed strategy for timing the background work task: task defaults to 4ms per frame re-draw.  The default perf setting (<code>/qh perf 100%</code>) should now work fine on most systems.
+* Added new filter: <code>/qh filter tracked</code>, which limits routing to objectives marked in the Quest Log.  This is for all the other cases of "I just want to see X quests".
+* Many translations updated and added
+
 == Version 0.47 05/20/2008 ==
 
 * Added an in-game copy of the change log, to be displayed when an upgrade is detected.
