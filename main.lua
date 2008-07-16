@@ -258,6 +258,8 @@ function QuestHelper:OnEvent(event)
     self.player_level = UnitLevel("player")
     
     self:ResetPathing()
+
+    self.Routing:Initialize()       -- Set up the routing task
     
     self:UnregisterEvent("VARIABLES_LOADED")
     self:RegisterEvent("PLAYER_TARGET_CHANGED")
