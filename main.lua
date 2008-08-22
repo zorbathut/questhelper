@@ -59,7 +59,7 @@ QuestHelper.locale = QuestHelper_Locale
 QuestHelper.faction = (UnitFactionGroup("player") == "Alliance" and 1) or
                       (UnitFactionGroup("player") == "Horde" and 2)
 
-assert(QuestHelper.faction)
+--[[ assert(QuestHelper.faction) ]]
 
 QuestHelper.font = {serif=GameFontNormal:GetFont(), sans=ChatFontNormal:GetFont(), fancy=QuestTitleFont:GetFont()}
 
@@ -195,7 +195,7 @@ function QuestHelper:OnEvent(event)
         file_problem = true
       elseif version ~= expected_version then
         DEFAULT_CHAT_FRAME:AddMessage("Wrong version of QuestHelper file: "..file.." (found '"..version.."', should be '"..expected_version.."')")
-        if version ~= "Development Version" then
+        if version ~= "Development Version" and expected_version ~= "Development Version" then
           -- Developers are allowed to mix dev versions with release versions
           file_problem = true
         end
