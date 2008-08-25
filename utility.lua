@@ -318,3 +318,15 @@ function QuestHelper:MergeDrops(list1, list2)
     list1[element] = (list1[element] or 0) + count
   end
 end
+
+function QuestHelper:Assert(a, b)
+  if not a then
+    QuestHelper:Error(b or "Assertion Failed")
+  end
+end
+
+function QuestHelper:StringizeTable(a)
+  acu = ""
+  for i,v in ipairs(a) do acu = acu.."["..tostring(i)..","..tostring(v).."] " end
+  return acu
+end
