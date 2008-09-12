@@ -115,10 +115,10 @@ local function Graph_Node_Link(self, next_node, distance)
 end
 
 local function Graph_CreateNode(self)
-  local node = QuestHelper:CreateTable()
+  local node = QuestHelper:CreateTable("graph_createnode")
   node.Link = Graph_Node_Link
-  node.n = QuestHelper:CreateTable()
-  node.r = QuestHelper:CreateTable()
+  node.n = QuestHelper:CreateTable("graph_createnode.n")
+  node.r = QuestHelper:CreateTable("graph_createnode.r")
   table.insert(self.nodes, node)
   return node
 end
@@ -554,10 +554,10 @@ function Graph_SanityCheck(self)
 end
 
 function QuestHelper:CreateGraph()
-  local graph = self:CreateTable()
-  graph.nodes = self:CreateTable()
-  graph.end_nodes = self:CreateTable()
-  graph.open = self:CreateTable()
+  local graph = self:CreateTable("graph")
+  graph.nodes = self:CreateTable("graph.nodes")
+  graph.end_nodes = self:CreateTable("graph.end_nodes")
+  graph.open = self:CreateTable("graph.open")
   
   graph.CreateNode = Graph_CreateNode
   graph.DestroyNode = Graph_DestroyNode
