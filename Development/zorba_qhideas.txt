@@ -1,0 +1,69 @@
+* Okay, so here's where I am.
+Various manipulations in path stuff are causing the path to end up inconsistent. 1, the path should be abstracted away to the point where they can't. 2, I need to learn why the inconsistency is showing up in the first place.
+
+2 leads me to the ComputeTravelTime and ComputeTravelTime2 functions. I don't know what "the objective" is and I don't know what format those data structures are - I need some way of inspecting them. I also don't know what self.d is - I think it's a destination set - but I'm really not entirely sure.
+
+I don't know what ComputeTravelTime2 is supposed to do at all - pos1 to pos2, going via a "set of destinations" in self?
+
+e.g, e.e, e.p.g, this whole fucking thing needs to be refactored
+
+
+
+* No path flicker
+* "Too Tough For Me" button
+* Tunable not-in-group penalties
+* Report errors
+* "Report problem" feature
+* Remove yieldIfNeeded parameters
+* Remove ConvertFaction locale
+* Remove all those wacky random-enchant items from the drop tables
+* Switch to GUIDs if we haven't already
+* Less reset-pathing-information, seriously wtf
+* Show what you should be doing when you're at a flight point
+
+* Better geography and barriers
+  * Pick this up automatically after "better data collection"?
+* Flying mounts
+* Mage teleport
+* Druid teleport
+* Hearthstone?
+* Higher cost for traveling through high-level areas?
+
+* Better data collection - collect more from more people, prompt them to upload once they have a good chunk of data
+
+* Custom handling for complex quests that QH currently kind of fails on ("collect these items, then use this to combine them, then give it to me" which invariably only gives you the second part at some random place in the world)
+
+* Monster spawn zones should be more obvious, not just a few "go here" spots that you can't see simultaneously without a non-obvious UI feature
+* Drop rates for quests
+
+* Quest followups added automatically
+* "Quest-like" things
+  * Recipes
+  * Flight paths
+  * Weapon training
+  * Skill training
+  * Automatic reagent/ammo restocking
+  * Repairs
+  * Mounts
+  * Pick-up dailies?
+* Add "get quest"?
+
+* Loose prioritization
+* Give some priority to turning in quests
+* Tracking "leveling" as part of the route finder (ha ha oh god)
+  * Along with training, mounts
+  * What the hell let's toss reagents and repairs in here as well :D :D :D
+
+* Separate CPU-usage multiplier for
+  * Combat
+  * City
+  * PvP
+  * World
+  * Instance
+
+*** Unsorted
+
+* Auto-/target script?
+* Track/infer completed quests
+* Display more vertically? Is this even possible?
+
