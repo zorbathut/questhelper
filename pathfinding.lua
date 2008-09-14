@@ -181,32 +181,35 @@ function QuestHelper:ComputeRoute(p1, p2)
   return e, d
 end
 
+-- Let's annotate the hell out of this
+-- ComputeTravelTime finds the shortest path between points p1 and p2. It will cheerfully use route boundaries, ships, etc. It returns the distance of that path, gleefully throwing away the path itself. Thanks, ComputeTravelTime! Thomputetraveltime. (That joke does not work as well in this case.)
+-- ZORBANOTE: Given that Graph works properly, this does too! Almost - it doesn't actually keep track of the last leg when optimizing, though it does create a valid path with a valid cost. Yaaaaaaaay :(
 function QuestHelper:ComputeTravelTime(p1, p2)
   if not p1 or not p2 then QuestHelper:Error("Boom!") end
   local graph = self.world_graph
   
   graph:PrepareSearch()
   
-  local l = p2[2]
-  local el = p2[1]
-  for i, n in ipairs(el) do
-    n.e, n.w = l[i], 1
+  local l = p2[2] -- Distance to zone boundaries in p2
+  local el = p2[1] -- Zone object for the zone that p2 is in
+  for i, n in ipairs(el) do -- i is the zone index, n is the zone data
+    n.e, n.w = l[i], 1 -- n.e is distance from p2 to the current zone boundary, n.w is 1 (weight?)
     assert(n.e)
-    n.s = 3
+    n.s = 3 -- this is "state", I think it means "visited". TODO: untangle n.s and make it suck less than it currently does
   end
   
-  l = p1[2]
+  l = p1[2] -- Distance to zone boundaries, again
   for i, n in ipairs(p1[1]) do
-    graph:AddStartNode(n, l[i], el)
+    graph:AddStartNode(n, l[i], el) -- We're adding start nodes - a prebuilt cost of the distance-to-that-zone. Each startnode also contains its own endlist, for reasons unknown yet byzantine. "n" is the zone link itself, l[i] is the cost that we still have stored. Why does this need to be in both n.e and AddStartNode?
   end
   
   local e = graph:DoSearch(el)
   
   assert(e)
   
-  local d = e.g+e.e
+  local d = e.g+e.e -- e.e is presumably the same n.e we introduced earlier. e.g - graph cost? wait a second - does this mean that the graph system is not taking e.e into account? ha ha no it isn't, oh boy oh boy
   
-  if p1[1] == p2[1] then
+  if p1[1] == p2[1] then -- if they're in the same zone, we allow the user to walk from one point to another
     local x, y = p1[3]-p2[3], p1[4]-p2[4]
     d = math.min(d, math.sqrt(x*x+y*y))
   end
@@ -595,7 +598,7 @@ function QuestHelper:ResetPathing()
   for i, name in pairs(QuestHelper_NameLookup) do
     local z = zone_nodes[i]
     if not z then
-      z = {}
+      z = QuestHelper:CreateTable("zone")  -- This was originally z = {}. I'm pretty sure that the CreateTable/ReleaseTable system is (largely) immune to leaks, and I'm also pretty sure that zones are only created once, at the beginning of the system. Keep this in mind if leaks start occuring.
       zone_nodes[i] = z
       z.i, z.c, z.z = i, unpack(QuestHelper_ZoneLookup[i])
     else
@@ -636,7 +639,7 @@ function QuestHelper:ResetPathing()
   
   self:CreateAndAddStaticNodePair(dark_portal_route)
   
-  local st = self:CreateTable()
+  local st = self:CreateTable("ResetPathing local st")
   
   for i, data in pairs(static_zone_transitions) do
     st[1], st[2], st[3] = data[1], data[3], data[4]
@@ -688,9 +691,9 @@ function QuestHelper:ResetPathing()
   
   -- id_from, id_to, and id_local will be used in determining whether there is a point to linking nodes together.
   for i, n in ipairs(self.world_graph.nodes) do
-    n.id_from = self:CreateTable()
-    n.id_to = self:CreateTable()
-    n.id_local = self:CreateTable()
+    n.id_from = self:CreateTable("ResetPathing n.id_from")
+    n.id_to = self:CreateTable("ResetPathing n.id_to")
+    n.id_local = self:CreateTable("ResetPathing n.id_local")
   end
   
   -- Setup the local ids a node exists in.
@@ -770,12 +773,12 @@ function QuestHelper:ResetPathing()
     if not obj then break end
     
     if not obj.setup then -- In case the objective was added multiple times to the to_readd list.
-      obj.d = QuestHelper:CreateTable()
-      obj.p = QuestHelper:CreateTable()
-      obj.nm = QuestHelper:CreateTable()
-      obj.nm2 = QuestHelper:CreateTable()
-      obj.nl = QuestHelper:CreateTable()
-      obj.distance_cache = QuestHelper:CreateTable()
+      obj.d = QuestHelper:CreateTable("ResetPathing obj.d")
+      obj.p = QuestHelper:CreateTable("ResetPathing obj.p")
+      obj.nm = QuestHelper:CreateTable("ResetPathing obj.nm")
+      obj.nm2 = QuestHelper:CreateTable("ResetPathing obj.nm2")
+      obj.nl = QuestHelper:CreateTable("ResetPathing obj.nl")
+      obj.distance_cache = QuestHelper:CreateTable("ResetPathing obj.distance_cache")
       obj:AppendPositions(obj, 1, nil)
       obj:FinishAddLoc()
     end
