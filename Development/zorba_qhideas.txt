@@ -9,6 +9,18 @@ e.g, e.e, e.p.g, this whole fucking thing needs to be refactored
 
 
 
+* See if it can be made faster, re-enable sanity checks on at least some level
+* Test to make sure qh_tabletyping is weak (weeeeeak)
+* Version number, about files
+
+* Bug: QH:ComputeTravelTime is not taking the "last leg" from the zone entry point to the destination into account when doing path optimization
+* Bug: AddObjectiveBest is not adding objectives in the best place in any sense of the word
+* Bug: Explicit allocation. Seriously. This is a bug. IT IS IDIOTIC. WHY DID YOU DO THIS. WHAT WERE YOU THINKING.
+* Bug: Aaaargh wacky custom half-classes with no abstraction (eats own face, dies)
+
+* Bug: ObjectiveTravelTime2 is obviously inconsistent with ComputeTravelTime2, also what the hell is it doing
+* Bug: Crash bug on timed quests?
+
 * No path flicker
 * "Too Tough For Me" button
 * Tunable not-in-group penalties
