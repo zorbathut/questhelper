@@ -1,12 +1,3 @@
-* Okay, so here's where I am.
-Various manipulations in path stuff are causing the path to end up inconsistent. 1, the path should be abstracted away to the point where they can't. 2, I need to learn why the inconsistency is showing up in the first place.
-
-2 leads me to the ComputeTravelTime and ComputeTravelTime2 functions. I don't know what "the objective" is and I don't know what format those data structures are - I need some way of inspecting them. I also don't know what self.d is - I think it's a destination set - but I'm really not entirely sure.
-
-I don't know what ComputeTravelTime2 is supposed to do at all - pos1 to pos2, going via a "set of destinations" in self?
-
-e.g, e.e, e.p.g, this whole fucking thing needs to be refactored
-
 
 
 * See if it can be made faster, re-enable sanity checks on at least some level
@@ -20,6 +11,7 @@ e.g, e.e, e.p.g, this whole fucking thing needs to be refactored
 
 * Bug: ObjectiveTravelTime2 is obviously inconsistent with ComputeTravelTime2, also what the hell is it doing
 * Bug: Crash bug on timed quests?
+* Bug: Routing doesn't restart when it crashes
 
 * No path flicker
 * "Too Tough For Me" button
