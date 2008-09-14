@@ -79,9 +79,9 @@ function QuestHelper:SetLocaleFonts()
   self.font.sans = nil
   self.font.serif = nil
   self.font.fancy = nil
-  
+
   local font = self:CreateText(self)
-  
+
   if QuestHelper_Locale ~= QuestHelper_Pref.locale then
     -- Only use alternate fonts if using a language the client wasn't intended for.
     local replacements = QuestHelper_SubstituteFonts[QuestHelper_Pref.locale]
@@ -91,21 +91,21 @@ function QuestHelper:SetLocaleFonts()
       self.font.fancy = self:GetFontPath(replacements.fancy, font)
     end
   end
-  
+
   self.font.sans = self.font.sans or self:GetFontPath(QuestHelper_Pref.locale.."_sans.ttf", font)
   self.font.serif = self.font.serif or self:GetFontPath(QuestHelper_Pref.locale.."_serif.ttf", font) or self.font.sans
   self.font.fancy = self.font.fancy or self:GetFontPath(QuestHelper_Pref.locale.."_fancy.ttf", font) or self.font.serif
-  
+
   self:ReleaseText(font)
-  
+
   self.font.sans = self.font.sans or ChatFontNormal:GetFont()
   self.font.serif = self.font.serif or GameFontNormal:GetFont()
   self.font.fancy = self.font.fancy or QuestTitleFont:GetFont()
-  
+
   -- Need to change the font of the chat frame, for any messages that QuestHelper displays.
   -- This should do nothing if not using an alternate font.
   DEFAULT_CHAT_FRAME:SetFont(self.font.sans, select(2, DEFAULT_CHAT_FRAME:GetFont()))
-  
+
   if QuestHelperWorldMapButton then
     QuestHelperWorldMapButton:SetFont(self.font.serif, select(2, QuestHelperWorldMapButton:GetFont()))
   end
@@ -127,17 +127,17 @@ end
 function QuestHelper:SetTargetLocation(i, x, y, toffset)
   -- Informs QuestHelper that you're going to be at some location in toffset seconds.
   local c, z = unpack(QuestHelper_ZoneLookup[i])
-  
+
   self.target = self:CreateTable()
   self.target[2] = self:CreateTable()
-  
+
   self.target_time = time()+(toffset or 0)
-  
+
   x, y = self.Astrolabe:TranslateWorldMapPosition(c, z, x, y, c, 0)
   self.target[1] = self.zone_nodes[i]
   self.target[3] = x * self.continent_scales_x[c]
   self.target[4] = y * self.continent_scales_y[c]
-  
+
   for i, n in ipairs(self.target[1]) do
     local a, b = n.x-self.target[3], n.y-self.target[4]
     self.target[2][i] = math.sqrt(a*a+b*b)
@@ -155,242 +155,242 @@ function QuestHelper:UnsetTargetLocation()
 end
 
 function QuestHelper:Initialize()
-    local file_problem = false
-    local expected_version = GetAddOnMetadata("QuestHelper", "Version")
-    
-    local expected_files =
-      {
-       ["upgrade.lua"] = true,
-       ["main.lua"] = true,
-       ["recycle.lua"] = true,
-       ["objective.lua"] = true,
-       ["quest.lua"] = true,
-       ["questlog.lua"] = true,
-       ["utility.lua"] = true,
-       ["dodads.lua"] = true,
-       ["graph.lua"] = true,
-       ["teleport.lua"] = true,
-       ["pathfinding.lua"] = true,
-       ["routing.lua"] = true,
-       ["custom.lua"] = true,
-       ["menu.lua"] = true,
-       ["hidden.lua"] = true,
-       ["nag.lua"] = true,
-       ["comm.lua"] = true,
-       ["mapbutton.lua"] = true,
-       ["help.lua"] = true,
-       ["pattern.lua"] = true,
-       ["flightpath.lua"] = true,
-       ["tracker.lua"] = true,
-       ["objtips.lua"] = true,
-       ["cartographer.lua"] = true,
-       ["tomtom.lua"] = true,
-       ["textviewer.lua"] = true
-      }
-    
-    for file, version in pairs(QuestHelper_File) do
-      if not expected_files[file] then
-        DEFAULT_CHAT_FRAME:AddMessage("Unexpected QuestHelper file: "..file)
-        file_problem = true
-      elseif version ~= expected_version then
-        DEFAULT_CHAT_FRAME:AddMessage("Wrong version of QuestHelper file: "..file.." (found '"..version.."', should be '"..expected_version.."')")
-        if version ~= "Development Version" and expected_version ~= "Development Version" then
-          -- Developers are allowed to mix dev versions with release versions
-          file_problem = true
-        end
-      end
-    end
-    
-    for file in pairs(expected_files) do
-      if not QuestHelper_File[file] then
-        DEFAULT_CHAT_FRAME:AddMessage("Missing QuestHelper file: "..file)
+  local file_problem = false
+  local expected_version = GetAddOnMetadata("QuestHelper", "Version")
+
+  local expected_files =
+    {
+     ["upgrade.lua"] = true,
+     ["main.lua"] = true,
+     ["recycle.lua"] = true,
+     ["objective.lua"] = true,
+     ["quest.lua"] = true,
+     ["questlog.lua"] = true,
+     ["utility.lua"] = true,
+     ["dodads.lua"] = true,
+     ["graph.lua"] = true,
+     ["teleport.lua"] = true,
+     ["pathfinding.lua"] = true,
+     ["routing.lua"] = true,
+     ["custom.lua"] = true,
+     ["menu.lua"] = true,
+     ["hidden.lua"] = true,
+     ["nag.lua"] = true,
+     ["comm.lua"] = true,
+     ["mapbutton.lua"] = true,
+     ["help.lua"] = true,
+     ["pattern.lua"] = true,
+     ["flightpath.lua"] = true,
+     ["tracker.lua"] = true,
+     ["objtips.lua"] = true,
+     ["cartographer.lua"] = true,
+     ["tomtom.lua"] = true,
+     ["textviewer.lua"] = true
+    }
+
+  for file, version in pairs(QuestHelper_File) do
+    if not expected_files[file] then
+      DEFAULT_CHAT_FRAME:AddMessage("Unexpected QuestHelper file: "..file)
+      file_problem = true
+    elseif version ~= expected_version then
+      DEFAULT_CHAT_FRAME:AddMessage("Wrong version of QuestHelper file: "..file.." (found '"..version.."', should be '"..expected_version.."')")
+      if version ~= "Development Version" and expected_version ~= "Development Version" then
+        -- Developers are allowed to mix dev versions with release versions
         file_problem = true
       end
     end
-    
-    -- Don't need this table anymore.
-    QuestHelper_File = nil
-    
-    if file_problem then
-      DEFAULT_CHAT_FRAME:AddMessage("QuestHelper hasn't been installed properly.")
-      message("QuestHelper hasn't been installed properly.")
-      QuestHelper = nil     -- Just in case anybody else is checking for us, we're not home
-      return
+  end
+
+  for file in pairs(expected_files) do
+    if not QuestHelper_File[file] then
+      DEFAULT_CHAT_FRAME:AddMessage("Missing QuestHelper file: "..file)
+      file_problem = true
     end
-    
-    if not QuestHelper_StaticData then
-      -- If there is no static data for some mysterious reason, create an empty table so that
-      -- other parts of the code can carry on as usual, using locally collected data if it exists.
-      QuestHelper_StaticData = {}
+  end
+
+  -- Don't need this table anymore.
+  QuestHelper_File = nil
+
+  if file_problem then
+    DEFAULT_CHAT_FRAME:AddMessage("QuestHelper hasn't been installed properly.")
+    message("QuestHelper hasn't been installed properly.")
+    QuestHelper = nil     -- Just in case anybody else is checking for us, we're not home
+    return
+  end
+
+  if not QuestHelper_StaticData then
+    -- If there is no static data for some mysterious reason, create an empty table so that
+    -- other parts of the code can carry on as usual, using locally collected data if it exists.
+    QuestHelper_StaticData = {}
+  end
+
+  QHFormatSetLocale(QuestHelper_Pref.locale or GetLocale())
+
+  if not QuestHelper_UID then
+    QuestHelper_UID = self:CreateUID()
+  end
+  QuestHelper_SaveDate = time()
+
+  QuestHelper_BuildZoneLookup()
+
+  if QuestHelper_Locale ~= GetLocale() then
+    self:TextOut(QHText("LOCALE_ERROR"))
+    return
+  end
+
+  self.Astrolabe = DongleStub("Astrolabe-0.4")
+
+  if not self:ZoneSanity() then
+    self:TextOut(QHText("ZONE_LAYOUT_ERROR"))
+    message("QuestHelper: "..QHText("ZONE_LAYOUT_ERROR"))
+    return
+  end
+
+  QuestHelper_UpgradeDatabase(_G)
+  QuestHelper_UpgradeComplete()
+
+  if QuestHelper_SaveVersion ~= 8 then
+    self:TextOut(QHText("DOWNGRADE_ERROR"))
+    return
+  end
+
+  self.player_level = UnitLevel("player")
+
+  self:ResetPathing()
+
+  self:UnregisterEvent("VARIABLES_LOADED")
+  self:RegisterEvent("PLAYER_TARGET_CHANGED")
+  self:RegisterEvent("LOOT_OPENED")
+  self:RegisterEvent("QUEST_COMPLETE")
+  self:RegisterEvent("QUEST_LOG_UPDATE")
+  self:RegisterEvent("QUEST_PROGRESS")
+  self:RegisterEvent("MERCHANT_SHOW")
+  self:RegisterEvent("QUEST_DETAIL")
+  self:RegisterEvent("TAXIMAP_OPENED")
+  self:RegisterEvent("PLAYER_CONTROL_GAINED")
+  self:RegisterEvent("PLAYER_CONTROL_LOST")
+  self:RegisterEvent("PLAYER_LEVEL_UP")
+  self:RegisterEvent("PARTY_MEMBERS_CHANGED")
+  self:RegisterEvent("CHAT_MSG_ADDON")
+  self:RegisterEvent("CHAT_MSG_SYSTEM")
+  self:RegisterEvent("BAG_UPDATE")
+  self:RegisterEvent("GOSSIP_SHOW")
+
+  for key, def in pairs(QuestHelper_DefaultPref) do
+    if QuestHelper_Pref[key] == nil then
+      QuestHelper_Pref[key] = def
     end
-    
-    QHFormatSetLocale(QuestHelper_Pref.locale or GetLocale())
-    
-    if not QuestHelper_UID then
-      QuestHelper_UID = self:CreateUID()
+  end
+
+  self:SetLocaleFonts()
+
+  if QuestHelper_Pref.share and not QuestHelper_Pref.solo then
+    self:EnableSharing()
+  end
+
+  if QuestHelper_Pref.hide then
+    self.map_overlay:Hide()
+  end
+
+  self:HandlePartyChange()
+
+  -- Not nagging; my email isn't working properly and I don't want to worry about it.
+  --self:Nag("all")
+
+  for locale in pairs(QuestHelper_StaticData) do
+    if locale ~= self.locale then
+      -- Will delete references to locales you don't use.
+      QuestHelper_StaticData[locale] = nil
     end
-    QuestHelper_SaveDate = time()
-    
-    QuestHelper_BuildZoneLookup()
-    
-    if QuestHelper_Locale ~= GetLocale() then
-      self:TextOut(QHText("LOCALE_ERROR"))
-      return
-    end
-    
-    self.Astrolabe = DongleStub("Astrolabe-0.4")
-    
-    if not self:ZoneSanity() then
-      self:TextOut(QHText("ZONE_LAYOUT_ERROR"))
-      message("QuestHelper: "..QHText("ZONE_LAYOUT_ERROR"))
-      return
-    end
-    
-    QuestHelper_UpgradeDatabase(_G)
-    QuestHelper_UpgradeComplete()
-    
-    if QuestHelper_SaveVersion ~= 8 then
-      self:TextOut(QHText("DOWNGRADE_ERROR"))
-      return
-    end
-    
-    self.player_level = UnitLevel("player")
-    
-    self:ResetPathing()
-    
-    self:UnregisterEvent("VARIABLES_LOADED")
-    self:RegisterEvent("PLAYER_TARGET_CHANGED")
-    self:RegisterEvent("LOOT_OPENED")
-    self:RegisterEvent("QUEST_COMPLETE")
-    self:RegisterEvent("QUEST_LOG_UPDATE")
-    self:RegisterEvent("QUEST_PROGRESS")
-    self:RegisterEvent("MERCHANT_SHOW")
-    self:RegisterEvent("QUEST_DETAIL")
-    self:RegisterEvent("TAXIMAP_OPENED")
-    self:RegisterEvent("PLAYER_CONTROL_GAINED")
-    self:RegisterEvent("PLAYER_CONTROL_LOST")
-    self:RegisterEvent("PLAYER_LEVEL_UP")
-    self:RegisterEvent("PARTY_MEMBERS_CHANGED")
-    self:RegisterEvent("CHAT_MSG_ADDON")
-    self:RegisterEvent("CHAT_MSG_SYSTEM")
-    self:RegisterEvent("BAG_UPDATE")
-    self:RegisterEvent("GOSSIP_SHOW")
-    
-    for key, def in pairs(QuestHelper_DefaultPref) do
-      if QuestHelper_Pref[key] == nil then
-        QuestHelper_Pref[key] = def
+  end
+
+  local static = QuestHelper_StaticData[self.locale]
+
+  if static then
+    if static.flight_instructors then for faction in pairs(static.flight_instructors) do
+      if faction ~= self.faction then
+        -- Will delete references to flight instructors that don't belong to your faction.
+        static.flight_instructors[faction] = nil
       end
-    end
-    
-    self:SetLocaleFonts()
-    
-    if QuestHelper_Pref.share and not QuestHelper_Pref.solo then
-      self:EnableSharing()
-    end
-    
-    if QuestHelper_Pref.hide then
-      self.map_overlay:Hide()
-    end
-    
-    self:HandlePartyChange()
-    
-    -- Not nagging; my email isn't working properly and I don't want to worry about it.
-    --self:Nag("all")
-    
-    for locale in pairs(QuestHelper_StaticData) do
-      if locale ~= self.locale then
-        -- Will delete references to locales you don't use.
-        QuestHelper_StaticData[locale] = nil
+    end end
+
+    if static.quest then for faction in pairs(static.quest) do
+      if faction ~= self.faction then
+        -- Will delete references to quests that don't belong to your faction.
+        static.quest[faction] = nil
       end
-    end
-    
-    local static = QuestHelper_StaticData[self.locale]
-    
-    if static then
-      if static.flight_instructors then for faction in pairs(static.flight_instructors) do
-        if faction ~= self.faction then
-          -- Will delete references to flight instructors that don't belong to your faction.
-          static.flight_instructors[faction] = nil
-        end
-      end end
-      
-      if static.quest then for faction in pairs(static.quest) do
-        if faction ~= self.faction then
-          -- Will delete references to quests that don't belong to your faction.
-          static.quest[faction] = nil
-        end
-      end end
-    end
-    
-    -- Adding QuestHelper_CharVersion, so I know if I've already converted this characters saved data.
-    if not QuestHelper_CharVersion then
-      -- Changing per-character flight routes, now only storing the flight points they have,
-      -- will attempt to guess the routes from this.
-      local routes = {}
-      
-      for i, l in pairs(QuestHelper_KnownFlightRoutes) do
-        for key in pairs(l) do
-          routes[key] = true
-        end
-      end
-      
-      QuestHelper_KnownFlightRoutes = routes
-      
-      -- Deleting the player's home again.
-      -- But using the new CharVersion variable I'm adding is cleaner that what I was doing, so I'll go with it.
-      QuestHelper_Home = nil
-      QuestHelper_CharVersion = 1
-    end
-    
-    if not QuestHelper_Home then
-      -- Not going to bother complaining about the player's home not being set, uncomment this when the home is used in routing.
-      -- self:TextOut(QHText("HOME_NOT_KNOWN"))
-    end
-    
-    self.minimap_dodad = self:CreateMipmapDodad()
-    
-    if QuestHelper_Pref.map_button then
-        QuestHelper:InitMapButton()
-    end
-    
-    if QuestHelper_Pref.cart_wp then
-      self:EnableCartographer()
-    end
-    
-    if QuestHelper_Pref.tomtom_wp then
-      self:EnableTomTom()
-    end
-    
-    self.tracker:SetScale(QuestHelper_Pref.track_scale)
-    
-    if QuestHelper_Pref.track and not QuestHelper_Pref.hide then
-      self:ShowTracker()
-    end
-    
-    local version = GetAddOnMetadata("QuestHelper", "Version") or "Unknown"
-    if QuestHelper_Version ~= version then
-      QuestHelper_Version = version
-      self:ChangeLog()
-    end
-    
-    self:SetScript("OnUpdate", self.OnUpdate)
-    
-    collectgarbage("collect") -- Free everything we aren't using.
-    
-    if self.debug_objectives then
-      for name, data in pairs(self.debug_objectives) do
-        self:LoadDebugObjective(name, data)
+    end end
+  end
+
+  -- Adding QuestHelper_CharVersion, so I know if I've already converted this characters saved data.
+  if not QuestHelper_CharVersion then
+    -- Changing per-character flight routes, now only storing the flight points they have,
+    -- will attempt to guess the routes from this.
+    local routes = {}
+
+    for i, l in pairs(QuestHelper_KnownFlightRoutes) do
+      for key in pairs(l) do
+        routes[key] = true
       end
     end
 
-    self.Routing:Initialize()       -- Set up the routing task
+    QuestHelper_KnownFlightRoutes = routes
+
+    -- Deleting the player's home again.
+    -- But using the new CharVersion variable I'm adding is cleaner that what I was doing, so I'll go with it.
+    QuestHelper_Home = nil
+    QuestHelper_CharVersion = 1
+  end
+
+  if not QuestHelper_Home then
+    -- Not going to bother complaining about the player's home not being set, uncomment this when the home is used in routing.
+    -- self:TextOut(QHText("HOME_NOT_KNOWN"))
+  end
+
+  self.minimap_dodad = self:CreateMipmapDodad()
+
+  if QuestHelper_Pref.map_button then
+      QuestHelper:InitMapButton()
+  end
+
+  if QuestHelper_Pref.cart_wp then
+    self:EnableCartographer()
+  end
+
+  if QuestHelper_Pref.tomtom_wp then
+    self:EnableTomTom()
+  end
+
+  self.tracker:SetScale(QuestHelper_Pref.track_scale)
+
+  if QuestHelper_Pref.track and not QuestHelper_Pref.hide then
+    self:ShowTracker()
+  end
+
+  local version = GetAddOnMetadata("QuestHelper", "Version") or "Unknown"
+  if QuestHelper_Version ~= version then
+    QuestHelper_Version = version
+    self:ChangeLog()
+  end
+
+  self:SetScript("OnUpdate", self.OnUpdate)
+
+  collectgarbage("collect") -- Free everything we aren't using.
+
+  if self.debug_objectives then
+    for name, data in pairs(self.debug_objectives) do
+      self:LoadDebugObjective(name, data)
+    end
+  end
+
+  self.Routing:Initialize()       -- Set up the routing task
 end
 
 function QuestHelper:OnEvent(event)
   if event == "VARIABLES_LOADED" then
     self:Initialize()
   end
-  
+
   if event == "GOSSIP_SHOW" then
     local name, id = UnitName("npc"), self:GetUnitID("npc")
     if name and id then
@@ -398,32 +398,32 @@ function QuestHelper:OnEvent(event)
       --self:TextOut("NPC: "..name.." = "..id)
     end
   end
-  
+
   if event == "PLAYER_TARGET_CHANGED" then
     local name, id = UnitName("target"), self:GetUnitID("target")
     if name and id then
       self:GetObjective("monster", name).o.id = id
       --self:TextOut("Target: "..name.." = "..id)
     end
-    
+
     if UnitExists("target") and UnitIsVisible("target") and UnitCreatureType("target") ~= "Critter" and not UnitIsPlayer("target") and not UnitPlayerControlled("target") then
       local index, x, y = self:UnitPosition("target")
-      
+
       if index then -- Might not have a position if inside an instance.
         local w = 0.1
-        
+
         -- Modify the weight based on how far they are from us.
         -- We don't know the exact location (using our own location), so the farther, the less sure we are that it's correct.
         if CheckInteractDistance("target", 3) then w = 1
         elseif CheckInteractDistance("target", 2) then w = 0.89
         elseif CheckInteractDistance("target", 1) or CheckInteractDistance("target", 4) then w = 0.33 end
-        
+
         local monster_objective = self:GetObjective("monster", UnitName("target"))
         self:AppendObjectivePosition(monster_objective, index, x, y, w)
-        
+
         monster_objective.o.faction = (UnitFactionGroup("target") == "Alliance" and 1) or
                                       (UnitFactionGroup("target") == "Horde" and 2) or nil
-        
+
         local level = UnitLevel("target")
         if level and level >= 1 then
           local w = monster_objective.o.levelw or 0
@@ -433,19 +433,19 @@ function QuestHelper:OnEvent(event)
       end
     end
   end
-  
+
   if event == "LOOT_OPENED" then
     local target = UnitName("target")
     if target and UnitIsDead("target") and UnitCreatureType("target") ~= "Critter" and not UnitIsPlayer("target") and not UnitPlayerControlled("target") then
       local index, x, y = self:UnitPosition("target")
-      
+
       local monster_objective = self:GetObjective("monster", target)
       monster_objective.o.looted = (monster_objective.o.looted or 0) + 1
-      
+
       if index then -- Might not have a position if inside an instance.
         self:AppendObjectivePosition(monster_objective, index, x, y)
       end
-      
+
       for i = 1, GetNumLootItems() do
         local icon, name, number, rarity = GetLootSlotInfo(i)
         if name then
@@ -455,7 +455,7 @@ function QuestHelper:OnEvent(event)
             local total = (name:match(COPPER_AMOUNT:gsub("%%d", "%(%%d+%)")) or 0) +
                           (name:match(SILVER_AMOUNT:gsub("%%d", "%(%%d+%)")) or 0) * 100 +
                           (name:match(GOLD_AMOUNT:gsub("%%d", "%(%%d+%)")) or 0) * 10000
-            
+
             if total > 0 then
               self:AppendObjectiveDrop(self:GetObjective("item", "money"), target, total)
             end
@@ -464,7 +464,7 @@ function QuestHelper:OnEvent(event)
       end
     else
       local container = nil
-      
+
       -- Go through the players inventory and look for a locked item, we're probably looting it.
       for bag = 0,NUM_BAG_SLOTS do
         for slot = 1,GetContainerNumSlots(bag) do
@@ -480,11 +480,11 @@ function QuestHelper:OnEvent(event)
           end
         end
       end
-      
+
       if container then
         local container_objective = self:GetObjective("item", container)
         container_objective.o.opened = (container_objective.o.opened or 0) + 1
-        
+
         for i = 1, GetNumLootItems() do
           local icon, name, number, rarity = GetLootSlotInfo(i)
           if name and number >= 1 then
@@ -494,7 +494,7 @@ function QuestHelper:OnEvent(event)
       else
         -- No idea where the items came from.
         local index, x, y = self:PlayerPosition()
-        
+
         if index then
           for i = 1, GetNumLootItems() do
             local icon, name, number, rarity = GetLootSlotInfo(i)
@@ -506,49 +506,49 @@ function QuestHelper:OnEvent(event)
       end
     end
   end
-  
+
   if event == "CHAT_MSG_SYSTEM" then
     local home_name = self:convertPattern(ERR_DEATHBIND_SUCCESS_S)(arg1)
     if home_name then
       if self.i then
         self:TextOut(QHText("HOME_CHANGED"))
         self:TextOut(QHText("WILL_RESET_PATH"))
-        
+
         local home = QuestHelper_Home
         if not home then
           home = {}
           QuestHelper_Home = home
         end
-        
+
         home[1], home[2], home[3], home[4] = self.i, self.x, self.y, home_name
         self.defered_graph_reset = true
       end
     end
   end
-  
+
   if event == "CHAT_MSG_ADDON" then
     if arg1 == "QHpr" and (arg3 == "PARTY" or arg3 == "WHISPER") and arg4 ~= UnitName("player") then
       self:HandleRemoteData(arg2, arg4)
     end
   end
-  
+
   if event == "PARTY_MEMBERS_CHANGED" then
     self:HandlePartyChange()
   end
-  
+
   if event == "QUEST_LOG_UPDATE" or
      event == "PLAYER_LEVEL_UP" or
      event == "PARTY_MEMBERS_CHANGED" then
     self.defered_quest_scan = true
   end
-  
+
   if event == "QUEST_DETAIL" then
     if not self.quest_giver then self.quest_giver = {} end
     local npc = UnitName("npc")
     if npc then
       -- Some NPCs aren't actually creatures, and so their positions might not be marked by PLAYER_TARGET_CHANGED.
       local index, x, y = self:UnitPosition("npc")
-      
+
       if index then -- Might not have a position if inside an instance.
         local npc_objective = self:GetObjective("monster", npc)
         self:AppendObjectivePosition(npc_objective, index, x, y)
@@ -556,7 +556,7 @@ function QuestHelper:OnEvent(event)
       end
     end
   end
-  
+
   if event == "QUEST_COMPLETE" or event == "QUEST_PROGRESS" then
     local quest = GetTitleText()
     if quest then
@@ -566,16 +566,16 @@ function QuestHelper:OnEvent(event)
         return
       end
       local q = self:GetQuest(quest, level, hash)
-      
+
       if q.need_hash then
         q.o.hash = hash
       end
-      
+
       local unit = UnitName("npc")
       if unit then
         q.o.finish = unit
         q.o.pos = nil
-        
+
         -- Some NPCs aren't actually creatures, and so their positions might not be marked by PLAYER_TARGET_CHANGED.
         local index, x, y = self:UnitPosition("npc")
         if index then -- Might not have a position if inside an instance.
@@ -590,7 +590,7 @@ function QuestHelper:OnEvent(event)
       end
     end
   end
-  
+
   if event == "MERCHANT_SHOW" then
     local npc_name = UnitName("npc")
     if npc_name then
@@ -621,19 +621,19 @@ function QuestHelper:OnEvent(event)
       end
     end
   end
-  
+
   if event == "TAXIMAP_OPENED" then
     self:taxiMapOpened()
   end
-  
+
   if event == "PLAYER_CONTROL_GAINED" then
     self:flightEnded()
   end
-  
+
   if event == "PLAYER_CONTROL_LOST" then
     self:flightBegan()
   end
-  
+
   if event == "BAG_UPDATE" then
     for slot = 1,GetContainerNumSlots(arg1) do
       local link = GetContainerItemLink(arg1, slot)
@@ -680,9 +680,9 @@ function QuestHelper:OnUpdate()
       delayed_action = 100
       self:HandlePartyChange()
     end
-    
+
     local nc, nz, nx, ny = self.Astrolabe:GetCurrentPlayerPosition()
-    
+
     if nc and nc == self.c and map_shown_decay > 0 and self.z > 0 and self.z ~= nz then
       -- There's a chance Astrolable will return the wrong zone if you're messing with the world map, if you can
       -- be seen in that zone but aren't in it.
@@ -705,12 +705,12 @@ function QuestHelper:OnUpdate()
       self.c, self.z, self.x, self.y = nc, nz, nx, ny
       self.i = QuestHelper_IndexLookup[nc][nz]
     end
-    
+
     if self.defered_quest_scan and not self.graph_in_limbo then
       self.defered_quest_scan = false
       self:ScanQuestLog()
     end
-    
+
     if self.c then
       self:RunCoroutine()
     end
