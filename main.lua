@@ -59,7 +59,7 @@ QuestHelper.locale = QuestHelper_Locale
 QuestHelper.faction = (UnitFactionGroup("player") == "Alliance" and 1) or
                       (UnitFactionGroup("player") == "Horde" and 2)
 
---[[ assert(QuestHelper.faction) ]]
+assert(QuestHelper.faction)
 
 QuestHelper.font = {serif=GameFontNormal:GetFont(), sans=ChatFontNormal:GetFont(), fancy=QuestTitleFont:GetFont()}
 
@@ -154,8 +154,7 @@ function QuestHelper:UnsetTargetLocation()
   end
 end
 
-function QuestHelper:OnEvent(event)
-  if event == "VARIABLES_LOADED" then
+function QuestHelper:Initialize()
     local file_problem = false
     local expected_version = GetAddOnMetadata("QuestHelper", "Version")
     
@@ -258,8 +257,6 @@ function QuestHelper:OnEvent(event)
     self.player_level = UnitLevel("player")
     
     self:ResetPathing()
-
-    self.Routing:Initialize()       -- Set up the routing task
     
     self:UnregisterEvent("VARIABLES_LOADED")
     self:RegisterEvent("PLAYER_TARGET_CHANGED")
@@ -385,6 +382,13 @@ function QuestHelper:OnEvent(event)
         self:LoadDebugObjective(name, data)
       end
     end
+
+    self.Routing:Initialize()       -- Set up the routing task
+end
+
+function QuestHelper:OnEvent(event)
+  if event == "VARIABLES_LOADED" then
+    self:Initialize()
   end
   
   if event == "GOSSIP_SHOW" then
