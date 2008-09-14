@@ -447,7 +447,9 @@ if archive_zip or archive_7z then
       if debug_build then
         FileUtil.copyFile(file, "QuestHelper")
       else
-        FileUtil.copyFile(file, "QuestHelper", "(assert%s*%b())", "--[[ %1 ]]",
+        FileUtil.copyFile(file, "QuestHelper",
+                                               "(assert%s*%b())", "--[[ %1 ]]",
+                                               "(QuestHelper:Assert%s*%b())", "--[[ %1 ]]",
                                                "^(QuestHelper_File%[[^%]]*%]%s*=%s*).+$", file_version_pattern)
       end
     end
