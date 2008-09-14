@@ -23,3 +23,22 @@ AddLoc in objective.lua is important. It's combining chunks of points in some ma
 what's the difference between .o. and .fb.?
 
 
+
+
+Graph nodes contain a few temporary values that seem to be essentially globals
+.e: distance to zone boundary, I think? Maybe "closest distance we've found"?
+.w: always 1?
+.s: "state", uncertain meaning. 3 and 4 seem to mean visited, 0 and 1 mean something else.
+.g: cost made by the graph
+
+
+
+The standard shortest-path functions all work pretty much the same way and have a ton of duplicated code (todo: unduplicate code)
+
+The most basic one is ComputeTravelTime. It takes two points and finds the shortest path between them (actually, it's buggy, it finds the shortest path to get from A to the zone B is in, then goes to B from there. We'll ignore this.)
+
+Next is ComputeRoute. I think this does the same thing, only it also returns the last travel point the route goes through. It is buggy in the same way.
+
+After that there's ObjectiveTravelTime. It does almost exactly the same thing, only it goes from a point to a *set* of points. Naturally, the arguments are in reverse order, because the codebase is retarded. It also does something with weighting that I don't yet understand. It is likewise buggy.
+
+Finally, there's ObjectiveTravelTime2. That function name? That's the mark of *quality*. It goes from a point, to a set of points, to a point. Actually it goes point->set and point->set simultaneously. This is important because, due to the bugs, its paths are not symmetrical. It also fucks with weighting. Right now? It doesn't do any of that. It's implemented as a call to ObjectiveTravelTime and a call to ComputeRoute, meaning it's somewhat less efficient and makes me far, far happier.
