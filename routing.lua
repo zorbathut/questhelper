@@ -43,13 +43,16 @@ local Route = {}
 Route.__index = Route
 Routing.Route = Route       -- Make it available as a member
 
+-- This should pass on all routes. If it does not, *things need to be fixed*. No, commenting tests out is not an adequate response - this *must* pass. Eventually this will get rolled into the unsucky Route class.
 function Route:sanity()
+  
   local assert = assert
   
   if QuestHelper.Error then
     assert = function(a, b)
       if not a then
         QuestHelper:TextOut("Route:sanity(): id="..self.id.."; best_route="..Routing.best_route.id)
+        QuestHelper:TextOut(QuestHelper:StringizeRecursive(self, 2))
         QuestHelper:Error(b or "Assertion Failed")
       end
     end
@@ -57,11 +60,16 @@ function Route:sanity()
   
   local l = 0
   
+  --QuestHelper:TextOut(QuestHelper:StringizeTable(self))
   for i = 0,#self-1 do
+    --QuestHelper:TextOut(tostring(i))
+    --QuestHelper:TextOut(QuestHelper:StringizeTable(self[i]))
+    --QuestHelper:TextOut(tostring(self[i].len))
     assert(self[i].len)
     l = l + self[i].len
   end
   
+  --QuestHelper:TextOut("sd: "..l.." rd: "..self.distance)
   assert(math.abs(l-self.distance) < 0.0001)
   
   for i, info in ipairs(self) do
@@ -73,10 +81,10 @@ function Route:sanity()
     assert(self[i].obj == obj)
   end
   
-  --for i = 1, #self-1 do
-  --  local l = QuestHelper:ComputeTravelTime(self[i].pos, self[i+1].pos)
-  --  assert(math.abs(l-self[i].len) < 0.0001)
-  --end
+  for i = 1, #self-1 do
+    local l = QuestHelper:ComputeTravelTime(self[i].pos, self[i+1].pos, true)
+    assert(math.abs(l-self[i].len) < 0.0001, "Compare at "..i..": "..l.." vs "..self[i].len)
+  end
   
   return true
 end
@@ -244,6 +252,7 @@ function Route:addObjectiveFast(obj)
     
     local previnfo = self[index-1]
     d1, d2, info.pos = obj:TravelTime2(previnfo.pos, self[index].pos, previnfo.no_cache)
+    
     info.len = d2
     self.distance = self.distance + (d1 - previnfo.len + d2)
     previnfo.len = d1
@@ -286,22 +295,26 @@ function Route:addObjectiveBest(obj, old_index, old_distance)
     return 1
   end
   
+  local sanityfixed = nil -- If we've done something to improve the sanity of the overall path, i.e. force the path into a situation where it's no longer trying to turn in quests before the quest has been completed, then we definitely want to accept this path overall. Before, this wasn't a problem, since this function was so unstable that it would randomly change the path anyway, and it doesn't *break* things once they're fixed. Now that we have a check that this function actually *improves* the path, we need a slightly more complicated definition of "improve". Ideally, that shouldn't be necessary, but for now it is (until, at least, this function actually puts things in the best location, and that will have to wait until the get-optimal-path functions actually get optimal paths.)
+  
   local best_index, best_delta, best_d1, best_d2, best_p
   local no_cache, prev_pos, prev_len
   local mn, mx = self:findObjectiveRange(obj)
-
+  
   if old_index and mn <= old_index and old_index <= mx then
     -- We're trying to re-evaluate it, and it could remain in the same place.
     -- So that place is our starting best known place.
     best_index, best_delta = old_index, old_distance - self.distance
-
+    
     if best_delta < 0 then
       -- Somehow, removing the objective actually made the route worse...
       -- Just re-figure things from scratch.
+      -- TODO: THIS SHOULD NEVER HAPPEN dear god find out what's causing this and stop it
+      --QuestHelper:TextOut("made route worse wtf")
       best_index, best_delta = nil, nil
     end
   end
-
+  
   local pinfo = self[mn-1]
   no_cache, prev_pos, prev_len = pinfo.no_cache, pinfo.pos, pinfo.len
   
@@ -346,7 +359,7 @@ function Route:addObjectiveBest(obj, old_index, old_distance)
       self.distance = self.distance + delta
       table.insert(self, info)
       indexes[obj] = mx
-
+      
       assert(self:sanity())
       
       return mx
@@ -362,6 +375,13 @@ function Route:addObjectiveBest(obj, old_index, old_distance)
   
   table.insert(self, best_index, info)
   
+  QuestHelper:Assert(math:abs(QuestHelper:ComputeTravelTime(self[best_index-1].pos, self[best_index].pos, true) - self[best_index-1].len) < 0.0001, "aaaaargh")
+  --[[    -- I don't think this is necessary now that TravelTime2 explicitly does this internally, but I'm keeping it anyway.
+  self.distance = self.distance - self[best_index-1].len
+  self[best_index-1].len = QuestHelper:ComputeTravelTime(self[best_index-1].pos, self[best_index].pos, true)
+  self.distance = self.distance + self[best_index-1].len
+  ]]
+  
   indexes[obj] = best_index
   
   for i = best_index+1,len+1 do
@@ -369,9 +389,14 @@ function Route:addObjectiveBest(obj, old_index, old_distance)
     indexes[self[i].obj] = i
   end
   
+  if not old_index or (mn > old_index or old_index > mx) and mn <= best_index and best_index <= mx then
+    -- if we didn't have an old index, or our old index was out of bounds and our best index is in bounds, then we've done something Majorly Good and we should be using this path even if the old one was faster
+    sanityfixed = 1
+  end
+  
   assert(self:sanity())
   
-  return best_index
+  return best_index, sanityfixed
 end
 
 function Route:removeObjective(obj)
@@ -400,7 +425,7 @@ function Route:removeObjective(obj)
     local no_cache = (index == 1)
     
     local d1, d2
-
+    
     if info2 then
       d1, d2, info1.pos = info1.obj:TravelTime2(pinfo.pos, info2.pos, no_cache)
       QuestHelper:yieldIfNeeded(1)
@@ -492,7 +517,7 @@ function Route:breed(route_map)
     
     QuestHelper:yieldIfNeeded(0.01*len)
   end
-
+  
   -- Record info for the 'Player Position' objective, so we don't mess it up later
   seen[self[0].obj] = self[0].pos
   
@@ -501,7 +526,7 @@ function Route:breed(route_map)
   indexes[obj] = 1
   seen[obj] = info.pos      -- Save its position, because we don't want to clobber any of the info objects yet
   prev_pos = info.pos
-
+  
   last = links[obj]
   links[obj] = nil
   
@@ -587,7 +612,7 @@ function Route:breed(route_map)
     info.obj, info.pos = obj, seen[obj]
     seen[obj] = nil
   end
-
+  
   -- Now randomly randomize some of the route (aka mutation)
   while math.random() > 0.3 do
     local l = math.floor(math.random()^1.6*(len-1))+1
@@ -599,11 +624,14 @@ function Route:breed(route_map)
       self[i+k], self[j-k] = self[j-k], self[i+k]
     end
   end
-
+  
   -- But wait, after all that some objectives might violate the rules.  Make sure the route follows
   -- the rules.
   local invalid = true
+  local invalid_passes = 0
   while invalid do
+    invalid_passes = invalid_passes + 1
+    QuestHelper:Assert(invalid_passes <= 100, "Too many mutation passes needed to preserve sanity, something has gone Horribly Wrong, please report this as a bug (you will probably need to restart WoW, sorry about that)")
     invalid = false
     local i = 1
     while i <= #self do
@@ -633,7 +661,7 @@ function Route:breed(route_map)
       i = i + 1
     end
   end
-
+  
   -- Now that we've chosen a route, re-calculate the cost of each leg of the route
   local distance = 0
   local prev_info = self[0]
@@ -662,7 +690,7 @@ function Route:breed(route_map)
     info.len = d2
     info.pos = pos
     distance = distance + d1
-
+    
     prev_info = info
     prev_pos = pos
   end
@@ -671,7 +699,7 @@ function Route:breed(route_map)
   
   indexes[self[len].obj] = len
   self[len].len = 0
-
+  
   assert(self:sanity())
 end
 
@@ -712,7 +740,7 @@ function Routing:RoutingSetup()
   Routing.map_walker = self.qh:CreateWorldMapWalker()
   Routing.add_swap = {}
   Routing.routes = {}
-
+  
   local routes = Routing.routes
   local pos = QuestHelper.pos
   local PlayerObjective = self.qh:NewObjectiveObject()  -- Pseudo-objective which reflects player's current position.  Always at index 0 of each route.
@@ -732,24 +760,24 @@ function Routing:RoutingSetup()
     setmetatable(new_rt, Route)
     routes[new_rt] = true
   end
-
+  
   -- All the routes are the same right now, so it doesn't matter which we're considering the best.
   self.best_route = next(routes)
   self.recheck_position = 1
-
+  
 end
 
 function Routing:RouteUpdateRoutine()
   local qh = QuestHelper
   local map_walker = Routing.map_walker
   local minimap_dodad = qh.minimap_dodad
-
+  
   local route = qh.route
   local to_add, to_remove, add_swap = qh.to_add, qh.to_remove, self.add_swap
-
+  
   local routes = self.routes
   local pos = qh.pos
-
+  
   local best_route = self.best_route
   
   while true do
@@ -830,33 +858,84 @@ function Routing:RouteUpdateRoutine()
         
         -- Make sure the objective in best_route is still in a valid position.
         -- Won't worry about other routes, they should forced into valid configurations by breeding.
+        
+         -- This is a temporary, horrible hack - we want to do a "best" test without actually clobbering our old route, so we're making a new temporary one to jam our route in for now. In theory, AddObjectiveBest should, I don't know, add it in the *best place*, but at the moment it does not necessarily, thus this nastiness.
+        local aobt = {}
+        setmetatable(aobt, getmetatable(best_route))
+        for k, v in pairs(best_route) do
+          aobt[k] = v
+        end
+        aobt.index = {}
+        for k, v in ipairs(best_route) do
+          -- arglbargl
+          aobt[k] = QuestHelper:CreateTable("AOBT idiocy")
+          for t, q in pairs(v) do
+            aobt[k][t] = q
+          end
+          aobt.index[aobt[k].obj] = k
+        end
+        if aobt[0] then
+          aobt[0] = QuestHelper:CreateTable("AOBT idiocy")
+          for t, q in pairs(best_route[0]) do
+            aobt[0][t] = q
+          end
+        end
+        -- Actually duplicating a route is irritatingly hard (this is another thing which will be fixed eventually dammit)
+        
+        aobt:sanity()
+        best_route:sanity()
+        
         local old_distance, old_index = best_route.distance, best_route:removeObjective(o)
-        local new_index = best_route:addObjectiveBest(o, old_index, old_distance)
+        local old_real_distance = best_route.distance + qh:ComputeTravelTime(pos, best_route[1].pos)  -- part of hack
+        local new_index, sanityfixed = best_route:addObjectiveBest(o, old_index, old_distance)
+        local new_real_distance = best_route.distance + qh:ComputeTravelTime(pos, best_route[1].pos)  -- part of hack
         
-        if old_index > new_index then
-          old_index, new_index = new_index, old_index
-        end
+        if new_real_distance < old_real_distance or sanityfixed then -- More of the temporary hack
+          -- If we're using the new path . . .
         
-        for i = math.max(1, old_index-1), new_index do
-          local info = best_route[i]
-          local obj = info.obj
-          obj.pos = info.pos
-          route[i] = obj
-        end
+          if old_index > new_index then
+            old_index, new_index = new_index, old_index
+          end
+          
+          for i = math.max(1, old_index-1), new_index do
+            local info = best_route[i]
+            local obj = info.obj
+            obj.pos = info.pos
+            route[i] = obj
+          end
+          
+          
+          if old_index ~= new_index then
+            if old_index == 1 then
+              minimap_dodad:SetObjective(route[1])
+            end
+            
+            changed = true
+          end
+          
+          -- . . . release our backup path
+          for k, v in ipairs(aobt) do QuestHelper:ReleaseTable(v) end
+          QuestHelper:ReleaseTable(aobt[0])
+        else  -- hack (everything in this conditional besides the above chunk is a horrible hack)
+          -- If we're using the old path . . .
+          -- . . . release the *internals* of the new path, then copy everything over. Eugh.
+          for k, v in ipairs(best_route) do QuestHelper:ReleaseTable(v) end
+          QuestHelper:ReleaseTable(best_route[0])
+          while #best_route > 0 do table.remove(best_route) end
+          for k, v in pairs(aobt) do best_route[k] = v end  -- hack
+          setmetatable(aobt, Route)
+          best_route:sanity()
+        end  -- hack
         
+        -- this chunk of code used to live up by old_index ~= new_index, but it obviously no longer does. should probably be moved back once Best works again
+        -- Maybe the bug he's referring to is the one I'm fighting with in this chunk of code? Hey dude, if you find a bug, *fix the damn bug don't work around it*
         --if old_index == new_index then
           -- We don't advance recheck_position unless the node doesn't get moved.
           -- TODO: As the this code is apparently bugged, it's gotten into an infinite loop of constantly swapping
           -- and hence never advancing. As a work around for now, we'll always advance.
-          self.recheck_position = self.recheck_position + 1
         --else
-        if old_index ~= new_index then
-          if old_index == 1 then
-            minimap_dodad:SetObjective(route[1])
-          end
-          
-          changed = true
-        end
+        self.recheck_position = self.recheck_position + 1
+        
       end
     end
     
@@ -884,6 +963,7 @@ function Routing:RouteUpdateRoutine()
       end
       
       obj:DoneRouting()
+      
       changed = true
     end
     
@@ -953,7 +1033,7 @@ function Routing:RouteUpdateRoutine()
       
       -- Calculate best_route first, so that if other routes are identical, we don't risk swapping with them and
       -- updating the map_walker.
-      local best, max_fitness = best_route, 1/(qh:ComputeTravelTime(pos, best_route[1].pos)+best_route.distance)
+      local best, max_fitness = best_route, 1/(qh:ComputeTravelTime(pos, best_route[1].pos) + best_route.distance)
       best_route.fitness = max_fitness
       
       qh:yieldIfNeeded(.3)
@@ -989,6 +1069,10 @@ function Routing:RouteUpdateRoutine()
       qh:yieldIfNeeded(.3)
       
       if best ~= best_route then
+        
+        best:sanity()
+        best_route:sanity()
+        
         best_route = best
         self.best_route = best_route
         
@@ -1071,13 +1155,13 @@ end
 
 function Routing:Initialize()
   self:RoutingSetup()
-
+  
   if coroutine.coco then
     -- coco allows yielding across c boundries, which allows me to use xpcall to get
     -- stack traces for coroutines without calls to yield resulting in thermal nuclear meltdown.
-
+    
     -- This isn't part of WoW, I was using it in my driver program: Development/routetest
-
+    
     update_route = coroutine.create(
       function()
         local state, err = xpcall(
@@ -1091,7 +1175,7 @@ function Routing:Initialize()
             return debug.traceback(tostring(err), 2)
           end
         end)
-
+        
         if not state then
           error(err, 0)
         end
