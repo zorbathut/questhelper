@@ -60,12 +60,12 @@ local function Uses(self, obj, text)
   local uses, used = self.uses, obj.used
   
   if not uses then
-    uses = QuestHelper:CreateTable()
+    uses = QuestHelper:CreateTable("uses")
     self.uses = uses
   end
   
   if not used then
-    used = QuestHelper:CreateTable()
+    used = QuestHelper:CreateTable("used")
     obj.used = used
   end
   
@@ -242,12 +242,12 @@ local function ObjectivePrepareRouting(self)
     assert(not self.nm2)
     assert(not self.nl)
     
-    self.d = QuestHelper:CreateTable()
-    self.p = QuestHelper:CreateTable()
-    self.nm = QuestHelper:CreateTable()
-    self.nm2 = QuestHelper:CreateTable()
-    self.nl = QuestHelper:CreateTable()
-    self.distance_cache = setmetatable(QuestHelper:CreateTable(), QuestHelper.weak_value_meta)
+    self.d = QuestHelper:CreateTable("objective.d")
+    self.p = QuestHelper:CreateTable("objective.p")
+    self.nm = QuestHelper:CreateTable("objective.nm")
+    self.nm2 = QuestHelper:CreateTable("objective.nm2")
+    self.nl = QuestHelper:CreateTable("objective.nl")
+    self.distance_cache = setmetatable(QuestHelper:CreateTable("objective.distance_cache"), QuestHelper.weak_value_meta)
     
     self:AppendPositions(self, 1, nil)
     self:FinishAddLoc()
@@ -433,7 +433,7 @@ local function AddLoc(self, index, x, y, w, why)
     
     local points = self.p[list]
     if not points then
-      points = QuestHelper:CreateTable()
+      points = QuestHelper:CreateTable("objective.p[zone] (objective nodes per-zone)")
       self.p[list] = points
     end
     
@@ -450,7 +450,7 @@ local function AddLoc(self, index, x, y, w, why)
       end
     end
     
-    local new = QuestHelper:CreateTable()
+    local new = QuestHelper:CreateTable("objective.p[zone] (possible objective node)")
     new[1], new[2], new[3], new[4], new[5], new[6], new[7] = list, nil, x, y, w, why, w
     table.insert(points, new)
   end
@@ -506,14 +506,14 @@ local function FinishAddLoc(self)
     assert(not dist)
     
     if not dist then
-      dist = QuestHelper:CreateTable()
+      dist = QuestHelper:CreateTable("self.d[list]")
       self.d[list] = dist
     end
     
     for i, point in ipairs(pl) do
       point[5] = mx/point[5] -- Will become 1 for the most desired location, and become larger and larger for less desireable locations.
       
-      point[2] = QuestHelper:CreateTable()
+      point[2] = QuestHelper:CreateTable("possible objective node to zone edge cache")
       
       for i, node in ipairs(list) do
         local u, v = point[3]-node.x, point[4]-node.y
@@ -559,10 +559,14 @@ local function GetPosition(self)
   return self.location
 end
 
--- Note: Pos is the starting point, the objective is the destination.
-local function ComputeTravelTime(self, pos, nocache)
+local QH_TESTCACHE = nil  -- make this "true" or something if you want to test caching (i.e. recalculate everything, then verify that the cache is valid)
+
+-- Note: Pos is the starting point, the objective is the destination. These are different data formats - "self" can be a set of points.
+-- More annotation here, if you're trying to learn the codebase. This function is a more complicated version of QH:ComputeTravelTime, so refer to that for information first before reading this one.
+local function ObjectiveTravelTime(self, pos, nocache)
   assert(self.setup)
   
+  -- The caching is pretty obvious.
   local key, cached
   if not nocache then
     assert(pos ~= QuestHelper.pos)
@@ -572,8 +576,9 @@ local function ComputeTravelTime(self, pos, nocache)
     key = pos.key
     cached = self.distance_cache[key]
     if cached then
-      -- To test the caching, comment out this line and un-comment the 'if' at the end of the function.
-      return unpack(cached)
+      if not QH_TESTCACHE then
+        return unpack(cached)
+      end
     end
   end
 
@@ -582,6 +587,7 @@ local function ComputeTravelTime(self, pos, nocache)
   
   graph:PrepareSearch()
   
+  -- This is quite similar to the same "create nodes for all zone links" in ComputeTravelTime except that it's creating nodes for all zone links for a set of possible destinations. I'm not sure if the weighting is backwards. It might be.
   for z, l in pairs(self.d) do
     for i, n in ipairs(z) do
       if n.s == 0 then
@@ -600,9 +606,11 @@ local function ComputeTravelTime(self, pos, nocache)
   
   local e = graph:DoSearch(nl)
   
+  -- d changes datatype here. I hate this codebase. Hell, e probably changes datatype also! yaaaay. what does .nm mean? what does .d mean?
   d = e.g+e.e
   e = self.nm[e]
   
+  -- There's something going on with weighting here that I don't understand
   local l = self.p[pos[1]]
   if l then
     local x, y = pos[3], pos[4]
@@ -621,19 +629,22 @@ local function ComputeTravelTime(self, pos, nocache)
   assert(e)
   if not nocache then
     assert( not cached or (cached[1] == d and cached[2] == e))
---    if not cached then
+    if not QH_TESTCACHE or not cached then
       local new = self.qh:CreateTable()
       new[1], new[2] = d, e
       self.distance_cache[key] = new
---    end
+    end
   end
+
   return d, e
 end
 
 -- Note: pos1 is the starting point, pos2 is the ending point, the objective is somewhere between them.
-local function ComputeTravelTime2(self, pos1, pos2, nocache)
+-- Yet more annotation! This one is based off ObjectiveTravelTime. Yes, it's nasty that there are three (edit: four) functions with basically the same goal. Have I mentioned this codebase kind of sucks?
+local function ObjectiveTravelTime2(self, pos1, pos2, nocache)
   assert(self.setup)
   
+  -- caching is pretty simple as usual
   local key, cached
   if not nocache then
     assert(pos1 ~= QuestHelper.pos)
@@ -648,14 +659,16 @@ local function ComputeTravelTime2(self, pos1, pos2, nocache)
     key = pos1.key..pos2.key
     cached = self.distance_cache[key]
     if cached then
-      -- To test the caching, comment out this line and un-comment the 'if' at the end of the function.
-      return unpack(cached)
+      if not QH_TESTCACHE then
+        return unpack(cached)
+      end
     end
   end
 
   local graph = self.qh.world_graph
   local nl = self.nl
   
+  -- This is the standard pos1-to-self code that we're used to seeing . . .
   graph:PrepareSearch()
   
   for z, l in pairs(self.d) do
@@ -678,6 +691,7 @@ local function ComputeTravelTime2(self, pos1, pos2, nocache)
   
   graph:PrepareSearch()
   
+  -- . . . and here's where it gets wonky
   -- Now, we need to figure out how long it takes to get to each node.
   for z, point_list in pairs(self.p) do
     if z == pos1[1] then
@@ -771,15 +785,44 @@ local function ComputeTravelTime2(self, pos1, pos2, nocache)
     end
   end
   
+  -- grim stabilization hack, since obviously the numbers it generates are only vaguely based in reality. This should be fixed and removed ASAP (you know, once I figure out WTF this thing is doing)
+  d = QuestHelper:ComputeTravelTime(pos1, e)
+  d2 = QuestHelper:ComputeTravelTime(e, pos2)
+
   assert(e)
   if not nocache then
     assert( not cached or (cached[1] == d and cached[2] == d2 and cached[3] == e))
---    if not cached then
+    if not QH_TESTCACHE or not cached then
       local new = self.qh:CreateTable()
       new[1], new[2], new[3] = d, d2, e
       self.distance_cache[key] = new
---    end
+    end
   end
+
+  --[[if pos1 and pos2 then   -- Debug code so I can maybe actually fix the problems someday
+    QuestHelper:TextOut("Beginning dumping here")
+
+    local laxa = QuestHelper:ComputeTravelTime(pos1, e, true)
+    if math.abs(laxa-d) >= 0.0001 then
+      QuestHelper:TextOut(QuestHelper:StringizeTable(pos1))
+      QuestHelper:TextOut(QuestHelper:StringizeRecursive(pos1, 2))
+      QuestHelper:TextOut(QuestHelper:StringizeTable(e))
+      QuestHelper:TextOut(QuestHelper:StringizeTable(e[1]))
+      QuestHelper:TextOut(QuestHelper:StringizeTable(e[2]))
+      QuestHelper:TextOut(QuestHelper:StringizeRecursive(e[1], 2))
+      QuestHelper:Assert(math.abs(laxa-d) < 0.0001, "Compare: "..laxa.." vs "..d)
+    end
+    local laxb = QuestHelper:ComputeTravelTime(e, pos2, true)
+    if math.abs(laxb-d2) >= 0.0001 then
+      QuestHelper:TextOut(QuestHelper:StringizeTable(pos2))
+      QuestHelper:TextOut(QuestHelper:StringizeTable(e))
+      QuestHelper:TextOut(QuestHelper:StringizeTable(e[1]))
+      QuestHelper:TextOut(QuestHelper:StringizeTable(e[2]))
+      QuestHelper:TextOut(QuestHelper:StringizeRecursive(e[1], 2))
+      QuestHelper:Assert(math.abs(laxa-d) < 0.0001, "Compare: "..laxb.." vs "..d2)
+    end
+  end]]
+
   return d, d2, e
 end
 
@@ -863,8 +906,8 @@ QuestHelper.default_objective_param =
   DoneRouting=DoneRouting,
   
   Position=GetPosition,
-  TravelTime=ComputeTravelTime,
-  TravelTime2=ComputeTravelTime2,
+  TravelTime=ObjectiveTravelTime,
+  TravelTime2=ObjectiveTravelTime2,
 
   IsWatched=IsObjectiveWatched,
   
@@ -1162,12 +1205,12 @@ function QuestHelper:ObjectiveObjectDependsOn(objective, needs)
     end
     
     if not objective.swap_after then
-      objective.swap_after = self:CreateTable()
+      objective.swap_after = self:CreateTable("swap_after")
       for key,value in pairs(objective.after) do objective.swap_after[key] = value end
     end
     
     if not needs.swap_before then
-      needs.swap_before = self:CreateTable()
+      needs.swap_before = self:CreateTable("swap_before")
       for key,value in pairs(needs.before) do needs.swap_before[key] = value end
     end
     
@@ -1285,13 +1328,13 @@ function QuestHelper:SetObjectiveProgress(objective, user, have, need)
   if have and need then
     local list = objective.progress
     if not list then
-      list = self:CreateTable()
+      list = self:CreateTable("objective.progress")
       objective.progress = list
     end
     
     local user_progress = list[user]
     if not user_progress then
-      user_progress = self:CreateTable()
+      user_progress = self:CreateTable("objective.progress[user]")
       list[user] = user_progress
     end
     
