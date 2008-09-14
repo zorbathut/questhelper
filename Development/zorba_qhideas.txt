@@ -1,8 +1,8 @@
 
-
 * See if it can be made faster, re-enable sanity checks on at least some level
 * Test to make sure qh_tabletyping is weak (weeeeeak)
 * Version number, about files
+* Make sure new asserts are actually removed
 
 * Bug: QH:ComputeTravelTime is not taking the "last leg" from the zone entry point to the destination into account when doing path optimization
 * Bug: AddObjectiveBest is not adding objectives in the best place in any sense of the word
