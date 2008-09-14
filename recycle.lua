@@ -17,16 +17,23 @@ QuestHelper.free_text = {}
 QuestHelper.used_frames = 0
 QuestHelper.free_frames = {}
 
-function QuestHelper:CreateTable()
+-- This little table rigs up a basic typing system to assist with debugging. It has weak-reference keys so it shouldn't ever lead to leaks of any kind.
+qh_tabletyping = {}
+qh_tabletyping.__mode = "k"
+
+function QuestHelper:CreateTable(tag)
   local tbl = next(self.free_tables)
   self.used_tables = self.used_tables + 1
   
-  if tbl then
-    self.free_tables[tbl] = nil
-    return setmetatable(tbl, nil)
+  if not tbl then
+    tbl = {}
   else
-    return {}
+    self.free_tables[tbl] = nil
+    setmetatable(tbl, nil)
   end
+
+  qh_tabletyping[tbl] = tag or "untyped"
+  return tbl
 end
 
 function QuestHelper:ReleaseTable(tbl)
@@ -39,6 +46,7 @@ function QuestHelper:ReleaseTable(tbl)
   
   self.used_tables = self.used_tables - 1
   self.free_tables[setmetatable(tbl, unused_meta)] = true
+  qh_tabletyping[tbl] = nil
 end
 
 function QuestHelper:CreateFrame(parent)
