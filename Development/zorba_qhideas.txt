@@ -2,18 +2,19 @@
 * Test to make sure qh_tabletyping is weak (weeeeeak)
 * Version number, about files
 * Make sure new asserts are actually removed
+  * Remove them correctly please
 * Make sure nag is on
 * Build!
 
+* See if it can be made faster, re-enable sanity checks on at least some level
+* Remove yieldIfNeeded parameters
+* Remove ConvertFaction locale
+* "Too Tough For Me" button
+* Flying mounts
 * Report errors
 * "Report problem" feature
 * Bug: Routing doesn't restart when it crashes
-* See if it can be made faster, re-enable sanity checks on at least some level
-* "Too Tough For Me" button
 * Tunable not-in-group penalties
-* Flying mounts
-* Remove yieldIfNeeded parameters
-* Remove ConvertFaction locale
 * Build!
 
 * Better data collection - collect more from more people, prompt them to upload once they have a good chunk of data
