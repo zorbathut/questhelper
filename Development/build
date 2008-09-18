@@ -45,7 +45,11 @@ loadfile("dump.lua")()
 loadfile("fileutil.lua")()
 loadfile("../upgrade.lua")()
 loadfile("compiler.lua")()
+loadfile("pepperfish.lua")()
 --loadfile("external.lua")()
+
+profiler = newProfiler("time", 1000000)
+profiler:start()
 
 QuestHelper_BuildZoneLookup()
 
@@ -185,7 +189,7 @@ if compile then
       end
     end
   end)
-
+  
   FileUtil.forEachFile("Input", function (name)
     if cache.removed[name] then
       print("!!! Obsolete: ", cache.removed[name].." ("..name..")")
@@ -238,7 +242,11 @@ if compile then
     local result = {}
     if data then
       local loaded = {}
-      setfenv(data, loaded)
+      if not pcall(setfenv(data, loaded)) then
+        print("!!!!! oh god something is wrong "..file)
+        return
+      end
+      	 
       data()
       
       QuestHelper_UpgradeDatabase(loaded)
@@ -293,72 +301,74 @@ if compile then
     cache.known[new_name] = original_name
     checked[new_name] = true
     
-    local uid, last_save = data.uid, data.time
-    
-    if uid then
-      local existing = cache.uid[uid]
-      if not existing then
-        cache.uid[uid] = {file=new_name, save=last_save}
-        file2uid[new_name] = uid
-      else
-        if existing.save >= last_save then
-          print("!!! Obsolete: ", original_name)
-          print("!!!       By: ", all_input_files[existing.file])
-          print("")
-          os.remove(new_name)
-          file_data[new_name] = nil
-          all_input_files[new_name] = nil
-          cache.removed[new_name] = original_name
-          cache.known[new_name] = nil
-          unknown_input_files[new_name] = nil
-        else
-          print("!!! Obsolete: ", all_input_files[existing.file])
-          print("!!!       By: ", original_name)
-          print("")
-          
-          os.remove(existing.file)
-          file_data[existing.file] = nil
-          file2uid[existing.file] = nil
+    if data then
+      local uid, last_save = data.uid, data.time
+      
+      if uid then
+        local existing = cache.uid[uid]
+        if not existing then
+          cache.uid[uid] = {file=new_name, save=last_save}
           file2uid[new_name] = uid
-          cache.removed[existing.file] = all_input_files[existing.file]
-          all_input_files[existing.file] = nil
-          cache.known[existing.file] = nil
-          existing.file = new_name
-        end
-      end
-    else
-      for existing_name, existing_original_name in pairs(all_input_files) do
-        if not checked[existing_name] and not file2uid[existing_name] then
-          local data2 = file_data[existing_name]
-          if not data2 then
-            data2 = LoadFile(existing_name)
-            file_data[existing_name] = data2
+        else
+          if existing.save >= last_save then
+            print("!!! Obsolete: ", original_name)
+            print("!!!       By: ", all_input_files[existing.file])
+            print("")
+            os.remove(new_name)
+            file_data[new_name] = nil
+            all_input_files[new_name] = nil
+            cache.removed[new_name] = original_name
+            cache.known[new_name] = nil
+            unknown_input_files[new_name] = nil
+          else
+            print("!!! Obsolete: ", all_input_files[existing.file])
+            print("!!!       By: ", original_name)
+            print("")
+            
+            os.remove(existing.file)
+            file_data[existing.file] = nil
+            file2uid[existing.file] = nil
+            file2uid[new_name] = uid
+            cache.removed[existing.file] = all_input_files[existing.file]
+            all_input_files[existing.file] = nil
+            cache.known[existing.file] = nil
+            existing.file = new_name
           end
-          
-          if not data2.uid then
-            if ObsoletedBy(data, data2) then
-              print("!!! Obsolete: ", original_name)
-              print("!!!       By: ", existing_original_name)
-              print("")
-              
-              os.remove(new_name)
-              file_data[new_name] = nil
-              all_input_files[new_name] = nil
-              cache.removed[new_name] = original_name
-              cache.known[new_name] = nil
-              unknown_input_files[new_name] = nil
-              break
-            elseif ObsoletedBy(data2, data) then
-              print("!!! Obsolete: ", existing_original_name)
-              print("!!!       By: ", original_name)
-              print("")
-              
-              os.remove(existing_name)
-              file_data[existing_name] = nil
-              all_input_files[existing_name] = nil
-              cache.removed[existing_name] = existing_original_name
-              cache.known[existing_name] = nil
-              unknown_input_files[existing_name] = nil
+        end
+      else
+        for existing_name, existing_original_name in pairs(all_input_files) do
+          if not checked[existing_name] and not file2uid[existing_name] then
+            local data2 = file_data[existing_name]
+            if not data2 then
+              data2 = LoadFile(existing_name)
+              file_data[existing_name] = data2
+            end
+            
+            if data2 and not data2.uid then
+              if ObsoletedBy(data, data2) then
+                print("!!! Obsolete: ", original_name)
+                print("!!!       By: ", existing_original_name)
+                print("")
+                
+                os.remove(new_name)
+                file_data[new_name] = nil
+                all_input_files[new_name] = nil
+                cache.removed[new_name] = original_name
+                cache.known[new_name] = nil
+                unknown_input_files[new_name] = nil
+                break
+              elseif ObsoletedBy(data2, data) then
+                print("!!! Obsolete: ", existing_original_name)
+                print("!!!       By: ", original_name)
+                print("")
+                
+                os.remove(existing_name)
+                file_data[existing_name] = nil
+                all_input_files[existing_name] = nil
+                cache.removed[existing_name] = existing_original_name
+                cache.known[existing_name] = nil
+                unknown_input_files[existing_name] = nil
+              end
             end
           end
         end
@@ -373,9 +383,17 @@ if compile then
   --print("Compiling Lightheaded/eql3 data. . .")
   --ProcessExternal()
 
+  local total_count = 0
+  local counter = 0
   for name, origin in pairs(all_input_files) do
-    print("Compiling: ", origin)
-    CompileInputFile(name)
+    total_count = total_count + 1       -- I fuckin' hate Lua
+  end
+  for name, origin in pairs(all_input_files) do
+    counter = counter + 1
+    print("Compiling " .. counter .. "/" .. total_count .. ": ", origin)
+    if not pcall(CompileInputFile, name) then
+      print("!!!!! FAILURE")
+    end
   end
 
   print("Writing: ../static.lua")
@@ -493,3 +511,8 @@ if archive_zip or archive_7z then
 end
 
 print("Done!")
+
+profiler:stop()
+local outfile = io.open("profile.txt", "w+")
+profiler:report(outfile)
+outfile:close()
