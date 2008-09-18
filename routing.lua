@@ -886,9 +886,10 @@ function Routing:RouteUpdateRoutine()
         best_route:sanity()
         
         local old_distance, old_index = best_route.distance, best_route:removeObjective(o)
-        local old_real_distance = best_route.distance + qh:ComputeTravelTime(pos, best_route[1].pos)  -- part of hack
+        local old_real_distance = (best_route.distance or 0) + (best_route[1] and qh:ComputeTravelTime(pos, best_route[1].pos) or 0)  -- part of hack
         local new_index, sanityfixed = best_route:addObjectiveBest(o, old_index, old_distance)
-        local new_real_distance = best_route.distance + qh:ComputeTravelTime(pos, best_route[1].pos)  -- part of hack
+        local new_real_distance = (best_route.distance or 0) + (best_route[1] and qh:ComputeTravelTime(pos, best_route[1].pos) or 0)  -- part of hack
+        -- not sure if best_route.distance can ever be nil or not, I was just getting errors I couldn't find for a while and ended up with that test included when I fixed the real error
         
         if new_real_distance < old_real_distance or sanityfixed then -- More of the temporary hack
           -- If we're using the new path . . .
