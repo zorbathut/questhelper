@@ -52,7 +52,6 @@ function Route:sanity()
     assert = function(a, b)
       if not a then
         QuestHelper:TextOut("Route:sanity(): id="..self.id.."; best_route="..Routing.best_route.id)
-        QuestHelper:TextOut(QuestHelper:StringizeRecursive(self, 2))
         QuestHelper:Error(b or "Assertion Failed")
       end
     end
@@ -375,7 +374,7 @@ function Route:addObjectiveBest(obj, old_index, old_distance)
   
   table.insert(self, best_index, info)
   
-  QuestHelper:Assert(math.abs(QuestHelper:ComputeTravelTime(self[best_index-1].pos, self[best_index].pos) - self[best_index-1].len) < 0.0001, "aaaaargh")
+  -- QuestHelper:Assert(math.abs(QuestHelper:ComputeTravelTime(self[best_index-1].pos, self[best_index].pos) - self[best_index-1].len) < 0.0001, "aaaaargh")
   --[[    -- I don't think this is necessary now that TravelTime2 explicitly does this internally, but I'm keeping it anyway.
   self.distance = self.distance - self[best_index-1].len
   self[best_index-1].len = QuestHelper:ComputeTravelTime(self[best_index-1].pos, self[best_index].pos, true)

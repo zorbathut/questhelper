@@ -809,18 +809,18 @@ local function ObjectiveTravelTime2(self, pos1, pos2, nocache)
       QuestHelper:TextOut(QuestHelper:StringizeTable(e))
       QuestHelper:TextOut(QuestHelper:StringizeTable(e[1]))
       QuestHelper:TextOut(QuestHelper:StringizeTable(e[2]))
-      QuestHelper:TextOut(QuestHelper:StringizeRecursive(e[1], 2))
-      QuestHelper:Assert(math.abs(laxa-d) < 0.0001, "Compare: "..laxa.." vs "..d)
-    end
+      QuestHelper:TextOut(QuestHelper:StringizeRecursive(e[1], 2))]]
+      --QuestHelper:Assert(math.abs(laxa-d) < 0.0001, "Compare: "..laxa.." vs "..d)     -- wonky commenting is thanks to the de-assert script, fix later
+    --[[end
     local laxb = QuestHelper:ComputeTravelTime(e, pos2, true)
     if math.abs(laxb-d2) >= 0.0001 then
       QuestHelper:TextOut(QuestHelper:StringizeTable(pos2))
       QuestHelper:TextOut(QuestHelper:StringizeTable(e))
       QuestHelper:TextOut(QuestHelper:StringizeTable(e[1]))
       QuestHelper:TextOut(QuestHelper:StringizeTable(e[2]))
-      QuestHelper:TextOut(QuestHelper:StringizeRecursive(e[1], 2))
-      QuestHelper:Assert(math.abs(laxa-d) < 0.0001, "Compare: "..laxb.." vs "..d2)
-    end
+      QuestHelper:TextOut(QuestHelper:StringizeRecursive(e[1], 2))]]
+      --QuestHelper:Assert(math.abs(laxa-d) < 0.0001, "Compare: "..laxb.." vs "..d2)
+    --[[end
   end]]
 
   return d, d2, e

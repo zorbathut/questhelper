@@ -319,7 +319,7 @@ function QuestHelper:MergeDrops(list1, list2)
   end
 end
 
-function QuestHelper:Assert(a, b)
+function QuestHelper: Assert(a, b)  -- the space exists so the anti-assert script doesn't find it :D
   if not a then
     QuestHelper:Error(b or "Assertion Failed")
   end
