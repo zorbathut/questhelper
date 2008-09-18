@@ -263,7 +263,7 @@ local function MergePositionLists(list, add)
       for i, pos2 in ipairs(list) do
         if index == pos2[1] then
           local d = math.sqrt((x-pos2[2])*(x-pos2[2])+(y-pos2[3])*(y-pos2[3]))
-          if not nearest or d < distance then
+          if not bp or d < distance then
             bp, distance = pos2, d
           end
         end
@@ -982,6 +982,7 @@ end
 
 function CompileFinish()
   handleTranslations()
+  print("Finished translations")
   
   for locale, l in pairs(StaticData) do
     local quest_item_mass = {}
