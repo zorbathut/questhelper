@@ -4,7 +4,7 @@ QuestHelper.used_tables = 0
 
 QuestHelper.weak_key_meta = {--[[__mode="k"]]}
 QuestHelper.weak_value_meta = {--[[__mode="v"]]}
-QuestHelper.free_tables = setmetatable({}, QuestHelper.weak_key_meta)
+QuestHelper.free_tables = {}
 
 local unused_meta = {__index=error, __newindex=error}
 
@@ -18,8 +18,7 @@ QuestHelper.used_frames = 0
 QuestHelper.free_frames = {}
 
 -- This little table rigs up a basic typing system to assist with debugging. It has weak-reference keys so it shouldn't ever lead to leaks of any kind.
-qh_tabletyping = {}
-qh_tabletyping.__mode = "k"
+qh_tabletyping = setmetatable({}, {__mode="k"})
 
 function QuestHelper:CreateTable(tag)
   local tbl = next(self.free_tables)
@@ -31,7 +30,7 @@ function QuestHelper:CreateTable(tag)
     self.free_tables[tbl] = nil
     setmetatable(tbl, nil)
   end
-
+  
   qh_tabletyping[tbl] = tag or "untyped"
   return tbl
 end

@@ -1,5 +1,4 @@
 
-* Test to make sure qh_tabletyping is weak (weeeeeak)
 * Version number, about files
 * Make sure new asserts are actually removed
   * Remove them correctly please
