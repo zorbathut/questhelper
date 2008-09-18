@@ -2,7 +2,6 @@
 * Version number, about files
 * Make sure new asserts are actually removed
   * Remove them correctly please
-* Make sure nag is on
 * Build!
 
 * See if it can be made faster, re-enable sanity checks on at least some level
