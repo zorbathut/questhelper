@@ -44,16 +44,31 @@ function doFile {
   fi
 }
 
-find "${SOURCE_FOLDER}" | while read FILENAME; do
+find "${SOURCE_FOLDER}" | sort | while read FILENAME; do
   if [ "${FILENAME}" == "${SOURCE_FOLDER}" ]; then
     continue
   fi
-    
+  
+  echo "Scanning ${FILENAME}..."
+  
+  # Can figure out text far faster, but doesn't give us the archive info. We do this first, and if it's not text, we try again in detail.
+  # Why does this script even exist? Why don't we do this during download? Why don't we have an "uncompressed" staging area?
+  TYPE=`file -b -e soft "${FILENAME}"`
+  
+  case "${TYPE}" in
+      UTF-8\ Unicode\ text) continue ;;
+      UTF-8\ Unicode\ English\ text) continue ;;
+      UTF-8\ Unicode\ text,\ with\ CRLF\ line\ terminators) continue ;;
+      UTF-8\ Unicode\ English\ text,\ with\ CRLF\ line\ terminators) continue ;;
+      ASCII\ English\ text) continue ;;
+      ASCII\ English\ text,\ with\ CRLF\ line\ terminators) continue ;;
+  esac
+  
   TYPE=`file -b "${FILENAME}"`
   
   case "${TYPE}" in
       Zip\ archive*)   unzip "${FILENAME}" -d "${TEMP_FOLDER}" ;;
-      RAR\ archive*)   unrar e "${FILENAME}" "${TEMP_FOLDER}/" ;;
+      RAR\ archive*)   unrar e -o- "${FILENAME}" "${TEMP_FOLDER}/" ;;
       7-zip\ archive*) 7z e "-o${TEMP_FOLDER}" "${FILENAME}" ;;
       *) continue ;;
   esac
