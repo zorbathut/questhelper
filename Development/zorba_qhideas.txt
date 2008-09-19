@@ -1,28 +1,33 @@
 
-* Version number, about files
-* Make sure new asserts are actually removed
-  * Remove them correctly please
+* Build!
+* get git working
+
+* WOTLK support
 * Build!
 
-* See if it can be made faster, re-enable sanity checks on at least some level
-* Remove yieldIfNeeded parameters
-* Remove ConvertFaction locale
-* "Too Tough For Me" button
-* Flying mounts
-* Report errors
+@ Remove yieldIfNeeded parameters
+@ Remove ConvertFaction locale
+* Report crashes
 * "Report problem" feature
+* Build!
+
+@ Remember priorities
+@ See if it can be made faster, re-enable sanity checks on at least some level
+@ "Too Tough For Me" button
+@ Flying mounts
+@ Tunable not-in-group penalties
 * Bug: Routing doesn't restart when it crashes
-* Tunable not-in-group penalties
 * Build!
 
 * Better data collection - collect more from more people, prompt them to upload once they have a good chunk of data
 * Track player paths
 * Track quest-item drops only when quest is still unfinished
 * Track monster spots in a more specific fashion
-* Teleporters functional?
-  * Mage teleport
-  * Druid teleport
-  * Hearthstone?
+* Track quest XP
+@ Teleporters functional?
+  @ Mage teleport
+  @ Druid teleport
+  @ Hearthstone?
 * Build!
 
 * Bug: QH:ComputeTravelTime is not taking the "last leg" from the zone entry point to the destination into account when doing path optimization

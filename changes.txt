@@ -1,3 +1,11 @@
+== Version 0.49rc2 09/18/2008 ==
+
+* Most importantly: project has been resurrected by me. Let's have it for regular updates again!
+* Fixed code to remove "flicker" issue, though at the cost of some speed
+* Renamed QuestHelper to QuestNav, including changing <code>/qh</code> to <code>/qn</code>
+* Re-enabled nagging
+* Quite a few relatively unimportant small tweaks based around learning the codebase and fixing small issues
+
 == Version 0.48 07/16/2008 ==
 
 * Fixed a compatability problem with WoW patch 2.4.3

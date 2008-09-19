@@ -1,6 +1,6 @@
 ## Interface: 20400
 ## Title: QuestHelper
-## Author: smariot, vipersniper, nesher
+## Author: zorbathut, smariot, vipersniper, nesher
 ## Notes: Calculates an optimal route for you to follow while questing.
 ## Notes-deDE: Berechnet eine optimale Route für dich, der du während dem Questen folgen kannst.
 ## Notes-frFR: Calcule un itinéraire optimal pour vous de suivre.
