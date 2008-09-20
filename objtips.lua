@@ -2,7 +2,10 @@ QuestHelper_File["objtips.lua"] = "Development Version"
 
 local real_GameTooltipOnShow = GameTooltip:GetScript("OnShow") or QuestHelper.nop
 
-local function addObjectiveObjTip(tooltip, objective, depth)
+local function addObjectiveObjTip(tooltip, objective, depth, already_touched)
+  if depth > 10 then return end -- fuck that, man. Just fuck that.
+  already_touched[objective] = true -- YOU CANNOT EAT A PURSE
+  
   if objective.watched or objective.progress then
     local depth2 = depth
     
@@ -25,10 +28,14 @@ local function addObjectiveObjTip(tooltip, objective, depth)
   
   if objective.used then
     for obj, text in pairs(objective.used) do
-      tooltip:AddLine(("  "):rep(depth)..QHFormat(text, obj.obj), 1, 1, 1)
-      addObjectiveObjTip(tooltip, obj, depth+1)
+      if not already_touched[obj] then -- no infinite loops please
+        tooltip:AddLine(("  "):rep(depth)..QHFormat(text, obj.obj), 1, 1, 1)
+        addObjectiveObjTip(tooltip, obj, depth+1, already_touched)
+      end
     end
   end
+  
+  already_touched[objective] = nil -- oh why not. just so I can get a screenshot of some poor sap getting a 2^n case
 end
 
 local function addObjectiveTip(tooltip, cat, obj)
@@ -36,7 +43,7 @@ local function addObjectiveTip(tooltip, cat, obj)
   if list then
     local objective = list[obj]
     if objective then
-      addObjectiveObjTip(tooltip, objective, 0)
+      addObjectiveObjTip(tooltip, objective, 0, {})
     end
   end
 end
