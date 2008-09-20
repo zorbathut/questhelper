@@ -2,7 +2,11 @@
 * Build!
 * get git working
 
+* Am I getting an infinite loop?
+* Check the entire damn thing for infinite loops.
+
 * WOTLK support
+* The only annoying thing I've run into so far is the cartographer arrow not showing up until you do /qh cartwp twice which has always been there.  
 * Build!
 
 @ Remove yieldIfNeeded parameters
@@ -24,6 +28,7 @@
 * Track quest-item drops only when quest is still unfinished
 * Track monster spots in a more specific fashion
 * Track quest XP
+* Track quest followups?
 @ Teleporters functional?
   @ Mage teleport
   @ Druid teleport
@@ -83,3 +88,8 @@
 * Track/infer completed quests
 * Display more vertically? Is this even possible?
 
+
+
+Bug:
+Message: ..\AddOns\QuestNav\graph.lua line 185:
+attempt to compare nil with number
