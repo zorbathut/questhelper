@@ -2,8 +2,7 @@
 * Build!
 * get git working
 
-* Am I getting an infinite loop?
-* Check the entire damn thing for infinite loops.
+* Bug: Full info in Tomtom's waypoint line?
 
 * WOTLK support
 * The only annoying thing I've run into so far is the cartographer arrow not showing up until you do /qh cartwp twice which has always been there.  
@@ -43,6 +42,7 @@
 * Bug: ObjectiveTravelTime2 is obviously inconsistent with ComputeTravelTime2, also what the hell is it doing
 * Bug: Crash bug on timed quests?
 
+* Flavor: include the name of the boat/zeppelin
 * Remove all those wacky random-enchant items from the drop tables
 * Switch to GUIDs if we haven't already
 * Less reset-pathing-information, seriously wtf
@@ -93,3 +93,30 @@
 Bug:
 Message: ..\AddOns\QuestNav\graph.lua line 185:
 attempt to compare nil with number
+
+Message: ..\AddOns\QuestHelper\utility.lua line 190:
+bad argument #1 to 'ceil' (number expected, got nil)
+Debug:
+[C]: ?
+[C]: ceil()
+QuestHelper\utility.lua:190:
+QuestHelper\utility.lua:189
+(tail call): ?
+QuestHelper\lang.lua:25:
+QuestHelper\lang.lua:21
+[C]: gsub()
+QuestHelper\lang.lua:42:
+QuestHelper\lang.lua:40
+QuestHelper\lang.lua:85:
+QuestHelper\lang.lua:47
+(tail call): ?
+QuestHelper\flightpath.lua:68: TaxiNodeOnButtonEnter()
+
+Message: ..\AddOns\QuestHelper\dodads.lua line 242:
+   attempt to index field 'pos' (a nil value)
+Debug:
+   [C]: ?
+   QuestHelper\dodads.lua:242 GetOverlapObjectives()
+   QuestHelper\dodads.lua:441
+      QuestHelper\dodads.lua:437
+      
