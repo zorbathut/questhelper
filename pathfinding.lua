@@ -262,6 +262,10 @@ function QuestHelper:CreateGraphNode(c, x, y, n)
     node.y = y
     node.name = n
   else
+    if not QuestHelper_ZoneLookup[c[1]] then -- exception for Wrath changeover
+      QuestHelper:Assert(not QuestHelper:IsWrath(), "Zone couldn't be found, and should have been")
+      return
+    end
     local cont, zone = unpack(QuestHelper_ZoneLookup[c[1]])
     node.c = cont
     node.x, node.y = self.Astrolabe:TranslateWorldMapPosition(cont, zone, c[2], c[3], cont, 0)
@@ -276,7 +280,7 @@ end
 
 function QuestHelper:CreateAndAddZoneNode(z, c, x, y)
   local node = self:CreateGraphNode(c, x, y)
-  
+  if not node then return end -- exception for Wrath changeover
   -- Not going to merge nodes.
   --[[local closest, travel_time = nil, 0
   
@@ -306,6 +310,7 @@ function QuestHelper:CreateAndAddStaticNodePair(data)
     node1 = self.named_nodes[data[5]]
   else
     node1 = self:CreateAndAddZoneNode(self.zone_nodes[data[1][1]], data[1])
+    if not node1 then return end -- exception for Wrath changeover
     if data[5] then self.named_nodes[data[5]] = node1 end
   end
   
@@ -313,6 +318,7 @@ function QuestHelper:CreateAndAddStaticNodePair(data)
     node2 = self.named_nodes[data[6]]
   else
     node2 = self:CreateAndAddZoneNode(self.zone_nodes[data[2][1]], data[2])
+    if not node2 then return end -- exception for Wrath changeover
     if data[6] then self.named_nodes[data[6]] = node2 end
   end
   
@@ -405,6 +411,11 @@ local function getNPCNode(npc)
 end
 
 function QuestHelper:CreateAndAddTransitionNode(z1, z2, pos)
+  if not z1 or not z2 then
+    QuestHelper:Assert(not QuestHelper:IsWrath(), "Zone couldn't be found, and should have been")
+    return
+  end
+  
   local node = self:CreateGraphNode(pos)
   
   local closest, travel_time = nil, 0
@@ -680,9 +691,10 @@ function QuestHelper:ResetPathing()
   for i, data in pairs(static_zone_transitions) do
     st[1], st[2], st[3] = data[1], data[3], data[4]
     
-    self:CreateAndAddTransitionNode(zone_nodes[data[1]],
+    local transnode = self:CreateAndAddTransitionNode(zone_nodes[data[1]],
                                     zone_nodes[data[2]],
-                                    st).name = QHFormat("ZONE_BORDER", QuestHelper_NameLookup[data[1]], QuestHelper_NameLookup[data[2]])
+                                    st)
+    if transnode then transnode.name = QHFormat("ZONE_BORDER", QuestHelper_NameLookup[data[1]], QuestHelper_NameLookup[data[2]]) end -- if the transition node wasn't creatable, we obviously can't name it
   end
   
   self:ReleaseTable(st)
