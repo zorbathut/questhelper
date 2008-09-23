@@ -354,3 +354,7 @@ function QuestHelper:TableSize(tbl)
   end
   return count
 end
+
+function QuestHelper:IsWrath()
+  return GetBuildInfo():sub(1,1) == '3'
+end
