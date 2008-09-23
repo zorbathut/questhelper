@@ -1,4 +1,6 @@
 build-cache.lua
 wowdata.7z
 wowdata.lua
-dbdump
+
+passwords.py
+*.pyc
