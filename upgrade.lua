@@ -65,7 +65,21 @@ QuestHelper_Zones =
     [5]="Shadowmoon Valley",
     [6]="Shattrath City",
     [7]="Terokkar Forest",
-    [8]="Zangarmarsh"}}
+    [8]="Zangarmarsh"},
+   {[0]="Northrend",
+    [1]="Borean Tundra",
+    [2]="Crystalsong Forest",
+    [3]="Dalaran",
+    [4]="Dragonblight",
+    [5]="Grizzly Hills",
+    [6]="Howling Fjord",
+    [7]="Icecrown",
+    [8]="Sholazar Basin",
+    [9]="The Storm Peaks",
+    [10]="Wintergrasp",
+    [11]="Zul'Drak"}
+}
+
 
 -- This will be translated to [LOCALE_NAME] = INDEX by QuestHelper_BuildZoneLookup.
 -- Additionally, [CONT_INDEX][ZONE_INDEX] = INDEX will also be added.
@@ -133,7 +147,21 @@ QuestHelper_IndexLookup =
   ["Kalimdor"] = {61, 1, 0},
   ["Azeroth"] = {62, 2, 0},
   ["Expansion01"] = {63, 3, 0},
-  ["Sunwell"] = {64, 2, 15}}
+  ["Sunwell"] = {64, 2, 15},
+  
+  ["Northrend"] = {76, 4, 0},
+  ["BoreanTundra"] = {65, 4, 1},
+  ["CrystalsongForest"] = {66, 4, 2},
+  ["Dalaran"] = {67, 4, 3},
+  ["Dragonblight"] = {68, 4, 4},
+  ["GrizzlyHills"] = {69, 4, 5},
+  ["HowlingFjord"] = {70, 4, 6},
+  ["IcecrownGlacier"] = {71, 4, 7},
+  ["SholazarBasin"] = {72, 4, 8},
+  ["TheStormPeaks"] = {73, 4, 9},
+  ["LakeWintergrasp"] = {74, 4, 10},
+  ["ZulDrak"] = {75, 4, 11}
+}
 
 local next_index = 1
 for i, j in pairs(QuestHelper_IndexLookup) do next_index = math.max(next_index, j[1]+1) end
