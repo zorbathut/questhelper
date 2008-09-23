@@ -20,23 +20,35 @@ local static_horde_routes =
    {{43, 0.605, 0.587}, {7, 0.509, 0.141}, 210}, -- Tirisfal Glades <--> Durotar
    {{45, 0.549, 0.11}, {52, 0.495, 0.148}, 5}, -- Undercity <--> Silvermoon City
    
+   {{7, 0.413, 0.178}, {65, 0.414, 0.536}, 5}, -- Durotar <--> Warsong Hold
+   {{43, 0.591, 0.590}, {70, 0.777, 0.283}, 5}, -- Tirisfal Glades <--> Vengeance Landing
+   
    {{60, 0.592, 0.483}, SILVERMOON_CITY_PORTAL, 5, true, nil, "SILVERMOON_CITY_PORTAL"}, -- Shattrath City --> Silvermoon City
    {{60, 0.528, 0.531}, THUNDER_BLUFF_PORTAL, 5, true, nil, "THUNDER_BLUFF_PORTAL"}, -- Shattrath City --> Thunder Bluff
    {{60, 0.522, 0.529}, ORGRIMMAR_PORTAL, 5, true, nil, "ORGRIMMAR_PORTAL"}, -- Shattrath City --> Orgrimmar
    {{60, 0.517, 0.525}, UNDERCITY_PORTAL, 5, true, nil, "UNDERCITY_PORTAL"} -- Shattrath City --> Undercity
   }
 
+  
 local static_alliance_routes = 
   {
    {{36, 0.639, 0.083}, {25, 0.764, 0.512}, 120}, -- Deeprun Tram
-   {{51, 0.044, 0.569}, {16, 0.323, 0.441}, 210}, --Menethil Harbor <--> Auberdine
    {{10, 0.718, 0.565}, {51, 0.047, 0.636}, 210}, -- Theramore Isle <--> Menethil Harmor
+   
+   {{36, 0.183, 0.255}, {65, 0.597, 0.694}, 210}, -- Stormwind City <--> Valiance Keep (note: new Stormwind location)
+   {{51, 0.047, 0.571}, {70, 0.612, 0.626}, 210}, -- Menethil <--> Daggercap Bay
    
    {{60, 0.558, 0.366}, STORMWIND_CITY_PORTAL, 5, true, nil, "STORMWIND_CITY_PORTAL"}, -- Shattrath City --> Stormwind City
    {{60, 0.563, 0.37}, IRONFORGE_PORTAL, 5, true, nil, "IRONFORGE_PORTAL"}, -- Shattrath City --> Ironforge
    {{60, 0.552, 0.364}, DARNASSUS_PORTAL, 5, true, nil, "DARNASSUS_PORTAL"}, -- Shattrath City --> Darnassus
    {{60, 0.596, 0.467}, EXODAR_PORTAL, 5, true, nil, "EXODAR_PORTAL"} -- Shattrath City --> Exodar
   }
+
+if QuestHelper:IsWrath() then -- siiiiigh
+  table.insert(static_alliance_routes, {{36, 0.228, 0.560}, {16, 0.323, 0.441}, 210}) -- Stormwind City <--> Auberdine (note: new Stormwind location)
+else
+  table.insert(static_alliance_routes, {{51, 0.044, 0.569}, {16, 0.323, 0.441}, 210}) -- Menethil Harbor <--> Auberdine
+end
 
 local static_shared_routes = 
   {
@@ -49,7 +61,10 @@ local static_shared_routes =
    {{16, 0.306, 0.409}, {3, 0.2, 0.546}, 210}, -- Auberdine <--> Azuremyst Isle
    
    -- Route to new zone. Not valid, exists only to keep routing from exploding if you don't have the flight routes there.
-   {{41, 0.5, 0.5}, {64, 0.5, 0.5}, 7200} -- Eversong Woods <--> Sunwell
+   {{41, 0.5, 0.5}, {64, 0.5, 0.5}, 7200}, -- Eversong Woods <--> Sunwell
+   
+   {{70, 0.235, 0.578}, {68, 0.496, 0.784}, 210}, -- Kamagua <--> Moa'ki
+   {{65, 0.789, 0.536}, {68, 0.480, 0.787}, 210}, -- Unu'pe <--> Moa'ki
   }
 
 -- Darkportal is handled specially, depending on whether or not you're level 58+ or not.
@@ -133,6 +148,27 @@ local static_zone_transitions =
    {58, 57, 0.754, 0.331}, -- Nagrand <--> Zangarmarsh
    {53, 55, 0.208, 0.271}, -- Shadowmoon Valley <--> Terokkar Forest
    {55, 57, 0.341, 0.098}, -- Terokkar Forest <--> Zangarmarsh
+   
+   -- Most of these are also guesses :)
+   {65, 72, 0.547, 0.059}, -- Borean Tundra <--> Sholazar Basin
+   {65, 68, 0.967, 0.359}, -- Borean Tundra <--> Dragonblight
+   {74, 72, 0.208, 0.191}, -- Wintergrasp <--> Sholazar 
+   {68, 74, 0.250, 0.410}, -- Dragonblight <--> Wintergrasp
+   {68, 71, 0.359, 0.155}, -- Dragonblight <--> Icecrown
+   {68, 66, 0.612, 0.142}, -- Dragonblight <--> Crystalsong
+   {68, 75, 0.900, 0.200}, -- Dragonblight <--> Zul'Drak
+   {68, 69, 0.924, 0.304}, -- Dragonblight <--> Grizzly Hills
+   {68, 69, 0.931, 0.634}, -- Dragonblight <--> Grizzly Hills
+   {70, 69, 0.540, 0.042}, -- Howling Fjord <--> Grizzly Hills
+   {70, 69, 0.233, 0.074}, -- Howling Fjord <--> Grizzly Hills
+   {70, 69, 0.753, 0.060}, -- Howling Fjord <--> Grizzly Hills
+   {69, 75, 0.432, 0.253}, -- Grizzly Hills <--> Zul'Drak
+   {69, 75, 0.583, 0.136}, -- Grizzly Hills <--> Zul'Drak
+   {66, 75, 0.967, 0.599}, -- Crystalsong <--> Zul'Drak
+   {66, 71, 0.156, 0.085}, -- Crystalsong <--> Icecrown
+   {66, 73, 0.706, 0.315}, -- Crystalsong <--> Storm Peaks
+   {66, 73, 0.839, 0.340}, -- Crystalsong <--> Storm Peaks
+   {71, 73, 0.920, 0.767}, -- Icecrown <--> Storm Peaks
   }
 
 local walkspeed_multiplier = 1/7 -- Every yard walked takes this many seconds.
