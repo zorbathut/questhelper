@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 #Note: We have a custom version of libgmail to fix a bug involving binary attachments (which obviously we have.)
 
 import libgmail
@@ -8,8 +10,8 @@ import passwords
 ga = libgmail.GmailAccount(passwords.gmail_username, passwords.gmail_password)
 ga.login()
 
-destination="./dbdump/"
-label="zorba_downloaded"
+destination="./LocalInput/"
+label=passwords.gmail_label
 
 inbox=ga.getMessagesByQuery("!label:"+label+" has:attachment")
 i=0
