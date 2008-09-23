@@ -56,7 +56,7 @@ local function ObjectiveReason(self, short)
 end
 
 local function Uses(self, obj, text)
-  assert(self ~= obj)
+  if self == obj then return end -- You cannot use yourself. A purse is not food.
   local uses, used = self.uses, obj.used
   
   if not uses then
