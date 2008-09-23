@@ -247,7 +247,7 @@ local function ObjectivePrepareRouting(self)
     self.nm = QuestHelper:CreateTable("objective.nm")
     self.nm2 = QuestHelper:CreateTable("objective.nm2")
     self.nl = QuestHelper:CreateTable("objective.nl")
-    self.distance_cache = setmetatable(QuestHelper:CreateTable("objective.distance_cache"), QuestHelper.weak_value_meta)
+    self.distance_cache = QuestHelper:CreateTable("objective.distance_cache")
     
     self:AppendPositions(self, 1, nil)
     self:FinishAddLoc()
@@ -633,6 +633,7 @@ local function ObjectiveTravelTime(self, pos, nocache)
       local new = self.qh:CreateTable()
       new[1], new[2] = d, e
       self.distance_cache[key] = new
+      self.qh:CacheRegister(self)
     end
   end
 
@@ -793,9 +794,10 @@ local function ObjectiveTravelTime2(self, pos1, pos2, nocache)
   if not nocache then
     assert( not cached or (cached[1] == d and cached[2] == d2 and cached[3] == e))
     if not QH_TESTCACHE or not cached then
-      local new = self.qh:CreateTable()
+      local new = self.qh:CreateTable("ObjectiveTravelTime2 cache")
       new[1], new[2], new[3] = d, d2, e
       self.distance_cache[key] = new
+      self.qh:CacheRegister(self)
     end
   end
 

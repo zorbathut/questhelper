@@ -779,7 +779,15 @@ function Routing:RouteUpdateRoutine()
   
   local best_route = self.best_route
   
+  local last_cache_clear = GetTime()
+  
   while true do
+    -- Clear caches out a bit
+    if GetTime() + 15 >= last_cache_clear then
+      qh:CacheCleanup()
+      last_cache_clear = GetTime()
+    end
+    
     -- Update the player's position data.
     if qh.target then
       -- We know the player will be at the target location at target_time, so fudge the numbers

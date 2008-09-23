@@ -1,7 +1,5 @@
 
-* Build!
-* get git working
-
+* Look for all weak tables and desuck them
 * Bug: Full info in Tomtom's waypoint line?
 
 * WOTLK support

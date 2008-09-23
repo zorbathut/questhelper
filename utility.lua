@@ -327,14 +327,14 @@ end
 
 function QuestHelper:StringizeTable(a)
   if not a then return "nil" end
-  acu = tostring(qh_tabletyping[a])..": "
+  acu = tostring(self.recycle_tabletyping[a])..": "
   for i,v in pairs(a) do acu = acu.."["..tostring(i)..","..tostring(v).."] " end
   return acu
 end
 
 function QuestHelper:StringizeTableDouble(a)
   if not a then return "nil" end
-  acu = tostring(qh_tabletyping[a])..": "
+  acu = tostring(self.recycle_tabletyping[a])..": "
   for i,v in pairs(a) do acu = acu.."["..self:StringizeTable(i)..","..self:StringizeTable(v).."] " end
   return acu
 end
@@ -342,7 +342,15 @@ end
 function QuestHelper:StringizeRecursive(a, d)
   if not a then return "nil" end
   if d <= 0 or type(a) ~= "table" then return tostring(a) end
-  acu = tostring(qh_tabletyping[a])..": "
+  acu = tostring(self.recycle_tabletyping[a])..": "
   for i,v in pairs(a) do acu = acu.."["..self:StringizeRecursive(i, d - 1)..","..self:StringizeRecursive(v, d - 1).."] " end
   return acu
+end
+
+function QuestHelper:TableSize(tbl)
+  local count = 0
+  for k, v in pairs(tbl) do
+    count = count + 1
+  end
+  return count
 end

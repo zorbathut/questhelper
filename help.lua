@@ -342,15 +342,29 @@ function QuestHelper:PrintVersion()
   self:TextOut("Version: "..self:HighlightText(GetAddOnMetadata("QuestHelper", "Version") or "Unknown"))
 end
 
-local function RecycleStatusString(fmt, used, free)
-  return string.format(fmt, QuestHelper:ProgressString(string.format("%d/%d", used, used+free), ((used+free == 0) and 1) or (1-used/(used+free))))
+local function RecycleStatusString(fmt, usedcount, freetable, usedtable)
+  local freetablecount = QuestHelper:TableSize(freetable)
+  if usedtable then
+    local usedtablecount = QuestHelper:TableSize(usedtable)
+    return string.format(fmt, QuestHelper:ProgressString(string.format("%d/%d", usedtablecount, usedtablecount+freetablecount), ((usedtablecount+freetablecount == 0) and 1) or (1-usedtablecount/(usedtablecount+freetablecount)))) .. string.format(" (%d \"leaked\")", usedcount - usedtablecount)
+  else
+    return string.format(fmt, QuestHelper:ProgressString(string.format("%d/%d", usedcount, usedcount+freetablecount), ((usedcount+freetablecount == 0) and 1) or (1-usedcount/(usedcount+freetablecount))))
+  end
 end
 
-function QuestHelper:RecycleInfo()
-  self:TextOut(RecycleStatusString("Using %s lua tables.", self.used_tables, #self.free_tables))
-  self:TextOut(RecycleStatusString("Using %s texture objects.", self.used_textures, #self.free_textures))
-  self:TextOut(RecycleStatusString("Using %s font objects.", self.used_text, #self.free_text))
-  self:TextOut(RecycleStatusString("Using %s frame objects.", self.used_frames, #self.free_frames))
+function QuestHelper:RecycleInfo(cmd)
+  self:TextOut(RecycleStatusString("Using %s lua tables.", self.used_tables, self.free_tables, self.recycle_tabletyping))
+  self:TextOut(RecycleStatusString("Using %s texture objects.", self.used_textures, self.free_textures))
+  self:TextOut(RecycleStatusString("Using %s font objects.", self.used_text, self.free_text))
+  self:TextOut(RecycleStatusString("Using %s frame objects.", self.used_frames, self.free_frames))
+  
+  if cmd and string.find(cmd, "verbose") then
+    self:DumpTableTypeFrequencies()
+  end
+  
+  if cmd and string.find(cmd, "cache") then
+    self:DumpCacheData()
+  end
 end
 
 function QuestHelper:ToggleMapButton()
@@ -507,7 +521,8 @@ commands =
   
   {"RECYCLE",
    "Displays how many unused entities QuestHelper is tracking, so that it can reuse them in the future instead of creating new ones in the future.",
-    {}, QuestHelper.RecycleInfo, QuestHelper},
+    {{"/qh recycle verbose", "Displays detailed information on which table types are most common"},
+    {"/qh recycle cache", "Displays detailed information on the internal distance cache"}}, QuestHelper.RecycleInfo, QuestHelper},
   
   {"CARTWP",
    "Toggles displaying the current objective using Cartographer Waypoints.",

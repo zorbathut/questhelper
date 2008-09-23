@@ -1,9 +1,6 @@
 QuestHelper_File["recycle.lua"] = "Development Version"
 
 QuestHelper.used_tables = 0
-
-QuestHelper.weak_key_meta = {--[[__mode="k"]]}
-QuestHelper.weak_value_meta = {--[[__mode="v"]]}
 QuestHelper.free_tables = {}
 
 local unused_meta = {__index=error, __newindex=error}
@@ -18,7 +15,7 @@ QuestHelper.used_frames = 0
 QuestHelper.free_frames = {}
 
 -- This little table rigs up a basic typing system to assist with debugging. It has weak-reference keys so it shouldn't ever lead to leaks of any kind.
-qh_tabletyping = setmetatable({}, {__mode="k"})
+QuestHelper.recycle_tabletyping = setmetatable({}, {__mode="k"})
 
 function QuestHelper:CreateTable(tag)
   local tbl = next(self.free_tables)
@@ -31,7 +28,8 @@ function QuestHelper:CreateTable(tag)
     setmetatable(tbl, nil)
   end
   
-  qh_tabletyping[tbl] = tag or "untyped"
+  --self.recycle_tabletyping[tbl] = tag or "untyped"
+  self.recycle_tabletyping[tbl] = tag or string.gsub(debugstack(2, 1, 1), "\n.*", "")
   return tbl
 end
 
@@ -45,7 +43,25 @@ function QuestHelper:ReleaseTable(tbl)
   
   self.used_tables = self.used_tables - 1
   self.free_tables[setmetatable(tbl, unused_meta)] = true
-  qh_tabletyping[tbl] = nil
+  self.recycle_tabletyping[tbl] = nil
+end
+
+function QuestHelper:DumpTableTypeFrequencies()
+  local freq = {}
+  for k, v in pairs(self.recycle_tabletyping) do
+    freq[v] = (freq[v] or 0) + 1
+  end
+  
+  local flist = {}
+  for k, v in pairs(freq) do
+    table.insert(flist, {count=v, name=k})
+  end
+  
+  table.sort(flist, function(a, b) return a.count < b.count end)
+  
+  for k, v in pairs(flist) do
+    self:TextOut(v.count .. ": " .. v.name)
+  end
 end
 
 function QuestHelper:CreateFrame(parent)
@@ -236,4 +252,45 @@ function QuestHelper:ReleaseTexture(tex)
   tex:ClearAllPoints()
   self.used_textures = self.used_textures - 1
   table.insert(self.free_textures, tex)
+end
+
+QuestHelper.recycle_active_cached_tables = {}
+QuestHelper.recycle_decache_queue = {}
+
+function QuestHelper:CacheRegister(obj)
+  if not self.recycle_active_cached_tables[obj] then
+    self.recycle_active_cached_tables[obj] = true
+    table.insert(self.recycle_decache_queue, obj)
+  end
+end
+
+function QuestHelper:CacheCleanup(obj)
+  local target = self.recycle_decache_queue[1]
+  
+  if not target then return end
+  table.remove(self.recycle_decache_queue, 1)
+  self.recycle_active_cached_tables[target] = nil
+  
+  if target.distance_cache then
+    for k, v in pairs(target.distance_cache) do
+      self:ReleaseTable(v)
+    end
+    self:ReleaseTable(target.distance_cache)
+    target.distance_cache = self:CreateTable("objective.distance_cache cleaned")
+  end
+end
+
+function QuestHelper:DumpCacheData(obj)
+  local caches = 0
+  local cached = 0
+  for k, v in pairs(self.recycle_decache_queue) do
+    caches = caches + 1
+    if v.distance_cache then
+      for q, w in pairs(v.distance_cache) do
+        cached = cached + 1
+      end
+    end
+  end
+  
+  self:TextOut(caches .. " queued caches with a total of " .. cached .. " cached items")
 end
