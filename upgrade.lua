@@ -477,6 +477,26 @@ function QuestHelper_UpgradeDatabase(data)
     
     data.QuestHelper_SaveVersion = 8
   end
+  
+  if data.QuestHelper_SaveVersion == 8 then
+    -- Two things we're doing here
+    -- First, wrath-ize Stormwind coordinates
+    for cat, list in pairs(QuestHelper_Objectives) do
+      QuestHelper:TextOut("cat: " .. cat)
+      for name, obj in pairs(list) do
+      QuestHelper:TextOut("name: " .. name)
+        if obj.pos then
+          for i, cpos in pairs(obj.pos) do
+            QuestHelper:ConvertCoordsForWrath(cpos)
+          end
+        end
+      end
+    end
+    
+    -- Second, split up the entire thing into versions
+    
+    data.QuestHelper_SaveVersion = 9
+  end
 end
 
 function QuestHelper_UpgradeComplete()

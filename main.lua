@@ -249,7 +249,7 @@ function QuestHelper:Initialize()
   QuestHelper_UpgradeDatabase(_G)
   QuestHelper_UpgradeComplete()
 
-  if QuestHelper_SaveVersion ~= 8 then
+  if QuestHelper_SaveVersion ~= 9 then
     self:TextOut(QHText("DOWNGRADE_ERROR"))
     return
   end

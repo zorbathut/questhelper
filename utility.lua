@@ -358,3 +358,17 @@ end
 function QuestHelper:IsWrath()
   return GetBuildInfo():sub(1,1) == '3'
 end
+
+function QuestHelper:ConvertCoordsForWrath(data)
+  if data[1] == 36 then -- Stormwind
+    data[2] = data[2] * 0.77324 + 0.197
+    data[3] = data[3] * 0.77324 + 0.245
+  end
+end
+
+function QuestHelper:ConvertCoordsFromWrath(data)
+  if not QuestHelper:IsWrath() and data[1] == 36 then -- Stormwind
+    data[2] = (data[2] - 0.197) / 0.77324
+    data[3] = (data[3] - 0.245) / 0.77324
+  end
+end
