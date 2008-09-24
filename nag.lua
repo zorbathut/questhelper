@@ -208,14 +208,16 @@ function QuestHelper:Nag(cmd)
      update = {}
     }
   
-  for faction, level_list in pairs(QuestHelper_Quests) do
-    if not local_only or faction == self.faction then
-      for level, name_list in pairs(level_list) do
-        for name, data in pairs(name_list) do
-          CompareStaticQuest(info, faction, level, name, data.hash, data, verbose)
-          if data.alt then
-            for hash, data in pairs(data.alt) do
-              CompareStaticQuest(info, faction, level, name, hash, data, verbose)
+  for version, data in pairs(QuestHelper_Quests) do
+    for faction, level_list in pairs(data) do
+      if not local_only or faction == self.faction then
+        for level, name_list in pairs(level_list) do
+          for name, data in pairs(name_list) do
+            CompareStaticQuest(info, faction, level, name, data.hash, data, verbose)
+            if data.alt then
+              for hash, data in pairs(data.alt) do
+                CompareStaticQuest(info, faction, level, name, hash, data, verbose)
+              end
             end
           end
         end
@@ -223,43 +225,49 @@ function QuestHelper:Nag(cmd)
     end
   end
   
-  for cat, name_list in pairs(QuestHelper_Objectives) do
-    for name, obj in pairs(name_list) do
-      CompareStaticObjective(info, cat, name, obj, verbose)
+  for version, data in pairs(QuestHelper_Objectives) do
+    for cat, name_list in pairs(data) do
+      for name, obj in pairs(name_list) do
+        CompareStaticObjective(info, cat, name, obj, verbose)
+      end
     end
   end
   
-  for faction, location_list in pairs(QuestHelper_FlightInstructors) do
-    if not local_only or faction == self.faction then
-      for location, npc in pairs(location_list) do
-        local data = QuestHelper_StaticData[self.locale]
-        data = data and data.flight_instructors
-        data = data and data[faction]
-        data = data and data[location]
-        
-        if not data or data ~= npc then
-          if verbose then self:TextOut(QuestHelper:HighlightText(faction).." flight master "..QuestHelper:HighlightText(npc).." was missing.") end
-          info.new["fp"] = (info.new["fp"] or 0)+1
+  for version, data in pairs(QuestHelper_FlightInstructors) do
+    for faction, location_list in pairs(data) do
+      if not local_only or faction == self.faction then
+        for location, npc in pairs(location_list) do
+          local data = QuestHelper_StaticData[self.locale]
+          data = data and data.flight_instructors
+          data = data and data[faction]
+          data = data and data[location]
+          
+          if not data or data ~= npc then
+            if verbose then self:TextOut(QuestHelper:HighlightText(faction).." flight master "..QuestHelper:HighlightText(npc).." was missing.") end
+            info.new["fp"] = (info.new["fp"] or 0)+1
+          end
         end
       end
     end
   end
   
-  for faction, start_list in pairs(QuestHelper_FlightRoutes) do
-    if not local_only or faction == self.faction then
-      for start, dest_list in pairs(start_list) do
-        for dest, hash_list in pairs(dest_list) do
-          for hash, data in pairs(hash_list) do
-            local static = QuestHelper_StaticData[self.locale]
-            static = static and static.flight_routes
-            static = static and static[faction]
-            static = static and static[start]
-            static = static and static[dest]
-            static = static and static[hash]
-            
-            if not static or static == true and type(data) == "number" then
-              if verbose then self:TextOut("Flight time from "..QuestHelper:HighlightText((select(3, string.find(start, "^(.*),")) or start)).." to "..QuestHelper:HighlightText((select(3, string.find(dest, "^(.*),")) or dest)).." was missing.") end
-              info.new["route"] = (info.new["route"] or 0)+1
+  for version, data in pairs(QuestHelper_FlightRoutes) do
+    for faction, start_list in pairs(data) do
+      if not local_only or faction == self.faction then
+        for start, dest_list in pairs(start_list) do
+          for dest, hash_list in pairs(dest_list) do
+            for hash, data in pairs(hash_list) do
+              local static = QuestHelper_StaticData[self.locale]
+              static = static and static.flight_routes
+              static = static and static[faction]
+              static = static and static[start]
+              static = static and static[dest]
+              static = static and static[hash]
+              
+              if not static or static == true and type(data) == "number" then
+                if verbose then self:TextOut("Flight time from "..QuestHelper:HighlightText((select(3, string.find(start, "^(.*),")) or start)).." to "..QuestHelper:HighlightText((select(3, string.find(dest, "^(.*),")) or dest)).." was missing.") end
+                info.new["route"] = (info.new["route"] or 0)+1
+              end
             end
           end
         end

@@ -481,19 +481,36 @@ function QuestHelper_UpgradeDatabase(data)
   if data.QuestHelper_SaveVersion == 8 then
     -- Two things we're doing here
     -- First, wrath-ize Stormwind coordinates
+    
+    --[[
     for cat, list in pairs(QuestHelper_Objectives) do
-      QuestHelper:TextOut("cat: " .. cat)
       for name, obj in pairs(list) do
-      QuestHelper:TextOut("name: " .. name)
         if obj.pos then
           for i, cpos in pairs(obj.pos) do
-            QuestHelper:ConvertCoordsForWrath(cpos)
+            QuestHelper:ConvertCoordsToWrath(cpos, true)
           end
         end
       end
-    end
+    end]] -- okay we're not actually doing this, coordinates are staying native
     
     -- Second, split up the entire thing into versions
+    local function versionize(item)
+      local temp = {}
+      for k, v in pairs(item) do
+        temp[k] = v
+      end
+      
+      for key in pairs(item) do
+        item[key] = nil
+      end
+      
+      item["unknown on unknown"] = temp
+    end
+    
+    versionize(QuestHelper_Quests)
+    versionize(QuestHelper_Objectives)
+    versionize(QuestHelper_FlightInstructors)
+    versionize(QuestHelper_FlightRoutes)
     
     data.QuestHelper_SaveVersion = 9
   end

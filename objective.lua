@@ -1039,10 +1039,10 @@ function QuestHelper:GetObjective(category, objective)
       objective_object.o = {pos={{tonumber(i),tonumber(x),tonumber(y),1}}}
       objective_object.fb = {}
     else
-      objective_list = QuestHelper_Objectives[category]
+      objective_list = QuestHelper_Objectives_Local[category]
       if not objective_list then
         objective_list = {}
-        QuestHelper_Objectives[category] = objective_list
+        QuestHelper_Objectives_Local[category] = objective_list
       end
       objective_object.o = objective_list[objective]
       if not objective_object.o then

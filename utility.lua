@@ -359,16 +359,20 @@ function QuestHelper:IsWrath()
   return GetBuildInfo():sub(1,1) == '3'
 end
 
-function QuestHelper:ConvertCoordsForWrath(data)
-  if data[1] == 36 then -- Stormwind
+-- These are used to convert coordinates back and forth from "Wrath" to "Native". "Force" is used to convert back and forth from "Wrath" to "BC".
+-- Both changes the data in-place and returns the data.
+function QuestHelper:ConvertCoordsToWrath(data, force)
+  if (not QuestHelper:IsWrath() or force) and data[1] == 36 then -- Stormwind
     data[2] = data[2] * 0.77324 + 0.197
     data[3] = data[3] * 0.77324 + 0.245
   end
+  return data
 end
 
-function QuestHelper:ConvertCoordsFromWrath(data)
-  if not QuestHelper:IsWrath() and data[1] == 36 then -- Stormwind
+function QuestHelper:ConvertCoordsFromWrath(data, force)
+  if (not QuestHelper:IsWrath() or force) and data[1] == 36 then -- Stormwind
     data[2] = (data[2] - 0.197) / 0.77324
     data[3] = (data[3] - 0.245) / 0.77324
   end
+  return data
 end

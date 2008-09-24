@@ -1,7 +1,7 @@
 QuestHelper_File["pathfinding.lua"] = "Development Version"
 
 local IRONFORGE_PORTAL = {25,0.255,0.084, "Ironforge portal site"}
-local STORMWIND_CITY_PORTAL = {36,0.387,0.802, "Stormwind City portal site"}
+local STORMWIND_CITY_PORTAL = QuestHelper:ConvertCoordsFromWrath(QuestHelper:ConvertCoordsToWrath({36,0.387,0.802, "Stormwind City portal site"}, true))  -- The annoying "wrath" construction here first forces it into Wrath format, then puts it into Native format.
 local DARNASSUS_PORTAL = {21,0.397,0.824, "Darnassus portal site"}
 local EXODAR_PORTAL = {12,0.476,0.598, "Exodar portal site"}
 
@@ -35,7 +35,7 @@ local static_alliance_routes =
    {{36, 0.639, 0.083}, {25, 0.764, 0.512}, 120}, -- Deeprun Tram
    {{10, 0.718, 0.565}, {51, 0.047, 0.636}, 210}, -- Theramore Isle <--> Menethil Harmor
    
-   {{36, 0.183, 0.255}, {65, 0.597, 0.694}, 210}, -- Stormwind City <--> Valiance Keep (note: new Stormwind location)
+   {QuestHelper:ConvertCoordsFromWrath({36, 0.183, 0.255}), {65, 0.597, 0.694}, 210}, -- Stormwind City <--> Valiance Keep (note: new Stormwind location)
    {{51, 0.047, 0.571}, {70, 0.612, 0.626}, 210}, -- Menethil <--> Daggercap Bay
    
    {{60, 0.558, 0.366}, STORMWIND_CITY_PORTAL, 5, true, nil, "STORMWIND_CITY_PORTAL"}, -- Shattrath City --> Stormwind City
@@ -121,7 +121,7 @@ local static_zone_transitions =
    {31, 49, 0.079, 0.638}, -- Duskwood <--> Westfall
    {34, 50, 0.107, 0.726}, -- Eastern Plaguelands <--> Western Plaguelands
    {34, 44, 0.625, 0.03}, -- Eastern Plaguelands <--> Ghostlands
-   {37, 36, 0.321, 0.493}, -- Elwynn Forest <--> Stormwind City
+   {37, 36, 0.321, 0.493}, -- Elwynn Forest <--> Stormwind City   -- Don't need to convert because it's in Elwynn coordinates, not Stormwind coordinates
    {37, 49, 0.202, 0.804}, -- Elwynn Forest <--> Westfall
    {37, 30, 0.944, 0.724}, -- Elwynn Forest <--> Redridge Mountains
    {41, 52, 0.567, 0.494}, -- Eversong Woods <--> Silvermoon City

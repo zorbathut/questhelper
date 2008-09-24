@@ -253,10 +253,19 @@ function QuestHelper:Initialize()
     self:TextOut(QHText("DOWNGRADE_ERROR"))
     return
   end
+  
+  local signature = expected_version .. " on " .. GetBuildInfo()
+  QuestHelper_Quests[signature] = QuestHelper_Quests[signature] or {}
+  QuestHelper_Objectives[signature] = QuestHelper_Objectives[signature] or {}
+  QuestHelper_FlightInstructors[signature] = QuestHelper_FlightInstructors[signature] or {}
+  QuestHelper_FlightRoutes[signature] = QuestHelper_FlightRoutes[signature] or {}
+  
+  QuestHelper_Quests_Local = QuestHelper_Quests[signature]
+  QuestHelper_Objectives_Local = QuestHelper_Objectives[signature]
+  QuestHelper_FlightInstructors_Local = QuestHelper_FlightInstructors[signature]
+  QuestHelper_FlightRoutes_Local = QuestHelper_FlightRoutes[signature]
 
   self.player_level = UnitLevel("player")
-
-  self:ResetPathing()
 
   self:UnregisterEvent("VARIABLES_LOADED")
   self:RegisterEvent("PLAYER_TARGET_CHANGED")
@@ -294,7 +303,6 @@ function QuestHelper:Initialize()
 
   self:HandlePartyChange()
 
-  -- Not nagging; my email isn't working properly and I don't want to worry about it.
   self:Nag("all")
 
   for locale in pairs(QuestHelper_StaticData) do
@@ -321,7 +329,21 @@ function QuestHelper:Initialize()
       end
     end end
   end
+  
+  if not QuestHelper:IsWrath() then
+    for cat, list in pairs(static.objective) do
+      for name, obj in pairs(list) do
+        if obj.pos then
+          for i, cpos in pairs(obj.pos) do
+            QuestHelper:ConvertCoordsFromWrath(cpos)
+          end
+        end
+      end
+    end
+  end
 
+  self:ResetPathing()
+  
   -- Adding QuestHelper_CharVersion, so I know if I've already converted this characters saved data.
   if not QuestHelper_CharVersion then
     -- Changing per-character flight routes, now only storing the flight points they have,

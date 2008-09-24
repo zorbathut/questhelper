@@ -43,8 +43,8 @@ QuestHelper.default_objective_quest_meta = { __index = QuestHelper.default_objec
 
 function QuestHelper:GetQuest(name, level, hash)
   if not level then
-    if QuestHelper_Quests[self.faction] then
-      for l, quest_list in ipairs(QuestHelper_Quests[self.faction]) do
+    if QuestHelper_Quests_Local[self.faction] then
+      for l, quest_list in ipairs(QuestHelper_Quests_Local[self.faction]) do
         if quest_list[name] then
           level = l
           break
@@ -97,11 +97,11 @@ function QuestHelper:GetQuest(name, level, hash)
     
     bracket2[hash or -1] = quest_object
     
-    local fbracket = QuestHelper_Quests[self.faction]
+    local fbracket = QuestHelper_Quests_Local[self.faction]
     
     if not fbracket then
       fbracket = {}
-      QuestHelper_Quests[self.faction] = fbracket
+      QuestHelper_Quests_Local[self.faction] = fbracket
     end
     
     bracket = fbracket[level]
@@ -212,7 +212,7 @@ function QuestHelper:PurgeItemFromQuest(quest, item_name, item_object)
 end
 
 function QuestHelper:PurgeQuestItem(item_name, item_object)
-  for faction, level_list in pairs(QuestHelper_Quests) do
+  for faction, level_list in pairs(QuestHelper_Quests_Local) do
     for level, quest_list in pairs(level_list) do
       for quest_name, quest in pairs(quest_list) do
         self:PurgeItemFromQuest(quest, item_name, item_object)

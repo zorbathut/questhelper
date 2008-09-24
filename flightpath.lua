@@ -137,10 +137,10 @@ function QuestHelper:processFlightData(data)
   end
   
   if data.start_time and data.end_time and data.end_time > data.start_time then
-    local routes = QuestHelper_FlightRoutes[self.faction]
+    local routes = QuestHelper_FlightRoutes_Local[self.faction]
     if not routes then
       routes = {}
-      QuestHelper_FlightRoutes[self.faction] = routes
+      QuestHelper_FlightRoutes_Local[self.faction] = routes
     end
     
     local origin = routes[data.origin]
@@ -162,7 +162,7 @@ function QuestHelper:processFlightData(data)
 end
 
 function QuestHelper:getFlightInstructor(area)
-  local fi_table = QuestHelper_FlightInstructors[self.faction]
+  local fi_table = QuestHelper_FlightInstructors_Local[self.faction]
   if fi_table then
     local npc = fi_table[area]
     if npc then
@@ -219,12 +219,12 @@ local function getWalkToFlight(tbl, fi1, fi2)
 end
 
 function QuestHelper:computeWalkToFlightMult()
-  local l = QuestHelper_FlightRoutes[self.faction]
+  local l = QuestHelper_FlightRoutes_Local[self.faction]
   local s = QuestHelper_StaticData[self.locale]
   s = s and s.flight_routes
   s = s and s[self.faction]
   
-  local fi1 = QuestHelper_FlightInstructors[self.faction]
+  local fi1 = QuestHelper_FlightInstructors_Local[self.faction]
   local fi2 = QuestHelper_StaticData[self.locale]
   fi2 = fi2 and fi2.flight_instructors
   fi2 = fi2 and fi2[self.faction]
@@ -241,7 +241,7 @@ function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
     return 0
   end
   
-  local l = QuestHelper_FlightRoutes[self.faction]
+  local l = QuestHelper_FlightRoutes_Local[self.faction]
   local s = QuestHelper_StaticData[self.locale]
   s = s and s.flight_routes
   s = s and s[self.faction]
@@ -253,7 +253,7 @@ function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
             getTime(l, dest, origin, hash) or getTime(s, dest, origin, hash) or fallback
   
   if t == nil then -- Don't have any recored information on this flight time, will estimate based on distances.
-    l = QuestHelper_FlightInstructors[self.faction]
+    l = QuestHelper_FlightInstructors_Local[self.faction]
     s = QuestHelper_StaticData[self.locale]
     s = s and s.flight_instructors
     s = s and s[self.faction]
@@ -294,7 +294,7 @@ function QuestHelper:addLinkInfo(data, flight_times)
       
       if not moonglade_fp then
         
-        local fi_table = QuestHelper_FlightInstructors[self.faction]
+        local fi_table = QuestHelper_FlightInstructors_Local[self.faction]
         
         if fi_table then for area, npc in pairs(fi_table) do
           local npc_obj = self:GetObjective("monster", npc)
@@ -408,7 +408,7 @@ function QuestHelper:buildFlightTimes()
     flight_times[key] = nil
   end
   
-  local l = QuestHelper_FlightRoutes[self.faction]
+  local l = QuestHelper_FlightRoutes_Local[self.faction]
   local s = QuestHelper_StaticData[self.locale]
   s = s and s.flight_routes
   s = s and s[self.faction]
@@ -474,11 +474,11 @@ function QuestHelper:buildFlightTimes()
 end
 
 function QuestHelper:taxiMapOpened()
-  local routes = QuestHelper_FlightRoutes[self.faction]
+  local routes = QuestHelper_FlightRoutes_Local[self.faction]
   
   if not routes then
     routes = {}
-    QuestHelper_FlightRoutes[self.faction] = routes
+    QuestHelper_FlightRoutes_Local[self.faction] = routes
   end
   
   local sroutes = QuestHelper_StaticData[self.locale]
@@ -510,10 +510,10 @@ function QuestHelper:taxiMapOpened()
     
     if npc then
       -- Record who the flight instructor for this location is.
-      local fi_table = QuestHelper_FlightInstructors[self.faction]
+      local fi_table = QuestHelper_FlightInstructors_Local[self.faction]
       if not fi_table then
         fi_table = {}
-        QuestHelper_FlightInstructors[self.faction] = fi_table
+        QuestHelper_FlightInstructors_Local[self.faction] = fi_table
       end
       
       fi_table[origin] = npc

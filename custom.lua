@@ -242,7 +242,7 @@ function search_frame:SearchRoutine(input)
   local yield_countdown = yield_countdown_max
   
   if search_item then
-    local list = QuestHelper_Objectives["item"]
+    local list = QuestHelper_Objectives_Local["item"]
     if list then for n in pairs(list) do
       self:AddResult("item", n, fuzzyCompare(input, string.upper(n)))
       yield_countdown = yield_countdown - 1
@@ -265,7 +265,7 @@ function search_frame:SearchRoutine(input)
   end
   
   if search_npc then
-    local list = QuestHelper_Objectives["monster"]
+    local list = QuestHelper_Objectives_Local["monster"]
     if list then for n in pairs(list) do
       self:AddResult("monster", n, fuzzyCompare(input, string.upper(n)))
       yield_countdown = yield_countdown - 1
