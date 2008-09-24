@@ -604,31 +604,50 @@ local function AddInputData(data)
   if type(data.QuestHelper_Locale) == "string" then
     local locale = data.QuestHelper_Locale
     
-    if type(data.QuestHelper_Quests) == "table" then for faction, levels in pairs(data.QuestHelper_Quests) do
-      if type(levels) == "table" then for level, quest_list in pairs(levels) do
-        if type(quest_list) == "table" then for quest_name, quest_data in pairs(quest_list) do
-          AddQuest(locale, faction, level, quest_name, quest_data)
+    if type(data.QuestHelper_Quests) == "table" then for version, package in pairs(data.QuestHelper_Quests) do
+      if AuthorizedVersion(version) and type(package) == "table" then for faction, levels in pairs(package) do
+        if type(levels) == "table" then for level, quest_list in pairs(levels) do
+          if type(quest_list) == "table" then for quest_name, quest_data in pairs(quest_list) do
+            AddQuest(locale, faction, level, quest_name, quest_data)
+          end end
         end end
       end end
     end end
     
-    if type(data.QuestHelper_Objectives) == "table" then for category, objectives in pairs(data.QuestHelper_Objectives) do
-      if type(objectives) == "table" then for name, objective in pairs(objectives) do
-        AddObjective(locale, category, name, objective)
+    local function PreWrath(ver)
+      return ver:sub(1,1) ~= '3'
+    end
+    
+    if type(data.QuestHelper_Objectives) == "table" then for version, package in pairs(data.QuestHelper_Objectives) do
+      if AuthorizedVersion(version) and type(package) == "table" then for category, objectives in pairs(package) do
+        if type(objectives) == "table" and PreWrath(version) then for name, objective in pairs(objectives) do
+          if type(objective) == "table" and objective.pos and type(objective.pos) == "table" then
+            for i, pos in pairs(objective.pos) do
+              QuestHelper_ConvertCoordsToWrath(pos, true)
+            end
+          end
+        end end
+        if type(objectives) == "table" then for name, objective in pairs(objectives) do
+          AddObjective(locale, category, name, objective)
+        end end
       end end
     end end
     
-    if type(data.QuestHelper_FlightInstructors) == "table" then for faction, list in pairs(data.QuestHelper_FlightInstructors) do
-      if type(list) == "table" then for location, npc in pairs(list) do
-        AddFlightInstructor(locale, faction, location, npc)
+    if type(data.QuestHelper_FlightInstructors) == "table" then for version, package in pairs(data.QuestHelper_FlightInstructors) do
+      if AuthorizedVersion(version) and type(package) == "table" then for faction, list in pairs(package) do
+        if type(list) == "table" then for location, npc in pairs(list) do
+          AddFlightInstructor(locale, faction, location, npc)
+        end end
       end end
     end end
     
-    if type(data.QuestHelper_FlightRoutes) == "table" then for faction, start_list in pairs(data.QuestHelper_FlightRoutes) do
-      if type(start_list) == "table" then for start, destination_list in pairs(start_list) do
-        if type(destination_list) == "table" then for destination, hash_list in pairs(destination_list) do
-          if type(hash_list) == "table" then for hash, value in pairs(hash_list) do
-            AddFlightRoute(locale, faction, start, destination, hash, value)
+    if type(data.QuestHelper_FlightRoutes) == "table" then for version, package in pairs(data.QuestHelper_FlightRoutes) do
+      if AuthorizedVersion(version) and type(package) == "table" then for faction, start_list in pairs(package) do
+        if type(start_list) == "table" then for start, destination_list in pairs(start_list) do
+          if type(destination_list) == "table" then for destination, hash_list in pairs(destination_list) do
+            if type(hash_list) == "table" then for hash, value in pairs(hash_list) do
+              AddFlightRoute(locale, faction, start, destination, hash, value)
+            end end
           end end
         end end
       end end

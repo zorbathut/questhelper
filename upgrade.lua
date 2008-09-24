@@ -495,6 +495,8 @@ function QuestHelper_UpgradeDatabase(data)
     
     -- Second, split up the entire thing into versions
     local function versionize(item)
+      --if not item or type(item) ~= "table" then return end  -- blue magician doesn't know what the fuck
+      
       local temp = {}
       for k, v in pairs(item) do
         temp[k] = v
@@ -507,10 +509,10 @@ function QuestHelper_UpgradeDatabase(data)
       item["unknown on unknown"] = temp
     end
     
-    versionize(QuestHelper_Quests)
-    versionize(QuestHelper_Objectives)
-    versionize(QuestHelper_FlightInstructors)
-    versionize(QuestHelper_FlightRoutes)
+    versionize(data.QuestHelper_Quests)
+    versionize(data.QuestHelper_Objectives)
+    versionize(data.QuestHelper_FlightInstructors)
+    versionize(data.QuestHelper_FlightRoutes)
     
     data.QuestHelper_SaveVersion = 9
   end
@@ -529,4 +531,22 @@ function QuestHelper_UpgradeComplete()
   QuestHelper_ConvertFaction = nil
   QuestHelper_UpgradeDatabase = nil
   QuestHelper_UpgradeComplete = nil
+end
+
+-- These are used to convert coordinates back and forth from "Wrath" to "Native". "Force" is used to convert back and forth from "Wrath" to "BC".
+-- Both changes the data in-place and returns the data.
+function QuestHelper_ConvertCoordsToWrath(data, force)
+  if (force or not QuestHelper:IsWrath()) and data[1] == 36 then -- Stormwind
+    data[2] = data[2] * 0.77324 + 0.197
+    data[3] = data[3] * 0.77324 + 0.245
+  end
+  return data
+end
+
+function QuestHelper_ConvertCoordsFromWrath(data, force)
+  if (force or not QuestHelper:IsWrath()) and data[1] == 36 then -- Stormwind
+    data[2] = (data[2] - 0.197) / 0.77324
+    data[3] = (data[3] - 0.245) / 0.77324
+  end
+  return data
 end

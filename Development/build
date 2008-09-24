@@ -8,6 +8,12 @@ local icons=true
 local debug_build=false
 local changes_lua = true
 
+function AuthorizedVersion(ver)
+  local qhv = string.gsub(ver, " on .*", "")
+  local warv = string.gsub(ver, ".* on ", "")
+  return qhv ~= "Development Version"
+end
+
 for i, a in ipairs({...}) do
   local mode, option = select(3, string.find(a, "^([%+%-]?)(.*)$"))
   
@@ -255,17 +261,21 @@ if compile then
         result.uid = loaded.QuestHelper_UID
         result.time = loaded.QuestHelper_SaveDate
       else
-        if type(loaded.QuestHelper_Quests) == "table" then for faction, levels in pairs(loaded.QuestHelper_Quests) do
-          if type(levels) == "table" then for level, quest_list in pairs(levels) do
-            if type(quest_list) == "table" then for name, quest in pairs(quest_list) do
-              ProcessQuest(faction, level, name, quest, result)
+        if type(loaded.QuestHelper_Quests) == "table" then for version, package in pairs(loaded.QuestHelper_Quests) do
+          if AuthorizedVersion(version) and type(package) == "table" then for faction, levels in pairs(package) do
+            if type(levels) == "table" then for level, quest_list in pairs(levels) do
+              if type(quest_list) == "table" then for name, quest in pairs(quest_list) do
+                ProcessQuest(faction, level, name, quest, result)
+              end end
             end end
           end end
         end end
         
-        if type(loaded.QuestHelper_Objectives) == "table" then for category, objectives in pairs(loaded.QuestHelper_Objectives) do
-          if type(objectives) == "table" then for name, objective in pairs(objectives) do
-            ProcessObjective(category, name, objective, result)
+        if type(loaded.QuestHelper_Objectives) == "table" then for version, package in pairs(loaded.QuestHelper_Objectives) do
+          if AuthorizedVersion(version) and type(package) == "table" then for faction, levels in pairs(package) do
+            if type(objectives) == "table" then for name, objective in pairs(objectives) do
+              ProcessObjective(category, name, objective, result)
+            end end
           end end
         end end
       end
@@ -291,6 +301,7 @@ if compile then
   local checked = {}
   local file_data = {}
 
+  -- This entire mess is built to find obsolete files and remove them.
   for new_name, original_name in pairs(unknown_input_files) do
     print("Checking: ", original_name)
     local data = file_data[new_name]
@@ -391,6 +402,7 @@ if compile then
   for name, origin in pairs(all_input_files) do
     counter = counter + 1
     print("Compiling " .. counter .. "/" .. total_count .. ": ", origin)
+    --CompileInputFile(name)
     if not pcall(CompileInputFile, name) then
       print("!!!!! FAILURE")
     end
