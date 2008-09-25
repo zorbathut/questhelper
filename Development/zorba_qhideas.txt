@@ -1,5 +1,7 @@
 
 * Why is Zorba bouncing off Quel'Danas?
+
+* Lots of things break when flightpoints are updated. Lots of them.
 * Cartographer 3 incompatibility?
 
 * Bug: Full info in Tomtom's waypoint line?

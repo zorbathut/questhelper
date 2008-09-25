@@ -276,8 +276,6 @@ function QuestHelper:Initialize()
   self:RegisterEvent("MERCHANT_SHOW")
   self:RegisterEvent("QUEST_DETAIL")
   self:RegisterEvent("TAXIMAP_OPENED")
-  self:RegisterEvent("PLAYER_CONTROL_GAINED")
-  self:RegisterEvent("PLAYER_CONTROL_LOST")
   self:RegisterEvent("PLAYER_LEVEL_UP")
   self:RegisterEvent("PARTY_MEMBERS_CHANGED")
   self:RegisterEvent("CHAT_MSG_ADDON")
@@ -648,14 +646,6 @@ function QuestHelper:OnEvent(event)
     self:taxiMapOpened()
   end
 
-  if event == "PLAYER_CONTROL_GAINED" then
-    self:flightEnded()
-  end
-
-  if event == "PLAYER_CONTROL_LOST" then
-    self:flightBegan()
-  end
-
   if event == "BAG_UPDATE" then
     for slot = 1,GetContainerNumSlots(arg1) do
       local link = GetContainerItemLink(arg1, slot)
@@ -672,9 +662,19 @@ end
 local map_shown_decay = 0
 local delayed_action = 100
 local update_count = 0
+local ontaxi = false
 
 function QuestHelper:OnUpdate()
-
+  
+  if not ontaxi and UnitOnTaxi("player") then
+    QuestHelper:TextOut("---- FLIGHT BEGINS")
+    self:flightBegan()
+  elseif ontaxi and not UnitOnTaxi("player") then
+  QuestHelper:TextOut("---- FLIGHT ENDS")
+    self:flightEnded()
+  end
+  ontaxi = UnitOnTaxi("player")
+  
   update_count = update_count - 1
 
   if update_count <= 0 then

@@ -781,6 +781,76 @@ function Routing:RouteUpdateRoutine()
   
   local last_cache_clear = GetTime()
   
+  ------ EVIL HACK OF DEBUG
+  
+  --[[
+  if false then
+    while GetTime() < last_cache_clear + 5 do
+      coroutine.yield()
+    end
+    
+    if qh.target then
+      -- We know the player will be at the target location at target_time, so fudge the numbers
+      -- to pretend we're traveling there.
+      
+      pos[1], pos[3], pos[4] = qh.target[1], qh.target[3], qh.target[4]
+      local extra_time = math.max(0, qh.target_time-time())
+      for i, t in ipairs(qh.target[2]) do
+        pos[2][i] = t+extra_time
+      end
+    else
+      if not pos[1] -- Need a valid position, in case the player was dead when they loaded the game.
+        or not UnitIsDeadOrGhost("player") then
+        -- Don't update the player's position if they're dead, assume they'll be returning to their corpse.
+        pos[3], pos[4] = qh.Astrolabe:TranslateWorldMapPosition(qh.c, qh.z, qh.x, qh.y, qh.c, 0)
+        assert(pos[3])
+        assert(pos[4])
+        pos[1] = qh.zone_nodes[qh.i]
+        pos[3], pos[4] = pos[3] * qh.continent_scales_x[qh.c], pos[4] * qh.continent_scales_y[qh.c]
+        
+        for i, n in ipairs(pos[1]) do
+          if not n.x then
+            for i, j in pairs(n) do qh:TextOut("[%q]=%s %s", i, type(j), tostring(j) or "???") end
+            assert(false)
+          end
+          
+          local a, b = n.x-pos[3], n.y-pos[4]
+          pos[2][i] = math.sqrt(a*a+b*b)
+        end
+      end
+    end
+    
+    local obj = next(to_add)
+    
+    QuestHelper:TextOut("dbghack")
+    QuestHelper:TextOut(QuestHelper:StringizeTable(to_add))
+    obj.filter_zone = false
+    obj.filter_watched = false
+    QuestHelper:TextOut(QuestHelper:StringizeTable(obj))
+    QuestHelper:TextOut(tostring(obj:Known()))
+    obj:PrepareRouting()
+    QuestHelper:TextOut(QuestHelper:StringizeTable(obj))
+    
+    QuestHelper:TextOut("o")
+    QuestHelper:TextOut(QuestHelper:StringizeTable(obj.o))
+    
+    QuestHelper:TextOut("pp")
+    QuestHelper:TextOut(QuestHelper:StringizeTable(obj.pos))
+    QuestHelper:TextOut(QuestHelper:StringizeTable(obj.p))
+    QuestHelper:TextOut(tostring(obj:Known()))
+    
+    local index = best_route:addObjectiveBest(obj)
+    obj.pos = best_route[index].pos
+    
+    QuestHelper:TextOut(QuestHelper:StringizeTable(obj.pos))
+    
+    QuestHelper:TextOut(qh:ComputeTravelTime(pos, obj.pos))
+    
+    Error()
+  end]]
+  
+  ------ EVIL HACK OF DEBUG
+  
   while true do
     -- Clear caches out a bit
     if GetTime() + 15 >= last_cache_clear then
