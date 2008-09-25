@@ -667,10 +667,8 @@ local ontaxi = false
 function QuestHelper:OnUpdate()
   
   if not ontaxi and UnitOnTaxi("player") then
-    QuestHelper:TextOut("---- FLIGHT BEGINS")
     self:flightBegan()
   elseif ontaxi and not UnitOnTaxi("player") then
-  QuestHelper:TextOut("---- FLIGHT ENDS")
     self:flightEnded()
   end
   ontaxi = UnitOnTaxi("player")
