@@ -125,6 +125,8 @@ function QuestHelper:processFlightData(data)
     y = y * self.continent_scales_y[self.c]
     local t = (x-pos[3])*(x-pos[3])+(y-pos[4])*(y-pos[4])
     
+    --self:TextOut(string.format("(%f,%f) vs (%f,%f) is %f", x, y, pos[3], pos[4], t))
+    
     if t > 5*5 then
       correct = false
     end
