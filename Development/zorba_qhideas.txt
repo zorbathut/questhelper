@@ -1,8 +1,12 @@
 
 * Why is Zorba bouncing off Quel'Danas?
+* Cartographer 3 incompatibility?
 
 * Bug: Full info in Tomtom's waypoint line?
 * Bug: The assert check is going to break if the flightpoints are updated. Make this not happen. Actually now that I think about it, I bet updating the flight points is causing a lot of those crashes!
+
+QuestHelper: The Routing Co-Routine just exploded:
+Interface\Addons\Questhelper\objective.lua:30: stack overflow
 
 * WOTLK support
 new_x = old_x * 0.77324 + 0.197

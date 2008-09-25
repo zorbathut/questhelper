@@ -487,7 +487,7 @@ function QuestHelper_UpgradeDatabase(data)
       for name, obj in pairs(list) do
         if obj.pos then
           for i, cpos in pairs(obj.pos) do
-            QuestHelper:ConvertCoordsToWrath(cpos, true)
+            QuestHelper_ConvertCoordsToWrath(cpos, true)
           end
         end
       end
@@ -498,9 +498,12 @@ function QuestHelper_UpgradeDatabase(data)
       --if not item or type(item) ~= "table" then return end  -- blue magician doesn't know what the fuck
       
       local temp = {}
+      local foundthings = false
       for k, v in pairs(item) do
         temp[k] = v
+        foundthings = true
       end
+      if not foundthings then return end -- just to avoid extra keys hanging around in people's tables
       
       for key in pairs(item) do
         item[key] = nil

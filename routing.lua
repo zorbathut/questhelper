@@ -630,7 +630,7 @@ function Route:breed(route_map)
   local invalid_passes = 0
   while invalid do
     invalid_passes = invalid_passes + 1
-    QuestHelper:Assert(invalid_passes <= 100, "Too many mutation passes needed to preserve sanity, something has gone Horribly Wrong, please report this as a bug (you will probably need to restart WoW, sorry about that)")
+    QuestHelper: Assert(invalid_passes <= 100, "Too many mutation passes needed to preserve sanity, something has gone Horribly Wrong, please report this as a bug (you will probably need to restart WoW, sorry about that)")  -- space is so it works in the real code
     invalid = false
     local i = 1
     while i <= #self do
@@ -889,8 +889,8 @@ function Routing:RouteUpdateRoutine()
         end
         -- Actually duplicating a route is irritatingly hard (this is another thing which will be fixed eventually dammit)
         
-        aobt:sanity()
-        best_route:sanity()
+        assert(aobt:sanity())
+        assert(best_route:sanity())
         
         local old_distance, old_index = best_route.distance, best_route:removeObjective(o)
         local old_real_distance = (best_route.distance or 0) + (best_route[1] and qh:ComputeTravelTime(pos, best_route[1].pos) or 0)  -- part of hack
@@ -932,7 +932,7 @@ function Routing:RouteUpdateRoutine()
           while #best_route > 0 do table.remove(best_route) end
           for k, v in pairs(aobt) do best_route[k] = v end  -- hack
           setmetatable(aobt, Route)
-          best_route:sanity()
+          assert(best_route:sanity())
         end  -- hack
         
         -- this chunk of code used to live up by old_index ~= new_index, but it obviously no longer does. should probably be moved back once Best works again
@@ -1078,8 +1078,8 @@ function Routing:RouteUpdateRoutine()
       
       if best ~= best_route then
         
-        best:sanity()
-        best_route:sanity()
+        assert(best:sanity())
+        assert(best_route:sanity())
         
         best_route = best
         self.best_route = best_route

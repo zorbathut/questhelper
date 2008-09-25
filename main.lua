@@ -335,7 +335,7 @@ function QuestHelper:Initialize()
       for name, obj in pairs(list) do
         if obj.pos then
           for i, cpos in pairs(obj.pos) do
-            QuestHelper:ConvertCoordsFromWrath(cpos)
+            QuestHelper_ConvertCoordsFromWrath(cpos)
           end
         end
       end
