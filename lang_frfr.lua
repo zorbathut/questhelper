@@ -1,4 +1,4 @@
--- Please see lang_enus.lua for reference.
+﻿-- Please see lang_enus.lua for reference.
 
 QuestHelper_Translations["frFR"] =
  {
@@ -6,9 +6,11 @@ QuestHelper_Translations["frFR"] =
   LOCALE_NAME = "Français",
   
   -- Messages used when starting.
-  LOCALE_ERROR = "La langue de vos données sauvegardées ne correspond pas à la langue de votre client WoW.",
-  ZONE_LAYOUT_ERROR = "Lancement refusé par crainte de corrompre vos données sauvegardées. Veuillez attendre la sortie d'un patch capable de prendre en charge la nouvelle zone.",
-  DOWNGRADE_ERROR = "Vos données ne sont pas compatibles avec cette version de QuestHelper. Télécharger une version récente ou supprimer les variables sauvegardées.",
+  LOCALE_ERROR = "La langue de vos données sauvegardées ne correspond pas à la langue de votre client WoW. Pour utiliser QuestHelper vous devez soit remettre la langue que vous aviez avant, ou supprimer les données en tapant %h(/qh purge).",
+ZONE_LAYOUT_ERROR = "Lancement refusé par crainte de corrompre vos données sauvegardées. "..
+                      "Veuillez attendre la sortie d'un patch capable de prendre en charge la nouvelle zone.",
+  DOWNGRADE_ERROR = "Vos données ne sont pas compatibles avec cette version de QuestHelper. "..
+                    "Télécharger une nouvelle version, ou supprimer les variables sauvegardées.",
   HOME_NOT_KNOWN = "Vous n'avez pas d'auberge définie. Lors d'une prochaine visite à votre aubergiste; réinitialiser-là.",
   
   -- Route related text.
@@ -34,7 +36,7 @@ QuestHelper_Translations["frFR"] =
   OBJECTIVE_PURCHASE = "A acheter auprès de %h1.",
   OBJECTIVE_TALK = "Parler à %h1.",
   OBJECTIVE_SLAY = "Tuer %h1.",
-  OBJECTIVE_LOOT = "Loot %h1.",
+  OBJECTIVE_LOOT = "Ramasser %h1.",
   
   ZONE_BORDER = "%1/%2 bordure",
   
@@ -47,7 +49,7 @@ QuestHelper_Translations["frFR"] =
   PRIORITY5 = "La plus basse",
   SHARING = "Partage",
   SHARING_ENABLE = "Partager",
-  SHARING_DISABLE = "Ne pas Partager",
+  SHARING_DISABLE = "Ne pas partager",
   IGNORE = "Ignore",
   
   IGNORED_PRIORITY_TITLE = "La priorité sélectionnée sera ignorée.",
@@ -57,8 +59,8 @@ QuestHelper_Translations["frFR"] =
   -- Custom objectives.
   RESULTS_TITLE = "Résultats de la recherche",
   NO_RESULTS = "Il n'y en a aucun!",
-  CREATED_OBJ = "Créé: %1",
-  REMOVED_OBJ = "Supprimé: %1",
+  CREATED_OBJ = "Créer: %1",
+  REMOVED_OBJ = "Supprimer: %1",
   USER_OBJ = "Objectifs utilisateur: %h1",
   UNKNOWN_OBJ = "Destination inconnue pour cet objectif.",
   
@@ -90,6 +92,7 @@ QuestHelper_Translations["frFR"] =
   FILTERED_ZONE = "Filtré à cause de la zone.",
   FILTERED_COMPLETE = "Filtré car complété.",
   FILTERED_BLOCKED = "Filtré car un objectif précédent n'a pas été complété",
+  FILTERED_UNWATCHED = "Filtré car l'objectif n'est pas suivit dans le journal de quête",
   FILTERED_USER = "Vous avez demandé à caché cet objectif.",
   FILTERED_UNKNOWN = "Ne sais pas comment finaliser.",
   
@@ -101,31 +104,31 @@ QuestHelper_Translations["frFR"] =
   FILTER_BLOCKED = "bloqué",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
-  NAG_MULTIPLE_NEW = "Vous avez des informations nouvelles pour %h1 et mises à jour pour %h2 %h(%s3).",
-  NAG_SINGLE_NEW = "Vous avez des informations nouvelles pour %h1.",
+  NAG_MULTIPLE_NEW = "Vous avez des nouvelles informations pour %h1 et mises à jour pour %h2 %h(%s3).",
+  NAG_SINGLE_NEW = "Vous avez des nouvelles informations pour %h1.",
   NAG_ADDITIONAL = "Vous avez des informations complémentaires pour %h1.",
   
-  NAG_NOT_NEW = "Vous n'avez auncune information qui n'est pas déjà dans la base de données statique.",
+  NAG_NOT_NEW = "Vous n'avez aucune information qui n'est pas déjà dans la base de données statique.",
   NAG_NEW = "Vous devez penser à partager vos données pour le bénéfice des autres joueurs.",
-  NAG_INSTRUCTIONS = nil,
+  NAG_INSTRUCTIONS = "Tapez %h(/gq submit) pour savoir comment soumettre des informations.",
   
-  NAG_SINGLE_FP = "Un maitre de vol",
+  NAG_SINGLE_FP = "un maitre de vol",
   NAG_SINGLE_QUEST = "une quete",
-  NAG_SINGLE_ROUTE = "Chemin de vol",
-  NAG_SINGLE_ITEM_OBJ = "Objectif d'article",
-  NAG_SINGLE_OBJECT_OBJ = "Objectif d'objet",
-  NAG_SINGLE_MONSTER_OBJ = "Objectif de monstre",
-  NAG_SINGLE_EVENT_OBJ = "Objectif d'évènement",
-  NAG_SINGLE_REPUTATION_OBJ = "Objectif de réputation",
+  NAG_SINGLE_ROUTE = "chemin de vol",
+  NAG_SINGLE_ITEM_OBJ = "objectif d'article",
+  NAG_SINGLE_OBJECT_OBJ = "objectif d'objet",
+  NAG_SINGLE_MONSTER_OBJ = "objectif de monstre",
+  NAG_SINGLE_EVENT_OBJ = "objectif d'évènement",
+  NAG_SINGLE_REPUTATION_OBJ = "objectif de réputation",
   
   NAG_MULTIPLE_FP = "%1 maitres de vol",
-  NAG_MULTIPLE_QUEST = "%1 quetes",
+  NAG_MULTIPLE_QUEST = "%1 quêtes",
   NAG_MULTIPLE_ROUTE = "Chemins de vol",
-  NAG_MULTIPLE_ITEM_OBJ = nil,
-  NAG_MULTIPLE_OBJECT_OBJ = nil,
-  NAG_MULTIPLE_MONSTER_OBJ = nil,
-  NAG_MULTIPLE_EVENT_OBJ = nil,
-  NAG_MULTIPLE_REPUTATION_OBJ = "Objectifs de réputation",
+  NAG_MULTIPLE_ITEM_OBJ = "%1 objectifs d'article",
+  NAG_MULTIPLE_OBJECT_OBJ = "%1 objectifs d'objet",
+  NAG_MULTIPLE_MONSTER_OBJ = "%1 objectifs de monstre",
+  NAG_MULTIPLE_EVENT_OBJ = "%1 objectifs d'évènement",
+  NAG_MULTIPLE_REPUTATION_OBJ = "%1 objectifs de réputation",
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1 est en cours:",
@@ -135,7 +138,7 @@ QuestHelper_Translations["frFR"] =
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
-  QH_BUTTON_TOOLTIP1 = "Clique gauche: %1 information de route",
+  QH_BUTTON_TOOLTIP1 = "Clique Gauche: %1 information de route",
   QH_BUTTON_TOOLTIP2 = "Clique Droit : Montrer le menu d'option",
   QH_BUTTON_SHOW = "Montrer",
   QH_BUTTON_HIDE = "Cacher",
@@ -143,13 +146,13 @@ QuestHelper_Translations["frFR"] =
   MENU_CLOSE = "Fermer le Menu",
   MENU_SETTINGS = "Options",
   MENU_ENABLE = "Activer",
-  MENU_DISABLE = "Desactiver",
-  MENU_OBJECTIVE_TIPS = "%1 Descriptif d'Objectif",
+  MENU_DISABLE = "Désactiver",
+  MENU_OBJECTIVE_TIPS = "%1 Descriptif d'objectif",
   MENU_TRACKER_OPTIONS = nil,
-  MENU_QUEST_TRACKER = "%1 Suivi de Quête",
-  MENU_TRACKER_LEVEL = "%1 Niveaux de Quête",
+  MENU_QUEST_TRACKER = "%1 Suivi de quête",
+  MENU_TRACKER_LEVEL = "%1 Niveaux de quête",
   MENU_TRACKER_QCOLOUR = "%1 Couleurs de difficulté des quêtes",
-  MENU_TRACKER_OCOLOUR = "%1 Couleurs des Objectifs en Cours",
+  MENU_TRACKER_OCOLOUR = "%1 Couleurs des objectifs en cours",
   MENU_TRACKER_SCALE = nil,
   MENU_TRACKER_RESET = "Réinitialiser position",
   MENU_FLIGHT_TIMER = "%1 Temps de vol",
@@ -158,8 +161,9 @@ QuestHelper_Translations["frFR"] =
   MENU_MAP_BUTTON = "%1 Bouton de la Carte",
   MENU_ZONE_FILTER = "Filtre de zone",
   MENU_DONE_FILTER = "%1 Filtre effectué",
-  MENU_BLOCKED_FILTER = "%1 Filtre Bloqué",
-  MENU_LEVEL_FILTER = "%1 Filtre de Niveau",
+  MENU_BLOCKED_FILTER = "%1 Filtre bloqué",
+  MENU_WATCHED_FILTER = "%1 Filtre visionné",
+  MENU_LEVEL_FILTER = "%1 Filtre de niveau",
   MENU_LEVEL_OFFSET = nil,
   MENU_ICON_SCALE = "Position d'icones",
   MENU_FILTERS = "Filtres",
@@ -170,7 +174,7 @@ QuestHelper_Translations["frFR"] =
   MENU_PARTY_SOLO = "%1 Ignorer le Groupe",
   MENU_HELP = "Aide",
   MENU_HELP_SLASH = "Commandes Slash",
-  MENU_HELP_CHANGES = "Changer les log",
+  MENU_HELP_CHANGES = "Journal des modifications",
   MENU_HELP_SUBMIT = "Envoi de données",
   
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
