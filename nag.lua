@@ -306,9 +306,6 @@ function QuestHelper:Nag(cmd)
     self:TextOut(QHText("NAG_NOT_NEW"))
   else
     self:TextOut(QHText("NAG_NEW"))
-    
-    if total > 20 then
-      self:TextOut(QHText("NAG_INSTRUCTIONS"))
-    end
+    self:TextOut(QHText("NAG_INSTRUCTIONS"))
   end
 end
