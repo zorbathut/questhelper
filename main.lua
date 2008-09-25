@@ -238,7 +238,7 @@ function QuestHelper:Initialize()
     return
   end
 
-  self.Astrolabe = DongleStub("Astrolabe-0.4")
+  self.Astrolabe = DongleStub("Astrolabe-0.4-QuestHelper.1")
 
   if not self:ZoneSanity() then
     self:TextOut(QHText("ZONE_LAYOUT_ERROR"))

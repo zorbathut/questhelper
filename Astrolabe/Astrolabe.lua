@@ -1466,15 +1466,9 @@ if ( GetBuildInfo():sub(1, 3) == "3.0" ) then
   WorldMapSize[2].zoneData.EasternPlaguelands = {
     height = 2688.8123712161729166666666666667,
     width = 4032.1170802033010416666666666667,
-    xOffset = 21273.903715083067875416666666667,
-    yOffset = 7826.136971554920176125,
+    xOffset = 20422.9475664797451604,
+    yOffset = 7513.09149269272336908,
   }
-  --[[WorldMapSize[2].zoneData.EasternPlaguelands = {
-    height = 2581.259876367526,
-    width = 3870.832396995169,
-    xOffset = 20357.38356562001,
-    yOffset = 7376.373692430854,
-  }]]
 	
 	WorldMapSize[4] = {
 		parentContinent = 0,
