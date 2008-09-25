@@ -539,17 +539,27 @@ end
 -- These are used to convert coordinates back and forth from "Wrath" to "Native". "Force" is used to convert back and forth from "Wrath" to "BC".
 -- Both changes the data in-place and returns the data.
 function QuestHelper_ConvertCoordsToWrath(data, force)
-  if (force or not QuestHelper:IsWrath()) and data[1] == 36 then -- Stormwind
-    data[2] = data[2] * 0.77324 + 0.197
-    data[3] = data[3] * 0.77324 + 0.245
+  if (force or not QuestHelper:IsWrath()) then
+    if data[1] == 36 then -- Stormwind
+      data[2] = data[2] * 0.77324 + 0.197
+      data[3] = data[3] * 0.77324 + 0.245
+    elseif data[1] == 34 then -- EPL
+      data[2] = data[2] * 0.960 - 0.0254
+      data[3] = data[3] * 0.960 - 0.03532
+    end
   end
   return data
 end
 
 function QuestHelper_ConvertCoordsFromWrath(data, force)
-  if (force or not QuestHelper:IsWrath()) and data[1] == 36 then -- Stormwind
-    data[2] = (data[2] - 0.197) / 0.77324
-    data[3] = (data[3] - 0.245) / 0.77324
+  if (force or not QuestHelper:IsWrath()) then
+    if data[1] == 36 then -- Stormwind
+      data[2] = (data[2] - 0.197) / 0.77324
+      data[3] = (data[3] - 0.245) / 0.77324
+    elseif data[1] == 34 then -- EPL
+      data[2] = (data[2] + 0.0254) / 0.960
+      data[3] = (data[3] + 0.03532) / 0.960
+    end
   end
   return data
 end
