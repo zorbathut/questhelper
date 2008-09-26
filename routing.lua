@@ -783,7 +783,6 @@ function Routing:RouteUpdateRoutine()
   
   ------ EVIL HACK OF DEBUG
   
-  --[[
   if false then
     while GetTime() < last_cache_clear + 5 do
       coroutine.yield()
@@ -847,7 +846,7 @@ function Routing:RouteUpdateRoutine()
     QuestHelper:TextOut(qh:ComputeTravelTime(pos, obj.pos))
     
     Error()
-  end]]
+  end
   
   ------ EVIL HACK OF DEBUG
   
