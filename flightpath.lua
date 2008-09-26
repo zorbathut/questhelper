@@ -97,7 +97,7 @@ TakeTaxiNode = function(id)
   real_TakeTaxiNode(id)
 end
 
-function QuestHelper:processFlightData(data)
+function QuestHelper:processFlightData(data, interrupted)
   local npc = self:getFlightInstructor(data.dest)
   if not npc then
     self:TextOut(QHText("TALK_TO_FLIGHT_MASTER"))
@@ -158,6 +158,12 @@ function QuestHelper:processFlightData(data)
     end
     
     dest[data.hash] = data.end_time - data.start_time
+    
+    if interrupted then -- I'm assuming this doesn't depend on the hash, since I really doubt the routing system would let a player go through zone boundaries if it wasn't mandatory
+      dest.interrupt_count = (dest.interrupt_count or 0) + 1
+    else
+      dest.no_interrupt_count = (dest.no_interrupt_count or 0) + 1
+    end
   end
   
   return true
@@ -642,12 +648,12 @@ function QuestHelper:flightBegan()
   end
 end
 
-function QuestHelper:flightEnded()
+function QuestHelper:flightEnded(interrupted)
   local flight_data = self.flight_data
   if flight_data and not flight_data.end_time then
     flight_data.end_time = GetTime()
     
-    if self:processFlightData(flight_data) then
+    if self:processFlightData(flight_data, interrupted) then
       self:ReleaseTable(flight_data)
       self.flight_data = nil
     end

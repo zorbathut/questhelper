@@ -154,6 +154,8 @@ function QuestHelper:UnsetTargetLocation()
   end
 end
 
+local interruptcount = 0   -- counts how many "played gained control" messages we recieve, used for flight paths
+
 function QuestHelper:Initialize()
   local file_problem = false
   local expected_version = GetAddOnMetadata("QuestHelper", "Version")
@@ -276,6 +278,7 @@ function QuestHelper:Initialize()
   self:RegisterEvent("MERCHANT_SHOW")
   self:RegisterEvent("QUEST_DETAIL")
   self:RegisterEvent("TAXIMAP_OPENED")
+  self:RegisterEvent("PLAYER_CONTROL_GAINED")
   self:RegisterEvent("PLAYER_LEVEL_UP")
   self:RegisterEvent("PARTY_MEMBERS_CHANGED")
   self:RegisterEvent("CHAT_MSG_ADDON")
@@ -645,6 +648,10 @@ function QuestHelper:OnEvent(event)
   if event == "TAXIMAP_OPENED" then
     self:taxiMapOpened()
   end
+  
+  if event == "PLAYER_CONTROL_GAINED" then
+    interruptcount = interruptcount + 1
+  end
 
   if event == "BAG_UPDATE" then
     for slot = 1,GetContainerNumSlots(arg1) do
@@ -668,8 +675,10 @@ function QuestHelper:OnUpdate()
   
   if not ontaxi and UnitOnTaxi("player") then
     self:flightBegan()
+    interruptcount = 0
   elseif ontaxi and not UnitOnTaxi("player") then
-    self:flightEnded()
+    QuestHelper:TextOut(interruptcount)
+    self:flightEnded(interruptcount > 1)
   end
   ontaxi = UnitOnTaxi("player")
   
