@@ -677,7 +677,6 @@ function QuestHelper:OnUpdate()
     self:flightBegan()
     interruptcount = 0
   elseif ontaxi and not UnitOnTaxi("player") then
-    QuestHelper:TextOut(interruptcount)
     self:flightEnded(interruptcount > 1)
   end
   ontaxi = UnitOnTaxi("player")
