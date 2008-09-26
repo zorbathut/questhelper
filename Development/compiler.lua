@@ -1236,6 +1236,10 @@ function CompileFinish()
       if delete_category then l.objective[category] = nil end
     end
     
+    local function IgnoreItem(start, dest, hash_list, distance, count)
+      return dest == "Shattered Sun Staging Area" and (start == "Light's Hope Chapel, Eastern Plaguelands" or start == "Menethil Harbor, Wetlands" or start == "Ironforge, Dun Morogh" or start == "Stormwind, Elwynn")
+    end
+    
     if l.flight_routes then
       for faction, start_list in pairs(l.flight_routes) do
         local delete_faction = true
@@ -1243,14 +1247,33 @@ function CompileFinish()
           local delete_start = true
           for dest, hash_list in pairs(dest_list) do
             local delete_dest = true
+            
+            local delete_hashes = {}
+            
             for hash, value in pairs(hash_list) do
-              if type(value) == "table" then
+              if type(value) == "table" and hash ~= "interrupt_count" and hash ~= "no_interrupt_count" then
+                local count = #value
+                
                 hash_list[hash] = CollapseAverage(value)
-                delete_dest = false
+                
+                if IgnoreItem(start, dest, hash_list, hash_list[hash], count) then
+                  print(string.format("Deleting path: %s to %s, value %f, with interrupt/nointerrupt %d %d", start, dest, hash_list[hash], hash_list.interrupt_count or 0, hash_list.no_interrupt_count or 0))
+                  table.insert(delete_hashes, hash)
+                end
+                
+                delete_dest = false -- We leave this out here because it *is* a valid flight path, we just don't have valid information for it
               elseif value == true and hash == 0 then
                 delete_dest = false
               end
             end
+            
+            for k, v in pairs(delete_hashes) do
+              hash_list[v] = nil
+            end
+            
+            hash_list.interrupt_count = nil
+            hash_list.no_interrupt_count = nil
+            
             if delete_dest then
               dest_list[dest] = nil
             else
