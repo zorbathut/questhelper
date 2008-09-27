@@ -1,5 +1,5 @@
 
-* Why is Zorba bouncing off Quel'Danas?
+* Record drops per-instance so we don't think both Kael'Thas'es are the same
 
 * Lots of things break when flightpoints are updated. Lots of them.
 * Cartographer 3 incompatibility?

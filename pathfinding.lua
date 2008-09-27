@@ -6,6 +6,7 @@ local DARNASSUS_PORTAL = {21,0.397,0.824, "Darnassus portal site"}
 local EXODAR_PORTAL = {12,0.476,0.598, "Exodar portal site"}
 
 local SHATTRATH_CITY_PORTAL = {60,0.530,0.492, "Shattrath City portal site"}
+local DALARAN_PORTAL = {67,0.500,0.394, "Dalaran portal site"}
 local MOONGLADE_PORTAL = {20,0.563,0.320, "Moonglade portal site"}
 
 local SILVERMOON_CITY_PORTAL = {52,0.583,0.192, "Silvermoon City portal site"}
@@ -26,7 +27,13 @@ local static_horde_routes =
    {{60, 0.592, 0.483}, SILVERMOON_CITY_PORTAL, 5, true, nil, "SILVERMOON_CITY_PORTAL"}, -- Shattrath City --> Silvermoon City
    {{60, 0.528, 0.531}, THUNDER_BLUFF_PORTAL, 5, true, nil, "THUNDER_BLUFF_PORTAL"}, -- Shattrath City --> Thunder Bluff
    {{60, 0.522, 0.529}, ORGRIMMAR_PORTAL, 5, true, nil, "ORGRIMMAR_PORTAL"}, -- Shattrath City --> Orgrimmar
-   {{60, 0.517, 0.525}, UNDERCITY_PORTAL, 5, true, nil, "UNDERCITY_PORTAL"} -- Shattrath City --> Undercity
+   {{60, 0.517, 0.525}, UNDERCITY_PORTAL, 5, true, nil, "UNDERCITY_PORTAL"}, -- Shattrath City --> Undercity
+   
+   {{67, 0.583, 0.216}, SILVERMOON_CITY_PORTAL, 5, true, nil, "SILVERMOON_CITY_PORTAL"}, -- Dalaran --> Silvermoon City
+   {{67, 0.573, 0.219}, THUNDER_BLUFF_PORTAL, 5, true, nil, "THUNDER_BLUFF_PORTAL"}, -- Dalaran --> Thunder Bluff
+   {{67, 0.553, 0.255}, ORGRIMMAR_PORTAL, 5, true, nil, "ORGRIMMAR_PORTAL"}, -- Dalaran --> Orgrimmar
+   {{67, 0.556, 0.238}, UNDERCITY_PORTAL, 5, true, nil, "UNDERCITY_PORTAL"}, -- Dalaran --> Undercity
+   {{67, 0.563, 0.226}, SHATTRATH_CITY_PORTAL, 5, true, nil, "SHATTRATH_CITY_PORTAL"}, -- Dalaran --> Shatt
   }
 
   
@@ -41,7 +48,13 @@ local static_alliance_routes =
    {{60, 0.558, 0.366}, STORMWIND_CITY_PORTAL, 5, true, nil, "STORMWIND_CITY_PORTAL"}, -- Shattrath City --> Stormwind City
    {{60, 0.563, 0.37}, IRONFORGE_PORTAL, 5, true, nil, "IRONFORGE_PORTAL"}, -- Shattrath City --> Ironforge
    {{60, 0.552, 0.364}, DARNASSUS_PORTAL, 5, true, nil, "DARNASSUS_PORTAL"}, -- Shattrath City --> Darnassus
-   {{60, 0.596, 0.467}, EXODAR_PORTAL, 5, true, nil, "EXODAR_PORTAL"} -- Shattrath City --> Exodar
+   {{60, 0.596, 0.467}, EXODAR_PORTAL, 5, true, nil, "EXODAR_PORTAL"}, -- Shattrath City --> Exodar
+   
+   {{67, 0.401, 0.628}, STORMWIND_CITY_PORTAL, 5, true, nil, "STORMWIND_CITY_PORTAL"}, -- Dalaran --> Stormwind City
+   {{67, 0.395, 0.640}, IRONFORGE_PORTAL, 5, true, nil, "IRONFORGE_PORTAL"}, -- Dalaran --> Ironforge
+   {{67, 0.389, 0.651}, DARNASSUS_PORTAL, 5, true, nil, "DARNASSUS_PORTAL"}, -- Dalaran --> Darnassus
+   {{67, 0.382, 0.664}, EXODAR_PORTAL, 5, true, nil, "EXODAR_PORTAL"}, -- Dalaran --> Exodar
+   {{67, 0.371, 0.667}, SHATTRATH_CITY_PORTAL, 5, true, nil, "SHATTRATH_CITY_PORTAL"}, -- Dalaran --> Shatt
   }
 
 if QuestHelper:IsWrath() then -- siiiiigh
@@ -65,6 +78,8 @@ local static_shared_routes =
    
    {{70, 0.235, 0.578}, {68, 0.496, 0.784}, 210}, -- Kamagua <--> Moa'ki
    {{65, 0.789, 0.536}, {68, 0.480, 0.787}, 210}, -- Unu'pe <--> Moa'ki
+   {{67, 0.559, 0.467}, {66, 0.158, 0.428}, 5}, -- Dalaran --> Violet Stand
+   {{66, 0.157, 0.425}, {67, 0.559, 0.468}, 5}, -- Violent Stand --> Dalaran (slightly different coordinates, may be important once solid walls are in)
   }
 
 -- Darkportal is handled specially, depending on whether or not you're level 58+ or not.
