@@ -7,6 +7,7 @@ local archive_7z=false
 local icons=true
 local debug_build=false
 local changes_lua = true
+local condense = true
 
 function AuthorizedVersion(ver)
   local qhv = string.gsub(ver, " on .*", "")
@@ -26,12 +27,13 @@ for i, a in ipairs({...}) do
   elseif option == "icons" then icons = mode
   elseif option == "changes" then changes_lua = mode
   elseif option == "debug" then debug_build = mode
+  elseif option == "condense" then condense = mode
   else
     print("Unknown option: "..option)
     return 1
   end
 end
-
+  
 cache = {}
 local cache_loader = loadfile("build-cache.lua")
 if cache_loader then
@@ -408,11 +410,25 @@ if compile then
     end
   end
 
-  print("Writing: ../static.lua")
-
-  local stream = io.open("../static.lua", "w")
+  local outputfile = "../static.lua"
+  if condense then outputfile = "static.large" end
+  
+  print("Processing final data")
+  local finaldata = CompileFinish()
+  
+  print("Writing: " .. outputfile)
+  local stream = io.open(outputfile, "w")
   stream:write(ScanAndDumpVariable(CompileFinish(), "QuestHelper_StaticData"))
   io.close(stream)
+  
+  if condense then
+    print("Condensing static.lua")
+    local data_loader = loadfile("LuaSrcDiet.lua")
+    local data = {arg={"--maximum", "static.large", "-o", "../static.lua"}, TEST=true, string=string, print=print, table=table, ipairs=ipairs, error=error, io=io, tonumber=tonumber}  -- there has to be a better way to do this
+    setfenv(data_loader, data)
+    data_loader()
+    data.main()
+  end
 elseif not FileUtil.fileExists("../static.lua") then
   print("../static.lua doesn't exist; you can't skip the compile step.")
   return 1
