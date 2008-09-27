@@ -574,7 +574,7 @@ local function CollapseObjective(locale, objective)
   return objective.drop == nil and objective.contained == nil and objective.pos == nil and objective.vendor == nil
 end
 
-local function AddInputData(data)
+local function AddInputData(data, pairfrequencies)
   if data.QuestHelper_StaticData then
     -- Importing a static data file.
     local static = data.QuestHelper_StaticData
@@ -604,7 +604,10 @@ local function AddInputData(data)
   if type(data.QuestHelper_Locale) == "string" then
     local locale = data.QuestHelper_Locale
     
+    local seen_pairs = {}
+    
     if type(data.QuestHelper_Quests) == "table" then for version, package in pairs(data.QuestHelper_Quests) do
+      seen_pairs[version] = true
       if AuthorizedVersion(version) and type(package) == "table" then for faction, levels in pairs(package) do
         if type(levels) == "table" then for level, quest_list in pairs(levels) do
           if type(quest_list) == "table" then for quest_name, quest_data in pairs(quest_list) do
@@ -619,6 +622,7 @@ local function AddInputData(data)
     end
     
     if type(data.QuestHelper_Objectives) == "table" then for version, package in pairs(data.QuestHelper_Objectives) do
+      seen_pairs[version] = true
       if AuthorizedVersion(version) and type(package) == "table" then for category, objectives in pairs(package) do
         if type(objectives) == "table" and PreWrath(version) then for name, objective in pairs(objectives) do
           if type(objective) == "table" and objective.pos and type(objective.pos) == "table" then
@@ -634,6 +638,7 @@ local function AddInputData(data)
     end end
     
     if type(data.QuestHelper_FlightInstructors) == "table" then for version, package in pairs(data.QuestHelper_FlightInstructors) do
+      seen_pairs[version] = true
       if AuthorizedVersion(version) and type(package) == "table" then for faction, list in pairs(package) do
         if type(list) == "table" then for location, npc in pairs(list) do
           AddFlightInstructor(locale, faction, location, npc)
@@ -642,6 +647,7 @@ local function AddInputData(data)
     end end
     
     if type(data.QuestHelper_FlightRoutes) == "table" then for version, package in pairs(data.QuestHelper_FlightRoutes) do
+      seen_pairs[version] = true
       if AuthorizedVersion(version) and type(package) == "table" then for faction, start_list in pairs(package) do
         if type(start_list) == "table" then for start, destination_list in pairs(start_list) do
           if type(destination_list) == "table" then for destination, hash_list in pairs(destination_list) do
@@ -652,6 +658,10 @@ local function AddInputData(data)
         end end
       end end
     end end
+    
+    for k in pairs(seen_pairs) do
+      pairfrequencies[k] = (pairfrequencies[k] or 0) + 1
+    end
   end
 end
 
@@ -699,13 +709,13 @@ local function RemoveQuestByData(data)
   end
 end
 
-function CompileInputFile(filename)
+function CompileInputFile(filename, pairfrequencies)
   local data_loader = loadfile(filename)
   if data_loader then
     local data = {}
     setfenv(data_loader, data)
     data_loader()
-    AddInputData(data)
+    AddInputData(data, pairfrequencies)
   else
     print("'"..filename.."' couldn't be loaded!")
   end

@@ -7,6 +7,7 @@ local archive_7z=false
 local icons=true
 local debug_build=false
 local changes_lua = true
+local condense = true
 
 function AuthorizedVersion(ver)
   local qhv = string.gsub(ver, " on .*", "")
@@ -26,12 +27,13 @@ for i, a in ipairs({...}) do
   elseif option == "icons" then icons = mode
   elseif option == "changes" then changes_lua = mode
   elseif option == "debug" then debug_build = mode
+  elseif option == "condense" then condense = mode
   else
     print("Unknown option: "..option)
     return 1
   end
 end
-
+  
 cache = {}
 local cache_loader = loadfile("build-cache.lua")
 if cache_loader then
@@ -396,6 +398,7 @@ if compile then
 
   local total_count = 0
   local counter = 0
+  local pairfrequencies = {}
   for name, origin in pairs(all_input_files) do
     total_count = total_count + 1       -- I fuckin' hate Lua
   end
@@ -403,16 +406,39 @@ if compile then
     counter = counter + 1
     print("Compiling " .. counter .. "/" .. total_count .. ": ", origin)
     --CompileInputFile(name)
-    if not pcall(CompileInputFile, name) then
+    if not pcall(CompileInputFile, name, pairfrequencies) then
       print("!!!!! FAILURE")
     end
   end
 
-  print("Writing: ../static.lua")
-
-  local stream = io.open("../static.lua", "w")
-  stream:write(ScanAndDumpVariable(CompileFinish(), "QuestHelper_StaticData"))
+  local outputfile = "../static.lua"
+  if condense then outputfile = "static.large" end
+  
+  print("Processing final data")
+  local finaldata = CompileFinish()
+  
+  print("Writing: " .. outputfile)
+  local stream = io.open(outputfile, "w")
+  stream:write(ScanAndDumpVariable(finaldata, "QuestHelper_StaticData"))
   io.close(stream)
+  
+  if condense then
+    print("Condensing static.lua")
+    local data_loader = loadfile("LuaSrcDiet.lua")
+    local data = {arg={"--maximum", "static.large", "-o", "../static.lua"}, TEST=true, string=string, print=print, table=table, ipairs=ipairs, error=error, io=io, tonumber=tonumber}  -- there has to be a better way to do this
+    setfenv(data_loader, data)
+    data_loader()
+    data.main()
+  end
+  
+  local tobesorted = {}
+  for k, v in pairs(pairfrequencies) do
+    table.insert(tobesorted, {freq = v, tag = k})
+  end
+  table.sort(tobesorted, function (a, b) return a.freq < b.freq end)
+  for k, v in pairs(tobesorted) do
+    print(string.format("%d: %s", v.freq, v.tag))
+  end
 elseif not FileUtil.fileExists("../static.lua") then
   print("../static.lua doesn't exist; you can't skip the compile step.")
   return 1

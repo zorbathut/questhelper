@@ -204,6 +204,9 @@ end
 FileUtil.createDirectory = function(directory)
   if os.execute(string.format(is_windows and "MD %s" or "mkdir -p %s", FileUtil.quoteFile(directory))) ~= 0 then
     print("Failed to create directory: "..directory)
+    print(string.format(is_windows and "MD %s" or "mkdir -p %s", FileUtil.quoteFile(directory)))
+    os.execute("pwd")
+    os.exit(1)
   end
 end
 
@@ -226,14 +229,18 @@ FileUtil.convertImage = function(source, dest)
       -- I'm going to instead use rsvg to render them to some temporary location,
       -- and then use convert on the temporary file.
       local temp = os.tmpname()..".png"
+      print(string.format("rsvg -fpng %s %s", FileUtil.quoteFile(source), FileUtil.quoteFile(temp)))
       if os.execute(string.format("rsvg -fpng %s %s", FileUtil.quoteFile(source), FileUtil.quoteFile(temp))) ~= 0 then
         print("Failed to convert: "..source)
+        os.exit(1)
       else
         FileUtil.convertImage(temp, dest)
         FileUtil.unlinkFile(temp)
       end
     elseif os.execute(string.format("convert -background None %s %s", FileUtil.quoteFile(source), FileUtil.quoteFile(dest))) ~= 0 then
+      print(string.format("convert -background None %s %s", FileUtil.quoteFile(source), FileUtil.quoteFile(dest)))
       print("Failed to convert: "..source)
+      os.exit(1)
     end
   end
 end

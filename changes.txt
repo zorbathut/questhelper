@@ -1,3 +1,8 @@
+== Version 0.52 09/25/2008 ==
+
+* Add teleporter paths for Dalaran
+* Add a bit of compression to static.lua. This probably won't reduce memory use, but may reduce load times and package size. Reduced size by about 25%
+
 == Version 0.51 09/25/2008 ==
 
 * Support for 3.0 and for Wrath! (you can stop reading now, it doesn't get any better than that)
