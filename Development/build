@@ -398,6 +398,7 @@ if compile then
 
   local total_count = 0
   local counter = 0
+  local pairfrequencies = {}
   for name, origin in pairs(all_input_files) do
     total_count = total_count + 1       -- I fuckin' hate Lua
   end
@@ -405,7 +406,7 @@ if compile then
     counter = counter + 1
     print("Compiling " .. counter .. "/" .. total_count .. ": ", origin)
     --CompileInputFile(name)
-    if not pcall(CompileInputFile, name) then
+    if not pcall(CompileInputFile, name, pairfrequencies) then
       print("!!!!! FAILURE")
     end
   end
@@ -418,7 +419,7 @@ if compile then
   
   print("Writing: " .. outputfile)
   local stream = io.open(outputfile, "w")
-  stream:write(ScanAndDumpVariable(CompileFinish(), "QuestHelper_StaticData"))
+  stream:write(ScanAndDumpVariable(finaldata, "QuestHelper_StaticData"))
   io.close(stream)
   
   if condense then
@@ -428,6 +429,15 @@ if compile then
     setfenv(data_loader, data)
     data_loader()
     data.main()
+  end
+  
+  local tobesorted = {}
+  for k, v in pairs(pairfrequencies) do
+    table.insert(tobesorted, {freq = v, tag = k})
+  end
+  table.sort(tobesorted, function (a, b) return a.freq < b.freq end)
+  for k, v in pairs(tobesorted) do
+    print(string.format("%d: %s", v.freq, v.tag))
   end
 elseif not FileUtil.fileExists("../static.lua") then
   print("../static.lua doesn't exist; you can't skip the compile step.")
