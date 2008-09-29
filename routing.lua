@@ -88,60 +88,58 @@ function Route:sanity()
   return true
 end
 
-function Route:findObjectiveRange(obj)
-  local mn, smn = 1, 1
-  local smx = #self
-  local mx = smx+1
+function Route:findObjectiveRange(obj, passes)
+
+  --[[
+  lines = {}
+  table.insert(lines, string.format("QuestHelper objectiverange for %s (pri %d)", obj.obj, obj.real_priority))
+  for i = 1, #self do
+    table.insert(lines, string.format("%d %d %d --- %d %d %d (vs %s, %d)", obj.real_priority > self[i].obj.real_priority and 1 or 0, obj.after[self[i].obj] and 1 or 0, self[i].obj.before[obj] and 1 or 0, obj.real_priority < self[i].obj.real_priority and 1 or 0, obj.before[self[i].obj] and 1 or 0, self[i].obj.after[obj] and 1 or 0, self[i].obj.obj, self[i].obj.real_priority))
+  end]]
   
-  local l = math.floor((smn+smx)*0.5)
-  local r = l+1
-  
-  while true do
-    while true do
-      if l < smn then
-        return mn, mx
-      end
-      
-      local o = self[l].obj
-      
-      if obj.real_priority > o.real_priority or obj.after[o] then
-        mn = l+1
-        smn = r
-        l = math.floor((smn+smx)*0.5)
-        r = l+1
-        break
-      elseif obj.real_priority < o.real_priority or obj.before[o] then
-        mx = l
-        smx = l-1
-        l = math.floor((smn+smx)*0.5)
-        r = l+1
-        break
-      end
-      
-      if r > smx then
-        return mn, mx
-      end
-      
-      o = self[r].obj
-      
-      if obj.real_priority > o.real_priority or obj.after[o] then
-        mn = r+1
-        smn = r+1
-        l = math.floor((smn+smx)*0.5)
-        r = l+1
-        break
-      elseif obj.real_priority < o.real_priority or obj.before[o] then
-        mx = r
-        smx = l-1
-        l = math.floor((smn+smx)*0.5)
-        r = l+1
-        break
-      end
-      
-      l = l - 1
-      r = r + 1
-    end
+  local mn = #self
+  while mn >= 1 do
+    if obj.real_priority > self[mn].obj.real_priority or obj.after[self[mn].obj] or self[mn].obj.before[obj] then break end
+    mn = mn - 1
   end
+  
+  mn = mn + 1 -- we went too far, actually
+  
+  local mx = 1
+  while mx < #self + 1 do
+    if obj.real_priority < self[mx].obj.real_priority or obj.before[self[mx].obj] or self[mx].obj.after[obj] then break end
+    mx = mx + 1
+  end
+  
+  --table.insert(lines, string.format("temp results is %d %d", mn, mx))
+  
+  if mx < mn then -- well, technically, there's no place we can put this. So we guess wildly. Eventually it'll sanify itself. We hope.
+    local mid = math.ceil((mx + mn) / 2)
+    mx = mid
+    mn = mid
+  end
+  
+  --table.insert(lines, string.format("overall: %d %d", mn, mx))
+  
+  --[[
+  if passes and passes > 90 then  
+    for k, v in pairs(lines) do QuestHelper:TextOut(v) end
+    QuestHelper:TextOut(string.format("overall: %d %d", mn, mx))
+  end
+  ]]
+  
+  --[[
+  local omn, omx = self:OldFindObjectiveRange(obj)
+  
+  if mn ~= omn or mx ~= omx then
+    for k, v in pairs(lines) do QuestHelper:TextOut(v) end
+    QuestHelper:TextOut(string.format("overall: %d %d vs %d %d", mn, mx, omn, omx))
+    lolcrash = (lolcrash or 0) + 1
+    if lolcrash == 100 then assert(nil, "lol") end
+  end]]
+  
+  return mn, mx, lines
+  
 end
 
 function Route:addObjectiveFast(obj)
@@ -184,7 +182,7 @@ function Route:addObjectiveFast(obj)
   if not index then
     -- No nodes with the same continent already.
     -- If the same continent as the player, add to start of list, otherwise add to end of the list.
-    index = c == player_pos[1].c and mn or mx
+    index = c == player_pos[1].c and mx or mx
   end
   
   -- The next question, do I insert at that point, or do I insert after it?
@@ -626,17 +624,63 @@ function Route:breed(route_map)
   
   -- But wait, after all that some objectives might violate the rules.  Make sure the route follows
   -- the rules.
+
+  -- There's some horrifying ugly here. The "before" and "after" links are not properly updated simultaneously. This means that X can be flagged as after Y without Y being flagged as before X. Making things worse (because, oh man, things had to be made worse!) this means that X might have a lower priority than Y despite needing to happen before it. Urgh.
+  -- Since the entire thing is internally inconsistent anyway, we're just gonna try to consistentize it.
+  
+  local valid_items = {}
+  for k, v in ipairs(self) do
+    valid_items[v.obj] = true
+  end
+  for k, v in ipairs(self) do
+    for b in pairs(v.obj.before) do
+      if valid_items[b] then
+        b.after[v.obj] = true
+      end
+    end
+    for a in pairs(v.obj.after) do
+      if valid_items[a] then
+        a.before[v.obj] = true
+      end
+    end
+  end
+  
+  -- Because priorities might have been changed in here, we next make absolutely sure we have up-to-date priorities.
+  for k, v in ipairs(self) do
+    CalcObjectivePriority(v.obj)
+  end
+  
+  -- Have I mentioned I hate this codebase yet?
+  -- Because I do.
+  -- Just, you know.
+  -- FYI.
+  
   local invalid = true
   local invalid_passes = 0
+  --local output_strings = {}
   while invalid do
+  
     invalid_passes = invalid_passes + 1
-    QuestHelper: Assert(invalid_passes <= 100, "Too many mutation passes needed to preserve sanity, something has gone Horribly Wrong, please report this as a bug (you will probably need to restart WoW, sorry about that)")  -- space is so it works in the real code
+    
+    --[[if invalid_passes >= 100 then
+      for k, v in pairs(output_strings) do
+        QuestHelper:TextOut(v)
+      end
+    end]]
+    
+    QuestHelper: Assert(invalid_passes <= 100, "Too many mutation passes needed to preserve sanity, something has gone Horribly Wrong, please report this as a bug (you will probably need to restart WoW for QH to continue working, sorry about that)")  -- space is so it works in the real code
+    
     invalid = false
     local i = 1
+    --[[for i = 1, #self do
+      local mn, mx = self:findObjectiveRange(self[i].obj, invalid_passes)
+      table.insert(output_strings, string.format("%d is mn mx %d %d (%s)", i, mn, mx, self[i].obj.obj))
+    end]]
     while i <= #self do
       -- Make sure all the objectives have valid positions in the list.
       local info = self[i]
-      local mn, mx = self:findObjectiveRange(info.obj)
+      local mn, mx, tabi = self:findObjectiveRange(info.obj, invalid_passes)
+      --if invalid_passes > 90 then for k, v in pairs(tabi) do table.insert(output_strings, v) end end
       if i < mn then
         -- In theory, 'i' shouldn't be increased here, as the next
         -- element will be shifted down into the current position.
@@ -652,13 +696,16 @@ function Route:breed(route_map)
         table.insert(self, mn, info)
         table.remove(self, i)
         invalid = true
+        --table.insert(output_strings, string.format("shifting %d into %d", i, mn))
       elseif i > mx then
         table.remove(self, i)
         table.insert(self, mx, info)
         invalid = true
+        --table.insert(output_strings, string.format("shifting %d into %d", i, mx))
       end
       i = i + 1
     end
+    --table.insert(output_strings, "pass done")
   end
   
   -- Now that we've chosen a route, re-calculate the cost of each leg of the route
