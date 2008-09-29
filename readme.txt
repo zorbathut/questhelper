@@ -42,3 +42,26 @@ Next is ComputeRoute. I think this does the same thing, only it also returns the
 After that there's ObjectiveTravelTime. It does almost exactly the same thing, only it goes from a point to a *set* of points. Naturally, the arguments are in reverse order, because the codebase is retarded. It also does something with weighting that I don't yet understand. It is likewise buggy.
 
 Finally, there's ObjectiveTravelTime2. That function name? That's the mark of *quality*. It goes from a point, to a set of points, to a point. Actually it goes point->set and point->set simultaneously. This is important because, due to the bugs, its paths are not symmetrical. It also fucks with weighting. Right now? It doesn't do any of that. It's implemented as a call to ObjectiveTravelTime and a call to ComputeRoute, meaning it's somewhat less efficient and makes me far, far happier.
+
+
+
+Here now I'm working on it for real, have some dev notes:
+
+
+
+0.51: Got Wrath support in. This was nasty, largely due to the change in Stormwind City and Eastern Plaguelands' coordinates. At the moment, there's basically three coordinate systems used: "BC", "Wrath", and "Native". static.lua is stored in Wrath format - if you're playing on a BC client, it does a pass over the entire static.lua and changes it when you start up (it can't write, obviously, so it just replaces everything necessary each time you start.)
+
+The output file has been split into versions, both by QH version and WoW version. Most versions are now "unknown on unknown", since they predate the new versioning system.
+
+"* on 2.*" uses BC coordinates. "* on 3.*" uses Wrath coordinates. Since it only loads the type that matches the current version, this means it's always in Native mode.
+
+Downside: if you gather information, then upgrade QH or the WoW client, your QH installation will no longer know about any info you've gathered. /qh nag is smart enough to notice it, but it won't be used for quest suggestions. I'm not considering this a huge problem since people should be uploading files anyway and I have limited sympathy if they're not.
+
+Astrolabe needed some modifications - they hadn't added Eastern Plaguelands. This is now done, we're using a forked Astrolabe.
+
+I found a bug involving flight path timing for paths that zoned - most notably, Stormwind->Quel'Danas and Quel'Danas->Menethil were so ridiculously low that the program actually thought that was a faster way than going through Stormwind. I fixed the timing bug by changing how it determines when a flight path is done, and manually eradicated the information. Once a few more 0.51 files come in, I'll rig it to ignore pre-0.51 flight path data if 0.51 flight path data exists. Stupid corrupted data.
+
+I think there might have been another tweak or two but I'm going to bed and I've forgotten what they were.
+
+0.52: Realized I'd forgotten Dalaran portals, added Dalaran portals. Grabbed a chunk of code to compress lua files and applied it to static.lua, which is now about 25% smaller bytewise (but probably takes up the same amount of RAM.)
+
