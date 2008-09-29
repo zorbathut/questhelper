@@ -1,3 +1,8 @@
+== Version 0.53 09/29/2008 ==
+
+* Fix the timed-quest crash, hopefully
+* Merge in more wotlk data
+
 == Version 0.52 09/27/2008 ==
 
 * Add teleporter paths for Dalaran

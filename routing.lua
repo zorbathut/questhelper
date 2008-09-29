@@ -135,7 +135,6 @@ function Route:findObjectiveRange(obj, passes)
     for k, v in pairs(lines) do QuestHelper:TextOut(v) end
     QuestHelper:TextOut(string.format("overall: %d %d vs %d %d", mn, mx, omn, omx))
     lolcrash = (lolcrash or 0) + 1
-    if lolcrash == 100 then assert(nil, "lol") end
   end]]
   
   return mn, mx, lines
