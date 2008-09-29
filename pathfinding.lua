@@ -98,6 +98,8 @@ local static_zone_transitions =
    {22, 23, 0.403, 0.193}, -- Mulgore <--> Thunder Bluff
    {3, 12, 0.247, 0.494}, -- Azuremyst Isle <--> The Exodar
    {3, 12, 0.369, 0.469}, -- Azuremyst Isle <--> The Exodar
+   {3, 12, 0.310, 0.487}, -- Azuremyst Isle <--> The Exodar
+   {3, 12, 0.335, 0.494}, -- Azuremyst Isle <--> The Exodar
    {3, 9, 0.42, 0.013}, -- Azuremyst Isle <--> Bloodmyst Isle
    {4, 6, 0.539, 0.032}, -- Desolace <--> Stonetalon Mountains
    {4, 17, 0.428, 0.976}, -- Desolace <--> Feralas
