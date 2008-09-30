@@ -233,7 +233,7 @@ local function ObjectiveAppendPositions(self, objective, weight, why)
 end
 
 
-local function ObjectivePrepareRouting(self)
+local function ObjectivePrepareRouting(self, args)
   self.setup_count = self.setup_count + 1
   if not self.setup then
     assert(not self.d)
@@ -250,7 +250,7 @@ local function ObjectivePrepareRouting(self)
     self.distance_cache = QuestHelper:CreateTable("objective.distance_cache")
     
     self:AppendPositions(self, 1, nil)
-    self:FinishAddLoc()
+    self:FinishAddLoc(args)
   end
 end
 
@@ -424,6 +424,7 @@ local function AddLoc(self, index, x, y, w, why)
   
   if w > 0 then
     local pair = QuestHelper_ZoneLookup[index]
+    if not pair then return end -- that zone doesn't exist! We require more vespene gas. Not enough rage!
     local c, z = pair[1], pair[2]
     x, y = self.qh.Astrolabe:TranslateWorldMapPosition(c, z, x, y, c, 0)
     
@@ -456,7 +457,7 @@ local function AddLoc(self, index, x, y, w, why)
   end
 end
 
-local function FinishAddLoc(self)
+local function FinishAddLoc(self, args)
   local mx = 0
   
   for z, pl in pairs(self.p) do
@@ -546,7 +547,9 @@ local function FinishAddLoc(self)
     end
   end
   
-  if #node_list == 0 then QuestHelper:Error(self.cat.."/"..self.obj..": zero nodes!") end
+  if not args or not args.failable then
+    if #node_list == 0 then QuestHelper:Error(self.cat.."/"..self.obj..": zero nodes!") end
+  end
   
   assert(not self.setup)
   self.setup = true

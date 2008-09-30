@@ -204,8 +204,8 @@ local function getWalkToFlight(tbl, fi1, fi2)
           local npc1, npc2 = (fi1 and fi1[origin]) or (fi2 and fi2[origin]), (fi1 and fi1[dest]) or (fi2 and fi2[dest])
           if npc1 and npc2 then
             local obj1, obj2 = QuestHelper:GetObjective("monster", npc1), QuestHelper:GetObjective("monster", npc2)
-            obj1:PrepareRouting()
-            obj2:PrepareRouting()
+            obj1:PrepareRouting({failable = true})
+            obj2:PrepareRouting({failable = true})
             
             local pos1, pos2 = obj1:Position(), obj2:Position()
             
