@@ -232,6 +232,7 @@ FileUtil.convertImage = function(source, dest)
       print(string.format("rsvg -fpng %s %s", FileUtil.quoteFile(source), FileUtil.quoteFile(temp)))
       if os.execute(string.format("rsvg -fpng %s %s", FileUtil.quoteFile(source), FileUtil.quoteFile(temp))) ~= 0 then
         print("Failed to convert: "..source)
+        os.execute("pwd")
         os.exit(1)
       else
         FileUtil.convertImage(temp, dest)
