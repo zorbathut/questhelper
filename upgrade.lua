@@ -579,13 +579,16 @@ QuestHelper_PrivateServerBlacklist = {
 local matchstring = nil
 
 function QuestHelper_IsPolluted(input)
+  if not input then input = _G end
+  
   for version, data in pairs(input.QuestHelper_Objectives) do
     for cat, name_list in pairs(data) do
       for name, obj in pairs(name_list) do
         for k, v in pairs(QuestHelper_PrivateServerBlacklist) do
           if string.find(name, v) then
-            print(v)
-            return true
+            for _, __ in pairs(obj) do
+              return true -- if there's nothing actually in the object, the player may not have contributed data, he may have just gotten smacked by old corrupted data.
+            end
           end
         end
       end

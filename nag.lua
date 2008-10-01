@@ -197,7 +197,7 @@ end
 function QuestHelper:Nag(cmd)
   local verbose, local_only = false, true
   
-  if QuestHelper_Polluted() then
+  if QuestHelper_IsPolluted() then
     self:TextOut(QHFormat("NAG_POLLUTED"))
     return
   end

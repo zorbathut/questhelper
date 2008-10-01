@@ -227,16 +227,26 @@ function QuestHelper:Initialize()
   end
 
   QHFormatSetLocale(QuestHelper_Pref.locale or GetLocale())
-  
-  if QuestHelper_Locale ~= GetLocale() then
-    self:TextOut(QHText("LOCALE_ERROR"))
-    return
-  end
-  
+
   if not QuestHelper_UID then
     QuestHelper_UID = self:CreateUID()
   end
   QuestHelper_SaveDate = time()
+
+  QuestHelper_BuildZoneLookup()
+
+  if QuestHelper_Locale ~= GetLocale() then
+    self:TextOut(QHText("LOCALE_ERROR"))
+    return
+  end
+
+  self.Astrolabe = DongleStub("Astrolabe-0.4-QuestHelper.1")
+
+  if not self:ZoneSanity() then
+    self:TextOut(QHText("ZONE_LAYOUT_ERROR"))
+    message("QuestHelper: "..QHText("ZONE_LAYOUT_ERROR"))
+    return
+  end
 
   QuestHelper_UpgradeDatabase(_G)
   QuestHelper_UpgradeComplete()
@@ -245,13 +255,6 @@ function QuestHelper:Initialize()
     self:TextOut(QHText("DOWNGRADE_ERROR"))
     return
   end
-  
-  
-  if QuestHelper_IsPolluted(_G) then
-    self:TextOut(QHFormat("NAG_POLLUTED"))
-    self:Purge(nil, true)
-  end
-  
   
   local signature = expected_version .. " on " .. GetBuildInfo()
   QuestHelper_Quests[signature] = QuestHelper_Quests[signature] or {}
@@ -263,18 +266,6 @@ function QuestHelper:Initialize()
   QuestHelper_Objectives_Local = QuestHelper_Objectives[signature]
   QuestHelper_FlightInstructors_Local = QuestHelper_FlightInstructors[signature]
   QuestHelper_FlightRoutes_Local = QuestHelper_FlightRoutes[signature]
-  
-  
-  
-  QuestHelper_BuildZoneLookup()
-
-  self.Astrolabe = DongleStub("Astrolabe-0.4-QuestHelper.1")
-
-  if not self:ZoneSanity() then
-    self:TextOut(QHText("ZONE_LAYOUT_ERROR"))
-    message("QuestHelper: "..QHText("ZONE_LAYOUT_ERROR"))
-    return
-  end
 
   self.player_level = UnitLevel("player")
 
