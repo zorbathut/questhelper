@@ -306,7 +306,7 @@ function QuestHelper:addLinkInfo(data, flight_times)
         
         if fi_table then for area, npc in pairs(fi_table) do
           local npc_obj = self:GetObjective("monster", npc)
-          npc_obj:PrepareRouting()
+          npc_obj:PrepareRouting({failable = true})
           local pos = npc_obj:Position()
           if pos and QuestHelper_IndexLookup[pos[1].c][pos[1].z] == 20 then
             moonglade_fp = area
@@ -322,7 +322,7 @@ function QuestHelper:addLinkInfo(data, flight_times)
           
           if fi_table then for area, npc in pairs(fi_table) do
             local npc_obj = self:GetObjective("monster", npc)
-            npc_obj:PrepareRouting()
+            npc_obj:PrepareRouting({failable = true})
             local pos = npc_obj:Position()
             if pos and QuestHelper_IndexLookup[pos[1].c][pos[1].z] == 20 then
               moonglade_fp = area

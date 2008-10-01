@@ -1,3 +1,7 @@
+== Version 0.54 09/30/2008 ==
+
+* Fixed bug that made QuestHelper break if you *weren't a druid*. Oh man. Don't even ask. As a side note, I bet you can guess what class my standard test character is. (I will be testing on two characters in the future.)
+
 == Version 0.53 09/29/2008 ==
 
 * Fix the timed-quest crash, hopefully
