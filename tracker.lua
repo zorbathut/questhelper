@@ -194,9 +194,9 @@ local function itemclick(item, button)
   end
 end
 
-local function addItem(name, obj, y, quest)
-  local x = quest and 4 or 20
-  local item = used_items[obj]
+local function addItem(name, quest, obj, y, qname)
+  local x = qname and 4 or 20
+  local item = used_items[quest] and used_items[quest][obj]
   if not item then
     item = next(unused_items)
     if item then
@@ -209,7 +209,7 @@ local function addItem(name, obj, y, quest)
       item.text:SetPoint("TOPLEFT", item)
     end
     
-    if quest then
+    if qname then
       item.text:SetFont(QuestHelper.font.serif, 12)
       item.text:SetTextColor(.82, .65, 0)
     else
@@ -217,7 +217,9 @@ local function addItem(name, obj, y, quest)
       item.text:SetTextColor(.82, .82, .82)
     end
     
-    used_items[obj] = item
+    if not used_items[quest] then used_items[quest] = {} end
+    
+    used_items[quest][obj] = item
     item.sx, item.sy, item.x, item.y, item.dx, item.dy, item.t = x+30, y, x, y, x, y, 0
     item:SetScript("OnUpdate", itemupdate)
     item:SetAlpha(0)
@@ -226,13 +228,13 @@ local function addItem(name, obj, y, quest)
   
   item.used = true
   
-  item.quest = quest
+  item.quest = qname
   item.text:SetText(name)
   local w, h = item.text:GetWidth(), item.text:GetHeight()
   item:SetWidth(w)
   item:SetHeight(h)
   
-  if quest then
+  if qname then
     item:SetScript("OnMouseDown", itemclick)
     item:EnableMouse(true)
   end
@@ -296,9 +298,10 @@ local function oname(text, pct)
   return text
 end
 
-local function removeUnusedItem(obj, item)
+local function removeUnusedItem(quest, obj, item)
   unused_items[item] = true
-  used_items[obj] = nil
+  used_items[quest][obj] = nil
+  if not next(used_items[quest]) then used_items[quest] = nil end
   item.used = false
   item.t = 0
   item.sx, item.sy = item.x, item.y
@@ -325,9 +328,11 @@ local function objlist_sort(a, b)
 end
 
 function tracker:reset()
-  for obj, item in pairs(used_items) do
-    removeUnusedItem(obj, item)
-    check_delay = 1e99
+  for quest, objs in pairs(used_items) do
+    for obj, item in pairs(objs) do
+      removeUnusedItem(quest, obj, item)
+      check_delay = 1e99
+    end
   end
 end
 
@@ -356,7 +361,7 @@ local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
     level = tonumber(level) or 1
     
     count = count + 1
-    local w, h = addItem(qname(name, level), quest, -(y+gap), name)
+    local w, h = addItem(qname(name, level), true, quest, -(y+gap), name)
     x = math.max(x, w)
     y = y + h + gap
     gap = 2
@@ -424,7 +429,7 @@ local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
       
       if seen_sum ~= seen_max then
         count = count + 1
-        w, h = addItem(oname(text, pct), obj, -y)
+        w, h = addItem(oname(text, pct), quest, obj, -y)
         x = math.max(x, w)
         y = y + h
       end
@@ -486,8 +491,10 @@ function tracker:update(delta)
     local gap = 0
     local track_size = QuestHelper_Pref.track_size
     
-    for obj, item in pairs(used_items) do
-      item.used = false
+    for quest, objs in pairs(used_items) do
+      for obj, item in pairs(objs) do
+        item.used = false
+      end
     end
     
     for i, objective in pairs(QuestHelper.route) do
@@ -565,9 +572,11 @@ function tracker:update(delta)
       quest_lookup[key] = nil
     end
     
-    for obj, item in pairs(used_items) do
-      if not item.used then
-        removeUnusedItem(obj, item)
+    for quest, objs in pairs(used_items) do
+      for obj, item in pairs(objs) do
+        if not item.used then
+          removeUnusedItem(quest, obj, item)
+        end
       end
     end
     

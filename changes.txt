@@ -1,8 +1,9 @@
 == Version 0.55 10/01/2008 ==
 
-* Filtered some data from private servers, and rigged the plugin to automatically cull data when private servers are detected.
-* Added a little instrumentation to hopefully provide easier future detection of private-server-polluted data files.
-* Made the plugin more tolerant of being updated while the client is running.
+* Filtered some data from private servers, and rigged the plugin to automatically cull data when private servers are detected
+* Added a little instrumentation to hopefully provide easier future detection of private-server-polluted data files
+* Made the plugin more tolerant of being updated while the client is running
+* Fixed a graphical glitch involving multiple quests in the tracker with the same objective
 
 == Version 0.54 09/30/2008 ==
 
