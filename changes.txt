@@ -1,3 +1,9 @@
+== Version 0.55 10/01/2008 ==
+
+* Filtered some data from private servers, and rigged the plugin to automatically cull data when private servers are detected.
+* Added a little instrumentation to hopefully provide easier future detection of private-server-polluted data files.
+* Made the plugin more tolerant of being updated while the client is running.
+
 == Version 0.54 09/30/2008 ==
 
 * Fixed bug that made QuestHelper break if you *weren't a druid*. Oh man. Don't even ask. As a side note, I bet you can guess what class my standard test character is. (I will be testing on two characters in the future.)

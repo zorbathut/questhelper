@@ -48,6 +48,7 @@ QuestHelper_FlightInstructors = {}
 QuestHelper_FlightLinks = {}
 QuestHelper_FlightRoutes = {}
 QuestHelper_KnownFlightRoutes = {}
+QuestHelper_SeenRealms = {}
 
 QuestHelper.tooltip = CreateFrame("GameTooltip", "QuestHelperTooltip", nil, "GameTooltipTemplate")
 QuestHelper.objective_objects = {}
@@ -158,7 +159,8 @@ local interruptcount = 0   -- counts how many "played gained control" messages w
 
 function QuestHelper:Initialize()
   local file_problem = false
-  local expected_version = GetAddOnMetadata("QuestHelper", "Version")
+  --local expected_version = GetAddOnMetadata("QuestHelper", "Version")
+  local expected_version = QuestHelper_File["main.lua"] -- it was a good idea. Damn you, Curse Client.
 
   local expected_files =
     {
@@ -250,10 +252,15 @@ function QuestHelper:Initialize()
 
   QuestHelper_UpgradeDatabase(_G)
   QuestHelper_UpgradeComplete()
-
+  
   if QuestHelper_SaveVersion ~= 9 then
     self:TextOut(QHText("DOWNGRADE_ERROR"))
     return
+  end
+  
+  if QuestHelper_IsPolluted(_G) then
+    self:TextOut(QHFormat("NAG_POLLUTED"))
+    self:Purge(nil, true, true)
   end
   
   local signature = expected_version .. " on " .. GetBuildInfo()
@@ -266,7 +273,9 @@ function QuestHelper:Initialize()
   QuestHelper_Objectives_Local = QuestHelper_Objectives[signature]
   QuestHelper_FlightInstructors_Local = QuestHelper_FlightInstructors[signature]
   QuestHelper_FlightRoutes_Local = QuestHelper_FlightRoutes[signature]
-
+  
+  QuestHelper_SeenRealms[GetRealmName()] = true -- some attempt at tracking private servers
+  
   self.player_level = UnitLevel("player")
 
   self:UnregisterEvent("VARIABLES_LOADED")

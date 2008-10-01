@@ -177,7 +177,7 @@ function QuestHelper:ToggleTooltip()
   end
 end
 
-function QuestHelper:Purge(code, force)
+function QuestHelper:Purge(code, force, noreload)
   if code == self.purge_code or force then
     QuestHelper_Quests = {}
     QuestHelper_Objectives = {}
@@ -185,7 +185,7 @@ function QuestHelper:Purge(code, force)
     QuestHelper_FlightRoutes = {}
     QuestHelper_Locale = GetLocale()
     QuestHelper_UID = self:CreateUID()
-    ReloadUI()
+    if not noreload then ReloadUI() end
   else
     if not self.purge_code then self.purge_code = self:CreateUID(8) end
     QuestHelper:TextOut("THIS COMMAND WILL DELETE ALL YOUR COLLECTED DATA")
