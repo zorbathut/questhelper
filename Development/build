@@ -151,9 +151,15 @@ if compile then
   FileUtil.forEachFile("LocalInput", function (name)
     if FileUtil.extension(name) == "lua" or 
        FileUtil.extension(name) == "bak" then
+       
       local hash = FileUtil.fileHash(name)
       if cache.ignored[hash] then return end
       cache.ignored[hash] = true
+      
+      if FileUtil.CheckBlacklisted(name) then
+        print("!! "..name.." is polluted")
+        return
+      end
       
       local input = loadfile(name)
       if input then

@@ -168,6 +168,7 @@ QuestHelper_Translations.enUS =
   NAG_MULTIPLE_NEW = "You have %h(new information) on %h1, and %h(updated information) on %h2.",
   NAG_SINGLE_NEW = "You have %h(new information) on %h1.",
   NAG_ADDITIONAL = "You have %h(additional information) on %h1.",
+  NAG_POLLUTED = "Your database has been polluted by information from a private server, and will be cleared on startup and shutdown.",
   
   NAG_NOT_NEW = "You don't have any information not already in the static database.",
   NAG_NEW = "You might consider sharing your data so that others may benefit.",

@@ -234,7 +234,7 @@ FileUtil.convertImage = function(source, dest)
         print("Failed to convert: "..source)
         print(tostring(os.execute(string.format("rsvg -fpng %s %s", FileUtil.quoteFile(source), FileUtil.quoteFile(temp))) ~= 0))
         print(tostring(os.execute(string.format("rsvg -fpng %s %s", FileUtil.quoteFile(source), FileUtil.quoteFile(temp))) ~= 0))
-        print(tostring(os.execute(string.format("rsvg -fpng %s %s", FileUtil.quoteFile(source), FileUtil.quoteFile(temp))) ~= 0))
+        print(tostring(os.execute(string.format("rsvg -fpng Development/%s %s", FileUtil.quoteFile(source), FileUtil.quoteFile(temp))) ~= 0))
         print(tostring(os.execute(string.format("rsvg -fpng %s %s", FileUtil.quoteFile(source), FileUtil.quoteFile(temp))) ~= 0))
         os.execute("pwd")
         print("lulz")
@@ -261,4 +261,21 @@ FileUtil.create7zArchive = function(directory, archive)
   if os.execute(string.format("7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on %s %s", FileUtil.quoteFile(archive), FileUtil.quoteFile(directory))) ~= 0 then
     print("Failed to create 7z archive: "..archive)
   end
+end
+
+local blacklist_comparison_string = nil
+
+FileUtil.CheckBlacklisted = function(filename)
+  if not blacklist_comparison_string then
+    for k, v in ipairs(QuestHelper_PrivateServerBlacklist) do
+      if blacklist_comparison_string then
+        blacklist_comparison_string = blacklist_comparison_string .. "|"
+      else
+        blacklist_comparison_string = ""
+      end
+      
+      blacklist_comparison_string = blacklist_comparison_string .. "(" .. v .. ")"
+    end
+  end
+  return os.execute(string.format("grep -q -E \"%s\" %s", blacklist_comparison_string, FileUtil.quoteFile(filename))) == 0
 end

@@ -197,6 +197,11 @@ end
 function QuestHelper:Nag(cmd)
   local verbose, local_only = false, true
   
+  if QuestHelper_Polluted() then
+    self:TextOut(QHFormat("NAG_POLLUTED"))
+    return
+  end
+  
   if cmd then
     if string.find(cmd, "verbose") then verbose = true end
     if string.find(cmd, "all") then local_only = false end

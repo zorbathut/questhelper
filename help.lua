@@ -177,8 +177,8 @@ function QuestHelper:ToggleTooltip()
   end
 end
 
-function QuestHelper:Purge(code)
-  if code == self.purge_code then
+function QuestHelper:Purge(code, force)
+  if code == self.purge_code or force then
     QuestHelper_Quests = {}
     QuestHelper_Objectives = {}
     QuestHelper_FlightInstructors = {}

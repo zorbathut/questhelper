@@ -563,3 +563,32 @@ function QuestHelper_ConvertCoordsFromWrath(data, force)
   end
   return data
 end
+
+
+QuestHelper_PrivateServerBlacklist = {
+  "WarcraftMMO",
+  "TAXI",
+  "GeNiuS",
+  "WoWFusion",
+  "Columbian Drug Dealer",
+  "PlayBoy Fun Vendor",
+  "WoWgasm",
+  "Egyéb"
+}
+
+local matchstring = nil
+
+function QuestHelper_IsPolluted(input)
+  for version, data in pairs(input.QuestHelper_Objectives) do
+    for cat, name_list in pairs(data) do
+      for name, obj in pairs(name_list) do
+        for k, v in pairs(QuestHelper_PrivateServerBlacklist) do
+          if string.find(name, v) then
+            print(v)
+            return true
+          end
+        end
+      end
+    end
+  end
+end
