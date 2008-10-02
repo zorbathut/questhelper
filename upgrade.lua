@@ -565,15 +565,26 @@ function QuestHelper_ConvertCoordsFromWrath(data, force)
 end
 
 
-QuestHelper_PrivateServerBlacklist = {
+local QuestHelper_PrivateServerBlacklist_Find = {
+  "WoWFusion",
+  "WoWgasm",
+  "Egyéb",
+}
+
+local QuestHelper_PrivateServerBlacklist_Exact = {
   "WarcraftMMO",
   "TAXI",
   "GeNiuS",
-  "WoWFusion",
   "Columbian Drug Dealer",
   "PlayBoy Fun Vendor",
-  "WoWgasm",
-  "Egyéb"
+  "Gm Vendor",
+  "Accessories Vendor",
+  "General Goods Vendor",
+  "Party Vendor",
+  "Potion Vendor",
+  "Totem Vendor",
+  "Gm Vendor",
+  "Misc"
 }
 
 local matchstring = nil
@@ -584,8 +595,15 @@ function QuestHelper_IsPolluted(input)
   for version, data in pairs(input.QuestHelper_Objectives) do
     for cat, name_list in pairs(data) do
       for name, obj in pairs(name_list) do
-        for k, v in pairs(QuestHelper_PrivateServerBlacklist) do
+        for k, v in pairs(QuestHelper_PrivateServerBlacklist_Find) do
           if string.find(name, v) then
+            for _, __ in pairs(obj) do
+              return true -- if there's nothing actually in the object, the player may not have contributed data, he may have just gotten smacked by old corrupted data.
+            end
+          end
+        end
+        for k, v in pairs(QuestHelper_PrivateServerBlacklist_Exact) do
+          if name == v then
             for _, __ in pairs(obj) do
               return true -- if there's nothing actually in the object, the player may not have contributed data, he may have just gotten smacked by old corrupted data.
             end
