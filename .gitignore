@@ -4,3 +4,6 @@ static.lua
 changes.lua
 *.zip
 *.7z
+
+*~
+static_*.lua

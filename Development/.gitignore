@@ -4,3 +4,6 @@ wowdata.lua
 
 passwords.py
 *.pyc
+
+*.large
+*~
