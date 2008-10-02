@@ -263,19 +263,7 @@ FileUtil.create7zArchive = function(directory, archive)
   end
 end
 
-local blacklist_comparison_string = nil
-
-FileUtil.CheckBlacklisted = function(filename)
-  if not blacklist_comparison_string then
-    for k, v in ipairs(QuestHelper_PrivateServerBlacklist) do
-      if blacklist_comparison_string then
-        blacklist_comparison_string = blacklist_comparison_string .. "|"
-      else
-        blacklist_comparison_string = ""
-      end
-      
-      blacklist_comparison_string = blacklist_comparison_string .. "(" .. v .. ")"
-    end
-  end
-  return os.execute(string.format("grep -q -E \"%s\" %s", blacklist_comparison_string, FileUtil.quoteFile(filename))) == 0
+FileUtil.fileContains = function(filename, text)
+  local rv = os.execute(string.format("grep %s %s", text, filename))
+  return rv == 0
 end

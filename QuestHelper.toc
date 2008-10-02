@@ -17,6 +17,16 @@
 Astrolabe\Load.xml
 ChatThrottleLib\ChatThrottleLib.xml
 
+static_deDE.lua
+static_enUS.lua
+static_esES.lua
+static_esMX.lua
+static_frFR.lua
+static_koKR.lua
+static_ruRU.lua
+static_zhCN.lua
+static_zhTW.lua
+
 static.lua
 changes.lua
 

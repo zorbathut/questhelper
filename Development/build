@@ -33,7 +33,7 @@ for i, a in ipairs({...}) do
     return 1
   end
 end
-  
+
 cache = {}
 local cache_loader = loadfile("build-cache.lua")
 if cache_loader then
@@ -156,11 +156,6 @@ if compile then
       if cache.ignored[hash] then return end
       cache.ignored[hash] = true
       
-      if FileUtil.CheckBlacklisted(name) then
-        print("!! "..name.." is polluted")
-        return
-      end
-      
       local input = loadfile(name)
       if input then
         local data = {}
@@ -168,6 +163,15 @@ if compile then
         if pcall(input) then
           if not (data.QuestHelper_Locale and data.QuestHelper_Objectives) then
             print("! "..name.." isn't a QuestHelper SavedVariables file.")
+            return
+          end
+          
+          local upgradable_data = {}
+          setfenv(input, upgradable_data)
+          input()
+          QuestHelper_UpgradeDatabase(upgradable_data)
+          if QuestHelper_IsPolluted(upgradable_data) then
+            print("!! "..name.." is polluted")
             return
           end
           
@@ -396,8 +400,9 @@ if compile then
   end
 
   checked, file_data = nil, nil
-
+  
   saveCache()
+  collectgarbage("collect")
 
   --print("Compiling Lightheaded/eql3 data. . .")
   --ProcessExternal()
@@ -416,26 +421,40 @@ if compile then
       print("!!!!! FAILURE")
     end
   end
-
-  local outputfile = "../static.lua"
-  if condense then outputfile = "static.large" end
   
   print("Processing final data")
   local finaldata = CompileFinish()
   
-  print("Writing: " .. outputfile)
-  local stream = io.open(outputfile, "w")
-  stream:write(ScanAndDumpVariable(finaldata, "QuestHelper_StaticData"))
-  io.close(stream)
+  local finalstatic = io.open("../static.lua", "w")
+  finalstatic:write("QuestHelper_StaticData={")
   
-  if condense then
-    print("Condensing static.lua")
-    local data_loader = loadfile("LuaSrcDiet.lua")
-    local data = {arg={"--maximum", "static.large", "-o", "../static.lua"}, TEST=true, string=string, print=print, table=table, ipairs=ipairs, error=error, io=io, tonumber=tonumber}  -- there has to be a better way to do this
-    setfenv(data_loader, data)
-    data_loader()
-    data.main()
+  for k, v in pairs(finaldata) do
+    collectgarbage("collect")
+    local foloc = string.format("static_%s.lua", k)
+    local finalout = "../" .. foloc
+    local tempout = finalout
+    if condense then tempout = string.format("static_%s.large", k) end
+    
+    print("Writing: " .. tempout)
+    local stream = io.open(tempout, "w")
+    stream:write(ScanAndDumpVariable(v, string.format("QuestHelper_StaticData_%s", k)))
+    io.close(stream)
+    
+    if condense then
+      print("Condensing " .. finalout)
+      local data_loader = loadfile("LuaSrcDiet.lua")
+      local data = {arg={"--maximum", tempout, "-o", finalout}, TEST=true, string=string, print=print, table=table, ipairs=ipairs, error=error, io=io, tonumber=tonumber --[[ assert=assert, FileUtil=FileUtil, tostring=tostring ]]}  -- there has to be a better way to do this
+      setfenv(data_loader, data)
+      data_loader()
+      data.main()
+    end
+    
+    finalstatic:write(string.format("  %s=QuestHelper_StaticData_%s,", k, k))
+    assert(FileUtil.fileContains("../QuestHelper.toc", foloc), "didn't contain " .. foloc)
   end
+  
+  finalstatic:write("}")
+  io.close(finalstatic)
   
   local tobesorted = {}
   for k, v in pairs(pairfrequencies) do
