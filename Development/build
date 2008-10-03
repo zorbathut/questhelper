@@ -148,12 +148,23 @@ if compile then
 
   local all_input_files, unknown_input_files = {}, {}
 
+  local since_last_save = 0
+
   FileUtil.forEachFile("LocalInput", function (name)
     if FileUtil.extension(name) == "lua" or 
        FileUtil.extension(name) == "bak" then
        
       local hash = FileUtil.fileHash(name)
       if cache.ignored[hash] then return end
+
+      if since_last_save == 100 then
+        print("Collecting garbage and saving . . .")
+        collectgarbage("collect")
+        saveCache()
+        since_last_save = 0
+      end
+      since_last_save = since_last_save + 1
+    
       cache.ignored[hash] = true
       
       local input = loadfile(name)
@@ -312,7 +323,7 @@ if compile then
 
   local checked = {}
   local file_data = {}
-
+  
   -- This entire mess is built to find obsolete files and remove them.
   for new_name, original_name in pairs(unknown_input_files) do
     print("Checking: ", original_name)
