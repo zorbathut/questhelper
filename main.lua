@@ -159,8 +159,8 @@ local interruptcount = 0   -- counts how many "played gained control" messages w
 
 function QuestHelper:Initialize()
   local file_problem = false
-  --local expected_version = GetAddOnMetadata("QuestHelper", "Version")
-  local expected_version = QuestHelper_File["main.lua"] -- it was a good idea. Damn you, Curse Client.
+  local expected_version = GetAddOnMetadata("QuestHelper", "Version")
+  --local expected_version = QuestHelper_File["main.lua"] -- it was a good idea. Damn you, Curse Client.
 
   local expected_files =
     {
@@ -215,9 +215,14 @@ function QuestHelper:Initialize()
   -- Don't need this table anymore.
   QuestHelper_File = nil
 
+  if QuestHelper_StaticData and not QuestHelper_StaticData["enUS"] then
+    file_problem = true
+    DEFAULT_CHAT_FRAME:AddMessage("Static data does not seem to exist")
+  end
+
   if file_problem then
     DEFAULT_CHAT_FRAME:AddMessage("QuestHelper hasn't been installed properly.")
-    message("QuestHelper hasn't been installed properly.")
+    message("There was an error starting QuestHelper. Please exit World of Warcraft entirely and try again.")
     QuestHelper = nil     -- Just in case anybody else is checking for us, we're not home
     return
   end
@@ -338,14 +343,14 @@ function QuestHelper:Initialize()
         static.quest[faction] = nil
       end
     end end
-  end
   
-  if not QuestHelper:IsWrath() then
-    for cat, list in pairs(static.objective) do
-      for name, obj in pairs(list) do
-        if obj.pos then
-          for i, cpos in pairs(obj.pos) do
-            QuestHelper_ConvertCoordsFromWrath(cpos)
+    if not QuestHelper:IsWrath() then
+      for cat, list in pairs(static.objective) do
+        for name, obj in pairs(list) do
+          if obj.pos then
+            for i, cpos in pairs(obj.pos) do
+              QuestHelper_ConvertCoordsFromWrath(cpos)
+            end
           end
         end
       end
