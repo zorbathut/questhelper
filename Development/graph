@@ -2,7 +2,19 @@
 
 -- This script creates a graph of the known quests for the various locales from static.lua using gnuplot.
 
+loadfile("../static_deDE.lua")()
+loadfile("../static_enUS.lua")()
+loadfile("../static_esES.lua")()
+loadfile("../static_esMX.lua")()
+loadfile("../static_frFR.lua")()
+loadfile("../static_koKR.lua")()
+loadfile("../static_ruRU.lua")()
+loadfile("../static_zhCN.lua")()
+loadfile("../static_zhTW.lua")()
+
 loadfile("../static.lua")()
+
+local maxlevel = 80
 
 plotdata = {}
 
@@ -14,7 +26,7 @@ for locale, data in pairs(QuestHelper_StaticData or {}) do
     
     plotdata[locale][faction] = {}
     
-    for level = 1,70 do
+    for level = 1,maxlevel do
       local list = levels[level] or {}
       local count = 0
       
@@ -36,7 +48,7 @@ file = io.open("plot.dat", "w")
 
 local use_locale = {}
 
-for level = 1,14 do
+for level = 1,maxlevel/5 do
   local line = ""
   for locale, data in pairs(plotdata) do
     if data[1][level] > 0 or data[2][level] > 0 then use_locale[locale] = true end
@@ -47,7 +59,7 @@ end
 
 use_locale["zhCN"] = false
 
-local title = {enUS="English", frFR="Français", esES="Español (España)", deDE="Deutsch", koKR="한국어", esMX="Español (Mexico)"}
+local title = {enUS="English", frFR="Français", esES="Español (España)", deDE="Deutsch", koKR="한국어", esMX="Español (Mexico)", ruRU="Russian", zhCN="Chinese", zhTW="Taiwan"}
 
 io.close(file)
 
@@ -58,8 +70,8 @@ for locale in pairs(plotdata) do
   end
 end
 
-local locale_colour_alliance = {enUS="#ff0000", frFR="#0000aa", deDE="#666666", esES="#ffaa00", koKR="#00aaff", zhCN="#ff00ff", esMX="#dddddd"}
-local locale_colour_horde = {enUS="#dd0000", frFR="#000088", deDE="#44444444", esES="#dd8800", koKR="#0088dd", zhCN="#dd00dd", esMX="#bfbfbf"}
+local locale_colour_alliance = {enUS="#ff0000", frFR="#0000aa", deDE="#666666", esES="#ffaa00", koKR="#00aaff", zhCN="#ff00ff", esMX="#dddddd", ruRU="#00ff00", zhTW="#ff80ff"}
+local locale_colour_horde = {enUS="#dd0000", frFR="#000088", deDE="#44444444", esES="#dd8800", koKR="#0088dd", zhCN="#dd00dd", esMX="#bfbfbf", ruRU="#00dd00", zhTW="#6060dd"}
 
 local command = nil
 local i, j = 1, 1
@@ -78,10 +90,10 @@ end
 local stream = io.popen("gnuplot", "w")
 
 if stream then
-  stream:write("set terminal svg size 800,600\n")
-  stream:write("set output 'locale.svg'\n")
-  --stream:write("set terminal png notransparent size 1024,786\n")
-  --stream:write("set output 'locale.png'\n")
+  --stream:write("set terminal svg size 800,600\n")
+  --stream:write("set output 'locale.svg'\n")
+  stream:write("set terminal png notransparent size 1024,768\n")
+  stream:write("set output 'locale.png'\n")
   --stream:write("set terminal pdf colour\n")
   --stream:write("set output 'locale.pdf'\n")
   stream:write("set key title 'Quests'\n")
@@ -89,14 +101,14 @@ if stream then
   stream:write("set style fill solid 1 border -1\n")
   stream:write("set xlabel 'Level'\n")
   local line = "set xtics ("
-  for i = 0,13 do
-    line = line .. "'" .. i*5+1 .. "-" .. i*5+5 .. "' "..i+1 .. (i==13 and ")\n" or ",")
+  for i = 0,(maxlevel/5-1) do
+    line = line .. "'" .. i*5+1 .. "-" .. i*5+5 .. "' "..i+1 .. ((i == maxlevel/5-1) and ")\n" or ",")
   end
   stream:write(line)
-  stream:write("set ytics out scale 0 ('Alliance' 250, 'Horde' -250)\n")
-  if command then stream:write("plot [0:15]"..command..";\n") end
+  stream:write("set ytics out scale 0 ('Alliance' 300, 'Horde' -300)\n")
+  if command then stream:write("plot [0:"..tostring(maxlevel/5+1).."]"..command..";\n") end
   stream:flush()
   io.close(stream)
 end
 
-os.remove("plot.dat")
+--os.remove("plot.dat")
