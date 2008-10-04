@@ -407,6 +407,10 @@ After you find |cff40bbffQuestHelper.lua|r, you can email it to me here: |cff40b
 ]], "How To Submit Your Data")
 end
 
+function QuestHelper:ShowError()
+  QuestHelper_ErrorCatcher_ReportError()
+end
+
 local commands
 
 function QuestHelper:Help(argument)
@@ -575,6 +579,10 @@ commands =
    "Displays a summary of changes recently made to QuestHelper. This is always displayed when an upgrade is detected.",
    {}, QuestHelper.ChangeLog, QuestHelper},
   
+  {"ERROR",
+   "Displays the first QuestHelper error that has been generated this session in a form which can be copied out of WoW.",
+   {}, QuestHelper.ShowError, QuestHelper},
+   
   {"SUBMIT",
    "Displays instructions for submitting your collected data.",
    {}, QuestHelper.Submit, QuestHelper},
