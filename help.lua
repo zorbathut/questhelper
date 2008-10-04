@@ -592,7 +592,7 @@ commands =
    {}, QuestHelper.Help, QuestHelper}
  }
 
-function QuestHelper:SlashCommand(input)
+function QuestHelper_SlashCommand(input)
   local _, _, command, argument = string.find(input, "^%s*([^%s]-)%s+(.-)%s*$")
   if not command then
     command, argument = input, ""
@@ -602,7 +602,7 @@ function QuestHelper:SlashCommand(input)
   
   for i, data in ipairs(commands) do
     if data[1] == command then
-      local st = self:CreateTable()
+      local st = {}
       
       for i = 5,#data do table.insert(st, data[i]) end
       table.insert(st, argument)
@@ -610,17 +610,16 @@ function QuestHelper:SlashCommand(input)
       if type(data[4]) == "function" then
         data[4](unpack(st))
       else
-        self:TextOut(data[1].." is not yet implemented.")
+        QuestHelper:TextOut(data[1].." is not yet implemented.")
       end
       
-      self:ReleaseTable(st)
       return
     end
   end
   
-  self:Help()
+  QuestHelper:Help()
 end
 
 SLASH_QuestHelper1 = "/qh"
 SLASH_QuestHelper2 = "/questhelper"
-SlashCmdList["QuestHelper"] = function (text) QuestHelper:SlashCommand(text) end
+SlashCmdList["QuestHelper"] = function (text) QuestHelper_SlashCommand(text) end

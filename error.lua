@@ -81,14 +81,12 @@ function QuestHelper_ErrorCatcher.CondenseErrors()
     
     for _, item in ipairs(QuestHelper_ErrorList) do
       if item.message == err.message and item.stack == err.stack and item.local_version == err.local_version and item.toc_version == err.toc_version and item.addons == err.addons then
-        QuestHelper_ErrorCatcher.TextError("condensing " .. item.message)
         found = true
         item.count = item.count + 1
       end
     end
     
     if not found then
-      QuestHelper_ErrorCatcher.TextError("inserting " .. err.message)
       table.insert(QuestHelper_ErrorList, err)
     end
   end
@@ -96,16 +94,12 @@ end
 
 function QuestHelper_ErrorCatcher.OnError(o_msg, o_frame, o_stack, o_etype, ...)
   if string.find(o_msg, "QuestHelper") then
-    QuestHelper_ErrorCatcher.TextError("we can has error now? " .. o_msg)
 
     msg = o_msg or ""
-    QuestHelper_ErrorCatcher.TextError("a")
     stack = o_stack or debugstack(2, 20, 20)
-    QuestHelper_ErrorCatcher.TextError("b")
 
     -- We toss it into StartupErrors, and then if we're running properly, we'll merge it into the main DB.
     local ts = date("%Y-%m-%d %H:%M:%S");
-    QuestHelper_ErrorCatcher.TextError("c")
     local addons = QuestHelper_ErrorCatcher.GetAddOns()
     local terror = {
       timestamp = ts,
@@ -121,9 +115,6 @@ function QuestHelper_ErrorCatcher.OnError(o_msg, o_frame, o_stack, o_etype, ...)
     
     if not first_error then first_error = terror end
     
-    QuestHelper_ErrorCatcher.TextError(msg)
-    QuestHelper_ErrorCatcher.TextError(stack)
-    
     if completely_started then QuestHelper_ErrorCatcher.CondenseErrors() end
     
     if not yelled_at_user then
@@ -137,16 +128,8 @@ end
 seterrorhandler(QuestHelper_ErrorCatcher.OnError) -- at this point we can catch errors
 
 function QuestHelper_ErrorCatcher.CompletelyStarted()
-  QuestHelper_ErrorCatcher.TextError("we is completely started")
-  
   completely_started = true
   QuestHelper_ErrorCatcher.CondenseErrors()
-  
-  if first_error then
-    DEFAULT_CHAT_FRAME:AddMessage("shit is fucked, dawg")
-  else
-    DEFAULT_CHAT_FRAME:AddMessage("shit is unfucked, dawg")
-  end
 end
 
 function QuestHelper_ErrorCatcher_CompletelyStarted()
