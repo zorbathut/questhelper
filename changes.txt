@@ -2,6 +2,7 @@
 
 * Added error logging and built-in error catching so I can find some of these damn bugs
 * Added "/qh hardreset" so I can stop saying "please wander around your filesystem and delete random files, try not to delete the wrong ones plzkthx"
+* Fixed huge memory consumption
 
 == Version 0.55 10/03/2008 ==
 
