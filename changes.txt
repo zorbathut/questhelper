@@ -1,3 +1,8 @@
+== Version 0.56 10/04/2008 ==
+
+* Added error logging and built-in error catching so I can find some of these damn bugs
+* Added "/qh hardreset" so I can stop saying "please wander around your filesystem and delete random files, try not to delete the wrong ones plzkthx"
+
 == Version 0.55 10/03/2008 ==
 
 * Filtered some data from private servers, and rigged the plugin to automatically cull data when private servers are detected

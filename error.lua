@@ -19,8 +19,6 @@ local first_error = nil
 
 QuestHelper_ErrorList = {}
 
-local origItemRef = Swatter.origItemRef
-
 function QuestHelper_ErrorCatcher.TextError(text)
   DEFAULT_CHAT_FRAME:AddMessage(string.format("|cffff8080QuestHelper Error Handler: |r%s", text))
 end
@@ -116,7 +114,7 @@ function QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack, ...)
   if completely_started then QuestHelper_ErrorCatcher.CondenseErrors() end
   
   if not yelled_at_user then
-    message("QuestHelper has experienced an internal error. You may have to restart World of Warcraft. Please submit your data file (/qh submit) or type \"/qh error\" for a detailed error message.")
+    message("QuestHelper has broken. You may have to restart WoW. Type \"/qh error\" for a detailed error message.")
     yelled_at_user = true
   end
 end

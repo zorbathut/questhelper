@@ -177,22 +177,49 @@ function QuestHelper:ToggleTooltip()
   end
 end
 
+function QuestHelper:Purgewarning()
+  QuestHelper:TextOut("I would consider this a tragic loss, and would appreciate it if you sent me your saved data before going through with it.")
+  QuestHelper:TextOut("Enter "..self:HighlightText("/qh nag verbose").." to check and see if you're destroying anything important.")
+  QuestHelper:TextOut("Enter "..self:HighlightText("/qh submit").." for instructions on how to submit your collected data.")
+  QuestHelper:TextOut("See the "..self:HighlightText("How You Can Help").." section on the project website for instructions.")
+end
+
 function QuestHelper:Purge(code, force, noreload)
   if code == self.purge_code or force then
-    QuestHelper_Quests = {}
-    QuestHelper_Objectives = {}
-    QuestHelper_FlightInstructors = {}
-    QuestHelper_FlightRoutes = {}
-    QuestHelper_Locale = GetLocale()
-    QuestHelper_UID = self:CreateUID()
+    QuestHelper_Quests = nil
+    QuestHelper_Objectives = nil
+    QuestHelper_FlightInstructors = nil
+    QuestHelper_FlightRoutes = nil
+    QuestHelper_Locale = nil
+    QuestHelper_UID = nil
+    QuestHelper_Version = nil
+    QuestHelper_SaveVersion = nil
+    
+    QuestHelper_SaveDate = nil
+    QuestHelper_SeenRealms = nil
+    
     if not noreload then ReloadUI() end
   else
     if not self.purge_code then self.purge_code = self:CreateUID(8) end
     QuestHelper:TextOut("THIS COMMAND WILL DELETE ALL YOUR COLLECTED DATA")
-    QuestHelper:TextOut("I would consider this a tragic loss, and would appreciate it if you sent me your saved data before going through with it.")
-    QuestHelper:TextOut("Enter "..self:HighlightText("/qh nag verbose").." to check and see if you're destroying anything important.")
-    QuestHelper:TextOut("See the "..self:HighlightText("How You Can Help").." section on the project website for instructions.")
+    QuestHelper:Purgewarning()
     QuestHelper:TextOut("If you're sure you want to go through with this, enter: "..self:HighlightText("/qh purge "..self.purge_code))
+  end
+end
+
+function QuestHelper:HardReset(code)
+  if code == self.purge_code then
+    QuestHelper_Pref = nil
+    QuestHelper_ErrorList = nil -- BIZAM
+    QuestHelper_KnownFlightRoutes = nil
+    QuestHelper_Home = nil
+    QuestHelper_CharVersion = nil
+    self:Purge(nil, true)
+  else
+    if not self.purge_code then self.purge_code = self:CreateUID(8) end
+    QuestHelper:TextOut("THIS COMMAND WILL DELETE ALL YOUR COLLECTED DATA AND RESET ALL YOUR PREFERENCES")
+    QuestHelper:Purgewarning()
+    QuestHelper:TextOut("If you're sure you want to go through with this, enter: "..self:HighlightText("/qh hardreset "..self.purge_code))
   end
 end
 
@@ -449,6 +476,9 @@ commands =
   {"PURGE",
    "Deletes all QuestHelper's collected data.", {}, QuestHelper.Purge, QuestHelper},
   
+  {"HARDRESET",
+   "Deletes all QuestHelper's collected data and resets QuestHelper preferences.", {}, QuestHelper.HardReset, QuestHelper},
+   
   {"FILTER",
    "Automatically ignores/unignores objectives based on criteria.",
    {{"/qh filter zone", "Toggle showing objectives outside the current zone"},
