@@ -218,6 +218,9 @@ if compile then
       end
     end
   end)
+
+  collectgarbage("collect")
+  saveCache()
   
   FileUtil.forEachFile("Input", function (name)
     if cache.removed[name] then
@@ -265,7 +268,7 @@ if compile then
       ProcessQuest(faction, level, name, quest2, result)
     end end
   end
-
+  
   local function LoadFile(file)
     local data = loadfile(file)
     local result = {}
