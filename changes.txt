@@ -1,4 +1,4 @@
-== Version 0.55 10/01/2008 ==
+== Version 0.55 10/03/2008 ==
 
 * Filtered some data from private servers, and rigged the plugin to automatically cull data when private servers are detected
 * Added a little instrumentation to hopefully provide easier future detection of private-server-polluted data files
