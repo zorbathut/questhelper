@@ -327,6 +327,7 @@ function QuestHelper:Initialize()
     if locale ~= self.locale then
       -- Will delete references to locales you don't use.
       QuestHelper_StaticData[locale] = nil
+      _G["QuestHelper_StaticData_" .. locale] = nil
     end
   end
 
