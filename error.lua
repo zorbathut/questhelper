@@ -13,6 +13,7 @@ local QuestHelper_ErrorCatcher = { }
 
 local startup_errors = {}
 local completely_started = false
+local yelled_at_user = false
 
 local first_error = nil
 
@@ -71,7 +72,7 @@ end
 
 function QuestHelper_ErrorCatcher.CondenseErrors()
   while next(startup_errors) do
-    err = next(startup_errors)
+    _, err = next(startup_errors)
     table.remove(startup_errors)
     
     local found = false
@@ -85,39 +86,50 @@ function QuestHelper_ErrorCatcher.CondenseErrors()
     end
     
     if not found then
-      QuestHelper_ErrorCatcher.TextError("inserting " .. item.message)
+      QuestHelper_ErrorCatcher.TextError("inserting " .. err.message)
       table.insert(QuestHelper_ErrorList, err)
     end
   end
 end
 
 function QuestHelper_ErrorCatcher.OnError(o_msg, o_frame, o_stack, o_etype, ...)
-  QuestHelper_ErrorCatcher.TextError("we can has error now? " .. o_msg)
+  if string.find(o_msg, "QuestHelper") then
+    QuestHelper_ErrorCatcher.TextError("we can has error now? " .. o_msg)
 
-	msg = o_msg or ""
-	stack = o_stack or debugstack(2, 20, 20)
+    msg = o_msg or ""
+    QuestHelper_ErrorCatcher.TextError("a")
+    stack = o_stack or debugstack(2, 20, 20)
+    QuestHelper_ErrorCatcher.TextError("b")
 
-	-- We toss it into StartupErrors, and then if we're running properly, we'll merge it into the main DB.
-  local ts = date("%Y-%m-%d %H:%M:%S");
-  local addons = QuestHelper_ErrorCatcher.GetAddOns()
-  local terror = {
-    timestamp = ts,
-    addons = addons,
-    message = msg,
-    stack = stack,
-    local_version = local_version,
-    toc_version = toc_version,
-    count = 0,
-  }
-  
-  table.insert(startup_errors.errors, terror)
-  
-  if not first_error then first_error = terror end
-  
-  if completely_started then QuestHelper_ErrorCatcher.CondenseErrors() end
-  
-  QuestHelper_ErrorCatcher.TextError("passin' it on")
-  return origHandler(o_msg, o_frame, o_stack, o_etype, unpack(arg))  -- pass it on
+    -- We toss it into StartupErrors, and then if we're running properly, we'll merge it into the main DB.
+    local ts = date("%Y-%m-%d %H:%M:%S");
+    QuestHelper_ErrorCatcher.TextError("c")
+    local addons = QuestHelper_ErrorCatcher.GetAddOns()
+    local terror = {
+      timestamp = ts,
+      addons = addons,
+      message = msg,
+      stack = stack,
+      local_version = local_version,
+      toc_version = toc_version,
+      count = 0,
+    }
+    
+    table.insert(startup_errors, terror)
+    
+    if not first_error then first_error = terror end
+    
+    QuestHelper_ErrorCatcher.TextError(msg)
+    QuestHelper_ErrorCatcher.TextError(stack)
+    
+    if completely_started then QuestHelper_ErrorCatcher.CondenseErrors() end
+    
+    if not yelled_at_user then
+      message("QuestHelper has experienced an internal error. You may have to restart World of Warcraft. Please submit your data file (/qh submit) or type \"/qh error\" for a detailed error message.")
+      yelled_at_user = true
+    end
+  end
+  return origHandler(o_msg, o_frame, o_stack, o_etype, unpack(arg or {}))  -- pass it on
 end
 
 seterrorhandler(QuestHelper_ErrorCatcher.OnError)
@@ -130,9 +142,7 @@ function QuestHelper_ErrorCatcher.CompletelyStarted()
   
   if first_error then
     DEFAULT_CHAT_FRAME:AddMessage("shit is fucked, dawg")
+  else
+    DEFAULT_CHAT_FRAME:AddMessage("shit is unfucked, dawg")
   end
-end
-
-function QuestHelper_ErrorCatcher_CompletelyStarted()
-  QuestHelper_ErrorCatcher.CompletelyStarted()
 end

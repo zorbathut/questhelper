@@ -228,6 +228,10 @@ function QuestHelper:Initialize()
     return
   end
 
+  QuestHelper_ErrorCatcher_CompletelyStarted()
+  
+  failalot()
+  
   if not QuestHelper_StaticData then
     -- If there is no static data for some mysterious reason, create an empty table so that
     -- other parts of the code can carry on as usual, using locally collected data if it exists.
@@ -422,10 +426,6 @@ function QuestHelper:Initialize()
   end
 
   self.Routing:Initialize()       -- Set up the routing task
-  
-  QuestHelper:TextOut("CS CALLING")
-  QuestHelper_ErrorCatcher_CompletelyStarted()
-  QuestHelper:TextOut("CS CALLED")
 end
 
 function QuestHelper:OnEvent(event)
