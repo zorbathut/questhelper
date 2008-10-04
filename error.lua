@@ -92,36 +92,40 @@ function QuestHelper_ErrorCatcher.CondenseErrors()
   end
 end
 
+function QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack, ...)
+  msg = o_msg or ""
+  stack = o_stack or debugstack(2, 20, 20)
+
+  -- We toss it into StartupErrors, and then if we're running properly, we'll merge it into the main DB.
+  local ts = date("%Y-%m-%d %H:%M:%S");
+  local addons = QuestHelper_ErrorCatcher.GetAddOns()
+  local terror = {
+    timestamp = ts,
+    addons = addons,
+    message = msg,
+    stack = stack,
+    local_version = local_version,
+    toc_version = toc_version,
+    count = 0,
+  }
+  
+  table.insert(startup_errors, terror)
+  
+  if not first_error then first_error = terror end
+  
+  if completely_started then QuestHelper_ErrorCatcher.CondenseErrors() end
+  
+  if not yelled_at_user then
+    message("QuestHelper has experienced an internal error. You may have to restart World of Warcraft. Please submit your data file (/qh submit) or type \"/qh error\" for a detailed error message.")
+    yelled_at_user = true
+  end
+end
+
 function QuestHelper_ErrorCatcher.OnError(o_msg, o_frame, o_stack, o_etype, ...)
   if string.find(o_msg, "QuestHelper") then
-
-    msg = o_msg or ""
-    stack = o_stack or debugstack(2, 20, 20)
-
-    -- We toss it into StartupErrors, and then if we're running properly, we'll merge it into the main DB.
-    local ts = date("%Y-%m-%d %H:%M:%S");
-    local addons = QuestHelper_ErrorCatcher.GetAddOns()
-    local terror = {
-      timestamp = ts,
-      addons = addons,
-      message = msg,
-      stack = stack,
-      local_version = local_version,
-      toc_version = toc_version,
-      count = 0,
-    }
-    
-    table.insert(startup_errors, terror)
-    
-    if not first_error then first_error = terror end
-    
-    if completely_started then QuestHelper_ErrorCatcher.CondenseErrors() end
-    
-    if not yelled_at_user then
-      message("QuestHelper has experienced an internal error. You may have to restart World of Warcraft. Please submit your data file (/qh submit) or type \"/qh error\" for a detailed error message.")
-      yelled_at_user = true
-    end
+    QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack)
   end
+  
   return origHandler(o_msg, o_frame, o_stack, o_etype, unpack(arg or {}))  -- pass it on
 end
 

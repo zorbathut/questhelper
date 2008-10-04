@@ -1268,6 +1268,7 @@ function QuestHelper:RunCoroutine()
     coroutine_running = false
     if not state then
       self:TextOut("|cffff0000The routing co-routine just exploded|r: |cffffff77"..tostring(err).."|r")
+      QuestHelper_ErrorCatcher_ExplicitError(err, "", "(Routing error)\n")
     end
   end
 end
