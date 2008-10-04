@@ -189,7 +189,8 @@ function QuestHelper:Initialize()
      ["objtips.lua"] = true,
      ["cartographer.lua"] = true,
      ["tomtom.lua"] = true,
-     ["textviewer.lua"] = true
+     ["textviewer.lua"] = true,
+     ["error.lua"] = true,
     }
 
   for file, version in pairs(QuestHelper_File) do
@@ -421,6 +422,10 @@ function QuestHelper:Initialize()
   end
 
   self.Routing:Initialize()       -- Set up the routing task
+  
+  QuestHelper:TextOut("CS CALLING")
+  QuestHelper_ErrorCatcher_CompletelyStarted()
+  QuestHelper:TextOut("CS CALLED")
 end
 
 function QuestHelper:OnEvent(event)

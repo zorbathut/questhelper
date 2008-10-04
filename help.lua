@@ -365,6 +365,9 @@ function QuestHelper:RecycleInfo(cmd)
   if cmd and string.find(cmd, "cache") then
     self:DumpCacheData()
   end
+  
+  UpdateAddOnMemoryUsage()
+  self:TextOut(string.format("QuestHelper is using %dkb of RAM.", GetAddOnMemoryUsage("QuestHelper")))
 end
 
 function QuestHelper:ToggleMapButton()
