@@ -117,6 +117,7 @@ end
 
 function QuestHelper:Error(what)
   DEFAULT_CHAT_FRAME:AddMessage("QuestHelper Error: "..(what or "Unknown").."\n"..debugstack(2), 1,.5,0)
+  QuestHelper_ErrorCatcher_ExplicitError(what or "Unknown", nil, nil)
   error("Abort!")
 end
 

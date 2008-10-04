@@ -9,10 +9,12 @@ local debug_build=false
 local changes_lua = true
 local condense = true
 
+function SplitVersion(ver)
+  return string.gsub(ver, " on .*", ""), string.gsub(ver, ".* on ", "")
+end
+
 function AuthorizedVersion(ver)
-  local qhv = string.gsub(ver, " on .*", "")
-  local warv = string.gsub(ver, ".* on ", "")
-  return qhv ~= "Development Version"
+  return SplitVersion(ver) ~= "Development Version"
 end
 
 for i, a in ipairs({...}) do
@@ -470,12 +472,36 @@ if compile then
   finalstatic:write("}")
   io.close(finalstatic)
   
-  local tobesorted = {}
+  local qhwowv = {}
+  local qhfrequencies = {}
+  local wowfrequencies = {}
+  
   for k, v in pairs(pairfrequencies) do
-    table.insert(tobesorted, {freq = v, tag = k})
+    table.insert(qhwowv, {freq = v, tag = k})
+    local qh, wow = SplitVersion(k)
+    qhfrequencies[qh] = (qhfrequencies[qh] or 0) + v
+    wowfrequencies[wow] = (wowfrequencies[wow] or 0) + v
   end
-  table.sort(tobesorted, function (a, b) return a.freq < b.freq end)
-  for k, v in pairs(tobesorted) do
+  
+  local qhv = {}
+  local wowv = {}
+  
+  for k, v in pairs(qhfrequencies) do table.insert(qhv, {freq = v, tag = k}) end
+  for k, v in pairs(wowfrequencies) do table.insert(wowv, {freq = v, tag = k}) end
+  
+  table.sort(qhwowv, function (a, b) return a.freq < b.freq end)
+  table.sort(qhv, function (a, b) return a.freq < b.freq end)
+  table.sort(wowv, function (a, b) return a.freq < b.freq end)
+
+  for k, v in pairs(qhwowv) do
+    print(string.format("%d: %s", v.freq, v.tag))
+  end
+  print("")
+  for k, v in pairs(qhv) do
+    print(string.format("%d: %s", v.freq, v.tag))
+  end
+  print("")
+  for k, v in pairs(wowv) do
     print(string.format("%d: %s", v.freq, v.tag))
   end
 elseif not FileUtil.fileExists("../static.lua") then

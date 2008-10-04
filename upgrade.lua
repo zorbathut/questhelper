@@ -1,4 +1,4 @@
-QuestHelper_File = {}
+if not QuestHelper_File then QuestHelper_File = {} end -- ugh
 QuestHelper_File["upgrade.lua"] = "Development Version"
 
 QuestHelper_Zones =

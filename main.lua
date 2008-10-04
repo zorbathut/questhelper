@@ -189,7 +189,8 @@ function QuestHelper:Initialize()
      ["objtips.lua"] = true,
      ["cartographer.lua"] = true,
      ["tomtom.lua"] = true,
-     ["textviewer.lua"] = true
+     ["textviewer.lua"] = true,
+     ["error.lua"] = true,
     }
 
   for file, version in pairs(QuestHelper_File) do
@@ -227,6 +228,8 @@ function QuestHelper:Initialize()
     return
   end
 
+  QuestHelper_ErrorCatcher_CompletelyStarted()
+  
   if not QuestHelper_StaticData then
     -- If there is no static data for some mysterious reason, create an empty table so that
     -- other parts of the code can carry on as usual, using locally collected data if it exists.
@@ -324,6 +327,7 @@ function QuestHelper:Initialize()
     if locale ~= self.locale then
       -- Will delete references to locales you don't use.
       QuestHelper_StaticData[locale] = nil
+      _G["QuestHelper_StaticData_" .. locale] = nil
     end
   end
 
