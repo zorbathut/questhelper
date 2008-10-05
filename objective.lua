@@ -233,7 +233,7 @@ local function ObjectiveAppendPositions(self, objective, weight, why)
 end
 
 
-local function ObjectivePrepareRouting(self, args)
+local function ObjectivePrepareRouting(self)
   self.setup_count = self.setup_count + 1
   if not self.setup then
     assert(not self.d)
@@ -547,9 +547,10 @@ local function FinishAddLoc(self, args)
     end
   end
   
-  if not args or not args.failable then
-    if #node_list == 0 then QuestHelper:Error(self.cat.."/"..self.obj..": zero nodes!") end
-  end
+  -- Disabled because we're having some data sanity issues. This should be solved at buildtime, but I'm leery of mucking with the build system right now, so it isn't. Re-enable later.
+  --if not args or not args.failable then
+  --  if #node_list == 0 and QuestHelper:IsWrath() then QuestHelper:Error(self.cat.."/"..self.obj..": zero nodes!") end
+  --end
   
   assert(not self.setup)
   self.setup = true
