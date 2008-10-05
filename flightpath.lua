@@ -271,8 +271,8 @@ function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
     
     if npc1 and npc2 then
       local obj1, obj2 = self:GetObjective("monster", npc1), self:GetObjective("monster", npc2)
-      obj1:PrepareRouting()
-      obj2:PrepareRouting()
+      obj1:PrepareRouting({failable = true})
+      obj2:PrepareRouting({failable = true})
       
       local pos1, pos2 = obj1:Position(), obj2:Position()
       
