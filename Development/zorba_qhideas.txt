@@ -1,10 +1,19 @@
 
 * Routing recovery
 * Routing infinite-loop test (and kill)
+* Serifize it again, I miss the serifs :(
 * Build!
 
+@ Remember priorities
+@ "Too Tough For Me" button
+
+@ See if it can be made faster, re-enable sanity checks on at least some level
 * Re-enable asserts in general, ha ha
 
+* Rebuild build system
+  * Re-enabled "zero nodes"
+  
+* Rebuild routing
 
 * BUGS
 * Record drops per-instance so we don't think both Kael'Thas'es are the same
@@ -17,12 +26,8 @@ QuestHelper: The Routing Co-Routine just exploded:
 Interface\Addons\Questhelper\objective.lua:30: stack overflow
 * The only annoying thing I've run into so far is the cartographer arrow not showing up until you do /qh cartwp twice which has always been there.  
 
-@ Remember priorities
-@ See if it can be made faster, re-enable sanity checks on at least some level
-@ "Too Tough For Me" button
 @ Flying mounts
 @ Tunable not-in-group penalties
-* Bug: Routing doesn't restart when it crashes
 * Build!
 
 * Better data collection - collect more from more people, prompt them to upload once they have a good chunk of data
