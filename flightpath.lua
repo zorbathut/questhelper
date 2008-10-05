@@ -466,7 +466,7 @@ function QuestHelper:buildFlightTimes()
             end
           end
         end end
-        self:yieldIfNeeded(.1)
+        self:yieldIfNeeded()
       end
     end
   end
