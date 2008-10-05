@@ -118,7 +118,7 @@ if external then
   --print("Updating Astrolabe.")
   --FileUtil.updateSVNRepo("http://svn.esamynn.org/astrolabe/branches/wotlk_data_temp", "../Astrolabe")
   print("Updating ChatThrottleLib.")
-  FileUtil.updateSVNRepo("http://svn.wowace.com/wowace/trunk/ChatThrottleLib", "../ChatThrottleLib")
+  FileUtil.updateSVNRepo("svn://svn.wowace.com/wow/chatthrottlelib/mainline/trunk", "../ChatThrottleLib")
 end
 
 if compile then
@@ -220,6 +220,9 @@ if compile then
       end
     end
   end)
+
+  collectgarbage("collect")
+  saveCache()
   
   FileUtil.forEachFile("Input", function (name)
     if cache.removed[name] then
@@ -267,7 +270,7 @@ if compile then
       ProcessQuest(faction, level, name, quest2, result)
     end end
   end
-
+  
   local function LoadFile(file)
     local data = loadfile(file)
     local result = {}
