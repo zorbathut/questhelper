@@ -147,6 +147,15 @@ local function itemfadeout(item, delta)
   item:SetPoint("TOPLEFT", tracker, "TOPLEFT", item.x, item.y)
 end
 
+function QH_ToggleQuestLog()   -- This seems to be gone in 3.0, so I'm adding it here.
+	if (QuestLogFrame:IsShown()) then
+		HideUIPanel(QuestLogFrame);
+	else
+		ShowUIPanel(QuestLogFrame);
+	end
+end
+
+
 local function itemclick(item, button)
   if button == "RightButton" then
     local quest = item.quest
@@ -160,7 +169,7 @@ local function itemclick(item, button)
           -- UberQuest needs a little extra effort to work properly.
           
           if UberQuest_List:IsShown() and GetQuestLogSelection() == index then
-            ToggleQuestLog()
+            QH_ToggleQuestLog()
           else
             QuestLog_SetSelection(index)
             
@@ -168,20 +177,20 @@ local function itemclick(item, button)
             -- and in the process update the frames to reflect the selected quest.
             UberQuest_List:Hide()
             UberQuest_Details:Show()
-            ToggleQuestLog()
+            QH_ToggleQuestLog()
           end
         else
           -- This code seems to work properly with the builtin questlog, as well as bEQL and DoubleWide.
           
           if QuestLogFrame:IsShown() and GetQuestLogSelection() == index then
             -- If the selected quest is already being shown, hide it.
-            ToggleQuestLog()
+            QH_ToggleQuestLog()
           else
             -- Otherwise, select it and show it.
             QuestLog_SetSelection(index)
             
             if not QuestLogFrame:IsShown() then
-              ToggleQuestLog()
+              QH_ToggleQuestLog()
             end
           end
         end
