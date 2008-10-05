@@ -195,7 +195,7 @@ QHE_Gui.ProxyFrame.escCount = 0
 QHE_Gui.ProxyFrame.timer = 0
 QHE_Gui.ProxyFrame.Hide = (
 	function( self )
-		local numEscapes = QHE_GuiData.numEscapes or 1
+		local numEscapes = QHE_Gui.numEscapes or 1
 		self.escCount = self.escCount + 1
 		if ( self.escCount >= numEscapes ) then
 			self:GetParent():Hide()
