@@ -212,7 +212,7 @@ function QuestHelper:InitMapButton()
     local button = CreateFrame("Button", "QuestHelperWorldMapButton", WorldMapFrame, "UIPanelButtonTemplate")
     
     -- Assign the font QuestHelper selected for the currect locale.
-    if button:GetFont then
+    if button.GetFont then
       button:SetFont(self.font.serif, select(2, button:GetFont()))
     end
     
