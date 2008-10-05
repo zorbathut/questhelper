@@ -242,7 +242,7 @@ function QuestHelper:computeWalkToFlightMult()
   return (f1+f2+0.032876)/(w1+w2+0.1)
 end
 
-function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
+function QuestHelper:computeLinkTime(origin, dest, hash, fallback, failable)
   -- Only works for directly connected flight points.
   
   if origin == dest then
@@ -271,8 +271,8 @@ function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
     
     if npc1 and npc2 then
       local obj1, obj2 = self:GetObjective("monster", npc1), self:GetObjective("monster", npc2)
-      obj1:PrepareRouting({failable = true})
-      obj2:PrepareRouting({failable = true})
+      obj1:PrepareRouting({failable = failable})
+      obj2:PrepareRouting({failable = failable})
       
       local pos1, pos2 = obj1:Position(), obj2:Position()
       
@@ -356,7 +356,7 @@ function QuestHelper:addLinkInfo(data, flight_times)
         if origin ~= ignored_fp and QuestHelper_KnownFlightRoutes[dest] and hashs[0] then
           local tbl2 = tbl[dest]
           if not tbl2 then
-            local t = self:computeLinkTime(origin, dest)
+            local t = self:computeLinkTime(origin, dest, nil, nil, true)
             if t then
               tbl2 = self:CreateTable()
               tbl[dest] = tbl2

@@ -1,3 +1,7 @@
+== Version 0.57 10/05/2008 ==
+
+* Another fix to the pre-Wrath flightpath issues
+
 == Version 0.56 10/04/2008 ==
 
 * Added error logging and built-in error catching so I can find some of these damn bugs
