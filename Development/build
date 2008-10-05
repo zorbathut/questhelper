@@ -130,6 +130,21 @@ if compile then
     io.close(stream)
   end
   
+  local function QuestHelper_IsCorrupted(data)
+    if type(data.QuestHelper_Objectives) == "table" then for version, package in pairs(data.QuestHelper_Objectives) do
+      if AuthorizedVersion(version) and type(package) == "table" then for category, objectives in pairs(package) do
+        if type(objectives) == "table" and PreWrath(version) then for name, objective in pairs(objectives) do
+          if type(objective) == "table" and objective.pos and type(objective.pos) == "table" then for i, pos in pairs(objective.pos) do
+            if pos[1] >= 65 then
+              print "SOMETHING IS SERIOUSLY WRONG, found Wrath coordinates in non-Wrath files"
+              return true
+            end
+          end end
+        end end
+      end end
+    end end
+  end
+  
   -- Download the latest copy of the translated item/npc names.
   if external then
     os.execute("wget http://smariot.hopto.org/wowdata.7z -N")
@@ -185,6 +200,10 @@ if compile then
           QuestHelper_UpgradeDatabase(upgradable_data)
           if QuestHelper_IsPolluted(upgradable_data) then
             print("!! "..name.." is polluted")
+            return
+          end
+          if QuestHelper_IsCorrupted(upgradable_data) then
+            print("!! "..name.." is corrupted")
             return
           end
           
