@@ -78,7 +78,7 @@ function QuestHelper_ErrorCatcher.CondenseErrors()
     local found = false
     
     for _, item in ipairs(QuestHelper_ErrorList) do
-      if item.message == err.message and item.stack == err.stack and item.local_version == err.local_version and item.toc_version == err.toc_version and item.addons == err.addons then
+      if item.message == err.message and item.stack == err.stack and item.local_version == err.local_version and item.toc_version == err.toc_version and item.addons == err.addons and item.game_version == err.game_version then
         found = true
         item.count = item.count + 1
       end
@@ -104,6 +104,7 @@ function QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack, ...)
     stack = stack,
     local_version = local_version,
     toc_version = toc_version,
+    game_version = GetBuildInfo(),
     count = 0,
   }
   
@@ -153,7 +154,7 @@ end
 
 function QHE_Gui.ErrorTextinate()
   if first_error then
-    QHE_Gui.Error.curError = string.format("msg: %s\ntoc: %s\nv: %s\ntimestamp: %s\n\n%s\naddons:%s", first_error.message, first_error.toc_version, first_error.local_version, first_error.timestamp, first_error.stack, first_error.addons)
+    QHE_Gui.Error.curError = string.format("msg: %s\ntoc: %s\nv: %s\ngame: %s\ntimestamp: %s\n\n%s\naddons:%s", first_error.message, first_error.toc_version, first_error.local_version, first_error.game_version, first_error.timestamp, first_error.stack, first_error.addons)
   else
     QHE_Gui.Error.curError = "None"
   end
