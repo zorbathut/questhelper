@@ -529,7 +529,7 @@ function QuestHelper_UpgradeDatabase(data)
       data.QuestHelper_Errors.crashes[k] = v
     end
     
-    QuestHelper_ErrorList = nil
+    data.QuestHelper_ErrorList = nil
     
     data.QuestHelper_SaveVersion = 10
   end

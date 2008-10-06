@@ -91,24 +91,28 @@ function QuestHelper_ErrorCatcher.CondenseErrors()
   end
 end
 
-function QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack, ...)
-  msg = o_msg or ""
-  stack = o_stack or debugstack(2, 20, 20)
-
-  -- We toss it into StartupErrors, and then if we're running properly, we'll merge it into the main DB.
-  local ts = date("%Y-%m-%d %H:%M:%S");
-  local addons = QuestHelper_ErrorCatcher.GetAddOns()
-  local terror = {
-    timestamp = ts,
-    addons = addons,
-    message = msg,
+function QuestHelper_ErrorPackage()
+  return {
+    timestamp = date("%Y-%m-%d %H:%M:%S"),
     stack = stack,
     local_version = local_version,
     toc_version = toc_version,
     game_version = GetBuildInfo(),
     locale = GetLocale(),
-    count = 0,
+    stack = debugstack(2, 20, 20),
   }
+end
+
+function QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack, ...)
+  msg = o_msg or ""
+
+  -- We toss it into StartupErrors, and then if we're running properly, we'll merge it into the main DB.
+  local terror = QuestHelper_ErrorPackage()
+  
+  terror.message = msg
+  terror.count = 0
+  terror.addons = QuestHelper_ErrorCatcher.GetAddOns()
+  terror.stack = o_stack or terror.stack
   
   table.insert(startup_errors, terror)
   

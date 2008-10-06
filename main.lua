@@ -423,7 +423,7 @@ function QuestHelper:Initialize()
       self:LoadDebugObjective(name, data)
     end
   end
-
+  
   self.Routing:Initialize()       -- Set up the routing task
 end
 
