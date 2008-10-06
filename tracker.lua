@@ -14,7 +14,7 @@ local in_tracker = 0
 
 minbutton:SetFrameStrata("DIALOG")
 minbutton:Hide()
-minbutton:SetPoint("TOPRIGHT", QuestWatchFrame)
+minbutton:SetPoint("CENTER", QuestWatchFrame) -- We default to a different location to make it more likely to display the right item.
 minbutton:SetMovable(true)
 minbutton:SetUserPlaced(true)
 minbutton:SetWidth(10)
