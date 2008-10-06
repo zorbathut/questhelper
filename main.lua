@@ -5,7 +5,7 @@ QuestHelper = CreateFrame("Frame", "QuestHelper", nil)
 -- Just to make sure it's always 'seen' (there's nothing that can be seen, but still...), and therefore always updating.
 QuestHelper:SetFrameStrata("TOOLTIP")
 
-QuestHelper_SaveVersion = 7
+QuestHelper_SaveVersion = 10
 QuestHelper_CharVersion = 1
 QuestHelper_Locale = GetLocale() -- This variable is used only for the collected data, and has nothing to do with displayed text.
 QuestHelper_Quests = {}
@@ -261,7 +261,7 @@ function QuestHelper:Initialize()
   QuestHelper_UpgradeDatabase(_G)
   QuestHelper_UpgradeComplete()
   
-  if QuestHelper_SaveVersion ~= 9 then
+  if QuestHelper_SaveVersion ~= 10 then
     self:TextOut(QHText("DOWNGRADE_ERROR"))
     return
   end

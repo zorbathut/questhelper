@@ -519,6 +519,20 @@ function QuestHelper_UpgradeDatabase(data)
     
     data.QuestHelper_SaveVersion = 9
   end
+  
+  if data.QuestHelper_SaveVersion == 9 then
+    -- The only thing we're doing here is moving the QuestHelper_ErrorList into QuestHelper_Errors
+    data.QuestHelper_Errors = {}
+    data.QuestHelper_Errors.crashes = {}
+    
+    for k, v in pairs(data.QuestHelper_ErrorList) do
+      data.QuestHelper_Errors.crashes[k] = v
+    end
+    
+    QuestHelper_ErrorList = nil
+    
+    data.QuestHelper_SaveVersion = 10
+  end
 end
 
 function QuestHelper_UpgradeComplete()

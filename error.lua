@@ -17,7 +17,8 @@ local yelled_at_user = false
 
 local first_error = nil
 
-QuestHelper_ErrorList = {}
+QuestHelper_Errors = {}
+QuestHelper_Errors.crashes = {}
 
 function QuestHelper_ErrorCatcher.TextError(text)
   DEFAULT_CHAT_FRAME:AddMessage(string.format("|cffff8080QuestHelper Error Handler: |r%s", text))
@@ -77,7 +78,7 @@ function QuestHelper_ErrorCatcher.CondenseErrors()
     
     local found = false
     
-    for _, item in ipairs(QuestHelper_ErrorList) do
+    for _, item in ipairs(QuestHelper_Errors.crashes) do
       if item.message == err.message and item.stack == err.stack and item.local_version == err.local_version and item.toc_version == err.toc_version and item.addons == err.addons and item.game_version == err.game_version and item.locale == err.locale then
         found = true
         item.count = item.count + 1
@@ -85,7 +86,7 @@ function QuestHelper_ErrorCatcher.CondenseErrors()
     end
     
     if not found then
-      table.insert(QuestHelper_ErrorList, err)
+      table.insert(QuestHelper_Errors.crashes, err)
     end
   end
 end
