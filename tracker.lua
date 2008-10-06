@@ -40,7 +40,7 @@ end
 
 function QuestHelper:ResetTrackerPosition()
   minbutton:ClearAllPoints()
-  minbutton:SetPoint("TOPRIGHT", QuestWatchFrame)
+  minbutton:SetPoint("CENTER", nil)
   minbutton:moved()
   self:TextOut("Quest tracker postion reset.")
 end
