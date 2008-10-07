@@ -14,7 +14,7 @@ local in_tracker = 0
 
 minbutton:SetFrameStrata("DIALOG")
 minbutton:Hide()
-minbutton:SetPoint("TOPRIGHT", QuestWatchFrame)
+minbutton:SetPoint("CENTER", QuestWatchFrame) -- We default to a different location to make it more likely to display the right item.
 minbutton:SetMovable(true)
 minbutton:SetUserPlaced(true)
 minbutton:SetWidth(10)
@@ -40,7 +40,7 @@ end
 
 function QuestHelper:ResetTrackerPosition()
   minbutton:ClearAllPoints()
-  minbutton:SetPoint("TOPRIGHT", QuestWatchFrame)
+  minbutton:SetPoint("CENTER", nil)
   minbutton:moved()
   self:TextOut("Quest tracker postion reset.")
 end

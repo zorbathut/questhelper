@@ -251,7 +251,9 @@ function QuestHelper:Distance(i1, x1, y1, i2, x2, y2)
 end
 
 function QuestHelper:AppendPosition(list, index, x, y, w, min_dist)
-  if (x == 0 and y == 0) or x <= -0.1 or y <= -0.1 or x >= 1.1 or y >= 1.1 then
+  if not x or not y or (x == 0 and y == 0) or x <= -0.1 or y <= -0.1 or x >= 1.1 or y >= 1.1 then
+    local nc, nz, nx, ny = self.Astrolabe:GetCurrentPlayerPosition()
+    self:AppendNotificationError("2008-10-6 nil-position", string.format("nilposition, %f %f %f %f", nc, nz, nx, ny))
     return list -- This isn't a real position.
   end
   
@@ -359,3 +361,11 @@ end
 function QuestHelper:IsWrath()
   return GetBuildInfo():sub(1,1) == '3'
 end
+
+function QuestHelper:AppendNotificationError(type, data)
+  if not QuestHelper_Errors[type] then QuestHelper_Errors[type] = {} end
+  local terror = QuestHelper_ErrorPackage()
+  terror.data = data
+  table.insert(QuestHelper_Errors[type], terror)
+end
+
