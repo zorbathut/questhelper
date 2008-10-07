@@ -1,3 +1,9 @@
+== Version 0.58 10/07/2008 ==
+
+* Fix /qh treset to actually reset more emphatically
+* De-fork Astrolabe
+* Improve error tracking a little, and add tracking of "minor errors" so I can fix bugs
+
 == Version 0.57 10/05/2008 ==
 
 * Another fix to the pre-Wrath flightpath issues
