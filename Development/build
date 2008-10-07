@@ -14,7 +14,8 @@ function SplitVersion(ver)
 end
 
 function AuthorizedVersion(ver)
-  return SplitVersion(ver) ~= "Development Version"
+  qhv, wowv = SplitVersion(ver)
+  return qhv ~= "Development Version" and wowv ~= "0.0.2"
 end
 
 for i, a in ipairs({...}) do
