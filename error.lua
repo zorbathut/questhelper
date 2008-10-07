@@ -4,8 +4,8 @@ QuestHelper_File["error.lua"] = "Development Version"
   Much of this code is ganked wholesale from Swatter, and is Copyright (C) 2006 Norganna.
 ]]
 
-local local_version = QuestHelper_File["error.lua"]
-local toc_version = GetAddOnMetadata("QuestHelper", "Version")
+QuestHelper_local_version = QuestHelper_File["error.lua"]
+QuestHelper_toc_version = GetAddOnMetadata("QuestHelper", "Version")
 
 local origHandler = geterrorhandler()
 
@@ -95,8 +95,8 @@ function QuestHelper_ErrorPackage()
   return {
     timestamp = date("%Y-%m-%d %H:%M:%S"),
     stack = stack,
-    local_version = local_version,
-    toc_version = toc_version,
+    local_version = QuestHelper_local_version,
+    toc_version = QuestHelper_toc_version,
     game_version = GetBuildInfo(),
     locale = GetLocale(),
     stack = debugstack(2, 20, 20),
