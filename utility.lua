@@ -188,7 +188,7 @@ function QuestHelper:ItemCooldown(item_id)
 end
 
 function QuestHelper:TimeString(seconds)
-  if not seconds
+  if not seconds then
     self:AppendNotificationError("2008-10-8 nil-timestring")
     return "(unknown)"
   end
