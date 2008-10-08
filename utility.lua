@@ -188,7 +188,10 @@ function QuestHelper:ItemCooldown(item_id)
 end
 
 function QuestHelper:TimeString(seconds)
-  if not seconds return "(unknown)" end
+  if not seconds
+    self:AppendNotificationError("2008-10-8 nil-timestring")
+    return "(unknown)"
+  end
   
   local seconds = math.ceil(seconds)
   local h, m, s = math.floor(seconds/(60*60)), math.floor(seconds/60)%60, seconds%60

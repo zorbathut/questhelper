@@ -1,6 +1,5 @@
 
 * Check out PTR, with flight points
-* Check out SA error
 * Build!
 
 * Routing recovery
