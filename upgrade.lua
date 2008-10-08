@@ -525,8 +525,10 @@ function QuestHelper_UpgradeDatabase(data)
     data.QuestHelper_Errors = {}
     data.QuestHelper_Errors.crashes = {}
     
-    for k, v in pairs(data.QuestHelper_ErrorList) do
-      data.QuestHelper_Errors.crashes[k] = v
+    if data.QuestHelper_ErrorList then
+      for k, v in pairs(data.QuestHelper_ErrorList) do
+        data.QuestHelper_Errors.crashes[k] = v
+      end
     end
     
     data.QuestHelper_ErrorList = nil

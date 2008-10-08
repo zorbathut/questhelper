@@ -15,7 +15,12 @@ end
 
 function AuthorizedVersion(ver)
   qhv, wowv = SplitVersion(ver)
-  return qhv ~= "Development Version" and wowv ~= "0.0.2"
+  return qhv ~= "Development Version"
+end
+
+function PreWrath(ver)
+  qhv, wowv = SplitVersion(ver)
+  return wowv:sub(1,1) ~= '3'
 end
 
 for i, a in ipairs({...}) do
@@ -137,8 +142,8 @@ if compile then
       if AuthorizedVersion(version) and type(package) == "table" then for category, objectives in pairs(package) do
         if type(objectives) == "table" and PreWrath(version) then for name, objective in pairs(objectives) do
           if type(objective) == "table" and objective.pos and type(objective.pos) == "table" then for i, pos in pairs(objective.pos) do
-            if pos[1] >= 65 then
-              print "SOMETHING IS SERIOUSLY WRONG, found Wrath coordinates in non-Wrath files"
+            if pos[1] and pos[1] >= 65 then
+              print("SOMETHING IS SERIOUSLY WRONG, found Wrath coordinates in non-Wrath files (version " .. version .. ", continent " .. pos[1] .. ")")
               return true
             end
           end end
@@ -487,7 +492,7 @@ if compile then
     end
     
     finalstatic:write(string.format("  %s=QuestHelper_StaticData_%s,", k, k))
-    assert(FileUtil.fileContains("../QuestHelper.toc", foloc), "didn't contain " .. foloc)
+    --assert(FileUtil.fileContains("../QuestHelper.toc", foloc), "didn't contain " .. foloc)
   end
   
   finalstatic:write("}")

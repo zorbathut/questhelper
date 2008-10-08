@@ -617,10 +617,6 @@ local function AddInputData(data, pairfrequencies)
       end end
     end end
     
-    local function PreWrath(ver)
-      return ver:sub(1,1) ~= '3'
-    end
-    
     if type(data.QuestHelper_Objectives) == "table" then for version, package in pairs(data.QuestHelper_Objectives) do
       seen_pairs[version] = true
       if AuthorizedVersion(version) and type(package) == "table" then for category, objectives in pairs(package) do
@@ -1031,6 +1027,38 @@ function CompileFinish()
           table.insert(quest_item_quests[item], quest)
         end
       end
+    end
+    
+    if locale == "enUS" then -- I'm hoping the other locales aren't corrupted, as this method of fixing really won't work for any locale without a lot of data
+      print("Culling opened items ", locale)
+    
+      local contained_preserved = 0
+      local contained_rejected = 0
+      
+      for name, item in pairs(l.objective.item) do
+        item.openable = item.opened and (item.opened >= 100)
+      end
+      
+      for name, item in pairs(l.objective.item) do
+        if item.contained then
+          local tempcontained = {}
+          for it, itv in pairs(item.contained) do
+            if l.objective.item[it] and l.objective.item[it].openable then
+              tempcontained[it] = itv
+              contained_preserved = contained_preserved + 1
+            else
+              contained_rejected = contained_rejected + 1
+            end
+          end
+          item.contained = tempcontained
+        end
+      end
+      
+      for name, item in pairs(l.objective.item) do
+        item.openable = nil
+      end
+      
+      print(string.format("Containment cull pass done. %d preserved, %d rejected", contained_preserved, contained_rejected))
     end
     
     print("Processing quests ", locale)
