@@ -1,7 +1,15 @@
 
+* Check out PTR, with flight points
+* Check out SA error
+* Build!
+
 * Routing recovery
+* Fix the flight paths
 * Routing infinite-loop test (and kill)
-* Serifize it again, I miss the serifs :(
+* Serifize it again on PTR, I miss the serifs :(
+* Build!
+
+* New data storage
 * Build!
 
 @ Remember priorities
@@ -24,7 +32,9 @@
 * Bug: The assert check is going to break if the flightpoints are updated. Make this not happen. Actually now that I think about it, I bet updating the flight points is causing a lot of those crashes!
 QuestHelper: The Routing Co-Routine just exploded:
 Interface\Addons\Questhelper\objective.lua:30: stack overflow
-* The only annoying thing I've run into so far is the cartographer arrow not showing up until you do /qh cartwp twice which has always been there.  
+* The only annoying thing I've run into so far is the cartographer arrow not showing up until you do /qh cartwp twice which has always been there. 
+* "Hide" does not function properly when entering instances.
+* Incompatible with Mapster?
 
 @ Flying mounts
 @ Tunable not-in-group penalties
