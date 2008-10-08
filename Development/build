@@ -14,7 +14,8 @@ function SplitVersion(ver)
 end
 
 function AuthorizedVersion(ver)
-  return SplitVersion(ver) ~= "Development Version"
+  qhv, wowv = SplitVersion(ver)
+  return qhv ~= "Development Version" and wowv ~= "0.0.2"
 end
 
 for i, a in ipairs({...}) do
@@ -115,8 +116,9 @@ if changes_lua then
 end
 
 if external then
-  --print("Updating Astrolabe.")
-  --FileUtil.updateSVNRepo("http://svn.esamynn.org/astrolabe/branches/wotlk_data_temp", "../Astrolabe")
+  print("Updating Astrolabe.")
+
+  FileUtil.updateSVNRepo("http://svn.esamynn.org/astrolabe/branches/wotlk_data_temp", "../Astrolabe")
   print("Updating ChatThrottleLib.")
   FileUtil.updateSVNRepo("svn://svn.wowace.com/wow/chatthrottlelib/mainline/trunk", "../ChatThrottleLib")
 end
@@ -128,6 +130,21 @@ if compile then
     DumpVariable(buffer, prebuf, cache, "cache")
     stream:write(DumpingComplete(buffer, prebuf))
     io.close(stream)
+  end
+  
+  local function QuestHelper_IsCorrupted(data)
+    if type(data.QuestHelper_Objectives) == "table" then for version, package in pairs(data.QuestHelper_Objectives) do
+      if AuthorizedVersion(version) and type(package) == "table" then for category, objectives in pairs(package) do
+        if type(objectives) == "table" and PreWrath(version) then for name, objective in pairs(objectives) do
+          if type(objective) == "table" and objective.pos and type(objective.pos) == "table" then for i, pos in pairs(objective.pos) do
+            if pos[1] >= 65 then
+              print "SOMETHING IS SERIOUSLY WRONG, found Wrath coordinates in non-Wrath files"
+              return true
+            end
+          end end
+        end end
+      end end
+    end end
   end
   
   -- Download the latest copy of the translated item/npc names.
@@ -185,6 +202,10 @@ if compile then
           QuestHelper_UpgradeDatabase(upgradable_data)
           if QuestHelper_IsPolluted(upgradable_data) then
             print("!! "..name.." is polluted")
+            return
+          end
+          if QuestHelper_IsCorrupted(upgradable_data) then
+            print("!! "..name.." is corrupted")
             return
           end
           

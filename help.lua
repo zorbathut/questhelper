@@ -394,7 +394,7 @@ function QuestHelper:RecycleInfo(cmd)
   end
   
   UpdateAddOnMemoryUsage()
-  self:TextOut(string.format("QuestHelper is using %dkb of RAM.", GetAddOnMemoryUsage("QuestHelper")))
+  self:TextOut(string.format("QuestHelper is using %dkb of RAM (%s/%s/%s/%s).", GetAddOnMemoryUsage("QuestHelper"), QuestHelper_local_version, QuestHelper_toc_version, GetBuildInfo(), GetLocale()))
 end
 
 function QuestHelper:ToggleMapButton()
