@@ -194,6 +194,9 @@ local function getTime(tbl, orig, dest, hash)
   return tbl and tbl[hash] ~= true and tbl[hash]
 end
 
+-- Okay, I think I've figured out what this is. Given fi1 and fi2, the standard horrifying "canonical/fallback" stuff that all this code does . . .
+-- For each pair of "origin/dest" in tbl, determine if there is a direct path. (If there is, the hash will be 0.)
+-- If so, find the flightpath distance and the "walking" distance. Add up walking and flightpath separately, and return the sums.
 local function getWalkToFlight(tbl, fi1, fi2)
   local f, w = 0, 0
   
@@ -226,6 +229,7 @@ local function getWalkToFlight(tbl, fi1, fi2)
   return f, w
 end
 
+-- Determines the general multiple faster than flying is than walking.
 function QuestHelper:computeWalkToFlightMult()
   local l = QuestHelper_FlightRoutes_Local[self.faction]
   local s = QuestHelper_StaticData[self.locale]
@@ -294,8 +298,6 @@ local moonglade_fp = nil
 
 function QuestHelper:addLinkInfo(data, flight_times)
   if data then
-    local ignored_fp = nil
-    
     if select(2, UnitClass("player")) ~= "DRUID" then
       -- As only druids can use the flight point in moonglade, we need to figure out
       -- where it is so we can ignore it.
@@ -308,7 +310,7 @@ function QuestHelper:addLinkInfo(data, flight_times)
           local npc_obj = self:GetObjective("monster", npc)
           npc_obj:PrepareRouting({failable = true})
           local pos = npc_obj:Position()
-          if pos and QuestHelper_IndexLookup[pos[1].c][pos[1].z] == 20 then
+          if pos and QuestHelper_IndexLookup[pos[1].c][pos[1].z] == 20 and string.find(area, ",") then -- I'm kind of guessing here
             moonglade_fp = area
             npc_obj:DoneRouting()
             break
@@ -324,7 +326,7 @@ function QuestHelper:addLinkInfo(data, flight_times)
             local npc_obj = self:GetObjective("monster", npc)
             npc_obj:PrepareRouting({failable = true})
             local pos = npc_obj:Position()
-            if pos and QuestHelper_IndexLookup[pos[1].c][pos[1].z] == 20 then
+            if pos and QuestHelper_IndexLookup[pos[1].c][pos[1].z] == 20 and string.find(area, ",") then
               moonglade_fp = area
               npc_obj:DoneRouting()
               break
@@ -341,8 +343,6 @@ function QuestHelper:addLinkInfo(data, flight_times)
           moonglade_fp = "unknown"
         end
       end
-      
-      ignored_fp = moonglade_fp
     end
     
     for origin, list in pairs(data) do
@@ -353,7 +353,7 @@ function QuestHelper:addLinkInfo(data, flight_times)
       end
       
       for dest, hashs in pairs(list) do
-        if origin ~= ignored_fp and QuestHelper_KnownFlightRoutes[dest] and hashs[0] then
+        if origin ~= moonglade_fp and QuestHelper_KnownFlightRoutes[dest] and hashs[0] then
           local tbl2 = tbl[dest]
           if not tbl2 then
             local t = self:computeLinkTime(origin, dest)
