@@ -508,12 +508,6 @@ function QuestHelper:taxiMapOpened()
   end
   
   if origin then
-    if not QuestHelper_KnownFlightRoutes[origin] then
-      -- Player didn't previously have this flight point, will need to recalculate pathing data to account for it.
-      QuestHelper_KnownFlightRoutes[origin] = true
-      altered = true
-    end
-    
     local npc = UnitName("npc")
     
     if npc then
