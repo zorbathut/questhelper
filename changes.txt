@@ -1,8 +1,10 @@
-== Version 0.58 10/07/2008 ==
+== Version 0.58 10/08/2008 ==
 
 * Fix /qh treset to actually reset more emphatically
 * De-fork Astrolabe
 * Improve error tracking a little, and add tracking of "minor errors" so I can fix bugs
+* Clean up database a bit from corrupted data
+* Fix the ceil-nil bug temporarily, and improve logging so I can figure out WTF is going on there
 
 == Version 0.57 10/05/2008 ==
 
