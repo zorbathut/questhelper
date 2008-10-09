@@ -484,11 +484,14 @@ if compile then
     
     if condense then
       print("Condensing " .. finalout)
-      local data_loader = loadfile("LuaSrcDiet.lua")
-      local data = {arg={"--maximum", tempout, "-o", finalout}, TEST=true, string=string, print=print, table=table, ipairs=ipairs, error=error, io=io, tonumber=tonumber --[[ assert=assert, FileUtil=FileUtil, tostring=tostring ]]}  -- there has to be a better way to do this
-      setfenv(data_loader, data)
-      data_loader()
-      data.main()
+      os.execute(string.format("lua LuaSrcDiet.lua --maximum %s -o %s", tempout, finalout))
+      if false then
+        local data_loader = loadfile("LuaSrcDiet.lua")
+        local data = {arg={"--maximum", tempout, "-o", finalout}, TEST=true, string=string, print=print, table=table, ipairs=ipairs, error=error, io=io, tonumber=tonumber --[[ assert=assert, FileUtil=FileUtil, tostring=tostring ]]}  -- there has to be a better way to do this
+        setfenv(data_loader, data)
+        data_loader()
+        data.main()
+      end
     end
     
     finalstatic:write(string.format("  %s=QuestHelper_StaticData_%s,", k, k))
