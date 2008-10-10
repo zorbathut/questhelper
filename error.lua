@@ -91,7 +91,7 @@ function QuestHelper_ErrorCatcher.CondenseErrors()
   end
 end
 
-function QuestHelper_ErrorPackage()
+function QuestHelper_ErrorPackage(depth)
   return {
     timestamp = date("%Y-%m-%d %H:%M:%S"),
     stack = stack,
@@ -99,7 +99,7 @@ function QuestHelper_ErrorPackage()
     toc_version = QuestHelper_toc_version,
     game_version = GetBuildInfo(),
     locale = GetLocale(),
-    stack = debugstack(2, 20, 20),
+    stack = debugstack(depth or 4, 20, 20),
   }
 end
 

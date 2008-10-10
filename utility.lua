@@ -364,12 +364,12 @@ function QuestHelper:TableSize(tbl)
 end
 
 function QuestHelper:IsWrath()
-  return GetBuildInfo():sub(1,1) == '3'
+  return GetBuildInfo():sub(1,1) == '3' or GetBuildInfo() == "0.0.2" -- come on
 end
 
 function QuestHelper:AppendNotificationError(type, data)
   if not QuestHelper_Errors[type] then QuestHelper_Errors[type] = {} end
-  local terror = QuestHelper_ErrorPackage()
+  local terror = QuestHelper_ErrorPackage(2)
   terror.data = data
   table.insert(QuestHelper_Errors[type], terror)
 end

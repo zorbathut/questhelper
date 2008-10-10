@@ -1,8 +1,8 @@
 
-== Version 0.59 10/09/2008 ==
+== Version 0.59 10/10/2008 ==
 
 * Starting to fix issues involving flight paths
-* FIX DEFERED_GRAPH_RESET DAMMIT
+* A few minor patches to crash issues
 
 == Version 0.58 10/09/2008 ==
 

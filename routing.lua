@@ -1271,8 +1271,8 @@ function Routing:RouteUpdateRoutine()
     end
     
     -- temporary hack to cause more errors
-    qh.defered_graph_reset = true
-    qh.defered_flight_times = true
+    --qh.defered_graph_reset = true
+    --qh.defered_flight_times = true
     
     qh:yieldIfNeeded(1)
   end
