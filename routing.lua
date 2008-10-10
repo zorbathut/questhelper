@@ -779,6 +779,11 @@ function Route:pathResetEnd()
     
     info.pos = p
   end
+  
+  -- Now let's try to rework the values also
+  for i = 1, #self-1 do
+    self[i].len = QuestHelper:ComputeTravelTime(self[i].pos, self[i+1].pos, true)
+  end
 end
 
 function Routing:RoutingSetup()

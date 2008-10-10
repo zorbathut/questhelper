@@ -348,7 +348,7 @@ function QuestHelper:addLinkInfo(data, flight_times)
     for origin, list in pairs(data) do
       local tbl = flight_times[origin]
       if not tbl then
-        tbl = self:CreateTable("flightpath addLinkInfo")
+        tbl = self:CreateTable("Flightpath AddLinkInfo origin table")
         flight_times[origin] = tbl
       end
       
@@ -358,7 +358,7 @@ function QuestHelper:addLinkInfo(data, flight_times)
           if not tbl2 then
             local t = self:computeLinkTime(origin, dest)
             if t then
-              tbl2 = self:CreateTable()
+              tbl2 = self:CreateTable("Flightpath AddLinkInfo origin->dest data table")
               tbl[dest] = tbl2
               tbl2[1] = t
               tbl2[2] = dest
@@ -424,6 +424,7 @@ function QuestHelper:buildFlightTimes()
   self:addLinkInfo(l, flight_times)
   self:addLinkInfo(s, flight_times)
   
+  -- This appears to set up flight_times so it gives directions from any node to any other node. I'm not sure what the getDataTime() call is all about, and I'm also not sure what dat[2] is for. In any case, I don't see anything immediately suspicious about this, just dubious.
   local cont = true
   while cont do
     cont = false
@@ -500,6 +501,7 @@ function QuestHelper:taxiMapOpened()
     if not QuestHelper_KnownFlightRoutes[name] then
       QuestHelper_KnownFlightRoutes[name] = true
       altered = true
+      self:TextOut("New flight master: " .. name)
     end
     
     if GetNumRoutes(i) == 0 then -- Zero hops from this location, must be where we are.
@@ -540,6 +542,15 @@ function QuestHelper:taxiMapOpened()
         for k = 1,node_count do
           local n1, n2 = LookupName(TaxiGetSrcX(j, k), TaxiGetSrcY(j, k)), LookupName(TaxiGetDestX(j, k), TaxiGetDestY(j, k))
           
+          -- let's make this a bit easier and faster
+          if not QuestHelper_KnownFlightRoutes[n2] then
+            QuestHelper_KnownFlightRoutes[n2] = true
+            altered = true
+            self:TextOut("New flight master implied: " .. n2)
+          end
+          
+          --QuestHelper:TextOut(string.format("taxi %d: %d is %s/%s", j, k, n1, n2))
+          
           assert(n1 and n2 and n1 ~= n2)
           
           local dest1, dest2 = routes[n1], routes[n2]
@@ -567,16 +578,18 @@ function QuestHelper:taxiMapOpened()
           end
           
           if not hash1[0] then
-            if not (slinks and slinks[n1] and slinks[n1][n2] and slinks[n1][n2][0]) then
+            if not (sroutes and sroutes[n1] and sroutes[n1][n2] and sroutes[n1][n2][0]) then
               -- hadn't been considering this link in pathing.
+              self:TextOut(string.format("Found new link between %s and %s", n1, n2))
               altered = true
             end
             hash1[0] = true
           end
           
           if not hash2[0] then
-            if not (slinks and slinks[n2] and slinks[n2][n1] and slinks[n2][n1][0]) then
+            if not (sroutes and sroutes[n2] and sroutes[n2][n1] and sroutes[n2][n1][0]) then
               -- hadn't been considering this link in pathing.
+              self:TextOut(string.format("Found new link between %s and %s", n2, n1))
               altered = true
             end
             hash2[0] = true
