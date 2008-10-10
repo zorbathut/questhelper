@@ -155,6 +155,14 @@ function QuestHelper:CreateWorldMapWalker()
   
   function walker:RouteChanged()
     if self.frame.Astrolabe.WorldMapVisible then
+      for i, obj in pairs(self.frame.route) do
+        if not obj.pos then
+          -- No. Just no.
+          QuestHelper:AppendNotificationError("10-10-2008 pathfinding/dodads nil coroutine race condition bug")
+          return   -- return "failure :("
+        end
+      end
+      
       local points = self.points
       local cur = self.frame.pos
       
