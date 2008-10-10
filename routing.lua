@@ -69,7 +69,7 @@ function Route:sanity()
   end
   
   --QuestHelper:TextOut("sd: "..l.." rd: "..self.distance)
-  assert(math.abs(l-self.distance) < 0.0001)
+  assert(math.abs(l-self.distance) < 0.0001, string.format("compare %f vs %f", l, self.distance))
   
   for i, info in ipairs(self) do
     assert(self.index[info.obj] == i)
@@ -780,9 +780,15 @@ function Route:pathResetEnd()
     info.pos = p
   end
   
-  -- Now let's try to rework the values also
-  for i = 1, #self-1 do
-    self[i].len = QuestHelper:ComputeTravelTime(self[i].pos, self[i+1].pos, true)
+  self:recalculateDistances()
+end
+
+function Route:recalculateDistances()
+  
+  self.distance = 0
+  for i = 0, #self-1 do
+    self[i].len = QuestHelper:ComputeTravelTime(self[i].pos, self[i+1].pos)
+    self.distance = self.distance + self[i].len
   end
 end
 
@@ -1242,10 +1248,16 @@ function Routing:RouteUpdateRoutine()
         obj.pos = info.pos
         route[i] = obj
       end
+      best_route:recalculateDistances()
       
       minimap_dodad:SetObjective(route[1])
       
       qh:yieldIfNeeded(9)
+      
+      for r in pairs(routes) do
+        assert(r:sanity())
+      end
+      best_route:sanity()
     end
     
     if changed then
@@ -1257,6 +1269,10 @@ function Routing:RouteUpdateRoutine()
     if route_pass > 0 then
       route_pass = route_pass - 1
     end
+    
+    -- temporary hack to cause more errors
+    qh.defered_graph_reset = true
+    qh.defered_flight_times = true
     
     qh:yieldIfNeeded(1)
   end

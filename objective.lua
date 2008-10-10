@@ -639,6 +639,10 @@ local function ObjectiveTravelTime(self, pos, nocache)
       self.distance_cache[key] = new
       self.qh:CacheRegister(self)
     end
+  else
+    if self.distance_cache and self.distance_cache[key] then
+      assert(self.distance_cache[key][1] == d)
+    end
   end
 
   return d, e
@@ -802,6 +806,10 @@ local function ObjectiveTravelTime2(self, pos1, pos2, nocache)
       new[1], new[2], new[3] = d, d2, e
       self.distance_cache[key] = new
       self.qh:CacheRegister(self)
+    end
+  else
+    if self.distance_cache and self.distance_cache[key] then
+      assert(self.distance_cache[key][1] == d and self.distance_cache[key][2] == d2)
     end
   end
 

@@ -1,3 +1,9 @@
+
+== Version 0.59 10/09/2008 ==
+
+* Starting to fix issues involving flight paths
+* FIX DEFERED_GRAPH_RESET DAMMIT
+
 == Version 0.58 10/09/2008 ==
 
 * Fix /qh treset to actually reset more emphatically

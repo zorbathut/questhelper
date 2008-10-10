@@ -425,6 +425,44 @@ function QuestHelper:Initialize()
   end
   
   self.Routing:Initialize()       -- Set up the routing task
+  
+  --[[ -- This is just an example of how the WoW profiler biases its profiles heavily.  
+  function C()
+  end
+  
+  function A()
+    q = 0
+    for x = 0, 130000000, 1 do
+    end
+  end
+
+  function B()
+    q = 0
+    for x = 0, 12000000, 1 do
+      C()
+    end
+  end
+
+  function B2()
+    q = 0
+    for x = 0, 1200000, 1 do
+      --q = q + x
+      C()
+    end
+  end
+  
+  debugprofilestart()
+  
+  local ta = debugprofilestop()
+  A()
+  local tb = debugprofilestop()
+  B()
+  local tc = debugprofilestop()
+  
+  QuestHelper:TextOut(string.format("%d %d %d", ta, tb - ta, tc - tb))
+  QuestHelper:TextOut(string.format("%d %d", GetFunctionCPUUsage(A), GetFunctionCPUUsage(B)))
+  
+  --/script SetCVar("scriptProfile", value)]]
 end
 
 function QuestHelper:OnEvent(event)
