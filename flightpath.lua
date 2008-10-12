@@ -248,7 +248,6 @@ end
 
 function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
   -- Only works for directly connected flight points.
-  
   if origin == dest then
     return 0
   end
@@ -291,6 +290,10 @@ function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
     end
   end
   
+  if t and type(t) ~= "number" then
+    QuestHelper:AppendNotificationError("2008-10-11 computelinktime is not a number", string.format("%s %s", type(t), fallback and type(fallback) or "(nil)"))
+    return nil
+  end
   return t
 end
 
