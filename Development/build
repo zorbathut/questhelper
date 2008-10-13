@@ -121,9 +121,9 @@ if changes_lua then
 end
 
 if external then
-  print("Updating Astrolabe.")
 
-  FileUtil.updateSVNRepo("http://svn.esamynn.org/astrolabe/branches/wotlk_data_temp", "../Astrolabe")
+  --print("Updating Astrolabe.")
+  --FileUtil.updateSVNRepo("http://svn.esamynn.org/astrolabe/branches/wotlk_data_temp", "../Astrolabe")
   print("Updating ChatThrottleLib.")
   FileUtil.updateSVNRepo("svn://svn.wowace.com/wow/chatthrottlelib/mainline/trunk", "../ChatThrottleLib")
 end
