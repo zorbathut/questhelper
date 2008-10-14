@@ -262,16 +262,18 @@ function QuestHelper:Nag(cmd)
         for start, dest_list in pairs(start_list) do
           for dest, hash_list in pairs(dest_list) do
             for hash, data in pairs(hash_list) do
-              local static = QuestHelper_StaticData[self.locale]
-              static = static and static.flight_routes
-              static = static and static[faction]
-              static = static and static[start]
-              static = static and static[dest]
-              static = static and static[hash]
-              
-              if not static or static == true and type(data) == "number" then
-                if verbose then self:TextOut("Flight time from "..QuestHelper:HighlightText((select(3, string.find(start, "^(.*),")) or start)).." to "..QuestHelper:HighlightText((select(3, string.find(dest, "^(.*),")) or dest)).." was missing.") end
-                info.new["route"] = (info.new["route"] or 0)+1
+              if hash ~= "no_interrupt_count" and hash ~= "interrupt_count" then
+                local static = QuestHelper_StaticData[self.locale]
+                static = static and static.flight_routes
+                static = static and static[faction]
+                static = static and static[start]
+                static = static and static[dest]
+                static = static and static[hash]
+                
+                if not static or static == true and type(data) == "number" then
+                  if verbose then self:TextOut("Flight time from "..QuestHelper:HighlightText((select(3, string.find(start, "^(.*),")) or start)).." to "..QuestHelper:HighlightText((select(3, string.find(dest, "^(.*),")) or dest)).." was missing.") end
+                  info.new["route"] = (info.new["route"] or 0)+1
+                end
               end
             end
           end

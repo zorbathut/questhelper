@@ -170,6 +170,9 @@ What do we need?
   * Items/events involved?
   * Rep gain
   * XP gain
+  * Money gain
+  * Item rewards
+    * Item reward equip testing? vs. spec, class, level
 * Flight paths that exist
 * Flight path timing
 * Zone boundaries
