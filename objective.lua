@@ -257,7 +257,6 @@ local function ObjectivePrepareRouting(self, anywhere)
       self:AppendPositions(self, 1, nil, true)
     
       if not next(self.p) then
-        QuestHelper:Assert(nil)
         QuestHelper:TextOut(QHFormat("INACCESSIBLE_OBJ", self.obj or "whatever it was you just requested"))
         anywhere = true
       end
