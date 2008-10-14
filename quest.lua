@@ -15,14 +15,16 @@ local function QuestKnown(self)
   return (self.target or self.destination) and self:DefaultKnown() and (self.destination or self.target:Known())
 end
 
-local function QuestAppendPositions(self, objective, weight, why)
+local function QuestAppendPositions(self, objective, weight, why, restrict)
   why2 = why and why.."\n" or ""
 
   if self.target then
-    self.target:AppendPositions(self, 1, why2..QHFormat("OBJECTIVE_TALK", self.o.finish or self.fb.finish))
+    self.target:AppendPositions(self, 1, why2..QHFormat("OBJECTIVE_TALK", self.o.finish or self.fb.finish), restrict)
   elseif self.destination then
     for i, p in ipairs(self.destination) do
-      self:AddLoc(p[1], p[2], p[3], p[4], p[5])
+      if not restrict or not self.qh:Disallowed(p[1]) then
+        self:AddLoc(p[1], p[2], p[3], p[4], p[5])
+      end
     end
   end
 end

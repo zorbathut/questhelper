@@ -25,7 +25,7 @@ function QuestHelper:EnableCartographer()
       function QuestHelperPoint:init(c, z, x, y, desc)
         self.x, self.y, self.task = x, y, desc
         
-        local zone = select(z, GetMapZones(c))
+        local zone = GetMapVirtualZones(c)[z]
         
         if Rock then
           local LibBabble = Rock("LibBabble-Zone-3.0", false, true)

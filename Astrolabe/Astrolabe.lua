@@ -41,7 +41,7 @@ Note:
 -- WARNING!!!
 -- DO NOT MAKE CHANGES TO THIS LIBRARY WITHOUT FIRST CHANGING THE LIBRARY_VERSION_MAJOR
 -- STRING (to something unique) OR ELSE YOU MAY BREAK OTHER ADDONS THAT USE THIS LIBRARY!!!
-local LIBRARY_VERSION_MAJOR = "Astrolabe-0.4"
+local LIBRARY_VERSION_MAJOR = "Astrolabe-0.4-QuestHelper"
 local LIBRARY_VERSION_MINOR = tonumber(string.match("$Revision: 92 $", "(%d+)") or 1)
 
 if not DongleStub then error(LIBRARY_VERSION_MAJOR .. " requires DongleStub.") end
@@ -50,7 +50,7 @@ if not DongleStub:IsNewerVersion(LIBRARY_VERSION_MAJOR, LIBRARY_VERSION_MINOR) t
 local Astrolabe = {};
 
 -- define local variables for Data Tables (defined at the end of this file)
-local WorldMapSize, MinimapSize, ValidMinimapShapes;
+local WorldMapSize, MinimapSize, ValidMinimapShapes, VirtualContinentIndexes;
 
 function Astrolabe:GetVersion()
 	return LIBRARY_VERSION_MAJOR, LIBRARY_VERSION_MINOR;
@@ -141,6 +141,58 @@ local function getContPosition( zoneData, z, x, y )
 	return x, y;
 end
 
+--------------------------------------------------------------------------------------------------------------
+-- Virtual Continent Functions
+--------------------------------------------------------------------------------------------------------------
+
+function Astrolabe:GetCurrentVirtualMapCZ()
+  local C, Z = GetCurrentMapContinent(), GetCurrentMapZone();
+  if C == -1 and Z == 0 then
+    -- welllllp
+    local mapname = GetMapInfo()
+    if VirtualContinentIndexes[mapname] then
+      C = VirtualContinentIndexes[mapname]
+      Z = 1
+    end
+  end
+  return C, Z
+end
+
+function Astrolabe:GetCurrentVirtualMapContinent() local C, Z = self:GetCurrentVirtualMapCZ() return C end
+function Astrolabe:GetCurrentVirtualMapZone() local C, Z = self:GetCurrentVirtualMapCZ() return Z end
+
+-- Does much the same as GetMapContinents, but returns as an array and includes the virtual continents in the mix
+function Astrolabe:GetMapVirtualContinents()
+  local rv = {GetMapContinents()}
+  for k, v in pairs(VirtualContinentIndexes) do
+    rv[v] = k .. "_Continent"
+  end
+  return rv
+end
+
+-- Does much the same as GetMapContinents, but returns as an array and includes the virtual continents in the mix
+function Astrolabe:GetMapVirtualZones(zone)
+  for k, v in pairs(VirtualContinentIndexes) do
+    if v == zone then
+      return {[1] = k}
+    end
+  end
+  
+  return {GetMapZones(zone)}
+end
+
+function Astrolabe:GetMapTexture(c, z)
+  for k, v in pairs(VirtualContinentIndexes) do
+    if v == c and z == 0 then
+      return k .. "_Continent"
+    elseif v == c and z == 1 then
+      return k
+    end
+  end
+  
+  SetMapZoom(c, z)
+  return (GetMapInfo())
+end
 
 --------------------------------------------------------------------------------------------------------------
 -- General Utility Functions
@@ -219,7 +271,7 @@ function Astrolabe:TranslateWorldMapPosition( C, Z, xPos, yPos, nC, nZ )
 	
 	Z = Z or 0;
 	nZ = nZ or 0;
-	if ( nC < 0 ) then
+	if ( nC < 0 and nC > -7777 ) then
 		return;
 	end
 	
@@ -297,7 +349,7 @@ function Astrolabe:GetUnitPosition( unit, noMapChange )
 		end
 		return C, Z, x, y;
 	end
-	return GetCurrentMapContinent(), GetCurrentMapZone(), x, y;
+	return self:GetCurrentVirtualMapContinent(), self:GetCurrentVirtualMapZone(), x, y;
 end
 
 --*****************************************************************************
@@ -323,17 +375,19 @@ function Astrolabe:GetCurrentPlayerPosition()
 			SetMapZoom(GetCurrentMapContinent());
 			x, y = GetPlayerMapPosition("player");
 			if ( x <= 0 and y <= 0 ) then
-				-- we are in an instance or otherwise off the continent map
+        -- we are in an instance or otherwise off the continent map
 				return;
 			end
 		end
 		local C, Z = GetCurrentMapContinent(), GetCurrentMapZone();
+    
 		if ( C ~= lastCont or Z ~= lastZone ) then
 			SetMapZoom(lastCont, lastZone); --set map zoom back to what it was before
 		end
 		return C, Z, x, y;
 	end
-	return GetCurrentMapContinent(), GetCurrentMapZone(), x, y;
+  
+	return self:GetCurrentVirtualMapContinent(), self:GetCurrentVirtualMapZone(), x, y;
 end
 
 
@@ -452,7 +506,7 @@ function Astrolabe:PlaceIconOnMinimap( icon, continent, zone, xPos, yPos )
 		--icon's position has no meaningful position relative to the player's current location
 		return -1;
 	end
-	
+  
 	local iconData = GetWorkingTable(icon);
 	if ( self.MinimapIcons[icon] ) then
 		self.MinimapIcons[icon] = nil;
@@ -546,7 +600,7 @@ do
 			resetIncrementalUpdate = false -- by definition, the incremental update is reset if it is here
 			
 			local C, Z, x, y = self:GetCurrentPlayerPosition();
-			if ( C and C >= 0 ) then
+			if ( C and C ~= -1 ) then
 				local Minimap = Minimap;
 				local lastPosition = self.LastPlayerPosition;
 				local lC, lZ, lx, ly = unpack(lastPosition);
@@ -672,10 +726,11 @@ do
 			self:DumpNewIconsCache() -- put new/updated icons into the main datacache
 			
 			resetFullUpdate = false -- by definition, the full update is reset if it is here
+      
 			fullUpdateInProgress = true -- set the flag the says a full update is in progress
 			
 			local C, Z, x, y = self:GetCurrentPlayerPosition();
-			if ( C and C >= 0 ) then
+			if ( C and C ~= -1 ) then
 				minimapRotationEnabled = GetCVar("rotateMinimap") ~= "0"
 				if ( minimapRotationEnabled ) then
 					minimapRotationOffset = -MinimapCompassRing:GetFacing()
@@ -826,7 +881,7 @@ function Astrolabe:PlaceIconOnWorldMap( worldMapFrame, icon, continent, zone, xP
 	argcheck(xPos, 6, "number");
 	argcheck(yPos, 7, "number");
 	
-	local C, Z = GetCurrentMapContinent(), GetCurrentMapZone();
+	local C, Z = self:GetCurrentVirtualMapCZ();
 	local nX, nY = self:TranslateWorldMapPosition(continent, zone, xPos, yPos, C, Z);
 	
 	-- anchor and :Show() the icon if it is within the boundry of the current map, :Hide() it otherwise
@@ -907,8 +962,10 @@ function Astrolabe:OnShow( frame )
 		SetMapToCurrentZone();
 	end
 	local C, Z = Astrolabe:GetCurrentPlayerPosition();
-	if ( C and C >= 0 ) then
-		SetMapZoom(C, Z);
+	if ( C and C ~= -1 ) then
+		if C >= 0 then  -- If we're in Wackyland, we can't change the world map anyway, so at least it's probably right
+			SetMapZoom(C, Z);
+		end
 	else
 		frame:Hide();
 		return
@@ -958,13 +1015,13 @@ local function activate( newInstance, oldInstance )
 		local frame = CreateFrame("Frame");
 		newInstance.processingFrame = frame;
 		
-		newInstance.ContinentList = { GetMapContinents() };
+		newInstance.ContinentList = Astrolabe:GetMapVirtualContinents();
+    
 		for C in pairs(newInstance.ContinentList) do
-			local zones = { GetMapZones(C) };
+			local zones = Astrolabe:GetMapVirtualZones(C);
 			newInstance.ContinentList[C] = zones;
 			for Z in ipairs(zones) do
-				SetMapZoom(C, Z);
-				zones[Z] = GetMapInfo();
+				zones[Z] = Astrolabe:GetMapTexture(C, Z);
 			end
 		end
 	end
@@ -996,9 +1053,6 @@ local function activate( newInstance, oldInstance )
 	
 	setmetatable(Astrolabe.MinimapIcons, MinimapIconsMetatable)
 end
-
-DongleStub:Register(Astrolabe, activate)
-
 
 --------------------------------------------------------------------------------------------------------------
 -- Data
@@ -1545,7 +1599,30 @@ if ( GetBuildInfo():sub(1, 3) == "3.0" ) then
 			},
 		},
 	}
+  
+  local dv = 2125 -- pay no attention to the man behind the curtain
+  WorldMapSize[-7777] = {
+		parentContinent = 0,
+		height = dv,
+		width = dv*1.5,
+		xOffset = 50000,
+		yOffset = 50000,
+		zoneData = {
+			ScarletEnclave = {
+				height = dv,
+				width = dv*1.5,
+				xOffset = 0,
+				yOffset = 0,
+			},
+		},
+	}
 end
+
+VirtualContinentIndexes = { -- Don't change values here, since programs might want to store them
+  ["ScarletEnclave"] = -7777,
+}
+
+DongleStub:Register(Astrolabe, activate)
 
 local zeroData;
 zeroData = { xOffset = 0, height = 0, yOffset = 0, width = 0, __index = function() return zeroData end };
@@ -1557,7 +1634,7 @@ for continent, zones in pairs(Astrolabe.ContinentList) do
 	for index, mapName in pairs(zones) do
 		if not ( mapData.zoneData[mapName] ) then
 			--WE HAVE A PROBLEM!!!
-			ChatFrame1:AddMessage("Astrolabe is missing data for "..select(index, GetMapZones(continent))..".");
+			ChatFrame1:AddMessage("Astrolabe is missing data for "..select(index, GetVirtualMapZones(continent))..".");
 			mapData.zoneData[mapName] = zeroData;
 		end
 		mapData[index] = mapData.zoneData[mapName];

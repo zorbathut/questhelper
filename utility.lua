@@ -65,21 +65,23 @@ end
 function QuestHelper:ZoneSanity()
   local sane = true
   
-  for c=1, select("#", GetMapContinents()) do
-    for z=0, select("#", GetMapZones(c)) do
+  for c in pairs(self.Astrolabe:GetMapVirtualContinents()) do
+    local pz = self.Astrolabe:GetMapVirtualZones(c)
+    pz[0] = true
+    for z in pairs(pz) do
       local name
       
       if z == 0 then
-        name = select(c, GetMapContinents())
+        name = self.Astrolabe:GetMapVirtualContinents()[c]
       else
-        name = select(z, GetMapZones(c))
+        name = self.Astrolabe:GetMapVirtualZones(c)[z]
       end
       
       assert(name)
       
       if QuestHelper_Zones[c][z] ~= name then
         sane = false
-        QuestHelper:TextOut("'"..name.."' has the wrong ID.")
+        QuestHelper:TextOut(string.format("'%s' has the wrong ID (should be %d,%d).", name, c, z))
       end
       
       local pair = QuestHelper_ZoneLookup[name]

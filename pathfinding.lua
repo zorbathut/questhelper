@@ -78,8 +78,10 @@ local static_shared_routes =
    
    {{70, 0.235, 0.578}, {68, 0.496, 0.784}, 210}, -- Kamagua <--> Moa'ki
    {{65, 0.789, 0.536}, {68, 0.480, 0.787}, 210}, -- Unu'pe <--> Moa'ki
-   {{67, 0.559, 0.467}, {66, 0.158, 0.428}, 5}, -- Dalaran --> Violet Stand
-   {{66, 0.157, 0.425}, {67, 0.559, 0.468}, 5}, -- Violent Stand --> Dalaran (slightly different coordinates, may be important once solid walls are in)
+   {{67, 0.559, 0.467}, {66, 0.158, 0.428}, 5, true}, -- Dalaran --> Violet Stand
+   {{66, 0.157, 0.425}, {67, 0.559, 0.468}, 5, true}, -- Violent Stand --> Dalaran (slightly different coordinates, may be important once solid walls are in)
+   
+   {{34, 0.817, 0.461}, {78, 0.492, 0.312}, 86400}, -- EPL Ebon Hold <--> Scarlet Enclave Ebon Hold. Exists solely to fix some pathing crashes.
   }
 
 -- Darkportal is handled specially, depending on whether or not you're level 58+ or not.
@@ -650,7 +652,7 @@ function QuestHelper:ResetPathing()
     self.continent_scales_y = continent_scales_y
   end
   
-  for c=1,select("#", GetMapContinents()) do
+  for c in pairs(self.Astrolabe:GetMapVirtualContinents()) do
     if not continent_scales_x[c] then
       local _, x, y = self.Astrolabe:ComputeDistance(c, 0, 0.25, 0.25, c, 0, 0.75, 0.75)
       
@@ -862,4 +864,9 @@ function QuestHelper:ResetPathing()
   if self.graph_walker then
     self.graph_walker:GraphChanged()
   end
+end
+
+
+function QuestHelper:Disallowed(index)
+  return QuestHelper_RestrictedZones[index] ~= QuestHelper_RestrictedZones[self.i]
 end

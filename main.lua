@@ -243,14 +243,13 @@ function QuestHelper:Initialize()
   end
   QuestHelper_SaveDate = time()
 
+  self.Astrolabe = DongleStub("Astrolabe-0.4-QuestHelper")
   QuestHelper_BuildZoneLookup()
 
   if QuestHelper_Locale ~= GetLocale() then
     self:TextOut(QHText("LOCALE_ERROR"))
     return
   end
-
-  self.Astrolabe = DongleStub("Astrolabe-0.4")
 
   if not self:ZoneSanity() then
     self:TextOut(QHText("ZONE_LAYOUT_ERROR"))
@@ -775,7 +774,7 @@ function QuestHelper:OnUpdate()
         nz, nx, ny = self.z, nnx, nny
       end
     end
-
+    
     if nc and nc > 0 and nz == 0 and nc == self.c and self.z > 0 then
       nx, ny = self.Astrolabe:TranslateWorldMapPosition(nc, nz, nx, ny, nc, self.z)
       if nx and ny and nx > -0.1 and ny > -0.1 and nx < 1.1 and ny < 1.1 then

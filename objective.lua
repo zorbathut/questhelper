@@ -210,7 +210,7 @@ local function ItemKnown(self)
   return false
 end
 
-local function ObjectiveAppendPositions(self, objective, weight, why)
+local function ObjectiveAppendPositions(self, objective, weight, why, restrict)
   local high = 0
   
   if self.o.pos then for i, p in ipairs(self.o.pos) do
@@ -224,11 +224,15 @@ local function ObjectiveAppendPositions(self, objective, weight, why)
   high = weight/high
   
   if self.o.pos then for i, p in ipairs(self.o.pos) do
-    objective:AddLoc(p[1], p[2], p[3], p[4]*high, why)
+    if not restrict or not self.qh:Disallowed(p[1]) then
+      objective:AddLoc(p[1], p[2], p[3], p[4]*high, why)
+    end
   end end
   
   if self.fb.pos then for i, p in ipairs(self.fb.pos) do
-    objective:AddLoc(p[1], p[2], p[3], p[4]*high, why)
+    if not restrict or not self.qh:Disallowed(p[1]) then
+      objective:AddLoc(p[1], p[2], p[3], p[4]*high, why)
+    end
   end end
 end
 
@@ -249,19 +253,25 @@ local function ObjectivePrepareRouting(self)
     self.nl = QuestHelper:CreateTable("objective.nl")
     self.distance_cache = QuestHelper:CreateTable("objective.distance_cache")
     
-    self:AppendPositions(self, 1, nil)
+    self:AppendPositions(self, 1, nil, true)
+    
+    if not next(self.p) then
+      QuestHelper:TextOut(QHFormat("INACCESSIBLE_OBJ", self.obj or "whatever it was you just requested"))
+      self:AppendPositions(self, 1, nil, false)
+    end
+    
     self:FinishAddLoc(args)
   end
 end
 
-local function ItemAppendPositions(self, objective, weight, why)
+local function ItemAppendPositions(self, objective, weight, why, restrict)
   why2 = why and why.."\n" or ""
   
   if self.o.vendor then for i, npc in ipairs(self.o.vendor) do
     local n = self.qh:GetObjective("monster", npc)
     local faction = n.o.faction or n.fb.faction
     if (not faction or faction == self.qh.faction) then
-      n:AppendPositions(objective, 1, why2..QHFormat("OBJECTIVE_PURCHASE", npc))
+      n:AppendPositions(objective, 1, why2..QHFormat("OBJECTIVE_PURCHASE", npc), restrict)
     end
   end end
   
@@ -269,7 +279,7 @@ local function ItemAppendPositions(self, objective, weight, why)
     local n = self.qh:GetObjective("monster", npc)
     local faction = n.o.faction or n.fb.faction
     if (not faction or faction == self.qh.faction) then
-      n:AppendPositions(objective, 1, why2..QHFormat("OBJECTIVE_PURCHASE", npc))
+      n:AppendPositions(objective, 1, why2..QHFormat("OBJECTIVE_PURCHASE", npc), restrict)
     end
   end end
   
@@ -281,30 +291,34 @@ local function ItemAppendPositions(self, objective, weight, why)
   
   if self.o.drop then for monster, count in pairs(self.o.drop) do
     local m = self.qh:GetObjective("monster", monster)
-    m:AppendPositions(objective, m.o.looted and count/m.o.looted or 1, why2..QHFormat("OBJECTIVE_SLAY", monster))
+    m:AppendPositions(objective, m.o.looted and count/m.o.looted or 1, why2..QHFormat("OBJECTIVE_SLAY", monster), restrict)
   end end
   
   if self.fb.drop then for monster, count in pairs(self.fb.drop) do
     local m = self.qh:GetObjective("monster", monster)
-    m:AppendPositions(objective, m.fb.looted and count/m.fb.looted or 1, why2..QHFormat("OBJECTIVE_SLAY", monster))
+    m:AppendPositions(objective, m.fb.looted and count/m.fb.looted or 1, why2..QHFormat("OBJECTIVE_SLAY", monster), restrict)
   end end
   
   if self.o.contained then for item, count in pairs(self.o.contained) do
     local i = self.qh:GetObjective("item", item)
-    i:AppendPositions(objective, i.o.opened and count/i.o.opened or 1, why2..QHFormat("OBJECTIVE_LOOT", item))
+    i:AppendPositions(objective, i.o.opened and count/i.o.opened or 1, why2..QHFormat("OBJECTIVE_LOOT", item), restrict)
   end end
   
   if self.fb.contained then for item, count in pairs(self.fb.contained) do
     local i = self.qh:GetObjective("item", item)
-    i:AppendPositions(objective, i.fb.opened and count/i.fb.opened or 1, why2..QHFormat("OBJECTIVE_LOOT", item))
+    i:AppendPositions(objective, i.fb.opened and count/i.fb.opened or 1, why2..QHFormat("OBJECTIVE_LOOT", item), restrict)
   end end
   
   if self.o.pos then for i, p in ipairs(self.o.pos) do
-    objective:AddLoc(p[1], p[2], p[3], p[4], why)
+    if not restrict or not self.qh:Disallowed(p[1]) then
+      objective:AddLoc(p[1], p[2], p[3], p[4], why)
+    end
   end end
   
   if self.fb.pos then for i, p in ipairs(self.fb.pos) do
-    objective:AddLoc(p[1], p[2], p[3], p[4], why)
+    if not restrict or not self.qh:Disallowed(p[1]) then
+      objective:AddLoc(p[1], p[2], p[3], p[4], why)
+    end
   end end
   
   if self.quest then
@@ -314,11 +328,13 @@ local function ItemAppendPositions(self, objective, weight, why)
       if data and data.drop then
         for monster, count in pairs(data.drop) do
           local m = self.qh:GetObjective("monster", monster)
-          m:AppendPositions(objective, m.o.looted and count/m.o.looted or 1, why2..QHFormat("OBJECTIVE_SLAY", monster))
+          m:AppendPositions(objective, m.o.looted and count/m.o.looted or 1, why2..QHFormat("OBJECTIVE_SLAY", monster), restrict)
         end
       elseif data and data.pos then
         for i, p in ipairs(data.pos) do
-          objective:AddLoc(p[1], p[2], p[3], p[4], why)
+          if not restrict or not self.qh:Disallowed(p[1]) then
+            objective:AddLoc(p[1], p[2], p[3], p[4], why)
+          end
         end
       end
     end
@@ -329,11 +345,13 @@ local function ItemAppendPositions(self, objective, weight, why)
       if data and data.drop then
         for monster, count in pairs(data.drop) do
           local m = self.qh:GetObjective("monster", monster)
-          m:AppendPositions(objective, m.fb.looted and count/m.fb.looted or 1, why2..QHFormat("OBJECTIVE_SLAY", monster))
+          m:AppendPositions(objective, m.fb.looted and count/m.fb.looted or 1, why2..QHFormat("OBJECTIVE_SLAY", monster), restrict)
         end
       elseif data and data.pos then
         for i, p in ipairs(data.pos) do
-          objective:AddLoc(p[1], p[2], p[3], p[4], why)
+          if not restrict or not self.qh:Disallowed(p[1]) then
+            objective:AddLoc(p[1], p[2], p[3], p[4], why)
+          end
         end
       end
     end

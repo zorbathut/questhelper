@@ -124,6 +124,7 @@ QuestHelper_Translations.enUS =
   REMOVED_OBJ = "Removed: %1",
   USER_OBJ = "User Objective: %h1",
   UNKNOWN_OBJ = "I don't know where you should go for that objective.",
+  INACCESSIBLE_OBJ = "QuestHelper has been unable to find a useful location for %h1. We've added a likely-impossible-to-find location to your objectives list. If you find a useful version of this monster, please submit your data! (%h(/qh submit))",
   
   SEARCHING_STATE = "Searching: %1",
   SEARCHING_LOCAL = "Local %1",

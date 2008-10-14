@@ -77,7 +77,9 @@ QuestHelper_Zones =
     [8]="Sholazar Basin",
     [9]="The Storm Peaks",
     [10]="Wintergrasp",
-    [11]="Zul'Drak"}
+    [11]="Zul'Drak"},
+    
+  [-7777]={[0]="ScarletEnclave_Continent", [1]="ScarletEnclave"},
 }
 
 
@@ -160,7 +162,14 @@ QuestHelper_IndexLookup =
   ["SholazarBasin"] = {72, 4, 8},
   ["TheStormPeaks"] = {73, 4, 9},
   ["LakeWintergrasp"] = {74, 4, 10},
-  ["ZulDrak"] = {75, 4, 11}
+  ["ZulDrak"] = {75, 4, 11},
+  
+  ["ScarletEnclave_Continent"] = {77, -7777, 0},
+  ["ScarletEnclave"] = {78, -7777, 1},
+}
+
+QuestHelper_RestrictedZones = { -- Everything defaults to "nil"
+  [78] = 1,
 }
 
 local next_index = 1
@@ -185,11 +194,13 @@ function QuestHelper_BuildZoneLookup()
     QuestHelper_IndexLookup = {}
     QuestHelper_Zones = {}
     
-    for c, cname in pairs({GetMapContinents()}) do
+    for c, cname in pairs(QuestHelper.Astrolabe:GetMapVirtualContinents()) do
       QuestHelper_Zones[c] = {}
-      for z, zname in pairs({[0] = cname, GetMapZones(c)}) do
-        SetMapZoom(c, z)
-        local base_name = GetMapInfo()
+      local tpx = QuestHelper.Astrolabe:GetMapVirtualZones(c)
+      tpx[0] = cname
+      for z, zname in pairs(tpx) do
+        
+        local base_name = QuestHelper.Astrolabe:GetMapTexture(c, z)
         
         local index = original_lookup[base_name] and original_lookup[base_name][1]
         
@@ -205,8 +216,8 @@ function QuestHelper_BuildZoneLookup()
               QuestHelper:TextOut(altered_index:format(base_name, index, c, z))
             end
             
-            if original_zones[c][z] ~= zname then
-              QuestHelper:TextOut(altered_zone:format(c, z, zname, original_zones[c][z] or "missing"))
+            if not original_zones[c] or original_zones[c][z] ~= zname then
+              QuestHelper:TextOut(altered_zone:format(c, z, zname, original_zones[c] and original_zones[c][z] or "missing"))
             end
           end
           
@@ -222,6 +233,13 @@ function QuestHelper_BuildZoneLookup()
           
           QuestHelper_Zones[c][z] = zname
         end
+      end
+    end
+    
+    for name, index in pairs(original_lookup) do
+      if index[2] == -1 then
+        assert(not QuestHelper_IndexLookup[name])
+        QuestHelper_IndexLookup[name] = index[1]
       end
     end
   else
@@ -580,7 +598,6 @@ function QuestHelper_ConvertCoordsFromWrath(data, force)
   return data
 end
 
-
 local QuestHelper_PrivateServerBlacklist_Find = {
   "WoWFusion",
   "WoWgasm",
@@ -629,3 +646,4 @@ function QuestHelper_IsPolluted(input)
     end
   end
 end
+

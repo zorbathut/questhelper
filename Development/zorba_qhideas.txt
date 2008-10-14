@@ -138,3 +138,41 @@ Debug:
       QuestHelper\dodads.lua:437
 
 this happens every single time I fly from Azeroth(ironforge) to Outland(quel danas, ghostlands, etc) 
+
+=-=-=-=-=-=
+
+What do we need?
+  
+* Monsters
+  * Locations
+  * Levels
+  * Loot count
+  * Loot, in detail
+* Items
+  * Lootable flag
+  * Disenchantable flag
+  * Prospectible flag
+  * Ilevel
+  * Weapon/armor and weapon/armor subtype
+  * Loot, in detail
+  * Disenchanting
+  * Prospecting
+* Objects
+  * Locations
+  * Loot, in detail
+* Events
+  * Locations
+* Quests
+  * Levels
+  * Start character
+  * End character
+  * Start/end *location*
+  * Items/events involved?
+  * Rep gain
+  * XP gain
+* Flight paths that exist
+* Flight path timing
+* Zone boundaries
+* Subzone boundaries
+* Walk paths
+
