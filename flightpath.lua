@@ -105,7 +105,7 @@ function QuestHelper:processFlightData(data, interrupted)
   end
   
   local npc_obj = self:GetObjective("monster", npc)
-  npc_obj:PrepareRouting()
+  npc_obj:PrepareRouting(true)
   
   local pos = npc_obj:Position()
   if not pos then
@@ -207,8 +207,8 @@ local function getWalkToFlight(tbl, fi1, fi2)
           local npc1, npc2 = (fi1 and fi1[origin]) or (fi2 and fi2[origin]), (fi1 and fi1[dest]) or (fi2 and fi2[dest])
           if npc1 and npc2 then
             local obj1, obj2 = QuestHelper:GetObjective("monster", npc1), QuestHelper:GetObjective("monster", npc2)
-            obj1:PrepareRouting({failable = true})
-            obj2:PrepareRouting({failable = true})
+            obj1:PrepareRouting(true, {failable = true})
+            obj2:PrepareRouting(true, {failable = true})
             
             local pos1, pos2 = obj1:Position(), obj2:Position()
             
@@ -274,8 +274,8 @@ function QuestHelper:computeLinkTime(origin, dest, hash, fallback)
     
     if npc1 and npc2 then
       local obj1, obj2 = self:GetObjective("monster", npc1), self:GetObjective("monster", npc2)
-      obj1:PrepareRouting()
-      obj2:PrepareRouting()
+      obj1:PrepareRouting(true)
+      obj2:PrepareRouting(true)
       
       local pos1, pos2 = obj1:Position(), obj2:Position()
       
@@ -311,7 +311,7 @@ function QuestHelper:addLinkInfo(data, flight_times)
         
         if fi_table then for area, npc in pairs(fi_table) do
           local npc_obj = self:GetObjective("monster", npc)
-          npc_obj:PrepareRouting({failable = true})
+          npc_obj:PrepareRouting(true, {failable = true})
           local pos = npc_obj:Position()
           if pos and QuestHelper_IndexLookup[pos[1].c][pos[1].z] == 20 and string.find(area, ",") then -- I'm kind of guessing here
             moonglade_fp = area
@@ -327,7 +327,7 @@ function QuestHelper:addLinkInfo(data, flight_times)
           
           if fi_table then for area, npc in pairs(fi_table) do
             local npc_obj = self:GetObjective("monster", npc)
-            npc_obj:PrepareRouting({failable = true})
+            npc_obj:PrepareRouting(true, {failable = true})
             local pos = npc_obj:Position()
             if pos and QuestHelper_IndexLookup[pos[1].c][pos[1].z] == 20 and string.find(area, ",") then
               moonglade_fp = area
@@ -637,7 +637,7 @@ function QuestHelper:flightBegan()
     local npc = self:getFlightInstructor(self.flight_data.dest) -- Will inform QuestHelper that we're going to be at this NPC in whenever.
     if npc then
       local npc_obj = self:GetObjective("monster", npc)
-      npc_obj:PrepareRouting()
+      npc_obj:PrepareRouting(true)
       local pos = npc_obj:Position()
       if pos then
         local c, z = pos[1].c, pos[1].z

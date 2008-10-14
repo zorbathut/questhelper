@@ -237,7 +237,7 @@ local function ObjectiveAppendPositions(self, objective, weight, why, restrict)
 end
 
 
-local function ObjectivePrepareRouting(self)
+local function ObjectivePrepareRouting(self, anywhere)
   self.setup_count = self.setup_count + 1
   if not self.setup then
     assert(not self.d)
@@ -253,10 +253,17 @@ local function ObjectivePrepareRouting(self)
     self.nl = QuestHelper:CreateTable("objective.nl")
     self.distance_cache = QuestHelper:CreateTable("objective.distance_cache")
     
-    self:AppendPositions(self, 1, nil, true)
+    if not anywhere then
+      self:AppendPositions(self, 1, nil, true)
     
-    if not next(self.p) then
-      QuestHelper:TextOut(QHFormat("INACCESSIBLE_OBJ", self.obj or "whatever it was you just requested"))
+      if not next(self.p) then
+        QuestHelper:Assert(nil)
+        QuestHelper:TextOut(QHFormat("INACCESSIBLE_OBJ", self.obj or "whatever it was you just requested"))
+        anywhere = true
+      end
+    end
+    
+    if anywhere then
       self:AppendPositions(self, 1, nil, false)
     end
     
