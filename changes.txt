@@ -1,4 +1,14 @@
 
+== Version 0.60 10/10/2008 ==
+
+* Support for the Death Knight starting zone
+* /qh treset works better
+* Further error handling, small fixes, etc
+* Why isn't the test server working?
+* If it was, I could fix some bugs.
+* But it isn't.
+* Sigh.
+
 == Version 0.59 10/10/2008 ==
 
 * Starting to fix issues involving flight paths

@@ -375,12 +375,10 @@ local function AddFlightInstructor(locale, faction, location, npc)
   end
 end
 
-local function AddFlightRoute(locale, faction, start, destination, hash, value)
+local function CreateFlightTable(locale, faction, start, destination, new_style)
   if ValidFaction(faction) and
      type(start) == "string" and
-     type(destination) == "string" and
-     type(hash) == "number" and
-     ((value == true and hash == 0) or (type(value) == "number" and value > 0)) then
+     type(destination) == "string" then
     local l = StaticData[locale]
     if not l then
       l = {}
@@ -406,6 +404,32 @@ local function AddFlightRoute(locale, faction, start, destination, hash, value)
       hash_list = {}
       end_list[destination] = hash_list
     end
+    
+    -- Check to see if the new_style thing is correct
+    local dest_new_style = hash_list.no_interrupt_count or hash_list.interrupt_count
+    
+    -- If we have new style, and the destination is old style, we reset the destination
+    if (not dest_new_style) and new_style then
+      hash_list = {}
+      end_list[destination] = hash_list
+      dest_new_style = true
+    end
+    
+    if (not dest_new_style) ~= (not new_style) then
+      return nil
+    end
+    
+    return hash_list
+  else
+    return nil
+  end
+end
+
+local function AddFlightRoute(hash_list, hash, value, new_style)
+  if type(hash) == "number" and
+     ((value == true and hash == 0) or (type(value) == "number" and value > 0)) then
+    assert(hash_list)
+    
     if value == true then
       hash_list[hash] = hash_list[hash] or true
     else
@@ -647,9 +671,15 @@ local function AddInputData(data, pairfrequencies)
       if AuthorizedVersion(version) and type(package) == "table" then for faction, start_list in pairs(package) do
         if type(start_list) == "table" then for start, destination_list in pairs(start_list) do
           if type(destination_list) == "table" then for destination, hash_list in pairs(destination_list) do
-            if type(hash_list) == "table" then for hash, value in pairs(hash_list) do
-              AddFlightRoute(locale, faction, start, destination, hash, value)
-            end end
+            local tab = CreateFlightTable(locale, faction, start, destination, (hash_list.no_interrupt_count or hash_list.interrupt_count))
+            if tab then
+              if hash_list.no_interrupt_count then tab.no_interrupt_count = (tab.no_interrupt_count or 0) + hash_list.no_interrupt_count end
+              if hash_list.interrupt_count then tab.interrupt_count = (tab.interrupt_count or 0) + hash_list.interrupt_count end
+              
+              if type(hash_list) == "table" then for hash, value in pairs(hash_list) do
+                AddFlightRoute(tab, hash, value)
+              end end
+            end
           end end
         end end
       end end
@@ -1275,7 +1305,7 @@ function CompileFinish()
     end
     
     local function IgnoreItem(start, dest, hash_list, distance, count)
-      return dest == "Shattered Sun Staging Area" and (start == "Light's Hope Chapel, Eastern Plaguelands" or start == "Menethil Harbor, Wetlands" or start == "Ironforge, Dun Morogh" or start == "Stormwind, Elwynn")
+      return hash_list.interrupt_count == 0 and dest == "Shattered Sun Staging Area" and (start == "Light's Hope Chapel, Eastern Plaguelands" or start == "Menethil Harbor, Wetlands" or start == "Ironforge, Dun Morogh" or start == "Stormwind, Elwynn")
     end
     
     if l.flight_routes then
