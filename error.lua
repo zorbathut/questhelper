@@ -127,7 +127,7 @@ function QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack, ...)
 end
 
 function QuestHelper_ErrorCatcher.OnError(o_msg, o_frame, o_stack, o_etype, ...)
-  if string.find(o_msg, "QuestHelper") or string.find(debugstack(2, 20, 20), "QuestHelper") then
+  if (string.find(o_msg, "QuestHelper") or string.find(debugstack(2, 20, 20), "QuestHelper")) and not string.find(o_msg, "Cartographer_POI") then
     QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack)
   end
   

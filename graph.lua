@@ -182,6 +182,7 @@ local function Graph_AddRouteStartNode(self, n, g, end_list)
   while mn ~= mx do
     local m = floor((mn+mx)*0.5)
     
+    QuestHelper: Assert(open[m].g and g, string.format("nil-with-number issue, %s %s and %d inside %d %d", tostring(open[m].g), tostring(g), m, mn, mx))
     if open[m].g > g then
       mn = m+1
     else
