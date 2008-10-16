@@ -1,6 +1,7 @@
 
 == Version 0.61 10/16/2008 ==
 
+* Changed "/qh treset" to guess at a good location for the tracker, and added "/qh treset center" to force resetting to the center
 * Bugfixes
 
 == Version 0.60 10/13/2008 ==
