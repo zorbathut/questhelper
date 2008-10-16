@@ -178,7 +178,8 @@ What do we need?
 * Subzone boundaries
 * Walk paths
 
-collected = {
+QuestHelper_Collector_Version = 1
+QuestHelper_Collector = {
   ["0.58 on 1.2.3"] = {
     ["monster"] = {
       [IDnumber] = {
@@ -337,3 +338,6 @@ collected = {
   }
 }
 
+DENS and COMP both done in base64
+DENS: ZZXXYY, zone X Y
+COMP: DENS, then a stream of compressed eight direction vectors and a swim bit toggle (starting with the toggle if the user is already swimming) and a fall-damage notifier

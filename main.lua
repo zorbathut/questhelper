@@ -156,6 +156,7 @@ function QuestHelper:UnsetTargetLocation()
 end
 
 local interruptcount = 0   -- counts how many "played gained control" messages we recieve, used for flight paths
+local init_cartographer_later = false
 
 function QuestHelper:Initialize()
   local file_problem = false
@@ -394,7 +395,7 @@ function QuestHelper:Initialize()
   end
 
   if QuestHelper_Pref.cart_wp then
-    self:EnableCartographer()
+    init_cartographer_later = true
   end
 
   if QuestHelper_Pref.tomtom_wp then
@@ -727,6 +728,13 @@ local update_count = 0
 local ontaxi = false
 
 function QuestHelper:OnUpdate()
+
+  if init_cartographer_later and Cartographer_Waypoints then    -- there has to be a better way to do this
+    init_cartographer_later = false
+    if QuestHelper_Pref.cart_wp then
+      self:EnableCartographer()
+    end
+  end
   
   if not ontaxi and UnitOnTaxi("player") then
     self:flightBegan()
