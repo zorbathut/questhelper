@@ -1,4 +1,8 @@
 
+== Version 0.62 10/16/2008 ==
+
+* Suddenly realized what was going wrong with Cartographer. Duh. Cartographer should work now, as long as you ignore the POI bug, which isn't mine anyway.
+
 == Version 0.61 10/16/2008 ==
 
 * Changed "/qh treset" to guess at a good location for the tracker, and added "/qh treset center" to force resetting to the center
