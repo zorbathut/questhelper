@@ -144,6 +144,7 @@ What do we need?
   * Levels
   * Loot count
   * Loot, in detail
+  * Faction
 * Items
   * Lootable flag
   * Disenchantable flag
@@ -158,6 +159,7 @@ What do we need?
   * Loot, in detail
 * Events
   * Locations
+* Rep gains?
 * Quests
   * Levels
   * Start character
@@ -169,9 +171,169 @@ What do we need?
   * Money gain
   * Item rewards
     * Item reward equip testing? vs. spec, class, level
+  * Faction
 * Flight paths that exist
 * Flight path timing
 * Zone boundaries
 * Subzone boundaries
 * Walk paths
+
+collected = {
+  ["0.58 on 1.2.3"] = {
+    ["monster"] = {
+      [IDnumber] = {
+        locations = {
+          "DENSDENSDENSDENS",
+          "DENSDENSDENS",
+          "DENS",
+        }
+        levels = {
+          [34] = 12,
+          [35] = 99,
+          [36] = 29,
+        }
+        name_enUS = "Hello!",
+        loot_yes = 109,
+        loot_no = 12,
+        loot_opened = 20,
+        loot_items = {
+          [itemid] = 4,
+          [itemid] = 9,
+        }
+        skin_yes = 109,
+        skin_no = 12,
+        skin_opened = 20,
+        skin_items = {
+        }
+        questloots = {
+          [itemid] = {4, 8},  -- This only triggers if we know this critter drops a specific bit of loot - in some ways, it overrides the "loots" above
+        }
+        faction_1_friendly = 17
+        faction_2_friendly = 17
+        faction_1_neutral = 17
+        faction_1_hostile = 17
+      }
+    },
+    ["item"] = {
+      [IDnumber] = {
+        loot_yes = 109,
+        loot_no = 12,
+        loot_opened = 20,
+        loot_items = {
+          [itemid] = 4,
+          [itemid] = 9,
+        }
+        de_yes = 109,
+        de_no = 12,
+        de_opened = 20,
+        de_items = {
+          [itemid] = 4,
+          [itemid] = 9,
+        }
+        name_enUS = "Hello!",
+        itemlevel = (level),
+        weapon/armor = "string/string",
+        looted = 12,
+        loots = {
+          [itemid] = 4,
+          [itemid] = 9,
+        }
+      }
+    }
+    ["object"] = {
+      [IDnumber] = {
+        locations = {
+          "DENSDENSDENSDENS",
+          "DENSDENSDENS",
+          "DENS",
+        }
+        name_enUS = "Hello!",
+        loot_yes = 109,
+        loot_no = 12,
+        loot_opened = 20,
+        loot_items = {
+          [itemid] = 4,
+          [itemid] = 9,
+        }
+        herb_yes = 109,
+        herb_no = 12,
+        herb_opened = 20,
+        herb_items = {
+          [itemid] = 4,
+          [itemid] = 9,
+        }
+      }
+    }
+    ["event"] = {
+      [QuestID/String] = {
+        locations = {
+          "DENSDENSDENS",
+        }
+      }
+    }
+    ["reputation"] = {
+      [QuestID/String] = {
+        locations = {
+          "DENSDENSDENS",
+        }
+      }
+    }
+    ["quest"] = {
+      [QuestID] = {
+        name_enUS = "Hello!",
+        level = 40,
+        start = "monster/1234",
+        end = "monster/5678",
+        start_location = {
+          "DENSDENSDENS"
+        }
+        end_location = {
+          "DENSDENSDENS"
+        }
+        objectives = {
+          "monster/1234",
+          "item/1234",
+          "reputation/1234",
+        }
+        repgain = { faction, amount }
+        xpgain = { level, amount }
+        moneygain = { level, amount }
+        itemgain = { }
+        itemchoice = { }
+        faction_1_got = 1234
+        faction_2_got = 1236
+      }
+    }
+    ["flightinstructor"] = {
+      ["location"] = monsterid
+    }
+    ["flighttiming"] = {
+      ["src"] = {
+        ["dst"] = {
+          [hash] = time
+        }
+      }
+    }
+    ["subzone"] = {
+      ["zone"] = {
+        ["subzone"] = {
+          locations = {
+            "DENSDENSDENSDENS",
+          }
+          xp = {
+            level = "amount"
+          }
+        }
+      }
+    }
+    ["walkpath"] = {
+     working = { "decompy" }
+     done = {
+      "COMPCOMPCOMP",
+      "COMPCOMPCOMP",
+      "COMPCOMPCOMP",
+      }
+    }
+  }
+}
 
