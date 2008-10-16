@@ -1,5 +1,9 @@
 
-== Version 0.60 10/10/2008 ==
+== Version 0.61 10/16/2008 ==
+
+* Bugfixes
+
+== Version 0.60 10/13/2008 ==
 
 * Support for the Death Knight starting zone
 * /qh treset works better
