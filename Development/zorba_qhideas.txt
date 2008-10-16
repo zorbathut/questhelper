@@ -1,11 +1,7 @@
 
-* Check out PTR, with flight points
-* Build!
-
 * Routing recovery
 * Fix the flight paths
 * Routing infinite-loop test (and kill)
-* Serifize it again on PTR, I miss the serifs :(
 * Build!
 
 * New data storage
