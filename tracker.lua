@@ -38,9 +38,13 @@ function minbutton:moved()
   end
 end
 
-function QuestHelper:ResetTrackerPosition()
+function QuestHelper:ResetTrackerPosition(cmd)
   minbutton:ClearAllPoints()
-  minbutton:SetPoint("CENTER", nil, "CENTER", 100, 100)
+  if string.find(cmd, "center") then
+    minbutton:SetPoint("CENTER", nil, "CENTER", 100, 100)
+  else
+    minbutton:SetPoint("RIGHT", nil, "RIGHT", -20, 230)
+  end
   minbutton:moved()
   self:TextOut("Quest tracker postion reset.")
 end

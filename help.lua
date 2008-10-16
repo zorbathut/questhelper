@@ -529,7 +529,7 @@ commands =
   
   {"TRESET",
    "Reset's the position of the quest tracker provided by QuestHelper, in cause you move it somewhere inaccessable.",
-   {}, QuestHelper.ResetTrackerPosition, QuestHelper},
+   {{"/qh treset center", "Resets to the center of the screen, instead of a more normal quest tracker location."}}, QuestHelper.ResetTrackerPosition, QuestHelper},
   
   {"NAG",
    "Tells you if you have anything that's missing from the static database. It can only check quests from your own faction, as the quests of your opposing faction are ommitted to save memory.",
