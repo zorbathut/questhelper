@@ -214,6 +214,7 @@ function QuestHelper:ComputeRoute(p1, p2)
   end
   
   l = p1[2]
+  for n in pairs(graph.open) do QuestHelper: Assert(nil, "not empty in preparesearch within computeroute") end
   for i, n in ipairs(p1[1]) do
     graph:AddRouteStartNode(n, l[i], el)
   end

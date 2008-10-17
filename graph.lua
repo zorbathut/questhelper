@@ -279,6 +279,7 @@ end
 local function Graph_PrepareSearch(self)
   local open = self.open
   for n in pairs(open) do open[n] = nil end
+  for n in pairs(open) do QuestHelper: Assert(nil, "not empty in preparesearch") end
   for _, n in pairs(self.nodes) do
     n.s = 0
   end

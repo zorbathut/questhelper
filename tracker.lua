@@ -40,7 +40,7 @@ end
 
 function QuestHelper:ResetTrackerPosition(cmd)
   minbutton:ClearAllPoints()
-  if string.find(cmd, "center") then
+  if cmd and string.find(cmd, "center") then
     minbutton:SetPoint("CENTER", nil, "CENTER", 100, 100)
   else
     minbutton:SetPoint("RIGHT", nil, "RIGHT", -20, 230)
