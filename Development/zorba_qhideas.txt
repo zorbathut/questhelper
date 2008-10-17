@@ -1,4 +1,7 @@
 
+* Add some concept of per-user prefs
+* /qh level per-user
+
 * Routing recovery
 * Fix the flight paths
 * Routing infinite-loop test (and kill)
@@ -239,6 +242,9 @@ QuestHelper_Collector = {
           [itemid] = 4,
           [itemid] = 9,
         }
+        equipped = {
+          -- don't know yet, but remember UnitClass('player')
+        }
       }
     }
     ["object"] = {
@@ -292,9 +298,9 @@ QuestHelper_Collector = {
           "DENSDENSDENS"
         }
         objectives = {
-          "monster/1234",
-          "item/1234",
-          "reputation/1234",
+          { "monster/1234" = 12, "monster/4456" = 2 },
+          { "item/1234" = 9, },
+          { "reputation/1234" = 14, },
         }
         repgain = { faction, amount }
         xpgain = { level, amount }

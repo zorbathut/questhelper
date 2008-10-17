@@ -1,8 +1,8 @@
 --[[
-Name: Astrolabe
+Name: AstrolabeQH
 Revision: $Rev: 92 $
 $Date: 2008-10-05 17:22:44 -0700 (Sun, 05 Oct 2008) $
-Author(s): Esamynn (esamynn at wowinterface.com)
+Author(s): Esamynn (esamynn at wowinterface.com), Zorba (see questhelper docs)
 Inspired By: Gatherer by Norganna
              MapLibrary by Kristofer Karlsson (krka at kth.se)
 Documentation: http://wiki.esamynn.org/Astrolabe
@@ -13,6 +13,8 @@ Description:
 	This library also manages and updates the position of Minimap icons 
 	automatically.  
 
+  Modified to support Death Knight starting zone.
+  
 Copyright (C) 2006-2008 James Carrothers
 
 License:

@@ -14,7 +14,7 @@
 ## X-Website: http://wow.curse.com/downloads/details/9924/
 ## X-Embeds: Astrolabe, ChatThrottleLib
 
-Astrolabe\Load.xml
+AstrolabeQH\Load.xml
 ChatThrottleLib\ChatThrottleLib.xml
 
 error.lua
