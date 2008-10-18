@@ -64,22 +64,37 @@ local function getAchievementDB()
     db[id] = {}
     dbi = db[id]
     
-    _, title = GetAchievementInfo(id)
-    TO(string.format("Registering %d (%s)", id, title))
+    _, title, _, complete = GetAchievementInfo(id)
+    --TO(string.format("Registering %d (%s)", id, title))
     local prev = GetPreviousAchievement(id)
     dbi.previous = prev
+    dbi.complete = complete
     if prev then
       registerAchievement(prev, db)
     end
     
-    
+    local crit = GetAchievementNumCriteria(id)
+    --TO(string.format("%d criteria", crit))
+    for i = 1, crit do
+      mega = {GetAchievementCriteriaInfo(id, i)}
+      if mega[2] == 0 then
+        TO(string.format("%s: %s, %s, %s, %s, %s, %s, %s, %s, %s, %s", tostring(title), tostring(mega[1]), tostring(mega[2]), tostring(mega[3]), tostring(mega[4]), tostring(mega[5]), tostring(mega[6]), tostring(mega[7]), tostring(mega[8]), tostring(mega[9]), tostring(mega[10])))
+      end
+    end
   end
+  
+  -- Type 0 is a monster kill
+  --  assetID is the monster ID
+  -- Type 8 means another achievement
+  --  assetID is achievement ID
   
   for _, catid in pairs(GetCategoryList()) do
     for d = 1, GetCategoryNumAchievements(catid) do
       registerAchievement(GetAchievementInfo(catid, d), db)
     end
   end
+  
+  TO(string.format("ASS INITIALIZED, INFINITE ASS"))
 end
 
 local function activate(newinstance, oldinstance)
