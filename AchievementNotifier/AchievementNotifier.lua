@@ -38,6 +38,7 @@ Note:
 local LIBRARY_VERSION_MAJOR = "AchievementNotifier-0.1"
 local LIBRARY_VERSION_MINOR = 1
 
+DEFAULT_CHAT_FRAME:AddMessage("AN TESTING")
 if not DongleStub then error(LIBRARY_VERSION_MAJOR .. " requires DongleStub.") end
 if not DongleStub:IsNewerVersion(LIBRARY_VERSION_MAJOR, LIBRARY_VERSION_MINOR) then return end
 
@@ -54,10 +55,30 @@ local function TO(text)
 end
                                 
 local function getAchievementDB()
-  db = {}
-  vals = {GetNumCompletedAchievements()}
-  for k, v in pairs(vals) do
-    TO(string.format("%s, %s", tostring(k), tostring(v)))
+  local db = {}
+  TO(string.format("ASS DB"))
+  
+  local function registerAchievement(id, db)
+    if db[id] then return end
+    
+    db[id] = {}
+    dbi = db[id]
+    
+    _, title = GetAchievementInfo(id)
+    TO(string.format("Registering %d (%s)", id, title))
+    local prev = GetPreviousAchievement(id)
+    dbi.previous = prev
+    if prev then
+      registerAchievement(prev, db)
+    end
+    
+    
+  end
+  
+  for _, catid in pairs(GetCategoryList()) do
+    for d = 1, GetCategoryNumAchievements(catid) do
+      registerAchievement(GetAchievementInfo(catid, d), db)
+    end
   end
 end
 

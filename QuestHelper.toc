@@ -15,8 +15,8 @@
 ## X-Embeds: Astrolabe, ChatThrottleLib
 
 AstrolabeQH\Load.xml
+AchievementNotifier\Load.xml
 ChatThrottleLib\ChatThrottleLib.xml
-AchivementNotifier\Load.xml
 
 error.lua
 
