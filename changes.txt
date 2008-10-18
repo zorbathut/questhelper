@@ -1,4 +1,9 @@
 
+== Version 0.63 10/18/2008 ==
+
+* Rename Astrolabe in the hopes that overly-zealous packagers won't try to remove it
+* Fix the nil comparison bug with flight paths finally (I hope)
+
 == Version 0.62 10/16/2008 ==
 
 * Suddenly realized what was going wrong with Cartographer. Duh. Cartographer should work now, as long as you ignore the POI bug, which isn't mine anyway.
