@@ -424,6 +424,8 @@ function QuestHelper:Initialize()
     end
   end
   
+  self.AchievementNotifier = DongleStub("AchievementNotifier-0.1")
+  
   self.Routing:Initialize()       -- Set up the routing task
   
   --[[ -- This is just an example of how the WoW profiler biases its profiles heavily.  

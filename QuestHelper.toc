@@ -16,6 +16,7 @@
 
 AstrolabeQH\Load.xml
 ChatThrottleLib\ChatThrottleLib.xml
+AchivementNotifier\Load.xml
 
 error.lua
 

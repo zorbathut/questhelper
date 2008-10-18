@@ -49,11 +49,16 @@ function AchievementNotifier:GetVersion()
 	return LIBRARY_VERSION_MAJOR, LIBRARY_VERSION_MINOR;
 end
 
+local function TO(text)
+  DEFAULT_CHAT_FRAME:AddMessage(string.format("|cffffcc00AchievementNotifier: |r%s", text))
+end
+                                
 local function getAchievementDB()
   db = {}
   vals = {GetNumCompletedAchievements()}
   for k, v in pairs(vals) do
-    
+    TO(string.format("%s, %s", tostring(k), tostring(v)))
+  end
 end
 
 local function activate(newinstance, oldinstance)
@@ -63,6 +68,9 @@ local function activate(newinstance, oldinstance)
   newinstance.AchievementDB = getAchievementDB()
 end
 
-QuestHelper = CreateFrame("Frame", "QuestHelper", nil)
+AchievementNotifier.frame = CreateFrame("Frame", "AchievementNotifier", nil)
+
+--SlashCmdList["ACHIEVEMENT_NOTIFIER"] = SlashCommand;
+--ACHIEVEMENT_NOTIFIER1 = "/an";
 
 DongleStub:Register(AchievementNotifier, activate)
