@@ -1229,11 +1229,12 @@ function Routing:RouteUpdateRoutine()
     end
     
     if qh.defered_graph_reset then
+      qh:yieldIfNeeded(10)
+      
       for r in pairs(routes) do
         r:pathResetBegin()
       end
       
-      qh:yieldIfNeeded(10)
       qh.graph_in_limbo = true
       qh:ResetPathing()
       qh.graph_in_limbo = false
@@ -1252,12 +1253,14 @@ function Routing:RouteUpdateRoutine()
       
       minimap_dodad:SetObjective(route[1])
       
-      qh:yieldIfNeeded(9)
+      QuestHelper:SetTargetLocationRecalculate()
       
       for r in pairs(routes) do
         assert(r:sanity())
       end
       best_route:sanity()
+      
+      qh:yieldIfNeeded(10)
     end
     
     if changed then
