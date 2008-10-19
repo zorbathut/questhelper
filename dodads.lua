@@ -666,6 +666,7 @@ function QuestHelper:CreateMipmapDodad()
         local path, travel_time
         
         if QuestHelper.target then
+          for i in ipairs(QuestHelper.target[1]) do QuestHelper: Assert(QuestHelper.target[2][i], "nil flightpath error resurgence!") end
           path, travel_time = QuestHelper:ComputeRoute(QuestHelper.target, self.objective.pos)
           travel_time = travel_time + math.max(0, QuestHelper.target_time-time())
         else

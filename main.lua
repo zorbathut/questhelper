@@ -139,9 +139,15 @@ function QuestHelper:SetTargetLocation(i, x, y, toffset)
   self.target[3] = x * self.continent_scales_x[c]
   self.target[4] = y * self.continent_scales_y[c]
 
-  for i, n in ipairs(self.target[1]) do
-    local a, b = n.x-self.target[3], n.y-self.target[4]
-    self.target[2][i] = math.sqrt(a*a+b*b)
+  self:SetTargetLocationRecalculate()
+end
+
+function QuestHelper:SetTargetLocationRecalculate()
+  if self.target then
+    for i, n in ipairs(self.target[1]) do
+      local a, b = n.x-self.target[3], n.y-self.target[4]
+      self.target[2][i] = math.sqrt(a*a+b*b)
+    end
   end
 end
 

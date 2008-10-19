@@ -201,6 +201,9 @@ local function cont_dist(a, b)
 end
 
 function QuestHelper:ComputeRoute(p1, p2)
+  for i in ipairs(p1[1]) do QuestHelper: Assert(p1[2][i], "p1 nil flightpath error resurgence!") end
+  for i in ipairs(p2[1]) do QuestHelper: Assert(p2[2][i], "p2 nil flightpath error resurgence!") end
+
   if not p1 or not p2 then QuestHelper:Error("Boom!") end
   local graph = self.world_graph
   
