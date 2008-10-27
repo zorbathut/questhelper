@@ -50,7 +50,7 @@ QuestHelper_FlightRoutes = {}
 QuestHelper_KnownFlightRoutes = {}
 QuestHelper_SeenRealms = {}
 
-QuestHelper.tooltip = CreateFrame("GameTooltip", "QuestHelperTooltip", nil, "GameTooltipTemplate")
+QuestHelper.tooltip = CreateFrame("GameTooltip", "QuestHelperTooltip", UIParent, "GameTooltipTemplate")
 QuestHelper.objective_objects = {}
 QuestHelper.user_objectives = {}
 QuestHelper.quest_objects = {}

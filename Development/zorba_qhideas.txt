@@ -1,5 +1,4 @@
 
-* Doesn't pay attention to uiscale?
 * WORLD_MAP_UPDATE in instance (main.lua 774)
 
 Marauders of Darrowshire
