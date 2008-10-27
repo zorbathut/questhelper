@@ -1,4 +1,11 @@
 
+== Version 0.64 10/27/2008 ==
+
+* Add better tests for various errors that are cropping up frequently
+* /qh hide is a little more emphatic about how hidden it should really be
+* QH now respects UI scaling on tooltips
+* Less map change event spam
+
 == Version 0.63 10/18/2008 ==
 
 * Rename Astrolabe in the hopes that overly-zealous packagers won't try to remove it
