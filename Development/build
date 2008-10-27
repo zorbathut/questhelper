@@ -644,7 +644,7 @@ if archive_zip or archive_7z then
     end
   end)
   
-  for i, dir in ipairs({"AstrolabeQH", "ChatThrottleLib"}) do
+  for i, dir in ipairs({"AstrolabeQH", "ChatThrottleLib", "AchievementNotifier"}) do
     FileUtil.forEachFile("../"..dir, function (file)
       FileUtil.copyFile(file, "QuestHelper/"..dir)
     end)
