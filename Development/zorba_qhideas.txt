@@ -1,9 +1,12 @@
 
+* Doesn't pay attention to uiscale?
+* doublecheck EPL coords
+* WORLD_MAP_UPDATE in instance (main.lua 774)
+
 Marauders of Darrowshire
 
 * Add some concept of per-user prefs
 * /qh level per-user
-* Doesn't pay attention to uiscale?
 
 * Routing recovery
 * Fix the flight paths

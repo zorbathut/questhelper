@@ -10,7 +10,7 @@ local function cartographer_wp_update(c, z, x, y, desc)
     cartographer_wp:Cancel()
   end
   
-  if c then
+  if not QuestHelper_Pref.hide and c and c >= 0 then
     cartographer_wp = QuestHelperPoint:new(c, z, x, y, desc)
     Cartographer_Waypoints:AddWaypoint(cartographer_wp)
   end
