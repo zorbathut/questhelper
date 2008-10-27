@@ -771,7 +771,7 @@ function QuestHelper:OnUpdate()
     elseif map_shown_decay > 0 then
       map_shown_decay = map_shown_decay - 1
     else
-      SetMapToCurrentZone()
+      --SetMapToCurrentZone() -- not sure why this existed
     end
 
     delayed_action = delayed_action - 1
