@@ -124,7 +124,7 @@ local static_zone_transitions =
    {39, 51, 0.454, 0.89}, -- Arathi Highlands <--> Wetlands
    {39, 48, 0.2, 0.293}, -- Arathi Highlands <--> Hillsbrad Foothills
    {27, 29, 0.49, 0.071}, -- Badlands <--> Loch Modan
-   {27, 32, -0.005, 0.636}, -- Badlands <--> Searing Gorge
+   -- {27, 32, -0.005, 0.636}, -- Badlands <--> Searing Gorge  -- This is the "alliance-only" locked path, I'm disabling it for now entirely
    {33, 46, 0.519, 0.051}, -- Blasted Lands <--> Swamp of Sorrows
    {40, 30, 0.79, 0.842}, -- Burning Steppes <--> Redridge Mountains
    {47, 31, 0.324, 0.363}, -- Deadwind Pass <--> Duskwood

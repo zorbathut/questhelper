@@ -101,7 +101,7 @@ local function activate(newinstance, oldinstance)
   if oldinstance then
     newinstance.AchievementCallbacks = oldinstance.AchievementCallbacks -- yoink
   end
-  newinstance.AchievementDB = getAchievementDB()
+  --newinstance.AchievementDB = getAchievementDB()
 end
 
 AchievementNotifier.frame = CreateFrame("Frame", "AchievementNotifier", nil)

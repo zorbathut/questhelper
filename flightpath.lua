@@ -46,6 +46,7 @@ local function getRoute(id)
 end
 
 TaxiNodeOnButtonEnter = function(btn)
+  QuestHelper: Assert(btn)
   real_TaxiNodeOnButtonEnter(btn)
   
   if QuestHelper_Pref.flight_time then

@@ -1,6 +1,9 @@
 
+Marauders of Darrowshire
+
 * Add some concept of per-user prefs
 * /qh level per-user
+* Doesn't pay attention to uiscale?
 
 * Routing recovery
 * Fix the flight paths
@@ -212,6 +215,10 @@ QuestHelper_Collector = {
         questloots = {
           [itemid] = {4, 8},  -- This only triggers if we know this critter drops a specific bit of loot - in some ways, it overrides the "loots" above
         }
+        sells = {
+          [itemid] = true,
+          [itemid] = amount,
+        }
         faction_1_friendly = 17
         faction_2_friendly = 17
         faction_1_neutral = 17
@@ -243,8 +250,9 @@ QuestHelper_Collector = {
           [itemid] = 9,
         }
         equipped = {
-          -- don't know yet, but remember UnitClass('player')
+          "CLEVSPEC", "CLEVSPEC"
         }
+        equipped_no = { "CLEVSPEC", "CLEVSPEC" }
       }
     }
     ["object"] = {
@@ -309,6 +317,7 @@ QuestHelper_Collector = {
         itemchoice = { }
         faction_1_got = 1234
         faction_2_got = 1236
+        completedby = { "CLVSPEC", "CLVSPEC" }
       }
     }
     ["flightinstructor"] = {
