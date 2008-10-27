@@ -38,7 +38,6 @@ Note:
 local LIBRARY_VERSION_MAJOR = "AchievementNotifier-0.1"
 local LIBRARY_VERSION_MINOR = 1
 
-DEFAULT_CHAT_FRAME:AddMessage("AN TESTING")
 if not DongleStub then error(LIBRARY_VERSION_MAJOR .. " requires DongleStub.") end
 if not DongleStub:IsNewerVersion(LIBRARY_VERSION_MAJOR, LIBRARY_VERSION_MINOR) then return end
 
@@ -93,8 +92,6 @@ local function getAchievementDB()
       registerAchievement(GetAchievementInfo(catid, d), db)
     end
   end
-  
-  TO(string.format("ASS INITIALIZED, INFINITE ASS"))
 end
 
 local function activate(newinstance, oldinstance)
