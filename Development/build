@@ -472,11 +472,9 @@ if compile then
     counter = counter + 1
     print("Compiling " .. counter .. "/" .. total_count .. ": ", origin)
     --CompileInputFile(name)
-    assert(os.execute("true") == 0)
     if not pcall(CompileInputFile, name, pairfrequencies) then
       print("!!!!! FAILURE")
     end
-    assert(os.execute("true") == 0)
   end
   
   assert(os.execute("true") == 0)
