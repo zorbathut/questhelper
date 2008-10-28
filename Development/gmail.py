@@ -6,6 +6,7 @@ import libgmail
 import md5
 import sys
 import passwords
+import os
 
 ga = libgmail.GmailAccount(passwords.gmail_username, passwords.gmail_password)
 ga.login()
@@ -39,12 +40,19 @@ while len(inbox) > 0:
                             #dex=filename.find(".")
                             tup=a.filename.partition(".")
                             name=pre+tup[1]+tup[2]
-                            print destination+name
                             f=open(destination+name,"w")
                             f.write(cont)
                             f.close()
                             #message.addLabel("downloaded")
-                            print "saved"
+                            
+                            print "\t\t saved"
+                            
+                            # okay, that's cool. Now we S3 it.
+                            s3name = "rawdata_" + name + ".bz2"
+                            assert(os.system("bzip2 -k --best -c \"%s\" > \"%s\"" % (destination + name, s3name)) == 0)
+                            assert(os.system("s3cmd put \"%s\" s3://questhelper_data" % (s3name)) == 0)
+                            assert(os.system("rm rawdata_*") == 0)
+                            print "\t\t S3 saved"
                         else:
                             print "foobared attachment"
                             mark = False
