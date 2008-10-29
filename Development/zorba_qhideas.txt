@@ -373,6 +373,7 @@ QuestHelper_Collector = {
           "gained level 20",
           "abandoned quest 1234",
           "received quest 1234",
+          "available quests at X, a b c d",
         }, {
           "had quest 1234",
           "had quest 1234",
