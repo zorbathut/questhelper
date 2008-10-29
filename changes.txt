@@ -5,6 +5,7 @@
 * /qh hide is a little more emphatic about how hidden it should really be
 * QH now respects UI scaling on tooltips
 * Less map change event spam
+* Fix some positions in EPL and Stormwind
 
 == Version 0.63 10/18/2008 ==
 

@@ -86,9 +86,7 @@ FileUtil.fileHash = function(filename)
   end
   
   local line = stream:read()
-  assert(os.execute("true") == 0)
   io.close(stream)
-  assert(os.execute("true") == 0)
   if line then
     return select(3, string.find(line, string.format("^([abcdef%%d]+)  %s$", escapeForPattern(filename))))
   end
@@ -98,9 +96,7 @@ FileUtil.fileExists = function(filename)
   local stream = io.open(FileUtil.fileName(filename), "r")
   if stream then
     local exists = stream:read() ~= nil
-    assert(os.execute("true") == 0)
     io.close(stream)
-    assert(os.execute("true") == 0)
     return exists
   end
   return false
@@ -110,9 +106,7 @@ FileUtil.isDirectory = function(filename)
   local stream = io.popen(string.format(is_windows and "DIR /B /AD %s" or "file -b %s", FileUtil.quoteFile(filename)), "r")
   if stream then
     local result = stream:read("*line")
-    assert(os.execute("true") == 0)
     io.close(stream)
-    assert(os.execute("true") == 0)
     return is_windows and (result ~= "File Not Found") or (result == "directory")
   end
   error("Failed to execute 'file' command.")
@@ -150,15 +144,11 @@ FileUtil.copyFile = function(in_name, out_name, ...)
             dest:write(replacement, eol, "\n")
           end
         end
-        assert(os.execute("true") == 0)
         io.close(dest)
-        assert(os.execute("true") == 0)
       else
         print("Failed to copy "..in_name.." to "..out_name.."; couldn't open "..out_name)
       end
-      assert(os.execute("true") == 0)
       io.close(src)
-      assert(os.execute("true") == 0)
     else
       print("Failed to copy "..in_name.." to "..out_name.."; couldn't open "..in_name)
     end
@@ -189,9 +179,7 @@ FileUtil.forEachFile = function(directory, func)
     end
   end
   
-  assert(os.execute("true") == 0)
   io.close(stream)
-  assert(os.execute("true") == 0)
 end
 
 FileUtil.extension = function(filename)
