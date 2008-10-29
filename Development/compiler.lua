@@ -633,6 +633,16 @@ local function AddInputData(data, pairfrequencies)
     if type(data.QuestHelper_Quests) == "table" then for version, package in pairs(data.QuestHelper_Quests) do
       seen_pairs[version] = true
       if AuthorizedVersion(version) and type(package) == "table" then for faction, levels in pairs(package) do
+        if type(levels) == "table" and PreWrath(version) then for level, quest_list in pairs(levels) do
+          if type(quest_list) == "table" then for quest_name, quest_data in pairs(quest_list) do
+            if type(quest_data) == "table" and quest_data.item and type(quest_data.item) == "table" then for qiname, qidata in pairs(quest_data.item) do
+              if type(qidata) == "table" and qidata.pos and type(qidata.pos) == "table" then for i, pos in pairs(qidata.pos) do
+                QuestHelper_ConvertCoordsToWrath(pos, true)
+              end end
+            end end
+          end end
+        end end
+        
         if type(levels) == "table" then for level, quest_list in pairs(levels) do
           if type(quest_list) == "table" then for quest_name, quest_data in pairs(quest_list) do
             AddQuest(locale, faction, level, quest_name, quest_data)

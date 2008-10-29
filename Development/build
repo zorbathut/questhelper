@@ -107,16 +107,12 @@ if changes_lua then
       end
     end
 
-    assert(os.execute("true") == 0)
     io.close(stream)
-    assert(os.execute("true") == 0)
     
     stream = io.open("../changes.lua", "w")
     if stream then
       stream:write(("QuestHelper_ChangeLog=%q\n"):format(text))
-      assert(os.execute("true") == 0)
       io.close(stream) 
-      assert(os.execute("true") == 0)
     else
       print("Error writing ../changes.lua")
     end
@@ -139,9 +135,7 @@ if compile then
     local buffer, prebuf = CreateBuffer(), CreateBuffer()
     DumpVariable(buffer, prebuf, cache, "cache")
     stream:write(DumpingComplete(buffer, prebuf))
-    assert(os.execute("true") == 0)
     io.close(stream)
-    assert(os.execute("true") == 0)
   end
   
   local function QuestHelper_IsCorrupted(data)
@@ -226,9 +220,7 @@ if compile then
           if stream then
             print("Copying/Sorting "..name)
             stream:write(ScanAndDumpVariable(data, nil, true) or "")
-            assert(os.execute("true") == 0)
             io.close(stream)
-            assert(os.execute("true") == 0)
             hash = FileUtil.fileHash(tempname)
             if hash then
               local input_name = "Input/"..hash..".lua"
@@ -449,8 +441,6 @@ if compile then
       end
     end
   end
-
-  assert(os.execute("true") == 0)
   
   checked, file_data = nil, nil
   
@@ -459,8 +449,6 @@ if compile then
 
   --print("Compiling Lightheaded/eql3 data. . .")
   --ProcessExternal()
-
-  assert(os.execute("true") == 0)
   
   local total_count = 0
   local counter = 0
@@ -472,12 +460,12 @@ if compile then
     counter = counter + 1
     print("Compiling " .. counter .. "/" .. total_count .. ": ", origin)
     --CompileInputFile(name)
-    if not pcall(CompileInputFile, name, pairfrequencies) then
+    local ret, msg = pcall(CompileInputFile, name, pairfrequencies)
+    if not ret then
       print("!!!!! FAILURE")
+      print(msg)
     end
   end
-  
-  assert(os.execute("true") == 0)
   
   print("Processing final data")
   local finaldata = CompileFinish()
@@ -495,9 +483,7 @@ if compile then
     print("Writing: " .. tempout)
     local stream = io.open(tempout, "w")
     stream:write(ScanAndDumpVariable(v, string.format("QuestHelper_StaticData_%s", k)))
-    assert(os.execute("true") == 0)
     io.close(stream)
-    assert(os.execute("true") == 0)
     
     if condense then
       print("Condensing " .. finalout)
@@ -516,9 +502,7 @@ if compile then
   end
   
   finalstatic:write("}")
-  assert(os.execute("true") == 0)
   io.close(finalstatic)
-  assert(os.execute("true") == 0)
   
   local qhwowv = {}
   local qhfrequencies = {}
@@ -586,9 +570,7 @@ if archive_zip or archive_7z then
       -- Replace the first dash with a dot.
       info = string.gsub(info, "^(.*)%-(.*)%-g(.*)$", "%1%.%2%-%3", 1)
     end
-    assert(os.execute("true") == 0)
     io.close(stream)
-    assert(os.execute("true") == 0)
   end
   
   if not info then
@@ -596,9 +578,7 @@ if archive_zip or archive_7z then
     stream = io.popen("git-log -1 --pretty=\"format:%2-%h\"", "r")
     if stream then
       info = stream:read("*line")
-      assert(os.execute("true") == 0)
       io.close(stream)
-      assert(os.execute("true") == 0)
     end
   end
   
@@ -670,6 +650,4 @@ print("Done!")
 profiler:stop()
 local outfile = io.open("profile.txt", "w+")
 profiler:report(outfile)
-assert(os.execute("true") == 0)
 outfile:close()
-assert(os.execute("true") == 0)
