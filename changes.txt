@@ -1,5 +1,9 @@
 
-== Version 0.64 10/27/2008 ==
+== Version 0.65 10/29/2008 ==
+
+* Fix map tooltip again, break map tooltip scaling again :(
+
+== Version 0.64 10/28/2008 ==
 
 * Add better tests for various errors that are cropping up frequently
 * /qh hide is a little more emphatic about how hidden it should really be
