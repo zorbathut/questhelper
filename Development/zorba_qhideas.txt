@@ -364,6 +364,24 @@ QuestHelper_Collector = {
         name_enUS =
       }
     }
+    ["history"] = {
+      ["uniqueid"] = {
+          "level 19",
+          "had quest 1234",
+          "had quest 1234",
+          "completed quest 1234",
+          "gained level 20",
+          "abandoned quest 1234",
+          "received quest 1234",
+        }, {
+          "had quest 1234",
+          "had quest 1234",
+          "completed quest 1234",
+          "abandoned quest 1234",
+          "received quest 1234",
+        }
+      }
+    }
   }
 }
 

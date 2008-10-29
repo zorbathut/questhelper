@@ -138,8 +138,8 @@ local static_zone_transitions =
    {31, 38, 0.209, 0.863}, -- Duskwood <--> Stranglethorn Vale
    {31, 30, 0.941, 0.103}, -- Duskwood <--> Redridge Mountains
    {31, 49, 0.079, 0.638}, -- Duskwood <--> Westfall
-   {34, 50, 0.107, 0.726}, -- Eastern Plaguelands <--> Western Plaguelands
-   {34, 44, 0.625, 0.03}, -- Eastern Plaguelands <--> Ghostlands
+   {34, 50, 0.077, 0.661}, -- Eastern Plaguelands <--> Western Plaguelands
+   {34, 44, 0.575, 0.000}, -- Eastern Plaguelands <--> Ghostlands
    {37, 36, 0.321, 0.493}, -- Elwynn Forest <--> Stormwind City   -- Don't need to convert because it's in Elwynn coordinates, not Stormwind coordinates
    {37, 49, 0.202, 0.804}, -- Elwynn Forest <--> Westfall
    {37, 30, 0.944, 0.724}, -- Elwynn Forest <--> Redridge Mountains
