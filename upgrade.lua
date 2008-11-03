@@ -602,6 +602,7 @@ local QuestHelper_PrivateServerBlacklist_Find = {
   "WoWFusion",
   "WoWgasm",
   "Egyéb",
+  "Reagens/",
 }
 
 local QuestHelper_PrivateServerBlacklist_Exact = {
@@ -617,7 +618,12 @@ local QuestHelper_PrivateServerBlacklist_Exact = {
   "Potion Vendor",
   "Totem Vendor",
   "Gm Vendor",
-  "Misc"
+  "Misc",
+  "Off-Hands Vendor",
+  "Ore Vendor",
+  "Enchanting Vendor",
+  "Gem Vendor",
+  "Fooooood and Drinks!",
 }
 
 local matchstring = nil
