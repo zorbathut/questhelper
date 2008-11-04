@@ -55,7 +55,7 @@ end
 
 local crittypes = {}
 
-QuestHelper_ZorbaForgotToRemoveThis = {}
+--QuestHelper_ZorbaForgotToRemoveThis = {}
 
 local function registerAchievement(id, db)
   if db.achievements[id] then return end
@@ -95,12 +95,14 @@ local function registerAchievement(id, db)
       TO(string.format("%s: %s, %s, %s, %s, %s, %s, %s, %s, %s, %s", tostring(title), tostring(mega[1]), tostring(mega[2]), tostring(mega[3]), tostring(mega[4]), tostring(mega[5]), tostring(mega[6]), tostring(mega[7]), tostring(mega[8]), tostring(mega[9]), tostring(mega[10])))
     end]]
     
-    if not QuestHelper_ZorbaForgotToRemoveThis[string.format("%d", crit_type)] then QuestHelper_ZorbaForgotToRemoveThis[string.format("%d", crit_type)] = {} end
-    QuestHelper_ZorbaForgotToRemoveThis[string.format("%d", crit_type)][title .. " --- " .. mega[1]] = crit_asset
+    --if not QuestHelper_ZorbaForgotToRemoveThis[string.format("%d", crit_type)] then QuestHelper_ZorbaForgotToRemoveThis[string.format("%d", crit_type)] = {} end
+    --QuestHelper_ZorbaForgotToRemoveThis[string.format("%d", crit_type)][title .. " --- " .. mega[1]] = crit_asset
     
+    --[[
     table.insert(dbi.criterialist, crit_id)
     assert(not db.criteria[crit_id])
-    crittypes[crit_type] = (crittypes[crit_type] or 0) + 1
+    crittypes[crit_type] = (crittypes[crit_type] or 0) + 1]]
+    
     db.criteria[crit_id] = {
       name = crit_name,
       type = crit_type,
@@ -117,49 +119,49 @@ function getAchievementDB()
   db.achievements = {}
   db.criteria = {}
   
-  crittypes = {}
-  QuestHelper_ZorbaForgotToRemoveThis = {}
+ -- QuestHelper_ZorbaForgotToRemoveThis = {}
   
-  -- 0 is a monster kill, asset is the monster ID
-  -- 1 is winning PvP objectives in a thorough manner (holding all bases, controlling all flags)
-  -- 7 is weapon skill, asset is probably a skill ID of some sort
-  -- 8 is another achievement, asset is achievement ID
-  -- 9 is completing quests globally
-  -- 10 is completing a daily quest every day
-  -- 11 is completing quests in specific areas
-  -- 14 is completing daily quests
-  -- 27 is a quest, asset is quest ID
-  -- 28 is getting a spell cast on you, asset is a spell ID
-  -- 29 is casting a spell (often crafting), asset is a spell ID
-  -- 30 is PvP objectives (flags, assaulting, defending)
-  -- 31 is PvP kills in battleground PvP locations
-  -- 32 is winning ranked arena matches in specific locations (asset is probably a location ID)
-  -- 34 is the Squashling (owning a specific pet?), asset is the spell ID
-  -- 35 is PvP kills while under the influence of something
-  -- 36 is acquiring items (soulbound), asset is an item ID
-  -- 37 is winning arenas
-  -- 41 is eating or drinking a specific item, asset is item ID
-  -- 42 is fishing things up, asset is item ID
-  -- 43 is exploration, asset is a location ID?
-  -- 45 is purchasing 7 bank slots
-  -- 46 is exalted rep, asset is presumably some kind of faction ID
-  -- 47 is 5 reputations to exalted
-  -- 49 is equipping items, asset is a slot ID (quality is presumably encoded into flags)
-  -- 52 is killing specific classes of player
-  -- 53 is kill-a-given-race, asset is race ID?
+  {0, 1, 7, 8, 9, 10, 11, 14, 27, 28, 29, 30, 31, 32, 34, 35, 36, 37, 41, 42, 43, 45, 46, 47, 49, 52, 53, 56, 62, 67, 73, 75, 112, 113}
+  --X 0 is a monster kill, asset is the monster ID
+  --X 1 is winning PvP objectives in a thorough manner (holding all bases, controlling all flags)
+  --X 7 is weapon skill, asset is probably a skill ID of some sort
+  --X 8 is another achievement, asset is achievement ID
+  --X 9 is completing quests globally
+  --X 10 is completing a daily quest every day
+  --X 11 is completing quests in specific areas
+  --X 14 is completing daily quests
+  --X 27 is a quest, asset is quest ID
+  --X 28 is getting a spell cast on you, asset is a spell ID
+  --X 29 is casting a spell (often crafting), asset is a spell ID
+  --X 30 is PvP objectives (flags, assaulting, defending)
+  --X 31 is PvP kills in battleground PvP locations
+  --X 32 is winning ranked arena matches in specific locations (asset is probably a location ID)
+  --X 34 is the Squashling (owning a specific pet?), asset is the spell ID
+  --X 35 is PvP kills while under the influence of something
+  --X 36 is acquiring items (soulbound), asset is an item ID
+  --X 37 is winning arenas
+  --X 41 is eating or drinking a specific item, asset is item ID
+  --X 42 is fishing things up, asset is item ID
+  --X 43 is exploration, asset is a location ID?
+  --X 45 is purchasing 7 bank slots
+  --X 46 is exalted rep, asset is presumably some kind of faction ID
+  --X 47 is 5 reputations to exalted
+  --X 49 is equipping items, asset is a slot ID (quality is presumably encoded into flags)
+  --X 52 is killing specific classes of player
+  --X 53 is kill-a-given-race, asset is race ID?
   -- 54 is using emotes on targets, asset ID is likely the emote ID
-  -- 56 is being a wrecking ball in Alterac Valley
-  -- 62 is getting gold from quest rewards
-  -- 67 is looting gold
+  --X 56 is being a wrecking ball in Alterac Valley
+  --X 62 is getting gold from quest rewards
+  --X 67 is looting gold
   -- 68 is reading books
   -- 70 is killing players in world PvP locations
   -- 72 is fishing things from schools or wreckage
-  -- 73 is killing Mal'Ganis on Heroic. Why? Who can say.
-  -- 75 is obtaining mounts
+  --X 73 is killing Mal'Ganis on Heroic. Why? Who can say.
+  --X 75 is obtaining mounts
   -- 109 is fishing, either in general or in specific locations
   -- 110 is casting spells on specific targets, asset ID is the spell ID
-  -- 112 is learning cooking recipes
-  -- 113 is honorable kills
+  --X 112 is learning cooking recipes
+  --X 113 is honorable kills
   
   for _, catid in pairs(GetCategoryList()) do
     for d = 1, GetCategoryNumAchievements(catid) do
