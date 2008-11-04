@@ -41,7 +41,7 @@ local LIBRARY_VERSION_MINOR = 1
 if not DongleStub then error(LIBRARY_VERSION_MAJOR .. " requires DongleStub.") end
 if not DongleStub:IsNewerVersion(LIBRARY_VERSION_MAJOR, LIBRARY_VERSION_MINOR) then return end
 
-local AchievementNotifier = {};
+local AchievementNotifier = {}
 
 AchievementNotifier.AchievementCallbacks = {}
 
@@ -49,12 +49,14 @@ function AchievementNotifier:GetVersion()
 	return LIBRARY_VERSION_MAJOR, LIBRARY_VERSION_MINOR;
 end
 
-local function TO(text)
+function TO(text)
   DEFAULT_CHAT_FRAME:AddMessage(string.format("|cffffcc00AchievementNotifier: |r%s", text))
 end
                                 
 local function getAchievementDB()
   local db = {}
+  db.achievements = {}
+  db.criteria = {}
   TO(string.format("ASS DB"))
   
   local function registerAchievement(id, db)
@@ -63,47 +65,100 @@ local function getAchievementDB()
     db[id] = {}
     dbi = db[id]
     
-    _, title, _, complete = GetAchievementInfo(id)
+    local _, title, _, complete = GetAchievementInfo(id)
     --TO(string.format("Registering %d (%s)", id, title))
     local prev = GetPreviousAchievement(id)
     dbi.previous = prev
     dbi.complete = complete
+    dbi.name = title
+    dbi.criterialist = {}
+    
     if prev then
       registerAchievement(prev, db)
     end
     
+    --[[
+    local known = {}
+    known[0] = true
+    known[1] = true
+    known[7] = true
+    known[8] = true
+    known[29] = true
+    known[110] = true
+    ]]
+    
     local crit = GetAchievementNumCriteria(id)
     --TO(string.format("%d criteria", crit))
     for i = 1, crit do
-      mega = {GetAchievementCriteriaInfo(id, i)}
-      if mega[2] == 0 then
+      local crit_name, crit_type, crit_complete, crit_quantity, crit_reqquantity, _, _, crit_asset, _, crit_id = GetAchievementCriteriaInfo(id, i)
+      --[[if not known[mega[2] ] then
         TO(string.format("%s: %s, %s, %s, %s, %s, %s, %s, %s, %s, %s", tostring(title), tostring(mega[1]), tostring(mega[2]), tostring(mega[3]), tostring(mega[4]), tostring(mega[5]), tostring(mega[6]), tostring(mega[7]), tostring(mega[8]), tostring(mega[9]), tostring(mega[10])))
-      end
+      end]]
+      table.insert(dbi.criterialist, crit_id)
+      assert(not db.criteria[crit_id])
+      db.criteria[crit_id] = {
+        name = crit_name,
+        type = crit_type,
+        complete = crit_complete,
+        progress = crit_quantity,
+        progress_total = crit_reqquantity,
+        asset = crit_asset,
+      }
     end
   end
   
   -- Type 0 is a monster kill
   --  assetID is the monster ID
+  -- Type 1 is some sort of PvP objective? "holding bases", "controlling flags"
+  -- Type 7 is weapon skill
   -- Type 8 means another achievement
   --  assetID is achievement ID
+  -- Type 29 is "craft by cooking"
+  -- Type 110 is "use mistletoe on" (what)
+  -- I'm not bothering with more right now
   
   for _, catid in pairs(GetCategoryList()) do
     for d = 1, GetCategoryNumAchievements(catid) do
       registerAchievement(GetAchievementInfo(catid, d), db)
     end
   end
+  
+  return db
 end
 
 local function activate(newinstance, oldinstance)
   if oldinstance then
     newinstance.AchievementCallbacks = oldinstance.AchievementCallbacks -- yoink
   end
-  --newinstance.AchievementDB = getAchievementDB()
+  
+  newinstance.AchievementDB = getAchievementDB() -- 'coz we're lazy
 end
 
-AchievementNotifier.frame = CreateFrame("Frame", "AchievementNotifier", nil)
+AchievementNotifier.frame = CreateFrame("Frame")
 
 --SlashCmdList["ACHIEVEMENT_NOTIFIER"] = SlashCommand;
 --ACHIEVEMENT_NOTIFIER1 = "/an";
 
 DongleStub:Register(AchievementNotifier, activate)
+
+--[[ Data structure notes
+
+{
+  "achievement" = {
+    achievementid = {
+      name = "name"
+      complete = false/true
+      criterialist = { a, b, c }
+    }
+  }
+  "criteria" = {
+    criteriaid = {
+      name = "name"
+      progress = 5
+      progress_total = 10
+      complete = false/true
+    }
+  }
+}
+
+]]
