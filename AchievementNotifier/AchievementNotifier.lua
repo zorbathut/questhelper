@@ -177,6 +177,7 @@ local function activate(newinstance, oldinstance)
     newinstance.AchievementCallbacks = oldinstance.AchievementCallbacks -- yoink
   end
   
+  createAchievementList()
   newinstance.AchievementDB = getAchievementDB() -- 'coz we're lazy
 end
 
