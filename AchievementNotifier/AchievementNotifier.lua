@@ -200,6 +200,7 @@ local function retrieveAchievement(id, db)
       complete = crit_complete,
       progress = crit_quantity,
       progress_total = crit_reqquantity,
+    }
   end
 end
 
