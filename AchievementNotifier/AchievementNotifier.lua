@@ -136,7 +136,7 @@ local function registerAchievement(id)
   ]]
   
   local critcount = GetAchievementNumCriteria(id)
-  assert(critcount >= 1)
+  if critcount == 0 then record = true end
   
   --TO(string.format("%d criteria", crit))
   for i = 1, critcount do
@@ -167,10 +167,12 @@ local function registerAchievement(id)
     }]]
   end
   
+  TO(string.format("%d: %s", id, tostring(record)))
   if record then achievement_list[id] = true end
 end
 
 function createAchievementList()
+  TO("CAL")
   for _, catid in pairs(GetCategoryList()) do
     for d = 1, GetCategoryNumAchievements(catid) do
       registerAchievement(GetAchievementInfo(catid, d), db)
@@ -189,7 +191,6 @@ local function retrieveAchievement(id, db)
   local dbi = db.achievements[id]
   
   local critcount = GetAchievementNumCriteria(id)
-  assert(critcount >= 1)
   
   --TO(string.format("%d criteria", crit))
   for i = 1, critcount do
@@ -199,7 +200,6 @@ local function retrieveAchievement(id, db)
     db.criteria[crit_id] = {
       complete = crit_complete,
       progress = crit_quantity,
-      progress_total = crit_reqquantity,
     }
   end
 end
@@ -223,6 +223,8 @@ local function activate(newinstance, oldinstance)
   
   createAchievementList()
   newinstance.AchievementDB = getAchievementDB() -- 'coz we're lazy
+  
+  TO("Created shit!")
 end
 
 local needsUpdate = true
@@ -233,10 +235,33 @@ local function OnEvent(frame, event)
 end
 
 local function OnUpdate()
-  if needsUpdate then
-    local newAchievementDB = getAchievementDB()
+  if needsUpdate and AchievementNotifier.AchievementDB then
+    needsUpdate = false -- This prevents spamming.
+    
+    local newADB = getAchievementDB()
+    local oldADB = AchievementNotifier.AchievementDB
+    TO(string.format("akount %d %d", QuestHelper:TableSize(newADB.achievements), QuestHelper:TableSize(newADB.criteria)))
+    
+    for k, v in pairs(newADB.achievements) do
+      if v.complete ~= oldADB.achievements[k].complete then
+        assert(v.complete and not oldADB.achievements[k].complete)
+        TO(string.format("Achievement complete, %s", select(2, GetAchievementInfo(k))))
+      end
+    end
+    
+    for k, v in pairs(newADB.criteria) do
+      if v.complete ~= oldADB.criteria[k].complete then
+        assert(v.complete and not oldADB.criteria[k].complete)
+        TO(string.format("Criteria complete, %d", k))
+        TO(string.format("Criteria complete, %s", select(1, GetAchievementCriteriaInfo(k))))
+      elseif v.progress > oldADB.criteria[k].progress then
+        TO(string.format("Criteria progress, %d", k))
+        TO(string.format("Criteria progress, %s", select(1, GetAchievementCriteriaInfo(k))))
+      end
+    end
+    
     TO("update!")
-    needsUpdate = false
+    AchievementNotifier.AchievementDB = newADB
   end
 end
 
