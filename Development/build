@@ -559,7 +559,6 @@ if archive_zip or archive_7z then
   FileUtil.createDirectory("QuestHelper/AstrolabeQH")
   FileUtil.createDirectory("QuestHelper/ChatThrottleLib")
   FileUtil.createDirectory("QuestHelper/Fonts")
-  FileUtil.createDirectory("QuestHelper/AchievementNotifier")
   
   local info = nil
   
@@ -623,7 +622,7 @@ if archive_zip or archive_7z then
     end
   end)
   
-  for i, dir in ipairs({"AstrolabeQH", "ChatThrottleLib", "AchievementNotifier"}) do
+  for i, dir in ipairs({"AstrolabeQH", "ChatThrottleLib"}) do
     FileUtil.forEachFile("../"..dir, function (file)
       FileUtil.copyFile(file, "QuestHelper/"..dir)
     end)

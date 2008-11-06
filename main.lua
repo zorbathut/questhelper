@@ -198,6 +198,8 @@ function QuestHelper:Initialize()
      ["tomtom.lua"] = true,
      ["textviewer.lua"] = true,
      ["error.lua"] = true,
+     ["collect.lua"] = true,
+     ["collect_achievement.lua"] = true,
     }
 
   for file, version in pairs(QuestHelper_File) do
@@ -429,8 +431,6 @@ function QuestHelper:Initialize()
       self:LoadDebugObjective(name, data)
     end
   end
-  
-  self.AchievementNotifier = DongleStub("AchievementNotifier-0.1")
   
   self.Routing:Initialize()       -- Set up the routing task
   

@@ -79,5 +79,8 @@ objtips.lua
 textviewer.lua
 help.lua
 
+collect.lua
+collect_achievement.lua
+
 cartographer.lua
 tomtom.lua
