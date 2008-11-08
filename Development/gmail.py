@@ -24,7 +24,7 @@ for line in outp.split('\n'):
   toki = re.search("rawdata_([0-9a-f]*)", line).group(1)
   #print toki
   filehashdict[toki] = True
-print "Filenames isolated"
+print "Filenames isolated: %d" % len(filehashdict)
 
 ga = libgmail.GmailAccount(passwords.gmail_username, passwords.gmail_password)
 ga.login()
@@ -87,9 +87,11 @@ while len(inbox) > 0:
                             clear = False
             i=i+1
             if clear:
-                print "Would have deleted message"
+              print "\t Trashing"
+              ga.trashMessage(message)
             elif mark:
-                thread.addLabel(label)
+              print "\t Marking"
+              thread.addLabel(label)
     except Exception, e:
       raise
         #print "whoops"
