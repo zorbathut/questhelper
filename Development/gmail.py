@@ -19,7 +19,7 @@ outp = commands.getoutput("s3cmd ls s3://questhelper_data/rawdata_")
 print "S3 listing snagged"
 for line in outp.split('\n'):
   if line == "Bucket 'questhelper_data':":
-    continue
+  continue
   #print line
   toki = re.search("rawdata_([0-9a-f]*)", line).group(1)
   #print toki
@@ -39,65 +39,70 @@ i=0
 
 print `len(inbox)`+" messages"
 while len(inbox) > 0:
-    try:
-        for thread in inbox:
-            for message in thread:
-                mark = True
-                clear = True
-                print "message "+`i`+" id: "+message.id
-                #print thread.getLabels()
-                #print thread.getLabels().count("downloaded")
-                if thread.getLabels().count(label) == 0 or True:
-                    #print 'hoohah'
-                    print '\t'+`len(message.attachments)`+" attachments"
-                    for a in message.attachments:
-                        a.filename = a.filename.encode('ascii', 'ignore').replace('*', '_')
-                        print '\t\t filename:', a.filename
-                        dig=md5.new()
-                        cont=a.content
-                        if cont <> None:
-                            dig.update(cont)
-                            pre=dig.hexdigest()
-                            #dex=filename.find(".")
-                            tup=a.filename.partition(".")
-                            name=pre+tup[1]+tup[2]
-                            f=open(destination+name,"w")
-                            f.write(cont)
-                            f.close()
-                            #message.addLabel("downloaded")
-                            
-                            print "\t\t saved"
-                            
-                            s3name = "rawdata_" + name + ".bz2"
-                            if not pre in filehashdict:
-                              # okay, that's cool. Now we S3 it.
-                              assert(os.system("bzip2 -k --best -c \"%s\" > \"%s\"" % (destination + name, s3name)) == 0)
-                              assert(os.system("s3cmd put \"%s\" s3://questhelper_data" % (s3name)) == 0)
-                              assert(os.system("rm rawdata_*") == 0)
-                              print "\t\t S3 saved"
-                              clear = False
-                            else:
-                              assert(os.system("s3cmd get \"s3://questhelper_data/%s\" \"%s\"" % (s3name, s3name)) == 0)
-                              assert(os.system("cat \"%s\" | bunzip2 > rawdata_temptest" % (s3name)) == 0)
-                              assert(os.system("diff -q rawdata_temptest \"%s\"" % (destination + name)) == 0)
-                              assert(os.system("rm rawdata_temptest \"%s\"" % (s3name)) == 0)
-                        else:
-                            print "foobared attachment"
-                            mark = False
-                            clear = False
-            i=i+1
-            if clear:
-              print "\t Trashing"
-              ga.trashMessage(message)
-            elif mark:
-              print "\t Marking"
-              thread.addLabel(label)
-    except Exception, e:
-      raise
-        #print "whoops"
-    inbox=ga.getMessagesByQuery(argument)
-    #print len(inbox)
+  try:
+    for thread in inbox:
+      for message in thread:
+        mark = True
+        if thread.getLabels().count(label) != 0:
+          mark = False
+          
+        clear = True
+        print "message "+`i`+" id: "+message.id
+        #print thread.getLabels()
+        #print thread.getLabels().count("downloaded")
         
+        if True: # we used to make sure it had the right label, or more accurately, didn't
+          #print 'hoohah'
+          print '\t'+`len(message.attachments)`+" attachments"
+          for a in message.attachments:
+            a.filename = a.filename.encode('ascii', 'ignore').replace('*', '_')
+            print '\t\t filename:', a.filename
+            dig=md5.new()
+            cont=a.content
+            if cont <> None:
+              dig.update(cont)
+              pre=dig.hexdigest()
+              #dex=filename.find(".")
+              tup=a.filename.partition(".")
+              name=pre+tup[1]+tup[2]
+              f=open(destination+name,"w")
+              f.write(cont)
+              f.close()
+              #message.addLabel("downloaded")
+              
+              print "\t\t saved"
+              
+              s3name = "rawdata_" + name + ".bz2"
+              if not pre in filehashdict:
+                # okay, that's cool. Now we S3 it.
+                assert(os.system("bzip2 -k --best -c \"%s\" > \"%s\"" % (destination + name, s3name)) == 0)
+                assert(os.system("s3cmd put \"%s\" s3://questhelper_data" % (s3name)) == 0)
+                assert(os.system("rm rawdata_*") == 0)
+                print "\t\t S3 saved"
+                
+                clear = False
+              else:
+                assert(os.system("s3cmd get \"s3://questhelper_data/%s\" \"%s\"" % (s3name, s3name)) == 0)
+                assert(os.system("cat \"%s\" | bunzip2 > rawdata_temptest" % (s3name)) == 0)
+                assert(os.system("diff -q rawdata_temptest \"%s\"" % (destination + name)) == 0)
+                assert(os.system("rm rawdata_temptest \"%s\"" % (s3name)) == 0)
+            else:
+              print "foobared attachment"
+              mark = False
+              clear = False
+        if clear:
+          print "\t Trashing"
+          ga.trashMessage(message)
+        i=i+1
+      if mark:
+        print "\t Marking"
+        thread.addLabel(label)
+  except Exception, e:
+    raise
+    #print "whoops"
+  inbox=ga.getMessagesByQuery(argument)
+  #print len(inbox)
+    
 print `i`+" messages examined and saved"
 
 os.system("rm rawdata_*")
