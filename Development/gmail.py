@@ -9,6 +9,7 @@ import passwords
 import os
 import commands
 import re
+import time
 
 os.system("rm rawdata_*")
 
@@ -19,7 +20,7 @@ outp = commands.getoutput("s3cmd ls s3://questhelper_data/rawdata_")
 print "S3 listing snagged"
 for line in outp.split('\n'):
   if line == "Bucket 'questhelper_data':":
-  continue
+    continue
   #print line
   toki = re.search("rawdata_([0-9a-f]*)", line).group(1)
   #print toki
@@ -82,7 +83,10 @@ while len(inbox) > 0:
                 filehashdict[pre] = True  # we only look at the first page of emails, over and over. this way, on the second pass through that page, we'll get and delete instead of just re-storing over and over.
                 clear = False
               else:
-                assert(os.system("s3cmd get \"s3://questhelper_data/%s\" \"%s\"" % (s3name, s3name)) == 0)
+                s3cg = "s3cmd get \"s3://questhelper_data/%s\" \"%s\"" % (s3name, s3name)
+                while os.system(s3cg) != 0:
+                  print "\t\t s3cmd failed, sleeping for 15 seconds . . ."
+                  time.sleep(30)
                 assert(os.system("cat \"%s\" | bunzip2 > rawdata_temptest" % (s3name)) == 0)
                 assert(os.system("diff -q rawdata_temptest \"%s\"" % (destination + name)) == 0)
                 assert(os.system("rm rawdata_temptest \"%s\"" % (s3name)) == 0)
