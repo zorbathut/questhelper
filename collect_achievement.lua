@@ -85,7 +85,7 @@ local function registerAchievement(id)
     
     --[[
     table.insert(dbi.criterialist, crit_id)
-    assert(not db.criteria[crit_id])
+    assert (not db.criteria[crit_id])
     crittypes[crit_type] = (crittypes[crit_type] or 0) + 1]]
     
     if not achievement_type_blacklist[crit_type] then record = true end
