@@ -152,8 +152,13 @@ FileUtil.copyFile = function(in_name, out_name, ...)
     else
       print("Failed to copy "..in_name.." to "..out_name.."; couldn't open "..in_name)
     end
-  elseif os.execute(string.format(is_windows and "COPY %s %s" or "cp %s %s", FileUtil.quoteFile(in_name), FileUtil.quoteFile(out_name))) ~= 0 then
-    print("Failed to copy "..in_name.." to "..out_name)
+  else
+    local f = assert(io.open(in_name, "rb"))
+    local d = f:read("*all")
+    f:close()
+    f = assert(io.open(out_name, "wb"))
+    f:write(d)
+    f:close()
   end
 end
 
@@ -216,9 +221,9 @@ FileUtil.unlinkDirectory = function(directory)
   end
 end
 
-FileUtil.unlinkFile = function(filename)
-  if os.execute(string.format(is_windows and "DEL /Q %s" or "rm -rf %s", FileUtil.quoteFile(filename))) ~= 0 then
-    print("Failed to unlink file: "..filename)
+FileUtil.unlinkFile = function(file)
+  if not os.remove(file) then
+     print("Couldn't remove file " .. file)
   end
 end
 

@@ -1,3 +1,4 @@
+
 ﻿-- Please see lang_enus.lua for reference.
 
 QuestHelper_Translations["frFR"] =
@@ -110,7 +111,7 @@ ZONE_LAYOUT_ERROR = "Lancement refusé par crainte de corrompre vos données sau
   
   NAG_NOT_NEW = "Vous n'avez aucune information qui n'est pas déjà dans la base de données statique.",
   NAG_NEW = "Vous devez penser à partager vos données pour le bénéfice des autres joueurs.",
-  NAG_INSTRUCTIONS = "Tapez %h(/gq submit) pour savoir comment soumettre des informations.",
+  NAG_INSTRUCTIONS = "Tapez %h(/qh submit) pour savoir comment soumettre des informations.",
   
   NAG_SINGLE_FP = "un maitre de vol",
   NAG_SINGLE_QUEST = "une quete",
