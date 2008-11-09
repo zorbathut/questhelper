@@ -1,5 +1,5 @@
 
-﻿-- Please see lang_enus.lua for reference.
+-- Please see lang_enus.lua for reference.
 
 QuestHelper_Translations["frFR"] =
  {
