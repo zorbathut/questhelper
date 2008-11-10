@@ -1,6 +1,8 @@
 
 * WORLD_MAP_UPDATE in instance (main.lua 774)
 
+"I know this, but it told me that [b]both[/b] quests were completed after [b]6[/b] kills."
+
 Marauders of Darrowshire
 
 * Add some concept of per-user prefs
