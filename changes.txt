@@ -1,4 +1,11 @@
 
+== Version 0.66 11/10/2008 ==
+
+* Fix French typo
+* Add more data, fix up the build system a little
+* More private server data removed (stop submitting private server data guys)
+* Added an achievement monitor that currently does very little besides waste CPU, but will be necessary in the next data gathering system
+
 == Version 0.65 10/29/2008 ==
 
 * Fix map tooltip again, break map tooltip scaling again :(
