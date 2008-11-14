@@ -651,7 +651,7 @@ end
 
 print("Done!")
 
-profiler:stop()
-local outfile = io.open("profile.txt", "w+")
-profiler:report(outfile)
-outfile:close()
+--profiler:stop()
+--local outfile = io.open("profile.txt", "w+")
+--profiler:report(outfile)
+--outfile:close()
