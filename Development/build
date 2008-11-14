@@ -65,7 +65,7 @@ loadfile("pepperfish.lua")()
 --loadfile("external.lua")()
 
 profiler = newProfiler("time", 1000000)
-profiler:start()
+--profiler:start()
 
 QuestHelper_BuildZoneLookup()
 
@@ -212,6 +212,10 @@ if compile then
           end
           if QuestHelper_IsCorrupted(upgradable_data) then
             print("!! "..name.." is corrupted")
+            return
+          end
+          if not upgradable_data.QuestHelper_UID then
+            print("!! "..name.." has no UID")
             return
           end
           
