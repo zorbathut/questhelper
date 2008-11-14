@@ -16,15 +16,19 @@ os.system("rm rawdata_*")
 filehashdict = {}
 
 ct = 0
+tregex = re.compile("rawdata_([0-9a-f]{32,32})(.*)\.bz2")
 outp = commands.getoutput("s3cmd ls s3://questhelper_data/rawdata_")
 print "S3 listing snagged"
 for line in outp.split('\n'):
   if line == "Bucket 'questhelper_data':":
     continue
-  #print line
-  toki = re.search("rawdata_([0-9a-f]*)", line).group(1)
+  serch = tregex.search(line)
+  if not serch:
+    print line
+  toki = serch.group(1)
+  ext = serch.group(2)
   #print toki
-  filehashdict[toki] = True
+  filehashdict[toki] = ext
 print "Filenames isolated: %d" % len(filehashdict)
 
 ga = libgmail.GmailAccount(passwords.gmail_username, passwords.gmail_password)
@@ -80,16 +84,19 @@ while len(inbox) > 0:
                 assert(os.system("s3cmd put \"%s\" s3://questhelper_data" % (s3name)) == 0)
                 assert(os.system("rm rawdata_*") == 0)
                 print "\t\t S3 saved"
-                filehashdict[pre] = True  # we only look at the first page of emails, over and over. this way, on the second pass through that page, we'll get and delete instead of just re-storing over and over.
+                filehashdict[pre] = name.partition(".")[1] + name.partition(".")[2]  # we only look at the first page of emails, over and over. this way, on the second pass through that page, we'll get and delete instead of just re-storing over and over.
                 clear = False
               else:
-                s3cg = "s3cmd get \"s3://questhelper_data/%s\" \"%s\"" % (s3name, s3name)
+                s3oldname = "rawdata_" + pre + filehashdict[pre] + ".bz2"
+                if s3oldname != s3name:
+                  print "\t\t WARNING: Name mismatch! %s vs %s" % (s3name, s3oldname)
+                s3cg = "s3cmd --force get \"s3://questhelper_data/%s\" \"%s\"" % (s3oldname, s3oldname)
                 while os.system(s3cg) != 0:
                   print "\t\t s3cmd failed, sleeping for 15 seconds . . ."
                   time.sleep(30)
-                assert(os.system("cat \"%s\" | bunzip2 > rawdata_temptest" % (s3name)) == 0)
+                assert(os.system("cat \"%s\" | bunzip2 > rawdata_temptest" % (s3oldname)) == 0)
                 assert(os.system("diff -q rawdata_temptest \"%s\"" % (destination + name)) == 0)
-                assert(os.system("rm rawdata_temptest \"%s\"" % (s3name)) == 0)
+                assert(os.system("rm rawdata_temptest \"%s\"" % (s3oldname)) == 0)
             else:
               print "foobared attachment"
               mark = False
