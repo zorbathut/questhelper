@@ -285,10 +285,7 @@ function QuestHelper:CreateGraphNode(c, x, y, n)
     node.y = y
     node.name = n
   else
-    if not QuestHelper_ZoneLookup[c[1]] then -- exception for Wrath changeover
-      QuestHelper:Assert(not QuestHelper:IsWrath(), "Zone couldn't be found, and should have been")
-      return
-    end
+    QuestHelper: Assert(QuestHelper_ZoneLookup[c[1]], "Zone couldn't be found, and should have been")
     local cont, zone = unpack(QuestHelper_ZoneLookup[c[1]])
     node.c = cont
     node.x, node.y = self.Astrolabe:TranslateWorldMapPosition(cont, zone, c[2], c[3], cont, 0)
@@ -434,10 +431,7 @@ local function getNPCNode(npc)
 end
 
 function QuestHelper:CreateAndAddTransitionNode(z1, z2, pos)
-  if not z1 or not z2 then
-    QuestHelper:Assert(not QuestHelper:IsWrath(), "Zone couldn't be found, and should have been")
-    return
-  end
+  QuestHelper: Assert(z1 and z2, "Zone couldn't be found, and should have been")
   
   local node = self:CreateGraphNode(pos)
   

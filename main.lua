@@ -357,18 +357,6 @@ function QuestHelper:Initialize()
         static.quest[faction] = nil
       end
     end end
-  
-    if not QuestHelper:IsWrath() then
-      for cat, list in pairs(static.objective) do
-        for name, obj in pairs(list) do
-          if obj.pos then
-            for i, cpos in pairs(obj.pos) do
-              QuestHelper_ConvertCoordsFromWrath(cpos)
-            end
-          end
-        end
-      end
-    end
   end
 
   self:ResetPathing()
