@@ -99,6 +99,7 @@ function QuestHelper_ErrorPackage(depth)
     toc_version = QuestHelper_toc_version,
     game_version = GetBuildInfo(),
     locale = GetLocale(),
+    mutation_passes_exceeded = QuestHelper and QuestHelper.mutation_passes_exceeded,
     stack = debugstack(depth or 4, 20, 20),
   }
 end
@@ -160,7 +161,7 @@ end
 
 function QHE_Gui.ErrorTextinate()
   if first_error then
-    QHE_Gui.Error.curError = string.format("msg: %s\ntoc: %s\nv: %s\ngame: %s\nlocale: %s\ntimestamp: %s\n\n%s\naddons:\n%s", first_error.message, first_error.toc_version, first_error.local_version, first_error.game_version, first_error.locale, first_error.timestamp, first_error.stack, first_error.addons)
+    QHE_Gui.Error.curError = string.format("msg: %s\ntoc: %s\nv: %s\ngame: %s\nlocale: %s\ntimestamp: %s\nmutation: %s\n\n%s\naddons:\n%s", first_error.message, first_error.toc_version, first_error.local_version, first_error.game_version, first_error.locale, first_error.timestamp, tostring(first_error.mutation_passes_exceeded), first_error.stack, first_error.addons)
   else
     QHE_Gui.Error.curError = "None"
   end

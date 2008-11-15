@@ -653,7 +653,7 @@ function Route:breed(route_map)
   -- Because I do.
   -- Just, you know.
   -- FYI.
-  
+
   local invalid = true
   local invalid_passes = 0
   --local output_strings = {}
@@ -667,6 +667,11 @@ function Route:breed(route_map)
       end
     end]]
     
+    if invalid_passes >= 100 then
+      -- ugh
+      QuestHelper.mutation_passes_exceeded = true
+      break
+    end
     QuestHelper: Assert(invalid_passes <= 100, "Too many mutation passes needed to preserve sanity, something has gone Horribly Wrong, please report this as a bug (you will probably need to restart WoW for QH to continue working, sorry about that)")  -- space is so it works in the real code
     
     invalid = false
