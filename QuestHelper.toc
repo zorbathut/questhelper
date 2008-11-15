@@ -17,7 +17,6 @@
 error.lua
 
 AstrolabeQH\Load.xml
-AchievementNotifier\Load.xml
 ChatThrottleLib\ChatThrottleLib.xml
 
 static_deDE.lua
