@@ -7,6 +7,8 @@ local coroutine_route_pass = 1
 
 local coroutine_verbose = true
 
+local coroutine_time_used = {}
+
 function QH_Timeslice_Yield()
   if coroutine_running then
     -- Check if we've run our alotted time
@@ -54,9 +56,13 @@ function QH_Timeslice_Work()
     coroutine_route_pass = coroutine_route_pass - 5
     if coroutine_route_pass <= 0 then coroutine_route_pass = 1 end
     
+    local start = GetTime()
     coroutine_running = true
     local state, err = coroutine.resume(coro.coro)
     coroutine_running = false
+    local total = GetTime() - start
+    
+    coroutine_time_used[coro.name] = (coroutine_time_used[coro.name] or 0) + total
     
     if not state then
       if coroutine_verbose then QuestHelper:TextOut(string.format("timeslice: %s errored", coro.name)) end

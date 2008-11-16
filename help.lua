@@ -595,7 +595,7 @@ commands =
     {"/qh perf 1", "Sets standard performance"},
     {"/qh perf 50%", "Does half as much background processing"},
     {"/qh perf 3", "Computes routes 3 times more aggressively.  Better have some good horsepower!"}},
-    QuestHelper.genericSetScale, QuestHelper, "perf_scale", "performance factor", .1, 5},
+    QuestHelper.genericSetScale, QuestHelper, "perf_scale", "performance factor", .01, 5},
   
   {"BUTTON",
    "Toggles the display of QuestHelper's button on the world map.",
