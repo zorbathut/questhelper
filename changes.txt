@@ -1,4 +1,13 @@
 
+== Version 0.68 11/16/2008 ==
+
+* Database update, obviously
+* Possibly fix that old mutation-passes error
+* Clean up the codebase post-Wrath
+* New coroutine system to handle criteria and routing in a similar fashion
+* Rename /qh recycle to /qh top, add some more performance debug output
+* Reorganize /qh help
+
 == Version 0.67 11/14/2008 ==
 
 * No notable changes besides a database update
