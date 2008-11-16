@@ -1,9 +1,7 @@
 
 
-Tomtom spamming waypoints? See what's going on here.
 Scarlet Defender cannot be found
 prat 3.0 conflict?
-clean out IsWrath code
 
 
 "I know this, but it told me that [b]both[/b] quests were completed after [b]6[/b] kills."

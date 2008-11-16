@@ -198,6 +198,7 @@ function QuestHelper:Initialize()
      ["tomtom.lua"] = true,
      ["textviewer.lua"] = true,
      ["error.lua"] = true,
+     ["timeslice.lua"] = true,
      ["collect.lua"] = true,
      ["collect_achievement.lua"] = true,
     }

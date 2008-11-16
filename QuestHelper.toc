@@ -81,5 +81,7 @@ help.lua
 collect.lua
 collect_achievement.lua
 
+timeslice.lua
+
 cartographer.lua
 tomtom.lua
