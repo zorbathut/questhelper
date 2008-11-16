@@ -452,19 +452,23 @@ function QuestHelper:Help(argument)
   local text = ""
   local argument = argument and argument:upper() or ""
   
-  for i, data in ipairs(commands) do
-    if data[1]:find(argument, 1, true) then
-      text = string.format("%s|cffff8000%s|r   %s\n", text, data[1], data[2])
-      
-      if #data[3] > 0 then
-        text = string.format("%s\n  %s\n", text, #data[3] == 1 and "Example:" or "Examples:")
-        for i, pair in ipairs(data[3]) do
-          text = string.format("%s    |cff40bbff%s|r\n      %s\n", text, pair[1], pair[2])
+  for i1, cat in ipairs(commands) do
+    text = string.format("%s|cffffff00%s|r\n\n", text, cat[1])
+    for i, data in ipairs(cat[2]) do
+      if data[1]:find(argument, 1, true) then
+        text = string.format("%s    |cffff8000%s|r   %s\n", text, data[1], data[2])
+        
+        if #data[3] > 0 then
+          text = string.format("%s\n      %s\n", text, #data[3] == 1 and "Example:" or "Examples:")
+          for i, pair in ipairs(data[3]) do
+            text = string.format("%s        |cff40bbff%s|r\n          %s\n", text, pair[1], pair[2])
+          end
         end
+        
+        text = text .. "\n"
       end
-      
-      text = text .. "\n"
     end
+    text = text .. "\n\n"
   end
   
   self:ShowText(text == "" and ("No commands containing '"..argument.."'") or text, "QuestHelper Slash Commands")
@@ -472,167 +476,179 @@ end
 
 commands =
  {
-  {"VERSION",
-   "Displays QuestHelper's version.", {}, QuestHelper.PrintVersion, QuestHelper},
-  
-  {"RECALC",
-   "Recalculates the world graph and locations for any active objectives.", {}, QuestHelper.WantPathingReset, QuestHelper},
-  
-  {"FTIME",
-   "Toggles display of flight time estimates.", {}, QuestHelper.ToggleFlightTimes, QuestHelper},
-  
-  {"PURGE",
-   "Deletes all QuestHelper's collected data.", {}, QuestHelper.Purge, QuestHelper},
-  
-  {"HARDRESET",
-   "Deletes all QuestHelper's collected data and resets QuestHelper preferences.", {}, QuestHelper.HardReset, QuestHelper},
-   
-  {"FILTER",
-   "Automatically ignores/unignores objectives based on criteria.",
-   {{"/qh filter zone", "Toggle showing objectives outside the current zone"},
-    {"/qh filter done", "Toggle showing objectives for uncompleted quests."},
-    {"/qh filter level", "Toggle showing objectives that are probably too hard, by considering the levels of you and your party members, and the offset set by the level command."},
-    {"/qh filter blocked", "Toggle showing blocked objectives, such as quest turn-ins for incomplete quests."},
-    {"/qh filter watched", "Toggle limiting to objectives watched in the Quest Log"}
-    }, QuestHelper.Filter, QuestHelper},
-  
-  {"LEVEL",
-   "Adjusts the level offset used by the level filter. Naturally, the level filter must be turned on to have an effect.",
-   {{"/qh level", "See information related to the level filter."},
-    {"/qh level 0", "Only allow objectives at or below your current level."},
-    {"/qh level +2", "Allow objectives up to two levels above your current level."},
-    {"/qh level -1", "Only allow objectives below your current level."}}, QuestHelper.LevelOffset, QuestHelper},
-  
-  {"SCALE",
-   "Scales the map icons used by QuestHelper. Will accept values between 50% and 300%.",
-   {{"/qh scale 1", "Uses the default icon size."},
-    {"/qh scale 2", "Makes icons twice their default size."},
-    {"/qh scale 80%", "Makes icons slightly smaller than their default size."}},
-    QuestHelper.genericSetScale, QuestHelper, "scale", "icon scale", .5, 3},
-  
-  {"TOOLTIP",
-   "Toggles appending information about tracked items and NPCs to their tooltips.",
-    {}, QuestHelper.ToggleTooltip, QuestHelper},
-  
-  {"TRACK",
-   "Toggles the visibility of the QuestHelper's replacement quest tracker.",
-    {}, QuestHelper.ToggleTrack, QuestHelper},
-  
-  {"TSCALE",
-   "Scales the quest tracker provided by QuestHelper. Will accept values between 50% and 300%.",
-   {},
-   QuestHelper.TrackerScale, QuestHelper},
-  
-  {"TLEVEL",
-   "Toggles display of levels in the quest tracker provided by QuestHelper.",
-   {}, QuestHelper.ToggleTrackLevel, QuestHelper},
-  
-  {"TQCOL",
-   "Toggles display of colours for the difficulty level of quests in the quest tracker provided by QuestHelper.",
-   {}, QuestHelper.ToggleTrackQColour, QuestHelper},
-  
-  {"TOCOL",
-   "Toggles display of colours for objective progress in the quest tracker provided by QuestHelper.",
-   {}, QuestHelper.ToggleTrackOColour, QuestHelper},
-  
-  {"TRESET",
-   "Reset's the position of the quest tracker provided by QuestHelper, in cause you move it somewhere inaccessable.",
-   {{"/qh treset center", "Resets to the center of the screen, instead of a more normal quest tracker location."}}, QuestHelper.ResetTrackerPosition, QuestHelper},
-  
-  {"NAG",
-   "Tells you if you have anything that's missing from the static database. It can only check quests from your own faction, as the quests of your opposing faction are ommitted to save memory.",
-     {{"/qh nag verbose", "Prints the specific changes that were found."}}, QuestHelper.Nag, QuestHelper},
-  
-  {"POS",
-    "Prints the player's current position. Exists mainly for my own personal convenience.",
-    {}, function (qh) qh:TextOut(qh:LocationString(qh.i, qh.x, qh.y)) end, QuestHelper},
-  
-  {"HIDDEN",
-   "Compiles a list of objectives that QuestHelper is hiding from you. Depending on the reason, you can also unhide the objective.",
-   {}, QuestHelper.ShowHidden, QuestHelper},
-  
-  {"FIND",
-   "Search for an item, location, or npc.",
-   {{"/qh find item rune of teleport", "Finds a reagent vendor."},
-    {"/qh find npc bragok", "Finds the Ratchet flight point."},
-    {"/qh find loc stormwind 50 60", "Finds the Stormwind auction house."},
-    {"/qh find loc 50 50", "Finds the center of the zone you're in."},
-    {"/qh find something", "Searches for something in all categories."},
-    {"/qh find", "Lists objectives you manually created so that you can remove them."}}, QuestHelper.PerformSearch, QuestHelper},
-  
-  {"COMM",
-   "Toggles showing of the communication between QuestHelper users. Exists mainly for my own personal convenience.",
-    {}, QuestHelper.ToggleComm, QuestHelper},
-  
-  {"TOP",
-   "Displays various performance stats on QuestHelper.",
-    {
-      {"/qh top recycle", "Displays detailed information on QuestHelper's recycled item pools"},
-      {"/qh top usage", "Displays detailed information on which table types are most common"},
-      {"/qh top cache", "Displays detailed information on the internal distance cache"},
-      {"/qh top perf", "Displays detailed information on coroutine CPU usage"},
-    }, QuestHelper.Top, QuestHelper},
-  
-  {"CARTWP",
-   "Toggles displaying the current objective using Cartographer Waypoints.",
-    {}, QuestHelper.ToggleCartWP, QuestHelper},
-  
-  {"TOMTOM",
-   "Toggles displaying the current objective using TomTom.",
-    {}, QuestHelper.ToggleTomTomWP, QuestHelper},
-  
-  {"SHARE",
-   "Toggles objective sharing between QuestHelper users.",
-    {}, QuestHelper.ToggleShare, QuestHelper},
-  
-  {"SOLO",
-   "Toggles solo mode. When enabled, assumes your party members don't exist. Objective sharing with party members will also be disabled.",
-    {}, QuestHelper.ToggleSolo, QuestHelper},
-  
-  {"HIDE",
-   "Hides QuestHelper's modifications to the minimap and world map, and pauses routing calculations.",
-    {}, QuestHelper.ToggleHide, QuestHelper},
-  
-  {"ANTS",
-   "Toggles the display of trails on the world map on and off.",
-    {}, QuestHelper.ToggleAnts, QuestHelper},
-  
-  {"LOCALE",
-   "Select the locale to use for displayed messages.",
-    {}, QuestHelper.SetLocale, QuestHelper},
+  { "Common commands", {
+    {"HIDDEN",
+     "Compiles a list of objectives that QuestHelper is hiding from you. Depending on the reason, you can also unhide the objective.",
+     {}, QuestHelper.ShowHidden, QuestHelper},
+    
+    {"HIDE",
+     "Hides QuestHelper's modifications to the minimap and world map, and pauses routing calculations.",
+      {}, QuestHelper.ToggleHide, QuestHelper},
+      
+    {"CARTWP",
+     "Toggles displaying the current objective using Cartographer Waypoints (must be installed separately).",
+      {}, QuestHelper.ToggleCartWP, QuestHelper},
+    
+    {"TOMTOM",
+     "Toggles displaying the current objective using TomTom (must be installed separately).",
+      {}, QuestHelper.ToggleTomTomWP, QuestHelper},
+      
+    {"FIND",
+     "Search for an item, location, or npc.",
+     {{"/qh find item rune of teleport", "Finds a reagent vendor."},
+      {"/qh find npc bragok", "Finds the Ratchet flight point."},
+      {"/qh find loc stormwind 50 60", "Finds the Stormwind auction house."},
+      {"/qh find loc 50 50", "Finds the center of the zone you're in."},
+      {"/qh find something", "Searches for something in all categories."},
+      {"/qh find", "Lists objectives you manually created so that you can remove them."}}, QuestHelper.PerformSearch, QuestHelper},
+    
+    {"SOLO",
+     "Toggles solo mode. When enabled, assumes your party members don't exist. Objective sharing with party members will also be disabled.",
+      {}, QuestHelper.ToggleSolo, QuestHelper},
+  }},
 
-  {"PERF",
-   "Sets or shows the route workload. Higher means more agressive route updating, lower means better performance Accepts numbers between 10% and 500%.",
-   {{"/qh perf", "Show current Performance Factor"},
-    {"/qh perf 1", "Sets standard performance"},
-    {"/qh perf 50%", "Does half as much background processing"},
-    {"/qh perf 3", "Computes routes 3 times more aggressively.  Better have some good horsepower!"}},
-    QuestHelper.genericSetScale, QuestHelper, "perf_scale", "performance factor", .01, 5},
+  { "Objective filtering", {
+    {"FILTER",
+     "Automatically ignores/unignores objectives based on criteria.",
+     {{"/qh filter zone", "Toggle showing objectives outside the current zone"},
+      {"/qh filter done", "Toggle showing objectives for uncompleted quests."},
+      {"/qh filter level", "Toggle showing objectives that are probably too hard, by considering the levels of you and your party members, and the offset set by the level command."},
+      {"/qh filter blocked", "Toggle showing blocked objectives, such as quest turn-ins for incomplete quests."},
+      {"/qh filter watched", "Toggle limiting to objectives watched in the Quest Log"}
+      }, QuestHelper.Filter, QuestHelper},
+    
+    {"LEVEL",
+     "Adjusts the level offset used by the level filter. Naturally, the level filter must be turned on to have an effect.",
+     {{"/qh level", "See information related to the level filter."},
+      {"/qh level 0", "Only allow objectives at or below your current level."},
+      {"/qh level +2", "Allow objectives up to two levels above your current level."},
+      {"/qh level -1", "Only allow objectives below your current level."}}, QuestHelper.LevelOffset, QuestHelper},
+    
+    {"SCALE",
+     "Scales the map icons used by QuestHelper. Will accept values between 50% and 300%.",
+     {{"/qh scale 1", "Uses the default icon size."},
+      {"/qh scale 2", "Makes icons twice their default size."},
+      {"/qh scale 80%", "Makes icons slightly smaller than their default size."}},
+      QuestHelper.genericSetScale, QuestHelper, "scale", "icon scale", .5, 3},
+    
+    {"SHARE",
+     "Toggles objective sharing between QuestHelper users.",
+      {}, QuestHelper.ToggleShare, QuestHelper},
+  }},
   
-  {"BUTTON",
-   "Toggles the display of QuestHelper's button on the world map.",
-   {}, QuestHelper.ToggleMapButton, QuestHelper},
+  { "Interface", {
+    {"TRACK",
+     "Toggles the visibility of the QuestHelper's replacement quest tracker.",
+      {}, QuestHelper.ToggleTrack, QuestHelper},
+    
+    {"TSCALE",
+     "Scales the quest tracker provided by QuestHelper. Will accept values between 50% and 300%.",
+     {},
+     QuestHelper.TrackerScale, QuestHelper},
+    
+    {"TLEVEL",
+     "Toggles display of levels in the quest tracker provided by QuestHelper.",
+     {}, QuestHelper.ToggleTrackLevel, QuestHelper},
+    
+    {"TQCOL",
+     "Toggles display of colours for the difficulty level of quests in the quest tracker provided by QuestHelper.",
+     {}, QuestHelper.ToggleTrackQColour, QuestHelper},
+    
+    {"TOCOL",
+     "Toggles display of colours for objective progress in the quest tracker provided by QuestHelper.",
+     {}, QuestHelper.ToggleTrackOColour, QuestHelper},
+    
+    {"TRESET",
+     "Reset's the position of the quest tracker provided by QuestHelper, in cause you move it somewhere inaccessable.",
+     {{"/qh treset center", "Resets to the center of the screen, instead of a more normal quest tracker location."}}, QuestHelper.ResetTrackerPosition, QuestHelper},
+     
+    {"TOOLTIP",
+     "Toggles appending information about tracked items and NPCs to their tooltips.",
+      {}, QuestHelper.ToggleTooltip, QuestHelper},
+      
+    {"FTIME",
+     "Toggles display of flight time estimates.", {}, QuestHelper.ToggleFlightTimes, QuestHelper},
+    
+    {"ANTS",
+     "Toggles the display of trails on the world map on and off.",
+      {}, QuestHelper.ToggleAnts, QuestHelper},
+    
+    {"LOCALE",
+     "Select the locale to use for displayed messages.",
+      {}, QuestHelper.SetLocale, QuestHelper},
+      
+    {"BUTTON",
+     "Toggles the display of QuestHelper's button on the world map.",
+     {}, QuestHelper.ToggleMapButton, QuestHelper},
 
-  {"SETTINGS",
-   "Opens the Settings menu at the current cursor location. Note that not all settings can be changed through the menu.",
-   {}, QuestHelper.DoSettingsMenu, QuestHelper},
+    {"SETTINGS",
+     "Opens the Settings menu at the current cursor location. Note that not all settings can be changed through the menu.",
+     {}, QuestHelper.DoSettingsMenu, QuestHelper},
+  }},
   
-  {"CHANGES",
-   "Displays a summary of changes recently made to QuestHelper. This is always displayed when an upgrade is detected.",
-   {}, QuestHelper.ChangeLog, QuestHelper},
+  { "Data collection", {
+    {"SUBMIT",
+     "Displays instructions for submitting your collected data.",
+     {}, QuestHelper.Submit, QuestHelper},
+     
+    {"NAG",
+     "Tells you if you have anything that's missing from the static database. It can only check quests from your own faction, as the quests of your opposing faction are ommitted to save memory.",
+       {{"/qh nag verbose", "Prints the specific changes that were found."}}, QuestHelper.Nag, QuestHelper},
+    
+    {"PURGE",
+     "Deletes all QuestHelper's collected data.", {}, QuestHelper.Purge, QuestHelper},
+    
+    {"HARDRESET",
+     "Deletes all QuestHelper's collected data and resets QuestHelper preferences.", {}, QuestHelper.HardReset, QuestHelper},
+  }},
+
+  { "Performance and debug", {
+    {"PERF",
+     "Sets or shows the route workload. Higher means more agressive route updating, lower means better performance Accepts numbers between 10% and 500%.",
+     {{"/qh perf", "Show current Performance Factor"},
+      {"/qh perf 1", "Sets standard performance"},
+      {"/qh perf 50%", "Does half as much background processing"},
+      {"/qh perf 3", "Computes routes 3 times more aggressively.  Better have some good horsepower!"}},
+      QuestHelper.genericSetScale, QuestHelper, "perf_scale", "performance factor", .01, 5},
+      
+    {"TOP",
+     "Displays various performance stats on QuestHelper.",
+      {
+        {"/qh top recycle", "Displays detailed information on QuestHelper's recycled item pools"},
+        {"/qh top usage", "Displays detailed information on which table types are most common"},
+        {"/qh top cache", "Displays detailed information on the internal distance cache"},
+        {"/qh top perf", "Displays detailed information on coroutine CPU usage"},
+      }, QuestHelper.Top, QuestHelper},
+    
+    {"ERROR",
+     "Displays the first QuestHelper error that has been generated this session in a form which can be copied out of WoW.",
+     {}, QuestHelper.ShowError, QuestHelper},
+     
+    {"POS",
+      "Prints the player's current position. Exists mainly for my own personal convenience.",
+      {}, function (qh) qh:TextOut(qh:LocationString(qh.i, qh.x, qh.y)) end, QuestHelper},
+      
+    {"COMM",
+     "Toggles showing of the communication between QuestHelper users. Exists mainly for my own personal convenience.",
+      {}, QuestHelper.ToggleComm, QuestHelper},
+      
+    {"RECALC",
+     "Recalculates the world graph and locations for any active objectives. Should not be necessary.", {}, QuestHelper.WantPathingReset, QuestHelper},
+  }},
   
-  {"ERROR",
-   "Displays the first QuestHelper error that has been generated this session in a form which can be copied out of WoW.",
-   {}, QuestHelper.ShowError, QuestHelper},
-   
-  {"SUBMIT",
-   "Displays instructions for submitting your collected data.",
-   {}, QuestHelper.Submit, QuestHelper},
-  
-  {"HELP",
-   "Displays a list of help commands. Listed commands are filtered by the passed string.",
-   {}, QuestHelper.Help, QuestHelper}
- }
+  { "Help", {
+    {"HELP",
+     "Displays a list of help commands. Listed commands are filtered by the passed string.",
+     {}, QuestHelper.Help, QuestHelper},
+     
+    {"VERSION",
+     "Displays QuestHelper's version.", {}, QuestHelper.PrintVersion, QuestHelper},
+    
+    {"CHANGES",
+     "Displays a summary of changes recently made to QuestHelper.",
+     {}, QuestHelper.ChangeLog, QuestHelper},
+  }},
+}
 
 function QuestHelper_SlashCommand(input)
   local _, _, command, argument = string.find(input, "^%s*([^%s]-)%s+(.-)%s*$")
@@ -642,20 +658,22 @@ function QuestHelper_SlashCommand(input)
   
   command = string.upper(command)
   
-  for i, data in ipairs(commands) do
-    if data[1] == command then
-      local st = {}
-      
-      for i = 5,#data do table.insert(st, data[i]) end
-      table.insert(st, argument)
-      
-      if type(data[4]) == "function" then
-        data[4](unpack(st))
-      else
-        QuestHelper:TextOut(data[1].." is not yet implemented.")
+  for i1, cat in ipairs(commands) do
+    for i, data in ipairs(cat[2]) do
+      if data[1] == command then
+        local st = {}
+        
+        for i = 5,#data do table.insert(st, data[i]) end
+        table.insert(st, argument)
+        
+        if type(data[4]) == "function" then
+          data[4](unpack(st))
+        else
+          QuestHelper:TextOut(data[1].." is not yet implemented.")
+        end
+        
+        return
       end
-      
-      return
     end
   end
   
