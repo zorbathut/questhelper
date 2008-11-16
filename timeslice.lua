@@ -49,7 +49,7 @@ function QH_Timeslice_Work()
   end
   
   if coro then
-    if coroutine_verbose then QuestHelper:TextOut(string.format("timeslice: %s running", coro.name)) end
+    --if coroutine_verbose then QuestHelper:TextOut(string.format("timeslice: %s running", coro.name)) end
     
     QuestHelper: Assert(coroutine.status(coro.coro) ~= "dead")
     coroutine_stop_time = GetTime() + 4e-3 * QuestHelper_Pref.perf_scale * math.min(coroutine_route_pass, 5)
