@@ -10,21 +10,6 @@ local improve_margin = 1e-8
 
 -- Module Status:
 local work_done = 0
-local route_pass = 0
-local coroutine_running = false
-local coroutine_stop_time = 0
-
-function QuestHelper:yieldIfNeeded()
-  if coroutine_running then
-    -- Check if we've run our alotted time
-    if GetTime() > coroutine_stop_time then
-      -- As a safety, reset stop time to 0.  If somehow we fail to set it next time,
-      -- we'll be sure to yield promptly.
-      coroutine_stop_time = 0
-      coroutine.yield()
-    end
-  end
-end
 
 local function CalcObjectivePriority(obj)
   local priority = obj.priority
@@ -232,7 +217,7 @@ function Route:addObjectiveFast(obj)
     end
   end
   
-  QuestHelper:yieldIfNeeded((mn-mx+3)*0.05) -- The above checks don't require much effort.
+  QH_Timeslice_Yield() -- The above checks don't require much effort.
   
   if index > len then
     local previnfo = self[index-1]
@@ -240,7 +225,7 @@ function Route:addObjectiveFast(obj)
     local d
     d, info.pos = obj:TravelTime(previnfo.pos)
     assert(info.pos)
-    QuestHelper:yieldIfNeeded(0.5)
+    QH_Timeslice_Yield()
     previnfo.len = d
     self.distance = self.distance + d
   else
@@ -253,7 +238,7 @@ function Route:addObjectiveFast(obj)
     self.distance = self.distance + (d1 - previnfo.len + d2)
     previnfo.len = d1
     
-    QuestHelper:yieldIfNeeded(1)
+    QH_Timeslice_Yield()
   end
   
   -- Finally, insert the objective.
@@ -322,7 +307,7 @@ function Route:addObjectiveBest(obj, old_index, old_distance)
     
     local d1, d2, p = obj:TravelTime2(prev_pos, pos, no_cache)
     
-    QuestHelper:yieldIfNeeded(1)
+    QH_Timeslice_Yield()
     
     local delta = d1 + d2 - prev_len
     
@@ -346,7 +331,7 @@ function Route:addObjectiveBest(obj, old_index, old_distance)
     assert(prev_pos == self[len].pos)
     local delta, p = obj:TravelTime(prev_pos, no_cache)
     
-    QuestHelper:yieldIfNeeded(.5)
+    QH_Timeslice_Yield()
     
     if not best_index or ((delta + improve_margin) < best_delta) or ((mx == best_index) and not best_d1) then
       info.pos = p
@@ -424,12 +409,12 @@ function Route:removeObjective(obj)
     
     if info2 then
       d1, d2, info1.pos = info1.obj:TravelTime2(pinfo.pos, info2.pos, no_cache)
-      QuestHelper:yieldIfNeeded(1)
+      QH_Timeslice_Yield()
       self.distance = self.distance - pinfo.len - info.len - info1.len + d1 + d2
       info1.len = d2
     else
       d1, info1.pos = info1.obj:TravelTime(pinfo.pos, no_cache)
-      QuestHelper:yieldIfNeeded(0.5)
+      QH_Timeslice_Yield()
       self.distance = self.distance - pinfo.len - info.len + d1
     end
     
@@ -511,7 +496,7 @@ function Route:breed(route_map)
       end
     end
     
-    QuestHelper:yieldIfNeeded(0.01*len)
+    QH_Timeslice_Yield()
   end
   
   -- Record info for the 'Player Position' objective, so we don't mess it up later
@@ -595,7 +580,7 @@ function Route:breed(route_map)
     QuestHelper:ReleaseTable(last)
     last = link
     
-    QuestHelper:yieldIfNeeded(0.01*c)
+    QH_Timeslice_Yield()
   end
   
   -- Clean up the last table
@@ -653,7 +638,7 @@ function Route:breed(route_map)
   -- Because I do.
   -- Just, you know.
   -- FYI.
-  
+
   local invalid = true
   local invalid_passes = 0
   --local output_strings = {}
@@ -667,6 +652,11 @@ function Route:breed(route_map)
       end
     end]]
     
+    if invalid_passes >= 100 then
+      -- ugh
+      QuestHelper.mutation_passes_exceeded = true
+      break
+    end
     QuestHelper: Assert(invalid_passes <= 100, "Too many mutation passes needed to preserve sanity, something has gone Horribly Wrong, please report this as a bug (you will probably need to restart WoW for QH to continue working, sorry about that)")  -- space is so it works in the real code
     
     invalid = false
@@ -716,7 +706,7 @@ function Route:breed(route_map)
   assert(prev_pos)
   assert(next_pos)
   
-  QuestHelper:yieldIfNeeded(0.03*len)
+  QH_Timeslice_Yield()
   
   for i = 1, len-1 do
     local d1, d2
@@ -729,7 +719,7 @@ function Route:breed(route_map)
     
     d1, d2, pos = info.obj:TravelTime2(prev_pos, next_pos, prev_info.no_cache)
     assert(pos)
-    QuestHelper:yieldIfNeeded(1)
+    QH_Timeslice_Yield()
     
     prev_info.len = d1
     info.len = d2
@@ -1170,7 +1160,7 @@ function Routing:RouteUpdateRoutine()
       local best, max_fitness = best_route, 1/(qh:ComputeTravelTime(pos, best_route[1].pos) + best_route.distance)
       best_route.fitness = max_fitness
       
-      qh:yieldIfNeeded(.3)
+      QH_Timeslice_Yield()
       
       for r in pairs(routes) do
         if r ~= best_route then
@@ -1179,7 +1169,7 @@ function Routing:RouteUpdateRoutine()
           if fit > max_fitness then
             best, max_fitness = r, fit
           end
-          qh:yieldIfNeeded(.3)
+          QH_Timeslice_Yield()
         end
       end
       
@@ -1200,7 +1190,7 @@ function Routing:RouteUpdateRoutine()
         best = to_breed
       end
       
-      qh:yieldIfNeeded(.3)
+      QH_Timeslice_Yield()
       
       if best ~= best_route then
         
@@ -1229,7 +1219,7 @@ function Routing:RouteUpdateRoutine()
     end
     
     if qh.defered_graph_reset then
-      qh:yieldIfNeeded(10)
+      QH_Timeslice_Yield()
       
       for r in pairs(routes) do
         r:pathResetBegin()
@@ -1260,7 +1250,7 @@ function Routing:RouteUpdateRoutine()
       end
       best_route:sanity()
       
-      qh:yieldIfNeeded(10)
+      QH_Timeslice_Yield()
     end
     
     if changed then
@@ -1269,41 +1259,21 @@ function Routing:RouteUpdateRoutine()
     
     assert(#route == #best_route)
     
-    if route_pass > 0 then
-      route_pass = route_pass - 1
-    end
-    
     -- temporary hack to cause more errors
     --qh.defered_graph_reset = true
     --qh.defered_flight_times = true
     
-    qh:yieldIfNeeded(1)
+    QH_Timeslice_Yield()
   end
-end
-
-local update_route
-
-function QuestHelper:RunCoroutine()
-  if coroutine.status(update_route) ~= "dead" then
-    coroutine_running = true
-    -- At perf = 100%, we will run 5 ms / frame.
-    coroutine_stop_time = GetTime() + 4e-3 * QuestHelper_Pref.perf_scale * ((route_pass > 0) and 5 or 1)
-    local state, err = coroutine.resume(update_route, self)
-    coroutine_running = false
-    if not state then
-      self:TextOut("|cffff0000The routing co-routine just exploded|r: |cffffff77"..tostring(err).."|r")
-      QuestHelper_ErrorCatcher_ExplicitError(err, "", "(Routing error)\n")
-    end
-  end
-end
-
-function QuestHelper:ForceRouteUpdate(passes)
-  route_pass = math.max(2, passes or 1)
 end
 
 function Routing:Initialize()
   self:RoutingSetup()
   
+  QH_Timeslice_Add(function() Routing:RouteUpdateRoutine() end, 0, "routing")
+  QH_Timeslice_Toggle("routing", false)
+  
+  --[[
   if coroutine.coco then
     -- coco allows yielding across c boundries, which allows me to use xpcall to get
     -- stack traces for coroutines without calls to yield resulting in thermal nuclear meltdown.
@@ -1331,4 +1301,5 @@ function Routing:Initialize()
   else
     update_route = coroutine.create(function() Routing:RouteUpdateRoutine() end)
   end
+  ]]
 end

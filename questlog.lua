@@ -317,7 +317,7 @@ function QuestHelper:ScanQuestLog()
   
   if first_time then
     first_time = false
-    self:ForceRouteUpdate(3)
+    QH_Timeslice_Bonus(15)
   end
   
   SelectQuestLogEntry(original_entry)

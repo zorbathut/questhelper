@@ -17,7 +17,6 @@
 error.lua
 
 AstrolabeQH\Load.xml
-AchievementNotifier\Load.xml
 ChatThrottleLib\ChatThrottleLib.xml
 
 static_deDE.lua
@@ -81,6 +80,8 @@ help.lua
 
 collect.lua
 collect_achievement.lua
+
+timeslice.lua
 
 cartographer.lua
 tomtom.lua

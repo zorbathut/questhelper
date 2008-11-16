@@ -1,5 +1,8 @@
 
-* WORLD_MAP_UPDATE in instance (main.lua 774)
+
+Scarlet Defender cannot be found
+prat 3.0 conflict?
+
 
 "I know this, but it told me that [b]both[/b] quests were completed after [b]6[/b] kills."
 
