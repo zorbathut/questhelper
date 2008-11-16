@@ -379,18 +379,26 @@ local function RecycleStatusString(fmt, usedcount, freetable, usedtable)
   end
 end
 
-function QuestHelper:RecycleInfo(cmd)
-  self:TextOut(RecycleStatusString("Using %s lua tables.", self.used_tables, self.free_tables, self.recycle_tabletyping))
-  self:TextOut(RecycleStatusString("Using %s texture objects.", self.used_textures, self.free_textures))
-  self:TextOut(RecycleStatusString("Using %s font objects.", self.used_text, self.free_text))
-  self:TextOut(RecycleStatusString("Using %s frame objects.", self.used_frames, self.free_frames))
+function QuestHelper:Top(cmd)
+
+  if cmd and string.find(cmd, "recycle") then
+    self:DumpTableTypeFrequencies()
+    self:TextOut(RecycleStatusString("Using %s lua tables.", self.used_tables, self.free_tables, self.recycle_tabletyping))
+    self:TextOut(RecycleStatusString("Using %s texture objects.", self.used_textures, self.free_textures))
+    self:TextOut(RecycleStatusString("Using %s font objects.", self.used_text, self.free_text))
+    self:TextOut(RecycleStatusString("Using %s frame objects.", self.used_frames, self.free_frames))
+  end
   
-  if cmd and string.find(cmd, "verbose") then
+  if cmd and string.find(cmd, "usage") then
     self:DumpTableTypeFrequencies()
   end
   
   if cmd and string.find(cmd, "cache") then
     self:DumpCacheData()
+  end
+  
+  if cmd and string.find(cmd, "perf") then
+    QH_Timeslice_DumpPerf()
   end
   
   UpdateAddOnMemoryUsage()
@@ -556,10 +564,14 @@ commands =
    "Toggles showing of the communication between QuestHelper users. Exists mainly for my own personal convenience.",
     {}, QuestHelper.ToggleComm, QuestHelper},
   
-  {"RECYCLE",
-   "Displays how many unused entities QuestHelper is tracking, so that it can reuse them in the future instead of creating new ones in the future.",
-    {{"/qh recycle verbose", "Displays detailed information on which table types are most common"},
-    {"/qh recycle cache", "Displays detailed information on the internal distance cache"}}, QuestHelper.RecycleInfo, QuestHelper},
+  {"TOP",
+   "Displays various performance stats on QuestHelper.",
+    {
+      {"/qh top recycle", "Displays detailed information on QuestHelper's recycled item pools"},
+      {"/qh top usage", "Displays detailed information on which table types are most common"},
+      {"/qh top cache", "Displays detailed information on the internal distance cache"},
+      {"/qh top perf", "Displays detailed information on coroutine CPU usage"},
+    }, QuestHelper.Top, QuestHelper},
   
   {"CARTWP",
    "Toggles displaying the current objective using Cartographer Waypoints.",

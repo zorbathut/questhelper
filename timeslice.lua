@@ -1,13 +1,28 @@
 QuestHelper_File["timeslice.lua"] = "Development Version"
 
+-- Any non-local item here is part of an available public interface.
+
 local coroutine_running = false
 local coroutine_stop_time = 0
 local coroutine_list = {}
 local coroutine_route_pass = 1
 
-local coroutine_verbose = true
+local coroutine_verbose = false
 
 local coroutine_time_used = {}
+local coroutine_power_up = GetTime()
+
+function QH_Timeslice_DumpPerf()
+  local sortable = {}
+  for k, v in pairs(coroutine_time_used) do
+    table.insert(sortable, {name = k, amount = v})
+  end
+  table.sort(sortable, function(a, b) return a.name < b.name end)
+  for _, v in pairs(sortable) do
+    QuestHelper:TextOut(string.format("%s: %f", QuestHelper:HighlightText(v.name), v.amount))
+  end
+  QuestHelper:TextOut(string.format("%s: %f", QuestHelper:HighlightText("poweron"), GetTime() - coroutine_power_up))
+end
 
 function QH_Timeslice_Yield()
   if coroutine_running then
