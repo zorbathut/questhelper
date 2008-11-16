@@ -95,7 +95,7 @@ function QuestHelper:ToggleHide()
     -- WoW Will lockup inside ForceRouteUpdate, and so the UPDATING_ROUTE message won't appear until afterwards, making
     -- this message kind of redundant.
     -- self:TextOut(QHText("UPDATING_ROUTE"))
-    self:ForceRouteUpdate(4)        -- Let the corutine do some overtime...
+    QH_Timeslice_Bonus(20)        -- Let the corutine do some overtime...
   end
 end
 

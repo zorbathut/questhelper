@@ -351,7 +351,7 @@ function QuestHelper:CreateAndAddStaticNodePair(data)
     node2:Link(node1, data[3])
   end
   
-  self:yieldIfNeeded()
+  QH_Timeslice_Yield()
   return node1, node2
 end
 
@@ -484,12 +484,12 @@ function QuestHelper:CreateAndAddTransitionNode(z1, z2, pos)
     if not z2_has then table.insert(z2, closest) end
     
     self.world_graph:DestroyNode(node)
-    self:yieldIfNeeded()
+    QH_Timeslice_Yield()
     return closest
   else
     table.insert(z1, node)
     if z1 ~= z2 then table.insert(z2, node) end
-    self:yieldIfNeeded()
+    QH_Timeslice_Yield()
     return node
   end
 end
@@ -640,7 +640,7 @@ function QuestHelper:ResetPathing()
   end
   
   self.world_graph:Reset()
-  self:yieldIfNeeded()
+  QH_Timeslice_Yield()
   
   local continent_scales_x, continent_scales_y = self.continent_scales_x, self.continent_scales_y
   if not continent_scales_x then
@@ -674,7 +674,7 @@ function QuestHelper:ResetPathing()
   end
   
   self:SetupTeleportInfo(self.teleport_info, true)
-  self:yieldIfNeeded()
+  QH_Timeslice_Yield()
   
   --[[for node, info in pairs(self.teleport_info.node) do
     self:TextOut("You can teleport to "..(node.name or "nil").. " in "..self:TimeString(info[1]+info[2]-GetTime()))
@@ -751,7 +751,7 @@ function QuestHelper:ResetPathing()
         end
       end
     end
-    self:yieldIfNeeded()
+    QH_Timeslice_Yield()
   end
   
   -- id_from, id_to, and id_local will be used in determining whether there is a point to linking nodes together.
@@ -796,7 +796,7 @@ function QuestHelper:ResetPathing()
     end
   end
   
-  self:yieldIfNeeded()
+  QH_Timeslice_Yield()
 
   -- We don't need to know where the nodes can go or come from now.
   for i, n in ipairs(self.world_graph.nodes) do
@@ -816,7 +816,7 @@ function QuestHelper:ResetPathing()
     end
   end
   
-  self:yieldIfNeeded()
+  QH_Timeslice_Yield()
   -- self.world_graph:SanityCheck()
   
   -- Remove objectives again, since we created some for the flight masters.

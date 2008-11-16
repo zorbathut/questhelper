@@ -743,9 +743,9 @@ function QuestHelper:OnUpdate()
   end
   ontaxi = UnitOnTaxi("player")
   
-  update_count = update_count - 1
-
-  if update_count <= 0 then
+  -- For now I'm ripping out the update_count code
+  --update_count = update_count - 1
+  --if update_count <= 0 then
 
     -- Reset the update count for next time around; this will make sure the body executes every time
     -- when perf_scale >= 1, and down to 1 in 10 iterations when perf_scale < 1, or when hidden.
@@ -801,9 +801,7 @@ function QuestHelper:OnUpdate()
       self:ScanQuestLog()
     end
 
-    if self.c then
-      self:RunCoroutine()
-    end
+    QH_Timeslice_Toggle("routing", not not self.c)
 
     local level = UnitLevel("player")
     if level >= 58 and self.player_level < 58 then
@@ -812,7 +810,9 @@ function QuestHelper:OnUpdate()
     self.player_level = level
 
     self:PumpCommMessages()
-  end
+  --end
+  
+  QH_Timeslice_Work()
 end
 
 QuestHelper:RegisterEvent("VARIABLES_LOADED")

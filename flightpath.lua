@@ -471,7 +471,7 @@ function QuestHelper:buildFlightTimes()
             end
           end
         end end
-        self:yieldIfNeeded()
+        QH_Timeslice_Yield()
       end
     end
   end

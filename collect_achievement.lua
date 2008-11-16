@@ -114,18 +114,8 @@ end
 
 local achievement_stop_time = 0
 
-local function ScanAchievementYield()
-  if GetTime() > achievement_stop_time then
-    -- As a safety, reset stop time to 0.  If somehow we fail to set it next time,
-    -- we'll be sure to yield promptly.
-    achievement_stop_time = 0
-    coroutine.yield()
-    achievement_stop_time = GetTime() + 1e-3  -- this gives us like 1ms/frame, which is pretty crummy. TODO: unified architecture for coroutines?
-  end
-end
-
-local function retrieveAchievement(id, db, noyield)
-  if not noyield then ScanAchievementYield() end
+local function retrieveAchievement(id, db)
+  QH_Timeslice_Yield()
 
   local _, _, _, complete = GetAchievementInfo(id)
   --QuestHelper:TextOut(string.format("Registering %d (%s)", id, title))
@@ -147,43 +137,21 @@ local function retrieveAchievement(id, db, noyield)
   end
 end
 
-function getAchievementDB(noyield)
+function getAchievementDB()
   local db = {}
   db.achievements = {}
   db.criteria = {}
   
   for k in pairs(achievement_list) do
-    retrieveAchievement(k, db, noyield)
+    retrieveAchievement(k, db)
   end
   
   return db
 end
 
-local needsUpdate = true
-
-local function OnEvent(frame, event)
-  needsUpdate = true
-end
-
---[[
-function QuestHelper:RunCoroutine()
-  if coroutine.status(update_route) ~= "dead" then
-    coroutine_running = true
-    -- At perf = 100%, we will run 5 ms / frame.
-    coroutine_stop_time = GetTime() + 4e-3 * QuestHelper_Pref.perf_scale * ((route_pass > 0) and 5 or 1)
-    local state, err = coroutine.resume(update_route, self)
-    coroutine_running = false
-    if not state then
-      self:TextOut("|cffff0000The routing co-routine just exploded|r: |cffffff77"..tostring(err).."|r")
-      QuestHelper_ErrorCatcher_ExplicitError(err, "", "(Routing error)\n")
-    end
-  end
-end]]
-
+local updating = false
 
 local function ScanAchievements()
-  needsUpdate = false -- This prevents error spam.
-  
   local newADB = getAchievementDB()
   local oldADB = QHDataCollector.achievement.AchievementDB
   
@@ -209,23 +177,14 @@ local function ScanAchievements()
   
   for k, v in pairs(oldADB.achievements) do QuestHelper:ReleaseTable(v) end
   for k, v in pairs(oldADB.criteria) do QuestHelper:ReleaseTable(v) end
+  
+  updating = false -- This prevents error spam.
 end
 
-local achievement_scanning = nil
-
-local function OnUpdate()
-  if achievement_scanning then
-    QuestHelper:Assert(coroutine.status(achievement_scanning) ~= "dead")
-    local state, err = coroutine.resume(achievement_scanning)
-    if not state then
-      QuestHelper_ErrorCatcher_ExplicitError(err, "", "(Achievement scanning error)\n")
-    elseif coroutine.status(achievement_scanning) == "dead" then
-      achievement_scanning = nil
-    end
-  elseif needsUpdate and QHDataCollector.achievement.AchievementDB then
-    achievement_scanning = coroutine.create(function() ScanAchievements() end)
-    QuestHelper:Assert(achievement_scanning)
-    OnUpdate() -- this is just easier
+local function OnEvent()
+  if not updating and QHDataCollector.achievement.AchievementDB then
+    QH_Timeslice_Add(ScanAchievements, 10, "criteria")
+    updating = true
   end
 end
 
@@ -235,12 +194,12 @@ QHDataCollector.achievement.frame:UnregisterAllEvents()
 QHDataCollector.achievement.frame:RegisterEvent("CRITERIA_UPDATE")
 QHDataCollector.achievement.frame:RegisterEvent("ACHIEVEMENT_EARNED")
 QHDataCollector.achievement.frame:SetScript("OnEvent", OnEvent)
-QHDataCollector.achievement.frame:SetScript("OnUpdate", OnUpdate)
 
 QHDataCollector.achievement.frame:Show()
 
 
 function QH_InitAchievementCollector()
   createAchievementList()
-  QHDataCollector.achievement.AchievementDB = getAchievementDB(true) -- 'coz we're lazy
+  QHDataCollector.achievement.AchievementDB = getAchievementDB() -- 'coz we're lazy
+  OnEvent() -- kick it into its first update cycle
 end
