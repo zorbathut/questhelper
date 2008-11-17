@@ -82,6 +82,10 @@ local function CompressAndComplete(ki)
   QHCT.compressing[ki] = nil
 end
 
+local function CompressFromKey(ki)
+  QH_Timeslice_Add(function () CompressAndComplete(ki) end, 2, "lzw")
+end
+
 local function CompileData()
   local data = FinishData()
   local prefix = QHCT.working.prefix
@@ -95,7 +99,7 @@ local function CompileData()
     
     QHCT.compressing[ki] = {data = data, prefix = prefix}
     
-    QH_Timeslice_Add(function () CompressAndComplete(ki) end, 2, "lzw")
+    CompressFromKey(ki)
   end
 end
 
@@ -157,6 +161,10 @@ function QH_Collect_Traveled_Init(QHCData)
   QHCT = QHCData.traveled
   
   if not QHCT.working then InitWorking() else QuestHelper:FixMerger(QHCT.working) end
+  
+  for k, v in pairs(QHCT.compressing) do
+    CompressFromKey(k)
+  end
 end
 
 function hackeryflush()

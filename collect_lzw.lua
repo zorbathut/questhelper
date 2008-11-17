@@ -121,6 +121,8 @@ function QH_LZW_Decompress(input, tokens, outbits)
   local idlect = 0
   
   local tok = i:depend(bits)
+  if tok == tokens then return "" end -- Okay. There's nothing. We get it.
+  
   rv:Add(d[tok])
   local w = d[tok]
   while true do
