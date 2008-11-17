@@ -248,6 +248,10 @@ function QuestHelper:UnitPosition(unit)
   end
 end
 
+function QuestHelper:PlayerFaction()
+  return UnitFactionGroup("player") == "Alliance" and 1 or 2
+end
+
 function QuestHelper:LocationString(i, x, y)
   return ("[|cffffffff%s|r:|cffffffff%d,%.3f,%.3f|r]"):format(QuestHelper_NameLookup[i] or "nil", i, x, y)
 end

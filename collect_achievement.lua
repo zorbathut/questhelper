@@ -1,6 +1,6 @@
 QuestHelper_File["collect_achievement.lua"] = "Development Version"
 
-QHDataCollector.achievement = {}
+local Collect_Achievement = {}
 
 --X 0 is a monster kill, asset is the monster ID
 --X 1 is winning PvP objectives in a thorough manner (holding all bases, controlling all flags)
@@ -153,7 +153,7 @@ local updating = false
 
 local function ScanAchievements()
   local newADB = getAchievementDB()
-  local oldADB = QHDataCollector.achievement.AchievementDB
+  local oldADB = Collect_Achievement.AchievementDB
   
   for k, v in pairs(newADB.achievements) do
     if v.complete ~= oldADB.achievements[k].complete then
@@ -173,7 +173,7 @@ local function ScanAchievements()
     end
   end
   
-  QHDataCollector.achievement.AchievementDB = newADB
+  Collect_Achievement.AchievementDB = newADB
   
   for k, v in pairs(oldADB.achievements) do QuestHelper:ReleaseTable(v) end
   for k, v in pairs(oldADB.criteria) do QuestHelper:ReleaseTable(v) end
@@ -182,24 +182,24 @@ local function ScanAchievements()
 end
 
 local function OnEvent()
-  if not updating and QHDataCollector.achievement.AchievementDB then
+  if not updating and Collect_Achievement.AchievementDB then
     QH_Timeslice_Add(ScanAchievements, 10, "criteria")
     updating = true
   end
 end
 
-QHDataCollector.achievement.frame = CreateFrame("Frame")
+Collect_Achievement.frame = CreateFrame("Frame")
 
-QHDataCollector.achievement.frame:UnregisterAllEvents()
-QHDataCollector.achievement.frame:RegisterEvent("CRITERIA_UPDATE")
-QHDataCollector.achievement.frame:RegisterEvent("ACHIEVEMENT_EARNED")
-QHDataCollector.achievement.frame:SetScript("OnEvent", OnEvent)
+Collect_Achievement.frame:UnregisterAllEvents()
+Collect_Achievement.frame:RegisterEvent("CRITERIA_UPDATE")
+Collect_Achievement.frame:RegisterEvent("ACHIEVEMENT_EARNED")
+Collect_Achievement.frame:SetScript("OnEvent", OnEvent)
 
-QHDataCollector.achievement.frame:Show()
+Collect_Achievement.frame:Show()
 
 
 function QH_Collect_Achievement_Init()
   createAchievementList()
-  QHDataCollector.achievement.AchievementDB = getAchievementDB() -- 'coz we're lazy
+  Collect_Achievement.AchievementDB = getAchievementDB() -- 'coz we're lazy
   OnEvent() -- kick it into its first update cycle
 end

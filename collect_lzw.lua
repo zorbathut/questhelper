@@ -86,7 +86,7 @@ function QH_LZW_Compress(input, tokens, outbits)
       w = c
     end
   end
-  r:append(d[w], bits)
+  if w ~= "" then r:append(d[w], bits) end
   
   dsize = dsize + 1   -- Our decompressor doesn't realize we're ending here, so it will have added a table entry for that last token. Sigh.
   if dsize > nextbits then
@@ -157,12 +157,16 @@ function QH_LZW_Decompress(input, tokens, outbits)
   
   return rv
 end
+
+-- old debug code :)
   
 --[[  
 print("hello")
 
 QH_LZW_Compress("TOBEORNOTTOBEORTOBEORNOT", 256, 8)
 ]]
+
+--[[
 QuestHelper:TextOut("lulz")
 
 local inq = "ABABABABA"
@@ -179,4 +183,5 @@ QuestHelper:TextOut(tvr)
 ret = QH_LZW_Decompress(str, alpha, bits)
 QuestHelper:TextOut(ret)
 
-QuestHelper:Assert(inq == ret)
+QuestHelper: Assert(inq == ret)
+]]

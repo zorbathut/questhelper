@@ -349,7 +349,8 @@ QuestHelper_Collector = {
       }
     }
     ["traveled"] = {
-     working = { "decompy" }
+     building = { "decompy" }
+     compressing = {}
      done = {
       "COMPCOMPCOMP",
       "COMPCOMPCOMP",

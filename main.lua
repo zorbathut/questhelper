@@ -798,6 +798,7 @@ function QuestHelper:OnUpdate()
       
       local tx, ty = self.Astrolabe:GetAbsoluteContinentPosition(nc, nz, nx, ny)
       QuestHelper: Assert(tx and ty)  -- is it true? nobody knows! :D
+      QH_Collect_Traveled_Point(nc, tx, ty)
     end
 
     if self.defered_quest_scan and not self.graph_in_limbo then
