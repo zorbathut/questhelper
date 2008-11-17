@@ -137,7 +137,7 @@ local function retrieveAchievement(id, db)
   end
 end
 
-function getAchievementDB()
+local function getAchievementDB()
   local db = {}
   db.achievements = {}
   db.criteria = {}
