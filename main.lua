@@ -167,7 +167,6 @@ local init_cartographer_later = false
 function QuestHelper:Initialize()
   local file_problem = false
   local expected_version = GetAddOnMetadata("QuestHelper", "Version")
-  --local expected_version = QuestHelper_File["main.lua"] -- it was a good idea. Damn you, Curse Client.
 
   local expected_files =
     {
@@ -294,7 +293,7 @@ function QuestHelper:Initialize()
   
   QuestHelper_SeenRealms[GetRealmName()] = true -- some attempt at tracking private servers
   
-  QH_InitAchievementCollector()
+  QH_Collector_Init()
   
   self.player_level = UnitLevel("player")
 
@@ -795,6 +794,9 @@ function QuestHelper:OnUpdate()
     if nc and nz > 0 then
       self.c, self.z, self.x, self.y = nc, nz, nx, ny
       self.i = QuestHelper_IndexLookup[nc][nz]
+      
+      local tx, ty = self.Astrolabe:GetAbsoluteContinentPosition(nc, nz, nx, ny)
+      QuestHelper: Assert(tx and ty)  -- is it true? nobody knows! :D
     end
 
     if self.defered_quest_scan and not self.graph_in_limbo then

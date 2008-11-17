@@ -44,7 +44,7 @@ Note:
 -- DO NOT MAKE CHANGES TO THIS LIBRARY WITHOUT FIRST CHANGING THE LIBRARY_VERSION_MAJOR
 -- STRING (to something unique) OR ELSE YOU MAY BREAK OTHER ADDONS THAT USE THIS LIBRARY!!!
 local LIBRARY_VERSION_MAJOR = "Astrolabe-0.4-QuestHelper"
-local LIBRARY_VERSION_MINOR = tonumber(string.match("$Revision: 92 $", "(%d+)") or 1)
+local LIBRARY_VERSION_MINOR = 100 -- this is a completely randomly chosen number, the only point being that it was larger than the original 92
 
 if not DongleStub then error(LIBRARY_VERSION_MAJOR .. " requires DongleStub.") end
 if not DongleStub:IsNewerVersion(LIBRARY_VERSION_MAJOR, LIBRARY_VERSION_MINOR) then return end
@@ -319,6 +319,13 @@ function Astrolabe:TranslateWorldMapPosition( C, Z, xPos, yPos, nC, nZ )
 	end
 	
 	return (xPos / zoneData.width), (yPos / zoneData.height);
+end
+
+function Astrolabe:GetAbsoluteContinentPosition( C, Z, xPos, yPos )
+  local x, y = Astrolabe:TranslateWorldMapPosition(C, Z, xPos, yPos, C, 0)
+  if not x or not y then return end
+  local zoneData = WorldMapSize[C]
+  return (x * zoneData.width), (y * zoneData.height)
 end
 
 --*****************************************************************************

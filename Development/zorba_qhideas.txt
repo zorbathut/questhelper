@@ -348,7 +348,7 @@ QuestHelper_Collector = {
         }
       }
     }
-    ["walkpath"] = {
+    ["traveled"] = {
      working = { "decompy" }
      done = {
       "COMPCOMPCOMP",
