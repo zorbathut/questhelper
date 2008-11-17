@@ -41,7 +41,14 @@ function QH_Timeslice_Bonus(quantity)
   coroutine_route_pass = coroutine_route_pass + quantity
 end
 
-function QH_Timeslice_Add(workfunc, priority, name)
+local prioritize = {
+  criteria = 10,
+  lzw = -5,
+  routing = -10,
+}
+
+function QH_Timeslice_Add(workfunc, name)
+  local priority = prioritize[name] or 0
   if coroutine_verbose then QuestHelper:TextOut(string.format("timeslice: %s added (%s, %d)", name, tostring(workfunc), priority)) end
   local ncoro = coroutine.create(workfunc)
   QuestHelper: Assert(ncoro)

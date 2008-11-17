@@ -1270,7 +1270,7 @@ end
 function Routing:Initialize()
   self:RoutingSetup()
   
-  QH_Timeslice_Add(function() Routing:RouteUpdateRoutine() end, 0, "routing")
+  QH_Timeslice_Add(function() Routing:RouteUpdateRoutine() end, "routing")
   QH_Timeslice_Toggle("routing", false)
   
   --[[

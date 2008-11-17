@@ -83,7 +83,7 @@ local function CompressAndComplete(ki)
 end
 
 local function CompressFromKey(ki)
-  QH_Timeslice_Add(function () CompressAndComplete(ki) end, 2, "lzw")
+  QH_Timeslice_Add(function () CompressAndComplete(ki) end, "lzw")
 end
 
 local function CompileData()
@@ -152,7 +152,7 @@ function QH_Collect_Traveled_Point(c, x, y)
     end
   end
   
-  QuestHelper:Assert(cx == nx and cy == ny)
+  QuestHelper: Assert(cx == nx and cy == ny)
   -- Done!
 end
 
@@ -167,7 +167,9 @@ function QH_Collect_Traveled_Init(QHCData)
   end
 end
 
+--[[
 function hackeryflush()
   CompileData()
   cc = nil
 end
+]]

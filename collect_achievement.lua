@@ -183,7 +183,7 @@ end
 
 local function OnEvent()
   if not updating and Collect_Achievement.AchievementDB then
-    QH_Timeslice_Add(ScanAchievements, 10, "criteria")
+    QH_Timeslice_Add(ScanAchievements, "criteria")
     updating = true
   end
 end
