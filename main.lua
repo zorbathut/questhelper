@@ -106,10 +106,6 @@ function QuestHelper:SetLocaleFonts()
   -- Need to change the font of the chat frame, for any messages that QuestHelper displays.
   -- This should do nothing if not using an alternate font.
   DEFAULT_CHAT_FRAME:SetFont(self.font.sans, select(2, DEFAULT_CHAT_FRAME:GetFont()))
-
-  if QuestHelperWorldMapButton then
-    QuestHelperWorldMapButton:SetFont(self.font.serif, select(2, QuestHelperWorldMapButton:GetFont()))
-  end
 end
 
 QuestHelper.route = {}

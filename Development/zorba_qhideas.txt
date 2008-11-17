@@ -4,6 +4,9 @@ Scarlet Defender cannot be found
 prat 3.0 conflict?
 
 
+Cartographer waypoints scale with Cartographer
+
+
 "I know this, but it told me that [b]both[/b] quests were completed after [b]6[/b] kills."
 
 Marauders of Darrowshire
