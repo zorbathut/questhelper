@@ -198,7 +198,7 @@ QHDataCollector.achievement.frame:SetScript("OnEvent", OnEvent)
 QHDataCollector.achievement.frame:Show()
 
 
-function QH_InitAchievementCollector()
+function QH_Collect_Achievement_Init()
   createAchievementList()
   QHDataCollector.achievement.AchievementDB = getAchievementDB() -- 'coz we're lazy
   OnEvent() -- kick it into its first update cycle
