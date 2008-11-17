@@ -5,6 +5,8 @@ prat 3.0 conflict?
 
 
 Cartographer waypoints scale with Cartographer
+More map labels :(
+There's some pvp quest in Icecrown that breaks badly, figure that out once you get there?
 
 
 "I know this, but it told me that [b]both[/b] quests were completed after [b]6[/b] kills."

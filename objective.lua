@@ -1010,6 +1010,8 @@ function QuestHelper:NewObjectiveObject()
    }, QuestHelper.default_objective_meta)
 end
 
+local explicit_support_warning_given = false
+
 function QuestHelper:GetObjective(category, objective)
   local objective_list = self.objective_objects[category]
   
@@ -1055,7 +1057,10 @@ function QuestHelper:GetObjective(category, objective)
     elseif category == "reputation" then
       objective_object.icon_id = 5
     else
-      self:TextOut("FIXME: Objective type '"..category.."' for objective '"..objective.."' isn't explicitly supported yet; hopefully the dummy handler will do something sensible.")
+      if not explicit_support_warning_given then
+        self:TextOut("FIXME: Objective type '"..category.."' for objective '"..objective.."' isn't explicitly supported yet; hopefully the dummy handler will do something sensible.")
+        explicit_support_warning_given = true
+      end
     end
     
     objective_list[objective] = objective_object
