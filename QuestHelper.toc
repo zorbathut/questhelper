@@ -80,6 +80,7 @@ help.lua
 
 collect.lua
 collect_achievement.lua
+collect_lzw.lua
 
 timeslice.lua
 

@@ -201,6 +201,7 @@ function QuestHelper:Initialize()
      ["timeslice.lua"] = true,
      ["collect.lua"] = true,
      ["collect_achievement.lua"] = true,
+     ["collect_lzw.lua"] = true,
     }
 
   for file, version in pairs(QuestHelper_File) do
