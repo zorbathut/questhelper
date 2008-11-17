@@ -2,7 +2,7 @@ QuestHelper_File["collect_lzw.lua"] = "Development Version"
 
 function QH_LZW_Bitstreamer_Output(outbits)
   return {
-    r = "",
+    r = QuestHelper:MakeMerger(),
     cbits = 0,
     cval = 0,
     
@@ -11,14 +11,14 @@ function QH_LZW_Bitstreamer_Output(outbits)
       self.cval = bit.lshift(self.cval, bits)
       self.cval = self.cval + value
       while self.cbits >= outbits do
-        self.r = self.r .. strchar(bit.rshift(self.cval, self.cbits - outbits));
+        self.r:Add(strchar(bit.rshift(self.cval, self.cbits - outbits)))
         self.cbits = self.cbits - outbits;
         self.cval = bit.band(self.cval, bit.lshift(1, self.cbits) - 1)
       end
     end,
     finish = function (self)
       if self.cbits > 0 then self:append(0, outbits - self.cbits) end
-      return self.r
+      return self.r:Finish()
     end
   }
 end
@@ -116,12 +116,12 @@ function QH_LZW_Decompress(input, tokens, outbits)
   while nextbits < dsize do bits = bits + 1; nextbits = nextbits * 2 end
   
   local i = QH_LZW_Bitstreamer_Input(input, outbits)
-  local rv = ""
+  local rv = QuestHelper:MakeMerger()
   
   local idlect = 0
   
   local tok = i:depend(bits)
-  rv = rv .. d[tok]
+  rv:Add(d[tok])
   local w = d[tok]
   while true do
     if idlect == 100 then
@@ -148,14 +148,20 @@ function QH_LZW_Decompress(input, tokens, outbits)
     else
       QuestHelper: Assert(false, "faaaail")
     end
-    rv = rv .. entry
+    rv:Add(entry)
     
     d[dsize - 1] = w .. entry:sub(1, 1) -- Naturally, we're writing to one *less* than dsize, since we already incremented.
     
     w = entry
   end
   
-  return rv
+  return rv:Finish()
+end
+
+function QH_LZW_Compress_Dicts(input, tokens, inputdict, outputdict)
+  local idc = {}
+  for i = 1, #inputdict do idc[inputdict:sub(i, i)] = i - 1 end
+  
 end
 
 -- old debug code :)

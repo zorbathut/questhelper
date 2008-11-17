@@ -15,6 +15,7 @@ local dx = {1, 0, -1, 0}
 local dy = {0, 1, 0, -1}
 
 local function InitWorking()
+  QHCT.working = QuestHelper:MakeMerger()
   QHCT.working.prefix = ""
 end
 
@@ -23,19 +24,11 @@ local function AddDataPrefix(data)
 end
 
 local function AddData(data)
-  QuestHelper:TextOut(string.format("Adding data %s", data))
-  table.insert(QHCT.working, data)
-  for i = #QHCT.working - 1, 1, -1 do
-    if string.len(QHCT.working[i]) > string.len(QHCT.working[i + 1]) then break end
-    QHCT.working[i] = QHCT.working[i] .. table.remove(QHCT.working, i + 1)
-  end
+  QHCT.working:Add(data)
 end
 
 local function FinishData()
-  for i=#QHCT.working - 1, 1, -1 do
-    QHCT.working[i] = QHCT.working[i] .. table.remove(QHCT.working)
-  end
-  return QHCT.working[1] or ""
+  return QHCT.working:Finish()
 end
 
 local function TestDirection(nd, kar)
@@ -68,7 +61,6 @@ local function CompileData()
   local data = FinishData()
   local prefix = QHCT.working.prefix
   
-  QHCT.working = {}
   InitWorking()
   
   if #data > 0 then
@@ -139,7 +131,7 @@ function QH_Collect_Traveled_Init(QHCData)
   if not QHCData.traveled then QHCData.traveled = {} end
   QHCT = QHCData.traveled
   
-  if not QHCT.working then QHCT.working = {} ; InitWorking() end
+  if not QHCT.working then InitWorking() else QuestHelper:FixMerger(QHCT.working) end
 end
 
 function hackeryflush()
