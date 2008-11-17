@@ -1,5 +1,30 @@
 QuestHelper_File["collect_traveled.lua"] = "Development Version"
 
+--[[
+
+Meaningful symbols it generates:
+
+%d,%d,%d,%d|COMPRESSED
+
+First four values: continent ID as per client, X coordinate in yards as per client via Astrolabe, Y coordinate in yards as per client via Astrolabe, faction ID (Alliance/Horde)
+Compressed data is complicated lzw'ed hideousness.
+Version number is probably contained in the |, I'll change that when I need to change meaning.
+User is assumed to start facing right, all turns are 90 degrees.
+
+Allowed values, post-lookup-table listed below, are:
+
+^ - forward
+< - turn left and move forward
+> - turn right and move forward
+v - turn around and move forward
+S - swim toggle
+X - taxi toggle
+M - mount toggle
+Y - flying mount toggle
+C - combo indicator, each one indicates that another next UDLR is part of a single move (the toggles are zero-time anyway)
+
+]]
+
 local QHCT
 
 local cc, cx, cy, cd = nil, nil, nil, nil
@@ -47,10 +72,10 @@ local function TestDirection(nd, kar)
 end
 
 local function CompressAndComplete(ki)
-  QuestHelper:TextOut(string.format("%d tokens", #QHCT.compressing[ki].data))
+  --QuestHelper:TextOut(string.format("%d tokens", #QHCT.compressing[ki].data))
   local tim = GetTime()
-  local lzwed = QH_LZW_Compress(QHCT.compressing[ki].data, 256, 8) -- this will be tweaked heavily
-  QuestHelper:TextOut(string.format("%d tokens: compressed to %d in %f", #QHCT.compressing[ki].data, #lzwed, GetTime() - tim))
+  local lzwed = QH_LZW_Compress_Dicts(QHCT.compressing[ki].data, "^<>vSXMYC")
+  --QuestHelper:TextOut(string.format("%d tokens: compressed to %d in %f", #QHCT.compressing[ki].data, #lzwed, GetTime() - tim))
   
   if not QHCT.done then QHCT.done = {} end
   table.insert(QHCT.done, QHCT.compressing[ki].prefix .. lzwed)

@@ -158,10 +158,30 @@ function QH_LZW_Decompress(input, tokens, outbits)
   return rv:Finish()
 end
 
-function QH_LZW_Compress_Dicts(input, tokens, inputdict, outputdict)
-  local idc = {}
-  for i = 1, #inputdict do idc[inputdict:sub(i, i)] = i - 1 end
+function QH_LZW_Compress_Dicts(input, inputdict, outputdict)
+  local inproc = input
+  if inputdict then
+    local idc = {}
+    for i = 1, #inputdict do idc[inputdict:sub(i, i)] = strchar(i - 1) end
+    local im = QuestHelper:MakeMerger()
+    for i = 1, #input do im:Add(idc[input:sub(i, i)]) end
+    inproc = im:Finish()
+  end
   
+  local bits, dsize = 1, 2
+  if not outputdict then bits = 8 else while dsize < #outputdict do bits = bits + 1 ; dsize = dsize * 2 end end
+  QuestHelper: Assert(not outputdict or #outputdict == dsize)
+  
+  local comp = QH_LZW_Compress(inproc, inputdict and #inputdict or 256, bits)
+  
+  if outputdict then
+    local origcomp = comp
+    local im = QuestHelper:MakeMerger()
+    for i = 1, #origcomp do im:Add(outputdict:sub(strbyte(origcomp:sub(i, i)) + 1)) end
+    comp = im:Finish()
+  end
+  
+  return comp
 end
 
 -- old debug code :)
