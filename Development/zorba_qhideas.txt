@@ -198,7 +198,7 @@ What do we need?
 QuestHelper_Collector_Version = 1
 QuestHelper_Collector = {
   ["0.58 on 1.2.3"] = {
-    ["monster"] = {
+    TODO ["monster"] = {
       [IDnumber] = {
         locations = {
           "DENSDENSDENSDENS",
@@ -236,7 +236,7 @@ QuestHelper_Collector = {
         faction_1_hostile = 17
       }
     },
-    ["item"] = {
+    TODO ["item"] = {
       [IDnumber] = {
         loot_yes = 109,
         loot_no = 12,
@@ -266,7 +266,7 @@ QuestHelper_Collector = {
         equipped_no = { "CLEVSPEC", "CLEVSPEC" }
       }
     }
-    ["object"] = {
+    TODO ["object"] = {
       [IDnumber] = {
         locations = {
           "DENSDENSDENSDENS",
@@ -290,21 +290,21 @@ QuestHelper_Collector = {
         }
       }
     }
-    ["event"] = {
+    TODO ["event"] = {
       [QuestID/String] = {
         locations = {
           "DENSDENSDENS",
         }
       }
     }
-    ["reputation"] = {
+    TODO ["reputation"] = {
       [QuestID/String] = {
         locations = {
           "DENSDENSDENS",
         }
       }
     }
-    ["quest"] = {
+    TODO ["quest"] = {
       [QuestID] = {
         name_enUS = "Hello!",
         level = 40,
@@ -331,17 +331,17 @@ QuestHelper_Collector = {
         completedby = { "CLVSPEC", "CLVSPEC" }
       }
     }
-    ["flightinstructor"] = {
+    TODO ["flightinstructor"] = {
       ["location"] = monsterid
     }
-    ["flighttiming"] = {
+    TODO ["flighttiming"] = {
       ["src"] = {
         ["dst"] = {
           [hash] = time
         }
       }
     }
-    ["subzone"] = {
+    TODO ["subzone"] = {
       ["zone"] = {
         ["subzone"] = {
           locations = {
@@ -362,7 +362,7 @@ QuestHelper_Collector = {
       "COMPCOMPCOMP",
       }
     }
-    ["achievement"] = {
+    TODO ["achievement"] = {
       [ID] = {
         objectives = {
           { "monster/1234" = 12, "monster/4456" = 2 },
@@ -375,7 +375,7 @@ QuestHelper_Collector = {
         name_enUS =
       }
     }
-    ["history"] = {
+    TODO ["history"] = {
       ["uniqueid"] = {
           "level 19",
           "had quest 1234",
