@@ -74,7 +74,7 @@ QuestHelper_Translations.enUS =
                     "Use a new version, or delete your saved variables.",
   HOME_NOT_KNOWN = "Your home isn't known. When you get a chance, please talk to your innkeeper and reset it.",
   PRIVATE_SERVER = "QuestHelper does not support private servers.",
-  PLEASE_RESTART = "There was an error starting QuestHelper. Please exit World of Warcraft entirely and try again."
+  PLEASE_RESTART = "There was an error starting QuestHelper. Please exit World of Warcraft entirely and try again.",
   
   -- Route related text.
   ROUTES_CHANGED = "The flight routes for your character have been altered.",
