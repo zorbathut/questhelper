@@ -1,5 +1,8 @@
 QuestHelper_File["collect_traveled.lua"] = "Development Version"
 
+local debug_output = false
+if QuestHelper_File["collect_traveled.lua"] == "Development Version" then debug_output = true end
+
 --[[
 
 Meaningful symbols it generates:
@@ -75,7 +78,9 @@ local function CompressAndComplete(ki)
   --QuestHelper:TextOut(string.format("%d tokens", #QHCT.compressing[ki].data))
   local tim = GetTime()
   local lzwed = QH_LZW_Compress_Dicts(QHCT.compressing[ki].data, "^<>vSXMYC")
-  --QuestHelper:TextOut(string.format("%d tokens: compressed to %d in %f", #QHCT.compressing[ki].data, #lzwed, GetTime() - tim))
+  if debug_output then
+    QuestHelper:TextOut(string.format("%d tokens: compressed to %d in %f", #QHCT.compressing[ki].data, #lzwed, GetTime() - tim))
+  end
   
   if not QHCT.done then QHCT.done = {} end
   table.insert(QHCT.done, QHCT.compressing[ki].prefix .. lzwed)
@@ -115,6 +120,9 @@ end
 function QH_Collect_Traveled_Point(c, x, y)
   nx, ny = round(x), round(y)
   if c ~= cc or dist(nx - cx, ny - cy) > 10 then
+    if debug_output then
+      QuestHelper:TextOut(string.format("finishing thanks to differences, %s,%s,%s vs %s,%s,%s (%s)", tostring(cc), tostring(cx), tostring(cy), tostring(c), tostring(nx), tostring(ny), cc and tostring(dist(nx - cx, ny - cy)) or "lol"))
+    end
     CompileData()
     
     cc, cx, cy, cd = c, nx, ny, 1
@@ -162,9 +170,9 @@ function QH_Collect_Traveled_Init(QHCData)
   
   if not QHCT.working then InitWorking() else QuestHelper:FixMerger(QHCT.working) end
   
-  for k, v in pairs(QHCT.compressing) do
+  if QHCT.compressing then for k, v in pairs(QHCT.compressing) do
     CompressFromKey(k)
-  end
+  end end
 end
 
 --[[

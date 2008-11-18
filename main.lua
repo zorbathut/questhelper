@@ -769,7 +769,13 @@ function QuestHelper:OnUpdate()
     end
 
     local nc, nz, nx, ny = self.Astrolabe:GetCurrentPlayerPosition()
-
+    
+    if nc then -- We just want the raw data here, before we've done anything clever.
+      local tx, ty = self.Astrolabe:GetAbsoluteContinentPosition(nc, nz, nx, ny)
+      QuestHelper: Assert(tx and ty)  -- is it true? nobody knows! :D
+      QH_Collect_Traveled_Point(nc, tx, ty)
+    end
+    
     if nc and nc == self.c and map_shown_decay > 0 and self.z > 0 and self.z ~= nz then
       -- There's a chance Astrolable will return the wrong zone if you're messing with the world map, if you can
       -- be seen in that zone but aren't in it.
@@ -781,7 +787,7 @@ function QuestHelper:OnUpdate()
     
     if nc and nc > 0 and nz == 0 and nc == self.c and self.z > 0 then
       nx, ny = self.Astrolabe:TranslateWorldMapPosition(nc, nz, nx, ny, nc, self.z)
-      if nx and ny and nx > -0.1 and ny > -0.1 and nx < 1.1 and ny < 1.1 then
+      if nx and ny --[[and nx > -0.1 and ny > -0.1 and nx < 1.1 and ny < 1.1]] then -- removing the conditional because I think I can use the data even when it's a little wonky
         nz = self.z
       else
         nc, nz, nx, ny = nil, nil, nil, nil
@@ -791,10 +797,6 @@ function QuestHelper:OnUpdate()
     if nc and nz > 0 then
       self.c, self.z, self.x, self.y = nc, nz, nx, ny
       self.i = QuestHelper_IndexLookup[nc][nz]
-      
-      local tx, ty = self.Astrolabe:GetAbsoluteContinentPosition(nc, nz, nx, ny)
-      QuestHelper: Assert(tx and ty)  -- is it true? nobody knows! :D
-      QH_Collect_Traveled_Point(nc, tx, ty)
     end
 
     if self.defered_quest_scan and not self.graph_in_limbo then
