@@ -21,7 +21,10 @@ local function viewer_closebutton(self)
   viewer:Hide()
 end
 
-function QuestHelper:ShowText(text, title)
+function QuestHelper:ShowText(text, title, width, border, divide)
+  local border = border or 8
+  local divide = divide or 4
+  
   if not viewer then
     viewer = CreateFrame("Frame", "QuestHelperTextViewer", nil) -- With no parent, this will always be visible.
     viewer:SetFrameStrata("FULLSCREEN_DIALOG")
@@ -37,8 +40,8 @@ function QuestHelper:ShowText(text, title)
     
     viewer.title = viewer:CreateFontString()
     viewer.title:SetFont(self.font.serif, 14)
-    viewer.title:SetPoint("TOPLEFT", viewer, 8, -8)
-    viewer.title:SetPoint("RIGHT", viewer, -8, 0)
+    viewer.title:SetPoint("TOPLEFT", viewer, border, -border)
+    viewer.title:SetPoint("RIGHT", viewer, -border, 0)
     
     viewer:SetBackdrop({
       bgFile = "Interface/Tooltips/UI-Tooltip-Background",
@@ -51,8 +54,8 @@ function QuestHelper:ShowText(text, title)
     viewer:SetBackdropBorderColor(1, 1, 1, 0.7)
     
     viewer.scrollframe = CreateFrame("ScrollFrame", "QuestHelperTextViewer_ScrollFrame", viewer, "UIPanelScrollFrameTemplate")
-    viewer.scrollframe:SetPoint("LEFT", viewer, "LEFT", 8, 0)
-    viewer.scrollframe:SetPoint("TOP", viewer.title, "BOTTOM", 0, -4)
+    viewer.scrollframe:SetPoint("LEFT", viewer, "LEFT", border, 0)
+    viewer.scrollframe:SetPoint("TOP", viewer.title, "BOTTOM", 0, -divide)
 
     viewer.scrollbar = QuestHelperTextViewer_ScrollFrameScrollBar
     viewer.scrollbar:SetBackdrop({                      -- Note: These settings are coppied from UIPanelScrollBarTemplateLightBorder in UIPanelTemplates.xml
@@ -80,9 +83,9 @@ function QuestHelper:ShowText(text, title)
   viewer.text:SetText(text or "No text.")
   viewer.scrollframe:SetVerticalScroll(0)
   
-  local w = math.min(600, math.max(100, viewer.text:GetStringWidth()))
+  local w = width or math.min(600, math.max(100, viewer.text:GetStringWidth()))
   viewer.text:SetWidth(w)
-  viewer:SetWidth(w+16)
+  viewer:SetWidth(w+border * 2)
   viewer.scrollframe:SetWidth(w)
   viewer.frame:SetWidth(w)
   
@@ -92,13 +95,13 @@ function QuestHelper:ShowText(text, title)
   if h > 400 then
     viewer.frame:SetHeight(400)
     viewer.scrollframe:SetHeight(400)
-    viewer:SetHeight(420+title_h)
-    viewer:SetWidth(w+38)
+    viewer:SetHeight(420+title_h+border * 2+divide)
+    viewer:SetWidth(w+border * 2 + 22)
     viewer.scrollbar:Show()
   else
     viewer.frame:SetHeight(h)
     viewer.scrollframe:SetHeight(h)
-    viewer:SetHeight(h+20+title_h)
+    viewer:SetHeight(h+border * 2 + divide+title_h)
     viewer.scrollbar:Hide()
     --[[
     WoW Bug: For some reason, setting the thumb texture on the scrollbar causes the following scenario:
