@@ -318,6 +318,7 @@ function QuestHelper:Initialize()
   self:RegisterEvent("CHAT_MSG_SYSTEM")
   self:RegisterEvent("BAG_UPDATE")
   self:RegisterEvent("GOSSIP_SHOW")
+  self:RegisterEvent("PLAYER_ENTERING_WORLD")
 
   for key, def in pairs(QuestHelper_DefaultPref) do
     if QuestHelper_Pref[key] == nil then
@@ -468,6 +469,9 @@ function QuestHelper:Initialize()
   
   --/script SetCVar("scriptProfile", value)]]
 end
+
+local startup_time
+local please_donate_enabled = true
 
 function QuestHelper:OnEvent(event)
   if event == "VARIABLES_LOADED" then
@@ -724,6 +728,15 @@ function QuestHelper:OnEvent(event)
       end
     end
   end
+  
+  if event == "PLAYER_ENTERING_WORLD" and please_donate_enabled then
+    startup_time = GetTime()
+    _, month, day, year = CalendarGetDate();
+    if year > 2008 or year == 2008 and month > 11 or year == 2008 and month == 11 and day > 24 or year == 2008 and month == 11 and day < 21 then -- we'll just do this for one weekend, I'll rig up the once-per-month code later
+      startup_time = nil
+      please_donate_enabled = false
+    end
+  end
 end
 
 local map_shown_decay = 0
@@ -733,6 +746,12 @@ local ontaxi = false
 
 function QuestHelper:OnUpdate()
 
+  if please_donate_enabled and startup_time and startup_time + 1 < GetTime() then
+    QuestHelper:TextOut(QHText("PLEASE_DONATE"))
+    startup_time = nil
+    please_donate_enabled = false
+  end
+  
   if init_cartographer_later and Cartographer_Waypoints then    -- there has to be a better way to do this
     init_cartographer_later = false
     if QuestHelper_Pref.cart_wp then

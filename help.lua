@@ -474,6 +474,47 @@ function QuestHelper:Help(argument)
   self:ShowText(text == "" and ("No commands containing '"..argument.."'") or text, "QuestHelper Slash Commands")
 end
 
+function QuestHelper:Donate(argument)
+  local text = ""
+  local argument = argument and argument:upper() or ""
+  
+  for i1, cat in ipairs(commands) do
+    text = string.format("%s|cffffff00%s|r\n\n", text, cat[1])
+    for i, data in ipairs(cat[2]) do
+      if data[1]:find(argument, 1, true) then
+        text = string.format("%s    |cffff8000%s|r   %s\n", text, data[1], data[2])
+        
+        if #data[3] > 0 then
+          text = string.format("%s\n      %s\n", text, #data[3] == 1 and "Example:" or "Examples:")
+          for i, pair in ipairs(data[3]) do
+            text = string.format("%s        |cff40bbff%s|r\n          %s\n", text, pair[1], pair[2])
+          end
+        end
+        
+        text = text .. "\n"
+      end
+    end
+    text = text .. "\n\n"
+  end
+  
+  self:ShowText([[
+QuestHelper currently survives on |cffff8000your donations|r. I'm trying to make this into a full-time job so I can add more features and fix bugs, and I can't do that without paying the bills.
+
+There's a lot of stuff I plan to add if I can get enough donations to live off. Some of the most-requested features include:
+
+  |cff40bbffFlying mount support for both Northrend and Outland|r
+  
+  |cff40bbffAchievementHelper, built right into QuestHelper|r
+  
+  |cff40bbffPaths that lead you around obstacles instead of through them|r
+
+I can't guarantee these will show up soon, as there's a lot of work involved in them, but every donation - no matter how small - helps!
+
+To donate, open up your web browser and go to |cffff8000http://www.quest-helper.com/donate|r. Enter however much you feel comfortable donating, then bask in the knowledge that you're supporting QuestHelper.
+
+Thanks!]], "Please Donate!", 500, 20, 10)
+end
+
 commands =
  {
   { "Common commands", {
@@ -647,6 +688,10 @@ commands =
     {"CHANGES",
      "Displays a summary of changes recently made to QuestHelper.",
      {}, QuestHelper.ChangeLog, QuestHelper},
+    
+    {"DONATE",
+     "Displays some instructions and a link for donating.",
+     {}, QuestHelper.Donate, QuestHelper},
   }},
 }
 
