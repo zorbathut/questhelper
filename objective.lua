@@ -1056,6 +1056,8 @@ function QuestHelper:GetObjective(category, objective)
       objective_object.icon_id = 6
     elseif category == "reputation" then
       objective_object.icon_id = 5
+    elseif category == "player" then
+      objective_object.icon_id = 1 -- not ideal, will improve later
     else
       if not explicit_support_warning_given then
         self:TextOut("FIXME: Objective type '"..category.."' for objective '"..objective.."' isn't explicitly supported yet; hopefully the dummy handler will do something sensible.")
