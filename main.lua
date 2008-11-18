@@ -230,8 +230,16 @@ function QuestHelper:Initialize()
 
   if file_problem then
     DEFAULT_CHAT_FRAME:AddMessage("QuestHelper hasn't been installed properly.")
-    message("There was an error starting QuestHelper. Please exit World of Warcraft entirely and try again.")
+    message(QHText("PLEASE_RESTART"))
+    QuestHelper_ErrorCatcher_ExplicitError("not-installed-properly")
     QuestHelper = nil     -- Just in case anybody else is checking for us, we're not home
+    return
+  end
+  
+  if not GetCategoryList then
+    message(QHText("PRIVATE_SERVER"))
+    QuestHelper_ErrorCatcher_ExplicitError("error id cakbep ten T")
+    QuestHelper = nil
     return
   end
 

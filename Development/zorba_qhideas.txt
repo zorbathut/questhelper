@@ -397,6 +397,5 @@ QuestHelper_Collector = {
   }
 }
 
-DENS and COMP both done in base64
-DENS: ZZXXYY, zone X Y
+DENS: ZZXXYY, zone X Y. X and Y: take the value, add 9, divide by 19, bitpack that into three 8-bit values. Gives about 88k points within the standard 1-to-0. Good 'nuff.
 COMP: DENS, then a stream of compressed eight direction vectors and a swim bit toggle (starting with the toggle if the user is already swimming) and a fall-damage notifier
