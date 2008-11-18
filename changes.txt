@@ -1,4 +1,10 @@
 
+== Version 0.69 11/18/2008 ==
+
+* Small host of minor bugfixes
+* First shot at implementing the new "player" objective type
+* Gathering "traveled" data and "realms" data
+
 == Version 0.68 11/16/2008 ==
 
 * Database update, obviously
