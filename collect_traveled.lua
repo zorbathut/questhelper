@@ -20,11 +20,12 @@ Allowed values, post-lookup-table listed below, are:
 < - turn left and move forward
 > - turn right and move forward
 v - turn around and move forward
+C - combo indicator, each one indicates that another next UDLR is part of a single move (the toggles are zero-time anyway)
 S - swim toggle
 X - taxi toggle
 M - mount toggle
 Y - flying mount toggle
-C - combo indicator, each one indicates that another next UDLR is part of a single move (the toggles are zero-time anyway)
+D - dead/ghost toggle
 
 ]]
 
@@ -77,7 +78,7 @@ end
 local function CompressAndComplete(ki)
   --QuestHelper:TextOut(string.format("%d tokens", #QHCT.compressing[ki].data))
   local tim = GetTime()
-  local lzwed = QH_LZW_Compress_Dicts(QHCT.compressing[ki].data, "^<>vSXMYC")
+  local lzwed = QH_LZW_Compress_Dicts(QHCT.compressing[ki].data, "^<>vCSXMYD")
   if debug_output then
     QuestHelper:TextOut(string.format("%d tokens: compressed to %d in %f", #QHCT.compressing[ki].data, #lzwed, GetTime() - tim))
   end
@@ -112,6 +113,9 @@ function AppendFlag(flagval, flagid)
   flagval = not not flagval
   flags[flagid] = not not flags[flagid]
   if flagval ~= flags[flagid] then
+    if debug_output then
+      QuestHelper:TextOut(string.format("Status toggle %s", flagid))
+    end
     flags[flagid] = flagval
     AddData(flagid)
   end
@@ -134,6 +138,7 @@ function QH_Collect_Traveled_Point(c, x, y)
   AppendFlag(IsFlying(), 'Y')
   AppendFlag(IsSwimming(), 'S')
   AppendFlag(UnitOnTaxi("player"), 'X')
+  AppendFlag(UnitIsDeadOrGhost("player"), 'D')
   
   for x = 1, dist(nx - cx, ny - cy) - 1 do
     AddData('C')

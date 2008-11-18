@@ -322,10 +322,10 @@ function Astrolabe:TranslateWorldMapPosition( C, Z, xPos, yPos, nC, nZ )
 end
 
 function Astrolabe:GetAbsoluteContinentPosition( C, Z, xPos, yPos )
-  local x, y = Astrolabe:TranslateWorldMapPosition(C, Z, xPos, yPos, C, 0)
+  local x, y = Astrolabe:TranslateWorldMapPosition(C, Z, xPos, yPos, WorldMapSize[C].parentContinent, 0)
   if not x or not y then return end
-  local zoneData = WorldMapSize[C]
-  return (x * zoneData.width), (y * zoneData.height)
+  local zoneData = WorldMapSize[WorldMapSize[C].parentContinent]
+  return WorldMapSize[C].parentContinent, (x * zoneData.width), (y * zoneData.height)
 end
 
 --*****************************************************************************
