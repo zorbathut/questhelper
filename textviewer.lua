@@ -21,9 +21,15 @@ local function viewer_closebutton(self)
   viewer:Hide()
 end
 
+local frammis = {}
+
 function QuestHelper:ShowText(text, title, width, border, divide)
   local border = border or 8
   local divide = divide or 4
+  
+  if not frammis[border] then frammis[border] = {} end
+  viewer = frammis[border][divide]
+  local suffix = string.format("_%d_%d", border, divide)
   
   if not viewer then
     viewer = CreateFrame("Frame", "QuestHelperTextViewer", nil) -- With no parent, this will always be visible.
@@ -53,11 +59,11 @@ function QuestHelper:ShowText(text, title, width, border, divide)
     viewer:SetBackdropColor(0, 0, 0, 0.8)
     viewer:SetBackdropBorderColor(1, 1, 1, 0.7)
     
-    viewer.scrollframe = CreateFrame("ScrollFrame", "QuestHelperTextViewer_ScrollFrame", viewer, "UIPanelScrollFrameTemplate")
+    viewer.scrollframe = CreateFrame("ScrollFrame", "QuestHelperTextViewer_ScrollFrame" .. suffix, viewer, "UIPanelScrollFrameTemplate")
     viewer.scrollframe:SetPoint("LEFT", viewer, "LEFT", border, 0)
     viewer.scrollframe:SetPoint("TOP", viewer.title, "BOTTOM", 0, -divide)
 
-    viewer.scrollbar = QuestHelperTextViewer_ScrollFrameScrollBar
+    viewer.scrollbar = _G["QuestHelperTextViewer_ScrollFrame" .. suffix .. "ScrollBar"]
     viewer.scrollbar:SetBackdrop({                      -- Note: These settings are coppied from UIPanelScrollBarTemplateLightBorder in UIPanelTemplates.xml
       edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
       edgeSize = 12,
@@ -65,11 +71,11 @@ function QuestHelper:ShowText(text, title, width, border, divide)
       insets = { left = 0, right = 0, top = 5, bottom = 5 }})
     viewer.scrollbar:SetThumbTexture(self:CreateIconTexture(viewer.scrollbar, 26))  -- Use the snazzy blue thumb
 
-    viewer.closebutton = CreateFrame("Button", "QuestHelperTextViewer_CloseButton", viewer, "UIPanelCloseButton")
+    viewer.closebutton = CreateFrame("Button", "QuestHelperTextViewer_CloseButton" .. suffix, viewer, "UIPanelCloseButton")
     viewer.closebutton:SetPoint("TOPRIGHT", viewer)
     viewer.closebutton:SetScript("OnClick", viewer_closebutton)
     
-    viewer.frame = CreateFrame("Frame", "QuestHelperTextViewer_Frame", viewer.scrollframe)
+    viewer.frame = CreateFrame("Frame", "QuestHelperTextViewer_Frame" .. suffix, viewer.scrollframe)
     viewer.scrollframe:SetScrollChild(viewer.frame)
     
     viewer.text = viewer.frame:CreateFontString()
@@ -115,5 +121,6 @@ function QuestHelper:ShowText(text, title, width, border, divide)
     viewer.closebutton:SetButtonState("NORMAL")   -- Workaround, part 2
   end
   
+  frammis[border][divide] = viewer
   
 end
