@@ -75,6 +75,7 @@ QuestHelper_Translations.enUS =
   HOME_NOT_KNOWN = "Your home isn't known. When you get a chance, please talk to your innkeeper and reset it.",
   PRIVATE_SERVER = "QuestHelper does not support private servers.",
   PLEASE_RESTART = "There was an error starting QuestHelper. Please exit World of Warcraft entirely and try again.",
+  NOT_UNZIPPED_CORRECTLY = "QuestHelper was installed incorrectly. We recommend using either the Curse Client or 7zip to install. Make sure subdirectories are extracted.",
   PLEASE_DONATE = "%h(QuestHelper currently survives on your donations!) Anything you can contribute is appreciated, and only a few dollars a month ensures that I'll keep it updated and working. Type %h(/qh donate) for more information.",
   
   -- Route related text.

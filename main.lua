@@ -229,7 +229,6 @@ function QuestHelper:Initialize()
   end
 
   if file_problem then
-    DEFAULT_CHAT_FRAME:AddMessage("QuestHelper hasn't been installed properly.")
     message(QHText("PLEASE_RESTART"))
     QuestHelper_ErrorCatcher_ExplicitError("not-installed-properly")
     QuestHelper = nil     -- Just in case anybody else is checking for us, we're not home
@@ -240,6 +239,13 @@ function QuestHelper:Initialize()
     message(QHText("PRIVATE_SERVER"))
     QuestHelper_ErrorCatcher_ExplicitError("error id cakbep ten T")
     QuestHelper = nil
+    return
+  end
+  
+  if not DongleStub or true then
+    message(QHText("NOT_UNZIPPED_CORRECTLY"))
+    QuestHelper_ErrorCatcher_ExplicitError("not-unzipped-properly")
+    QuestHelper = nil     -- Just in case anybody else is checking for us, we're not home
     return
   end
 
