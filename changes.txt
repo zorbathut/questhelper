@@ -3,6 +3,7 @@
 
 * Tweak the timeslice code a little to give more reliable and consistent CPU usage
 * Add some miniprofiling to a few potential hotspots
+* Do a better job of automatically reporting some common problems
 
 == Version 0.69 11/18/2008 ==
 
