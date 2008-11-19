@@ -109,7 +109,7 @@ local function CompileData()
   end
 end
 
-function AppendFlag(flagval, flagid)
+local function AppendFlag(flagval, flagid)
   flagval = not not flagval
   flags[flagid] = not not flags[flagid]
   if flagval ~= flags[flagid] then

@@ -14,3 +14,7 @@ function QH_Collector_Init()
   if not QHCData.realms then QHCData.realms = {} end
   QHCData.realms[GetRealmName()] = (QHCData.realms[GetRealmName()] or 0) + 1 -- I'm not entirely sure why I'm counting
 end
+
+function QH_Collector_CurrentLocation(c, x, y)
+  QH_Collect_Traveled_Point(c, x, y)
+end
