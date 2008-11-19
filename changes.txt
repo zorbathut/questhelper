@@ -1,4 +1,9 @@
 
+== Version 0.70 11/xx/2008 ==
+
+* Tweak the timeslice code a little to give more reliable and consistent CPU usage
+* Add some miniprofiling to a few potential hotspots
+
 == Version 0.69 11/18/2008 ==
 
 * Small host of minor bugfixes

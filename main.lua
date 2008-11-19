@@ -474,6 +474,8 @@ local startup_time
 local please_donate_enabled = true
 
 function QuestHelper:OnEvent(event)
+  local tstart = GetTime()
+  
   if event == "VARIABLES_LOADED" then
     self:Initialize()
   end
@@ -737,6 +739,8 @@ function QuestHelper:OnEvent(event)
       please_donate_enabled = false
     end
   end
+  
+  QH_Timeslice_Increment(GetTime() - tstart, "event")
 end
 
 local map_shown_decay = 0
@@ -745,6 +749,7 @@ local update_count = 0
 local ontaxi = false
 
 function QuestHelper:OnUpdate()
+  local tstart = GetTime()
 
   if please_donate_enabled and startup_time and startup_time + 1 < GetTime() then
     QuestHelper:TextOut(QHText("PLEASE_DONATE"))
@@ -841,6 +846,8 @@ function QuestHelper:OnUpdate()
 
     self:PumpCommMessages()
   --end
+  
+  QH_Timeslice_Increment(GetTime() - tstart, "onupdate")
   
   QH_Timeslice_Work()
 end

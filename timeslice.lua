@@ -12,6 +12,8 @@ local coroutine_verbose = false
 local coroutine_time_used = {}
 local coroutine_power_up = GetTime()
 
+local coroutine_time_exceeded = 0
+
 function QH_Timeslice_DumpPerf()
   local sortable = {}
   for k, v in pairs(coroutine_time_used) do
@@ -74,15 +76,22 @@ function QH_Timeslice_Work()
     --if coroutine_verbose then QuestHelper:TextOut(string.format("timeslice: %s running", coro.name)) end
     
     QuestHelper: Assert(coroutine.status(coro.coro) ~= "dead")
-    coroutine_stop_time = GetTime() + 4e-3 * QuestHelper_Pref.perf_scale * math.min(coroutine_route_pass, 5)
+    local coroutine_intended_stop_time = GetTime() + 4e-3 * QuestHelper_Pref.perf_scale * math.min(coroutine_route_pass, 5)
+    coroutine_stop_time = coroutine_intended_stop_time - coroutine_time_exceeded
     coroutine_route_pass = coroutine_route_pass - 5
     if coroutine_route_pass <= 0 then coroutine_route_pass = 1 end
     
     local start = GetTime()
-    coroutine_running = true
-    local state, err = coroutine.resume(coro.coro)
-    coroutine_running = false
+    local state, err = true, nil -- default values for "we're fine"
+    if start < coroutine_stop_time then -- We don't want to just return on failure because we want to credit the exceeded time properly.
+      coroutine_running = true
+      local state, err = coroutine.resume(coro.coro)
+      coroutine_running = false
+    end
     local total = GetTime() - start
+    
+    local coroutine_this_cycle_exceeded = GetTime() - coroutine_intended_stop_time -- may be either positive or negative
+    coroutine_time_exceeded = coroutine_time_exceeded + coroutine_this_cycle_exceeded
     
     coroutine_time_used[coro.name] = (coroutine_time_used[coro.name] or 0) + total
     
@@ -99,4 +108,9 @@ function QH_Timeslice_Work()
   else
     if coroutine_verbose then QuestHelper:TextOut(string.format("timeslice: no available tasks")) end
   end
+end
+
+function QH_Timeslice_Increment(quantity, name)
+  local an = "(nc) " .. name
+  coroutine_time_used[an] = (coroutine_time_used[an] or 0) + quantity
 end
