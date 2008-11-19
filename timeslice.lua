@@ -76,7 +76,7 @@ function QH_Timeslice_Work()
     --if coroutine_verbose then QuestHelper:TextOut(string.format("timeslice: %s running", coro.name)) end
     
     QuestHelper: Assert(coroutine.status(coro.coro) ~= "dead")
-    local coroutine_intended_stop_time = GetTime() + 4e-3 * QuestHelper_Pref.perf_scale * math.min(coroutine_route_pass, 5)
+    local coroutine_intended_stop_time = GetTime() + 4e-3 * (QuestHelper_Pref.hide and 0.01 or (QuestHelper_Pref.perf_scale * math.min(coroutine_route_pass, 5)))
     coroutine_stop_time = coroutine_intended_stop_time - coroutine_time_exceeded
     coroutine_route_pass = coroutine_route_pass - 5
     if coroutine_route_pass <= 0 then coroutine_route_pass = 1 end

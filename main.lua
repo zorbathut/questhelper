@@ -751,7 +751,7 @@ end
 
 local map_shown_decay = 0
 local delayed_action = 100
-local update_count = 0
+--local update_count = 0
 local ontaxi = false
 
 function QuestHelper:OnUpdate()
@@ -784,12 +784,12 @@ function QuestHelper:OnUpdate()
 
     -- Reset the update count for next time around; this will make sure the body executes every time
     -- when perf_scale >= 1, and down to 1 in 10 iterations when perf_scale < 1, or when hidden.
-    update_count = update_count + (QuestHelper_Pref.hide and 10 or 1/QuestHelper_Pref.perf_scale)
+    --update_count = update_count + (QuestHelper_Pref.hide and 10 or 1/QuestHelper_Pref.perf_scale)
 
-    if update_count < 0 then
+    --if update_count < 0 then
       -- Make sure the count doesn't go perpetually negative; don't know what will happen if it underflows.
-      update_count = 0
-    end
+      --update_count = 0
+    --end
 
     if self.Astrolabe.WorldMapVisible then
       -- We won't trust that the zone returned by Astrolabe is correct until map_shown_decay is 0.
