@@ -4,6 +4,7 @@
 * Small host of minor bugfixes
 * First shot at implementing the new "player" objective type
 * Gathering "traveled" data and "realms" data
+* Add /qh donate and rig up a little reminder
 
 == Version 0.68 11/16/2008 ==
 
