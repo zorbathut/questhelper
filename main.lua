@@ -242,7 +242,7 @@ function QuestHelper:Initialize()
     return
   end
   
-  if not DongleStub or true then
+  if not DongleStub then
     message(QHText("NOT_UNZIPPED_CORRECTLY"))
     QuestHelper_ErrorCatcher_ExplicitError("not-unzipped-properly")
     QuestHelper = nil     -- Just in case anybody else is checking for us, we're not home
