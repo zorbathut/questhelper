@@ -743,7 +743,7 @@ function QuestHelper:OnEvent(event)
   if event == "PLAYER_ENTERING_WORLD" and please_donate_enabled then
     startup_time = GetTime()
     _, month, day, year = CalendarGetDate();
-    if year > 2008 or year == 2008 and month > 11 or year == 2008 and month == 11 and day > 24 or year == 2008 and month == 11 and day < 21 then -- we'll just do this for one weekend, I'll rig up the once-per-month code later
+    if year > 2008 or year == 2008 and month > 11 or year == 2008 and month == 11 and day > 28 or year == 2008 and month == 11 and day < 26 then -- we reschedule it for thanksgiving! :D
       startup_time = nil
       please_donate_enabled = false
     end
