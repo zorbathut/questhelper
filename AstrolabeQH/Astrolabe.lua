@@ -322,6 +322,7 @@ function Astrolabe:TranslateWorldMapPosition( C, Z, xPos, yPos, nC, nZ )
 end
 
 function Astrolabe:GetAbsoluteContinentPosition( C, Z, xPos, yPos )
+  assert(type(WorldMapSize[C].parentContinent) == "number", string.format("the parent continent for %d is somehow a table, what", C))
   local x, y = Astrolabe:TranslateWorldMapPosition(C, Z, xPos, yPos, WorldMapSize[C].parentContinent, 0)
   if not x or not y then return end
   local zoneData = WorldMapSize[WorldMapSize[C].parentContinent]
@@ -1611,11 +1612,9 @@ if ( GetBuildInfo():sub(1, 3) == "3.0" ) then
   
   local dv = 2125 -- pay no attention to the man behind the curtain
   WorldMapSize[-7777] = {
-		parentContinent = 0,
+		parentContinent = -7777,
 		height = dv,
 		width = dv*1.5,
-		xOffset = 50000,
-		yOffset = 50000,
 		zoneData = {
 			ScarletEnclave = {
 				height = dv,
