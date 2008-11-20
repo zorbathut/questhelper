@@ -198,6 +198,8 @@ function QuestHelper:Initialize()
      ["collect_achievement.lua"] = true,
      ["collect_lzw.lua"] = true,
      ["collect_traveled.lua"] = true,
+     ["collect_zone.lua"] = true,
+     ["collect_location.lua"] = true,
     }
 
   for file, version in pairs(QuestHelper_File) do
