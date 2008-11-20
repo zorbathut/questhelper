@@ -85,7 +85,7 @@ function QH_Timeslice_Work()
     local state, err = true, nil -- default values for "we're fine"
     if start < coroutine_stop_time then -- We don't want to just return on failure because we want to credit the exceeded time properly.
       coroutine_running = true
-      local state, err = coroutine.resume(coro.coro)
+      state, err = coroutine.resume(coro.coro)
       coroutine_running = false
     end
     local total = GetTime() - start
