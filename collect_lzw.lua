@@ -1,8 +1,10 @@
 QuestHelper_File["collect_lzw.lua"] = "Development Version"
 
-function QH_LZW_Bitstreamer_Output(outbits)
+local Merger
+
+local function QH_LZW_Bitstreamer_Output(outbits)
   return {
-    r = QuestHelper:MakeMerger(),
+    r = {},
     cbits = 0,
     cval = 0,
     
@@ -11,19 +13,19 @@ function QH_LZW_Bitstreamer_Output(outbits)
       self.cval = bit.lshift(self.cval, bits)
       self.cval = self.cval + value
       while self.cbits >= outbits do
-        self.r:Add(strchar(bit.rshift(self.cval, self.cbits - outbits)))
+        Merger.Add(self.r, strchar(bit.rshift(self.cval, self.cbits - outbits)))
         self.cbits = self.cbits - outbits;
         self.cval = bit.band(self.cval, bit.lshift(1, self.cbits) - 1)
       end
     end,
     finish = function (self)
       if self.cbits > 0 then self:append(0, outbits - self.cbits) end
-      return self.r:Finish()
+      return Merger.Finish(self.r)
     end
   }
 end
 
-function QH_LZW_Bitstreamer_Input(indata, outbits)
+local function QH_LZW_Bitstreamer_Input(indata, outbits)
   return {
     cbits = 0,
     cval = 0,
@@ -43,7 +45,7 @@ function QH_LZW_Bitstreamer_Input(indata, outbits)
   }
 end
 
-function QH_LZW_Compress(input, tokens, outbits)
+local function QH_LZW_Compress(input, tokens, outbits)
   -- shared init code
   local d = {}  
   local i
@@ -101,7 +103,7 @@ function QH_LZW_Compress(input, tokens, outbits)
   return rst
 end
 
-function QH_LZW_Decompress(input, tokens, outbits)
+local function QH_LZW_Decompress(input, tokens, outbits)
   local d = {}
   local i
   for i = 0, tokens-1 do
@@ -116,14 +118,14 @@ function QH_LZW_Decompress(input, tokens, outbits)
   while nextbits < dsize do bits = bits + 1; nextbits = nextbits * 2 end
   
   local i = QH_LZW_Bitstreamer_Input(input, outbits)
-  local rv = QuestHelper:MakeMerger()
+  local rv = {}
   
   local idlect = 0
   
   local tok = i:depend(bits)
   if tok == tokens then return "" end -- Okay. There's nothing. We get it.
   
-  rv:Add(d[tok])
+  Merger.Add(rv, d[tok])
   local w = d[tok]
   while true do
     if idlect == 100 then
@@ -150,24 +152,24 @@ function QH_LZW_Decompress(input, tokens, outbits)
     else
       QuestHelper: Assert(false, "faaaail")
     end
-    rv:Add(entry)
+    Merger.Add(rv, entry)
     
     d[dsize - 1] = w .. entry:sub(1, 1) -- Naturally, we're writing to one *less* than dsize, since we already incremented.
     
     w = entry
   end
   
-  return rv:Finish()
+  return Merger.Finish(rv)
 end
 
-function QH_LZW_Compress_Dicts(input, inputdict, outputdict)
+local function QH_LZW_Compress_Dicts(input, inputdict, outputdict)
   local inproc = input
   if inputdict then
     local idc = {}
     for i = 1, #inputdict do idc[inputdict:sub(i, i)] = strchar(i - 1) end
-    local im = QuestHelper:MakeMerger()
-    for i = 1, #input do im:Add(idc[input:sub(i, i)]) end
-    inproc = im:Finish()
+    local im = {}
+    for i = 1, #input do Merger.Add(im, idc[input:sub(i, i)]) end
+    inproc = Merger.Finish(im)
   end
   
   local bits, dsize = 1, 2
@@ -178,12 +180,19 @@ function QH_LZW_Compress_Dicts(input, inputdict, outputdict)
   
   if outputdict then
     local origcomp = comp
-    local im = QuestHelper:MakeMerger()
-    for i = 1, #origcomp do im:Add(outputdict:sub(strbyte(origcomp:sub(i, i)) + 1)) end
-    comp = im:Finish()
+    local im = {}
+    for i = 1, #origcomp do Merger.Add(im, outputdict:sub(strbyte(origcomp:sub(i, i)) + 1)) end
+    comp = Merger.Finish(im)
   end
   
   return comp
+end
+
+function QH_Collect_LZW_Init(_, API)
+  Merger = API.Utility_Merger
+  QuestHelper: Assert(Merger)
+  
+  API.Utility_LZW = {Compress = QH_LZW_Compress, Decompress = QH_LZW_Decompress, Compress_Dicts = QH_LZW_Compress_Dicts}
 end
 
 -- old debug code :)

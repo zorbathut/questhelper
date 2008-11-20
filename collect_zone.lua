@@ -8,7 +8,7 @@ local function DoZoneUpdate(label)
   local zname = string.format("%s@@%s@@%s", GetZoneText(), GetRealZoneText(), GetSubZoneText()) -- I don't *think* any zones will have a @@ in them :D
   if not QHCZ[zname] then QHCZ[zname] = {} end
   if not QHCZ[zname][label] then QHCZ[zname][label] = {} end
-  -- MORE TO COME
+  
   QuestHelper:TextOut("zoneupdate " .. zname .. " type " .. label)
   
   local st = ""

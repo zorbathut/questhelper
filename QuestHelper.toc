@@ -108,6 +108,7 @@ collect_lzw.lua
 collect_traveled.lua
 collect_location.lua
 collect_zone.lua
+collect_merger.lua
 
 timeslice.lua
 

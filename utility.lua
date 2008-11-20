@@ -336,29 +336,6 @@ function QuestHelper:MergeDrops(list1, list2)
   end
 end
 
--- there has to be a better way to do this
-QuestHelper.MergerTemplate = {}
-function QuestHelper.MergerTemplate:Add(data)
-  table.insert(self, data)
-  for i = #self - 1, 1, -1 do
-    if string.len(self[i]) > string.len(self[i + 1]) then break end
-    self[i] = self[i] .. table.remove(self, i + 1)
-  end
-end
-function QuestHelper.MergerTemplate:Finish(data)
-  for i = #self - 1, 1, -1 do
-    self[i] = self[i] .. table.remove(self)
-  end
-  return self[1] or ""
-end
-function QuestHelper:MakeMerger()
-  return {Add = self.MergerTemplate.Add, Finish = self.MergerTemplate.Finish}
-end
-function QuestHelper:FixMerger(merge) -- in case it's been serialized, we need to restore the functions
-  merge.Add = self.MergerTemplate.Add
-  merge.Finish = self.MergerTemplate.Finish
-end
-
 function QuestHelper: Assert(a, b)  -- the space exists so the anti-assert script doesn't find it :D
   if not a then
     QuestHelper:Error(b or "Assertion Failed")

@@ -200,6 +200,7 @@ function QuestHelper:Initialize()
      ["collect_traveled.lua"] = true,
      ["collect_zone.lua"] = true,
      ["collect_location.lua"] = true,
+     ["collect_merger.lua"] = true,
     }
 
   for file, version in pairs(QuestHelper_File) do

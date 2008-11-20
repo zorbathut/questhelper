@@ -30,6 +30,9 @@ D - dead/ghost toggle
 ]]
 
 local QHCT
+local Merger
+local LZW
+local Bolus
 
 local cc, cx, cy, cd = nil, nil, nil, nil
 local flags = {}
@@ -44,7 +47,6 @@ local dx = {1, 0, -1, 0}
 local dy = {0, 1, 0, -1}
 
 local function InitWorking()
-  QHCT.working = QuestHelper:MakeMerger()
   QHCT.working.prefix = ""
 end
 
@@ -53,11 +55,11 @@ local function AddDataPrefix(data)
 end
 
 local function AddData(data)
-  QHCT.working:Add(data)
+  Merger.Add(QHCT.working, data)
 end
 
 local function FinishData()
-  return QHCT.working:Finish()
+  return Merger.Finish(QHCT.working)
 end
 
 local function TestDirection(nd, kar)
@@ -78,7 +80,7 @@ end
 local function CompressAndComplete(ki)
   --QuestHelper:TextOut(string.format("%d tokens", #QHCT.compressing[ki].data))
   local tim = GetTime()
-  local lzwed = QH_LZW_Compress_Dicts(QHCT.compressing[ki].data, "^<>vCSXMYD")
+  local lzwed = LZW.Compress(QHCT.compressing[ki].data, "^<>vCSXMYD")
   if debug_output then
     QuestHelper:TextOut(string.format("%d tokens: compressed to %d in %f", #QHCT.compressing[ki].data, #lzwed, GetTime() - tim))
   end
@@ -121,7 +123,7 @@ local function AppendFlag(flagval, flagid)
   end
 end
 
-local function QH_Collect_Traveled_Point(c, x, y)
+local function QH_Collect_Traveled_Point(c, x, y, rc, rz)
   if not c or not x or not y then return end
   
   nx, ny = round(x), round(y)
@@ -133,7 +135,7 @@ local function QH_Collect_Traveled_Point(c, x, y)
     
     cc, cx, cy, cd = c, nx, ny, 1
     swim, mount, flying, taxi = false, false, false, false
-    AddDataPrefix(string.format("%d,%d,%d,%d|", cc, cx, cy, QuestHelper:PlayerFaction()))
+    AddDataPrefix(Bolus(c, x, y, rc, rz) .. strchar(tostring(QuestHelper:PlayerFaction())))
   end
   
   AppendFlag(IsMounted(), 'M')
@@ -178,10 +180,19 @@ local function OnUpdate()
 end
 
 function QH_Collect_Traveled_Init(QHCData, API)
+  Merger = API.Utility_Merger
+  QuestHelper: Assert(Merger) -- I need to get rid of this stupid space hack someday
+  
+  LZW = API.Utility_LZW
+  QuestHelper: Assert(LZW)
+  
+  Bolus = API.Callback_LocationBolus
+  QuestHelper: Assert(Bolus)
+  
   if not QHCData.traveled then QHCData.traveled = {} end
   QHCT = QHCData.traveled
   
-  if not QHCT.working then InitWorking() else QuestHelper:FixMerger(QHCT.working) end
+  if not QHCT.working then InitWorking() end
   
   if QHCT.compressing then for k, v in pairs(QHCT.compressing) do
     CompressFromKey(k)
