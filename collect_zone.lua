@@ -2,12 +2,21 @@ QuestHelper_File["collect_zone.lua"] = "Development Version"
 
 local QHCZ
 
+local GetLoc
+
 local function DoZoneUpdate(label)
   local zname = string.format("%s@@%s@@%s", GetZoneText(), GetRealZoneText(), GetSubZoneText()) -- I don't *think* any zones will have a @@ in them :D
   if not QHCZ[zname] then QHCZ[zname] = {} end
   if not QHCZ[zname][label] then QHCZ[zname][label] = {} end
   -- MORE TO COME
   QuestHelper:TextOut("zoneupdate " .. zname .. " type " .. label)
+  
+  local st = ""
+  local veep = GetLoc()
+  for i = 1, #veep do
+    st = st .. string.format("%d ", veep:byte(i))
+  end
+  QuestHelper:TextOut(st)
 end
 
 local function OnEvent()
@@ -32,4 +41,6 @@ function QH_Collect_Zone_Init(QHCData, API)
   API.Registrar_EventHook("ZONE_CHANGED_NEW_AREA", OnEvent)
   
   API.Registrar_OnUpdateHook(OnUpdate)
+  
+  GetLoc = API.Callback_LocationBolusCurrent
 end

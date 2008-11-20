@@ -79,7 +79,7 @@ QuestHelper_Zones =
     [10]="Wintergrasp",
     [11]="Zul'Drak"},
     
-  [-7777]={[0]="ScarletEnclave_Continent", [1]="ScarletEnclave"},
+  [-77]={[0]="ScarletEnclave_Continent", [1]="ScarletEnclave"},
 }
 
 
@@ -164,8 +164,8 @@ QuestHelper_IndexLookup =
   ["LakeWintergrasp"] = {74, 4, 10},
   ["ZulDrak"] = {75, 4, 11},
   
-  ["ScarletEnclave_Continent"] = {77, -7777, 0},
-  ["ScarletEnclave"] = {78, -7777, 1},
+  ["ScarletEnclave_Continent"] = {77, -77, 0},
+  ["ScarletEnclave"] = {78, -77, 1},
 }
 
 QuestHelper_RestrictedZones = { -- Everything defaults to "nil"

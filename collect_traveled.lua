@@ -122,6 +122,8 @@ local function AppendFlag(flagval, flagid)
 end
 
 local function QH_Collect_Traveled_Point(c, x, y)
+  if not c or not x or not y then return end
+  
   nx, ny = round(x), round(y)
   if c ~= cc or dist(nx - cx, ny - cy) > 10 then
     if debug_output then

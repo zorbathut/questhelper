@@ -1,7 +1,9 @@
 QuestHelper_File["collect.lua"] = "Development Version"
 
+local QuestHelper_Collector_Version_Current = 2
+
 QuestHelper_Collector = {}
-QuestHelper_Collector_Version = 1
+QuestHelper_Collector_Version = QuestHelper_Collector_Version_Current
 
 local EventRegistrar = {}
 local OnUpdateRegistrar = {}
@@ -39,10 +41,24 @@ local API = {
 }
 
 function QH_Collector_Init()
+  -- First we update shit
+  if QuestHelper_Collector_Version == 1 then
+    -- We basically just want to clobber all our old route data, it's not worth storing - it's all good data, it's just that we don't want to preserve relics of the old location system
+    for _, v in pairs(QuestHelper_Collector) do
+      v.traveled = nil
+    end
+    
+    QuestHelper_Collector_Version = 2
+  end
+  
+  QuestHelper: Assert(QuestHelper_Collector_Version == QuestHelper_Collector_Version_Current)
+  
   local sig = GetAddOnMetadata("QuestHelper", "Version") .. " on " .. GetBuildInfo()
   if not QuestHelper_Collector[sig] then QuestHelper_Collector[sig] = {} end
   local QHCData = QuestHelper_Collector[sig]
 
+  QH_Collect_Location_Init(QHCData, API)  -- Some may actually add their own functions to the API, and should go first. There's no real formalized order, I just know which depend on others. Location's sole job is to provide the standard location bolus. (Yeah. It's a bolus. Deal.)
+  
   QH_Collect_Achievement_Init(QHCData, API)
   QH_Collect_Traveled_Init(QHCData, API)
   QH_Collect_Zone_Init(QHCData, API)

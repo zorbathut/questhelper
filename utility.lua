@@ -253,7 +253,10 @@ function QuestHelper:PlayerFaction()
 end
 
 function QuestHelper:LocationString(i, x, y)
-  return ("[|cffffffff%s|r:|cffffffff%d,%.3f,%.3f|r]"):format(QuestHelper_NameLookup[i] or "nil", i, x, y)
+  return ("[|cffffffff%s|r:|cffffffff%d,%.3f,%.3f|r]"):format(QuestHelper_NameLookup[i] or "nil", i or -7777, x or -7777, y or -7777)
+end
+function QuestHelper:LocationStringRaw(c, x, y, rc, rz)
+  return ("[|cffffffff%s,%s,%s,%s,%s|r]"):format(tostring(c), x and string.format("%.3f", x) or tostring(x), y and string.format("%.3f", y) or tostring(y), tostring(rc), tostring(rz))
 end
 
 function QuestHelper:Distance(i1, x1, y1, i2, x2, y2)

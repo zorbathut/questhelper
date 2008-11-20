@@ -28,7 +28,7 @@
 #
 # New data gathering:
 # QuestHelper_Collector: Most new data
-# QuestHelper_Collector_Version: Version ID, will probably always be 1
+# QuestHelper_Collector_Version: Version ID, will probably always be 1 (who am I kidding, seriously)
 #
 # Misc:
 # QuestHelper_Pref: User preferences

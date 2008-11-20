@@ -273,7 +273,7 @@ function Astrolabe:TranslateWorldMapPosition( C, Z, xPos, yPos, nC, nZ )
 	
 	Z = Z or 0;
 	nZ = nZ or 0;
-	if ( nC < 0 and nC > -7777 ) then
+	if ( nC < 0 and nC > -77 ) then
 		return;
 	end
 	
@@ -1613,8 +1613,8 @@ if ( GetBuildInfo():sub(1, 3) == "3.0" ) then
 	}
   
   local dv = 2125 -- pay no attention to the man behind the curtain
-  WorldMapSize[-7777] = {
-		parentContinent = -7777,
+  WorldMapSize[-77] = {
+		parentContinent = -77,
 		height = dv,
 		width = dv*1.5,
 		zoneData = {
@@ -1629,7 +1629,7 @@ if ( GetBuildInfo():sub(1, 3) == "3.0" ) then
 end
 
 VirtualContinentIndexes = { -- Don't change values here, since programs might want to store them
-  ["ScarletEnclave"] = -7777,
+  ["ScarletEnclave"] = -77,
 }
 
 DongleStub:Register(Astrolabe, activate)
