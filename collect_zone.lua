@@ -6,6 +6,7 @@ if QuestHelper_File["collect_traveled.lua"] == "Development Version" then debug_
 local QHCZ
 
 local GetLoc
+local Merger
 
 local function DoZoneUpdate(label, debugverbose)
   local zname = string.format("%s@@%s@@%s", GetZoneText(), GetRealZoneText(), GetSubZoneText()) -- I don't *think* any zones will have a @@ in them :D
@@ -17,7 +18,7 @@ local function DoZoneUpdate(label, debugverbose)
     QuestHelper:TextOut("zoneupdate " .. zname .. " type " .. label)
   end
   
-  local veep = GetLoc()
+  Merger.Add(QHCZ[zname][label], GetLoc())
 end
 
 local function OnEvent()
@@ -44,4 +45,8 @@ function QH_Collect_Zone_Init(QHCData, API)
   API.Registrar_OnUpdateHook(OnUpdate)
   
   GetLoc = API.Callback_LocationBolusCurrent
+  QuestHelper: Assert(GetLoc)
+  
+  Merger = API.Utility_Merger
+  QuestHelper: Assert(Merger)
 end
