@@ -809,9 +809,10 @@ function QuestHelper:OnUpdate()
     end
 
     local nc, nz, nx, ny = self.Astrolabe:GetCurrentPlayerPosition()
+    local tc, tx, ty
     
     if nc and nc ~= -1 then -- We just want the raw data here, before we've done anything clever.
-      local tc, tx, ty = self.Astrolabe:GetAbsoluteContinentPosition(nc, nz, nx, ny)
+      tc, tx, ty = self.Astrolabe:GetAbsoluteContinentPosition(nc, nz, nx, ny)
       QuestHelper: Assert(tc and tx and ty)  -- is it true? nobody knows! :D
       QH_Collector_CurrentLocation(tc, tx, ty)
     end
@@ -838,6 +839,8 @@ function QuestHelper:OnUpdate()
       self.c, self.z, self.x, self.y = nc, nz, nx, ny
       self.i = QuestHelper_IndexLookup[nc][nz]
     end
+    
+    self.collect_c, self.collect_x, self.collect_y, self.collect_rc, self.collect_rz = tc, tx, ty, nc, nz
 
     if self.defered_quest_scan and not self.graph_in_limbo then
       self.defered_quest_scan = false
@@ -858,6 +861,12 @@ function QuestHelper:OnUpdate()
   QH_Timeslice_Increment(GetTime() - tstart, "onupdate")
   
   QH_Timeslice_Work()
+end
+
+-- Some or all of these may be nil. c,x,y should be enough for a location - c is the pure continent (currently either 0 or 3 for Azeroth or Outland) and x,y are the coordinates within that continent.
+-- rc and rz are the continent and zone that Questhelper thinks it's within. For various reasons, this isn't perfect. TODO: Base it off the map zone name identifiers instead of the map itself?
+function QuestHelper:RetrieveRawLocation()
+  return self.collect_c, self.collect_x, self.collect_y, self.collect_rc, self.collect_rz 
 end
 
 QuestHelper:RegisterEvent("VARIABLES_LOADED")
