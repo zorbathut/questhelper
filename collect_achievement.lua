@@ -188,18 +188,12 @@ local function OnEvent()
   end
 end
 
-Collect_Achievement.frame = CreateFrame("Frame")
-
-Collect_Achievement.frame:UnregisterAllEvents()
-Collect_Achievement.frame:RegisterEvent("CRITERIA_UPDATE")
-Collect_Achievement.frame:RegisterEvent("ACHIEVEMENT_EARNED")
-Collect_Achievement.frame:SetScript("OnEvent", OnEvent)
-
-Collect_Achievement.frame:Show()
-
-
-function QH_Collect_Achievement_Init()
+function QH_Collect_Achievement_Init(_, EventHookRegistrar)
   createAchievementList()
   Collect_Achievement.AchievementDB = getAchievementDB() -- 'coz we're lazy
+  
+  EventHookRegistrar("CRITERIA_UPDATE", OnEvent)
+  EventHookRegistrar("ACHIEVEMENT_EARNED", OnEvent)
+  
   OnEvent() -- kick it into its first update cycle
 end
