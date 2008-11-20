@@ -808,7 +808,7 @@ function QuestHelper:OnUpdate()
 
     local nc, nz, nx, ny = self.Astrolabe:GetCurrentPlayerPosition()
     
-    if nc then -- We just want the raw data here, before we've done anything clever.
+    if nc and nc ~= -1 then -- We just want the raw data here, before we've done anything clever.
       local tc, tx, ty = self.Astrolabe:GetAbsoluteContinentPosition(nc, nz, nx, ny)
       QuestHelper: Assert(tc and tx and ty)  -- is it true? nobody knows! :D
       QH_Collector_CurrentLocation(tc, tx, ty)
