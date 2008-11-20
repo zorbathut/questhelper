@@ -47,6 +47,7 @@ local dx = {1, 0, -1, 0}
 local dy = {0, 1, 0, -1}
 
 local function InitWorking()
+  QHCT.working = {}
   QHCT.working.prefix = ""
 end
 
@@ -80,7 +81,7 @@ end
 local function CompressAndComplete(ki)
   --QuestHelper:TextOut(string.format("%d tokens", #QHCT.compressing[ki].data))
   local tim = GetTime()
-  local lzwed = LZW.Compress(QHCT.compressing[ki].data, "^<>vCSXMYD")
+  local lzwed = LZW.Compress_Dicts(QHCT.compressing[ki].data, "^<>vCSXMYD")
   if debug_output then
     QuestHelper:TextOut(string.format("%d tokens: compressed to %d in %f", #QHCT.compressing[ki].data, #lzwed, GetTime() - tim))
   end

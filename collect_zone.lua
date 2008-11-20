@@ -1,26 +1,27 @@
 QuestHelper_File["collect_zone.lua"] = "Development Version"
 
+local debug_output = false
+if QuestHelper_File["collect_traveled.lua"] == "Development Version" then debug_output = true end
+
 local QHCZ
 
 local GetLoc
 
-local function DoZoneUpdate(label)
+local function DoZoneUpdate(label, debugverbose)
   local zname = string.format("%s@@%s@@%s", GetZoneText(), GetRealZoneText(), GetSubZoneText()) -- I don't *think* any zones will have a @@ in them :D
+  if zname == "@@@@" then return end -- denied
   if not QHCZ[zname] then QHCZ[zname] = {} end
   if not QHCZ[zname][label] then QHCZ[zname][label] = {} end
   
-  QuestHelper:TextOut("zoneupdate " .. zname .. " type " .. label)
-  
-  local st = ""
-  local veep = GetLoc()
-  for i = 1, #veep do
-    st = st .. string.format("%d ", veep:byte(i))
+  if debugverbose and debug_output then
+    QuestHelper:TextOut("zoneupdate " .. zname .. " type " .. label)
   end
-  QuestHelper:TextOut(st)
+  
+  local veep = GetLoc()
 end
 
 local function OnEvent()
-  DoZoneUpdate("border")
+  DoZoneUpdate("border", true)
 end
 
 local lastupdate = 0

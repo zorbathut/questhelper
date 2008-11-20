@@ -45,64 +45,6 @@ local function QH_LZW_Bitstreamer_Input(indata, outbits)
   }
 end
 
-local function QH_LZW_Compress(input, tokens, outbits)
-  -- shared init code
-  local d = {}  
-  local i
-  for i = 0, tokens-1 do
-    d[string.char(i)] = i
-  end
-  
-  local dsize = tokens + 1  -- we use the "tokens" value as an EOF marker
-  
-  local bits = 1
-  local nextbits = 2
-  
-  while nextbits < dsize do bits = bits + 1; nextbits = nextbits * 2 end
-  
-  local r = QH_LZW_Bitstreamer_Output(outbits)
-  
-  local idlect = 0
-  
-  local w = ""
-  for ci = 1, #input do
-    if idlect == 100 then
-      QH_Timeslice_Yield()
-      idlect = 0
-    else
-      idlect = idlect + 1
-    end
-    
-    local c = input:sub(ci, ci)
-    local wcp = w .. c
-    if d[wcp] then
-      w = wcp
-    else
-      r:append(d[w], bits)
-      d[wcp] = dsize
-      dsize = dsize + 1
-      if dsize > nextbits then
-        bits = bits + 1
-        nextbits = nextbits * 2
-      end
-      w = c
-    end
-  end
-  if w ~= "" then r:append(d[w], bits) end
-  
-  dsize = dsize + 1   -- Our decompressor doesn't realize we're ending here, so it will have added a table entry for that last token. Sigh.
-  if dsize > nextbits then
-    bits = bits + 1
-    nextbits = nextbits * 2
-  end
-  r:append(tokens, bits)
-  
-  local rst = r:finish()
-  QuestHelper: Assert(QH_LZW_Decompress(rst, tokens, outbits) == input) -- yay
-  
-  return rst
-end
-
 local function QH_LZW_Decompress(input, tokens, outbits)
   local d = {}
   local i
@@ -160,6 +102,64 @@ local function QH_LZW_Decompress(input, tokens, outbits)
   end
   
   return Merger.Finish(rv)
+end
+
+local function QH_LZW_Compress(input, tokens, outbits)
+  -- shared init code
+  local d = {}  
+  local i
+  for i = 0, tokens-1 do
+    d[string.char(i)] = i
+  end
+  
+  local dsize = tokens + 1  -- we use the "tokens" value as an EOF marker
+  
+  local bits = 1
+  local nextbits = 2
+  
+  while nextbits < dsize do bits = bits + 1; nextbits = nextbits * 2 end
+  
+  local r = QH_LZW_Bitstreamer_Output(outbits)
+  
+  local idlect = 0
+  
+  local w = ""
+  for ci = 1, #input do
+    if idlect == 100 then
+      QH_Timeslice_Yield()
+      idlect = 0
+    else
+      idlect = idlect + 1
+    end
+    
+    local c = input:sub(ci, ci)
+    local wcp = w .. c
+    if d[wcp] then
+      w = wcp
+    else
+      r:append(d[w], bits)
+      d[wcp] = dsize
+      dsize = dsize + 1
+      if dsize > nextbits then
+        bits = bits + 1
+        nextbits = nextbits * 2
+      end
+      w = c
+    end
+  end
+  if w ~= "" then r:append(d[w], bits) end
+  
+  dsize = dsize + 1   -- Our decompressor doesn't realize we're ending here, so it will have added a table entry for that last token. Sigh.
+  if dsize > nextbits then
+    bits = bits + 1
+    nextbits = nextbits * 2
+  end
+  r:append(tokens, bits)
+  
+  local rst = r:finish()
+  QuestHelper: Assert(QH_LZW_Decompress(rst, tokens, outbits) == input) -- yay
+  
+  return rst
 end
 
 local function QH_LZW_Compress_Dicts(input, inputdict, outputdict)
