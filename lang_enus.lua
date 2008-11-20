@@ -187,6 +187,7 @@ QuestHelper_Translations.enUS =
   NAG_SINGLE_MONSTER_OBJ = "a monster objective",
   NAG_SINGLE_EVENT_OBJ = "an event objective",
   NAG_SINGLE_REPUTATION_OBJ = "a reputation objective",
+  NAG_SINGLE_PLAYER_OBJ = "a player objective",
   
   NAG_MULTIPLE_FP = "%1 flight masters",
   NAG_MULTIPLE_QUEST = "%1 quests",
@@ -196,6 +197,7 @@ QuestHelper_Translations.enUS =
   NAG_MULTIPLE_MONSTER_OBJ = "%1 monster objectives",
   NAG_MULTIPLE_EVENT_OBJ = "%1 event objectives",
   NAG_MULTIPLE_REPUTATION_OBJ = "%1 reputation objectives",
+  NAG_MULTIPLE_PLAYER_OBJ = "%1 player objectives",
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1's progress:",

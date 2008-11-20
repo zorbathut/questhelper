@@ -37,6 +37,7 @@ local function buildPatterns()
     REPUTATION_PATTERN = QuestHelper:convertPattern(QUEST_FACTION_NEEDED)
     MONSTER_PATTERN = QuestHelper:convertPattern(QUEST_MONSTERS_KILLED)
     OBJECT_PATTERN = QuestHelper:convertPattern(QUEST_OBJECTS_FOUND)
+    PLAYER_PATTERN = QuestHelper:convertPattern(QUEST_PLAYERS_KILLED)
     replacePattern = nil
   end
 end
@@ -60,6 +61,8 @@ function QuestHelper:GetQuestLogObjective(quest_index, objective_index)
     wanted, have, need = OBJECT_PATTERN(text)
   elseif category == "event" then
     wanted, have, need = text, 0, 1
+  elseif category == "player" then
+    wanted, have, need = PLAYER_PATTERN(text)
   else
     QuestHelper:TextOut("Unhandled event type: "..category)
   end
