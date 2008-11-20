@@ -121,7 +121,7 @@ local function AppendFlag(flagval, flagid)
   end
 end
 
-function QH_Collect_Traveled_Point(c, x, y)
+local function QH_Collect_Traveled_Point(c, x, y)
   nx, ny = round(x), round(y)
   if c ~= cc or dist(nx - cx, ny - cy) > 10 then
     if debug_output then
@@ -169,7 +169,13 @@ function QH_Collect_Traveled_Point(c, x, y)
   -- Done!
 end
 
-function QH_Collect_Traveled_Init(QHCData)
+local GetRawLocation
+
+local function OnUpdate()
+  QH_Collect_Traveled_Point(GetRawLocation())
+end
+
+function QH_Collect_Traveled_Init(QHCData, API)
   if not QHCData.traveled then QHCData.traveled = {} end
   QHCT = QHCData.traveled
   
@@ -178,6 +184,9 @@ function QH_Collect_Traveled_Init(QHCData)
   if QHCT.compressing then for k, v in pairs(QHCT.compressing) do
     CompressFromKey(k)
   end end
+  
+  GetRawLocation = API.Callback_RawLocation
+  API.Registrar_OnUpdateHook(OnUpdate)
 end
 
 --[[

@@ -188,12 +188,12 @@ local function OnEvent()
   end
 end
 
-function QH_Collect_Achievement_Init(_, EventHookRegistrar)
+function QH_Collect_Achievement_Init(_, API)
   createAchievementList()
   Collect_Achievement.AchievementDB = getAchievementDB() -- 'coz we're lazy
   
-  EventHookRegistrar("CRITERIA_UPDATE", OnEvent)
-  EventHookRegistrar("ACHIEVEMENT_EARNED", OnEvent)
+  API.Registrar_EventHook("CRITERIA_UPDATE", OnEvent)
+  API.Registrar_EventHook("ACHIEVEMENT_EARNED", OnEvent)
   
   OnEvent() -- kick it into its first update cycle
 end

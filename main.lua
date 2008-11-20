@@ -814,7 +814,6 @@ function QuestHelper:OnUpdate()
     if nc and nc ~= -1 then -- We just want the raw data here, before we've done anything clever.
       tc, tx, ty = self.Astrolabe:GetAbsoluteContinentPosition(nc, nz, nx, ny)
       QuestHelper: Assert(tc and tx and ty)  -- is it true? nobody knows! :D
-      QH_Collector_CurrentLocation(tc, tx, ty)
     end
     
     if nc and nc == self.c and map_shown_decay > 0 and self.z > 0 and self.z ~= nz then
@@ -857,6 +856,8 @@ function QuestHelper:OnUpdate()
 
     self:PumpCommMessages()
   --end
+  
+  QH_Collector_OnUpdate()
   
   QH_Timeslice_Increment(GetTime() - tstart, "onupdate")
   
