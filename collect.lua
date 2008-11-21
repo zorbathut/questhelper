@@ -12,7 +12,6 @@ local frame = CreateFrame("Frame")
 
 local function OnEvent(_, event, ...)
   for _, v in pairs(EventRegistrar[event]) do
-    QuestHelper:TextOut(string.format("handling event %s", event))
     v() -- right now we don't deal with parameters in any way
   end
 end

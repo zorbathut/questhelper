@@ -3,7 +3,7 @@ QuestHelper_File["collect_location.lua"] = "Development Version"
 -- little endian two's complement
 local function signed(c)
   QuestHelper: Assert(not c or c >= -127 and c < 127)
-  if not c then c = -127 end
+  if not c then c = -128 end
   if c < 0 then c = c + 256 end
   return strchar(c)
 end

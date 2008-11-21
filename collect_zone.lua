@@ -18,7 +18,9 @@ local function DoZoneUpdate(label, debugverbose)
     QuestHelper:TextOut("zoneupdate " .. zname .. " type " .. label)
   end
   
-  Merger.Add(QHCZ[zname][label], GetLoc())
+  QHCZ[zname].mapname = GetMapInfo()
+  local loc = GetLoc()
+  Merger.Add(QHCZ[zname][label], loc)
 end
 
 local function OnEvent()

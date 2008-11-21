@@ -341,15 +341,18 @@ QuestHelper_Collector = {
         }
       }
     }
-    TODO ["subzone"] = {
-      ["zone"] = {
-        ["subzone"] = {
-          locations = {
-            "DENSDENSDENSDENS",
-          }
-          xp = {
-            level = "amount"
-          }
+    ["zone"] = {
+      ["zone@@realzone@@subzone"] = {
+        border = {
+          "DENSDENS",
+          "DENS", -- merged
+        }
+        update = {
+          "DENSDENS",
+          "DENS", --merged
+        }
+        TODO xp = {
+          level = "amount"
         }
       }
     }
