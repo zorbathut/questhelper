@@ -12,9 +12,11 @@ local TooltipRegistrar = {}
 local frame = CreateFrame("Frame")
 
 local function OnEvent(_, event, ...)
+  local tstart = GetTime()
   for _, v in pairs(EventRegistrar[event]) do
     v() -- right now we don't deal with parameters in any way
   end
+  QH_Timeslice_Increment(GetTime() - tstart, "collect_event")
 end
 
 frame:UnregisterAllEvents()
@@ -35,7 +37,16 @@ function OnUpdateHookRegistrar(func)
 end
 
 local OriginalScript = GameTooltip:GetScript("OnShow")
-GameTooltip:SetScript("OnShow", function (self, ...) for k, v in pairs(TooltipRegistrar) do v(self, ...) end if OriginalScript then return OriginalScript(Self, ...) end end)
+GameTooltip:SetScript("OnShow", function (self, ...)
+  local tstart = GetTime()
+  for k, v in pairs(TooltipRegistrar) do
+    v(self, ...)
+  end
+  QH_Timeslice_Increment(GetTime() - tstart, "collect_tooltip") -- anything past here is not my fault
+  if OriginalScript then
+    return OriginalScript(Self, ...)
+  end
+end)
 
 function TooltipHookRegistrar(func)
   table.insert(TooltipRegistrar, func)
@@ -90,7 +101,9 @@ function QH_Collector_Init()
 end
 
 function QH_Collector_OnUpdate()
+  local tstart = GetTime()
   for _, v in pairs(OnUpdateRegistrar) do
     v()
   end
+  QH_Timeslice_Increment(GetTime() - tstart, "collect_update")
 end

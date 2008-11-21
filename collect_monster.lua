@@ -66,7 +66,7 @@ local function MouseoverUnit()
       recentlySeenCritters[creatureid] = true
       
       -- register the critter here
-      local cid = tonumber(creatureid:sub(1, 4))
+      local cid = tonumber(creatureid:sub(1, 4), 16)
       
       if not QHCM[cid] then QHCM[cid] = {} end
       local critter = QHCM[cid]

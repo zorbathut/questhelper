@@ -496,12 +496,14 @@ local startup_time
 local please_donate_enabled = true
 
 function QuestHelper:OnEvent(event)
-  local tstart = GetTime()
-  
   if event == "VARIABLES_LOADED" then
+    local tstart = GetTime()
     self:Initialize()
+    QH_Timeslice_Increment(GetTime() - tstart, "init")
   end
 
+  local tstart = GetTime()
+  
   if event == "GOSSIP_SHOW" then
     local name, id = UnitName("npc"), self:GetUnitID("npc")
     if name and id then
