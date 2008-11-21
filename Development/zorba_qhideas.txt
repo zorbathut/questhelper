@@ -197,20 +197,20 @@ What do we need?
 
 QuestHelper_Collector_Version = 1
 QuestHelper_Collector = {
-  ["0.58 on 1.2.3"] = {
-    TODO ["monster"] = {
+  ["0.58 on 1.2.3/enUS"] = {
+    ["monster"] = {
       [IDnumber] = {
-        locations = {
-          "DENSDENSDENSDENS",
-          "DENSDENSDENS",
-          "DENS",
-        }
-        levels = {
-          [34] = 12,
-          [35] = 99,
-          [36] = 29,
-        }
-        name_enUS = "Hello!",
+        -- Standard merger base here
+        "DENSDENSDENSDENS",
+        "DENSDENSDENS",
+        "DENS",
+        level_34 = 12,
+        level_35 = 99,
+        level_36 = 29,
+        name_Hello! = 19,
+        reaction_4 = 155, -- this is the friendly-hostile stuff
+        
+        --TODO from here:
         loot_yes = 109,
         loot_no = 12,
         loot_opened = 20,
@@ -230,10 +230,6 @@ QuestHelper_Collector = {
           [itemid] = true,
           [itemid] = amount,
         }
-        faction_1_friendly = 17
-        faction_2_friendly = 17
-        faction_1_neutral = 17
-        faction_1_hostile = 17
       }
     },
     TODO ["item"] = {
@@ -252,7 +248,7 @@ QuestHelper_Collector = {
           [itemid] = 4,
           [itemid] = 9,
         }
-        name_enUS = "Hello!",
+        name = "Hello!",
         itemlevel = (level),
         weapon/armor = "string/string",
         looted = 12,
@@ -273,7 +269,7 @@ QuestHelper_Collector = {
           "DENSDENSDENS",
           "DENS",
         }
-        name_enUS = "Hello!",
+        name = "Hello!",
         loot_yes = 109,
         loot_no = 12,
         loot_opened = 20,
@@ -306,7 +302,7 @@ QuestHelper_Collector = {
     }
     TODO ["quest"] = {
       [QuestID] = {
-        name_enUS = "Hello!",
+        name = "Hello!",
         level = 40,
         start = "monster/1234",
         end = "monster/5678",
@@ -373,9 +369,10 @@ QuestHelper_Collector = {
           { "reputation/1234" = 14, },
         }
         previous = (idnumber)
+        name_enUS =
+        -- Availability should only be tagged for achievements in the static DB, since otherwise it will be heavily biased
         faction_1_avail =
         faction_1_noavail =
-        name_enUS =
       }
     }
     TODO ["history"] = {
@@ -402,3 +399,48 @@ QuestHelper_Collector = {
 
 DENS: ZZXXYY, zone X Y. X and Y: take the value, add 9, divide by 19, bitpack that into three 8-bit values. Gives about 88k points within the standard 1-to-0. Good 'nuff.
 COMP: DENS, then a stream of compressed eight direction vectors and a swim bit toggle (starting with the toggle if the user is already swimming) and a fall-damage notifier
+
+
+Detect "going inside a cave"? Holy crap. I have never considered such a thing before.
+
+
+---- LET US THINK ABOUT LOOTING
+
+So. A loot window pops up. What's it from?
+
+There's a few options.
+
+* Monster loot
+* Skinning, mining, or herbing (could be either from a monster, or from an entity)
+* Using an entity
+* Opening a container from inventory
+* Fishing
+
+Alternatively, you might just get random things.
+
+* Using an item from inventory (modern clams)
+* Talking to a dude (argent dawn?)
+
+
+
+Now here's a question. I already have to deal with items showing up in inventory out of nowhere. Is it perhaps better to just hook that, rather than trying to interpret loot windows? Also, what do I do about groups?
+
+I think there's useful info I can get from loot windows, I'll stick with that. This also means that - in general - I don't want to worry about stuff that Simply Appears unless I think the user is actually involved somehow (using item from inventory, talking to a dude.) I'm not all that hugely worried about having to track where warglaives of azzinoth come from, at least for now.
+
+
+So let's see how I can figure these out:
+
+* Monster loot - Look for events and mouseover. Might not have it targeted, so don't assume they will.
+* Skinning, mining, or herbing - All of these are spellcasts, see what the spell is (and what it targets) and what the user has targeted in case it's a monster. Also watch the last mouseover event, or the last tooltip?
+* Using an entity - Spellcast, again. Watch tooltip for the entity and watch the cast timer?
+* Opening a container from inventory - Tooltip, yet again. I think that's the best I can do. Also watch for the "can be opened" text.
+* Fishing - IsFishingLoot, and spellcast. At least this one's easy.
+
+Alternatively, you might just get random things.
+
+* Using an item from inventory (modern clams) - tooltip, and watch for the "can be opened" text?
+* Talking to a dude (argent dawn?) - right-click
+
+
+* if LOOT_CLOSED fires without LOOT_OPENED firing, there just wasn't anything
+* Watch for kills without looting! Track kill number too. If kills >> loots, use kills. Test this on those dudes in the desert.

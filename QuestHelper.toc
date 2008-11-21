@@ -102,6 +102,8 @@ objtips.lua
 textviewer.lua
 help.lua
 
+timeslice.lua
+
 collect.lua
 collect_achievement.lua
 collect_lzw.lua
@@ -109,8 +111,7 @@ collect_traveled.lua
 collect_location.lua
 collect_zone.lua
 collect_merger.lua
-
-timeslice.lua
+collect_monster.lua
 
 cartographer.lua
 tomtom.lua

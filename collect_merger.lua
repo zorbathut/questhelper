@@ -1,7 +1,7 @@
 QuestHelper_File["collect_merger.lua"] = "Development Version"
 
 
-local function Add(self, data)
+local function Add(self, data)  -- NOTE: if you're getting errors about adding tables, you probably did Merger:Add instead of Merger.Add
   table.insert(self, data)
   for i = #self - 1, 1, -1 do
     if string.len(self[i]) > string.len(self[i + 1]) then break end

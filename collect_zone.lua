@@ -34,11 +34,10 @@ local function OnUpdate()
     lastupdate = GetTime()
   end
 end
-  
+
 function QH_Collect_Zone_Init(QHCData, API)
   if not QHCData.zone then QHCData.zone = {} end
-  if not QHCData.zone[GetLocale()] then QHCData.zone[GetLocale()] = {} end    -- These are all localized names, so I'm gonna split it up along locale lines.
-  QHCZ = QHCData.zone[GetLocale()]
+  QHCZ = QHCData.zone
   
   API.Registrar_EventHook("ZONE_CHANGED", OnEvent)
   API.Registrar_EventHook("ZONE_CHANGED_INDOORS", OnEvent)

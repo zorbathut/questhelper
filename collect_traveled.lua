@@ -136,7 +136,7 @@ local function QH_Collect_Traveled_Point(c, x, y, rc, rz)
     
     cc, cx, cy, cd = c, nx, ny, 1
     swim, mount, flying, taxi = false, false, false, false
-    AddDataPrefix(Bolus(c, x, y, rc, rz) .. strchar(tostring(QuestHelper:PlayerFaction())))
+    AddDataPrefix(Bolus(c, x, y, rc, rz) .. strchar(tostring(QuestHelper:PlayerFaction()))) -- The playerfaction can be removed, as it's now encoded in the collection shard. Not removing it for compatibility reasons.
   end
   
   AppendFlag(IsMounted(), 'M')
