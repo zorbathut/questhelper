@@ -194,6 +194,18 @@ function QuestHelper:Initialize()
      ["textviewer.lua"] = true,
      ["error.lua"] = true,
      ["timeslice.lua"] = true,
+     
+     ["static.lua"] = true,
+     ["static_deDE.lua"] = true,
+     ["static_enUS.lua"] = true,
+     ["static_esES.lua"] = true,
+     ["static_esMX.lua"] = true,
+     ["static_frFR.lua"] = true,
+     ["static_koKR.lua"] = true,
+     ["static_ruRU.lua"] = true,
+     ["static_zhCN.lua"] = true,
+     ["static_zhTW.lua"] = true,
+     
      ["collect.lua"] = true,
      ["collect_achievement.lua"] = true,
      ["collect_lzw.lua"] = true,
