@@ -52,7 +52,7 @@ function QH_Collector_Init()
   
   QuestHelper: Assert(QuestHelper_Collector_Version == QuestHelper_Collector_Version_Current)
   
-  local sig = GetAddOnMetadata("QuestHelper", "Version") .. " on " .. GetBuildInfo()
+  local sig = string.format("%s on %s/%s", GetAddOnMetadata("QuestHelper", "Version"), GetBuildInfo(), GetLocale())
   if not QuestHelper_Collector[sig] then QuestHelper_Collector[sig] = {} end
   local QHCData = QuestHelper_Collector[sig]
 
