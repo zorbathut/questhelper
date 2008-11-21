@@ -1069,14 +1069,22 @@ function CompileFinish()
       end
     end
     
-    if locale == "enUS" then -- I'm hoping the other locales aren't corrupted, as this method of fixing really won't work for any locale without a lot of data
+    --if locale == "enUS" then -- I'm hoping the other locales aren't corrupted, as this method of fixing really won't work for any locale without a lot of data
       print("Culling opened items ", locale)
     
       local contained_preserved = 0
       local contained_rejected = 0
       
+      local openablect = {}
+      
       for name, item in pairs(l.objective.item) do
-        item.openable = item.opened and (item.opened >= 100)
+        table.insert(openablect, item.opened)
+      end
+      table.sort(openablect, function (a,b) return a < b end)
+      local thresh = openablect[math.floor(#openablect * 0.95)]
+      
+      for name, item in pairs(l.objective.item) do
+        item.openable = item.opened and (item.opened >= thresh)
       end
       
       for name, item in pairs(l.objective.item) do
@@ -1099,7 +1107,7 @@ function CompileFinish()
       end
       
       print(string.format("Containment cull pass done. %d preserved, %d rejected", contained_preserved, contained_rejected))
-    end
+    --end
     
     print("Processing quests ", locale)
     

@@ -475,6 +475,7 @@ if compile then
   local finaldata = CompileFinish()
   
   local finalstatic = io.open("../static.lua", "w")
+  finalstatic:write("QuestHelper_File[\"static.lua\"] = \"Development Version\"\n")
   finalstatic:write("QuestHelper_StaticData={")
   
   for k, v in pairs(finaldata) do
@@ -486,6 +487,7 @@ if compile then
     
     print("Writing: " .. tempout)
     local stream = io.open(tempout, "w")
+    stream:write(string.format("QuestHelper_File[\"%s\"] = \"Development Version\"\n", foloc))
     stream:write(ScanAndDumpVariable(v, string.format("QuestHelper_StaticData_%s", k)))
     io.close(stream)
     
@@ -607,7 +609,7 @@ if archive_zip or archive_7z then
         FileUtil.copyFile(file, "QuestHelper",
                                                "(assert%s*%b())", "--[[ %1 ]]",
                                                "(QuestHelper:Assert%s*%b())", "--[[ %1 ]]",
-                                               "^(QuestHelper_File%[[^%]]*%]%s*=%s*).+$", file_version_pattern)
+                                               "(QuestHelper_File%[[^%]]*%]%s*=%s*)\"[^\"]\"", file_version_pattern)
       end
     end
   end)
