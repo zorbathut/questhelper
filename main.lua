@@ -387,7 +387,7 @@ function QuestHelper:Initialize()
       end
     end end
   end
-
+  
   self:ResetPathing()
   
   -- Adding QuestHelper_CharVersion, so I know if I've already converted this characters saved data.
@@ -420,7 +420,7 @@ function QuestHelper:Initialize()
   if QuestHelper_Pref.map_button then
       QuestHelper:InitMapButton()
   end
-
+  
   if QuestHelper_Pref.cart_wp then
     init_cartographer_later = true
   end
@@ -443,7 +443,8 @@ function QuestHelper:Initialize()
 
   self:SetScript("OnUpdate", self.OnUpdate)
 
-  collectgarbage("collect") -- Free everything we aren't using.
+  -- Seems to do its own garbage collection pass before fully loading, so I'll just rely on that
+  --collectgarbage("collect") -- Free everything we aren't using.
 
   if self.debug_objectives then
     for name, data in pairs(self.debug_objectives) do
