@@ -97,9 +97,9 @@ end
 function QuestHelper:GetQuestLevel(quest_name)
   local index = 1
   while true do
-    local title, level = self:FixedGetQuestLogTitle(index)
+    local title, level, _, _, header = self:FixedGetQuestLogTitle(index)
     if not title then return 0 end
-    if title == quest_name then
+    if not header and title == quest_name then
       local original_entry = GetQuestLogSelection()
       SelectQuestLogEntry(index)
       local hash = self:HashString(select(2, GetQuestLogQuestText()))
