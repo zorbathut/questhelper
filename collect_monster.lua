@@ -56,9 +56,9 @@ local function MouseoverUnit()
   if UnitExists("mouseover") and UnitIsVisible("mouseover") and not UnitIsPlayer("mouseover") and not UnitPlayerControlled("mouseover") then
     local guid = UnitGUID("mouseover")
     
-    QuestHelper: Assert(#guid == 18) -- 64 bits, plus the 0x prefix
-    QuestHelper: Assert(guid:sub(1, 2) == "0x")
-    QuestHelper: Assert(guid:sub(5, 5) == "3")  -- It *shouldn't* be a player or a pet by the time we've gotten here. If so, something's gone wrong.
+    QuestHelper: Assert(#guid == 18, "guid len " .. guid) -- 64 bits, plus the 0x prefix
+    QuestHelper: Assert(guid:sub(1, 2) == "0x", "guid 0x-prefix " .. guid)
+    QuestHelper: Assert(guid:sub(5, 5) == "3" or guid:sub(5, 5) == "5", "guid 3-prefix " .. guid)  -- It *shouldn't* be a player or a pet by the time we've gotten here. If so, something's gone wrong.
     local creatureid = guid:sub(9, 18)  -- here's our actual identifier
     
     if not recentlySeenCritters[creatureid] then
