@@ -444,3 +444,10 @@ Alternatively, you might just get random things.
 
 * if LOOT_CLOSED fires without LOOT_OPENED firing, there just wasn't anything
 * Watch for kills without looting! Track kill number too. If kills >> loots, use kills. Test this on those dudes in the desert.
+
+
+Mouseover monster -> monster killed (can I detect this in any way? Maybe?) -> mouseover monster -> LOOT_CLOSED means looted ended -> might become skinnable/minable/herbable
+We'll get lots of extra positives for group critters that are minable, since we never loot_close them, but I'm okay with that.
+
+If we never LOOT_CLOSE a critter, we assume they may or may not have been looted, and we don't check skinnable/minable/herbable. We only count those if they're positive, or if there's a known LOOT_CLOSE.
+Looting and mining and the like target the creature! This helps a lot.
