@@ -239,7 +239,7 @@ function QuestHelper:Initialize()
   -- Don't need this table anymore.
   QuestHelper_File = nil
 
-  if QuestHelper_StaticData and not QuestHelper_StaticData["enUS"] then
+  if QuestHelper_StaticData and not QuestHelper_StaticData[GetLocale()] then
     file_problem = true
     DEFAULT_CHAT_FRAME:AddMessage("Static data does not seem to exist")
   end
