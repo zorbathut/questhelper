@@ -1,5 +1,5 @@
 
-== Version 0.70 11/24/2008 ==
+== Version 0.71 11/24/2008 ==
 
 * Add monster recording
 * Hopefully speed up startup considerably, possibly fixing the Dalaran login issues
