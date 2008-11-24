@@ -1,4 +1,9 @@
 
+== Version 0.70 11/24/2008 ==
+
+* Add monster recording
+* Hopefully speed up startup considerably, possibly fixing the Dalaran login issues
+
 == Version 0.70 11/20/2008 ==
 
 * Extended a bugfix to non-enUS locales (which is tricky because I have no idea if the data is right, but hey! Fingers crossed.) May fix problems with database corruption or problems with QH not knowing any quests in other locales.
