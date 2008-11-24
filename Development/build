@@ -488,6 +488,7 @@ if compile then
     print("Writing: " .. tempout)
     local stream = io.open(tempout, "w")
     stream:write(string.format("QuestHelper_File[\"%s\"] = \"Development Version\"\n", foloc))
+    stream:write(string.format("if GetLocale ~= \"%s\" then return end\n", k))  -- wellp
     stream:write(ScanAndDumpVariable(v, string.format("QuestHelper_StaticData_%s", k)))
     io.close(stream)
     
