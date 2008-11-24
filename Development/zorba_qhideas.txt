@@ -411,10 +411,11 @@ So. A loot window pops up. What's it from?
 There's a few options.
 
 * Monster loot
-* Skinning, mining, or herbing (could be either from a monster, or from an entity)
+* Skinning, mining, or herbing (or engineering?) (could be either from a monster, or from an entity)
 * Using an entity
 * Opening a container from inventory
 * Fishing
+* Pickpocketing
 
 Alternatively, you might just get random things.
 
