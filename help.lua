@@ -432,7 +432,7 @@ World of Warcraft stores QuestHelper's data in a file named |cff40bbffQuestHelpe
 
 To find this file, first find the the directory you installed World of Warcraft to. In Windows, this defaults to |cff40bbffC:\Program Files\World of Warcraft|r, and on Mac, I believe this is |cff40bbff/Applications/World of Warcraft|r.
 
-If you're using Windows Vista, Windows might protect the Program Files directory from changes, and redirect Warcraft's saved data to |cff40bbffC:\Users\|cffff8000USER|cff40bbff\AppData\Local\VirtualStore\Program Files\World of Warcraft|r.
+If you're using Windows Vista, Windows might protect the Program Files directory from changes, and redirect Warcraft's saved data to |cff40bbffC:\Users\|cffff8000USER|cff40bbff\AppData\Local\VirtualStore\Program Files\World of Warcraft|r, or possibly |cff40bbffC:\Users\Public\Games\World of Warcraft|r.
 
 In that directory, the needed file is in |cff40bbffWTF/Account/|cffff8000ACCOUNT|cff40bbff/SavedVariables|r, replacing ACCOUNT with the name of your account, and in that directory, you should find |cff40bbffQuestHelper.lua|r.
 
