@@ -37,6 +37,32 @@ local function Tooltipy(self, ...)
 ]]
 end
 
+local logon = GetTime() -- Because I'm incredibly paranoid, I'm waiting fifteen minutes after logon to assume they're not drunk.
+local drunk_logon = true
+local drunk_message = false
+local patterns = {}
+
+function MakePattern(label)
+  patterns[label] = "^" .. string.gsub(_G[label], "%%s", "|c.*|r") .. "$"
+end
+
+MakePattern("DRUNK_MESSAGE_SELF1")
+MakePattern("DRUNK_MESSAGE_SELF2")
+MakePattern("DRUNK_MESSAGE_SELF3")
+MakePattern("DRUNK_MESSAGE_SELF4")
+MakePattern("DRUNK_MESSAGE_ITEM_SELF1")
+MakePattern("DRUNK_MESSAGE_ITEM_SELF2")
+MakePattern("DRUNK_MESSAGE_ITEM_SELF3")
+MakePattern("DRUNK_MESSAGE_ITEM_SELF4")
+
+local function SystemMessage(arg, arg2, arg3)
+  if strfind(arg, patterns["DRUNK_MESSAGE_SELF2"]) or strfind(arg, patterns["DRUNK_MESSAGE_SELF3"]) or strfind(arg, patterns["DRUNK_MESSAGE_SELF4"]) or strfind(arg, patterns["DRUNK_MESSAGE_ITEM_SELF2"]) or strfind(arg, patterns["DRUNK_MESSAGE_ITEM_SELF3"]) or strfind(arg, patterns["DRUNK_MESSAGE_ITEM_SELF4"]) then
+    drunk_message = true
+  elseif strfind(arg, patterns["DRUNK_MESSAGE_SELF1"]) or strfind(arg, patterns["DRUNK_MESSAGE_ITEM_SELF1"]) then
+    drunk_message = false
+  end
+end
+
 local InteractDistances = {28, 11, 10, 0} -- There's actually a 4, but it's also 28 and it's kind of handy to be able to do it this way.
 
 local recentlySeenCritters = {} -- We try not to repeatedly record critters frequently.
@@ -51,6 +77,11 @@ local function AccumulateFrequency(target, name, data)
 end
 
 local function MouseoverUnit()
+  if logon and logon + 60 * 15 < GetTime() then
+    logon = nil
+    drunk_logon = false
+  end
+  
   -- First off, we see if it's "interesting".
   -- The original code for this filtered out critters. I don't, because critters are cute, and rare.
   if UnitExists("mouseover") and UnitIsVisible("mouseover") and not UnitIsPlayer("mouseover") and not UnitPlayerControlled("mouseover") then
@@ -72,8 +103,10 @@ local function MouseoverUnit()
       local critter = QHCM[cid]
       
       AccumulateFrequency(critter, "name", UnitName("mouseover"))
-      AccumulateFrequency(critter, "level", UnitLevel("mouseover"))
       AccumulateFrequency(critter, "reaction", UnitReaction("mouseover", "player"))
+      if not drunk_logon and not drunk_message then
+        AccumulateFrequency(critter, "level", UnitLevel("mouseover"))
+      end
       
       local minrange = InteractDistances[1]
       local maxrange = 255
@@ -107,6 +140,7 @@ function QH_Collect_Monster_Init(QHCData, API)
   --API.Registrar_EventHook("PLAYER_TARGET_CHANGED", OnEvent)
   --API.Registrar_EventHook("LOOT_OPENED", Looted)
   API.Registrar_EventHook("UPDATE_MOUSEOVER_UNIT", MouseoverUnit)
+  API.Registrar_EventHook("CHAT_MSG_SYSTEM", SystemMessage)
   
   API.Registrar_TooltipHook(Tooltipy)
   

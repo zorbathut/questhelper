@@ -14,7 +14,7 @@ local frame = CreateFrame("Frame")
 local function OnEvent(_, event, ...)
   local tstart = GetTime()
   for _, v in pairs(EventRegistrar[event]) do
-    v() -- right now we don't deal with parameters in any way
+    v(...)
   end
   QH_Timeslice_Increment(GetTime() - tstart, "collect_event")
 end
@@ -25,6 +25,7 @@ frame:SetScript("OnEvent", OnEvent)
 frame:Show()
 
 function EventHookRegistrar(event, func)
+  QuestHelper:Assert(func)
   if not EventRegistrar[event] then
     frame:RegisterEvent(event)
     EventRegistrar[event] = {}
@@ -33,6 +34,7 @@ function EventHookRegistrar(event, func)
 end
 
 function OnUpdateHookRegistrar(func)
+  QuestHelper:Assert(func)
   table.insert(OnUpdateRegistrar, func)
 end
 
@@ -49,6 +51,7 @@ GameTooltip:SetScript("OnShow", function (self, ...)
 end)
 
 function TooltipHookRegistrar(func)
+  QuestHelper:Assert(func)
   table.insert(TooltipRegistrar, func)
 end
 
