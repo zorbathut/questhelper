@@ -1,7 +1,7 @@
 QuestHelper_File["pathfinding.lua"] = "Development Version"
 
 local IRONFORGE_PORTAL = {25,0.255,0.084, "Ironforge portal site"}
-local STORMWIND_CITY_PORTAL = QuestHelper_ConvertCoordsFromWrath(QuestHelper_ConvertCoordsToWrath({36,0.387,0.802, "Stormwind City portal site"}, true))  -- The annoying "wrath" construction here first forces it into Wrath format, then puts it into Native format.
+local STORMWIND_CITY_PORTAL = QuestHelper_ConvertCoordsToWrath({36,0.387,0.802, "Stormwind City portal site"}, true)  -- Old pre-Wrath coordinates. I could fix it, but . . . meh.
 local DARNASSUS_PORTAL = {21,0.397,0.824, "Darnassus portal site"}
 local EXODAR_PORTAL = {12,0.476,0.598, "Exodar portal site"}
 
@@ -19,21 +19,21 @@ local static_horde_routes =
    {{7, 0.505, 0.124}, {38, 0.313, 0.303}, 210}, -- Durotar <--> Grom'gol Base Camp
    {{38, 0.316, 0.289}, {43, 0.621, 0.591}, 210}, -- Grom'gol Base Camp <--> Tirisfal Glades
    {{43, 0.605, 0.587}, {7, 0.509, 0.141}, 210}, -- Tirisfal Glades <--> Durotar
-   {{45, 0.549, 0.11}, {52, 0.495, 0.148}, 5}, -- Undercity <--> Silvermoon City
+   {{45, 0.549, 0.11}, {52, 0.495, 0.148}, 60}, -- Undercity <--> Silvermoon City
    
-   {{7, 0.413, 0.178}, {65, 0.414, 0.536}, 5}, -- Durotar <--> Warsong Hold
-   {{43, 0.591, 0.590}, {70, 0.777, 0.283}, 5}, -- Tirisfal Glades <--> Vengeance Landing
+   {{7, 0.413, 0.178}, {65, 0.414, 0.536}, 210}, -- Durotar <--> Warsong Hold
+   {{43, 0.591, 0.590}, {70, 0.777, 0.283}, 210}, -- Tirisfal Glades <--> Vengeance Landing
    
-   {{60, 0.592, 0.483}, SILVERMOON_CITY_PORTAL, 5, true, nil, "SILVERMOON_CITY_PORTAL"}, -- Shattrath City --> Silvermoon City
-   {{60, 0.528, 0.531}, THUNDER_BLUFF_PORTAL, 5, true, nil, "THUNDER_BLUFF_PORTAL"}, -- Shattrath City --> Thunder Bluff
-   {{60, 0.522, 0.529}, ORGRIMMAR_PORTAL, 5, true, nil, "ORGRIMMAR_PORTAL"}, -- Shattrath City --> Orgrimmar
-   {{60, 0.517, 0.525}, UNDERCITY_PORTAL, 5, true, nil, "UNDERCITY_PORTAL"}, -- Shattrath City --> Undercity
+   {{60, 0.592, 0.483}, SILVERMOON_CITY_PORTAL, 60, true, nil, "SILVERMOON_CITY_PORTAL"}, -- Shattrath City --> Silvermoon City
+   {{60, 0.528, 0.531}, THUNDER_BLUFF_PORTAL, 60, true, nil, "THUNDER_BLUFF_PORTAL"}, -- Shattrath City --> Thunder Bluff
+   {{60, 0.522, 0.529}, ORGRIMMAR_PORTAL, 60, true, nil, "ORGRIMMAR_PORTAL"}, -- Shattrath City --> Orgrimmar
+   {{60, 0.517, 0.525}, UNDERCITY_PORTAL, 60, true, nil, "UNDERCITY_PORTAL"}, -- Shattrath City --> Undercity
    
-   {{67, 0.583, 0.216}, SILVERMOON_CITY_PORTAL, 5, true, nil, "SILVERMOON_CITY_PORTAL"}, -- Dalaran --> Silvermoon City
-   {{67, 0.573, 0.219}, THUNDER_BLUFF_PORTAL, 5, true, nil, "THUNDER_BLUFF_PORTAL"}, -- Dalaran --> Thunder Bluff
-   {{67, 0.553, 0.255}, ORGRIMMAR_PORTAL, 5, true, nil, "ORGRIMMAR_PORTAL"}, -- Dalaran --> Orgrimmar
-   {{67, 0.556, 0.238}, UNDERCITY_PORTAL, 5, true, nil, "UNDERCITY_PORTAL"}, -- Dalaran --> Undercity
-   {{67, 0.563, 0.226}, SHATTRATH_CITY_PORTAL, 5, true, nil, "SHATTRATH_CITY_PORTAL"}, -- Dalaran --> Shatt
+   {{67, 0.583, 0.216}, SILVERMOON_CITY_PORTAL, 60, true, nil, "SILVERMOON_CITY_PORTAL"}, -- Dalaran --> Silvermoon City
+   {{67, 0.573, 0.219}, THUNDER_BLUFF_PORTAL, 60, true, nil, "THUNDER_BLUFF_PORTAL"}, -- Dalaran --> Thunder Bluff
+   {{67, 0.553, 0.255}, ORGRIMMAR_PORTAL, 60, true, nil, "ORGRIMMAR_PORTAL"}, -- Dalaran --> Orgrimmar
+   {{67, 0.556, 0.238}, UNDERCITY_PORTAL, 60, true, nil, "UNDERCITY_PORTAL"}, -- Dalaran --> Undercity
+   {{67, 0.563, 0.226}, SHATTRATH_CITY_PORTAL, 60, true, nil, "SHATTRATH_CITY_PORTAL"}, -- Dalaran --> Shatt
   }
 
   
@@ -41,27 +41,22 @@ local static_alliance_routes =
   {
    {{36, 0.639, 0.083}, {25, 0.764, 0.512}, 120}, -- Deeprun Tram
    {{10, 0.718, 0.565}, {51, 0.047, 0.636}, 210}, -- Theramore Isle <--> Menethil Harmor
+   {{36, 0.228, 0.560}, {16, 0.323, 0.441}, 210}) -- Stormwind City <--> Auberdine
    
-   {QuestHelper_ConvertCoordsFromWrath({36, 0.183, 0.255}), {65, 0.597, 0.694}, 210}, -- Stormwind City <--> Valiance Keep (note: new Stormwind location)
+   {{36, 0.183, 0.255}, {65, 0.597, 0.694}, 210}, -- Stormwind City <--> Valiance Keep
    {{51, 0.047, 0.571}, {70, 0.612, 0.626}, 210}, -- Menethil <--> Daggercap Bay
    
-   {{60, 0.558, 0.366}, STORMWIND_CITY_PORTAL, 5, true, nil, "STORMWIND_CITY_PORTAL"}, -- Shattrath City --> Stormwind City
-   {{60, 0.563, 0.37}, IRONFORGE_PORTAL, 5, true, nil, "IRONFORGE_PORTAL"}, -- Shattrath City --> Ironforge
-   {{60, 0.552, 0.364}, DARNASSUS_PORTAL, 5, true, nil, "DARNASSUS_PORTAL"}, -- Shattrath City --> Darnassus
-   {{60, 0.596, 0.467}, EXODAR_PORTAL, 5, true, nil, "EXODAR_PORTAL"}, -- Shattrath City --> Exodar
+   {{60, 0.558, 0.366}, STORMWIND_CITY_PORTAL, 60, true, nil, "STORMWIND_CITY_PORTAL"}, -- Shattrath City --> Stormwind City
+   {{60, 0.563, 0.37}, IRONFORGE_PORTAL, 60, true, nil, "IRONFORGE_PORTAL"}, -- Shattrath City --> Ironforge
+   {{60, 0.552, 0.364}, DARNASSUS_PORTAL, 60, true, nil, "DARNASSUS_PORTAL"}, -- Shattrath City --> Darnassus
+   {{60, 0.596, 0.467}, EXODAR_PORTAL, 60, true, nil, "EXODAR_PORTAL"}, -- Shattrath City --> Exodar
    
-   {{67, 0.401, 0.628}, STORMWIND_CITY_PORTAL, 5, true, nil, "STORMWIND_CITY_PORTAL"}, -- Dalaran --> Stormwind City
-   {{67, 0.395, 0.640}, IRONFORGE_PORTAL, 5, true, nil, "IRONFORGE_PORTAL"}, -- Dalaran --> Ironforge
-   {{67, 0.389, 0.651}, DARNASSUS_PORTAL, 5, true, nil, "DARNASSUS_PORTAL"}, -- Dalaran --> Darnassus
-   {{67, 0.382, 0.664}, EXODAR_PORTAL, 5, true, nil, "EXODAR_PORTAL"}, -- Dalaran --> Exodar
-   {{67, 0.371, 0.667}, SHATTRATH_CITY_PORTAL, 5, true, nil, "SHATTRATH_CITY_PORTAL"}, -- Dalaran --> Shatt
+   {{67, 0.401, 0.628}, STORMWIND_CITY_PORTAL, 60, true, nil, "STORMWIND_CITY_PORTAL"}, -- Dalaran --> Stormwind City
+   {{67, 0.395, 0.640}, IRONFORGE_PORTAL, 60, true, nil, "IRONFORGE_PORTAL"}, -- Dalaran --> Ironforge
+   {{67, 0.389, 0.651}, DARNASSUS_PORTAL, 60, true, nil, "DARNASSUS_PORTAL"}, -- Dalaran --> Darnassus
+   {{67, 0.382, 0.664}, EXODAR_PORTAL, 60, true, nil, "EXODAR_PORTAL"}, -- Dalaran --> Exodar
+   {{67, 0.371, 0.667}, SHATTRATH_CITY_PORTAL, 60, true, nil, "SHATTRATH_CITY_PORTAL"}, -- Dalaran --> Shatt
   }
-
-if QuestHelper:IsWrath() then -- siiiiigh
-  table.insert(static_alliance_routes, {{36, 0.228, 0.560}, {16, 0.323, 0.441}, 210}) -- Stormwind City <--> Auberdine (note: new Stormwind location)
-else
-  table.insert(static_alliance_routes, {{51, 0.044, 0.569}, {16, 0.323, 0.441}, 210}) -- Menethil Harbor <--> Auberdine
-end
 
 local static_shared_routes = 
   {
@@ -81,11 +76,11 @@ local static_shared_routes =
    {{67, 0.559, 0.467}, {66, 0.158, 0.428}, 5, true}, -- Dalaran --> Violet Stand
    {{66, 0.157, 0.425}, {67, 0.559, 0.468}, 5, true}, -- Violent Stand --> Dalaran (slightly different coordinates, may be important once solid walls are in)
    
-   {{34, 0.817, 0.461}, {78, 0.492, 0.312}, 86400}, -- EPL Ebon Hold <--> Scarlet Enclave Ebon Hold. Exists solely to fix some pathing crashes.
+   {{34, 0.817, 0.461}, {78, 0.492, 0.312}, 86400}, -- EPL Ebon Hold <--> Scarlet Enclave Ebon Hold. Exists solely to fix some pathing crashes. 24-hour boat ride :D
   }
 
 -- Darkportal is handled specially, depending on whether or not you're level 58+ or not.
-local dark_portal_route = {{33, 0.587, 0.599}, {56, 0.898, 0.502}, 5}
+local dark_portal_route = {{33, 0.587, 0.599}, {56, 0.898, 0.502}, 60}
 
 local static_zone_transitions =
   {
