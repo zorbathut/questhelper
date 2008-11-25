@@ -15,7 +15,7 @@ local function DoZoneUpdate(label, debugverbose)
   if not QHCZ[zname][label] then QHCZ[zname][label] = {} end
   
   if debugverbose and debug_output then
-    QuestHelper:TextOut("zoneupdate " .. zname .. " type " .. label)
+    --QuestHelper:TextOut("zoneupdate " .. zname .. " type " .. label)
   end
   
   QHCZ[zname].mapname = GetMapInfo()
