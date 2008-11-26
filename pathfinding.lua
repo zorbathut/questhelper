@@ -41,7 +41,7 @@ local static_alliance_routes =
   {
    {{36, 0.639, 0.083}, {25, 0.764, 0.512}, 120}, -- Deeprun Tram
    {{10, 0.718, 0.565}, {51, 0.047, 0.636}, 210}, -- Theramore Isle <--> Menethil Harmor
-   {{36, 0.228, 0.560}, {16, 0.323, 0.441}, 210}) -- Stormwind City <--> Auberdine
+   {{36, 0.228, 0.560}, {16, 0.323, 0.441}, 210}, -- Stormwind City <--> Auberdine
    
    {{36, 0.183, 0.255}, {65, 0.597, 0.694}, 210}, -- Stormwind City <--> Valiance Keep
    {{51, 0.047, 0.571}, {70, 0.612, 0.626}, 210}, -- Menethil <--> Daggercap Bay
