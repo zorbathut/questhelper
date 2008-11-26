@@ -112,6 +112,7 @@ collect_location.lua
 collect_zone.lua
 collect_merger.lua
 collect_monster.lua
+collect_item.lua
 
 cartographer.lua
 tomtom.lua

@@ -232,8 +232,16 @@ QuestHelper_Collector = {
         }
       }
     },
-    TODO ["item"] = {
+    ["item"] = {
       [IDnumber] = {
+        name = "Hello!",
+        ilevel = (level),
+        minlevel = (level),
+        quality = (quality),
+        type = "type/subtype",
+        equiplocation = "LOC",
+        
+        --TODO from here:
         loot_yes = 109,
         loot_no = 12,
         loot_opened = 20,
@@ -248,9 +256,6 @@ QuestHelper_Collector = {
           [itemid] = 4,
           [itemid] = 9,
         }
-        name = "Hello!",
-        itemlevel = (level),
-        weapon/armor = "string/string",
         looted = 12,
         loots = {
           [itemid] = 4,
@@ -353,12 +358,12 @@ QuestHelper_Collector = {
       }
     }
     ["traveled"] = {
-     building = { "decompy" }
-     compressing = {}
-     done = {
-      "COMPCOMPCOMP",
-      "COMPCOMPCOMP",
-      "COMPCOMPCOMP",
+      building = { "decompy" }
+      compressing = {}
+      done = {
+        "COMPCOMPCOMP",
+        "COMPCOMPCOMP",
+        "COMPCOMPCOMP",
       }
     }
     TODO ["achievement"] = {
@@ -433,6 +438,7 @@ So let's see how I can figure these out:
 
 * Monster loot - Look for events and mouseover. Might not have it targeted, so don't assume they will.
 * Skinning, mining, or herbing - All of these are spellcasts, see what the spell is (and what it targets) and what the user has targeted in case it's a monster. Also watch the last mouseover event, or the last tooltip?
+* Disenchanting - watch for Disenchant spellcast, look for last tooltip
 * Using an entity - Spellcast, again. Watch tooltip for the entity and watch the cast timer?
 * Opening a container from inventory - Tooltip, yet again. I think that's the best I can do. Also watch for the "can be opened" text.
 * Fishing - IsFishingLoot, and spellcast. At least this one's easy.

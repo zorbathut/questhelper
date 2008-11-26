@@ -245,7 +245,7 @@ function QuestHelper:GetOverlapObjectives(obj)
   
   for i, o in ipairs(self.route) do
     QuestHelper: Assert(o, string.format("nil dodads pos issue, o %s", tostring(o)))
-    QuestHelper: Assert(o.pos, "nil dodads pos issue, pos %s", QuestHelper:StringizeTable(pos))
+    QuestHelper: Assert(o.pos, string.format("nil dodads pos issue, pos %s", QuestHelper:StringizeTable(pos)))
     if o == obj then
       table.insert(list, o)
     else
