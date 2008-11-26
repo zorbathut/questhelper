@@ -267,23 +267,24 @@ QuestHelper_Collector = {
         equipped_no = { "CLEVSPEC", "CLEVSPEC" }
       }
     }
-    TODO ["object"] = {
-      [IDnumber] = {
-        locations = {
-          "DENSDENSDENSDENS",
-          "DENSDENSDENS",
-          "DENS",
-        }
-        name = "Hello!",
-        loot_yes = 109,
-        loot_no = 12,
+    ["object"] = {
+      ["name"] = {
+        -- Standard merger base here
+        "DENSDENSDENSDENS",
+        "DENSDENSDENS",
+        "DENS",
+        
+        herb_yes = 109,
+        herb_no = 42,
+        mine_yes = 111,
+        mine_no = 12345,
+        
+        -- TODO from here:
         loot_opened = 20,
         loot_items = {
           [itemid] = 4,
           [itemid] = 9,
         }
-        herb_yes = 109,
-        herb_no = 12,
         herb_opened = 20,
         herb_items = {
           [itemid] = 4,
