@@ -427,6 +427,10 @@ Alternatively, you might just get random things.
 
 * Using an item from inventory (modern clams)
 * Talking to a dude (argent dawn?)
+* Getting it for kills (honor tokens)
+* Getting it for end-of-BG
+
+(argent clams!)
 
 
 
@@ -457,5 +461,5 @@ Alternatively, you might just get random things.
 Mouseover monster -> monster killed (can I detect this in any way? Maybe?) -> mouseover monster -> LOOT_CLOSED means looted ended -> might become skinnable/minable/herbable
 We'll get lots of extra positives for group critters that are minable, since we never loot_close them, but I'm okay with that.
 
-If we never LOOT_CLOSE a critter, we assume they may or may not have been looted, and we don't check skinnable/minable/herbable. We only count those if they're positive, or if there's a known LOOT_CLOSE.
+If we never LOOT_CLOSE a critter, we assume they may or may not have been looted, and we don't check skinnable/minable/herbable. We only count those if they're positive, or if there's a known LOOT_CLOSE. This will weight towards positive, but since the values should be either 0 or 1, I'm not too worried.
 Looting and mining and the like target the creature! This helps a lot.
