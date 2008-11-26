@@ -333,14 +333,14 @@ QuestHelper_Collector = {
         completedby = { "CLVSPEC", "CLVSPEC" }
       }
     },
-    TODO ["flight_master"] = {
+    ["flight_master"] = {
       ["location_name"] = {
         master = monsterid,
         x = 123.456,
         y = 123.456,
       }
     }
-    TODO ["flight_time"] = {
+    ["flight_time"] = {
       ["src@@dst"] = {
         ["xx:yy@xx:yy"] = time, -- these are midpoints in the path, we can only get x,y coords and they seem to be slightly inaccurate. We'll collate on the build process.
         ["xx:yy@xx:yy##count"] = count, -- how many samples we've taken. The "time" is a sum, divide by this for final results.
