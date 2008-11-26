@@ -266,7 +266,7 @@ QuestHelper_Collector = {
         }
         equipped_no = { "CLEVSPEC", "CLEVSPEC" }
       }
-    }
+    },
     ["object"] = {
       ["name"] = {
         -- Standard merger base here
@@ -291,21 +291,21 @@ QuestHelper_Collector = {
           [itemid] = 9,
         }
       }
-    }
+    },
     TODO ["event"] = {
       [QuestID/String] = {
         locations = {
           "DENSDENSDENS",
         }
       }
-    }
+    },
     TODO ["reputation"] = {
       [QuestID/String] = {
         locations = {
           "DENSDENSDENS",
         }
       }
-    }
+    },
     TODO ["quest"] = {
       [QuestID] = {
         name = "Hello!",
@@ -332,17 +332,24 @@ QuestHelper_Collector = {
         faction_2_got = 1236
         completedby = { "CLVSPEC", "CLVSPEC" }
       }
-    }
-    TODO ["flightinstructor"] = {
-      ["location"] = monsterid
-    }
-    TODO ["flighttiming"] = {
-      ["src"] = {
-        ["dst"] = {
-          [hash] = time
-        }
+    },
+    TODO ["flight_master"] = {
+      ["location_name"] = {
+        master = monsterid,
+        x = 123.456,
+        y = 123.456,
       }
     }
+    TODO ["flight_time"] = {
+      ["src@@dst"] = {
+        ["xx:yy@xx:yy"] = time, -- these are midpoints in the path, we can only get x,y coords and they seem to be slightly inaccurate. We'll collate on the build process.
+        ["xx:yy@xx:yy##count"] = count, -- how many samples we've taken. The "time" is a sum, divide by this for final results.
+        ["xx:yy"] = time,
+        [""] = true, -- this merely indicates that the two are directly connected
+      },
+      ["src@@dst"] = {
+      },
+    },
     ["zone"] = {
       ["zone@@realzone@@subzone"] = {
         border = {
@@ -357,7 +364,7 @@ QuestHelper_Collector = {
           level = "amount"
         }
       }
-    }
+    },
     ["traveled"] = {
       building = { "decompy" }
       compressing = {}
@@ -366,7 +373,7 @@ QuestHelper_Collector = {
         "COMPCOMPCOMP",
         "COMPCOMPCOMP",
       }
-    }
+    },
     TODO ["achievement"] = {
       [ID] = {
         objectives = {
