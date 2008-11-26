@@ -7,58 +7,16 @@ local QHCM
 
 local GetLoc
 local Merger
-
-local function Looted()
---[[
-  QuestHelper:TextOut("lootopened")
-  for i = 1, GetNumLootItems() do
-    _, _, quant, _ = GetLootSlotInfo(i)
-    QuestHelper:TextOut("lewted " .. tostring(GetLootSlotLink(i)) .. " with " .. tostring(quant))
-  end
-]]
-end
-
-local function Tooltipy(self, ...)
---[[
-  QuestHelper:TextOut(tostring(self:GetAnchorType()))
-  if self:GetAnchorType() == "ANCHOR_NONE" then
-    QuestHelper:TextOut("gat done")
-    local iname, ilink = self:GetItem()
-    local mname, mlink = self:GetUnit()
-    local sname, srank = self:GetSpell()
-    QuestHelper:TextOut(string.format("iname %s mname %s sname %s lines %d", tostring(iname), tostring(mname), tostring(sname), self:NumLines()))
-    for i = 1, GameTooltip:NumLines() do
-      local mytext = getglobal("GameTooltipTextLeft" .. i)
-      QuestHelper:TextOut(mytext:GetText())
-    end
-  else
-    QuestHelper:TextOut("gat fail")
-  end
-]]
-end
+local Patterns
 
 local logon = GetTime() -- Because I'm incredibly paranoid, I'm waiting fifteen minutes after logon to assume they're not drunk.
 local drunk_logon = true
 local drunk_message = false
-local patterns = {}
-
-function MakePattern(label)
-  patterns[label] = "^" .. string.gsub(_G[label], "%%s", "|c.*|r") .. "$"
-end
-
-MakePattern("DRUNK_MESSAGE_SELF1")
-MakePattern("DRUNK_MESSAGE_SELF2")
-MakePattern("DRUNK_MESSAGE_SELF3")
-MakePattern("DRUNK_MESSAGE_SELF4")
-MakePattern("DRUNK_MESSAGE_ITEM_SELF1")
-MakePattern("DRUNK_MESSAGE_ITEM_SELF2")
-MakePattern("DRUNK_MESSAGE_ITEM_SELF3")
-MakePattern("DRUNK_MESSAGE_ITEM_SELF4")
 
 local function SystemMessage(arg, arg2, arg3)
-  if strfind(arg, patterns["DRUNK_MESSAGE_SELF2"]) or strfind(arg, patterns["DRUNK_MESSAGE_SELF3"]) or strfind(arg, patterns["DRUNK_MESSAGE_SELF4"]) or strfind(arg, patterns["DRUNK_MESSAGE_ITEM_SELF2"]) or strfind(arg, patterns["DRUNK_MESSAGE_ITEM_SELF3"]) or strfind(arg, patterns["DRUNK_MESSAGE_ITEM_SELF4"]) then
+  if strfind(arg, Patterns["DRUNK_MESSAGE_SELF2"]) or strfind(arg, Patterns["DRUNK_MESSAGE_SELF3"]) or strfind(arg, Patterns["DRUNK_MESSAGE_SELF4"]) or strfind(arg, Patterns["DRUNK_MESSAGE_ITEM_SELF2"]) or strfind(arg, Patterns["DRUNK_MESSAGE_ITEM_SELF3"]) or strfind(arg, Patterns["DRUNK_MESSAGE_ITEM_SELF4"]) then
     drunk_message = true
-  elseif strfind(arg, patterns["DRUNK_MESSAGE_SELF1"]) or strfind(arg, patterns["DRUNK_MESSAGE_ITEM_SELF1"]) then
+  elseif strfind(arg, Patterns["DRUNK_MESSAGE_SELF1"]) or strfind(arg, Patterns["DRUNK_MESSAGE_ITEM_SELF1"]) then
     drunk_message = false
   end
 end
@@ -137,13 +95,21 @@ function QH_Collect_Monster_Init(QHCData, API)
   if not QHCData.monster then QHCData.monster = {} end
   QHCM = QHCData.monster
   
-  --API.Registrar_EventHook("PLAYER_TARGET_CHANGED", OnEvent)
-  --API.Registrar_EventHook("LOOT_OPENED", Looted)
   API.Registrar_EventHook("UPDATE_MOUSEOVER_UNIT", MouseoverUnit)
   API.Registrar_EventHook("CHAT_MSG_SYSTEM", SystemMessage)
   
-  API.Registrar_TooltipHook(Tooltipy)
+  Patterns = API.Patterns
+  QuestHelper: Assert(Patterns)
   
+  API.Patterns_Register("DRUNK_MESSAGE_SELF1", "|c.*|r")
+  API.Patterns_Register("DRUNK_MESSAGE_SELF2", "|c.*|r")
+  API.Patterns_Register("DRUNK_MESSAGE_SELF3", "|c.*|r")
+  API.Patterns_Register("DRUNK_MESSAGE_SELF4", "|c.*|r")
+  API.Patterns_Register("DRUNK_MESSAGE_ITEM_SELF1", "|c.*|r")
+  API.Patterns_Register("DRUNK_MESSAGE_ITEM_SELF2", "|c.*|r")
+  API.Patterns_Register("DRUNK_MESSAGE_ITEM_SELF3", "|c.*|r")
+  API.Patterns_Register("DRUNK_MESSAGE_ITEM_SELF4", "|c.*|r")
+
   GetLoc = API.Callback_LocationBolusCurrent
   QuestHelper: Assert(GetLoc)
   

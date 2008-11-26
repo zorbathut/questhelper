@@ -7,6 +7,7 @@ local QHCO
 
 local GetLoc
 local Merger
+local Patterns
 
 local minetypes = {
   mine = UNIT_SKINNABLE_ROCK,
@@ -14,10 +15,9 @@ local minetypes = {
 }
 
 local function Tooltipy(self, ...)
-  -- objects are a bitch since they have no unique ID or any standard way to detect them (that I know of)
-  -- so we kind of guess at it.
+  -- objects are a bitch since they have no unique ID or any standard way to detect them (that I know of).
+  -- So we kind of guess at it.
   if self:GetAnchorType() == "ANCHOR_NONE" then
-    --QuestHelper:TextOut(string.format("iname %s mname %s sname %s lines %d", tostring(self:GetItem()), tostring(self:GetUnit()), tostring(self:GetSpell()), self:NumLines()))
     if self:GetItem() or self:GetUnit() or self:GetSpell() then return end
     -- rglrglrglrglrglrgl
     
@@ -40,6 +40,9 @@ local function Tooltipy(self, ...)
     end
     
     local name = _G["GameTooltipTextLeft1"]:GetText()
+    
+    if string.match(name, Patterns.CORPSE_TOOLTIP) then return end  -- no corpses plzkthx
+    
     if not QHCO[name] then QHCO[name] = {} end
     local qhci = QHCO[name]
     
@@ -52,7 +55,7 @@ local function Tooltipy(self, ...)
     end
     
     -- We have no unique identifier, so I'm just going to record every position we see. That said, I wonder if it's a good idea to add a cooldown.
-    -- Obviously, we also have no possible range data.
+    -- Obviously, we also have no possible range data, so, welp.
     Merger.Add(qhci, GetLoc())    
   end
 end
@@ -62,6 +65,11 @@ function QH_Collect_Object_Init(QHCData, API)
   QHCO = QHCData.object
   
   API.Registrar_TooltipHook(Tooltipy)
+  
+  Patterns = API.Patterns
+  QuestHelper: Assert(Patterns)
+  
+  API.Patterns_Register("CORPSE_TOOLTIP", "[^%s]+")
   
   GetLoc = API.Callback_LocationBolusCurrent
   QuestHelper: Assert(GetLoc)

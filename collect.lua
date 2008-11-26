@@ -91,6 +91,7 @@ function QH_Collector_Init()
 
   QH_Collect_Location_Init(nil, API)  -- Some may actually add their own functions to the API, and should go first. There's no real formalized order, I just know which depend on others. Location's sole job is to provide the standard location bolus. (Yeah. It's a bolus. Deal.)
   QH_Collect_Merger_Init(nil, API) -- etc
+  QH_Collect_Patterns_Init(nil, API) -- etc
   
   QH_Collect_LZW_Init(nil, API) -- Depends on Merger
   

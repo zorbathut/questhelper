@@ -115,6 +115,7 @@ collect_monster.lua
 collect_item.lua
 collect_object.lua
 collect_loot.lua
+collect_patterns.lua
 
 cartographer.lua
 tomtom.lua
