@@ -99,6 +99,7 @@ function QH_Collector_Init()
   QH_Collect_Zone_Init(QHCData, API)
   QH_Collect_Monster_Init(QHCData, API)
   QH_Collect_Item_Init(QHCData, API)
+  QH_Collect_Object_Init(QHCData, API)
   
   if not QHCData.realms then QHCData.realms = {} end
   QHCData.realms[GetRealmName()] = (QHCData.realms[GetRealmName()] or 0) + 1 -- I'm not entirely sure why I'm counting

@@ -215,6 +215,8 @@ function QuestHelper:Initialize()
      ["collect_merger.lua"] = true,
      ["collect_monster.lua"] = true,
      ["collect_item.lua"] = true,
+     ["collect_object.lua"] = true,
+     ["collect_loot.lua"] = true,
     }
 
   for file, version in pairs(QuestHelper_File) do
