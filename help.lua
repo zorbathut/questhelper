@@ -198,6 +198,9 @@ function QuestHelper:Purge(code, force, noreload)
     QuestHelper_SaveDate = nil
     QuestHelper_SeenRealms = nil
     
+    QuestHelper_Collector = nil
+    QuestHelper_Collector_Version = nil
+    
     if not noreload then ReloadUI() end
   else
     if not self.purge_code then self.purge_code = self:CreateUID(8) end
