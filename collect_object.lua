@@ -28,8 +28,6 @@ local function Tooltipy(self, ...)
       return
     elseif lines == 2 then -- see if we're mine or herb
       for k, v in pairs(minetypes) do
-        QuestHelper:TextOut(v)
-        QuestHelper:TextOut(string.gsub(_G["GameTooltipTextLeft2"]:GetText(), "|", "||"))
         if _G["GameTooltipTextLeft2"]:GetText() == v then
           skintype = k
         end
