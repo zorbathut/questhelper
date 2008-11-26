@@ -13,6 +13,7 @@ local function DoZoneUpdate(label, debugverbose)
   if zname == "@@@@" then return end -- denied
   if not QHCZ[zname] then QHCZ[zname] = {} end
   if not QHCZ[zname][label] then QHCZ[zname][label] = {} end
+  local znl = QHCZ[zname][label]
   
   if debugverbose and debug_output then
     --QuestHelper:TextOut("zoneupdate " .. zname .. " type " .. label)
@@ -20,7 +21,8 @@ local function DoZoneUpdate(label, debugverbose)
   
   QHCZ[zname].mapname = GetMapInfo()
   local loc = GetLoc()
-  Merger.Add(QHCZ[zname][label], loc)
+  if #znl > 0 and string.sub(znl[#znl], -#loc) == loc then return end -- stop repeating things, a purse is not food
+  Merger.Add(znl, loc)
 end
 
 local function OnEvent()
