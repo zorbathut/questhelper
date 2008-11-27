@@ -1,4 +1,10 @@
 
+== Version 0.72 11/27/2008 ==
+
+* Made pathing less eager to hop between continents
+* Add item, flight path, and object recording
+* Update a few bugcatcher snippets
+
 == Version 0.71 11/24/2008 ==
 
 * Add monster recording
