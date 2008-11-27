@@ -78,7 +78,7 @@ local function OnUpdate()
       end
     elseif phase == "FLYING" then
       -- yaay
-      QHCFT[path][route] = (type(QHCFT[path][route]) == "number" or 0) + (GetTime() - start_time)
+      QHCFT[path][route] = (type(QHCFT[path][route]) == "number" and QHCFT[path][route] or 0) + (GetTime() - start_time)
       QHCFT[path][route .. "##count"] = (QHCFT[path][route .. "##count"] or 0) + 1
       phase = "IDLE"
       path, route, start_time = nil, nil, nil
