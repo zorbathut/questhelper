@@ -26,6 +26,7 @@ local path, route
 local start_time
 local phase = "IDLE"
 
+--[[
 local real_TakeTaxiNode = TakeTaxiNode
 TakeTaxiNode = function(id)
   path, route = GetRoute(GetCurrentname(), id)
@@ -36,6 +37,7 @@ TakeTaxiNode = function(id)
   
   real_TakeTaxiNode(id)
 end
+]]
 
 local function TaximapOpened()
   -- Figure out who we have targeted and what our location name is
@@ -87,6 +89,7 @@ local function OnUpdate()
 end
 
 function QH_Collect_Flight_Init(QHCData, API)
+--[[
   if not QHCData.flight_master then QHCData.flight_master = {} end
   if not QHCData.flight_times then QHCData.flight_times = {} end
   QHCFM, QHCFT = QHCData.flight_master, QHCData.flight_times
@@ -94,4 +97,5 @@ function QH_Collect_Flight_Init(QHCData, API)
   API.Registrar_EventHook("TAXIMAP_OPENED", TaximapOpened)
   
   API.Registrar_OnUpdateHook(OnUpdate)
+  ]]
 end
