@@ -19,17 +19,19 @@ local function Tooltipy(self, ...)
   
   local name, _, quality, ilvl, min, itype, isubtype, _, equiploc, _ = GetItemInfo(id)
   
-  item.name = name
-  item.quality = quality
-  item.ilevel = ilvl
-  item.minlevel = min
-  item.type = string.format("%s/%s", itype, isubtype)
-  
-  local loc = string.match(equiploc, "INVTYPE_(.*)")
-  if loc then
-    item.equiplocation = loc
-  else
-    item.equiplocation = nil
+  if name then
+    item.name = name
+    item.quality = quality
+    item.ilevel = ilvl
+    item.minlevel = min
+    item.type = string.format("%s/%s", itype, isubtype)
+    
+    local loc = string.match(equiploc, "INVTYPE_(.*)")
+    if loc then
+      item.equiplocation = loc
+    else
+      item.equiplocation = nil
+    end
   end
 end
 
