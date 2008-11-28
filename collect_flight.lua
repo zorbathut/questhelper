@@ -24,6 +24,7 @@ local function GetRoute(currentname, endnode)
 end
 
 local function GetCurrentname()
+  QuestHelper: Assert(NumTaxiNodes() < 100)
   for i = 1, NumTaxiNodes() do if TaxiNodeGetType(i) == "CURRENT" then return TaxiNodeName(i) end end
 end
 
@@ -47,6 +48,7 @@ local function TaximapOpened()
   local currentname = GetCurrentname()
   if not currentname then return end  -- must not actually have opened the map
   
+  QuestHelper: Assert(NumTaxiNodes() < 100)
   for i = 1, NumTaxiNodes() do
     local name, type = TaxiNodeName(i), TaxiNodeGetType(i)
     if not QHCFM[name] then QHCFM[name] = {} end

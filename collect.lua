@@ -41,13 +41,15 @@ end
 
 local OriginalScript = GameTooltip:GetScript("OnShow")
 GameTooltip:SetScript("OnShow", function (self, ...)
+  if not self then self = GameTooltip end
+  
   local tstart = GetTime()
   for k, v in pairs(TooltipRegistrar) do
     v(self, ...)
   end
   QH_Timeslice_Increment(GetTime() - tstart, "collect_tooltip") -- anything past here is not my fault
   if OriginalScript then
-    return OriginalScript(Self, ...)
+    return OriginalScript(self, ...)
   end
 end)
 
