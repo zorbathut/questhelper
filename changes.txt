@@ -1,11 +1,17 @@
 
+== Version 0.75 11/28/2008 ==
+
+* Make the tooltip hook a little more permissive of bad plugins
+* Stop being one of said bad plugins :D
+* argh four builds in very, very close succession, sorry about this guys
+
 == Version 0.74 11/28/2008 ==
 
 * Real fix of the crash-on-flight-path issue
 * Fix of the collect_item nil error
 * Some early benchmarking for file loading (more Dalaran crash debugging)
 
-== Version 0.73 11/28/2008 ==
+== Version 0.73 11/27/2008 ==
 
 * Quick hack to fix the crash-on-flight-path issue
 
