@@ -9,8 +9,13 @@ local QHCFT
 local function GetRoute(currentname, endnode)
   local path = currentname .. "@@" .. TaxiNodeName(endnode)
   
+  local links = GetNumRoutes(endnode)
+  if links > 50 then  -- links is apparently sometimes 999998. Why? I could not say. It is a mystery. Hopefully this will show up in the datafiles and I'll be able to debug it.
+    return path, string.format("@@@ WACKYLAND %s %d @@@", TaxiNodeGetType(endnode), links)
+  end
+  
   local route = ""
-  for j = 1, GetNumRoutes(endnode) - 1 do
+  for j = 1, links - 1 do
     if #route > 0 then route = route .. "@@" end
     route = route .. string.format("%f:%f", TaxiGetDestX(endnode, j), TaxiGetDestY(endnode, j))
   end
@@ -26,7 +31,6 @@ local path, route
 local start_time
 local phase = "IDLE"
 
---[[
 local real_TakeTaxiNode = TakeTaxiNode
 TakeTaxiNode = function(id)
   path, route = GetRoute(GetCurrentname(), id)
@@ -37,7 +41,6 @@ TakeTaxiNode = function(id)
   
   real_TakeTaxiNode(id)
 end
-]]
 
 local function TaximapOpened()
   -- Figure out who we have targeted and what our location name is
@@ -89,7 +92,6 @@ local function OnUpdate()
 end
 
 function QH_Collect_Flight_Init(QHCData, API)
---[[
   if not QHCData.flight_master then QHCData.flight_master = {} end
   if not QHCData.flight_times then QHCData.flight_times = {} end
   QHCFM, QHCFT = QHCData.flight_master, QHCData.flight_times
@@ -97,5 +99,4 @@ function QH_Collect_Flight_Init(QHCData, API)
   API.Registrar_EventHook("TAXIMAP_OPENED", TaximapOpened)
   
   API.Registrar_OnUpdateHook(OnUpdate)
-  ]]
 end
