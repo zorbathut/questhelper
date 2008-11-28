@@ -1,4 +1,14 @@
 
+== Version 0.74 11/28/2008 ==
+
+* Real fix of the crash-on-flight-path issue
+* Fix of the collect_item nil error
+* Some early benchmarking for file loading (more Dalaran crash debugging)
+
+== Version 0.73 11/28/2008 ==
+
+* Quick hack to fix the crash-on-flight-path issue
+
 == Version 0.72 11/27/2008 ==
 
 * Made pathing less eager to hop between continents
