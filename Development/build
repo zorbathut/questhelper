@@ -57,6 +57,11 @@ if not cache.uid then cache.uid = {} end
 local file2uid = {}
 for uid, data in pairs(cache.uid) do file2uid[data.file] = uid end
 
+-- so upgrade.lua doesn't freak out
+GetTime = function () end
+QuestHelper_File = {}
+QuestHelper_Loadtime = {}
+
 loadfile("dump.lua")()
 loadfile("fileutil.lua")()
 loadfile("../upgrade.lua")()

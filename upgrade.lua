@@ -1,4 +1,3 @@
-if not QuestHelper_File then QuestHelper_File = {} end -- ugh
 QuestHelper_File["upgrade.lua"] = "Development Version"
 QuestHelper_Loadtime["upgrade.lua"] = GetTime()
 
