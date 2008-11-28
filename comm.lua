@@ -1,4 +1,5 @@
 QuestHelper_File["comm.lua"] = "Development Version"
+QuestHelper_Loadtime["comm.lua"] = GetTime()
 
 -- We can't send more than 256 bytes per message.
 local comm_version = 1

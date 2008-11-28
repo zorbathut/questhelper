@@ -1,4 +1,5 @@
 QuestHelper_File["tomtom.lua"] = "Development Version"
+QuestHelper_Loadtime["tomtom.lua"] = GetTime()
 
 local tomtom_cb
 local tomtom_uid

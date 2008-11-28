@@ -1,4 +1,5 @@
 QuestHelper_File["routing.lua"] = "Development Version"
+QuestHelper_Loadtime["routing.lua"] = GetTime()
 
 -- Create module
 QuestHelper.Routing = {}

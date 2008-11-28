@@ -1,4 +1,5 @@
 QuestHelper_File["help.lua"] = "Development Version"
+QuestHelper_Loadtime["help.lua"] = GetTime()
 
 function QuestHelper:scaleString(val)
   return self:HighlightText(math.floor(val*100+0.5).."%")
@@ -384,6 +385,25 @@ end
 
 function QuestHelper:Top(cmd)
 
+  if cmd and string.find(cmd, "boot") then
+    local bootv = {}
+    for k, v in pairs(QuestHelper_Loadtime) do
+      table.insert(bootv, {time = v, file = k})
+    end
+    table.sort(bootv, function (a, b) return a.time < b.time end)
+    
+    local boott = {}
+    for i = 1, #bootv - 1 do
+      table.insert(boott, {time = bootv[i + 1].time - bootv[i].time, file = bootv[i].file})
+    end
+    table.sort(boott, function(a, b) return a.time < b.time end)
+    
+    for _, v in pairs(boott) do
+      QuestHelper:TextOut(string.format("%s: %f", v.file, v.time))
+    end
+    QuestHelper:TextOut(string.format("%s: shrug", bootv[#bootv].file))
+  end
+  
   if cmd and string.find(cmd, "recycle") then
     self:DumpTableTypeFrequencies()
     self:TextOut(RecycleStatusString("Using %s lua tables.", self.used_tables, self.free_tables, self.recycle_tabletyping))

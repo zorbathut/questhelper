@@ -1,4 +1,5 @@
 QuestHelper_File["hidden.lua"] = "Development Version"
+QuestHelper_Loadtime["hidden.lua"] = GetTime()
 
 local function HiddenReason(obj)
   local depends

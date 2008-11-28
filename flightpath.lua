@@ -1,4 +1,5 @@
 QuestHelper_File["flightpath.lua"] = "Development Version"
+QuestHelper_Loadtime["flightpath.lua"] = GetTime()
 
 local real_TakeTaxiNode = TakeTaxiNode
 local real_TaxiNodeOnButtonEnter= TaxiNodeOnButtonEnter

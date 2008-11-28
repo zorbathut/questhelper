@@ -1,4 +1,5 @@
 QuestHelper_File["graph.lua"] = "Development Version"
+QuestHelper_Loadtime["graph.lua"] = GetTime()
 
 local floor = math.floor
 

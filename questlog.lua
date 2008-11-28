@@ -1,4 +1,5 @@
 QuestHelper_File["questlog.lua"] = "Development Version"
+QuestHelper_Loadtime["questlog.lua"] = GetTime()
 
 --[[QuestHelper.debug_objectives =
  {

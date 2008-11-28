@@ -1,4 +1,5 @@
 QuestHelper_File["objective.lua"] = "Development Version"
+QuestHelper_Loadtime["objective.lua"] = GetTime()
 
 local function ObjectiveCouldBeFirst(self)
   if (self.user_ignore == nil and self.auto_ignore) or self.user_ignore then

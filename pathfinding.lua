@@ -1,4 +1,5 @@
 QuestHelper_File["pathfinding.lua"] = "Development Version"
+QuestHelper_Loadtime["pathfinding.lua"] = GetTime()
 
 local IRONFORGE_PORTAL = {25,0.255,0.084, "Ironforge portal site"}
 local STORMWIND_CITY_PORTAL = QuestHelper_ConvertCoordsToWrath({36,0.387,0.802, "Stormwind City portal site"}, true)  -- Old pre-Wrath coordinates. I could fix it, but . . . meh.

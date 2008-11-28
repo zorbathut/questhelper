@@ -1,3 +1,6 @@
+QuestHelper_File["lang.lua"] = "Development Version"
+QuestHelper_Loadtime["lang.lua"] = GetTime()
+
 -- These tables will be filled in later by their specific files.
 QuestHelper_SubstituteFonts = {}
 QuestHelper_Translations = {}
