@@ -1,4 +1,5 @@
 QuestHelper_File["collect.lua"] = "Development Version"
+QuestHelper_Loadtime["collect.lua"] = GetTime()
 
 local QuestHelper_Collector_Version_Current = 3
 

@@ -1,4 +1,5 @@
 QuestHelper_File["utility.lua"] = "Development Version"
+QuestHelper_Loadtime["utility.lua"] = GetTime()
 
 local default_colour_theme =
   {message_prefix={0.4, 0.78, 1},

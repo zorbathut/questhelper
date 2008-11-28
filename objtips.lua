@@ -1,4 +1,5 @@
 QuestHelper_File["objtips.lua"] = "Development Version"
+QuestHelper_Loadtime["objtips.lua"] = GetTime()
 
 local real_GameTooltipOnShow = GameTooltip:GetScript("OnShow") or QuestHelper.nop
 

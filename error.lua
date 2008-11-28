@@ -1,5 +1,8 @@
 QuestHelper_File = {}
+QuestHelper_Loadtime = {}
 QuestHelper_File["error.lua"] = "Development Version"
+QuestHelper_Loadtime["error.lua"] = GetTime()
+
 --[[
   Much of this code is ganked wholesale from Swatter, and is Copyright (C) 2006 Norganna.
 ]]

@@ -1,4 +1,5 @@
 QuestHelper_File["main.lua"] = "Development Version"
+QuestHelper_Loadtime["main.lua"] = GetTime()
 
 QuestHelper = CreateFrame("Frame", "QuestHelper", nil)
 
@@ -194,6 +195,7 @@ function QuestHelper:Initialize()
      ["textviewer.lua"] = true,
      ["error.lua"] = true,
      ["timeslice.lua"] = true,
+     ["lang.lua"] = true,
      
      ["static.lua"] = true,
      ["static_deDE.lua"] = true,

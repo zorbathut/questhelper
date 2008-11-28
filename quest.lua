@@ -1,4 +1,5 @@
 QuestHelper_File["quest.lua"] = "Development Version"
+QuestHelper_Loadtime["quest.lua"] = GetTime()
 
 local function QuestKnown(self)
   if not self.target and not self.destination then

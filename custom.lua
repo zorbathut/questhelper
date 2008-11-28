@@ -1,4 +1,5 @@
 QuestHelper_File["custom.lua"] = "Development Version"
+QuestHelper_Loadtime["custom.lua"] = GetTime()
 
 -- This next bit of stuff is for fuzzy string comarisons.
 

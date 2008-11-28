@@ -1,4 +1,5 @@
 QuestHelper_File["textviewer.lua"] = "Development Version"
+QuestHelper_Loadtime["textviewer.lua"] = GetTime()
 
 local viewer
 

@@ -1,4 +1,5 @@
 QuestHelper_File["timeslice.lua"] = "Development Version"
+QuestHelper_Loadtime["timeslice.lua"] = GetTime()
 
 -- Any non-local item here is part of an available public interface.
 

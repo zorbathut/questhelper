@@ -1,4 +1,5 @@
 QuestHelper_File["recycle.lua"] = "Development Version"
+QuestHelper_Loadtime["recycle.lua"] = GetTime()
 
 QuestHelper.used_tables = 0
 QuestHelper.free_tables = {}

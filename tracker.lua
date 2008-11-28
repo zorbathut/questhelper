@@ -1,4 +1,5 @@
 QuestHelper_File["tracker.lua"] = "Development Version"
+QuestHelper_Loadtime["tracker.lua"] = GetTime()
 
 local tracker = CreateFrame("Frame", "QuestHelperQuestWatchFrame", UIParent)
 local minbutton = CreateFrame("Button", "QuestHelperQuestWatchFrameMinimizeButton", UIParent)

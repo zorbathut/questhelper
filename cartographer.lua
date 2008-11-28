@@ -1,4 +1,5 @@
 QuestHelper_File["cartographer.lua"] = "Development Version"
+QuestHelper_Loadtime["cartographer.lua"] = GetTime()
 
 local cartographer_cb
 local cartographer_wp

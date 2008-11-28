@@ -1,4 +1,5 @@
 QuestHelper_File["teleport.lua"] = "Development Version"
+QuestHelper_Loadtime["teleport.lua"] = GetTime()
 
 function QuestHelper:CreateTeleportInfo()
   local info = self:CreateTable()
