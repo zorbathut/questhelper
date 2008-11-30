@@ -162,65 +162,72 @@ local interruptcount = 0   -- counts how many "played gained control" messages w
 local init_cartographer_later = false
 
 function QuestHelper:Initialize()
+  QuestHelper_Loadtime["init_start"] = GetTime()
+  
   local file_problem = false
   local expected_version = GetAddOnMetadata("QuestHelper", "Version")
 
   local expected_files =
     {
-     ["upgrade.lua"] = true,
-     ["main.lua"] = true,
-     ["recycle.lua"] = true,
-     ["objective.lua"] = true,
-     ["quest.lua"] = true,
-     ["questlog.lua"] = true,
-     ["utility.lua"] = true,
-     ["dodads.lua"] = true,
-     ["graph.lua"] = true,
-     ["teleport.lua"] = true,
-     ["pathfinding.lua"] = true,
-     ["routing.lua"] = true,
-     ["custom.lua"] = true,
-     ["menu.lua"] = true,
-     ["hidden.lua"] = true,
-     ["nag.lua"] = true,
-     ["comm.lua"] = true,
-     ["mapbutton.lua"] = true,
-     ["help.lua"] = true,
-     ["pattern.lua"] = true,
-     ["flightpath.lua"] = true,
-     ["tracker.lua"] = true,
-     ["objtips.lua"] = true,
-     ["cartographer.lua"] = true,
-     ["tomtom.lua"] = true,
-     ["textviewer.lua"] = true,
-     ["error.lua"] = true,
-     ["timeslice.lua"] = true,
-     ["lang.lua"] = true,
-     
-     ["static.lua"] = true,
-     ["static_deDE.lua"] = true,
-     ["static_enUS.lua"] = true,
-     ["static_esES.lua"] = true,
-     ["static_esMX.lua"] = true,
-     ["static_frFR.lua"] = true,
-     ["static_koKR.lua"] = true,
-     ["static_ruRU.lua"] = true,
-     ["static_zhCN.lua"] = true,
-     ["static_zhTW.lua"] = true,
-     
-     ["collect.lua"] = true,
-     ["collect_achievement.lua"] = true,
-     ["collect_lzw.lua"] = true,
-     ["collect_traveled.lua"] = true,
-     ["collect_zone.lua"] = true,
-     ["collect_location.lua"] = true,
-     ["collect_merger.lua"] = true,
-     ["collect_monster.lua"] = true,
-     ["collect_item.lua"] = true,
-     ["collect_object.lua"] = true,
-     ["collect_loot.lua"] = true,
-     ["collect_patterns.lua"] = true,
-     ["collect_flight.lua"] = true,
+      ["bst_pre.lua"] = true,
+      ["bst_post.lua"] = true,
+      ["bst_astrolabe.lua"] = true,
+      ["bst_ctl.lua"] = true,
+
+      ["upgrade.lua"] = true,
+      ["main.lua"] = true,
+      ["recycle.lua"] = true,
+      ["objective.lua"] = true,
+      ["quest.lua"] = true,
+      ["questlog.lua"] = true,
+      ["utility.lua"] = true,
+      ["dodads.lua"] = true,
+      ["graph.lua"] = true,
+      ["teleport.lua"] = true,
+      ["pathfinding.lua"] = true,
+      ["routing.lua"] = true,
+      ["custom.lua"] = true,
+      ["menu.lua"] = true,
+      ["hidden.lua"] = true,
+      ["nag.lua"] = true,
+      ["comm.lua"] = true,
+      ["mapbutton.lua"] = true,
+      ["help.lua"] = true,
+      ["pattern.lua"] = true,
+      ["flightpath.lua"] = true,
+      ["tracker.lua"] = true,
+      ["objtips.lua"] = true,
+      ["cartographer.lua"] = true,
+      ["tomtom.lua"] = true,
+      ["textviewer.lua"] = true,
+      ["error.lua"] = true,
+      ["timeslice.lua"] = true,
+      ["lang.lua"] = true,
+
+      ["static.lua"] = true,
+      ["static_deDE.lua"] = true,
+      ["static_enUS.lua"] = true,
+      ["static_esES.lua"] = true,
+      ["static_esMX.lua"] = true,
+      ["static_frFR.lua"] = true,
+      ["static_koKR.lua"] = true,
+      ["static_ruRU.lua"] = true,
+      ["static_zhCN.lua"] = true,
+      ["static_zhTW.lua"] = true,
+
+      ["collect.lua"] = true,
+      ["collect_achievement.lua"] = true,
+      ["collect_lzw.lua"] = true,
+      ["collect_traveled.lua"] = true,
+      ["collect_zone.lua"] = true,
+      ["collect_location.lua"] = true,
+      ["collect_merger.lua"] = true,
+      ["collect_monster.lua"] = true,
+      ["collect_item.lua"] = true,
+      ["collect_object.lua"] = true,
+      ["collect_loot.lua"] = true,
+      ["collect_patterns.lua"] = true,
+      ["collect_flight.lua"] = true,
     }
 
   for file, version in pairs(QuestHelper_File) do
@@ -498,6 +505,8 @@ function QuestHelper:Initialize()
   QuestHelper:TextOut(string.format("%d %d", GetFunctionCPUUsage(A), GetFunctionCPUUsage(B)))
   
   --/script SetCVar("scriptProfile", value)]]
+  
+  QuestHelper_Loadtime["init_end"] = GetTime()
 end
 
 local startup_time
@@ -782,6 +791,8 @@ local ontaxi = false
 
 function QuestHelper:OnUpdate()
   local tstart = GetTime()
+  
+  if not QuestHelper_Loadtime["onupdate"] then QuestHelper_Loadtime["onupdate"] = GetTime() end
 
   if please_donate_enabled and startup_time and startup_time + 1 < GetTime() then
     QuestHelper:TextOut(QHText("PLEASE_DONATE"))

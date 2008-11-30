@@ -38,9 +38,14 @@
 #
 # Everything under "Old data gathering" will go away once the new data gathering is in place.
 
+bst_pre.lua
+
 error.lua
 
+bst_astrolabe.lua
 AstrolabeQH\Load.xml
+
+bst_ctl.lua
 ChatThrottleLib\ChatThrottleLib.xml
 
 static_deDE.lua
@@ -120,3 +125,5 @@ collect_flight.lua
 
 cartographer.lua
 tomtom.lua
+
+bst_post.lua

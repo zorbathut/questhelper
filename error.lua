@@ -1,5 +1,3 @@
-QuestHelper_File = {}
-QuestHelper_Loadtime = {}
 QuestHelper_File["error.lua"] = "Development Version"
 QuestHelper_Loadtime["error.lua"] = GetTime()
 
