@@ -402,8 +402,6 @@ function QuestHelper:Initialize()
     end end
   end
   
-  self:ResetPathing()
-  
   -- Adding QuestHelper_CharVersion, so I know if I've already converted this characters saved data.
   if not QuestHelper_CharVersion then
     -- Changing per-character flight routes, now only storing the flight points they have,
@@ -466,7 +464,10 @@ function QuestHelper:Initialize()
     end
   end
   
-  self.Routing:Initialize()       -- Set up the routing task
+  QH_Timeslice_Add(function ()
+    self:ResetPathing()
+    self.Routing:Initialize()       -- Set up the routing task
+  end, "init")
   
   --[[ -- This is just an example of how the WoW profiler biases its profiles heavily.  
   function C()
