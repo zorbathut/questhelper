@@ -512,6 +512,7 @@ end
 
 local startup_time
 local please_donate_enabled = true
+local please_donate_initted = false
 
 function QuestHelper:OnEvent(event)
   if event == "VARIABLES_LOADED" then
@@ -773,13 +774,10 @@ function QuestHelper:OnEvent(event)
     end
   end
   
-  if event == "PLAYER_ENTERING_WORLD" and please_donate_enabled then
+  if event == "PLAYER_ENTERING_WORLD" and please_donate_enabled and not please_donate_initted then
+    please_donate_enabled = QHNagInit()
     startup_time = GetTime()
-    _, month, day, year = CalendarGetDate();
-    if year > 2008 or year == 2008 and month > 11 or year == 2008 and month == 11 and day > 24 or year == 2008 and month == 11 and day < 21 then -- don't feel right about pestering people during thanksgiving
-      startup_time = nil
-      please_donate_enabled = false
-    end
+    please_donate_initted = true
   end
   
   QH_Timeslice_Increment(GetTime() - tstart, "event")
