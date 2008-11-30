@@ -392,16 +392,22 @@ function QuestHelper:Top(cmd)
     end
     table.sort(bootv, function (a, b) return a.time < b.time end)
     
-    local boott = {}
-    for i = 1, #bootv - 1 do
-      table.insert(boott, {time = bootv[i + 1].time - bootv[i].time, file = bootv[i].file})
-    end
-    table.sort(boott, function(a, b) return a.time < b.time end)
+    if string.find(cmd, "sort") then
+      local boott = {}
+      for i = 1, #bootv - 1 do
+        table.insert(boott, {time = bootv[i + 1].time - bootv[i].time, file = bootv[i].file})
+      end
+      table.sort(boott, function(a, b) return a.time < b.time end)
     
-    for _, v in pairs(boott) do
-      QuestHelper:TextOut(string.format("%s: %f", v.file, v.time))
+      for _, v in pairs(boott) do
+        QuestHelper:TextOut(string.format("%s: %f", v.file, v.time))
+      end
+      QuestHelper:TextOut(string.format("%s: shrug", bootv[#bootv].file))
+    else
+      for i = 1, #bootv do
+        QuestHelper:TextOut(string.format("%f: %s", bootv[i].time - bootv[1].time, bootv[i].file))
+      end
     end
-    QuestHelper:TextOut(string.format("%s: shrug", bootv[#bootv].file))
   end
   
   if cmd and string.find(cmd, "recycle") then
