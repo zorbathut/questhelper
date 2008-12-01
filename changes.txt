@@ -1,4 +1,10 @@
 
+== Version 0.76 12/1/2008 ==
+
+* Add some more performance benchmarking to help track down the Dalaran issue
+* Move some initialization out of bootup and into a coroutine to speed up loading times (at the expense of initialization time, and some framerate soon after logging in, but if you've logged out in a pvp zone you're probably logging in dead anyway, so whatever, stby)
+* Add some smarter hey-please-donate code that should bug people for about two days every 3 weeks or so (also: hey, please donate)
+
 == Version 0.75 11/28/2008 ==
 
 * Make the tooltip hook a little more permissive of bad plugins
