@@ -455,6 +455,8 @@ local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
   return x, y, gap, count
 end
 
+local loading_vquest = { cat = "quest", obj = "100/Questhelper is loading...", after = {}, watched = true }
+
 function tracker:update(delta)
   if not delta then
     -- This is called without a value when the questlog is updated.
@@ -519,6 +521,13 @@ function tracker:update(delta)
     
     for q, data in pairs(QuestHelper.quest_log) do
       quest_lookup[data.index] = q
+    end
+    
+    -- Add our little "not yet loaded" notification
+    if not QuestHelper.Routing.map_walker then
+      local count
+      x, y, gap, count = addobj(loading_vquest, seen, nil, nil, x, y, gap)
+      added = added + count
     end
     
     -- Add Quests that are watched but not in the route.
