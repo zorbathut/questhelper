@@ -299,13 +299,6 @@ QuestHelper_Collector = {
         }
       }
     },
-    TODO ["reputation"] = {
-      [QuestID/String] = {
-        locations = {
-          "DENSDENSDENS",
-        }
-      }
-    },
     TODO ["quest"] = {
       [QuestID] = {
         name = "Hello!",
