@@ -62,7 +62,6 @@ static.lua
 changes.lua
 
 lang.lua
-lang_afza.lua
 lang_dadk.lua
 lang_dede.lua
 lang_enus.lua
