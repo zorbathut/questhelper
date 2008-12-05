@@ -9,6 +9,9 @@ local GetLoc
 local Merger
 local Patterns
 
+local GetMonsterUID
+local GetMonsterType
+
 local logon = GetTime() -- Because I'm incredibly paranoid, I'm waiting fifteen minutes after logon to assume they're not drunk.
 local drunk_logon = true
 local drunk_message = false
@@ -45,17 +48,14 @@ local function MouseoverUnit()
   if UnitExists("mouseover") and UnitIsVisible("mouseover") and not UnitIsPlayer("mouseover") and not UnitPlayerControlled("mouseover") then
     local guid = UnitGUID("mouseover")
     
-    QuestHelper: Assert(#guid == 18, "guid len " .. guid) -- 64 bits, plus the 0x prefix
-    QuestHelper: Assert(guid:sub(1, 2) == "0x", "guid 0x-prefix " .. guid)
-    QuestHelper: Assert(guid:sub(5, 5) == "3" or guid:sub(5, 5) == "5", "guid 3-prefix " .. guid)  -- It *shouldn't* be a player or a pet by the time we've gotten here. If so, something's gone wrong.
-    local creatureid = guid:sub(9, 18)  -- here's our actual identifier
+    local creatureid = GetMonsterUID(guid)
     
     if not recentlySeenCritters[creatureid] then
       recentlySeenCritters_Recent[creatureid] = true
       recentlySeenCritters[creatureid] = true
       
       -- register the critter here
-      local cid = tonumber(creatureid:sub(1, 4), 16)
+      local cid = GetMonsterType(guid)
       
       if not QHCM[cid] then QHCM[cid] = {} end
       local critter = QHCM[cid]
@@ -115,4 +115,9 @@ function QH_Collect_Monster_Init(QHCData, API)
   
   Merger = API.Utility_Merger
   QuestHelper: Assert(Merger)
+  
+  GetMonsterUID = API.Utility_GetMonsterUID
+  GetMonsterType = API.Utility_GetMonsterType
+  QuestHelper: Assert(GetMonsterUID)
+  QuestHelper: Assert(GetMonsterType)
 end
