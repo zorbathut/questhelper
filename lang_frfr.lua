@@ -1,18 +1,19 @@
-
 -- Please see lang_enus.lua for reference.
 
-QuestHelper_Translations["frFR"] =
+QuestHelper_Translations.frFR =
  {
   -- Displayed by locale chooser.
   LOCALE_NAME = "Français",
   
   -- Messages used when starting.
   LOCALE_ERROR = "La langue de vos données sauvegardées ne correspond pas à la langue de votre client WoW. Pour utiliser QuestHelper vous devez soit remettre la langue que vous aviez avant, ou supprimer les données en tapant %h(/qh purge).",
-ZONE_LAYOUT_ERROR = "Lancement refusé par crainte de corrompre vos données sauvegardées. "..
-                      "Veuillez attendre la sortie d'un patch capable de prendre en charge la nouvelle zone.",
-  DOWNGRADE_ERROR = "Vos données ne sont pas compatibles avec cette version de QuestHelper. "..
-                    "Télécharger une nouvelle version, ou supprimer les variables sauvegardées.",
+  ZONE_LAYOUT_ERROR = "Lancement refusé par crainte de corrompre vos données sauvegardées. Veuillez attendre la sortie d'un patch capable de prendre en charge la nouvelle zone.",
+  DOWNGRADE_ERROR = "Vos données ne sont pas compatibles avec cette version de QuestHelper. Télécharger une nouvelle version, ou supprimer les variables sauvegardées.",
   HOME_NOT_KNOWN = "Vous n'avez pas d'auberge définie. Lors d'une prochaine visite à votre aubergiste; réinitialiser-là.",
+  PRIVATE_SERVER = nil,
+  PLEASE_RESTART = nil,
+  NOT_UNZIPPED_CORRECTLY = nil,
+  PLEASE_DONATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "Les itinéraires de vol de votre personnage ont été modifiés.",
@@ -64,6 +65,7 @@ ZONE_LAYOUT_ERROR = "Lancement refusé par crainte de corrompre vos données sau
   REMOVED_OBJ = "Supprimer: %1",
   USER_OBJ = "Objectifs utilisateur: %h1",
   UNKNOWN_OBJ = "Destination inconnue pour cet objectif.",
+  INACCESSIBLE_OBJ = nil,
   
   SEARCHING_STATE = "Recherche: %1",
   SEARCHING_LOCAL = "Local %1",
@@ -108,6 +110,7 @@ ZONE_LAYOUT_ERROR = "Lancement refusé par crainte de corrompre vos données sau
   NAG_MULTIPLE_NEW = "Vous avez des nouvelles informations pour %h1 et mises à jour pour %h2 %h(%s3).",
   NAG_SINGLE_NEW = "Vous avez des nouvelles informations pour %h1.",
   NAG_ADDITIONAL = "Vous avez des informations complémentaires pour %h1.",
+  NAG_POLLUTED = nil,
   
   NAG_NOT_NEW = "Vous n'avez aucune information qui n'est pas déjà dans la base de données statique.",
   NAG_NEW = "Vous devez penser à partager vos données pour le bénéfice des autres joueurs.",
@@ -121,6 +124,7 @@ ZONE_LAYOUT_ERROR = "Lancement refusé par crainte de corrompre vos données sau
   NAG_SINGLE_MONSTER_OBJ = "objectif de monstre",
   NAG_SINGLE_EVENT_OBJ = "objectif d'évènement",
   NAG_SINGLE_REPUTATION_OBJ = "objectif de réputation",
+  NAG_SINGLE_PLAYER_OBJ = nil,
   
   NAG_MULTIPLE_FP = "%1 maitres de vol",
   NAG_MULTIPLE_QUEST = "%1 quêtes",
@@ -130,6 +134,7 @@ ZONE_LAYOUT_ERROR = "Lancement refusé par crainte de corrompre vos données sau
   NAG_MULTIPLE_MONSTER_OBJ = "%1 objectifs de monstre",
   NAG_MULTIPLE_EVENT_OBJ = "%1 objectifs d'évènement",
   NAG_MULTIPLE_REPUTATION_OBJ = "%1 objectifs de réputation",
+  NAG_MULTIPLE_PLAYER_OBJ = nil,
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1 est en cours:",

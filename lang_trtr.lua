@@ -1,6 +1,6 @@
 -- Please see lang_enus.lua for reference.
 
-QuestHelper_Translations["trTR"] =
+QuestHelper_Translations.trTR =
  {
   -- Displayed by locale chooser.
   LOCALE_NAME = "Türkçe",
@@ -10,6 +10,10 @@ QuestHelper_Translations["trTR"] =
   ZONE_LAYOUT_ERROR = "Kaydedilmis verilerinize hasar vermekten korkmaksizin çalismayi reddediyorum. Lütfen yeni bölgeyi kontrol edebilecek bir güncelleme çikana kadar bekleyin.",
   DOWNGRADE_ERROR = "Kayitli verileriniz QuestHelper'in bu versiyonuyla uyumlu degil Yeni bir versiyon indirin veya kayitli verilerinizi silin.",
   HOME_NOT_KNOWN = "Belirli bir konaklama yeriniz yok, firsat buldugunuzda barmen ile konusarak bir yer belirleyin.",
+  PRIVATE_SERVER = nil,
+  PLEASE_RESTART = nil,
+  NOT_UNZIPPED_CORRECTLY = nil,
+  PLEASE_DONATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "Uçus noktalariniza bakilarak eklenti veritabani güncellendi.",
@@ -61,6 +65,7 @@ QuestHelper_Translations["trTR"] =
   REMOVED_OBJ = "Silinen: %1",
   USER_OBJ = "Kullanici görevi: %h1",
   UNKNOWN_OBJ = "Bu görev için nereye gitmen gerektigini bilmiyorum.",
+  INACCESSIBLE_OBJ = nil,
   
   SEARCHING_STATE = "Araniyor: %1",
   SEARCHING_LOCAL = "Local %1",
@@ -90,6 +95,7 @@ QuestHelper_Translations["trTR"] =
   FILTERED_ZONE = "Bölge nedeniyle filtrelendi.",
   FILTERED_COMPLETE = "Tamamlandigi için filtrelendi.",
   FILTERED_BLOCKED = "Bitirilmemiş bir görev yüzünden filtrelendi.",
+  FILTERED_UNWATCHED = nil,
   FILTERED_USER = "Bu görevin gizlenmesini istediniz.",
   FILTERED_UNKNOWN = "Nasil bitirilecegi bilinmiyor.",
   
@@ -104,6 +110,7 @@ QuestHelper_Translations["trTR"] =
   NAG_MULTIPLE_NEW = "%h1 yeni bilgileriniz ve %h2 güncellemeleriniz var %h(%s3).",
   NAG_SINGLE_NEW = "%h1 için yeni bilgilere sahipsiniz.",
   NAG_ADDITIONAL = "%h1 için daha daha fazla yeni bilgiye sahipsiniz.",
+  NAG_POLLUTED = nil,
   
   NAG_NOT_NEW = "Veritabaninda bulunmayan yeni bir bilgiye sahip degilsiniz.",
   NAG_NEW = "Diger oyuncularin da faydalanabilmesi için bilgilerinizi paylasabilirsiniz.",
@@ -117,6 +124,7 @@ QuestHelper_Translations["trTR"] =
   NAG_SINGLE_MONSTER_OBJ = "bir yaratık görevi",
   NAG_SINGLE_EVENT_OBJ = "Bir olay görevi",
   NAG_SINGLE_REPUTATION_OBJ = "bir reputation görevi",
+  NAG_SINGLE_PLAYER_OBJ = nil,
   
   NAG_MULTIPLE_FP = "%1 Taksiler.",
   NAG_MULTIPLE_QUEST = "%1 Görevler",
@@ -126,6 +134,7 @@ QuestHelper_Translations["trTR"] =
   NAG_MULTIPLE_MONSTER_OBJ = "%1 Yaratık Görevleri.",
   NAG_MULTIPLE_EVENT_OBJ = nil,
   NAG_MULTIPLE_REPUTATION_OBJ = "%1 Reputation Görevleri",
+  NAG_MULTIPLE_PLAYER_OBJ = nil,
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1 in ilerleyisi:",
@@ -159,6 +168,7 @@ QuestHelper_Translations["trTR"] =
   MENU_ZONE_FILTER = "%1 Alan Filtresi",
   MENU_DONE_FILTER = "%1 Tamamlanmış Filtre.",
   MENU_BLOCKED_FILTER = "%1 Engellenmiş Filtre",
+  MENU_WATCHED_FILTER = nil,
   MENU_LEVEL_FILTER = "%1 Seviye Filtresi",
   MENU_LEVEL_OFFSET = "Level Filtre Ofseti",
   MENU_ICON_SCALE = "Simgelerin büyüklüğü",

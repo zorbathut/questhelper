@@ -1,6 +1,6 @@
 -- Please see lang_enus.lua for reference.
 
-QuestHelper_Translations["afZA"] =
+QuestHelper_Translations.afZA =
  {
   -- Displayed by locale chooser.
   LOCALE_NAME = "PORN",
@@ -10,6 +10,10 @@ QuestHelper_Translations["afZA"] =
   ZONE_LAYOUT_ERROR = nil,
   DOWNGRADE_ERROR = "PORN",
   HOME_NOT_KNOWN = "PORN",
+  PRIVATE_SERVER = nil,
+  PLEASE_RESTART = nil,
+  NOT_UNZIPPED_CORRECTLY = nil,
+  PLEASE_DONATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = nil,
@@ -61,6 +65,7 @@ QuestHelper_Translations["afZA"] =
   REMOVED_OBJ = nil,
   USER_OBJ = nil,
   UNKNOWN_OBJ = nil,
+  INACCESSIBLE_OBJ = nil,
   
   SEARCHING_STATE = nil,
   SEARCHING_LOCAL = nil,
@@ -90,6 +95,7 @@ QuestHelper_Translations["afZA"] =
   FILTERED_ZONE = "PORN",
   FILTERED_COMPLETE = "PORN",
   FILTERED_BLOCKED = "PORN",
+  FILTERED_UNWATCHED = nil,
   FILTERED_USER = "PORN",
   FILTERED_UNKNOWN = "PORN",
   
@@ -104,6 +110,7 @@ QuestHelper_Translations["afZA"] =
   NAG_MULTIPLE_NEW = nil,
   NAG_SINGLE_NEW = nil,
   NAG_ADDITIONAL = nil,
+  NAG_POLLUTED = nil,
   
   NAG_NOT_NEW = nil,
   NAG_NEW = nil,
@@ -117,6 +124,7 @@ QuestHelper_Translations["afZA"] =
   NAG_SINGLE_MONSTER_OBJ = nil,
   NAG_SINGLE_EVENT_OBJ = nil,
   NAG_SINGLE_REPUTATION_OBJ = nil,
+  NAG_SINGLE_PLAYER_OBJ = nil,
   
   NAG_MULTIPLE_FP = nil,
   NAG_MULTIPLE_QUEST = nil,
@@ -126,6 +134,7 @@ QuestHelper_Translations["afZA"] =
   NAG_MULTIPLE_MONSTER_OBJ = nil,
   NAG_MULTIPLE_EVENT_OBJ = nil,
   NAG_MULTIPLE_REPUTATION_OBJ = nil,
+  NAG_MULTIPLE_PLAYER_OBJ = nil,
   
   -- Stuff used by dodads.
   PEER_PROGRESS = nil,
@@ -159,6 +168,7 @@ QuestHelper_Translations["afZA"] =
   MENU_ZONE_FILTER = nil,
   MENU_DONE_FILTER = "PORN",
   MENU_BLOCKED_FILTER = "PORN",
+  MENU_WATCHED_FILTER = nil,
   MENU_LEVEL_FILTER = "PORN",
   MENU_LEVEL_OFFSET = "PORN",
   MENU_ICON_SCALE = "vPORN",

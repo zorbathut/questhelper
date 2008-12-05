@@ -1,6 +1,6 @@
 -- Please see lang_enus.lua for reference.
 
-QuestHelper_Translations["ptBR"] =
+QuestHelper_Translations.ptBR =
  {
   -- Displayed by locale chooser.
   LOCALE_NAME = "Português",
@@ -10,6 +10,10 @@ QuestHelper_Translations["ptBR"] =
   ZONE_LAYOUT_ERROR = "Eu estou me recusando a rodar, com medo de corromper seus dados salvos. Por favor, espere por uma atualizações que será capaz de lidar com o layout da nova zona.",
   DOWNGRADE_ERROR = "Seus dados salvos não são compatíveis com está versão do QuestHelper. Use uma nova versão, ou delete suas variáveis salvas.",
   HOME_NOT_KNOWN = "Sua casa é desconhecida. Quando tiver uma chance, por favor, falor com um dono de taberna e resete-a.",
+  PRIVATE_SERVER = nil,
+  PLEASE_RESTART = nil,
+  NOT_UNZIPPED_CORRECTLY = nil,
+  PLEASE_DONATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "As rotas de vôo para o seu personagem foram alteradas.",
@@ -61,6 +65,7 @@ QuestHelper_Translations["ptBR"] =
   REMOVED_OBJ = "Removido: %1",
   USER_OBJ = "Objetivo do usuário: %h1",
   UNKNOWN_OBJ = "Eu não sei onde você deve ir para este objetivo.",
+  INACCESSIBLE_OBJ = nil,
   
   SEARCHING_STATE = "Procurando: %1",
   SEARCHING_LOCAL = "Local %1",
@@ -91,6 +96,7 @@ QuestHelper_Translations["ptBR"] =
   FILTERED_ZONE = "Filtrado por causa da zona.",
   FILTERED_COMPLETE = "Filtrado por causa que está completo.",
   FILTERED_BLOCKED = "Filtrado por causa de um objetivo anterior incompleto",
+  FILTERED_UNWATCHED = nil,
   FILTERED_USER = "Você requisitou que esse objetivo fosse escondido.",
   FILTERED_UNKNOWN = "Não sei como completar.",
   
@@ -105,6 +111,7 @@ QuestHelper_Translations["ptBR"] =
   NAG_MULTIPLE_NEW = "Você tem %h(novas informações) em %h1, e %h(informações atualizadas) em %h2.",
   NAG_SINGLE_NEW = "Você tem %h(novas informações) em %h1.",
   NAG_ADDITIONAL = "Você tem %h(informações adicionais) em %h1.",
+  NAG_POLLUTED = nil,
   
   NAG_NOT_NEW = "Você não tem nenhuma informação que não exista no banco de dados estático.",
   NAG_NEW = "Você deve considerar compartilhas os seus dados para que os tenham benefícios.",
@@ -118,6 +125,7 @@ QuestHelper_Translations["ptBR"] =
   NAG_SINGLE_MONSTER_OBJ = "um monstro de objetivo",
   NAG_SINGLE_EVENT_OBJ = "um evento de objetivo",
   NAG_SINGLE_REPUTATION_OBJ = "uma reputação de objetivo",
+  NAG_SINGLE_PLAYER_OBJ = nil,
   
   NAG_MULTIPLE_FP = "%1 mestres de vôo",
   NAG_MULTIPLE_QUEST = "%1 quests",
@@ -127,6 +135,7 @@ QuestHelper_Translations["ptBR"] =
   NAG_MULTIPLE_MONSTER_OBJ = "%1 monstros (objetivo)",
   NAG_MULTIPLE_EVENT_OBJ = "%1 Eventos (objetivo)",
   NAG_MULTIPLE_REPUTATION_OBJ = "%1 reputação (objetivo)",
+  NAG_MULTIPLE_PLAYER_OBJ = nil,
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "Progresso do %1:",
@@ -160,6 +169,7 @@ QuestHelper_Translations["ptBR"] =
   MENU_ZONE_FILTER = "%1 Filtro da zona",
   MENU_DONE_FILTER = "%1 filtro feito",
   MENU_BLOCKED_FILTER = "%1 filtro bloqueado",
+  MENU_WATCHED_FILTER = nil,
   MENU_LEVEL_FILTER = "%1 Filtro de nível",
   MENU_LEVEL_OFFSET = "Margem do filtro de level",
   MENU_ICON_SCALE = "Escala do ícone",

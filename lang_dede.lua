@@ -1,6 +1,6 @@
 -- Please see lang_enus.lua for reference.
 
-QuestHelper_Translations["deDE"] =
+QuestHelper_Translations.deDE =
  {
   -- Displayed by locale chooser.
   LOCALE_NAME = "Deutsch",
@@ -10,6 +10,10 @@ QuestHelper_Translations["deDE"] =
   ZONE_LAYOUT_ERROR = "Ich arbeite nicht weiter, um deine gespeicherten Daten nicht zu beschädigen. Bitte warte auf einen Patch, der in der Lage ist mit dem neuen Zonen Layout umzugehen",
   DOWNGRADE_ERROR = "Deine gespeicherten Daten sind nicht kompatibel mit dieser Version von QuestHelper. Verwende eine neue Version oder lösche deine gespeicherten Variablen.",
   HOME_NOT_KNOWN = "Dein Zuhause ist nicht bekannt. Bitte sprich bei der nächsten Gelegenheit einen Gastwirt an um es zurückzusetzen.",
+  PRIVATE_SERVER = nil,
+  PLEASE_RESTART = nil,
+  NOT_UNZIPPED_CORRECTLY = nil,
+  PLEASE_DONATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "Die Flugstrecken für deinen Charakter wurden verändert.",
@@ -61,6 +65,7 @@ QuestHelper_Translations["deDE"] =
   REMOVED_OBJ = "Gelöscht: %1",
   USER_OBJ = "Benutzer Ziel: %h1",
   UNKNOWN_OBJ = "Ich weiß nicht, wo du für dieses Ziel hingehen solltest.",
+  INACCESSIBLE_OBJ = nil,
   
   SEARCHING_STATE = "Suche: %1",
   SEARCHING_LOCAL = "Sprache %1",
@@ -90,6 +95,7 @@ QuestHelper_Translations["deDE"] =
   FILTERED_ZONE = "Gefiltert wegen Zone.",
   FILTERED_COMPLETE = "Gefiltert wegen Vollständigkeit.",
   FILTERED_BLOCKED = "Gefiltert wegen des unvollständigen vorherigen Ziels",
+  FILTERED_UNWATCHED = nil,
   FILTERED_USER = "Du möchtest dieses Ziel ausblenden lassen.",
   FILTERED_UNKNOWN = "Es ist nicht bekannt wie es abgeschlossen werden kann.",
   
@@ -104,6 +110,7 @@ QuestHelper_Translations["deDE"] =
   NAG_MULTIPLE_NEW = "Du hast Informationen über %h1 neue und %h2 aktualisierte %h(%s3).",
   NAG_SINGLE_NEW = "Du hast neue Informationen über %h1.",
   NAG_ADDITIONAL = "Du hast zusätzliche Informationen über %h1.",
+  NAG_POLLUTED = nil,
   
   NAG_NOT_NEW = "Du hast keine Informationen, die nicht bereits in der statischen Datenbank sind.",
   NAG_NEW = "Du solltest in Betracht ziehen deine Daten zu teilen, damit andere davon profitieren können.",
@@ -117,6 +124,7 @@ QuestHelper_Translations["deDE"] =
   NAG_SINGLE_MONSTER_OBJ = "ein Monster-Ziel",
   NAG_SINGLE_EVENT_OBJ = "ein Ereignis-Ziel",
   NAG_SINGLE_REPUTATION_OBJ = "ein Ruf-Ziel",
+  NAG_SINGLE_PLAYER_OBJ = nil,
   
   NAG_MULTIPLE_FP = "%1 Flugmeister",
   NAG_MULTIPLE_QUEST = "%1 Quests",
@@ -126,6 +134,7 @@ QuestHelper_Translations["deDE"] =
   NAG_MULTIPLE_MONSTER_OBJ = "%1 Monster-Ziele",
   NAG_MULTIPLE_EVENT_OBJ = "%1 Ereignis-Ziele",
   NAG_MULTIPLE_REPUTATION_OBJ = "%1 Ruf-Ziele",
+  NAG_MULTIPLE_PLAYER_OBJ = nil,
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1's Fortschritte:",
@@ -159,6 +168,7 @@ QuestHelper_Translations["deDE"] =
   MENU_ZONE_FILTER = "%1 Zonenfilter",
   MENU_DONE_FILTER = "%1 Getaner Filter",
   MENU_BLOCKED_FILTER = "%1 Blockierter Filter",
+  MENU_WATCHED_FILTER = nil,
   MENU_LEVEL_FILTER = "%1 Level Filter",
   MENU_LEVEL_OFFSET = "Level-Filterausgleich",
   MENU_ICON_SCALE = "Symbolgröße",

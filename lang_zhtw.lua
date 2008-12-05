@@ -1,6 +1,6 @@
 -- Please see lang_enus.lua for reference.
 
-QuestHelper_Translations["zhTW"] =
+QuestHelper_Translations.zhTW =
  {
   -- Displayed by locale chooser.
   LOCALE_NAME = "正體中文",
@@ -10,6 +10,10 @@ QuestHelper_Translations["zhTW"] =
   ZONE_LAYOUT_ERROR = "本插件拒絕繼續執行，以避免破壞你所儲存的資料。請您等候下一個可以處理此新區域資料的版本推出後，再使用最新版本的本插件",
   DOWNGRADE_ERROR = "您所儲存的資料，與本版本的QuestHelper並不相容。請您使用新版的QuestHelper，或是請您清除您所儲存的variables紀錄。",
   HOME_NOT_KNOWN = "目前無法得知您爐石所設定的城鎮。當您有機會經過旅店的時候，請您與旅店老闆談話，並設置您的爐石位置。",
+  PRIVATE_SERVER = nil,
+  PLEASE_RESTART = nil,
+  NOT_UNZIPPED_CORRECTLY = nil,
+  PLEASE_DONATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "你角色的飛行路徑資訊已經更新了。",
@@ -61,6 +65,7 @@ QuestHelper_Translations["zhTW"] =
   REMOVED_OBJ = "移除： %1",
   USER_OBJ = "玩家目的: %h1",
   UNKNOWN_OBJ = "我不知道您應該前往哪個目的.",
+  INACCESSIBLE_OBJ = nil,
   
   SEARCHING_STATE = "搜尋中： %1",
   SEARCHING_LOCAL = "地區 %1",
@@ -90,6 +95,7 @@ QuestHelper_Translations["zhTW"] =
   FILTERED_ZONE = "由區域過濾",
   FILTERED_COMPLETE = "由完成度過濾",
   FILTERED_BLOCKED = "以先前未完成的目標過濾",
+  FILTERED_UNWATCHED = nil,
   FILTERED_USER = "您已設定此物件為隱藏",
   FILTERED_UNKNOWN = "不知道如何完成任務",
   
@@ -104,6 +110,7 @@ QuestHelper_Translations["zhTW"] =
   NAG_MULTIPLE_NEW = "您有%h(新的)%h1資料，並且%h(更新了)%h2資料。",
   NAG_SINGLE_NEW = "您有 %h(新的) %h1 %h(資料)",
   NAG_ADDITIONAL = "你有 %h(附加訊息) 於 %h1.",
+  NAG_POLLUTED = nil,
   
   NAG_NOT_NEW = "在您的靜態資料庫中，找不到沒有可以使用的資料",
   NAG_NEW = "建議您將你的資料分享出來，以使其他使用者也可受益。",
@@ -117,6 +124,7 @@ QuestHelper_Translations["zhTW"] =
   NAG_SINGLE_MONSTER_OBJ = "一個怪物目標",
   NAG_SINGLE_EVENT_OBJ = "一個事件目標",
   NAG_SINGLE_REPUTATION_OBJ = "一個聲望目標",
+  NAG_SINGLE_PLAYER_OBJ = nil,
   
   NAG_MULTIPLE_FP = "%1 飛行管理員",
   NAG_MULTIPLE_QUEST = "%1 任務資訊",
@@ -126,6 +134,7 @@ QuestHelper_Translations["zhTW"] =
   NAG_MULTIPLE_MONSTER_OBJ = "%1 怪物目標",
   NAG_MULTIPLE_EVENT_OBJ = "%1 事件目標",
   NAG_MULTIPLE_REPUTATION_OBJ = "%1 聲望目標",
+  NAG_MULTIPLE_PLAYER_OBJ = nil,
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1 目前的進度",
@@ -159,6 +168,7 @@ QuestHelper_Translations["zhTW"] =
   MENU_ZONE_FILTER = "%1 任務區域過濾",
   MENU_DONE_FILTER = "%1 任務區域過濾",
   MENU_BLOCKED_FILTER = "%1 封鎖過濾",
+  MENU_WATCHED_FILTER = nil,
   MENU_LEVEL_FILTER = "%1 任務等級的過濾",
   MENU_LEVEL_OFFSET = "關閉等級過濾",
   MENU_ICON_SCALE = "圖示比例",

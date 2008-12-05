@@ -1,6 +1,6 @@
 -- Please see lang_enus.lua for reference.
 
-QuestHelper_Translations["svSE"] =
+QuestHelper_Translations.svSE =
  {
   -- Displayed by locale chooser.
   LOCALE_NAME = "Svenska",
@@ -10,6 +10,10 @@ QuestHelper_Translations["svSE"] =
   ZONE_LAYOUT_ERROR = nil,
   DOWNGRADE_ERROR = "Din sparade data är inte kompatibel med denna version av Questhelper. Använd en ny version, eller radera sina sparade variabler.",
   HOME_NOT_KNOWN = "Ditt hem är okänt. När du får chansen, prata med din innkeeper för att nollställa det.",
+  PRIVATE_SERVER = nil,
+  PLEASE_RESTART = nil,
+  NOT_UNZIPPED_CORRECTLY = nil,
+  PLEASE_DONATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "Flygvägen för din karaktär har ändrats",
@@ -61,6 +65,7 @@ QuestHelper_Translations["svSE"] =
   REMOVED_OBJ = "Borttagen: %1",
   USER_OBJ = nil,
   UNKNOWN_OBJ = nil,
+  INACCESSIBLE_OBJ = nil,
   
   SEARCHING_STATE = "Söker: %1",
   SEARCHING_LOCAL = nil,
@@ -90,6 +95,7 @@ QuestHelper_Translations["svSE"] =
   FILTERED_ZONE = "Filtrerad på grund av zon.",
   FILTERED_COMPLETE = "Filtrerad på grund av fullgjort",
   FILTERED_BLOCKED = "Filtrerad på grund av att föregående uppdrag inte är klart.",
+  FILTERED_UNWATCHED = nil,
   FILTERED_USER = "Du har begärt att detta uppdrag ska vara gömt.",
   FILTERED_UNKNOWN = "Vet inte hur man klarar av.",
   
@@ -104,6 +110,7 @@ QuestHelper_Translations["svSE"] =
   NAG_MULTIPLE_NEW = nil,
   NAG_SINGLE_NEW = "Du har (ny information) om",
   NAG_ADDITIONAL = "Du har (information) om",
+  NAG_POLLUTED = nil,
   
   NAG_NOT_NEW = "Du har ingen information som inte redan finns i static databasen",
   NAG_NEW = "Du ska kanske dela med av dina data så andra kan ha nytta av dom",
@@ -117,6 +124,7 @@ QuestHelper_Translations["svSE"] =
   NAG_SINGLE_MONSTER_OBJ = nil,
   NAG_SINGLE_EVENT_OBJ = nil,
   NAG_SINGLE_REPUTATION_OBJ = nil,
+  NAG_SINGLE_PLAYER_OBJ = nil,
   
   NAG_MULTIPLE_FP = nil,
   NAG_MULTIPLE_QUEST = "uppdrag",
@@ -126,6 +134,7 @@ QuestHelper_Translations["svSE"] =
   NAG_MULTIPLE_MONSTER_OBJ = nil,
   NAG_MULTIPLE_EVENT_OBJ = nil,
   NAG_MULTIPLE_REPUTATION_OBJ = nil,
+  NAG_MULTIPLE_PLAYER_OBJ = nil,
   
   -- Stuff used by dodads.
   PEER_PROGRESS = nil,
@@ -159,6 +168,7 @@ QuestHelper_Translations["svSE"] =
   MENU_ZONE_FILTER = "Områdes filter",
   MENU_DONE_FILTER = "%1 Filtret Färdigt",
   MENU_BLOCKED_FILTER = "%1 Blockerat Filter",
+  MENU_WATCHED_FILTER = nil,
   MENU_LEVEL_FILTER = "%1 Nivå Filter",
   MENU_LEVEL_OFFSET = "Nivå Filter Offset",
   MENU_ICON_SCALE = "Ikon skala",
