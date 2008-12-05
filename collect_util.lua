@@ -14,7 +14,14 @@ function GetMonsterType(guid)
   return tonumber(guid:sub(9, 12), 16)  -- here's our actual identifier
 end
 
+function GetItemType(link)
+  return tonumber(string.match(link,
+    "^|cff%x%x%x%x%x%x|Hitem:(%d+):[%d:-]+|h%[[^%]]*%]|h|r$"
+  ))
+end
+
 function QH_Collect_Util_Init(_, API)
   API.Utility_GetMonsterUID = GetMonsterUID
   API.Utility_GetMonsterType = GetMonsterType
+  API.Utility_GetItemType = GetItemType
 end

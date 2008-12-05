@@ -8,6 +8,8 @@ local QHC
 local GetMonsterUID
 local GetMonsterType
 
+local Patterns
+
 local members = {}
 local members_count = 0
 local members_refs = {} -- "raid6" and the like
@@ -113,10 +115,10 @@ local function CombatLogEvent(_, event, sourceguid, _, _, destguid)
   else
     -- It's dead. Hooray!
     
-    if monsterstate[destguid] and monstertimeout[destguid] > GetTime() and monsterstate[destguid] == MS_TAPPED_US then -- yaaay
+    if monsterstate[destguid] and monstertimeout[destguid] > GetTime() and monsterstate[destguid] == MS_TAPPED_US and members_count > 0 then -- yaaay
       local type = GetMonsterType(destguid)
       if not QHC.monster[type] then QHC.monster[type] = {} end
-      QHC.monster[type].kills = (QHC.monster[type].kills or 0) + 1  -- Hopefully, most people loot their kills.
+      QHC.monster[type].kills = (QHC.monster[type].kills or 0) + 1 / members_count  -- Hopefully, most people loot their kills. Divide by members_count 'cause there's a 1/members chance that we get to loot.
       
       monsterstate[destguid] = MS_TAPPED_LOOTABLE
       monsterrefresh[destguid] = GetTime() + 600
@@ -131,6 +133,37 @@ local function CombatLogEvent(_, event, sourceguid, _, _, destguid)
   end
 end
 
+function LootOpened()
+  -- When loot is opened, we "know" that the user is targeting the thing he's looted. Note that by "know", I actually mean "don't know at all". If the user is fishing or disenchanting or doing anything spell-based, it isn't true in the least! Yaaaay! TODO hate life and disable this if the user has just cast a "loot" spell of some kind (note, the part about hating life is not optional)
+  
+  local items = {}
+  items.gold = 0
+  for i = 1, GetNumLootItems() do
+    _, name, quant, _ = GetLootSlotInfo(i)
+    link = GetLootSlotLink(i)
+    if quant == 0 then
+      -- moneys
+      local _, _, amount = string.find(name, Patterns.GOLD_AMOUNT)
+      if amount then items.gold = items.gold + tonumber(amount) * 10000 end
+      
+      local _, _, amount = string.find(name, Patterns.SILVER_AMOUNT)
+      if amount then items.gold = items.gold + tonumber(amount) * 100 end
+      
+      local _, _, amount = string.find(name, Patterns.COPPER_AMOUNT)
+      if amount then items.gold = items.gold + tonumber(amount) * 1 end
+      
+      QuestHelper:TextOut(tostring(amount))
+    else
+      local itype = GetItemType(link)
+      items[itype] = (items[itype] or 0) + quant
+    end
+  end
+  
+  for k, v in pairs(items) do
+    QuestHelper:TextOut(string.format("%s: %d", tostring(k), v))
+  end
+end
+
 function QH_Collect_Loot_Init(QHCData, API)
   QHC = QHCData
   
@@ -139,6 +172,8 @@ function QH_Collect_Loot_Init(QHCData, API)
   API.Registrar_EventHook("RAID_ROSTER_UPDATE", MembersUpdate)
   API.Registrar_EventHook("PARTY_MEMBERS_CHANGED", MembersUpdate)
   API.Registrar_EventHook("COMBAT_LOG_EVENT_UNFILTERED", CombatLogEvent)
+  
+  API.Registrar_EventHook("LOOT_OPENED", LootOpened)
   --[[
   API.Registrar_EventHook("PLAYER_TARGET_CHANGED", TargetChanged)
   API.Registrar_EventHook("LOOT_OPENED", LootOpened)
@@ -157,6 +192,11 @@ function QH_Collect_Loot_Init(QHCData, API)
   GetMonsterType = API.Utility_GetMonsterType
   QuestHelper: Assert(GetMonsterUID)
   QuestHelper: Assert(GetMonsterType)
+  
+  Patterns = API.Patterns
+  API.Patterns_RegisterNumber("GOLD_AMOUNT")
+  API.Patterns_RegisterNumber("SILVER_AMOUNT")
+  API.Patterns_RegisterNumber("COPPER_AMOUNT")
   
   -- What I want to know is whether it was tagged by me or my group when dead
   -- Check target-of-each-groupmember? Once we see him tapped once, and by us, it's probably sufficient.
