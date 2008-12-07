@@ -18,6 +18,9 @@ local function MembersUpdate()
   -- We want to keep track of exactly who is in a group with this player, so we can watch for combat messages involving them, so we can see who's been tapped, so we can record the right deaths, so we can know who the player should be able to loot.
   -- I hate my life.
   -- >:(
+  
+  local alone = false
+  
   QuestHelper:TextOut("MU start")
   members = {} -- we burn a table every time this updates, but whatever
   members_count = 0
@@ -51,10 +54,11 @@ local function MembersUpdate()
     if UnitGUID("player") then members[UnitGUID("player")] = true end -- it's possible that we haven't logged in entirely yet
     if not UnitGUID("player") then QuestHelper:TextOut("dbg lol") end
     table.insert(members_refs, "player")
-    QuestHelper:TextOut(string.format("player %s added", UnitName("player"))) 
+    QuestHelper:TextOut(string.format("player %s added", UnitName("player")))
+    alone = true
   end
   
-  if GetLootMethod() == "master" then members = {} members_refs = {} end -- We're not going to bother trying to deal with master loot right now - it's just too different and I just don't care enough.
+  if GetLootMethod() == "master" and not alone then members = {} members_refs = {} end -- We're not going to bother trying to deal with master loot right now - it's just too different and I just don't care enough.
   
   for _, _ in pairs(members) do members_count = members_count + 1 end -- lulz
 end
