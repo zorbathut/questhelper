@@ -71,16 +71,21 @@ local monsterstate = {}
 local monsterrefresh = {}
 local monstertimeout = {}
 
+local CombatLogEvent_SpellStart
+
 -- This all does something quite horrible.
 -- Some monsters don't become lootable when they're killed and didn't drop anything. We need to record this so we can get real numbers for them. 
 -- Unfortunately, we can't just record when "something" is killed. We have to record when "our group" killed it, so we know that there *was* a chance of looting it.
 -- As such, we need to check for monster deaths that the player may never have actually targeted. It gets, to put it mildly, grim, and unfortunately we'll never be able to solve it entirely.
 -- Worse, we need to *not* record item drops for things that we never actually "saw" but that were lootable anyway, because if we do, we bias the results towards positive (i.e. if we AOE ten monsters down, and two of them drop, and we loot those, that's 2/2 if we record the drops, and 0/0 if we don't, while what we really want is 2/10. 0/0 is at least "not wrong".)
-local function CombatLogEvent(_, event, sourceguid, _, _, destguid)
-  -- There's two things that are handled here.
+local function CombatLogEvent(_, event, sourceguid, _, _, destguid, _, _, _, spellname)
+  -- There's many things that are handled here.
   -- First, if there's any damage messages coming either to or from a party member, we check to see if that monster is tapped by us. If it's tapped, we cache the value for 15 seconds, expiring entirely in 30.
   -- Second, there's the Death message. If it's tapped by us, increases the kill count by 1/partymembers and changes its state to lootable.
-  if event ~= "UNIT_DIED" then
+  -- There's also a small hook or two for events that other modules happen to need. Sigh.
+  if event == "SPELL_CAST_START" then
+    CombatLogEvent_SpellStart(nil, event, sourceguid, nil, nil, destguid, nil, nil, nil, spellname)
+  elseif event ~= "UNIT_DIED" then
     -- Something has been attacked by something, maybe.
     if not string.find(event, "_DAMAGE$") then return end -- We only care about something punching something else.
     
@@ -137,8 +142,127 @@ local function CombatLogEvent(_, event, sourceguid, _, _, destguid)
   end
 end
 
-function LootOpened()
+-- Logic behind this module:
+-- Watch for the spell to be sent
+-- Watch for it to start
+-- Check out the combat log and see what GUID we get
+-- If the GUID is null, we're targeting an object, otherwise, we're targeting a critter
+-- Wait for spell to succeed
+-- If anything doesn't synch up, or the spell is interrupted, nil out all these items.
+
+local last_spell
+local last_rank
+local last_target
+local last_target_guid
+local last_otarget_guid
+local last_timestamp
+local last_succeed = false
+
+local phase = 0
+
+-- For long spells, it goes SENT, START, COMBATLOG, SUCCEED. For short spells, annoyingly, it goes SENT, SUCCEED, COMBATLOG. In some cases we're not even guaranteed to get that combat log event.
+local PHASE_IDLE = 0
+local PHASE_SENT = 1
+local PHASE_SHORT_SUCCEEDED = 2
+local PHASE_LONG_START = 3
+local PHASE_LONG_COMBATLOG = 4
+local PHASE_COMPLETE = 5
+
+local function reset()
+  last_timestamp, last_spell, last_rank, last_target, last_target_guid, last_succeed, phase = nil, nil, nil, nil, nil, false, PHASE_IDLE
+end
+
+-- This all doesn't work instant spells. Luckily, I don't care about instant spells (yet).
+local function SpellSent(player, spell, rank, target)
+  if player ~= "player" then return end
+  
+  last_timestamp, last_spell, last_rank, last_target, last_otarget_guid, last_target_guid, last_succeed, phase = GetTime(), spell, rank, UnitGUID("target"), target, nil, false, PHASE_SENT
+  
+  QuestHelper:TextOut(string.format("ss %s", spell))
+end
+
+local function SpellStart(player, spell, rank)
+  if player ~= "player" then return end
+  
+  if spell ~= last_spell or rank ~= last_rank or last_target_guid or phase ~= PHASE_SENT or last_timestamp + 1 < GetTime() then
+    reset()
+  else
+    QuestHelper:TextOut(string.format("sst %s", spell))
+    last_timestamp, phase = GetTime(), PHASE_LONG_START
+  end
+end
+
+CombatLogEvent_SpellStart = function(_, _, sourceguid, _, _, destguid, _, _, _, spellname)
+  if sourceguid ~= UnitGUID("player") then return end
+  
+  if spellname ~= last_spell or not last_target or last_target_guid or last_timestamp + 1 < GetTime() then
+    reset()
+    return
+  end
+  
+  QuestHelper:TextOut("cle_ss enter")
+  
+  if phase ~= PHASE_LONG_START and phase ~= PHASE_SHORT_SUCCEEEDED then
+    reset()
+    return
+  end
+  
+  QuestHelper:TextOut(string.format("cesst %s", spellname))
+  last_timestamp, last_target_guid, phase = GetTime(), destguid, ((phase == PHASE_LONG_START) and PHASE_LONG_COMBATLOG or PHASE_COMPLETE)
+  
+  if last_target_guid ~= last_otarget_guid then reset() return end
+  
+  if phase == PHASE_COMPLETE then
+    QuestHelper:TextOut(string.format("spell succeeded, casting %s %s on %s/%s", last_spell, last_rank, last_target, last_target_guid))
+  end
+end
+
+local function SpellSucceed(player, spell, rank)
+  if player ~= "player" then return end
+  
+  if not last_spell or not last_target or last_spell ~= spell or last_rank ~= rank then
+    reset()
+    return
+  end
+  
+  QuestHelper:TextOut("sscu enter")
+  
+  if phase ~= PHASE_SENT and phase ~= PHASE_LONG_COMBATLOG then
+    reset()
+    return
+  end
+  
+  if phase == PHASE_SENT and last_timestamp + 1 < GetTime() then -- spell has no duration
+    reset()
+    return
+  end
+  
+  if phase == PHASE_LONG_COMBATLOG and (not last_target_guid or last_timestamp + 10 < GetTime()) then -- spell has duration, but none of the spells we care about are > 5 seconds, I think
+    reset()
+    return
+  end
+  
+  QuestHelper:TextOut(string.format("sscu %s, %d, %s, %s", spell, phase, tostring(phase == PHASE_SENT), tostring((phase == PHASE_SENT) and PHASE_SHORT_SUCCEEDED)))
+  last_timestamp, last_succeed, phase = GetTime(), true, ((phase == PHASE_SENT) and PHASE_SHORT_SUCCEEDED or PHASE_COMPLETE)
+  QuestHelper:TextOut(string.format("phase %d", phase))
+  
+  if phase == PHASE_COMPLETE then
+    QuestHelper:TextOut(string.format("spell succeeded, casting %s %s on %s/%s", last_spell, last_rank, last_target, last_target_guid))
+  end
+end
+
+local function SpellInterrupt(player, spell, rank)
+  if player ~= "player" then return end
+  
+  -- I don't care what they were casting, they're certainly not doing it now
+  QuestHelper:TextOut(string.format("si %s", spell))
+  reset()
+end
+  
+
+local function LootOpened()
   -- When loot is opened, we "know" that the user is targeting the thing he's looted. Note that by "know", I actually mean "don't know at all". If the user is fishing or disenchanting or doing anything spell-based, it isn't true in the least! Yaaaay! TODO hate life and disable this if the user has just cast a "loot" spell of some kind (note, the part about hating life is not optional)
+  
   
   local items = {}
   items.gold = 0
@@ -176,6 +300,11 @@ function QH_Collect_Loot_Init(QHCData, API)
   API.Registrar_EventHook("RAID_ROSTER_UPDATE", MembersUpdate)
   API.Registrar_EventHook("PARTY_MEMBERS_CHANGED", MembersUpdate)
   API.Registrar_EventHook("COMBAT_LOG_EVENT_UNFILTERED", CombatLogEvent)
+
+  API.Registrar_EventHook("UNIT_SPELLCAST_SENT", SpellSent)
+  API.Registrar_EventHook("UNIT_SPELLCAST_START", SpellStart)
+  API.Registrar_EventHook("UNIT_SPELLCAST_SUCCEEDED", SpellSucceed)
+  API.Registrar_EventHook("UNIT_SPELLCAST_INTERRUPTED", SpellInterrupt)
   
   API.Registrar_EventHook("LOOT_OPENED", LootOpened)
   --[[
@@ -184,10 +313,7 @@ function QH_Collect_Loot_Init(QHCData, API)
   API.Registrar_EventHook("LOOT_SLOT_CLEARED", LootTaken)
   API.Registrar_EventHook("LOOT_CLOSED", LootClosed)
   API.Registrar_EventHook("ITEM_PUSH", ItemReceived)
-  API.Registrar_EventHook("UNIT_SPELLCAST_START", SpellStart)
-  API.Registrar_EventHook("UNIT_SPELLCAST_SUCCEEDED", SpellSucceed)
-  API.Registrar_EventHook("UNIT_SPELLCAST_INTERRUPTED", SpellSucceed)
-  API.Registrar_EventHook("UNIT_SPELLCAST_STOP", SpellStop)
+
   ]]
   
   MembersUpdate() -- to get self
