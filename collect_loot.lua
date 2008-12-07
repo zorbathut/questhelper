@@ -150,6 +150,11 @@ end
 -- Wait for spell to succeed
 -- If anything doesn't synch up, or the spell is interrupted, nil out all these items.
 
+local pickpocket_okay
+local pickpocket_target
+local pickpocket_otarget_guid
+local pickpocket_timestamp
+
 local last_spell
 local last_rank
 local last_target
@@ -169,14 +174,26 @@ local PHASE_LONG_COMBATLOG = 4
 local PHASE_COMPLETE = 5
 
 local function reset()
-  last_timestamp, last_spell, last_rank, last_target, last_target_guid, last_succeed, phase = nil, nil, nil, nil, nil, false, PHASE_IDLE
+  if last_spell == "Pick Pocket" and phase == PHASE_SHORT_SUCCEEDED then
+    -- todo: internationalize
+    pickpocket_okay = true
+    pickpocket_target = last_target
+    pickpocket_otarget_guid = last_otarget_guid
+    pickpocket_timestamp = last_timestamp
+  else
+    pickpocket_okay = false
+    pickpocket_target = nil
+    pickpocket_otarget_guid = nil
+    pickpocket_timestamp = nil
+  end
+  last_timestamp, last_spell, last_rank, last_target, last_otarget_guid, last_target_guid, last_succeed, phase = nil, nil, nil, nil, nil, false, PHASE_IDLE
 end
 
--- This all doesn't work instant spells. Luckily, I don't care about instant spells (yet).
+-- This all doesn't work with instant spells. Luckily, I don't care about instant spells (yet).
 local function SpellSent(player, spell, rank, target)
   if player ~= "player" then return end
   
-  last_timestamp, last_spell, last_rank, last_target, last_otarget_guid, last_target_guid, last_succeed, phase = GetTime(), spell, rank, UnitGUID("target"), target, nil, false, PHASE_SENT
+  last_timestamp, last_spell, last_rank, last_target, last_otarget_guid, last_target_guid, last_succeed, phase = GetTime(), spell, rank, target, UnitGUID("target"), nil, false, PHASE_SENT
   
   QuestHelper:TextOut(string.format("ss %s", spell))
 end
@@ -195,6 +212,8 @@ end
 CombatLogEvent_SpellStart = function(_, _, sourceguid, _, _, destguid, _, _, _, spellname)
   if sourceguid ~= UnitGUID("player") then return end
   
+  QuestHelper:TextOut(string.format("cle_ss enter %s %s %s %s", tostring(spellname ~= last_spell), tostring(not last_target), tostring(not not last_target_guid), tostring(last_timestamp + 1 < GetTime())))
+  
   if spellname ~= last_spell or not last_target or last_target_guid or last_timestamp + 1 < GetTime() then
     reset()
     return
@@ -210,7 +229,7 @@ CombatLogEvent_SpellStart = function(_, _, sourceguid, _, _, destguid, _, _, _, 
   QuestHelper:TextOut(string.format("cesst %s", spellname))
   last_timestamp, last_target_guid, phase = GetTime(), destguid, ((phase == PHASE_LONG_START) and PHASE_LONG_COMBATLOG or PHASE_COMPLETE)
   
-  if last_target_guid ~= last_otarget_guid then reset() return end
+  if last_target_guid ~= last_otarget_guid and not (last_target_guid == "0x0000000000000000" and not last_otarget_guid) then reset() return end
   
   if phase == PHASE_COMPLETE then
     QuestHelper:TextOut(string.format("spell succeeded, casting %s %s on %s/%s", last_spell, last_rank, last_target, last_target_guid))
@@ -219,6 +238,8 @@ end
 
 local function SpellSucceed(player, spell, rank)
   if player ~= "player" then return end
+  
+  QuestHelper:TextOut(string.format("sscu enter %s %s %s %s %s", tostring(last_spell), tostring(last_target), tostring(last_rank), tostring(spell), tostring(rank)))
   
   if not last_spell or not last_target or last_spell ~= spell or last_rank ~= rank then
     reset()
@@ -261,7 +282,42 @@ end
   
 
 local function LootOpened()
-  -- When loot is opened, we "know" that the user is targeting the thing he's looted. Note that by "know", I actually mean "don't know at all". If the user is fishing or disenchanting or doing anything spell-based, it isn't true in the least! Yaaaay! TODO hate life and disable this if the user has just cast a "loot" spell of some kind (note, the part about hating life is not optional)
+  -- First off, we try to figure out where the hell these items came from.
+  
+  --QuestHelper:TextOut(string.format("%s %s %s", tostring(phase == PHASE_COMPLETE), tostring(last_spell == "Mining"), tostring(last_timestamp + 1 > GetTime())))
+  --QuestHelper:TextOut(string.format("%s %s %s", tostring(phase == PHASE_COMPLETE), tostring(last_spell == "Mining"), tostring(last_timestamp + 1 > GetTime())))
+  
+  if last_timestamp then QuestHelper:TextOut(string.format("%s %s %s", tostring(phase == PHASE_COMPLETE), tostring(last_spell == "Mining"), tostring(last_timestamp + 1 > GetTime()))) else QuestHelper:TextOut("timmy") end
+  if pickpocket_okay then QuestHelper:TextOut(stringl.format("%s", tostring(pickpocket_timestamp))) else QuestHelper:TextOut("nein") end
+  
+  if IsFishingLoot() then
+    -- It's fishing loot. Yay! This was the only easy one.
+    QuestHelper:TextOut("Fishing loot")
+  elseif phase == PHASE_SHORT_SUCCEEDED and last_spell == "Pick Pocket" and last_timestamp + 1 > GetTime() then
+    -- Pickpocketing. Check last_otarget_guid and last_target to see if they match up. TODO: check these at the point?
+    QuestHelper:TextOut(string.format("Pickpocketing direct from %s", last_target_guid))
+  elseif pickpocket_okay and pickpocket_timestamp + 1 > GetTime() then
+    -- Pickpocketing. Check last_otarget_guid and last_target to see if they match up. TODO: check these at the point?
+    QuestHelper:TextOut(string.format("Pickpocketing indirect from %s", pickpocket_otarget_guid))
+  elseif phase == PHASE_COMPLETE and last_spell == "Mining" and last_timestamp + 1 > GetTime() then
+    -- Mining. Add similar tests for skinning, herbing, salvaging. Also, add the various translations.
+    QuestHelper:TextOut(string.format("Mining from %s", last_target))
+  -- We also want to test:
+  -- Disenchanting
+  -- Prospecting
+  -- Using an entity
+  -- Opening a container
+  elseif UnitGUID("target") and monsterstate[UnitGUID("target")] == MS_TAPPED_LOOTABLE and monstertimeout[UnitGUID("target")] > GetTime() then
+    -- Monster is lootable, so we loot the monster
+    -- Todo: add a check that we didn't just cast a spell *after* the monster died? If so, we want might to kick out the monster loot.
+    QuestHelper:TextOut(string.format("Monsterloot from %s", UnitGUID("target")))
+    monsterstate[UnitGUID("target")] = nil
+    monstertimeout[UnitGUID("target")] = nil
+    monsterrefresh[UnitGUID("target")] = nil
+  else
+    QuestHelper:TextOut("Who knows")
+  end
+  
   
   
   local items = {}
