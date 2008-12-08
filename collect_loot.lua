@@ -155,6 +155,9 @@ local pickpocket_target
 local pickpocket_otarget_guid
 local pickpocket_timestamp
 
+local pickpocket_name = GetSpellInfo(921)   -- obviously, this is the pickpocket spell ID
+QuestHelper:TextOut("PPN " .. pickpocket_name)
+
 local function pp_reset()
   pickpocket_target, pickpocket_otarget_guid, pickpocket_timestamp, pickpocket_phase = nil, nil, nil, PP_PHASE_IDLE
 end
@@ -162,7 +165,7 @@ pp_reset()
 
 local function PPSent(player, spell, _, target)
   if player ~= "player" then return end
-  if spell ~= "Pick Pocket" then return end
+  if spell ~= pickpocket_name then return end
   if UnitName("target") ~= target then return end -- DENY
   
   pickpocket_timestamp, pickpocket_target, pickpocket_otarget_guid, pickpocket_phase = GetTime(), target, UnitGUID("target"), PP_PHASE_SENT
@@ -170,7 +173,7 @@ end
 
 local function PPSucceed(player, spell, rank)
   if player ~= "player" then return end
-  if spell ~= "Pick Pocket" then return end
+  if spell ~= pickpocket_name then return end
   
   if pickpocket_phase ~= PP_PHASE_SENT and (not pickpocket_otarget_guid or last_timestamp + 1 < GetTime()) then
     pp_reset()
@@ -197,6 +200,13 @@ local last_target_guid
 local last_otarget_guid
 local last_timestamp
 local last_succeed = false
+
+local gathereffects = {}
+
+gathereffects[GetSpellInfo(51306)] = {token = "eng", noclog = true}
+gathereffects[GetSpellInfo(32606)] = {token = "mine"}
+gathereffects[GetSpellInfo(2366)] = {token = "herb"}
+gathereffects[GetSpellInfo(8613)] = {token = "skin"}
 
 local function last_reset()
   last_timestamp, last_spell, last_rank, last_target, last_otarget_guid, last_target_guid, last_succeed, last_phase = nil, nil, nil, nil, nil, false, LAST_PHASE_IDLE
@@ -264,9 +274,16 @@ local function SpellSucceed(player, spell, rank)
   
   QuestHelper:TextOut("sscu enter")
   
-  if last_phase ~= LAST_PHASE_COMBATLOG and (not last_target_guid or last_timestamp + 10 < GetTime()) then
-    last_reset()
-    return
+  if gathereffects[spell] and gathereffects[spell].noclog then
+    if last_phase ~= LAST_PHASE_START and (not last_target_guid or last_timestamp + 10 < GetTime()) then
+      last_reset()
+      return
+    end
+  else
+    if last_phase ~= LAST_PHASE_COMBATLOG and not (gathereffects[spell] and gathereffects[spell].noclog) and (not last_target_guid or last_timestamp + 10 < GetTime()) then
+      last_reset()
+      return
+    end
   end
   
   QuestHelper:TextOut(string.format("sscu %s, %d, %s, %s", spell, last_phase, tostring(last_phase == LAST_PHASE_SENT), tostring((last_phase == LAST_PHASE_SENT) and LAST_PHASE_SHORT_SUCCEEDED)))
@@ -274,7 +291,7 @@ local function SpellSucceed(player, spell, rank)
   QuestHelper:TextOut(string.format("last_phase %d", last_phase))
   
   if last_phase == LAST_PHASE_COMPLETE then
-    QuestHelper:TextOut(string.format("spell succeeded, casting %s %s on %s/%s", last_spell, last_rank, last_target, last_target_guid))
+    QuestHelper:TextOut(string.format("spell succeeded, casting %s %s on %s/%s", last_spell, last_rank, tostring(last_target), tostring(last_target_guid)))
   end
 end
 
@@ -285,7 +302,6 @@ local function SpellInterrupt(player, spell, rank)
   QuestHelper:TextOut(string.format("si %s", spell))
   last_reset()
 end
-  
 
 local function LootOpened()
   -- First off, we try to figure out where the hell these items came from.
@@ -299,11 +315,10 @@ local function LootOpened()
   if IsFishingLoot() then
     -- It's fishing loot. Yay! This was the only easy one.
     QuestHelper:TextOut("Fishing loot")
-  elseif pickpocket_phase == PP_PHASE_COMPLETE and pickpocket_timestamp + 1 > GetTime() and UnitGUID("target") == pickpocket_otarget_guid then
+  elseif pickpocket_phase == PP_PHASE_COMPLETE and pickpocket_timestamp and pickpocket_timestamp + 1 > GetTime() and UnitGUID("target") == pickpocket_otarget_guid then
     QuestHelper:TextOut(string.format("Pickpocketing from %s/%s", pickpocket_target, pickpocket_otarget_guid))
-  elseif last_phase == LAST_PHASE_COMPLETE and last_spell == "Mining" and last_timestamp + 1 > GetTime() then
-    -- Mining. Add similar tests for skinning, herbing, salvaging. Also, add the various translations.
-    QuestHelper:TextOut(string.format("Mining from %s", last_target))
+  elseif last_phase == LAST_PHASE_COMPLETE and gathereffects[last_spell] and last_timestamp + 1 > GetTime() then
+    QuestHelper:TextOut(string.format("%s from %s", gathereffects[last_spell].token, last_target))
   -- We also want to test:
   -- Disenchanting
   -- Prospecting
@@ -389,6 +404,11 @@ function QH_Collect_Loot_Init(QHCData, API)
   API.Patterns_RegisterNumber("GOLD_AMOUNT")
   API.Patterns_RegisterNumber("SILVER_AMOUNT")
   API.Patterns_RegisterNumber("COPPER_AMOUNT")
+
+QuestHelper:TextOut(tostring((GetSpellInfo(51306))))
+QuestHelper:TextOut(tostring((GetSpellInfo(32606))))
+QuestHelper:TextOut(tostring((GetSpellInfo(2366))))
+QuestHelper:TextOut(tostring((GetSpellInfo(8613))))
   
   -- What I want to know is whether it was tagged by me or my group when dead
   -- Check target-of-each-groupmember? Once we see him tapped once, and by us, it's probably sufficient.
