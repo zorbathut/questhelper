@@ -75,6 +75,7 @@ local monstertimeout = {}
 -- Unfortunately, we can't just record when "something" is killed. We have to record when "our group" killed it, so we know that there *was* a chance of looting it.
 -- As such, we need to check for monster deaths that the player may never have actually targeted. It gets, to put it mildly, grim, and unfortunately we'll never be able to solve it entirely.
 -- Worse, we need to *not* record item drops for things that we never actually "saw" but that were lootable anyway, because if we do, we bias the results towards positive (i.e. if we AOE ten monsters down, and two of them drop, and we loot those, that's 2/2 if we record the drops, and 0/0 if we don't, while what we really want is 2/10. 0/0 is at least "not wrong".)
+-- On top of this, we want to avoid looting "discarded items", but unfortunately there's no real good way to determine this. Welp.
 local function CombatLogEvent(_, event, sourceguid, _, _, destguid, _, _, _, spellname)
   -- There's many things that are handled here.
   -- First, if there's any damage messages coming either to or from a party member, we check to see if that monster is tapped by us. If it's tapped, we cache the value for 15 seconds, expiring entirely in 30.
@@ -209,6 +210,10 @@ gathereffects[GetSpellInfo(32606)] = {token = "mine"}
 gathereffects[GetSpellInfo(2366)] = {token = "herb"}
 gathereffects[GetSpellInfo(8613)] = {token = "skin"}
 gathereffects[GetSpellInfo(21248)] = {token = "open", noclog = true}
+gathereffects[GetSpellInfo(13262)] = {token = "de", noclog = true, ignore = true}
+gathereffects[GetSpellInfo(31252)] = {token = "prospect", noclog = true, ignore = true}
+gathereffects[GetSpellInfo(51005)] = {token = "mill", noclog = true, ignore = true}
+
 
 local function last_reset()
   last_timestamp, last_spell, last_rank, last_target, last_target_guid, last_otarget, last_otarget_guid, last_succeed, last_phase = nil, nil, nil, nil, nil, nil, false, LAST_PHASE_IDLE
@@ -329,10 +334,8 @@ local function LootOpened()
     QuestHelper:TextOut(string.format("Pickpocketing from %s", pickpocket_target, beef))
   elseif last_phase == LAST_PHASE_COMPLETE and gathereffects[last_spell] and last_timestamp + 1 > GetTime() then
     QuestHelper:TextOut(string.format("%s from %s", gathereffects[last_spell].token, beef))
+    if gathereffects[last_spell].ignore then return end
   -- We also want to test:
-  -- Disenchanting
-  -- Prospecting
-  -- Using an entity
   -- Opening a container
   elseif UnitGUID("target") and monsterstate[UnitGUID("target")] == MS_TAPPED_LOOTABLE and monstertimeout[UnitGUID("target")] > GetTime() and (not pickpocket_timestamp or pickpocket_timestamp + 5 < GetTime()) and (not last_timestamp or last_timestamp + 5 < GetTime()) and (last_succeed_trade + 5 < GetTime()) then
     -- Monster is lootable, so we loot the monster
