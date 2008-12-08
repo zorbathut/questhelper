@@ -52,9 +52,8 @@ local function MembersUpdate()
   else
     -- we is alone ;.;
     if UnitGUID("player") then members[UnitGUID("player")] = true end -- it's possible that we haven't logged in entirely yet
-    if not UnitGUID("player") then QuestHelper:TextOut("dbg lol") end
     table.insert(members_refs, "player")
-    QuestHelper:TextOut(string.format("player %s added", UnitName("player")))
+    QuestHelper:TextOut(string.format("player %s added as %s", UnitName("player"), tostring(UnitGUID("player"))))
     alone = true
   end
   
@@ -197,9 +196,11 @@ local last_spell
 local last_rank
 local last_target
 local last_target_guid
+local last_otarget
 local last_otarget_guid
 local last_timestamp
 local last_succeed = false
+local last_succeed_trade = GetTime()
 
 local gathereffects = {}
 
@@ -207,9 +208,11 @@ gathereffects[GetSpellInfo(51306)] = {token = "eng", noclog = true}
 gathereffects[GetSpellInfo(32606)] = {token = "mine"}
 gathereffects[GetSpellInfo(2366)] = {token = "herb"}
 gathereffects[GetSpellInfo(8613)] = {token = "skin"}
+gathereffects[GetSpellInfo(21248)] = {token = "open", noclog = true}
 
 local function last_reset()
-  last_timestamp, last_spell, last_rank, last_target, last_otarget_guid, last_target_guid, last_succeed, last_phase = nil, nil, nil, nil, nil, false, LAST_PHASE_IDLE
+  last_timestamp, last_spell, last_rank, last_target, last_target_guid, last_otarget, last_otarget_guid, last_succeed, last_phase = nil, nil, nil, nil, nil, nil, false, LAST_PHASE_IDLE
+  QuestHelper:TextOut("RESET")
 end
 last_reset()
 
@@ -217,7 +220,9 @@ last_reset()
 local function SpellSent(player, spell, rank, target)
   if player ~= "player" then return end
   
-  last_timestamp, last_spell, last_rank, last_target, last_otarget_guid, last_target_guid, last_succeed, last_phase = GetTime(), spell, rank, target, UnitGUID("target"), nil, false, LAST_PHASE_SENT
+  last_timestamp, last_spell, last_rank, last_target, last_target_guid, last_otarget, last_otarget_guid, last_succeed, last_phase = GetTime(), spell, rank, target, nil, UnitName("target"), UnitGUID("target"), false, LAST_PHASE_SENT
+  
+  if last_otarget and last_otarget ~= last_target then last_reset() return end
   
   QuestHelper:TextOut(string.format("ss %s", spell))
 end
@@ -238,7 +243,7 @@ local function SpellCombatLog(_, event, sourceguid, _, _, destguid, _, _, _, spe
   
   if sourceguid ~= UnitGUID("player") then return end
   
-  QuestHelper:TextOut(string.format("cle_ss enter %s %s %s %s", tostring(spellname ~= last_spell), tostring(not last_target), tostring(not not last_target_guid), tostring(last_timestamp + 1 < GetTime())))
+  --QuestHelper:TextOut(string.format("cle_ss enter %s %s %s %s", tostring(spellname ~= last_spell), tostring(not last_target), tostring(not not last_target_guid), tostring(last_timestamp + 1 < GetTime())))
   
   if spellname ~= last_spell or not last_target or last_target_guid or last_timestamp + 1 < GetTime() then
     last_reset()
@@ -255,7 +260,8 @@ local function SpellCombatLog(_, event, sourceguid, _, _, destguid, _, _, _, spe
   QuestHelper:TextOut(string.format("cesst %s", spellname))
   last_timestamp, last_target_guid, last_phase = GetTime(), destguid, LAST_PHASE_COMBATLOG
   
-  if last_target_guid ~= last_otarget_guid and not (last_target_guid == "0x0000000000000000" and not last_otarget_guid) then last_reset() return end
+  if last_target_guid == "0x0000000000000000" then last_target_guid = nil end
+  if last_target_guid and last_target_guid ~= last_otarget_guid then last_reset() return end
   
   if last_phase == LAST_PHASE_COMPLETE then
     QuestHelper:TextOut(string.format("spell succeeded, casting %s %s on %s/%s", last_spell, last_rank, last_target, last_target_guid))
@@ -264,6 +270,8 @@ end
 
 local function SpellSucceed(player, spell, rank)
   if player ~= "player" then return end
+  
+  if gathereffects[spell] then last_succeed_trade = GetTime() end
   
   QuestHelper:TextOut(string.format("sscu enter %s %s %s %s %s", tostring(last_spell), tostring(last_target), tostring(last_rank), tostring(spell), tostring(rank)))
   
@@ -275,12 +283,12 @@ local function SpellSucceed(player, spell, rank)
   QuestHelper:TextOut("sscu enter")
   
   if gathereffects[spell] and gathereffects[spell].noclog then
-    if last_phase ~= LAST_PHASE_START and (not last_target_guid or last_timestamp + 10 < GetTime()) then
+    if last_phase ~= LAST_PHASE_START or last_timestamp + 10 < GetTime() then
       last_reset()
       return
     end
   else
-    if last_phase ~= LAST_PHASE_COMBATLOG and not (gathereffects[spell] and gathereffects[spell].noclog) and (not last_target_guid or last_timestamp + 10 < GetTime()) then
+    if last_phase ~= LAST_PHASE_COMBATLOG or last_timestamp + 10 < GetTime() then
       last_reset()
       return
     end
@@ -312,22 +320,23 @@ local function LootOpened()
   if last_timestamp then QuestHelper:TextOut(string.format("%s %s %s", tostring(last_phase == LAST_PHASE_COMPLETE), tostring(last_spell == "Mining"), tostring(last_timestamp + 1 > GetTime()))) else QuestHelper:TextOut("timmy") end
   if pickpocket_phase == PP_PHASE_COMPLETE then QuestHelper:TextOut(string.format("%s", tostring(pickpocket_timestamp))) else QuestHelper:TextOut("nein") end
   
+  local beef = string.format("%s/%s %s/%s", tostring(last_target), tostring(last_target_guid), tostring(last_otarget), tostring(last_otarget_guid))
+  
   if IsFishingLoot() then
-    -- It's fishing loot. Yay! This was the only easy one.
+    -- yaaaaay
     QuestHelper:TextOut("Fishing loot")
   elseif pickpocket_phase == PP_PHASE_COMPLETE and pickpocket_timestamp and pickpocket_timestamp + 1 > GetTime() and UnitGUID("target") == pickpocket_otarget_guid then
-    QuestHelper:TextOut(string.format("Pickpocketing from %s/%s", pickpocket_target, pickpocket_otarget_guid))
+    QuestHelper:TextOut(string.format("Pickpocketing from %s", pickpocket_target, beef))
   elseif last_phase == LAST_PHASE_COMPLETE and gathereffects[last_spell] and last_timestamp + 1 > GetTime() then
-    QuestHelper:TextOut(string.format("%s from %s", gathereffects[last_spell].token, last_target))
+    QuestHelper:TextOut(string.format("%s from %s", gathereffects[last_spell].token, beef))
   -- We also want to test:
   -- Disenchanting
   -- Prospecting
   -- Using an entity
   -- Opening a container
-  elseif UnitGUID("target") and monsterstate[UnitGUID("target")] == MS_TAPPED_LOOTABLE and monstertimeout[UnitGUID("target")] > GetTime() then
+  elseif UnitGUID("target") and monsterstate[UnitGUID("target")] == MS_TAPPED_LOOTABLE and monstertimeout[UnitGUID("target")] > GetTime() and (not pickpocket_timestamp or pickpocket_timestamp + 5 < GetTime()) and (not last_timestamp or last_timestamp + 5 < GetTime()) and (last_succeed_trade + 5 < GetTime()) then
     -- Monster is lootable, so we loot the monster
-    -- Todo: add a check that we didn't just cast a spell *after* the monster died? If so, we want might to kick out the monster loot.
-    QuestHelper:TextOut(string.format("Monsterloot from %s", UnitGUID("target")))
+    QuestHelper:TextOut(string.format("Monsterloot from %s/%s", UnitName("target"), UnitGUID("target")))
     monsterstate[UnitGUID("target")] = nil
     monstertimeout[UnitGUID("target")] = nil
     monsterrefresh[UnitGUID("target")] = nil
@@ -370,6 +379,7 @@ function QH_Collect_Loot_Init(QHCData, API)
   
   if not QHC.monster then QHC.monster = {} end
   
+  API.Registrar_EventHook("PLAYER_ENTERING_WORLD", MembersUpdate)
   API.Registrar_EventHook("RAID_ROSTER_UPDATE", MembersUpdate)
   API.Registrar_EventHook("PARTY_MEMBERS_CHANGED", MembersUpdate)
   API.Registrar_EventHook("COMBAT_LOG_EVENT_UNFILTERED", CombatLogEvent)
@@ -393,6 +403,7 @@ function QH_Collect_Loot_Init(QHCData, API)
 
   ]]
   
+  QuestHelper:TextOut("MU")
   MembersUpdate() -- to get self
   
   GetMonsterUID = API.Utility_GetMonsterUID
@@ -404,11 +415,6 @@ function QH_Collect_Loot_Init(QHCData, API)
   API.Patterns_RegisterNumber("GOLD_AMOUNT")
   API.Patterns_RegisterNumber("SILVER_AMOUNT")
   API.Patterns_RegisterNumber("COPPER_AMOUNT")
-
-QuestHelper:TextOut(tostring((GetSpellInfo(51306))))
-QuestHelper:TextOut(tostring((GetSpellInfo(32606))))
-QuestHelper:TextOut(tostring((GetSpellInfo(2366))))
-QuestHelper:TextOut(tostring((GetSpellInfo(8613))))
   
   -- What I want to know is whether it was tagged by me or my group when dead
   -- Check target-of-each-groupmember? Once we see him tapped once, and by us, it's probably sufficient.
