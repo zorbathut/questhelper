@@ -1580,10 +1580,10 @@ if ( GetBuildInfo():sub(1, 3) == "3.0" ) then
 				yOffset = 7476.736868262738,
 			},
 			IcecrownGlacier = {
-				height = 4181.266116737856,
-				width = 6270.831861693458,
-				xOffset = 3304.65133149085,
-				yOffset = 1166.296192718834,
+				height = 4181.266519840844,
+				width = 6270.832975322177,
+				xOffset = 3773.401695036191,
+				yOffset = 1166.296622984233,
 			},
 			LakeWintergrasp = {
 				height = 1983.342901980711,
