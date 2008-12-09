@@ -10,6 +10,8 @@ local GetMonsterType
 
 local GetItemType
 
+local GetLoc
+
 local Patterns
 
 local members = {}
@@ -394,30 +396,74 @@ local function LootOpened()
   --QuestHelper:TextOut(string.format("%s %s %s", tostring(last_phase == LAST_PHASE_COMPLETE), tostring(last_spell == "Mining"), tostring(last_timestamp + 1 > GetTime())))
   --QuestHelper:TextOut(string.format("%s %s %s", tostring(last_phase == LAST_PHASE_COMPLETE), tostring(last_spell == "Mining"), tostring(last_timestamp + 1 > GetTime())))
   
-  if last_timestamp then QuestHelper:TextOut(string.format("%s %s %s", tostring(last_phase == LAST_PHASE_COMPLETE), tostring(last_spell == "Mining"), tostring(last_timestamp + 1 > GetTime()))) else QuestHelper:TextOut("timmy") end
-  if pickpocket_phase == PP_PHASE_COMPLETE then QuestHelper:TextOut(string.format("%s", tostring(pickpocket_timestamp))) else QuestHelper:TextOut("nein") end
+  --if last_timestamp then QuestHelper:TextOut(string.format("%s %s %s", tostring(last_phase == LAST_PHASE_COMPLETE), tostring(last_spell == "Mining"), tostring(last_timestamp + 1 > GetTime()))) else QuestHelper:TextOut("timmy") end
+  --if pickpocket_phase == PP_PHASE_COMPLETE then QuestHelper:TextOut(string.format("%s", tostring(pickpocket_timestamp))) else QuestHelper:TextOut("nein") end
   
-  local beef = string.format("%s/%s %s/%s", tostring(last_target), tostring(last_target_guid), tostring(last_otarget), tostring(last_otarget_guid))
+  --local beef = string.format("%s/%s %s/%s", tostring(last_target), tostring(last_target_guid), tostring(last_otarget), tostring(last_otarget_guid))
+  
+  local spot = nil
+  local prefix = nil
   
   if IsFishingLoot() then
     -- yaaaaay
     QuestHelper:TextOut("Fishing loot")
+    local loc = GetLoc()
+    if not QHC.fishing[loc] then QHC.fishing[loc] = {} end
+    spot = QHC.fishing[loc]
+    prefix = "fish"
+    
   elseif pickpocket_phase == PP_PHASE_COMPLETE and pickpocket_timestamp and pickpocket_timestamp + 1 > GetTime() and UnitGUID("target") == pickpocket_otarget_guid then
-    QuestHelper:TextOut(string.format("Pickpocketing from %s", pickpocket_target, beef))
+    QuestHelper:TextOut(string.format("Pickpocketing from %s/%s", pickpocket_target, UnitName("target"), UnitGUID("target")))
+    local mid = GetMonsterType(UnitGUID("target"))
+    if not QHC.monster[mid] then QHC.monster[mid] = {} end
+    spot = QHC.monster[mid]
+    prefix = "rob"
+    
   elseif last_phase == LAST_PHASE_COMPLETE and gathereffects[last_spell] and last_timestamp + 1 > GetTime() then
+    local beef = string.format("%s/%s %s/%s", tostring(last_target), tostring(last_target_guid), tostring(last_otarget), tostring(last_otarget_guid))
     QuestHelper:TextOut(string.format("%s from %s", gathereffects[last_spell].token, beef))
     if gathereffects[last_spell].ignore then return end
+    
+    prefix = gathereffects[last_spell].token
+    
+    -- this one is sort of grim actually
+    -- If we have an last_otarget_guid, it's the right one, and it's a monster
+    -- If we don't, use last_target, and it's an object
+    -- This is probably going to be buggy. Welp.
+    if last_otarget_guid then
+      local mid = GetMonsterType(last_otarget_guid)
+      if not QHC.monster[mid] then QHC.monster[mid] = {} end
+      spot = QHC.monster[mid]
+    else
+      if not QHC.object[last_target] then QHC.object[last_target] = {} end
+      spot = QHC.object[last_target]
+    end
+    
   elseif touched_timestamp and touched_timestamp + 1 > GetTime() then
     -- Opening a container, possibly
     QuestHelper:TextOut(string.format("Opening container %d", touched_itemid))
+    if not QHC.item[touched_itemid] then QHC.item[touched_itemid] = {} end
+    spot = QHC.item[touched_itemid]
+    prefix = "open"
+    
   elseif UnitGUID("target") and monsterstate[UnitGUID("target")] == MS_TAPPED_LOOTABLE and monstertimeout[UnitGUID("target")] > GetTime() and (not pickpocket_timestamp or pickpocket_timestamp + 5 < GetTime()) and (not last_timestamp or last_timestamp + 5 < GetTime()) and (last_succeed_trade + 5 < GetTime()) then
     -- Monster is lootable, so we loot the monster
     QuestHelper:TextOut(string.format("Monsterloot from %s/%s", UnitName("target"), UnitGUID("target")))
     monsterstate[UnitGUID("target")] = MS_TAPPED_LOOTED
     monstertimeout[UnitGUID("target")] = GetTime() + 300
     monsterrefresh[UnitGUID("target")] = GetTime() + 2
+    local mid = GetMonsterType(UnitGUID("target"))
+    if not QHC.monster[mid] then QHC.monster[mid] = {} end
+    spot = QHC.monster[mid]
+    prefix = "loot"
+    
   else
-    QuestHelper:TextOut("Who knows")
+    QuestHelper:TextOut("Who knows")  -- ugh
+    local loc = GetLoc()
+    if not QHC.worldloot[loc] then QHC.worldloot[loc] = {} end
+    spot = QHC.worldloot[loc]
+    prefix = "loot"
+    
   end
   
   
@@ -445,8 +491,11 @@ local function LootOpened()
     end
   end
   
+  spot[prefix .. "_count"] = (spot[prefix .. "_count"] or 0) + 1
+  if not spot[prefix .. "_loot"] then spot[prefix .. "_loot"] = {} end
+  local pt = spot[prefix .. "_loot"]
   for k, v in pairs(items) do
-    QuestHelper:TextOut(string.format("%s: %d", tostring(k), v))
+    if v > 0 then pt[k] = (pt[k] or 0) + v end
   end
 end
 
@@ -454,6 +503,9 @@ function QH_Collect_Loot_Init(QHCData, API)
   QHC = QHCData
   
   if not QHC.monster then QHC.monster = {} end
+  if not QHC.worldloot then QHC.worldloot = {} end
+  if not QHC.fishing then QHC.fishing = {} end
+  if not QHC.item then QHC.item = {} end
   
   API.Registrar_EventHook("PLAYER_ENTERING_WORLD", MembersUpdate)
   API.Registrar_EventHook("RAID_ROSTER_UPDATE", MembersUpdate)
@@ -488,6 +540,9 @@ function QH_Collect_Loot_Init(QHCData, API)
   API.Patterns_RegisterNumber("GOLD_AMOUNT")
   API.Patterns_RegisterNumber("SILVER_AMOUNT")
   API.Patterns_RegisterNumber("COPPER_AMOUNT")
+  
+  GetLoc = API.Callback_LocationBolusCurrent
+  QuestHelper: Assert(GetLoc)
   
   -- What I want to know is whether it was tagged by me or my group when dead
   -- Check target-of-each-groupmember? Once we see him tapped once, and by us, it's probably sufficient.
