@@ -236,7 +236,8 @@ local touched_itemid
 local touched_timestamp
 
 local function ItemLock(bag, slot)
-  --QuestHelper:TextOut("trying lock")
+  if not bag or not slot then return end -- probably changing equipment
+  
   local _, _, locked = GetContainerItemInfo(bag, slot)
   --QuestHelper:TextOut(string.format("trying lock %s", tostring(locked)))
   if locked then
