@@ -31,6 +31,17 @@ local function Tooltipy(self, ...)
     else
       item.equiplocation = nil
     end
+    
+    local lines = GameTooltip:NumLines()
+    local openable = false
+    for i = 2, lines do
+      if _G["GameTooltipTextLeft" .. tostring(i)]:GetText() == ITEM_OPENABLE then
+        openable = true
+      end
+    end
+    
+    openable = "open_" .. (openable and "yes" or "no")
+    item[openable] = (item[openable] or 0) + 1 -- so we're going to add a lot to this if the user keeps whipping their mouse over it. I'll live.
   end
 end
 

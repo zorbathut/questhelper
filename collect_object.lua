@@ -12,6 +12,8 @@ local Patterns
 local minetypes = {
   mine = UNIT_SKINNABLE_ROCK,
   herb = UNIT_SKINNABLE_HERB,
+  eng = UNIT_SKINNABLE_BOLTS,
+  skin = UNIT_SKINNABLE_LEATHER,
 }
 
 local function Tooltipy(self, ...)

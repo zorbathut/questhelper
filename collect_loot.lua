@@ -8,6 +8,8 @@ local QHC
 local GetMonsterUID
 local GetMonsterType
 
+local GetItemType
+
 local Patterns
 
 local members = {}
@@ -184,6 +186,33 @@ local function PPSucceed(player, spell, rank)
 end
 
 
+-- This segment deals with openable containers
+
+local touched_itemid
+local touched_timestamp
+
+local function ItemLock(bag, slot)
+  QuestHelper:TextOut("trying lock")
+  local _, _, locked = GetContainerItemInfo(bag, slot)
+  QuestHelper:TextOut(string.format("trying lock %s", tostring(locked)))
+  if locked then
+    touched_itemid = GetItemType(GetContainerItemLink(bag, slot))
+    QuestHelper:TextOut(string.format("trying lock %s", tostring(touched_itemid)))
+    QuestHelper:TextOut(string.format("trying lock %s", tostring(type(touched_itemid))))
+    QuestHelper:TextOut(string.format("trying lock %s", tostring(QHC.item[touched_itemid].open_yes)))
+    QuestHelper:TextOut(string.format("trying lock %s", tostring(QHC.item[touched_itemid].open_no)))
+    touched_timestamp = GetTime()
+    if not QHC.item[touched_itemid] or (QHC.item[touched_itemid].open_yes or 0) <= (QHC.item[touched_itemid].open_no or 0) then
+      touched_itemid = nil
+      touched_timestamp = nil
+    end
+  else
+    touched_itemid = nil
+    touched_timestamp = nil
+  end
+end
+
+
 -- Here's the segment for longer spells. There aren't any instant spells we currently care about, besides pickpocketing. This will probably change eventually (arrows in the DK starting zone?)
 
 local LAST_PHASE_IDLE = 0
@@ -335,8 +364,9 @@ local function LootOpened()
   elseif last_phase == LAST_PHASE_COMPLETE and gathereffects[last_spell] and last_timestamp + 1 > GetTime() then
     QuestHelper:TextOut(string.format("%s from %s", gathereffects[last_spell].token, beef))
     if gathereffects[last_spell].ignore then return end
-  -- We also want to test:
-  -- Opening a container
+  elseif touched_timestamp and touched_timestamp + 1 > GetTime() then
+    -- Opening a container, possibly
+    QuestHelper:TextOut(string.format("Opening container %d", touched_itemid))
   elseif UnitGUID("target") and monsterstate[UnitGUID("target")] == MS_TAPPED_LOOTABLE and monstertimeout[UnitGUID("target")] > GetTime() and (not pickpocket_timestamp or pickpocket_timestamp + 5 < GetTime()) and (not last_timestamp or last_timestamp + 5 < GetTime()) and (last_succeed_trade + 5 < GetTime()) then
     -- Monster is lootable, so we loot the monster
     QuestHelper:TextOut(string.format("Monsterloot from %s/%s", UnitName("target"), UnitGUID("target")))
@@ -390,6 +420,8 @@ function QH_Collect_Loot_Init(QHCData, API)
   API.Registrar_EventHook("UNIT_SPELLCAST_SENT", PPSent)
   API.Registrar_EventHook("UNIT_SPELLCAST_SUCCEEDED", PPSucceed)
   
+  API.Registrar_EventHook("ITEM_LOCK_CHANGED", ItemLock)
+  
   API.Registrar_EventHook("UNIT_SPELLCAST_SENT", SpellSent)
   API.Registrar_EventHook("UNIT_SPELLCAST_START", SpellStart)
   API.Registrar_EventHook("COMBAT_LOG_EVENT_UNFILTERED", SpellCombatLog)
@@ -411,8 +443,10 @@ function QH_Collect_Loot_Init(QHCData, API)
   
   GetMonsterUID = API.Utility_GetMonsterUID
   GetMonsterType = API.Utility_GetMonsterType
+  GetItemType = API.Utility_GetItemType
   QuestHelper: Assert(GetMonsterUID)
   QuestHelper: Assert(GetMonsterType)
+  QuestHelper: Assert(GetItemType)
   
   Patterns = API.Patterns
   API.Patterns_RegisterNumber("GOLD_AMOUNT")
