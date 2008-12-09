@@ -479,8 +479,6 @@ local function LootOpened()
       
       local _, _, amount = string.find(name, Patterns.COPPER_AMOUNT)
       if amount then items.gold = items.gold + tonumber(amount) * 1 end
-      
-      QuestHelper:TextOut(tostring(amount))
     else
       local itype = GetItemType(link)
       items[itype] = (items[itype] or 0) + quant
