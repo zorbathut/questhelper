@@ -25,7 +25,7 @@ local function MembersUpdate()
   
   local alone = false
   
-  QuestHelper:TextOut("MU start")
+  --QuestHelper:TextOut("MU start")
   members = {} -- we burn a table every time this updates, but whatever
   members_count = 0
   if GetNumRaidMembers() > 0 then
@@ -36,7 +36,7 @@ local function MembersUpdate()
       if gud then
         members[gud] = true
         table.insert(members_refs, ite)
-        QuestHelper:TextOut(string.format("raid member %s added", UnitName(ite)))
+        --QuestHelper:TextOut(string.format("raid member %s added", UnitName(ite)))
       end
     end
   elseif GetNumPartyMembers() > 0 then
@@ -47,17 +47,17 @@ local function MembersUpdate()
       if gud then
         members[gud] = true
         table.insert(members_refs, ite)
-        QuestHelper:TextOut(string.format("party member %s added", UnitName(ite)))
+        --QuestHelper:TextOut(string.format("party member %s added", UnitName(ite)))
       end
     end
     members[UnitGUID("player")] = true
     table.insert(members_refs, "player")
-    QuestHelper:TextOut(string.format("player %s added", UnitName("player"))) 
+    --QuestHelper:TextOut(string.format("player %s added", UnitName("player"))) 
   else
     -- we is alone ;.;
     if UnitGUID("player") then members[UnitGUID("player")] = true end -- it's possible that we haven't logged in entirely yet
     table.insert(members_refs, "player")
-    QuestHelper:TextOut(string.format("player %s added as %s", UnitName("player"), tostring(UnitGUID("player"))))
+    --QuestHelper:TextOut(string.format("player %s added as %s", UnitName("player"), tostring(UnitGUID("player"))))
     alone = true
   end
   
@@ -112,7 +112,7 @@ local function CombatLogEvent(_, event, sourceguid, _, _, destguid, _, _, _, spe
       monsterstate[target] = nil
       monsterrefresh[target] = nil
       monstertimeout[target] = nil
-      QuestHelper:TextOut(string.format("Monster ignorified"))
+      --QuestHelper:TextOut(string.format("Monster ignorified"))
     else
       -- We know someone is, so we're going to set up our caching . . .
       monsterrefresh[target] = GetTime() + 15
@@ -151,12 +151,12 @@ skintypes[UNIT_SKINNABLE_BOLTS] = "eng"
 skintypes[UNIT_SKINNABLE_LEATHER] = "skin"
 
 local function SkinnableflagsTooltipy(self, ...)
-  QuestHelper:TextOut("tooltipy")
+  --QuestHelper:TextOut("tooltipy")
   if UnitExists("mouseover") and UnitIsVisible("mouseover") and not UnitIsPlayer("mouseover") and not UnitPlayerControlled("mouseover") and UnitIsDead("mouseover") then
     local guid = UnitGUID("mouseover")
-    QuestHelper:TextOut("critar")
+    --QuestHelper:TextOut("critar")
     if not monsterstate[guid] or monsterstate[guid] ~= MS_TAPPED_LOOTED or monsterrefresh[guid] > GetTime() then return end
-    QuestHelper:TextOut("runin")
+    --QuestHelper:TextOut("runin")
     
     local cid = GetMonsterType(guid)
     
@@ -174,10 +174,10 @@ local function SkinnableflagsTooltipy(self, ...)
     
     for _, v in pairs(skintypes) do
       if v == skintype then
-        QuestHelper:TextOut(v .. "_yes")
+        --QuestHelper:TextOut(v .. "_yes")
         qhci[v .. "_yes"] = (qhci[v .. "_yes"] or 0) + 1
       else
-        QuestHelper:TextOut(v .. "_no")
+        --QuestHelper:TextOut(v .. "_no")
         qhci[v .. "_no"] = (qhci[v .. "_no"] or 0) + 1
       end
     end
@@ -202,8 +202,7 @@ local pickpocket_target
 local pickpocket_otarget_guid
 local pickpocket_timestamp
 
-local pickpocket_name = GetSpellInfo(921)   -- obviously, this is the pickpocket spell ID
-QuestHelper:TextOut("PPN " .. pickpocket_name)
+local pickpocket_name = GetSpellInfo(921)   -- this is the pickpocket spell ID
 
 local function pp_reset()
   pickpocket_target, pickpocket_otarget_guid, pickpocket_timestamp, pickpocket_phase = nil, nil, nil, PP_PHASE_IDLE
@@ -237,15 +236,15 @@ local touched_itemid
 local touched_timestamp
 
 local function ItemLock(bag, slot)
-  QuestHelper:TextOut("trying lock")
+  --QuestHelper:TextOut("trying lock")
   local _, _, locked = GetContainerItemInfo(bag, slot)
-  QuestHelper:TextOut(string.format("trying lock %s", tostring(locked)))
+  --QuestHelper:TextOut(string.format("trying lock %s", tostring(locked)))
   if locked then
     touched_itemid = GetItemType(GetContainerItemLink(bag, slot))
-    QuestHelper:TextOut(string.format("trying lock %s", tostring(touched_itemid)))
+    --[[QuestHelper:TextOut(string.format("trying lock %s", tostring(touched_itemid)))
     QuestHelper:TextOut(string.format("trying lock %s", tostring(type(touched_itemid))))
     QuestHelper:TextOut(string.format("trying lock %s", tostring(QHC.item[touched_itemid].open_yes)))
-    QuestHelper:TextOut(string.format("trying lock %s", tostring(QHC.item[touched_itemid].open_no)))
+    QuestHelper:TextOut(string.format("trying lock %s", tostring(QHC.item[touched_itemid].open_no)))]]
     touched_timestamp = GetTime()
     if not QHC.item[touched_itemid] or (QHC.item[touched_itemid].open_yes or 0) <= (QHC.item[touched_itemid].open_no or 0) then
       touched_itemid = nil
@@ -291,7 +290,6 @@ gathereffects[GetSpellInfo(51005)] = {token = "mill", noclog = true, ignore = tr
 
 local function last_reset()
   last_timestamp, last_spell, last_rank, last_target, last_target_guid, last_otarget, last_otarget_guid, last_succeed, last_phase = nil, nil, nil, nil, nil, nil, false, LAST_PHASE_IDLE
-  QuestHelper:TextOut("RESET")
 end
 last_reset()
 
@@ -303,7 +301,7 @@ local function SpellSent(player, spell, rank, target)
   
   if last_otarget and last_otarget ~= last_target then last_reset() return end
   
-  QuestHelper:TextOut(string.format("ss %s", spell))
+  --QuestHelper:TextOut(string.format("ss %s", spell))
 end
 
 local function SpellStart(player, spell, rank)
@@ -312,7 +310,7 @@ local function SpellStart(player, spell, rank)
   if spell ~= last_spell or rank ~= last_rank or last_target_guid or last_phase ~= LAST_PHASE_SENT or last_timestamp + 1 < GetTime() then
     last_reset()
   else
-    QuestHelper:TextOut(string.format("sst %s", spell))
+    --QuestHelper:TextOut(string.format("sst %s", spell))
     last_timestamp, last_phase = GetTime(), LAST_PHASE_START
   end
 end
@@ -329,22 +327,18 @@ local function SpellCombatLog(_, event, sourceguid, _, _, destguid, _, _, _, spe
     return
   end
   
-  QuestHelper:TextOut("cle_ss enter")
+  --QuestHelper:TextOut("cle_ss enter")
   
   if last_phase ~= LAST_PHASE_START  then
     last_reset()
     return
   end
   
-  QuestHelper:TextOut(string.format("cesst %s", spellname))
+  --QuestHelper:TextOut(string.format("cesst %s", spellname))
   last_timestamp, last_target_guid, last_phase = GetTime(), destguid, LAST_PHASE_COMBATLOG
   
   if last_target_guid == "0x0000000000000000" then last_target_guid = nil end
   if last_target_guid and last_target_guid ~= last_otarget_guid then last_reset() return end
-  
-  if last_phase == LAST_PHASE_COMPLETE then
-    QuestHelper:TextOut(string.format("spell succeeded, casting %s %s on %s/%s", last_spell, last_rank, last_target, last_target_guid))
-  end
 end
 
 local function SpellSucceed(player, spell, rank)
@@ -352,14 +346,14 @@ local function SpellSucceed(player, spell, rank)
   
   if gathereffects[spell] then last_succeed_trade = GetTime() end
   
-  QuestHelper:TextOut(string.format("sscu enter %s %s %s %s %s", tostring(last_spell), tostring(last_target), tostring(last_rank), tostring(spell), tostring(rank)))
+  --QuestHelper:TextOut(string.format("sscu enter %s %s %s %s %s", tostring(last_spell), tostring(last_target), tostring(last_rank), tostring(spell), tostring(rank)))
   
   if not last_spell or not last_target or last_spell ~= spell or last_rank ~= rank then
     last_reset()
     return
   end
   
-  QuestHelper:TextOut("sscu enter")
+  --QuestHelper:TextOut("sscu enter")
   
   if gathereffects[spell] and gathereffects[spell].noclog then
     if last_phase ~= LAST_PHASE_START or last_timestamp + 10 < GetTime() then
@@ -373,20 +367,20 @@ local function SpellSucceed(player, spell, rank)
     end
   end
   
-  QuestHelper:TextOut(string.format("sscu %s, %d, %s, %s", spell, last_phase, tostring(last_phase == LAST_PHASE_SENT), tostring((last_phase == LAST_PHASE_SENT) and LAST_PHASE_SHORT_SUCCEEDED)))
+  --QuestHelper:TextOut(string.format("sscu %s, %d, %s, %s", spell, last_phase, tostring(last_phase == LAST_PHASE_SENT), tostring((last_phase == LAST_PHASE_SENT) and LAST_PHASE_SHORT_SUCCEEDED)))
   last_timestamp, last_succeed, last_phase = GetTime(), true, LAST_PHASE_COMPLETE
-  QuestHelper:TextOut(string.format("last_phase %d", last_phase))
+  --QuestHelper:TextOut(string.format("last_phase %d", last_phase))
   
-  if last_phase == LAST_PHASE_COMPLETE then
+  --[[if last_phase == LAST_PHASE_COMPLETE then
     QuestHelper:TextOut(string.format("spell succeeded, casting %s %s on %s/%s", last_spell, last_rank, tostring(last_target), tostring(last_target_guid)))
-  end
+  end]]
 end
 
 local function SpellInterrupt(player, spell, rank)
   if player ~= "player" then return end
   
   -- I don't care what they were casting, they're certainly not doing it now
-  QuestHelper:TextOut(string.format("si %s", spell))
+  --QuestHelper:TextOut(string.format("si %s", spell))
   last_reset()
 end
 
@@ -421,7 +415,7 @@ local function LootOpened()
     
   elseif last_phase == LAST_PHASE_COMPLETE and gathereffects[last_spell] and last_timestamp + 1 > GetTime() then
     local beef = string.format("%s/%s %s/%s", tostring(last_target), tostring(last_target_guid), tostring(last_otarget), tostring(last_otarget_guid))
-    QuestHelper:TextOut(string.format("%s from %s", gathereffects[last_spell].token, beef))
+    
     if gathereffects[last_spell].ignore then return end
     
     prefix = gathereffects[last_spell].token
@@ -431,10 +425,12 @@ local function LootOpened()
     -- If we don't, use last_target, and it's an object
     -- This is probably going to be buggy. Welp.
     if last_otarget_guid then
+      QuestHelper:TextOut(string.format("%s from monster %s", gathereffects[last_spell].token, beef))
       local mid = GetMonsterType(last_otarget_guid)
       if not QHC.monster[mid] then QHC.monster[mid] = {} end
       spot = QHC.monster[mid]
     else
+      QuestHelper:TextOut(string.format("%s from object %s", gathereffects[last_spell].token, beef))
       if not QHC.object[last_target] then QHC.object[last_target] = {} end
       spot = QHC.object[last_target]
     end
