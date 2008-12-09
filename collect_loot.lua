@@ -67,7 +67,9 @@ end
 local MS_TAPPED_US = 1
 local MS_TAPPED_OTHER = 2
 local MS_TAPPED_LOOTABLE = 3
+local MS_TAPPED_LOOTED = 4
 
+-- TODO: garbage-collect these properly
 local monsterstate = {}
 local monsterrefresh = {}
 local monstertimeout = {}
@@ -135,6 +137,47 @@ local function CombatLogEvent(_, event, sourceguid, _, _, destguid, _, _, _, spe
       monsterrefresh[destguid] = nil
       monstertimeout[destguid] = nil
       QuestHelper:TextOut(string.format("Untapped monster %s slain, cleared", destguid))
+    end
+  end
+end
+
+local skintypes = {}
+
+skintypes[UNIT_SKINNABLE_ROCK] = "mine"
+skintypes[UNIT_SKINNABLE_HERB] = "herb"
+skintypes[UNIT_SKINNABLE_BOLTS] = "eng"
+skintypes[UNIT_SKINNABLE_LEATHER] = "skin"
+
+local function SkinnableflagsTooltipy(self, ...)
+  QuestHelper:TextOut("tooltipy")
+  if UnitExists("mouseover") and UnitIsVisible("mouseover") and not UnitIsPlayer("mouseover") and not UnitPlayerControlled("mouseover") and UnitIsDead("mouseover") then
+    local guid = UnitGUID("mouseover")
+    QuestHelper:TextOut("critar")
+    if not monsterstate[guid] or monsterstate[guid] ~= MS_TAPPED_LOOTED or monsterrefresh[guid] > GetTime() then return end
+    QuestHelper:TextOut("runin")
+    
+    local cid = GetMonsterType(guid)
+    
+    local skintype = nil
+    
+    local lines = GameTooltip:NumLines()
+    for i = 3, lines do
+      QuestHelper:TextOut(_G["GameTooltipTextLeft" .. tostring(i)]:GetText())
+      local skeen = skintypes[_G["GameTooltipTextLeft" .. tostring(i)]:GetText()]
+      if skeen then QuestHelper: Assert(not skintype) skintype = skeen end
+    end
+    
+    if not QHC.monster[cid] then QHC.monster[cid] = {} end
+    local qhci = QHC.monster[cid]
+    
+    for _, v in pairs(skintypes) do
+      if v == skintype then
+        QuestHelper:TextOut(v .. "_yes")
+        qhci[v .. "_yes"] = (qhci[v .. "_yes"] or 0) + 1
+      else
+        QuestHelper:TextOut(v .. "_no")
+        qhci[v .. "_no"] = (qhci[v .. "_no"] or 0) + 1
+      end
     end
   end
 end
@@ -370,9 +413,9 @@ local function LootOpened()
   elseif UnitGUID("target") and monsterstate[UnitGUID("target")] == MS_TAPPED_LOOTABLE and monstertimeout[UnitGUID("target")] > GetTime() and (not pickpocket_timestamp or pickpocket_timestamp + 5 < GetTime()) and (not last_timestamp or last_timestamp + 5 < GetTime()) and (last_succeed_trade + 5 < GetTime()) then
     -- Monster is lootable, so we loot the monster
     QuestHelper:TextOut(string.format("Monsterloot from %s/%s", UnitName("target"), UnitGUID("target")))
-    monsterstate[UnitGUID("target")] = nil
-    monstertimeout[UnitGUID("target")] = nil
-    monsterrefresh[UnitGUID("target")] = nil
+    monsterstate[UnitGUID("target")] = MS_TAPPED_LOOTED
+    monstertimeout[UnitGUID("target")] = GetTime() + 300
+    monsterrefresh[UnitGUID("target")] = GetTime() + 2
   else
     QuestHelper:TextOut("Who knows")
   end
@@ -417,6 +460,8 @@ function QH_Collect_Loot_Init(QHCData, API)
   API.Registrar_EventHook("PARTY_MEMBERS_CHANGED", MembersUpdate)
   API.Registrar_EventHook("COMBAT_LOG_EVENT_UNFILTERED", CombatLogEvent)
 
+  API.Registrar_EventHook("UPDATE_MOUSEOVER_UNIT", SkinnableflagsTooltipy)
+  
   API.Registrar_EventHook("UNIT_SPELLCAST_SENT", PPSent)
   API.Registrar_EventHook("UNIT_SPELLCAST_SUCCEEDED", PPSucceed)
   
@@ -429,17 +474,8 @@ function QH_Collect_Loot_Init(QHCData, API)
   API.Registrar_EventHook("UNIT_SPELLCAST_INTERRUPTED", SpellInterrupt)
   
   API.Registrar_EventHook("LOOT_OPENED", LootOpened)
-  --[[
-  API.Registrar_EventHook("PLAYER_TARGET_CHANGED", TargetChanged)
-  API.Registrar_EventHook("LOOT_OPENED", LootOpened)
-  API.Registrar_EventHook("LOOT_SLOT_CLEARED", LootTaken)
-  API.Registrar_EventHook("LOOT_CLOSED", LootClosed)
-  API.Registrar_EventHook("ITEM_PUSH", ItemReceived)
-
-  ]]
   
-  QuestHelper:TextOut("MU")
-  MembersUpdate() -- to get self
+  MembersUpdate() -- to get self, probably won't work but hey
   
   GetMonsterUID = API.Utility_GetMonsterUID
   GetMonsterType = API.Utility_GetMonsterType
