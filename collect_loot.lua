@@ -112,7 +112,7 @@ local function CombatLogEvent(_, event, sourceguid, _, _, destguid, _, _, _, spe
       monsterrefresh[target] = GetTime() + 15
       monstertimeout[target] = GetTime() + 30
       monsterstate[target] = (UnitIsTappedByPlayer(targ) and not UnitIsTrivial(targ)) and MS_TAPPED_US or MS_TAPPED_OTHER -- and figure out if it's us. Or if it's trivial. we ignore it if it's trivial, since it's much less likely to be looted and that could throw off our numbers
-      QuestHelper:TextOut(string.format("Monster %s set to %s", target, UnitIsTappedByPlayer(targ) and "MS_TAPPED_US" or "MS_TAPPED_OTHER"))
+      QuestHelper:TextOut(string.format("Monster %s set to %s", target, (monsterstate[target] == MS_TAPPED_US) and "MS_TAPPED_US" or "MS_TAPPED_OTHER"))
     end
     
     -- DONE
