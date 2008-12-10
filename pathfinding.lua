@@ -40,7 +40,7 @@ local static_horde_routes =
   
 local static_alliance_routes = 
   {
-   {{36, 0.639, 0.083}, {25, 0.764, 0.512}, 120}, -- Deeprun Tram
+   {{36, 0.639, 0.083}, {25, 0.764, 0.512}, 180}, -- Deeprun Tram
    {{10, 0.718, 0.565}, {51, 0.047, 0.636}, 210}, -- Theramore Isle <--> Menethil Harmor
    {{36, 0.228, 0.560}, {16, 0.323, 0.441}, 210}, -- Stormwind City <--> Auberdine
    

@@ -210,7 +210,6 @@ QuestHelper_Collector = {
         name_Hello! = 19,
         reaction_4 = 155, -- this is the friendly-hostile stuff
         
-        --TODO from here:
         loot_yes = 109,
         loot_no = 12,
         loot_opened = 20,
@@ -223,6 +222,8 @@ QuestHelper_Collector = {
         skin_opened = 20,
         skin_items = {
         }
+        
+        -- TODO from here
         questloots = {
           [itemid] = {4, 8},  -- This only triggers if we know this critter drops a specific bit of loot - in some ways, it overrides the "loots" above
         }
@@ -241,7 +242,6 @@ QuestHelper_Collector = {
         type = "type/subtype",
         equiplocation = "LOC",
         
-        --TODO from here:
         loot_yes = 109,
         loot_no = 12,
         loot_opened = 20,
@@ -261,6 +261,8 @@ QuestHelper_Collector = {
           [itemid] = 4,
           [itemid] = 9,
         }
+        
+        -- TODO from here
         equipped = {
           "CLEVSPEC", "CLEVSPEC"
         }
@@ -279,27 +281,35 @@ QuestHelper_Collector = {
         mine_yes = 111,
         mine_no = 12345,
         
-        -- TODO from here:
-        loot_opened = 20,
+        loot_count = 20,
         loot_items = {
           [itemid] = 4,
           [itemid] = 9,
         }
-        herb_opened = 20,
+        herb_count = 20,
         herb_items = {
           [itemid] = 4,
           [itemid] = 9,
         }
       }
     },
-    TODO ["event"] = {
-      [QuestID/String] = {
-        locations = {
-          "DENSDENSDENS",
+    ["fishing"] = {
+      [DENS] = {
+        fish_count = 20,
+        fish_items = {
+          [itemid] = 9,
         }
       }
     },
-    TODO ["reputation"] = {
+    ["worldloot"] = {
+      [DENS] = {
+        loot_count = 20,
+        loot_items = {
+          [itemid] = 9,
+        }
+      }
+    },
+    TODO ["event"] = {
       [QuestID/String] = {
         locations = {
           "DENSDENSDENS",
@@ -450,7 +460,7 @@ So let's see how I can figure these out:
 
 * Monster loot - Look for events and mouseover. Might not have it targeted, so don't assume they will.
 * Skinning, mining, or herbing - All of these are spellcasts, see what the spell is (and what it targets) and what the user has targeted in case it's a monster. Also watch the last mouseover event, or the last tooltip?
-* Disenchanting - watch for Disenchant spellcast, look for last tooltip
+* Disenchanting/prospecting - watch for Disenchant spellcast, look for last tooltip
 * Using an entity - Spellcast, again. Watch tooltip for the entity and watch the cast timer?
 * Opening a container from inventory - Tooltip, yet again. I think that's the best I can do. Also watch for the "can be opened" text.
 * Fishing - IsFishingLoot, and spellcast. At least this one's easy.

@@ -66,6 +66,8 @@ function QH_Timeslice_Toggle(name, flag)
   end
 end
 
+local started = false
+
 function QH_Timeslice_Work()
   -- There's probably a better way to do this, but. Eh. Lua.
   coro = nil
@@ -80,7 +82,7 @@ function QH_Timeslice_Work()
     QuestHelper: Assert(coroutine.status(coro.coro) ~= "dead")
     
     local slicefactor = (QuestHelper_Pref.hide and 0.01 or (QuestHelper_Pref.perf_scale * math.min(coroutine_route_pass, 5)))
-    if coro.priority >= 100 then slicefactor = 5 * math.min(coroutine_route_pass, 5) end  -- the init process gets much higher priority so we get done with it faster
+    if not started then slicefactor = 5 * math.min(coroutine_route_pass, 5) end  -- the init process gets much higher priority so we get done with it faster
     local coroutine_intended_stop_time = GetTime() + 4e-3 * slicefactor
     coroutine_stop_time = coroutine_intended_stop_time - coroutine_time_exceeded
     coroutine_route_pass = coroutine_route_pass - 5
@@ -110,6 +112,8 @@ function QH_Timeslice_Work()
       if coroutine_verbose then QuestHelper:TextOut(string.format("timeslice: %s complete", coro.name)) end
       coroutine_list[key] = nil
     end
+    
+    if coro.name == "routing" then started = true end
   else
     if coroutine_verbose then QuestHelper:TextOut(string.format("timeslice: no available tasks")) end
   end

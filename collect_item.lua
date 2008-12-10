@@ -3,16 +3,15 @@ QuestHelper_File["collect_item.lua"] = "Development Version"
 local debug_output = false
 if QuestHelper_File["collect_item.lua"] == "Development Version" then debug_output = true end
 
+local GetItemType
+
 local QHCI
 
 local function Tooltipy(self, ...)
   local _, ilink = self:GetItem()
   if not ilink then return end
   
-  local id = string.match(ilink,
-    --"^|cff%x%x%x%x%x%x|Hitem:(%d+):[%d:]+|h\[.*\]|h|r$"
-    "^|cff%x%x%x%x%x%x|Hitem:(%d+):[%d:-]+|h%[[^%]]*%]|h|r$"
-  )
+  local id = GetItemType(ilink)
   
   if not QHCI[id] then QHCI[id] = {} end
   local item = QHCI[id]
@@ -32,6 +31,17 @@ local function Tooltipy(self, ...)
     else
       item.equiplocation = nil
     end
+    
+    local lines = GameTooltip:NumLines()
+    local openable = false
+    for i = 2, lines do
+      if _G["GameTooltipTextLeft" .. tostring(i)]:GetText() == ITEM_OPENABLE then
+        openable = true
+      end
+    end
+    
+    openable = "open_" .. (openable and "yes" or "no")
+    item[openable] = (item[openable] or 0) + 1 -- so we're going to add a lot to this if the user keeps whipping their mouse over it. I'll live.
   end
 end
 
@@ -40,4 +50,7 @@ function QH_Collect_Item_Init(QHCData, API)
   QHCI = QHCData.item
   
   API.Registrar_TooltipHook(Tooltipy)
+  
+  GetItemType = API.Utility_GetItemType
+  QuestHelper: Assert(GetItemType)
 end

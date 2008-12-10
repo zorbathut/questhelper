@@ -7,7 +7,12 @@ function MakePattern(label, newpat)
   if not patterns[label] then patterns[label] = "^" .. string.gsub(_G[label], "%%s", newpat) .. "$" end
 end
 
+function MakeNumberSnag(label)
+  if not patterns[label] then patterns[label] = string.gsub(_G[label], "%%d", "([0-9,.]+)") end
+end
+
 function QH_Collect_Patterns_Init(QHCData, API)
   API.Patterns = patterns
   API.Patterns_Register = MakePattern
+  API.Patterns_RegisterNumber = MakeNumberSnag
 end

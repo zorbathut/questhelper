@@ -129,8 +129,14 @@ function QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack, ...)
 end
 
 function QuestHelper_ErrorCatcher.OnError(o_msg, o_frame, o_stack, o_etype, ...)
-  if (string.find(o_msg, "QuestHelper") or string.find(debugstack(2, 20, 20), "QuestHelper")) and not string.find(o_msg, "Cartographer_POI") then
-    QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack)
+  if (
+      string.find(o_msg, "QuestHelper")  -- Obviously we care about our bugs
+      or string.find(debugstack(2, 20, 20), "QuestHelper")  -- We're being a little overzealous and catching any bug with "QuestHelper" in the stack. This possibly should be removed, I'm not sure it's ever caught anything interesting.
+    )
+    and not string.find(o_msg, "Cartographer_POI")  -- Cartographer started throwing ridiculous numbers of errors on startup with QH in the stack, and since we caught stuff with QH in the stack, we decided these errors were ours. Urgh. Disabled.
+    and not string.find(o_msg, "msg: WTF\Account")  -- Sometimes the WTF file gets corrupted. This isn't our fault, since we weren't involved in writing it, and there's also nothing we can do about it - in fact we can't even retrieve the remnants of the old file. We may as well just ignore it. I suppose we could pop up a little dialog saying "clear some space on your hard drive, dufus" but, meh.
+    then
+      QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack)
   end
   
   return origHandler(o_msg, o_frame, o_stack, o_etype, unpack(arg or {}))  -- pass it on

@@ -12,6 +12,8 @@ local Patterns
 local minetypes = {
   mine = UNIT_SKINNABLE_ROCK,
   herb = UNIT_SKINNABLE_HERB,
+  eng = UNIT_SKINNABLE_BOLTS,
+  skin = UNIT_SKINNABLE_LEATHER,
 }
 
 local function Tooltipy(self, ...)
@@ -56,7 +58,7 @@ local function Tooltipy(self, ...)
     
     -- We have no unique identifier, so I'm just going to record every position we see. That said, I wonder if it's a good idea to add a cooldown.
     -- Obviously, we also have no possible range data, so, welp.
-    Merger.Add(qhci, GetLoc())    
+    Merger.Add(qhci, GetLoc(), true)    
   end
 end
 

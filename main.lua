@@ -228,6 +228,7 @@ function QuestHelper:Initialize()
       ["collect_loot.lua"] = true,
       ["collect_patterns.lua"] = true,
       ["collect_flight.lua"] = true,
+      ["collect_util.lua"] = true,
     }
 
   for file, version in pairs(QuestHelper_File) do

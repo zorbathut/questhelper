@@ -20,9 +20,7 @@ local function DoZoneUpdate(label, debugverbose)
   end
   
   QHCZ[zname].mapname = GetMapInfo()
-  local loc = GetLoc()
-  if #znl > 0 and string.sub(znl[#znl], -#loc) == loc then return end -- stop repeating things, a purse is not food
-  Merger.Add(znl, loc)
+  Merger.Add(znl, GetLoc(), true)
 end
 
 local function OnEvent()
