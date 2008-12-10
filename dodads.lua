@@ -245,11 +245,11 @@ function QuestHelper:GetOverlapObjectives(obj)
   local s = 10*QuestHelper_Pref.scale
   
   for i, o in ipairs(self.route) do
-    QuestHelper: Assert(o, string.format("nil dodads pos issue, o %s", tostring(o)))
-    QuestHelper: Assert(o.pos, string.format("nil dodads pos issue, pos %s", QuestHelper:StringizeTable(o)))
+    --QuestHelper: Assert(o, string.format("nil dodads pos issue, o %s", tostring(o)))
+    --QuestHelper: Assert(o.pos, string.format("nil dodads pos issue, pos %s", QuestHelper:StringizeTable(o)))
     if o == obj then
       table.insert(list, o)
-    else
+    elseif o.pos then -- as near as I can tell, there's some curious coroutine contention going on here, and it's possible that things don't have a position even though they're in the route. If they don't have a position, we don't need to add them to a list - this function is (I think) only called for the tooltips. Therefore, either it no longer exists on the main map, or it's about to vanish from the main map. Go go gadget someone-else's-problem-field!
       local x, y = o.pos[3], o.pos[4]
       x, y = x / self.continent_scales_x[o.pos[1].c], y / self.continent_scales_y[o.pos[1].c]
       x, y = self.Astrolabe:TranslateWorldMapPosition(o.pos[1].c, 0, x, y, c, z)
