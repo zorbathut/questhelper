@@ -285,9 +285,11 @@ gathereffects[GetSpellInfo(32606)] = {token = "mine"}
 gathereffects[GetSpellInfo(2366)] = {token = "herb"}
 gathereffects[GetSpellInfo(8613)] = {token = "skin"}
 gathereffects[GetSpellInfo(21248)] = {token = "open", noclog = true}
+gathereffects[GetSpellInfo(30427)] = {token = "extract", noclog = true} -- not a loot window, so it won't really work, but hey
 gathereffects[GetSpellInfo(13262)] = {token = "de", noclog = true, ignore = true}
 gathereffects[GetSpellInfo(31252)] = {token = "prospect", noclog = true, ignore = true}
 gathereffects[GetSpellInfo(51005)] = {token = "mill", noclog = true, ignore = true}
+
 
 
 local function last_reset()
