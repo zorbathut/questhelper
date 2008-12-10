@@ -1,4 +1,12 @@
 
+== Version 0.77 12/9/2008 ==
+
+* More data collection, focused around loot
+* Remove some false positive errors that aren't really important
+* Stop dropping out of "load mode" prematurely
+* Discourage use of the Deeprun Tram somewhat
+* I don't even want to think about how many submitted files are added, but it's a lot
+
 == Version 0.76 12/1/2008 ==
 
 * Add some more performance benchmarking to help track down the Dalaran issue
