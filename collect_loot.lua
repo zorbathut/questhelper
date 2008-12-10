@@ -71,7 +71,8 @@ local MS_TAPPED_OTHER = 2
 local MS_TAPPED_LOOTABLE = 3
 local MS_TAPPED_LOOTED = 4
 
--- TODO: garbage-collect these properly
+local last_cleanup = GetTime()
+
 local monsterstate = {}
 local monsterrefresh = {}
 local monstertimeout = {}
@@ -118,7 +119,7 @@ local function CombatLogEvent(_, event, sourceguid, _, _, destguid, _, _, _, spe
       monsterrefresh[target] = GetTime() + 15
       monstertimeout[target] = GetTime() + 30
       monsterstate[target] = (UnitIsTappedByPlayer(targ) and not UnitIsTrivial(targ)) and MS_TAPPED_US or MS_TAPPED_OTHER -- and figure out if it's us. Or if it's trivial. we ignore it if it's trivial, since it's much less likely to be looted and that could throw off our numbers
-      QuestHelper:TextOut(string.format("Monster %s set to %s", target, (monsterstate[target] == MS_TAPPED_US) and "MS_TAPPED_US" or "MS_TAPPED_OTHER"))
+      --QuestHelper:TextOut(string.format("Monster %s set to %s", target, (monsterstate[target] == MS_TAPPED_US) and "MS_TAPPED_US" or "MS_TAPPED_OTHER"))
     end
     
     -- DONE
@@ -133,12 +134,12 @@ local function CombatLogEvent(_, event, sourceguid, _, _, destguid, _, _, _, spe
       monsterstate[destguid] = MS_TAPPED_LOOTABLE
       monsterrefresh[destguid] = GetTime() + 600
       monstertimeout[destguid] = GetTime() + 600
-      QuestHelper:TextOut(string.format("Tapped monster %s slain, set to lootable", destguid))
+      --QuestHelper:TextOut(string.format("Tapped monster %s slain, set to lootable", destguid))
     else
       monsterstate[destguid] = nil
       monsterrefresh[destguid] = nil
       monstertimeout[destguid] = nil
-      QuestHelper:TextOut(string.format("Untapped monster %s slain, cleared", destguid))
+      --QuestHelper:TextOut(string.format("Untapped monster %s slain, cleared", destguid))
     end
   end
 end
@@ -164,7 +165,7 @@ local function SkinnableflagsTooltipy(self, ...)
     
     local lines = GameTooltip:NumLines()
     for i = 3, lines do
-      QuestHelper:TextOut(_G["GameTooltipTextLeft" .. tostring(i)]:GetText())
+      --QuestHelper:TextOut(_G["GameTooltipTextLeft" .. tostring(i)]:GetText())
       local skeen = skintypes[_G["GameTooltipTextLeft" .. tostring(i)]:GetText()]
       if skeen then QuestHelper: Assert(not skintype) skintype = skeen end
     end
@@ -386,6 +387,21 @@ local function SpellInterrupt(player, spell, rank)
 end
 
 local function LootOpened()
+
+  -- We're cleaning up the monster charts here, on the theory that if someone is looting, they're okay with a tiny lag spike.
+  if last_cleanup + 300 < GetTime() then
+    local cleanup = {}
+    for k, v in pairs(monstertimeout) do
+      if v < GetTime() then table.insert(cleanup, k) end
+    end
+    
+    for _, v in pairs(cleanup) do
+      monsterstate[v] = nil
+      monsterrefresh[v] = nil
+      monstertimeout[v] = nil
+    end
+  end
+
   -- First off, we try to figure out where the hell these items came from.
   
   --QuestHelper:TextOut(string.format("%s %s %s", tostring(last_phase == LAST_PHASE_COMPLETE), tostring(last_spell == "Mining"), tostring(last_timestamp + 1 > GetTime())))
@@ -401,14 +417,14 @@ local function LootOpened()
   
   if IsFishingLoot() then
     -- yaaaaay
-    QuestHelper:TextOut("Fishing loot")
+    if debug_output then QuestHelper:TextOut("Fishing loot") end
     local loc = GetLoc()
     if not QHC.fishing[loc] then QHC.fishing[loc] = {} end
     spot = QHC.fishing[loc]
     prefix = "fish"
     
   elseif pickpocket_phase == PP_PHASE_COMPLETE and pickpocket_timestamp and pickpocket_timestamp + 1 > GetTime() and UnitGUID("target") == pickpocket_otarget_guid then
-    QuestHelper:TextOut(string.format("Pickpocketing from %s/%s", pickpocket_target, UnitName("target"), UnitGUID("target")))
+    if debug_output then QuestHelper:TextOut(string.format("Pickpocketing from %s/%s", pickpocket_target, UnitName("target"), UnitGUID("target"))) end
     local mid = GetMonsterType(UnitGUID("target"))
     if not QHC.monster[mid] then QHC.monster[mid] = {} end
     spot = QHC.monster[mid]
@@ -426,26 +442,26 @@ local function LootOpened()
     -- If we don't, use last_target, and it's an object
     -- This is probably going to be buggy. Welp.
     if last_otarget_guid then
-      QuestHelper:TextOut(string.format("%s from monster %s", gathereffects[last_spell].token, beef))
+      if debug_output then QuestHelper:TextOut(string.format("%s from monster %s", gathereffects[last_spell].token, beef)) end
       local mid = GetMonsterType(last_otarget_guid)
       if not QHC.monster[mid] then QHC.monster[mid] = {} end
       spot = QHC.monster[mid]
     else
-      QuestHelper:TextOut(string.format("%s from object %s", gathereffects[last_spell].token, beef))
+      if debug_output then QuestHelper:TextOut(string.format("%s from object %s", gathereffects[last_spell].token, beef)) end
       if not QHC.object[last_target] then QHC.object[last_target] = {} end
       spot = QHC.object[last_target]
     end
     
   elseif touched_timestamp and touched_timestamp + 1 > GetTime() then
     -- Opening a container, possibly
-    QuestHelper:TextOut(string.format("Opening container %d", touched_itemid))
+    if debug_output then QuestHelper:TextOut(string.format("Opening container %d", touched_itemid)) end
     if not QHC.item[touched_itemid] then QHC.item[touched_itemid] = {} end
     spot = QHC.item[touched_itemid]
     prefix = "open"
     
   elseif UnitGUID("target") and monsterstate[UnitGUID("target")] == MS_TAPPED_LOOTABLE and monstertimeout[UnitGUID("target")] > GetTime() and (not pickpocket_timestamp or pickpocket_timestamp + 5 < GetTime()) and (not last_timestamp or last_timestamp + 5 < GetTime()) and (last_succeed_trade + 5 < GetTime()) then
     -- Monster is lootable, so we loot the monster
-    QuestHelper:TextOut(string.format("Monsterloot from %s/%s", UnitName("target"), UnitGUID("target")))
+    if debug_output then QuestHelper:TextOut(string.format("Monsterloot from %s/%s", UnitName("target"), UnitGUID("target"))) end
     monsterstate[UnitGUID("target")] = MS_TAPPED_LOOTED
     monstertimeout[UnitGUID("target")] = GetTime() + 300
     monsterrefresh[UnitGUID("target")] = GetTime() + 2
@@ -455,7 +471,7 @@ local function LootOpened()
     prefix = "loot"
     
   else
-    QuestHelper:TextOut("Who knows")  -- ugh
+    if debug_output then QuestHelper:TextOut("Who knows") end  -- ugh
     local loc = GetLoc()
     if not QHC.worldloot[loc] then QHC.worldloot[loc] = {} end
     spot = QHC.worldloot[loc]
