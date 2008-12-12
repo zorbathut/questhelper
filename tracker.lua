@@ -530,6 +530,9 @@ function tracker:update(delta)
       added = added + count
     end
     
+    -- Add an extra large gap to seperate the notification from everything else
+    gap = gap * 5
+    
     -- Add Quests that are watched but not in the route.
     if UberQuest then
       local uq_settings = UberQuest_Config[UnitName("player")]
