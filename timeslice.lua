@@ -79,7 +79,10 @@ function QH_Timeslice_Work()
   if coro then
     --if coroutine_verbose then QuestHelper:TextOut(string.format("timeslice: %s running", coro.name)) end
     
-    QuestHelper: Assert(coroutine.status(coro.coro) ~= "dead")
+    if coroutine.status(coro.coro) == "dead" then   -- Someone was claiming to get an infinite loop with this. I don't see how it's possible, but this should at least fix the infinite loop.
+      coroutine_list[key] = nil
+      QuestHelper: Assert(coroutine.status(coro.coro) ~= "dead")
+    end
     
     local slicefactor = (QuestHelper_Pref.hide and 0.01 or (QuestHelper_Pref.perf_scale * math.min(coroutine_route_pass, 5)))
     if not started then slicefactor = 25 * math.min(coroutine_route_pass, 5) end  -- the init process gets much higher priority so we get done with it faster
