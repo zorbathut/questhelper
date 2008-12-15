@@ -12,7 +12,7 @@ QuestHelper_Translations.koKR =
   HOME_NOT_KNOWN = "귀환 장소를 알 수 없습니다. 기회가 될 때, 여관주인에게 말을 걸어 재설정 하세요..",
   PRIVATE_SERVER = nil,
   PLEASE_RESTART = nil,
-  NOT_UNZIPPED_CORRECTLY = nil,
+  NOT_UNZIPPED_CORRECTLY = "QuestHelper 설치가 잘못되었습니다. Curse Client나 7zip을 이용해서 설치하시기를 권장합니다. 하위 폴더가 설치되었는지 확인하세요.",
   PLEASE_DONATE = nil,
   
   -- Route related text.
@@ -30,7 +30,7 @@ QuestHelper_Translations.koKR =
   
   -- Words used for objectives.
   SLAY_VERB = "죽여라",
-  ACQUIRE_VERB = "획득하라",
+  ACQUIRE_VERB = "획득",
   
   OBJECTIVE_REASON = "%h3 퀘스트 : %h2 %1", -- %1 is a verb, %2 is a noun (item or monster)
   OBJECTIVE_REASON_FALLBACK = "%h2 퀘스트 : %h1.",
@@ -138,9 +138,9 @@ QuestHelper_Translations.koKR =
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1의 진행상황 :",
-  TRAVEL_ESTIMATE = "계산된 여행 시간 :",
+  TRAVEL_ESTIMATE = "예상 이동 시간 :",
   TRAVEL_ESTIMATE_VALUE = "%t1",
-  WAYPOINT_REASON = "이곳을 통하여 %h1을 방문하라 :",
+  WAYPOINT_REASON = "다음 경유 %h1 방문 :",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = nil,
