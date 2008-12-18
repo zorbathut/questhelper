@@ -10,8 +10,8 @@ QuestHelper_Translations.nlNL =
   ZONE_LAYOUT_ERROR = "Ik kan niet opstarten, omdat ik bang ben anders je saved data kapot te maken. Wacht alsjeblieft op een patch die wel deze zone layout aankan.",
   DOWNGRADE_ERROR = "Je opgeslagen data is niet bruikbaar met deze versie van QuestHelper. Gebruik een nieuwere versie of verwijder je 'saved variables' data.",
   HOME_NOT_KNOWN = "Je thuis is niet bekend. Praat met een innkeeper om deze in te stellen.",
-  PRIVATE_SERVER = nil,
-  PLEASE_RESTART = nil,
+  PRIVATE_SERVER = "Private servers worden niet door QuestHelper ondersteund.",
+  PLEASE_RESTART = "Er is een error gevonden tijdens het opstarten van World of Warcraft, exit dit programma helemaal en probeer het opnieuw.",
   NOT_UNZIPPED_CORRECTLY = nil,
   PLEASE_DONATE = nil,
   
@@ -124,7 +124,7 @@ QuestHelper_Translations.nlNL =
   NAG_SINGLE_MONSTER_OBJ = "een monster doel",
   NAG_SINGLE_EVENT_OBJ = "een gebeurtenis doel",
   NAG_SINGLE_REPUTATION_OBJ = "een reputatie doel",
-  NAG_SINGLE_PLAYER_OBJ = nil,
+  NAG_SINGLE_PLAYER_OBJ = "een speler doel",
   
   NAG_MULTIPLE_FP = "%1 Flightmasters",
   NAG_MULTIPLE_QUEST = "%1 quests",
@@ -134,7 +134,7 @@ QuestHelper_Translations.nlNL =
   NAG_MULTIPLE_MONSTER_OBJ = "%1 monster doelen",
   NAG_MULTIPLE_EVENT_OBJ = "%1 gebeurtenis doel",
   NAG_MULTIPLE_REPUTATION_OBJ = "%1 reputatie doelen",
-  NAG_MULTIPLE_PLAYER_OBJ = nil,
+  NAG_MULTIPLE_PLAYER_OBJ = "%1 speler doelen",
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1's voortgang:",
