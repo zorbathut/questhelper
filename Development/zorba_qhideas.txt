@@ -309,13 +309,6 @@ QuestHelper_Collector = {
         }
       }
     },
-    TODO ["event"] = {
-      [QuestID/String] = {
-        locations = {
-          "DENSDENSDENS",
-        }
-      }
-    },
     TODO ["quest"] = {
       [QuestID] = {
         name = "Hello!",
