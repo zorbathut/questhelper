@@ -1,6 +1,6 @@
 -- Please see lang_enus.lua for reference.
 
-QuestHelper_Translations["nlNL"] =
+QuestHelper_Translations.nlNL =
  {
   -- Displayed by locale chooser.
   LOCALE_NAME = "Nederlands",
@@ -10,6 +10,10 @@ QuestHelper_Translations["nlNL"] =
   ZONE_LAYOUT_ERROR = "Ik kan niet opstarten, omdat ik bang ben anders je saved data kapot te maken. Wacht alsjeblieft op een patch die wel deze zone layout aankan.",
   DOWNGRADE_ERROR = "Je opgeslagen data is niet bruikbaar met deze versie van QuestHelper. Gebruik een nieuwere versie of verwijder je 'saved variables' data.",
   HOME_NOT_KNOWN = "Je thuis is niet bekend. Praat met een innkeeper om deze in te stellen.",
+  PRIVATE_SERVER = nil,
+  PLEASE_RESTART = nil,
+  NOT_UNZIPPED_CORRECTLY = nil,
+  PLEASE_DONATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "De vliegroutes voor jouw karakter zijn veranderd.",
@@ -61,6 +65,7 @@ QuestHelper_Translations["nlNL"] =
   REMOVED_OBJ = "Verwijderd: %1",
   USER_OBJ = "Gebruikers Doel: %h1",
   UNKNOWN_OBJ = "Geen idee waar je naar toe moet..., sorry.",
+  INACCESSIBLE_OBJ = nil,
   
   SEARCHING_STATE = "Aan het zoeken: %1",
   SEARCHING_LOCAL = "Local %1",
@@ -90,6 +95,7 @@ QuestHelper_Translations["nlNL"] =
   FILTERED_ZONE = "Gefilterd voor je zone.",
   FILTERED_COMPLETE = "Gefilterd omdat je het al voltooid heb.",
   FILTERED_BLOCKED = "Gefilterd door een eerder incompleet doel.",
+  FILTERED_UNWATCHED = nil,
   FILTERED_USER = "Je hebt dit doel verborgen.",
   FILTERED_UNKNOWN = "Geen idee hoe dit te voltooien.",
   
@@ -104,6 +110,7 @@ QuestHelper_Translations["nlNL"] =
   NAG_MULTIPLE_NEW = "Je hebt nieuwe informatie voor %h1: %h(new information). En geupdated informatie voor %h2: %h(updated information).",
   NAG_SINGLE_NEW = "Je hebt nieuwe informatie voor %h1: %h(new information).",
   NAG_ADDITIONAL = "Je hebt meer informatie voor %h1 verkregen.",
+  NAG_POLLUTED = nil,
   
   NAG_NOT_NEW = "Je hebt geen nieuwe informatie voor de database.",
   NAG_NEW = "Deel je informatie, zodat anderen er ook van kunnen profiteren.",
@@ -117,6 +124,7 @@ QuestHelper_Translations["nlNL"] =
   NAG_SINGLE_MONSTER_OBJ = "een monster doel",
   NAG_SINGLE_EVENT_OBJ = "een gebeurtenis doel",
   NAG_SINGLE_REPUTATION_OBJ = "een reputatie doel",
+  NAG_SINGLE_PLAYER_OBJ = nil,
   
   NAG_MULTIPLE_FP = "%1 Flightmasters",
   NAG_MULTIPLE_QUEST = "%1 quests",
@@ -126,6 +134,7 @@ QuestHelper_Translations["nlNL"] =
   NAG_MULTIPLE_MONSTER_OBJ = "%1 monster doelen",
   NAG_MULTIPLE_EVENT_OBJ = "%1 gebeurtenis doel",
   NAG_MULTIPLE_REPUTATION_OBJ = "%1 reputatie doelen",
+  NAG_MULTIPLE_PLAYER_OBJ = nil,
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1's voortgang:",
@@ -159,6 +168,7 @@ QuestHelper_Translations["nlNL"] =
   MENU_ZONE_FILTER = "%1 Zone Filter",
   MENU_DONE_FILTER = "%1 Afgerond Filter",
   MENU_BLOCKED_FILTER = "%1 Geblokkeerd Filter",
+  MENU_WATCHED_FILTER = nil,
   MENU_LEVEL_FILTER = "%1 Level Filter",
   MENU_LEVEL_OFFSET = "Level Filter Afstand",
   MENU_ICON_SCALE = "Icoon Grootte",

@@ -62,25 +62,24 @@ static.lua
 changes.lua
 
 lang.lua
-lang_enus.lua
+lang_dadk.lua
 lang_dede.lua
-lang_frfr.lua
+lang_enus.lua
 lang_eses.lua
 lang_esmx.lua
-lang_dadk.lua
-lang_nlnl.lua
-lang_trtr.lua
-lang_ruru.lua
-lang_svse.lua
-lang_itit.lua
-#lang_zhcn.lua
-lang_zhtw.lua
-lang_kokr.lua
-lang_trtr.lua
+lang_frfr.lua
 lang_huhu.lua
 lang_itit.lua
+lang_kokr.lua
+lang_nlnl.lua
 lang_ptbr.lua
 lang_ptpt.lua
+lang_ruru.lua
+lang_svse.lua
+lang_trtr.lua
+lang_zhcn.lua
+lang_zhtw.lua
+#lang_zhcn.lua
 
 upgrade.lua
 main.lua

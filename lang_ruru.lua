@@ -1,6 +1,6 @@
 -- Please see lang_enus.lua for reference.
 
-QuestHelper_Translations["ruRU"] =
+QuestHelper_Translations.ruRU =
  {
   -- Displayed by locale chooser.
   LOCALE_NAME = "Русский",
@@ -10,6 +10,10 @@ QuestHelper_Translations["ruRU"] =
   ZONE_LAYOUT_ERROR = "Боюсь, при загрузке вы потеряете все свои сохранённые данные Пожалуйста, дождитесь выхода патча для обновления информации по новым зонам.",
   DOWNGRADE_ERROR = "Ваши сохранённые данные не подходят для этой версии КвестХэлпера. Используйте новую версию, или удалите старые данные.",
   HOME_NOT_KNOWN = "Местоположение вашего дома неизвестно. Когда будет возможность, пожалуйста, поговорите с Инкипером и обновите информацию о вашем доме.",
+  PRIVATE_SERVER = "КвестХелпер не поддерживает пиратские сервера.",
+  PLEASE_RESTART = "При запуске КвестХелпера произошла ошибка. Пожалуйста выйдите из игры полностью и попробуйте еще раз.",
+  NOT_UNZIPPED_CORRECTLY = "КвестХелпер был установлен некорректно. Рекомендуется использовать либо Curse Client, либо программу 7zip для инсталляции. Убедитесь, что поддиректории распаковываются верно.",
+  PLEASE_DONATE = "%h(Дело КвестХелпера живет благодаря Вашим пожертвованиям!) Мы будем благодарны за Все, что вы сможете пожертвовать - даже несколько долларов в месяц позволит быть уверенным, что я продолжу обновлять и работать над этим аддоном. Введите %(/qh donate) для информации.",
   
   -- Route related text.
   ROUTES_CHANGED = "Маршруты полётов для вашего персонажа обновлены.",
@@ -61,6 +65,7 @@ QuestHelper_Translations["ruRU"] =
   REMOVED_OBJ = "Убрано: %1",
   USER_OBJ = "Задание пользователя: %h1",
   UNKNOWN_OBJ = "Я не знаю куда тебе надо идти для этого задания.",
+  INACCESSIBLE_OBJ = nil,
   
   SEARCHING_STATE = "Идёт поиск: %1",
   SEARCHING_LOCAL = "Местный %1",
@@ -90,6 +95,7 @@ QuestHelper_Translations["ruRU"] =
   FILTERED_ZONE = "Фильтр по зоне.",
   FILTERED_COMPLETE = "Фильтр по завершённости.",
   FILTERED_BLOCKED = "Фильтр по проценту незавершённости",
+  FILTERED_UNWATCHED = "Отфильтровано, так как не помечено отслеживающимся в журнале квестов.",
   FILTERED_USER = "Вы запросили скрыть эту цель.",
   FILTERED_UNKNOWN = "Не знаю как закончить.",
   
@@ -104,6 +110,7 @@ QuestHelper_Translations["ruRU"] =
   NAG_MULTIPLE_NEW = "У вас есть новая информация по %h1 и %h2 обновлен %h(%s3).",
   NAG_SINGLE_NEW = "У вас есть новая информация по %h1.",
   NAG_ADDITIONAL = "У вас есть дополнительная информация по %h1.",
+  NAG_POLLUTED = "Ваша база данных испорчена информацией с тестового или пиратского сервера, и будет очищена при запуске.",
   
   NAG_NOT_NEW = "У вас нет информации которой не было бы в статичной базе.",
   NAG_NEW = "Если вы раздадите свою информацию другим, им это сильно пригодится.",
@@ -117,6 +124,7 @@ QuestHelper_Translations["ruRU"] =
   NAG_SINGLE_MONSTER_OBJ = "Убийство Монстра",
   NAG_SINGLE_EVENT_OBJ = "Объект событий",
   NAG_SINGLE_REPUTATION_OBJ = "Репутция",
+  NAG_SINGLE_PLAYER_OBJ = "Цель Игрока",
   
   NAG_MULTIPLE_FP = "Мастера полетов",
   NAG_MULTIPLE_QUEST = "Квесты",
@@ -126,6 +134,7 @@ QuestHelper_Translations["ruRU"] =
   NAG_MULTIPLE_MONSTER_OBJ = "Убийство мобов",
   NAG_MULTIPLE_EVENT_OBJ = "Объекты событий",
   NAG_MULTIPLE_REPUTATION_OBJ = "Репутация",
+  NAG_MULTIPLE_PLAYER_OBJ = "%1 цели игроков",
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1's прогресс:",
@@ -159,6 +168,7 @@ QuestHelper_Translations["ruRU"] =
   MENU_ZONE_FILTER = "%1 Фильтр зоны",
   MENU_DONE_FILTER = "%1 Фильтр завершённости",
   MENU_BLOCKED_FILTER = "%1 Фильтр блокировки",
+  MENU_WATCHED_FILTER = "%1 Фильтр отслеживания",
   MENU_LEVEL_FILTER = "%1 Фильтр уровней",
   MENU_LEVEL_OFFSET = "Параметры фильтра уровней",
   MENU_ICON_SCALE = "Размер иконки",

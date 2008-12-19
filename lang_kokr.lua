@@ -1,6 +1,6 @@
 -- Please see lang_enus.lua for reference.
 
-QuestHelper_Translations["koKR"] =
+QuestHelper_Translations.koKR =
  {
   -- Displayed by locale chooser.
   LOCALE_NAME = "한국어",
@@ -10,6 +10,10 @@ QuestHelper_Translations["koKR"] =
   ZONE_LAYOUT_ERROR = "세이브된 데이터와 충돌의 위험이 있기 때문에 애드온을 실행하지 않습니다. 새로운 지역을 처리 할 수 있는 패치가 나올때까지 기다려주세요.",
   DOWNGRADE_ERROR = "저장된 데이터는 이 버전의 QuestHelper와 맞지 않습니다. 새로운 버전을 사용하거나, 저장된 데이터를 삭제하세요.",
   HOME_NOT_KNOWN = "귀환 장소를 알 수 없습니다. 기회가 될 때, 여관주인에게 말을 걸어 재설정 하세요..",
+  PRIVATE_SERVER = nil,
+  PLEASE_RESTART = nil,
+  NOT_UNZIPPED_CORRECTLY = nil,
+  PLEASE_DONATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "당신의 이동 경로가 변경되었습니다.",
@@ -61,6 +65,7 @@ QuestHelper_Translations["koKR"] =
   REMOVED_OBJ = "삭제 : %1",
   USER_OBJ = "유저 목적 : %h1",
   UNKNOWN_OBJ = "목적 달성을 위해 어디로 가야하는지 알 수가 없습니다.",
+  INACCESSIBLE_OBJ = nil,
   
   SEARCHING_STATE = "검색 : %1",
   SEARCHING_LOCAL = "%1 구역",
@@ -90,6 +95,7 @@ QuestHelper_Translations["koKR"] =
   FILTERED_ZONE = "지역에 따른 분류.",
   FILTERED_COMPLETE = "완료 상태에 따른 분류.",
   FILTERED_BLOCKED = nil,
+  FILTERED_UNWATCHED = nil,
   FILTERED_USER = "이 목적을 감추길 요청하였음.",
   FILTERED_UNKNOWN = "완료 방법을 알 수 없음.",
   
@@ -104,6 +110,7 @@ QuestHelper_Translations["koKR"] =
   NAG_MULTIPLE_NEW = "%h1과 %h2의 정보 그리고, %h(%s3)지역의 정보를 갱신하였습니다.",
   NAG_SINGLE_NEW = "%h1의 새로운 정보를 얻었습니다.",
   NAG_ADDITIONAL = "%h1의 추가 정보를 얻었습니다.",
+  NAG_POLLUTED = nil,
   
   NAG_NOT_NEW = "당신의 전역 데이터베이스에 어떠한 정보도 가지고 있지 않습니다.",
   NAG_NEW = "다른 사람들에게 도움이 될 지도 모르니 당신의 데이터 공유를 고려해 보십시오.",
@@ -117,6 +124,7 @@ QuestHelper_Translations["koKR"] =
   NAG_SINGLE_MONSTER_OBJ = nil,
   NAG_SINGLE_EVENT_OBJ = nil,
   NAG_SINGLE_REPUTATION_OBJ = nil,
+  NAG_SINGLE_PLAYER_OBJ = nil,
   
   NAG_MULTIPLE_FP = nil,
   NAG_MULTIPLE_QUEST = nil,
@@ -126,6 +134,7 @@ QuestHelper_Translations["koKR"] =
   NAG_MULTIPLE_MONSTER_OBJ = nil,
   NAG_MULTIPLE_EVENT_OBJ = nil,
   NAG_MULTIPLE_REPUTATION_OBJ = nil,
+  NAG_MULTIPLE_PLAYER_OBJ = nil,
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1의 진행상황 :",
@@ -159,6 +168,7 @@ QuestHelper_Translations["koKR"] =
   MENU_ZONE_FILTER = nil,
   MENU_DONE_FILTER = nil,
   MENU_BLOCKED_FILTER = nil,
+  MENU_WATCHED_FILTER = nil,
   MENU_LEVEL_FILTER = nil,
   MENU_LEVEL_OFFSET = nil,
   MENU_ICON_SCALE = nil,
