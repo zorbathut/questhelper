@@ -407,6 +407,10 @@ local function getDataTime(ft, origin, dest)
   return t
 end
 
+-- Used for loading status results. This is a messy solution.
+QuestHelper_Flight_Updates = 0
+QuestHelper_Flight_Updates_Current = 0
+
 function QuestHelper:buildFlightTimes()
   self.flight_scalar = self:computeWalkToFlightMult()
   
@@ -429,6 +433,8 @@ function QuestHelper:buildFlightTimes()
   self:addLinkInfo(l, flight_times)
   self:addLinkInfo(s, flight_times)
   
+  QuestHelper_Flight_Updates_Current = 0
+  
   -- This appears to set up flight_times so it gives directions from any node to any other node. I'm not sure what the getDataTime() call is all about, and I'm also not sure what dat[2] is for. In any case, I don't see anything immediately suspicious about this, just dubious.
   local cont = true
   while cont do
@@ -440,6 +446,7 @@ function QuestHelper:buildFlightTimes()
       local list = flight_times[origin]
       
       for dest, data in pairs(list) do
+        QuestHelper_Flight_Updates_Current = QuestHelper_Flight_Updates_Current + 1
         if flight_times[dest] then for dest2, data2 in pairs(flight_times[dest]) do
           if dest2 ~= origin then
             local dat = list[dest2]
@@ -476,6 +483,8 @@ function QuestHelper:buildFlightTimes()
       end
     end
   end
+  
+  QuestHelper_Flight_Updates = QuestHelper_Flight_Updates_Current
   
   -- Replace the tables with simple times.
   for orig, list in pairs(flight_times) do

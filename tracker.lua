@@ -269,7 +269,7 @@ local function ccode(r1, g1, b1, r2, g2, b2, p)
 end
 
 local function qname(title, level)
-  if QuestHelper_Pref.track_level then
+  if QuestHelper_Pref.track_level and level ~= 7777 then
     title = string.format("[%d] %s", level, title)
   end
   
@@ -455,7 +455,7 @@ local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
   return x, y, gap, count
 end
 
-local loading_vquest = { cat = "quest", obj = "100/Questhelper is loading...", after = {}, watched = true }
+local loading_vquest = { cat = "quest", obj = "7777/Questhelper is loading...", after = {}, watched = true }
 
 function tracker:update(delta)
   if not delta then
@@ -498,7 +498,7 @@ function tracker:update(delta)
   end
   
   check_delay = check_delay + delta
-  if check_delay > 5 then
+  if check_delay > 5 or (not QuestHelper.Routing.map_walker and check_delay > 0.5) then
     check_delay = 0
     
     local quests = QuestHelper.quest_log
@@ -528,6 +528,10 @@ function tracker:update(delta)
       local count
       x, y, gap, count = addobj(loading_vquest, seen, nil, nil, x, y, gap)
       added = added + count
+      
+      if QuestHelper_Flight_Updates and QuestHelper_Flight_Updates_Current and QuestHelper_Flight_Updates > 0 and QuestHelper_Flight_Updates_Current < QuestHelper_Flight_Updates then
+        loading_vquest.obj = string.format("7777/QuestHelper is loading (%2d%%)...", QuestHelper_Flight_Updates_Current * 100 / QuestHelper_Flight_Updates)
+      end
     end
     
     -- Add an extra large gap to seperate the notification from everything else
