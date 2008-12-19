@@ -125,6 +125,7 @@ collect_loot.lua
 collect_patterns.lua
 collect_flight.lua
 collect_util.lua
+collect_quest.lua
 
 cartographer.lua
 tomtom.lua
