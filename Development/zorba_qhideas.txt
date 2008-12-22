@@ -197,7 +197,7 @@ What do we need?
 
 QuestHelper_Collector_Version = 1
 QuestHelper_Collector = {
-  ["0.58 on 1.2.3/enUS"] = {
+  ["0.58 on 1.2.3/enUS/2"] = {
     ["monster"] = {
       [IDnumber] = {
         -- Standard merger base here
@@ -313,14 +313,8 @@ QuestHelper_Collector = {
       [QuestID] = {
         name = "Hello!",
         level = 40,
-        start = "monster/1234",
-        end = "monster/5678",
-        start_location = {
-          "DENSDENSDENS"
-        }
-        end_location = {
-          "DENSDENSDENS"
-        }
+        start = "monster/1234@@DENS",
+        end = "monster/5678@@DENS",
         objectives = {
           { "monster/1234" = 12, "monster/4456" = 2 },
           { "item/1234" = 9, },
@@ -331,8 +325,6 @@ QuestHelper_Collector = {
         moneygain = { level, amount }
         itemgain = { }
         itemchoice = { }
-        faction_1_got = 1234
-        faction_2_got = 1236
         completedby = { "CLVSPEC", "CLVSPEC" }
       }
     },

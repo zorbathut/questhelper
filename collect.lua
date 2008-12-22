@@ -107,6 +107,7 @@ function QH_Collector_Init()
   QH_Collect_Item_Init(QHCData, API)
   QH_Collect_Object_Init(QHCData, API)
   QH_Collect_Flight_Init(QHCData, API)
+  QH_Collect_Quest_Init(QHCData, API)
   
   QH_Collect_Loot_Init(QHCData, API)
   

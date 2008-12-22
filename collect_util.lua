@@ -19,9 +19,18 @@ function GetItemType(link)
     "^|cff%x%x%x%x%x%x|Hitem:(%d+):[%d:-]+|h%[[^%]]*%]|h|r$"
   ))
 end
+  
+function GetQuestType(link)
+  return tonumber(string.match(link,
+    "^|cff%x%x%x%x%x%x|Hquest:(%d+):%d+|h%[[^%]]*%]|h|r$"
+  )), tonumber(string.match(link,
+    "^|cff%x%x%x%x%x%x|Hquest:%d+:(%d+)|h%[[^%]]*%]|h|r$"
+  ))
+end
 
 function QH_Collect_Util_Init(_, API)
   API.Utility_GetMonsterUID = GetMonsterUID
   API.Utility_GetMonsterType = GetMonsterType
   API.Utility_GetItemType = GetItemType
+  API.Utility_GetQuestType = GetQuestType
 end
