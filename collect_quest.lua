@@ -3,8 +3,13 @@ QuestHelper_File["collect_quest.lua"] = "Development Version"
 local debug_output = false
 if QuestHelper_File["collect_quest.lua"] == "Development Version" then debug_output = true end
 
+local IsMonsterGUID
+local GetMonsterType
+
 local GetQuestType
 local GetItemType
+
+local GetLoc
 
 local QHCQ
 
@@ -60,8 +65,6 @@ function ScanQuests() -- make it local once we've debugged it
         RegisterQuestData("reward", QHCQ[id], GetQuestLogRewardInfo)
         RegisterQuestData("choice", QHCQ[id], GetQuestLogChoiceInfo)
         
-        
-        
         --QuestHelper:TextOut(string.format("%d", GetNumQuestLeaderBoards(index)))
         for i = 1, GetNumQuestLeaderBoards(index) do
           local desc, type = GetQuestLogLeaderBoard(i, index)
@@ -107,6 +110,19 @@ function ScanQuests() -- make it local once we've debugged it
   return dbx
 end
 
+local eventy = {}
+
+local function Looted(message)
+  local ltype = GetItemType(message, true)
+  table.insert(eventy, {time = GetTime(), event = string.format("I%di", ltype)})
+end
+
+local function Combat(event, _, _, _, guid)
+  if event ~= "UNIT_DIED" then return end
+  local mtype = GetMonsterType(message, true)
+  table.insert(eventy, {time = GetTime(), event = string.format("M%dm", ltype)})
+end
+
 local changed = false
 
 local function LogChanged()
@@ -115,6 +131,21 @@ end
 
 local function WatchUpdate()  -- we're currently ignoring the ID of the quest that was updated for simplicity's sake.
   changed = true
+end
+
+local function AppendMember(tab, key, dat)
+  tab[key] = (tab[key] or "") .. dat
+end
+
+local function StartOrEnd(se, id)
+  local targuid = UnitGUID("target")
+  local chunk = ""
+  if targuid and IsMonsterGUID(targuid) then
+    chunk = string.format("M%dm", GetMonsterType(targuid))
+  end
+  chunk = chunk .. GetLoc()
+  
+  AppendMember(QHCQ[id], se, chunk)
 end
 
 function UpdateQuests()
@@ -130,22 +161,47 @@ function UpdateQuests()
   for k, _ in pairs(deebey) do traverse[k] = true end
   for k, _ in pairs(noobey) do traverse[k] = true end
   
+  while #eventy > 0 and eventy[1].time < GetTime() - 1 do table.remove(eventy, 1) end -- slurp
+  local token
+  
   for k, _ in pairs(traverse) do
     if not deebey[k] then
-      QuestHelper:TextOut(string.format("Acquired! Questid %d", k))
       -- Quest was acquired
+      QuestHelper:TextOut(string.format("Acquired! Questid %d", k))
+      StartOrEnd("start", k)
+      
     elseif not noobey[k] then
       -- Quest was dropped or completed (check to see which!)
       QuestHelper:TextOut(string.format("Dropped/completed! Questid %d", k))
+      StartOrEnd("end", k)
+      
     else
       QuestHelper: Assert(#deebey[k] == #noobey[k])
       for i = 1, #deebey[k] do
+      
+      --[[
         if not (noobey[k][i] >= deebey[k][i]) then
           QuestHelper:TextOut(string.format("%s, %s", type(noobey[k][i]), type(deebey[k][i])))
           QuestHelper:TextOut(string.format("%d, %d", noobey[k][i], deebey[k][i]))
+          for index = 1, 100 do
+            local qlink = GetQuestLink(index)
+            if qlink then qlink = GetQuestType(qlink) end
+            if qlink == k then
+              QuestHelper:TextOut(GetQuestLogLeaderBoard(i, index))
+            end
+          end
         end
-        QuestHelper: Assert(noobey[k][i] >= deebey[k][i]) -- man I hope this is true
+        QuestHelper: Assert(noobey[k][i] >= deebey[k][i]) -- man I hope this is true]]  -- This entire section can fail if people throw away quest items, or if quest items have a duration that expires. Sigh.
+        
         if noobey[k][i] > deebey[k][i] then
+          if not token then
+            token = ""
+            for k, v in pairs(eventy) do token = token .. v.event end
+            token = token .. GetLoc()
+          end
+          
+          AppendMember(QHCQ[k], string.format("criteria_%d_satisfied", i), token)
+          
           QuestHelper:TextOut(string.format("Updated! Questid %d item %d", k, i))
         end
       end
@@ -163,12 +219,22 @@ function QH_Collect_Quest_Init(QHCData, API)
   
   GetQuestType = API.Utility_GetQuestType
   GetItemType = API.Utility_GetItemType
+  IsMonsterGUID = API.Utility_IsMonsterGUID
+  GetMonsterType = API.Utility_GetMonsterType
   QuestHelper: Assert(GetQuestType)
   QuestHelper: Assert(GetItemType)
+  QuestHelper: Assert(IsMonsterGUID)
+  QuestHelper: Assert(GetMonsterType)
+  
+  GetLoc = API.Callback_LocationBolusCurrent
+  QuestHelper: Assert(GetLoc)
   
   deebey = ScanQuests()
   
   API.Registrar_EventHook("UNIT_QUEST_LOG_CHANGED", LogChanged)
   API.Registrar_EventHook("QUEST_LOG_UPDATE", UpdateQuests)
   API.Registrar_EventHook("QUEST_WATCH_UPDATE", WatchUpdate)
+  
+  API.Registrar_EventHook("CHAT_MSG_LOOT", Looted)
+  API.Registrar_EventHook("COMBAT_LOG_EVENT_UNFILTERED", Combat)
 end
