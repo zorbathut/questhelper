@@ -42,6 +42,7 @@ QuestHelper_DefaultPref =
   flight_time = true,
   locale = GetLocale(), -- This variable is used for display purposes, and has nothing to do with the collected data.
   perf_scale = 1,       -- How much background processing can the current machine handle?  Higher means more load, lower means better performance.
+  perfload_scale = 1,    -- Performance scale to use on startup
   map_button = true
  }
 
@@ -229,6 +230,7 @@ function QuestHelper:Initialize()
       ["collect_patterns.lua"] = true,
       ["collect_flight.lua"] = true,
       ["collect_util.lua"] = true,
+      ["collect_quest.lua"] = true,
     }
 
   for file, version in pairs(QuestHelper_File) do

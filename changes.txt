@@ -1,4 +1,11 @@
 
+== Version 0.78 12/19/2008 ==
+
+* Several small bugfixes
+* Update language files
+* Improve loading code to give a status indicator
+* Add tunable performance numbers to loading code
+
 == Version 0.77 12/9/2008 ==
 
 * More data collection, focused around loot

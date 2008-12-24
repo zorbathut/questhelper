@@ -10,7 +10,7 @@
 ## Version: Development Version
 ## OptionalDeps: Cartographer_Waypoints, TomTom, !Swatter
 ## SavedVariables: QuestHelper_Version QuestHelper_SaveVersion QuestHelper_Locale QuestHelper_Quests QuestHelper_Objectives QuestHelper_FlightInstructors QuestHelper_FlightRoutes QuestHelper_Pref QuestHelper_UID QuestHelper_SaveDate QuestHelper_SeenRealms QuestHelper_Errors QuestHelper_Collector QuestHelper_Collector_Version
-## SavedVariablesPerCharacter: QuestHelper_KnownFlightRoutes QuestHelper_Home QuestHelper_CharVersion
+## SavedVariablesPerCharacter: QuestHelper_KnownFlightRoutes QuestHelper_Home QuestHelper_CharVersion QuestHelper_Flight_Updates
 ## X-Website: http://wow.curse.com/downloads/details/9924/
 ## X-Embeds: AstrolabeQH, ChatThrottleLib
 
@@ -37,6 +37,9 @@
 # QuestHelper_Errors: List of errors seen
 #
 # Everything under "Old data gathering" will go away once the new data gathering is in place.
+#
+# Per-character stuff needs to be consolidated as well, which will happen in some future version. I need to see how it handles *removing* variables.
+
 
 bst_pre.lua
 
@@ -122,6 +125,7 @@ collect_loot.lua
 collect_patterns.lua
 collect_flight.lua
 collect_util.lua
+collect_quest.lua
 
 cartographer.lua
 tomtom.lua
