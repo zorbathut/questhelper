@@ -1513,8 +1513,8 @@ WorldMapSize = {
 	},
 }
 
---- WotLK Adjustments
-if ( GetBuildInfo():sub(1, 3) == "3.0" ) then
+--- WotLK Adjustments, now permanently enabled. Someday I should probably merge these in.
+if true then
 	WorldMapSize[0].height = 31809.64859753034;
 	WorldMapSize[0].width = 47714.27770954026;
 	
