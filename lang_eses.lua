@@ -10,10 +10,10 @@ QuestHelper_Translations.esES =
   ZONE_LAYOUT_ERROR = "Me niego a ejecutarme, por temor a dañar sus datos guardados. Por favor, espere a un nuevo parche que será capaz de manejar el nuevo diseño de zona.",
   DOWNGRADE_ERROR = "Sus datos guardados no son compatibles con esta versión de QuestHelper. Utilice una nueva versión, o borre su variables guardadas.",
   HOME_NOT_KNOWN = "Se desconoce la posición de su hogar. Cuando pueda, por favor, hable con su posadero para restaurarla.",
-  PRIVATE_SERVER = nil,
-  PLEASE_RESTART = nil,
-  NOT_UNZIPPED_CORRECTLY = nil,
-  PLEASE_DONATE = nil,
+  PRIVATE_SERVER = "QuestHelper no soporta servidores privados.",
+  PLEASE_RESTART = "Se ha producido un error al iniciar QuestHelper. Por favor, sal de completamente de World of Warcraft e inténtalo de nuevo.",
+  NOT_UNZIPPED_CORRECTLY = "QuestHelper se instaló correctamente. Se recomienda usar Curse Client o 7zip para instalar. Aseguresé de que los subdirectorios son descomprimidos.",
+  PLEASE_DONATE = "%h(QuestHelper se financia de donaciones!). Se agradece cualquier contribución, sólo unos pocos dólares al mes asegurarán el mantenimiento de la aplicación y futuras actualizaciones. Escriba %h(/qh donate) para más información.",
   
   -- Route related text.
   ROUTES_CHANGED = "Las rutas de vuelo de su personaje han sido alteradas.",
@@ -65,7 +65,7 @@ QuestHelper_Translations.esES =
   REMOVED_OBJ = "Eliminado: %1",
   USER_OBJ = "Objetivo de Usuario: %h1",
   UNKNOWN_OBJ = "No sé dónde hay que ir para ese objetivo.",
-  INACCESSIBLE_OBJ = nil,
+  INACCESSIBLE_OBJ = "QuestHelper ha sido incapaz de encontrar la ubicación de %h1. Se ha añadido una ubicacion \"imposible de encontrar\" en tu lista de objetivos. Si encuentras una versión alternativa de este objeto, por favor, remítelo (%h(/qh submit))",
   
   SEARCHING_STATE = "Buscando: %1",
   SEARCHING_LOCAL = "Locales %1",
@@ -95,7 +95,7 @@ QuestHelper_Translations.esES =
   FILTERED_ZONE = "Filtrado debido a la zona.",
   FILTERED_COMPLETE = "Filtrado debido a completados.",
   FILTERED_BLOCKED = "Filtrado debido al objetivo anterior incompleto",
-  FILTERED_UNWATCHED = nil,
+  FILTERED_UNWATCHED = "filtrado, debido a que no está traqueado en el log de quests",
   FILTERED_USER = "Pidió que este objetivo se ocultara.",
   FILTERED_UNKNOWN = "Desconozco cómo llevarlo a cabo.",
   
@@ -110,7 +110,7 @@ QuestHelper_Translations.esES =
   NAG_MULTIPLE_NEW = "Tiene %h(nueva información) sobre %h1, y %h(información actualizada) sobre %h2.",
   NAG_SINGLE_NEW = "Tiene %h(nueva información) sobre %h1.",
   NAG_ADDITIONAL = "Tiene %h(información adicional) sobre %h1.",
-  NAG_POLLUTED = nil,
+  NAG_POLLUTED = "Tu base de datos ha sido contaminada debido a un test o a un servidor privado, y será limpiada al reiniciar.",
   
   NAG_NOT_NEW = "No tiene ninguna información que no estén ya en la base de datos estáticos.",
   NAG_NEW = "Podría considerar la posibilidad de compartir sus datos para que otros puedan beneficiarse.",
@@ -124,7 +124,7 @@ QuestHelper_Translations.esES =
   NAG_SINGLE_MONSTER_OBJ = "un monstruo (objetivo)",
   NAG_SINGLE_EVENT_OBJ = "un evento (objetivo)",
   NAG_SINGLE_REPUTATION_OBJ = "una reputación (objetivo)",
-  NAG_SINGLE_PLAYER_OBJ = nil,
+  NAG_SINGLE_PLAYER_OBJ = "un jugador (objetivo)",
   
   NAG_MULTIPLE_FP = "%1 maestros de vuelo",
   NAG_MULTIPLE_QUEST = "%1 misiones",
@@ -134,7 +134,7 @@ QuestHelper_Translations.esES =
   NAG_MULTIPLE_MONSTER_OBJ = "%1 monstruos (objetivo)",
   NAG_MULTIPLE_EVENT_OBJ = "%1 eventos (objetivo)",
   NAG_MULTIPLE_REPUTATION_OBJ = "%1 reputaciones (objetivo)",
-  NAG_MULTIPLE_PLAYER_OBJ = nil,
+  NAG_MULTIPLE_PLAYER_OBJ = "%1 objetivos del jugador",
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "Progreso de %1:",

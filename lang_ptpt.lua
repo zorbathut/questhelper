@@ -10,10 +10,10 @@ QuestHelper_Translations.ptPT =
   ZONE_LAYOUT_ERROR = "Recuso-me a trabalhar, com medo de corromper os teus dados guardados. Por favor aguarda por uma actualização que seja capaz de lidar com a nova estrutura da zona.",
   DOWNGRADE_ERROR = "Os dados guardados não são compatíveis com esta versão do QuestHelper. Usa uma nova versão, ou apaga os dados da pasta 'SavedVariables'.",
   HOME_NOT_KNOWN = "O teu alojamento não é conhecido. Quando puderes, fala com um hospedeiro de uma estalagem e reactiva-o.",
-  PRIVATE_SERVER = nil,
-  PLEASE_RESTART = nil,
-  NOT_UNZIPPED_CORRECTLY = nil,
-  PLEASE_DONATE = nil,
+  PRIVATE_SERVER = "O QuestHelper não suporta servidores privados.",
+  PLEASE_RESTART = "Ouve um erro ao iniciar o QuestHelper. Por favor saia totalmente do World of Warcraft e volte a tentar.",
+  NOT_UNZIPPED_CORRECTLY = "O QuestHelper foi instalado incorrectamente. Nós recomendamos o uso do Curse Client ou do 7zip para instalar. Reveja se as sub-directórias foram extraídas.",
+  PLEASE_DONATE = "%h(O QuestHelper sobrevive das tuas doações!) Qualquer contributo é apreciado, e apenas alguns euros por mês garantem que eu o mantenha actualizado e a trabalhar. Escreva %h(/qh donate) para mais informação.",
   
   -- Route related text.
   ROUTES_CHANGED = "As rotas de voo para o teu personagem foram alteradas.",
@@ -65,7 +65,7 @@ QuestHelper_Translations.ptPT =
   REMOVED_OBJ = "Removido: %1",
   USER_OBJ = "Objectivo do Personagem: %h1",
   UNKNOWN_OBJ = "Não sei para onde deves ir para esse objectivo.",
-  INACCESSIBLE_OBJ = nil,
+  INACCESSIBLE_OBJ = "O QuestHelper não foi capaz de encontrar uma localização útil para %h1. Nós adicionamos uma localização \"quase impossível de encontrar\" à tua lista de objectivos. Se encontrares uma versão útil deste objecto, por favor envia os teus dados!",
   
   SEARCHING_STATE = "Procurando: %1",
   SEARCHING_LOCAL = "Local %1",
@@ -95,7 +95,7 @@ QuestHelper_Translations.ptPT =
   FILTERED_ZONE = "Filtrado devido à zona.",
   FILTERED_COMPLETE = "Filtrado pois está completado.",
   FILTERED_BLOCKED = "Filtrado devido a um objectivo anterior incompleto.",
-  FILTERED_UNWATCHED = nil,
+  FILTERED_UNWATCHED = "Filtrado por não estar a ser Monitorizado pelo Quest Log",
   FILTERED_USER = "Pediste para esconder este objectivo.",
   FILTERED_UNKNOWN = "Não sei como se completa.",
   
@@ -110,7 +110,7 @@ QuestHelper_Translations.ptPT =
   NAG_MULTIPLE_NEW = "Tu tens %h(nova informação) sobre %h1, e %h(informação actualizada) sobre %h2.",
   NAG_SINGLE_NEW = "Tu tens %h(nova informação) em %h1.",
   NAG_ADDITIONAL = "Tu tens %h(informação adicional) sobre %h1.",
-  NAG_POLLUTED = nil,
+  NAG_POLLUTED = "A tua base de dados foi poluida por informação de um servidor privado ou de testes, e será apagada ao reiniciar.",
   
   NAG_NOT_NEW = "Não possuis nenhuma informação que ainda não exista na base de dados estática.",
   NAG_NEW = "Deverias considerar partilhar os teus dados, de modo a que outros deles podessem beneficiar.",
@@ -124,7 +124,7 @@ QuestHelper_Translations.ptPT =
   NAG_SINGLE_MONSTER_OBJ = "um objectivo de monstro",
   NAG_SINGLE_EVENT_OBJ = "um objectivo de evento",
   NAG_SINGLE_REPUTATION_OBJ = "um objectivo de reputação",
-  NAG_SINGLE_PLAYER_OBJ = nil,
+  NAG_SINGLE_PLAYER_OBJ = "um objectivo do jogador",
   
   NAG_MULTIPLE_FP = "%1 mestres de voo",
   NAG_MULTIPLE_QUEST = "%1 missões",
@@ -134,7 +134,7 @@ QuestHelper_Translations.ptPT =
   NAG_MULTIPLE_MONSTER_OBJ = "%1 objectivos de monstros",
   NAG_MULTIPLE_EVENT_OBJ = "%1 objectivos de eventos",
   NAG_MULTIPLE_REPUTATION_OBJ = "%1 objectivos para reputação",
-  NAG_MULTIPLE_PLAYER_OBJ = nil,
+  NAG_MULTIPLE_PLAYER_OBJ = "%1 objectivos de jogadores",
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1 progresso:",
@@ -168,7 +168,7 @@ QuestHelper_Translations.ptPT =
   MENU_ZONE_FILTER = "%1 Filtro de Zona",
   MENU_DONE_FILTER = "%1 Filtro de Termidadas",
   MENU_BLOCKED_FILTER = "%1 Filtro de Bloqueadas",
-  MENU_WATCHED_FILTER = nil,
+  MENU_WATCHED_FILTER = "%1 Filtros Vigiados",
   MENU_LEVEL_FILTER = "%1 Filtro de Nível",
   MENU_LEVEL_OFFSET = "Margem do Filtro de Nível",
   MENU_ICON_SCALE = "Escala dos Icones",
