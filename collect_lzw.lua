@@ -1,49 +1,8 @@
 QuestHelper_File["collect_lzw.lua"] = "Development Version"
+QuestHelper_Loadtime["collect_lzw.lua"] = GetTime()
 
 local Merger
-
-local function QH_LZW_Bitstreamer_Output(outbits)
-  return {
-    r = {},
-    cbits = 0,
-    cval = 0,
-    
-    append = function (self, value, bits)
-      self.cbits = self.cbits + bits
-      self.cval = bit.lshift(self.cval, bits)
-      self.cval = self.cval + value
-      while self.cbits >= outbits do
-        Merger.Add(self.r, strchar(bit.rshift(self.cval, self.cbits - outbits)))
-        self.cbits = self.cbits - outbits;
-        self.cval = bit.band(self.cval, bit.lshift(1, self.cbits) - 1)
-      end
-    end,
-    finish = function (self)
-      if self.cbits > 0 then self:append(0, outbits - self.cbits) end
-      return Merger.Finish(self.r)
-    end
-  }
-end
-
-local function QH_LZW_Bitstreamer_Input(indata, outbits)
-  return {
-    cbits = 0,
-    cval = 0,
-    coffset = 1,
-    
-    depend = function (self, bits)
-      while self.cbits < bits do
-        self.cbits = self.cbits + outbits
-        self.cval = bit.lshift(self.cval, outbits) + strbyte(indata, self.coffset)
-        self.coffset = self.coffset + 1
-      end
-      local rv = bit.rshift(self.cval, self.cbits - bits)
-      self.cbits = self.cbits - bits;
-      self.cval = bit.band(self.cval, bit.lshift(1, self.cbits) - 1)
-      return rv
-    end,
-  }
-end
+local Bitstream
 
 local function QH_LZW_Decompress(input, tokens, outbits)
   local d = {}
@@ -59,7 +18,7 @@ local function QH_LZW_Decompress(input, tokens, outbits)
   
   while nextbits < dsize do bits = bits + 1; nextbits = nextbits * 2 end
   
-  local i = QH_LZW_Bitstreamer_Input(input, outbits)
+  local i = Bitstream.Input(input, outbits)
   local rv = {}
   
   local idlect = 0
@@ -119,7 +78,7 @@ local function QH_LZW_Compress(input, tokens, outbits)
   
   while nextbits < dsize do bits = bits + 1; nextbits = nextbits * 2 end
   
-  local r = QH_LZW_Bitstreamer_Output(outbits)
+  local r = Bitstream.Output(outbits)
   
   local idlect = 0
   
@@ -191,6 +150,9 @@ end
 function QH_Collect_LZW_Init(_, API)
   Merger = API.Utility_Merger
   QuestHelper: Assert(Merger)
+  
+  Bitstream = API.Utility_Bitstream
+  QuestHelper: Assert(Bitstream)
   
   API.Utility_LZW = {Compress = QH_LZW_Compress, Decompress = QH_LZW_Decompress, Compress_Dicts = QH_LZW_Compress_Dicts}
 end

@@ -572,6 +572,7 @@ if archive_zip or archive_7z then
   FileUtil.createDirectory("QuestHelper/Art")
   FileUtil.createDirectory("QuestHelper/AstrolabeQH")
   FileUtil.createDirectory("QuestHelper/ChatThrottleLib")
+  FileUtil.createDirectory("QuestHelper/LibAboutPanel")
   FileUtil.createDirectory("QuestHelper/Fonts")
   
   local info = nil
@@ -636,10 +637,8 @@ if archive_zip or archive_7z then
     end
   end)
   
-  for i, dir in ipairs({"AstrolabeQH", "ChatThrottleLib"}) do
-    FileUtil.forEachFile("../"..dir, function (file)
-      FileUtil.copyFile(file, "QuestHelper/"..dir)
-    end)
+  for i, dir in ipairs({"AstrolabeQH", "ChatThrottleLib", "LibAboutPanel"}) do
+    FileUtil.copyDirectoryRecursively("../"..dir, "QuestHelper/"..dir)
   end
   
   if archive_zip then

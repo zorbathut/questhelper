@@ -93,12 +93,15 @@ function QH_Collector_Init()
   local QHCData = QuestHelper_Collector[sig]
 
   QH_Collect_Util_Init(nil, API)  -- Some may actually add their own functions to the API, and should go first. There's no real formalized order, I just know which depend on others, and it's heavily asserted so it will break if it goes in the wrong order.
+  QH_Collect_Merger_Init(nil, API)
+  QH_Collect_Bitstream_Init(nil, API)
   
   QH_Collect_Location_Init(nil, API)
-  QH_Collect_Merger_Init(nil, API)
   QH_Collect_Patterns_Init(nil, API)
+  QH_Collect_Notifier_Init(nil, API)
+  QH_Collect_Spec_Init(nil, API)
   
-  QH_Collect_LZW_Init(nil, API) -- Depends on Merger
+  QH_Collect_LZW_Init(nil, API)
   
   QH_Collect_Achievement_Init(QHCData, API)
   QH_Collect_Traveled_Init(QHCData, API)
@@ -107,8 +110,10 @@ function QH_Collector_Init()
   QH_Collect_Item_Init(QHCData, API)
   QH_Collect_Object_Init(QHCData, API)
   QH_Collect_Flight_Init(QHCData, API)
+  QH_Collect_Quest_Init(QHCData, API)
   
   QH_Collect_Loot_Init(QHCData, API)
+  QH_Collect_Equip_Init(QHCData, API)
   
   if not QHCData.realms then QHCData.realms = {} end
   QHCData.realms[GetRealmName()] = (QHCData.realms[GetRealmName()] or 0) + 1 -- I'm not entirely sure why I'm counting

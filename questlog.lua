@@ -168,6 +168,7 @@ function QuestHelper:ScanQuestLog()
   local index = 1
   while true do
     local title, level, qtype, players, header, collapsed, status, daily = self:FixedGetQuestLogTitle(index)
+    --QuestHelper:TextOut(string.format("Gathering quests - %s %s", tostring(title), tostring(level)))
     
     if not title then break end
     

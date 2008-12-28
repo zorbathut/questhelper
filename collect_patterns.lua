@@ -1,4 +1,5 @@
 QuestHelper_File["collect_patterns.lua"] = "Development Version"
+QuestHelper_Loadtime["collect_patterns.lua"] = GetTime()
 
 local patterns = {}
 

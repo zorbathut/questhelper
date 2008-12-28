@@ -1,4 +1,5 @@
 QuestHelper_File["collect_item.lua"] = "Development Version"
+QuestHelper_Loadtime["collect_item.lua"] = GetTime()
 
 local debug_output = false
 if QuestHelper_File["collect_item.lua"] == "Development Version" then debug_output = true end
@@ -7,6 +8,7 @@ local GetItemType
 
 local QHCI
 
+-- We could probably snag data from other locations as well, but at the moment, we're not.
 local function Tooltipy(self, ...)
   local _, ilink = self:GetItem()
   if not ilink then return end

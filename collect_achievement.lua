@@ -1,4 +1,5 @@
 QuestHelper_File["collect_achievement.lua"] = "Development Version"
+QuestHelper_Loadtime["collect_achievement.lua"] = GetTime()
 
 local Collect_Achievement = {}
 

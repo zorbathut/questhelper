@@ -174,6 +174,7 @@ function QuestHelper:Initialize()
       ["bst_post.lua"] = true,
       ["bst_astrolabe.lua"] = true,
       ["bst_ctl.lua"] = true,
+      ["bst_libaboutpanel.lua"] = true,
 
       ["upgrade.lua"] = true,
       ["main.lua"] = true,
@@ -231,6 +232,10 @@ function QuestHelper:Initialize()
       ["collect_flight.lua"] = true,
       ["collect_util.lua"] = true,
       ["collect_quest.lua"] = true,
+      ["collect_equip.lua"] = true,
+      ["collect_notifier.lua"] = true,
+      ["collect_bitstream.lua"] = true,
+      ["collect_spec.lua"] = true,
     }
 
   for file, version in pairs(QuestHelper_File) do
@@ -509,6 +514,8 @@ function QuestHelper:Initialize()
   QuestHelper:TextOut(string.format("%d %d", GetFunctionCPUUsage(A), GetFunctionCPUUsage(B)))
   
   --/script SetCVar("scriptProfile", value)]]
+  
+  LibStub("LibAboutPanelQH").new(nil, "QuestHelper")
   
   QuestHelper_Loadtime["init_end"] = GetTime()
 end
@@ -878,19 +885,22 @@ function QuestHelper:OnUpdate()
     
     self.collect_c, self.collect_x, self.collect_y, self.collect_rc, self.collect_rz = tc, tx, ty, nc, nz
 
+    local level = UnitLevel("player")
+    if level >= 58 and self.player_level < 58 then
+      self.defered_graph_reset = true
+    end
+    if level ~= self.player_level then
+      self.defered_quest_scan = true
+    end
+    self.player_level = level
+    
     if self.defered_quest_scan and not self.graph_in_limbo then
       self.defered_quest_scan = false
       self:ScanQuestLog()
     end
 
     QH_Timeslice_Toggle("routing", not not self.c)
-
-    local level = UnitLevel("player")
-    if level >= 58 and self.player_level < 58 then
-      self.defered_graph_reset = true
-    end
-    self.player_level = level
-
+    
     self:PumpCommMessages()
   --end
   
