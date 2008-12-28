@@ -102,8 +102,7 @@ local function Looted(message)
     
     if not nonempty then return end -- congratulations you are better than nothing, we do not care
     
-    --Notifier(GetTime() + 5 * 60, function () Recheck(item, equiploc, competing) end)
-    Notifier(GetTime() + 15, function () Recheck(item, equiploc, competing) end)
+    Notifier(GetTime() + 5 * 60, function () Recheck(item, equiploc, competing) end)
   end
 end
 
