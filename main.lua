@@ -515,7 +515,7 @@ function QuestHelper:Initialize()
   
   --/script SetCVar("scriptProfile", value)]]
   
-  LibStub("LibAboutPanel").new(nil, "QuestHelper")
+  LibStub("LibAboutPanelQH").new(nil, "QuestHelper")
   
   QuestHelper_Loadtime["init_end"] = GetTime()
 end

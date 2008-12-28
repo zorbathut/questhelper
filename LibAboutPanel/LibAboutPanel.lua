@@ -48,7 +48,7 @@ Currently it will not read localization versions of fields all fields.
 ****************************************************************************************
 ]]--
 
-local lib, oldminor = LibStub:NewLibrary("LibAboutPanel", 1)
+local lib, oldminor = LibStub:NewLibrary("LibAboutPanelQH", 1)
 if not lib then return end
 
 function lib.new(parent, addonname)
@@ -126,7 +126,7 @@ end
 
 
 local fields = {"Version", "Author", "X-Category", "X-License", "X-Email", "X-Website", "X-Credits", "X-Localizations", "X-Donate"}
-local haseditbox = {["Version"] = true, ["X-Website"] = true, ["X-Email"] = true}
+local haseditbox = {["Version"] = true, ["X-Website"] = true, ["X-Email"] = true, ["X-Donate"] = true}
 local function HideTooltip() GameTooltip:Hide() end
 local function ShowTooltip(self)
 	GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
@@ -207,4 +207,14 @@ function lib.OnShow(frame)
 			anchor = title
 		end
 	end
+  
+  -- seriously did you really think I wouldn't go and tweak things
+  local commentary = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+	commentary:SetHeight(32)
+	commentary:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, -24)
+	commentary:SetPoint("RIGHT", frame, -32, 0)
+	commentary:SetNonSpaceWrap(true)
+	commentary:SetJustifyH("LEFT")
+	commentary:SetJustifyV("TOP")
+	commentary:SetText(QHText("HOW_TO_CONFIGURE"))
 end
