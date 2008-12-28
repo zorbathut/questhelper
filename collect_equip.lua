@@ -87,6 +87,10 @@ local function Recheck(item, location, competing)
 end
 
 local function Looted(message)
+  if string.find(message, string.gsub(LOOT_ITEM_CREATED_SELF, "%%.*", "")) then  -- YOU CANNOT EAT A PURSE
+    return
+  end
+  
   local item = GetItemType(message, true)
   
   local name, _, quality, ilvl, min, itype, isubtype, _, equiploc, _ = GetItemInfo(item)
