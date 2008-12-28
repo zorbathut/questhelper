@@ -117,7 +117,7 @@ local eventy = {}
 local function Looted(message)
   local ltype = GetItemType(message, true)
   table.insert(eventy, {time = GetTime(), event = string.format("I%di", ltype)})
-  QuestHelper:TextOut(string.format("Added event %s", string.format("I%di", ltype)))
+  if debug_output then QuestHelper:TextOut(string.format("Added event %s", string.format("I%di", ltype))) end
 end
 
 local function Combat(_, event, _, _, _, guid)
@@ -125,7 +125,7 @@ local function Combat(_, event, _, _, _, guid)
   if not IsMonsterGUID(guid) then return end
   local mtype = GetMonsterType(guid, true)
   table.insert(eventy, {time = GetTime(), event = string.format("M%dm", mtype)})
-  QuestHelper:TextOut(string.format("Added event %s", string.format("M%dm", mtype)))
+  if debug_output then QuestHelper:TextOut(string.format("Added event %s", string.format("M%dm", mtype))) end
 end
 
 local changed = false
@@ -152,6 +152,24 @@ local function StartOrEnd(se, id)
   chunk = chunk .. GetLoc()
   
   AppendMember(QHCQ[id], se, chunk)
+end
+
+local abandoncomplete = ""
+local abandoncomplete_timestamp = nil
+
+local GetQuestReward_Orig = GetQuestReward
+GetQuestReward = function (...)
+  abandoncomplete = "complete"
+  abandoncomplete_timestamp = GetTime()
+  GetQuestReward_Orig(...)
+  QuestHelper:TextOut("completebutton")
+end
+
+local AbandonQuest_Orig = AbandonQuest
+AbandonQuest = function ()
+  abandoncomplete = "abandon"
+  abandoncomplete_timestamp = GetTime()
+  AbandonQuest_Orig()
 end
 
 function UpdateQuests()
@@ -182,14 +200,20 @@ function UpdateQuests()
   for k, _ in pairs(traverse) do
     if not deebey[k] then
       -- Quest was acquired
-      QuestHelper:TextOut(string.format("Acquired! Questid %d", k))
+      if debug_output then QuestHelper:TextOut(string.format("Acquired! Questid %d", k)) end
       StartOrEnd("start", k)
       diffs = diffs + 1
       
     elseif not noobey[k] then
-      -- Quest was dropped or completed (check to see which!)
-      QuestHelper:TextOut(string.format("Dropped/completed! Questid %d", k))
-      StartOrEnd("end", k)
+      -- Quest was dropped or completed
+      if abandoncomplete == "complete" and abandoncomplete_timestamp + 30 >= GetTime() then
+        if debug_output then QuestHelper:TextOut(string.format("Completed! Questid %d", k)) end
+        StartOrEnd("end", k)
+        abandoncomplete = ""
+      else
+        if debug_output then QuestHelper:TextOut(string.format("Dropped! Questid %d", k)) end
+      end
+      
       diffs = diffs + 1
       
     else
@@ -215,7 +239,7 @@ function UpdateQuests()
             token = ""
             for k, v in pairs(eventy) do token = token .. v.event end
             debugtok = token
-            token = token .. GetLoc()
+            token = token .. "L" .. GetLoc() .. "l"
           end
           
           local ttok = token
@@ -225,7 +249,7 @@ function UpdateQuests()
           
           AppendMember(QHCQ[k], string.format("criteria_%d_satisfied", i), ttok)
           
-          QuestHelper:TextOut(string.format("Updated! Questid %d item %d count %d tok %s", k, i, noobey[k][i] - deebey[k][i], debugtok))
+          if debug_output then QuestHelper:TextOut(string.format("Updated! Questid %d item %d count %d tok %s", k, i, noobey[k][i] - deebey[k][i], debugtok)) end
           diffs = diffs + 1
         end
       end
