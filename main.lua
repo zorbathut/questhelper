@@ -878,19 +878,22 @@ function QuestHelper:OnUpdate()
     
     self.collect_c, self.collect_x, self.collect_y, self.collect_rc, self.collect_rz = tc, tx, ty, nc, nz
 
+    local level = UnitLevel("player")
+    if level >= 58 and self.player_level < 58 then
+      self.defered_graph_reset = true
+    end
+    if level ~= self.player_level then
+      self.defered_quest_scan = true
+    end
+    self.player_level = level
+    
     if self.defered_quest_scan and not self.graph_in_limbo then
       self.defered_quest_scan = false
       self:ScanQuestLog()
     end
 
     QH_Timeslice_Toggle("routing", not not self.c)
-
-    local level = UnitLevel("player")
-    if level >= 58 and self.player_level < 58 then
-      self.defered_graph_reset = true
-    end
-    self.player_level = level
-
+    
     self:PumpCommMessages()
   --end
   
