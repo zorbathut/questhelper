@@ -162,7 +162,6 @@ GetQuestReward = function (...)
   abandoncomplete = "complete"
   abandoncomplete_timestamp = GetTime()
   GetQuestReward_Orig(...)
-  QuestHelper:TextOut("completebutton")
 end
 
 local AbandonQuest_Orig = AbandonQuest
