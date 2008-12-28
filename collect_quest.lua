@@ -15,7 +15,7 @@ local QHCQ
 
 local deebey
 
-function RegisterQuestData(category, location, GetQuestLogWhateverInfo)
+local function RegisterQuestData(category, location, GetQuestLogWhateverInfo)
   local index = 1
   local localspot
   while true do
@@ -38,7 +38,7 @@ function pin()
   QuestHelper:TextOut("^.*: (%d+)/(%d+)(" .. complete_suffix .. ")?$")
 end
 
-function ScanQuests() -- make it local once we've debugged it
+local function ScanQuests() -- make it local once we've debugged it
   
   local selected
   local index = 1
@@ -50,6 +50,8 @@ function ScanQuests() -- make it local once we've debugged it
     
     local qlink = GetQuestLink(index)
     if qlink then
+      --QuestHelper:TextOut(qlink)
+      --QuestHelper:TextOut(string.gsub(qlink, "|", "||"))
       local id, level = GetQuestType(qlink)
       
       --QuestHelper:TextOut(string.format("%s - %d %d", qlink, id, level))
@@ -115,15 +117,19 @@ local eventy = {}
 local function Looted(message)
   local ltype = GetItemType(message, true)
   table.insert(eventy, {time = GetTime(), event = string.format("I%di", ltype)})
+  QuestHelper:TextOut(string.format("Added event %s", string.format("I%di", ltype)))
 end
 
-local function Combat(event, _, _, _, guid)
+local function Combat(_, event, _, _, _, guid)
   if event ~= "UNIT_DIED" then return end
-  local mtype = GetMonsterType(message, true)
-  table.insert(eventy, {time = GetTime(), event = string.format("M%dm", ltype)})
+  if not IsMonsterGUID(guid) then return end
+  local mtype = GetMonsterType(guid, true)
+  table.insert(eventy, {time = GetTime(), event = string.format("M%dm", mtype)})
+  QuestHelper:TextOut(string.format("Added event %s", string.format("M%dm", mtype)))
 end
 
 local changed = false
+local first = true
 
 local function LogChanged()
   changed = true
@@ -149,6 +155,7 @@ local function StartOrEnd(se, id)
 end
 
 function UpdateQuests()
+  if first then deebey = ScanQuests() first = false end
   if not changed then return end
   changed = false
   
@@ -161,19 +168,29 @@ function UpdateQuests()
   for k, _ in pairs(deebey) do traverse[k] = true end
   for k, _ in pairs(noobey) do traverse[k] = true end
   
+  --[[
+  if QuestHelper:TableSize(deebey) ~= QuestHelper:TableSize(noobey) then
+    QuestHelper:TextOut(string.format("%d %d", QuestHelper:TableSize(deebey), QuestHelper:TableSize(noobey)))
+  end]]
+  
   while #eventy > 0 and eventy[1].time < GetTime() - 1 do table.remove(eventy, 1) end -- slurp
   local token
+  local debugtok
+  
+  local diffs = 0
   
   for k, _ in pairs(traverse) do
     if not deebey[k] then
       -- Quest was acquired
       QuestHelper:TextOut(string.format("Acquired! Questid %d", k))
       StartOrEnd("start", k)
+      diffs = diffs + 1
       
     elseif not noobey[k] then
       -- Quest was dropped or completed (check to see which!)
       QuestHelper:TextOut(string.format("Dropped/completed! Questid %d", k))
       StartOrEnd("end", k)
+      diffs = diffs + 1
       
     else
       QuestHelper: Assert(#deebey[k] == #noobey[k])
@@ -197,16 +214,25 @@ function UpdateQuests()
           if not token then
             token = ""
             for k, v in pairs(eventy) do token = token .. v.event end
+            debugtok = token
             token = token .. GetLoc()
           end
           
-          AppendMember(QHCQ[k], string.format("criteria_%d_satisfied", i), token)
+          local ttok = token
+          if noobey[k][i] - 1 ~= deebey[k][i] then
+            ttok = string.format("C%dc", noobey[k][i] - deebey[k][i]) .. ttok
+          end
           
-          QuestHelper:TextOut(string.format("Updated! Questid %d item %d", k, i))
+          AppendMember(QHCQ[k], string.format("criteria_%d_satisfied", i), ttok)
+          
+          QuestHelper:TextOut(string.format("Updated! Questid %d item %d count %d tok %s", k, i, noobey[k][i] - deebey[k][i], debugtok))
+          diffs = diffs + 1
         end
       end
     end
   end
+  
+  QuestHelper: Assert(diffs <= 5)
   
   deebey = noobey
   
@@ -237,4 +263,6 @@ function QH_Collect_Quest_Init(QHCData, API)
   
   API.Registrar_EventHook("CHAT_MSG_LOOT", Looted)
   API.Registrar_EventHook("COMBAT_LOG_EVENT_UNFILTERED", Combat)
+  
+  API.Registrar_EventHook("PLAYER_ENTERING_WORLD", function () deebey = ScanQuests() end)
 end

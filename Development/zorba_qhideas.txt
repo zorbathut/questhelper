@@ -224,12 +224,12 @@ QuestHelper_Collector = {
         }
         
         -- TODO from here
-        questloots = {
-          [itemid] = {4, 8},  -- This only triggers if we know this critter drops a specific bit of loot - in some ways, it overrides the "loots" above
-        }
         sells = {
           [itemid] = true,
           [itemid] = amount,
+        }
+        questloots = {
+          [itemid] = {4, 8},  -- This only triggers if we know this critter drops a specific bit of loot - in some ways, it overrides the "loots" above
         }
       }
     },

@@ -28,9 +28,9 @@ end
   
 function GetQuestType(link)
   return tonumber(string.match(link,
-    "^|cff%x%x%x%x%x%x|Hquest:(%d+):%d+|h%[[^%]]*%]|h|r$"
+    "^|cff%x%x%x%x%x%x|Hquest:(%d+):[%d-]+|h%[[^%]]*%]|h|r$"
   )), tonumber(string.match(link,
-    "^|cff%x%x%x%x%x%x|Hquest:%d+:(%d+)|h%[[^%]]*%]|h|r$"
+    "^|cff%x%x%x%x%x%x|Hquest:%d+:([%d-]+)|h%[[^%]]*%]|h|r$"
   ))
 end
 

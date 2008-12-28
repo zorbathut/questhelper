@@ -117,7 +117,7 @@ local function AppendFlag(flagval, flagid)
   flags[flagid] = not not flags[flagid]
   if flagval ~= flags[flagid] then
     if debug_output then
-      QuestHelper:TextOut(string.format("Status toggle %s", flagid))
+      --QuestHelper:TextOut(string.format("Status toggle %s", flagid))
     end
     flags[flagid] = flagval
     AddData(flagid)
