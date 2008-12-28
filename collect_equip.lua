@@ -5,6 +5,7 @@ if QuestHelper_File["collect_equip.lua"] == "Development Version" then debug_out
 
 local GetItemType
 local Notifier
+local GetSpecBolus
 
 local QHCI
 
@@ -48,19 +49,38 @@ for k, v in pairs(invloc_lookup_proto) do
 end
 
 local function Recheck(item, location, competing)
+  local replaced = nil
+  local confused = false
+  
   for i, v in pairs(invloc_lookup[location]) do
     if competing[i] then
       local ilink = GetInventoryItemLink("player", v)
       if ilink then
         local itype = GetItemType(ilink)
+        local eqtext = nil
         if itype == item then
-          QuestHelper:TextOut("We equipped it!")
+          replaced = competing[i]
         elseif itype == competing[i] then
-          QuestHelper:TextOut("We didn't equip it!")
         else
-          QuestHelper:TextOut("We failed.")
+          confused = true
         end
       end
+    end
+  end
+  
+  if confused then
+    if debug_output then QuestHelper:TextOut(string.format("Confused about %s", GetItemInfo(item))) end
+    return
+  end
+  
+  if not QHCI[item] then QHCI[item] = {} end
+  if replaced then
+    if debug_output then QuestHelper:TextOut(string.format("Equipped %s over %s", GetItemInfo(item), GetItemInfo(replaced))) end
+    QHCI[item].equip_yes = (QHCI[item].equip_yes or "") .. string.format("I%di%s", replaced, GetSpecBolus())
+  else
+    for _, v in pairs(competing) do
+      if debug_output then QuestHelper:TextOut(string.format("Did not equip %s over %s", GetItemInfo(item), GetItemInfo(v))) end
+      QHCI[item].equip_no = (QHCI[item].equip_no or "") .. string.format("I%di%s", v, GetSpecBolus())
     end
   end
 end
@@ -70,7 +90,6 @@ local function Looted(message)
   
   local name, _, quality, ilvl, min, itype, isubtype, _, equiploc, _ = GetItemInfo(item)
 
-  QuestHelper:TextOut(string.format("lotsashit %s %s %s %s", tostring(name), tostring(IsEquippableItem(item)), tostring(min <= UnitLevel("player")), tostring(invloc_lookup[equiploc])))
   if name and IsEquippableItem(item) and min <= UnitLevel("player") and invloc_lookup[equiploc] then   -- The level comparison may be redundant
     local competing = {}
     local nonempty = false
@@ -80,7 +99,6 @@ local function Looted(message)
       if litem and litem ~= item then competing[i] = litem  nonempty = true end
     end
     
-    QuestHelper:TextOut(string.format("nonempty is %s", nonempty and "yes" or "no"))
     if not nonempty then return end -- congratulations you are better than nothing, we do not care
     
     --Notifier(GetTime() + 5 * 60, function () Recheck(item, equiploc, competing) end)
@@ -96,6 +114,8 @@ function QH_Collect_Equip_Init(QHCData, API)
   
   GetItemType = API.Utility_GetItemType
   Notifier = API.Utility_Notifier
+  GetSpecBolus = API.Utility_GetSpecBolus
   QuestHelper: Assert(GetItemType)
   QuestHelper: Assert(Notifier)
+  QuestHelper: Assert(GetSpecBolus)
 end

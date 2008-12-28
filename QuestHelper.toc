@@ -128,6 +128,8 @@ collect_util.lua
 collect_quest.lua
 collect_notifier.lua
 collect_equip.lua
+collect_spec.lua
+collect_bitstream.lua
 
 cartographer.lua
 tomtom.lua
