@@ -174,6 +174,7 @@ function QuestHelper:Initialize()
       ["bst_post.lua"] = true,
       ["bst_astrolabe.lua"] = true,
       ["bst_ctl.lua"] = true,
+      ["bst_libaboutpanel.lua"] = true,
 
       ["upgrade.lua"] = true,
       ["main.lua"] = true,
@@ -513,6 +514,8 @@ function QuestHelper:Initialize()
   QuestHelper:TextOut(string.format("%d %d", GetFunctionCPUUsage(A), GetFunctionCPUUsage(B)))
   
   --/script SetCVar("scriptProfile", value)]]
+  
+  LibStub("LibAboutPanel").new(nil, "QuestHelper")
   
   QuestHelper_Loadtime["init_end"] = GetTime()
 end
