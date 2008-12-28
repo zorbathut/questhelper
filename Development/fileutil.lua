@@ -187,6 +187,13 @@ FileUtil.forEachFile = function(directory, func)
   io.close(stream)
 end
 
+FileUtil.copyDirectoryRecursively = function(src, dest)
+  if os.execute(string.format("cp -r %s %s", src, dest)) ~= 0 then
+    print(string.format("Failed to copy %s to %s", src, dest))
+    assert(false)
+  end
+end
+
 FileUtil.extension = function(filename)
   local ext = select(3, string.find(filename, "%.([^%s/\\]-)$"))
   return ext and string.lower(ext) or ""
