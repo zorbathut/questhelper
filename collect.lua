@@ -97,6 +97,7 @@ function QH_Collector_Init()
   QH_Collect_Location_Init(nil, API)
   QH_Collect_Merger_Init(nil, API)
   QH_Collect_Patterns_Init(nil, API)
+  QH_Collect_Notifier_Init(nil, API)
   
   QH_Collect_LZW_Init(nil, API) -- Depends on Merger
   
@@ -110,6 +111,7 @@ function QH_Collector_Init()
   QH_Collect_Quest_Init(QHCData, API)
   
   QH_Collect_Loot_Init(QHCData, API)
+  QH_Collect_Equip_Init(QHCData, API)
   
   if not QHCData.realms then QHCData.realms = {} end
   QHCData.realms[GetRealmName()] = (QHCData.realms[GetRealmName()] or 0) + 1 -- I'm not entirely sure why I'm counting
