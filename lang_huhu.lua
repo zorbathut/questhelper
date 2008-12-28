@@ -143,7 +143,7 @@ QuestHelper_Translations.huHU =
   WAYPOINT_REASON = "Érintsd %h1-t, hogy elérd:",
 
   -- QuestHelper Map Button
-  QH_BUTTON_TEXT = "QuestHelper (Magyarította: Wizek)",
+  QH_BUTTON_TEXT = "QuestHelper (by 123.wizek@gmail.com)",
   QH_BUTTON_TOOLTIP1 = "Bal Klikk: Útvonalterv %1.",
   QH_BUTTON_TOOLTIP2 = "Jobb Klikk: Beállítások-menü megjelenítése.",
   QH_BUTTON_SHOW = "Mutatása",

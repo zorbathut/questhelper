@@ -71,6 +71,7 @@ changes.lua
 lang.lua
 lang_dadk.lua
 lang_dede.lua
+lang_elel.lua
 lang_enus.lua
 lang_eses.lua
 lang_esmx.lua

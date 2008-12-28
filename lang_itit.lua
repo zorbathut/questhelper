@@ -95,7 +95,7 @@ QuestHelper_Translations.itIT =
   FILTERED_ZONE = "Nascosto per la zona",
   FILTERED_COMPLETE = "Nascosto per il completamento",
   FILTERED_BLOCKED = "Nascosto per un obiettivo precedente incompleto",
-  FILTERED_UNWATCHED = nil,
+  FILTERED_UNWATCHED = "123",
   FILTERED_USER = "Hai richiesto che questo obiettivo venga nascosto.",
   FILTERED_UNKNOWN = "Non so come completare.",
   
