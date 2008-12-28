@@ -1,4 +1,20 @@
 
+== Version 0.79 12/28/2008 ==
+
+* You can stop reading here, nothing below this line will be of any interest to anyone. Seriously. This is one of the longest and most boring set of changes I've ever done.
+* Updated many translations
+* Gathering a lot more data about quests
+* Fix a potential minor bug involving not updating the player's level for an unfortunate amount of time
+* Update some documentation
+* Split out Bitstream into a file usable by Collect
+* Add a timer notifier for Collect
+* Record item-equip data
+* Fix a lot of missing boot profiling entries
+* Add an about panel
+* See, I told you that was boring. Now let's see if it crashes constantly or not! Go to work, oblivious beta testers! Test my code for me under the guise of a stable release!
+* Mwahahahahah!
+* (etc, etc, etc)
+
 == Version 0.78 12/19/2008 ==
 
 * Several small bugfixes
