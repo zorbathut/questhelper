@@ -1,4 +1,5 @@
 QuestHelper_File["collect_monster.lua"] = "Development Version"
+QuestHelper_Loadtime["collect_monster.lua"] = GetTime()
 
 local debug_output = false
 if QuestHelper_File["collect_monster.lua"] == "Development Version" then debug_output = true end

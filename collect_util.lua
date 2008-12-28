@@ -1,4 +1,5 @@
 QuestHelper_File["collect_util.lua"] = "Development Version"
+QuestHelper_Loadtime["collect_util.lua"] = GetTime()
 
 function IsMonsterGUID(guid)
   QuestHelper: Assert(#guid == 18, "guid len " .. guid) -- 64 bits, plus the 0x prefix

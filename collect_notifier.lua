@@ -1,4 +1,5 @@
 QuestHelper_File["collect_notifier.lua"] = "Development Version"
+QuestHelper_Loadtime["collect_notifier.lua"] = GetTime()
 
 local NotificationsPending = {}
 

@@ -1,4 +1,5 @@
 QuestHelper_File["collect_bitstream.lua"] = "Development Version"
+QuestHelper_Loadtime["collect_bitstream.lua"] = GetTime()
 
 local Merger
 

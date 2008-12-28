@@ -1,4 +1,5 @@
 QuestHelper_File["collect_location.lua"] = "Development Version"
+QuestHelper_Loadtime["collect_location.lua"] = GetTime()
 
 -- little endian two's complement
 local function signed(c)

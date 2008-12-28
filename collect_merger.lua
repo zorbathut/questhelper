@@ -1,4 +1,5 @@
 QuestHelper_File["collect_merger.lua"] = "Development Version"
+QuestHelper_Loadtime["collect_merger.lua"] = GetTime()
 
 
 local function Add(self, data, stoprepeat)  -- NOTE: if you're getting errors about adding tables, you probably did Merger:Add instead of Merger.Add

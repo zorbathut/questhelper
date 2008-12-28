@@ -1,4 +1,5 @@
 QuestHelper_File["collect_spec.lua"] = "Development Version"
+QuestHelper_Loadtime["collect_spec.lua"] = GetTime()
 
 local Bitstream
 
