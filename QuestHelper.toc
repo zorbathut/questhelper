@@ -27,8 +27,8 @@
 # QuestHelper_SeenRealms: Realms that have been seen by the player (largely exists to catch private servers)
 #
 # New data gathering:
-# QuestHelper_Collector: Most new data
-# QuestHelper_Collector_Version: Version ID, will probably always be 1 (who am I kidding, seriously)
+# QuestHelper_Collector: Most new data. In one huge horrible pile, but a *properly categorized* huge horrible pile
+# QuestHelper_Collector_Version: Version ID, will probably always be 1 (who am I kidding, seriously, I think it's already 2)
 #
 # Misc:
 # QuestHelper_Pref: User preferences
@@ -38,7 +38,7 @@
 #
 # Everything under "Old data gathering" will go away once the new data gathering is in place.
 #
-# Per-character stuff needs to be consolidated as well, which will happen in some future version. I need to see how it handles *removing* variables.
+# Per-character stuff needs to be consolidated as well, which will happen in some future version. I need to see how it handles *removing* variables. And yeah we're adding more per-character stuff already argharblrghab
 
 
 bst_pre.lua
