@@ -14,6 +14,7 @@ QuestHelper_Translations.koKR =
   PLEASE_RESTART = nil,
   NOT_UNZIPPED_CORRECTLY = "QuestHelper 설치가 잘못되었습니다. Curse Client나 7zip을 이용해서 설치하시기를 권장합니다. 하위 폴더가 설치되었는지 확인하세요.",
   PLEASE_DONATE = nil,
+  HOW_TO_CONFIGURE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "당신의 이동 경로가 변경되었습니다.",

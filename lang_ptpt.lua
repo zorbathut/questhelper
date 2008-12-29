@@ -14,6 +14,7 @@ QuestHelper_Translations.ptPT =
   PLEASE_RESTART = "Ouve um erro ao iniciar o QuestHelper. Por favor saia totalmente do World of Warcraft e volte a tentar.",
   NOT_UNZIPPED_CORRECTLY = "O QuestHelper foi instalado incorrectamente. Nós recomendamos o uso do Curse Client ou do 7zip para instalar. Reveja se as sub-directórias foram extraídas.",
   PLEASE_DONATE = "%h(O QuestHelper sobrevive das tuas doações!) Qualquer contributo é apreciado, e apenas alguns euros por mês garantem que eu o mantenha actualizado e a trabalhar. Escreva %h(/qh donate) para mais informação.",
+  HOW_TO_CONFIGURE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "As rotas de voo para o teu personagem foram alteradas.",

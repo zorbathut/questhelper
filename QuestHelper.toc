@@ -80,6 +80,7 @@ lang_huhu.lua
 lang_itit.lua
 lang_kokr.lua
 lang_nlnl.lua
+lang_plpl.lua
 lang_ptbr.lua
 lang_ptpt.lua
 lang_ruru.lua

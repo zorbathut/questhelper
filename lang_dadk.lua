@@ -14,6 +14,7 @@ QuestHelper_Translations.daDK =
   PLEASE_RESTART = nil,
   NOT_UNZIPPED_CORRECTLY = nil,
   PLEASE_DONATE = nil,
+  HOW_TO_CONFIGURE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "Flyveruterne for din karakter er blevet ændret.",

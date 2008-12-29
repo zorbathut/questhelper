@@ -14,6 +14,7 @@ QuestHelper_Translations.zhTW =
   PLEASE_RESTART = nil,
   NOT_UNZIPPED_CORRECTLY = nil,
   PLEASE_DONATE = nil,
+  HOW_TO_CONFIGURE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "你角色的飛行路徑資訊已經更新了。",

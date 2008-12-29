@@ -14,6 +14,7 @@ QuestHelper_Translations.nlNL =
   PLEASE_RESTART = "Er is een error gevonden tijdens het opstarten van World of Warcraft, exit dit programma helemaal en probeer het opnieuw.",
   NOT_UNZIPPED_CORRECTLY = nil,
   PLEASE_DONATE = nil,
+  HOW_TO_CONFIGURE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "De vliegroutes voor jouw karakter zijn veranderd.",
