@@ -1,6 +1,8 @@
 QuestHelper_File["collect_loot.lua"] = "Development Version"
 QuestHelper_Loadtime["collect_loot.lua"] = GetTime()
 
+if not UNIT_SKINNABLE_BOLTS then return end -- This just drops us out early if the user is using 2.4.3, otherwise we get a weird error message that isn't the one we're intending to get.
+
 local debug_output = false
 if QuestHelper_File["collect_loot.lua"] == "Development Version" then debug_output = true end
 
