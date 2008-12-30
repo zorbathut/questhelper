@@ -329,12 +329,12 @@ function QHNagInit()
   
   if QuestHelper_Pref.nag_next_time < time() then
     if QuestHelper_Pref.nag_type == "OFF" then
-      -- we now begin nagging for 48 hours
+      -- we now begin nagging for 72 hours
       QuestHelper_Pref.nag_next_time = time() + 3 * day
       QuestHelper_Pref.nag_type = "ON"
     else
-      -- we now stop nagging for 1-2 weeks
-      QuestHelper_Pref.nag_next_time = time() + 7 * day + 7 * day * math.random()
+      -- we now stop nagging for 2-3 weeks
+      QuestHelper_Pref.nag_next_time = time() + 14 * day + 7 * day * math.random()
       QuestHelper_Pref.nag_type = "OFF"
     end
   end
