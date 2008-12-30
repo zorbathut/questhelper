@@ -542,6 +542,10 @@ local function FinishAddLoc(self, args)
       point[2] = QuestHelper:CreateTable("possible objective node to zone edge cache")
       
       for i, node in ipairs(list) do
+        QuestHelper: Assert(type(point[3]) == "number", string.format("p3 %s", tostring(point[3])))
+        QuestHelper: Assert(type(point[4]) == "number", string.format("p4 %s", tostring(point[4])))
+        QuestHelper: Assert(type(node.x) == "number", string.format("nx %s", tostring(node.x)))
+        QuestHelper: Assert(type(node.y) == "number", string.format("ny %s", tostring(node.y)))
         local u, v = point[3]-node.x, point[4]-node.y
         local d = math.sqrt(u*u+v*v)
         
