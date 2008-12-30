@@ -570,9 +570,6 @@ if archive_zip or archive_7z then
   
   FileUtil.createDirectory("QuestHelper")
   FileUtil.createDirectory("QuestHelper/Art")
-  FileUtil.createDirectory("QuestHelper/AstrolabeQH")
-  FileUtil.createDirectory("QuestHelper/ChatThrottleLib")
-  FileUtil.createDirectory("QuestHelper/LibAboutPanel")
   FileUtil.createDirectory("QuestHelper/Fonts")
   
   local info = nil
