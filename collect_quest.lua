@@ -183,6 +183,8 @@ function UpdateQuests()
   
   local traverse = {}
   
+  local dsize, nsize = QuestHelper:TableSize(deebey), QuestHelper:TableSize(noobey)
+  
   for k, _ in pairs(deebey) do traverse[k] = true end
   for k, _ in pairs(noobey) do traverse[k] = true end
   
@@ -256,10 +258,9 @@ function UpdateQuests()
     end
   end
   
-  QuestHelper: Assert(diffs <= 5)
-  
   deebey = noobey
   
+  QuestHelper: Assert(diffs <= 5, string.format("excessive quest diffs - delta is %d, went from %d to %d", diffs, dsize, nsize))
   --QuestHelper:TextOut(string.format("done in %f", GetTime() - tim))
 end
 
