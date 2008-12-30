@@ -190,6 +190,9 @@ local function OnEvent()
 end
 
 function QH_Collect_Achievement_Init(_, API)
+  -- We're actually going to turn this off for now, it's no longer achieving anything useful (i.e. testing)
+  if true then return end
+  
   createAchievementList()
   Collect_Achievement.AchievementDB = getAchievementDB() -- 'coz we're lazy
   
