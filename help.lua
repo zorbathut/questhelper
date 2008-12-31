@@ -219,6 +219,7 @@ function QuestHelper:HardReset(code)
     QuestHelper_Home = nil
     QuestHelper_CharVersion = nil
     self:Purge(nil, true)
+    self:ResetTrackerPosition()
   else
     if not self.purge_code then self.purge_code = self:CreateUID(8) end
     QuestHelper:TextOut("THIS COMMAND WILL DELETE ALL YOUR COLLECTED DATA AND RESET ALL YOUR PREFERENCES")
