@@ -86,7 +86,6 @@ lang/ptpt.lua
 lang/ruru.lua
 lang/svse.lua
 lang/trtr.lua
-lang/zhcn.lua
 lang/zhtw.lua
 
 upgrade.lua
