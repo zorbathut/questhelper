@@ -362,7 +362,7 @@ function QuestHelper:Initialize()
   self:RegisterEvent("CHAT_MSG_SYSTEM")
   self:RegisterEvent("BAG_UPDATE")
   self:RegisterEvent("GOSSIP_SHOW")
-  self:RegisterEvent("PLAYER_ENTERING_WORLD")
+  self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE")
 
   for key, def in pairs(QuestHelper_DefaultPref) do
     if QuestHelper_Pref[key] == nil then
@@ -784,7 +784,7 @@ function QuestHelper:OnEvent(event)
     end
   end
   
-  if event == "PLAYER_ENTERING_WORLD" and please_donate_enabled and not please_donate_initted then
+  if event == "CHAT_MSG_CHANNEL_NOTICE" and please_donate_enabled and not please_donate_initted then
     please_donate_enabled = QHNagInit()
     startup_time = GetTime()
     please_donate_initted = true

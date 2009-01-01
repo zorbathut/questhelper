@@ -46,9 +46,9 @@ local function getRoute(id)
   end
 end
 
-TaxiNodeOnButtonEnter = function(btn)
+TaxiNodeOnButtonEnter = function(btn, ...)
   QuestHelper: Assert(btn)
-  real_TaxiNodeOnButtonEnter(btn)
+  local rv = real_TaxiNodeOnButtonEnter(btn, ...)
   
   if QuestHelper_Pref.flight_time then
     local index = btn:GetID()
@@ -76,6 +76,8 @@ TaxiNodeOnButtonEnter = function(btn)
       end
     end
   end
+  
+  return rv
 end
 
 TakeTaxiNode = function(id)

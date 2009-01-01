@@ -87,6 +87,10 @@ local function Recheck(item, location, competing)
 end
 
 local function Looted(message)
+  if string.find(message, string.gsub(LOOT_ITEM_CREATED_SELF, "%%.*", "")) then  -- YOU CANNOT EAT A PURSE
+    return
+  end
+  
   local item = GetItemType(message, true)
   
   local name, _, quality, ilvl, min, itype, isubtype, _, equiploc, _ = GetItemInfo(item)
@@ -102,8 +106,7 @@ local function Looted(message)
     
     if not nonempty then return end -- congratulations you are better than nothing, we do not care
     
-    --Notifier(GetTime() + 5 * 60, function () Recheck(item, equiploc, competing) end)
-    Notifier(GetTime() + 15, function () Recheck(item, equiploc, competing) end)
+    Notifier(GetTime() + 5 * 60, function () Recheck(item, equiploc, competing) end)
   end
 end
 
