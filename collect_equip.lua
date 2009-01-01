@@ -42,8 +42,6 @@ local invloc_lookup = {}
 for k, v in pairs(invloc_lookup_proto) do
   local temp = {}
   for _, tv in pairs(v) do
-    local gisi = GetInventorySlotInfo(tv)
-    QuestHelper:TextOut(string.format("%s %s", tv, gisi))
     table.insert(temp, (GetInventorySlotInfo(tv)))
   end
   invloc_lookup[k] = temp
