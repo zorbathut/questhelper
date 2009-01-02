@@ -1,0 +1,12 @@
+A variety of steps! Each one needs an input file and a predictable output file.
+
+* 1: Download (no input file)
+* 2: Decompress to inputfilename/hash.lua
+* 3: Collate into hash.lua
+* 4: Cull and upgrade into inputfilename/hash.lua (if the cull fails, just create an empty inputfilename)
+* 5: Collate right back into hash.lua
+* 6: Rename into inputfilename/UID_timestamp.lua
+* 7: Combine into UID/timestamp.lua
+* 8: Cull into UID/timestamp.lua with only the most recent allowed
+* 9: Collate into UID.lua
+* 10: Process!
