@@ -132,6 +132,11 @@ end
 local changed = false
 local first = true
 
+local function EnterWorld()
+  first = true
+  deebey = ScanQuests()
+end
+
 local function LogChanged()
   changed = true
 end
@@ -289,5 +294,5 @@ function QH_Collect_Quest_Init(QHCData, API)
   API.Registrar_EventHook("CHAT_MSG_LOOT", Looted)
   API.Registrar_EventHook("COMBAT_LOG_EVENT_UNFILTERED", Combat)
   
-  API.Registrar_EventHook("PLAYER_ENTERING_WORLD", function () deebey = ScanQuests() end)
+  API.Registrar_EventHook("PLAYER_ENTERING_WORLD", EnterWorld)
 end
