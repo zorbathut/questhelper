@@ -9,4 +9,5 @@ A variety of steps! Each one needs an input file and a predictable output file.
 * 7: Combine into UID/timestamp.lua
 * 8: Cull into UID/timestamp.lua with only the most recent allowed
 * 9: Collate into UID.lua
-* 10: Process!
+* 10: Dump into binary data
+* 11: Process!
