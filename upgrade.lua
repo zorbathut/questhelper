@@ -625,6 +625,7 @@ local QuestHelper_PrivateServerBlacklist_Exact = {
   "Gem Vendor",
   "Fooooood and Drinks!",
   "I Sell Consumables",
+  "Armor Raid Tier V",
 }
 
 local matchstring = nil
