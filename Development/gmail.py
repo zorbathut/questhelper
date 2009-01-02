@@ -52,6 +52,7 @@ while len(inbox) > 0:
           mark = False
           
         clear = True
+        os.system("date")
         print "message "+`i`+" id: "+message.id
         #print thread.getLabels()
         #print thread.getLabels().count("downloaded")
