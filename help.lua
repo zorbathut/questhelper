@@ -218,6 +218,7 @@ function QuestHelper:HardReset(code)
     QuestHelper_KnownFlightRoutes = nil
     QuestHelper_Home = nil
     QuestHelper_CharVersion = nil
+    self:ResetTrackerPosition()
     self:Purge(nil, true)
   else
     if not self.purge_code then self.purge_code = self:CreateUID(8) end

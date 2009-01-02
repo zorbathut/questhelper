@@ -7,13 +7,14 @@ QuestHelper_Translations.daDK =
   
   -- Messages used when starting.
   LOCALE_ERROR = "Sproget i dine gemte data stemmer ikke med sproget til WoW klienten. For at bruge QuestHelper skal du enten ændre sproget tilbage, eller slette dataerne ved at skrive %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Jeg nægter at køre, af frygt for at ødelægge dine gemte data. Vent venligt på en ny patch, der vil være i stand til at håndtere det nye zonelayout.",
+  ZONE_LAYOUT_ERROR = "Jeg nægter at køre, af frygt for at ødelægge dine gemte data. Vent venligst på en ny patch, der vil være i stand til at håndtere det nye zonelayout.",
   DOWNGRADE_ERROR = "Dine gemte data er ikke kompatible med denne version af QuestHelper. Brug en nyere version eller slet dine gemte variabler.",
   HOME_NOT_KNOWN = "Dit hjem er ikke kendt. Når du får chancen, venligst tal med din innkeeper og nulstil det.",
-  PRIVATE_SERVER = nil,
-  PLEASE_RESTART = nil,
-  NOT_UNZIPPED_CORRECTLY = nil,
+  PRIVATE_SERVER = "QuestHelper understøtter ikke private servere.",
+  PLEASE_RESTART = "Der var en fejl ved start af QuestHelper. Vær venlig at afslutte World of Warcraft helt og prøv igen.",
+  NOT_UNZIPPED_CORRECTLY = "QuestHelper var installeret forkert. Vi anbefaler enten at bruge Curse Client eller 7zip til installering. Vær sikker på underdirektorier er udpakket.",
   PLEASE_DONATE = nil,
+  HOW_TO_CONFIGURE = "QuestHelper har ikke en fungerende indstillingsside endnu, men kan blive konfigureret ved at skrive %h(/qh settings). Hjælp er tilgængelig med %h(/qh help).",
   
   -- Route related text.
   ROUTES_CHANGED = "Flyveruterne for din karakter er blevet ændret.",
@@ -95,7 +96,7 @@ QuestHelper_Translations.daDK =
   FILTERED_ZONE = "Filtreret på grund af område.",
   FILTERED_COMPLETE = "Filtreret da det er afsluttet.",
   FILTERED_BLOCKED = "Filtreret grundet forudgående mål der ikke er afsluttet",
-  FILTERED_UNWATCHED = nil,
+  FILTERED_UNWATCHED = "Filtreret da det ikke bliver sporet i quest loggen",
   FILTERED_USER = "Du har anmodet om, at dette objektiv bliver gemt.",
   FILTERED_UNKNOWN = "Jeg ved ikke hvordan det færdiggøres.",
   
@@ -110,7 +111,7 @@ QuestHelper_Translations.daDK =
   NAG_MULTIPLE_NEW = "Du har %h(ny information) til %h1 og %h(opdateret information) til %h2.",
   NAG_SINGLE_NEW = "Du har %h(ny information) om %h1.",
   NAG_ADDITIONAL = "Du har %h(yderligere information) til %h1.",
-  NAG_POLLUTED = nil,
+  NAG_POLLUTED = "Din database er blevet forurenet med information fra en test eller privat server, og vil blive slettet ved opstart.",
   
   NAG_NOT_NEW = "Du har ingen information, som ikke allerede er i den statiske database.",
   NAG_NEW = "Du bør overveje, at dele dine data, så andre kan gøre brug af dem.",
@@ -124,7 +125,7 @@ QuestHelper_Translations.daDK =
   NAG_SINGLE_MONSTER_OBJ = "et monster objektiv",
   NAG_SINGLE_EVENT_OBJ = "et event objektiv",
   NAG_SINGLE_REPUTATION_OBJ = "et omdømme objektiv",
-  NAG_SINGLE_PLAYER_OBJ = nil,
+  NAG_SINGLE_PLAYER_OBJ = "et spiller objektiv",
   
   NAG_MULTIPLE_FP = "%1 flyveledere",
   NAG_MULTIPLE_QUEST = "%1 quests",
@@ -134,7 +135,7 @@ QuestHelper_Translations.daDK =
   NAG_MULTIPLE_MONSTER_OBJ = "%1 monster objektiver",
   NAG_MULTIPLE_EVENT_OBJ = "%1 event objektiver",
   NAG_MULTIPLE_REPUTATION_OBJ = "%1 omdømme objektiver",
-  NAG_MULTIPLE_PLAYER_OBJ = nil,
+  NAG_MULTIPLE_PLAYER_OBJ = "%1 spiller objektiver",
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1's fremskridt:",
@@ -168,7 +169,7 @@ QuestHelper_Translations.daDK =
   MENU_ZONE_FILTER = "%1 Zone Filter",
   MENU_DONE_FILTER = "%1 Færdig Filter",
   MENU_BLOCKED_FILTER = "%1 Blokeret Filter",
-  MENU_WATCHED_FILTER = nil,
+  MENU_WATCHED_FILTER = "%1 Overvåget Filter",
   MENU_LEVEL_FILTER = "%1 Level Filter",
   MENU_LEVEL_OFFSET = "Level Filter Offset",
   MENU_ICON_SCALE = "Ikon Skalering",

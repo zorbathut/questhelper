@@ -14,6 +14,7 @@ QuestHelper_Translations.deDE =
   PLEASE_RESTART = "Beim Starten von QuestHelper ist ein Fehler aufgetreten. Beende World of Warcraft vollständig und versuche es erneut.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper wurde nicht ordnungsgemäß installiert. Wir empfehlen den Curse-Client oder 7zip für die Installation. Achte darauf, dass Unterverzeichnisse entpackt werden.",
   PLEASE_DONATE = "%h(QuestHelper lebt nur von Spenden!) Jeder Beitrag ist willkommen. Ein paar Dollar im Monat stellen sicher, dass ich am Addon arbeite und es aktualisiere. Gib %h(/qh donate) ein, um weitere Informationen zu erhalten.",
+  HOW_TO_CONFIGURE = "Questhelper hat noch keine funktionierende Einstellungsseite, aber Sie können es konfigurieren wenn Sie %h(/qh settings) eintippen. Die Hilfe ist verfügbar mit der Eingabe von %h(/qh help).",
   
   -- Route related text.
   ROUTES_CHANGED = "Die Flugstrecken für deinen Charakter wurden verändert.",

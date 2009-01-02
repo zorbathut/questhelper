@@ -1,6 +1,6 @@
 -- Please see lang_enus.lua for reference.
 
-QuestHelper_Translations.zhCN =
+QuestHelper_Translations.plPL =
  {
   -- Displayed by locale chooser.
   LOCALE_NAME = nil,
@@ -8,16 +8,17 @@ QuestHelper_Translations.zhCN =
   -- Messages used when starting.
   LOCALE_ERROR = nil,
   ZONE_LAYOUT_ERROR = nil,
-  DOWNGRADE_ERROR = nil,
-  HOME_NOT_KNOWN = nil,
+  DOWNGRADE_ERROR = "Twoje zapisane dane nie są zgodne z tą wersją QuestHelper'a. Użyj nowszej wersji, albo usuń stare zmienne.",
+  HOME_NOT_KNOWN = "Twoje pochodzenie nie jest znane. Kiedy będziesz miał czas, porozmawiaj z gospodarzem (Innkeeper) i ustaw miejsce docelowe.",
   PRIVATE_SERVER = nil,
   PLEASE_RESTART = nil,
   NOT_UNZIPPED_CORRECTLY = nil,
   PLEASE_DONATE = nil,
+  HOW_TO_CONFIGURE = "QuestHelper nie ma jeszcze gotowej strony ustawień, ale może być skonfigurowany poprzez komendę %h(/qh ustawienia). Pomoc jest udzielana poprzez %h(/qh pomoc).",
   
   -- Route related text.
   ROUTES_CHANGED = nil,
-  HOME_CHANGED = nil,
+  HOME_CHANGED = "Twoje miejsce docelowe zostało zmienione.",
   TALK_TO_FLIGHT_MASTER = nil,
   TALK_TO_FLIGHT_MASTER_COMPLETE = nil,
   WILL_RESET_PATH = nil,
@@ -30,7 +31,7 @@ QuestHelper_Translations.zhCN =
   
   -- Words used for objectives.
   SLAY_VERB = nil,
-  ACQUIRE_VERB = nil,
+  ACQUIRE_VERB = "Uzyskać",
   
   OBJECTIVE_REASON = nil, -- %1 is a verb, %2 is a noun (item or monster)
   OBJECTIVE_REASON_FALLBACK = nil,
@@ -52,7 +53,7 @@ QuestHelper_Translations.zhCN =
   SHARING = nil,
   SHARING_ENABLE = nil,
   SHARING_DISABLE = nil,
-  IGNORE = nil,
+  IGNORE = "Zignoruj",
   
   IGNORED_PRIORITY_TITLE = nil,
   IGNORED_PRIORITY_FIX = nil,
@@ -61,7 +62,7 @@ QuestHelper_Translations.zhCN =
   -- Custom objectives.
   RESULTS_TITLE = nil,
   NO_RESULTS = nil,
-  CREATED_OBJ = nil,
+  CREATED_OBJ = "Utworzono: %1",
   REMOVED_OBJ = nil,
   USER_OBJ = nil,
   UNKNOWN_OBJ = nil,
@@ -87,24 +88,24 @@ QuestHelper_Translations.zhCN =
   UNKNOWN_MESSAGE = nil,
   
   -- Hidden objectives.
-  HIDDEN_TITLE = nil,
-  HIDDEN_NONE = nil,
-  DEPENDS_ON_SINGLE = nil,
-  DEPENDS_ON_COUNT = nil,
-  FILTERED_LEVEL = nil,
-  FILTERED_ZONE = nil,
-  FILTERED_COMPLETE = nil,
-  FILTERED_BLOCKED = nil,
-  FILTERED_UNWATCHED = nil,
-  FILTERED_USER = nil,
-  FILTERED_UNKNOWN = nil,
+  HIDDEN_TITLE = "Ukryte Zadania",
+  HIDDEN_NONE = "Nie ma ukrytych zadań.",
+  DEPENDS_ON_SINGLE = "Zależy od '%1'",
+  DEPENDS_ON_COUNT = "Zależy od %1 ukrytych zadań.",
+  FILTERED_LEVEL = "Filtr ukrył zadanie, gdyż masz za niski poziom.",
+  FILTERED_ZONE = "Ukryte z powodu obszaru.",
+  FILTERED_COMPLETE = "Zadanie wypełnione, filtr je ukrył.",
+  FILTERED_BLOCKED = "Ukryte przez filtr z powodu nie wykonanego ważniejszego zadania.",
+  FILTERED_UNWATCHED = "Zadanie ukryte, gdyż nie jest śledzone w Quest Log'u.",
+  FILTERED_USER = "Ustawiłeś to zadanie jako ukryte.",
+  FILTERED_UNKNOWN = "Program nie wie, jak ukończyć zadanie.",
   
-  HIDDEN_SHOW = nil,
-  DISABLE_FILTER = nil,
-  FILTER_DONE = nil,
-  FILTER_ZONE = nil,
-  FILTER_LEVEL = nil,
-  FILTER_BLOCKED = nil,
+  HIDDEN_SHOW = "Pokaż.",
+  DISABLE_FILTER = "Zablokuj filtry: %1",
+  FILTER_DONE = "zrobione",
+  FILTER_ZONE = "obszar",
+  FILTER_LEVEL = "poziom",
+  FILTER_BLOCKED = "zablokowane",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = nil,

@@ -10,10 +10,11 @@ QuestHelper_Translations.itIT =
   ZONE_LAYOUT_ERROR = "Mi rifiuto di funzionare, per la paura di corrompere i tuoi dati salvati. Per favore, aspetta una patch che potrà occuparsi del nuovo layout della zona.",
   DOWNGRADE_ERROR = "I dati salvati non sono compatibili con quest versione di QuestHelper. Usa una versione nuova, o cancella le variabili salvate.",
   HOME_NOT_KNOWN = "La tua località base è sconosciuta. Appena puoi, parla con un locandiere per reimpostarla.",
-  PRIVATE_SERVER = nil,
+  PRIVATE_SERVER = "QuestHelper non sopporta i server privati.",
   PLEASE_RESTART = nil,
   NOT_UNZIPPED_CORRECTLY = nil,
   PLEASE_DONATE = nil,
+  HOW_TO_CONFIGURE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "I percorsi di volo del tuo personaggio sono stati modificati.",

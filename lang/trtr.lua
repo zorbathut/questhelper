@@ -14,6 +14,7 @@ QuestHelper_Translations.trTR =
   PLEASE_RESTART = nil,
   NOT_UNZIPPED_CORRECTLY = nil,
   PLEASE_DONATE = nil,
+  HOW_TO_CONFIGURE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "Uçus noktalariniza bakilarak eklenti veritabani güncellendi.",
