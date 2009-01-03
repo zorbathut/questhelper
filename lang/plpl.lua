@@ -3,12 +3,12 @@
 QuestHelper_Translations.plPL =
  {
   -- Displayed by locale chooser.
-  LOCALE_NAME = nil,
+  LOCALE_NAME = "Polski",
   
   -- Messages used when starting.
   LOCALE_ERROR = nil,
   ZONE_LAYOUT_ERROR = nil,
-  DOWNGRADE_ERROR = "Twoje zapisane dane nie są zgodne z tą wersją QuestHelper'a. Użyj nowszej wersji, albo usuń stare zmienne.",
+  DOWNGRADE_ERROR = "Twoje zapisane dane nie są zgodne z tą wersją QuestHelper'a. Użyj nowszej wersji albo usuń stare zmienne.",
   HOME_NOT_KNOWN = "Twoje pochodzenie nie jest znane. Kiedy będziesz miał czas, porozmawiaj z gospodarzem (Innkeeper) i ustaw miejsce docelowe.",
   PRIVATE_SERVER = nil,
   PLEASE_RESTART = nil,
@@ -95,7 +95,7 @@ QuestHelper_Translations.plPL =
   FILTERED_LEVEL = "Filtr ukrył zadanie, gdyż masz za niski poziom.",
   FILTERED_ZONE = "Ukryte z powodu obszaru.",
   FILTERED_COMPLETE = "Zadanie wypełnione, filtr je ukrył.",
-  FILTERED_BLOCKED = "Ukryte przez filtr z powodu nie wykonanego ważniejszego zadania.",
+  FILTERED_BLOCKED = "Ukryte przez filtr z powodu niewykonanego ważniejszego zadania.",
   FILTERED_UNWATCHED = "Zadanie ukryte, gdyż nie jest śledzone w Quest Log'u.",
   FILTERED_USER = "Ustawiłeś to zadanie jako ukryte.",
   FILTERED_UNKNOWN = "Program nie wie, jak ukończyć zadanie.",
