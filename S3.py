@@ -272,7 +272,6 @@ class AWSAuthConnection:
             # add auth header
             self._add_aws_auth_header(final_headers, method, bucket, key, query_args)
 
-            print(final_headers)
             connection.request(method, path, data, final_headers)
             resp = connection.getresponse()
             if resp.status < 300 or resp.status >= 400:

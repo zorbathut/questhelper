@@ -10,49 +10,28 @@ import S3
 AWS_ACCESS_KEY_ID="1JC38J0QE1MGRE08TT82"
 AWS_SECRET_ACCESS_KEY="+I7mvTFCcEpI1WZ14lDjVSaeog+BKBCVUudwIWKs"
 
+BUCKET="questhelper_data"
+
 conn = S3.AWSAuthConnection(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
 generator = S3.QueryStringAuthGenerator(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
-
-print(conn)
-print(generator)
-
-def debg(param):
-  print(param.http_response.status)
-  print(param.http_response.reason)
-
-debg(conn.list_all_my_buckets())
-#debg(conn.check_bucket_exists("questhelper_data"))
-
-sys.exit()
 
 if not os.path.exists("data/01"):
   os.makedirs("data/01")
 
-filehashdict = {}
-
 tregex = re.compile("rawdata_([0-9a-f]{32,32}).*\.bz2")
-outp = utility.exe("s3cmd ls s3://questhelper_data/rawdata_00")
-print(type(outp))
-print("S3 listing snagged")
-for line in outp.split('\n'):
-  if line == "Bucket 'questhelper_data':":
-    continue
-  if line == "":
-    continue
-  serch = tregex.search(line)
-  if not serch:
-    print(line)
-  hash = serch.group(1)
-  fullfile = serch.group(0)
-  #print(hash)
-  filehashdict[hash] = fullfile
-print("Filenames isolated: %d" % len(filehashdict))
+serverfiles = {tregex.match(x.key).group(1):x.key for x in utility.getAll(conn, BUCKET, "rawdata_00")}
+print("Serverfiles isolated: %d" % len(serverfiles))
 
 currentfiles = {}
-
 for path, dirs, files in os.walk("data/01"):
-  #v = {file, os.path.join(path, file) for file in files}
   currentfiles.update({file:os.path.join(path, file) for file in files})
+print("Currentfiles isolated: %d" % len(currentfiles))
 
-print(currentfiles)
-print(filehashdict)
+touchfiles = sorted(set([tag for tag in currentfiles.keys()]) | set([tag for tag in serverfiles.keys()]))
+
+for tag in touchfiles:
+  assert(tag in serverfiles)
+  if not tag in currentfiles:
+    print("Downloading %s" % tag)
+    dat = conn.get(BUCKET, serverfiles[tag]).object.data
+    print("Downloaded, %d" % len(dat))
