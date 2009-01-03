@@ -80,8 +80,8 @@ def canonical_string(method, bucket="", key="", query_args={}, headers={}, expir
 
 # computes the base64'ed hmac-sha hash of the canonical string and the secret
 # access key, optionally urlencoding the result
-def encode(aws_secret_access_key, str, urlencode=False):
-    b64_hmac = base64.encodestring(hmac.new(aws_secret_access_key, str, hashlib.sha).digest()).strip()
+def encode(aws_secret_access_key, dat, urlencode=False):
+    b64_hmac = str(base64.encodestring(hmac.new(bytes(aws_secret_access_key, "ascii"), bytes(dat, "ascii"), hashlib.sha1).digest()).strip(), "ascii")
     if urlencode:
         return urllib.parse.quote_plus(b64_hmac)
     else:
@@ -272,6 +272,7 @@ class AWSAuthConnection:
             # add auth header
             self._add_aws_auth_header(final_headers, method, bucket, key, query_args)
 
+            print(final_headers)
             connection.request(method, path, data, final_headers)
             resp = connection.getresponse()
             if resp.status < 300 or resp.status >= 400:
