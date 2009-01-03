@@ -3,6 +3,7 @@
 import re
 import os
 import sys
+import bz2
 
 import utility
 import S3
@@ -18,8 +19,9 @@ generator = S3.QueryStringAuthGenerator(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 if not os.path.exists("data/01"):
   os.makedirs("data/01")
 
+print("Starting")
 tregex = re.compile("rawdata_([0-9a-f]{32,32}).*\.bz2")
-serverfiles = {tregex.match(x.key).group(1):x.key for x in utility.getAll(conn, BUCKET, "rawdata_00")}
+serverfiles = {tregex.match(x.key).group(1):x.key for x in utility.getAll(conn, BUCKET, "rawdata_000")}
 print("Serverfiles isolated: %d" % len(serverfiles))
 
 currentfiles = {}
@@ -34,4 +36,12 @@ for tag in touchfiles:
   if not tag in currentfiles:
     print("Downloading %s" % tag)
     dat = conn.get(BUCKET, serverfiles[tag]).object.data
-    print("Downloaded, %d" % len(dat))
+    #print("Downloaded, %d" % len(dat))
+    dat = bz2.decompress(dat)
+    #print("Decompressed to %d" % len(dat))
+    if not os.path.exists("data/01/%s" % tag[0:2]):
+      os.makedirs("data/01/%s" % tag[0:2])
+    with open("data/01/%s/%s" % (tag[0:2], tag), "wb") as f:
+      f.write(dat)
+    #print("Writed")
+
