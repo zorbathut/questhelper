@@ -32,7 +32,11 @@ touchfiles = sorted(set([tag for tag in currentfiles.keys()]) | set([tag for tag
 def doDecompress(tag, filename, formatstring):
   assert(os.system("rm -rf tempdir") == 0)
   os.mkdir("tempdir")
-  assert(os.system(formatstring.format(file = filename, destination = "tempdir")) == 0)
+  print(formatstring.format(file = filename, destination = "tempdir"))
+  stdout, stderr, rv = utility.exe_rv(formatstring.format(file = filename, destination = "tempdir"))
+  print(stdout)
+  print(stderr)
+  assert(rv == 0 or stderr.find("unsupported compression method 98") != -1)
   srcdir = "data/02/%s/%s" % (tag[0:2], tag)
   try:
     os.makedirs(srcdir)
@@ -48,6 +52,45 @@ def doDecompress(tag, filename, formatstring):
     assert(os.system("rm -rf %s" % srcdir) == 0)
     raise
 
+failures = [
+  # Pictures!
+  "PNG image data",
+  "JPEG image data",
+  "GIF image data",
+  "PC bitmap data",
+  "Targa image data", # I think we've got all the major ones now, right?
+  
+  # Totally worthless
+  "vCard visiting card",
+  "vCalendar calendar file",
+  "PGP signature",
+  "PGP public key block",
+  "MS Windows shortcut", # sigh
+  "very short file (no magic)", # There certainly won't be anything useful in here.
+  "empty", # Yeah.
+  
+  # Lazy.
+  "Transport Neutral Encapsulation Format", # Whatever this is, it looks like I could, in theory, extract useful data from it. In reality, I'm lazy. Meh.
+  "RFC 822 mail text", # Ditto.
+  "uuencoded or xxencoded text", # some dude sent a giant UUE data block that doesn't want to UUD properly. I'm lazy, so, here we are.
+  "Rich Text Format data", # some guy sent an RTF Swatter error message? I can't see anything good coming from RTF
+  
+  # DENIED
+  "Microsoft Office Document",  # Yeah fuckin' right.
+  "OpenDocument Text",  # An error message in an ODT. Not worth it.
+  "HTML document text", # "Please find the file attached." No.
+  "Lisp/Scheme program text", # For some reason it's interpreting some chunk of HTML as lisp/scheme. I have no fucking clue why. In any case, HTML isn't likely to be useful either.
+  
+  # Virus!
+  "Microsoft ASF",
+]
+
+texttypes = [
+  "ASCII",
+  "UTF-8 Unicode",
+  "ISO-8859",
+]
+
 nmatch = re.compile("[^:]+: (.*)")
 for tag in touchfiles:
   assert(tag in currentfiles)
@@ -55,17 +98,50 @@ for tag in touchfiles:
     print("Scanning %s" % tag)
     ftype = nmatch.match(utility.exe("file %s" % currentfiles[tag])).group(1)
     print(ftype)
-    if ftype.find("Zip archive data") != -1:
-      doDecompress(tag, currentfiles[tag], "unzip {file} -d {destination}")
-    elif ftype.find("RAR archive data") != -1:
-      doDecompress(tag, currentfiles[tag], "unrar e -o- {file} {destination}")
-    elif ftype.find("PNG image data") != -1 or ftype.find("JPEG image data") != -1:
-      # What? No.
-      os.makedirs("data/02/%s/%s" % (tag[0:2], tag))
-    elif (ftype.find("ASCII") != -1 or ftype.find("UTF-8 Unicode") != -1) and ftype.find("text") != -1 or ftype == "data":
-      os.makedirs("data/02/%s/%s" % (tag[0:2], tag))
-      os.symlink("../../../../%s" % currentfiles[tag], "data/02/%s/%s/%s" % (tag[0:2], tag, tag))
-    else:
-      assert(0)
+    
+    handled = False
+    
+    if not handled:
+      for item in failures:
+        if ftype.find(item) != -1:
+          os.makedirs("data/02/%s/%s" % (tag[0:2], tag))
+          handled = True # BZZT
+    
+    if not handled:
+      if ftype.find("Zip archive data") != -1:
+        doDecompress(tag, currentfiles[tag], "unzip {file} -d {destination}")
+        handled = True
+    
+    if not handled:
+      if ftype.find("RAR archive data") != -1:
+        doDecompress(tag, currentfiles[tag], "unrar e -o- {file} {destination}")
+        handled = True
+        
+    if not handled:
+      if ftype.find("7-zip archive data") != -1:
+        doDecompress(tag, currentfiles[tag], "7z e -o{destination} {file}")
+        handled = True
+    
+    if not handled:
+      if ftype.find("gzip compressed data, from Unix") != -1:
+        doDecompress(tag, currentfiles[tag], "BASHHACK gunzip < {file} > {destination}/file")
+        handled = True
+    
+    if not handled:
+      if ftype.find("ACE archive") != -1:
+        doDecompress(tag, currentfiles[tag], "BASHHACK cp {file} acehack.ACE ; cd {destination} ; unace x ../acehack.ACE ; rm ../acehack.ACE")
+        handled = True
+    
+    if not handled:
+      texty = False
+      for item in texttypes:
+          if ftype.find(item) != -1:
+            texty = True
+      if texty and ftype.find("text") != -1 or ftype == "data":
+        os.makedirs("data/02/%s/%s" % (tag[0:2], tag))
+        os.symlink("../../../../%s" % currentfiles[tag], "data/02/%s/%s/%s" % (tag[0:2], tag, tag))
+        handled = True
+    
+    assert(handled)
 
 
