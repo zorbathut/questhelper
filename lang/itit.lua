@@ -11,10 +11,10 @@ QuestHelper_Translations.itIT =
   DOWNGRADE_ERROR = "I dati salvati non sono compatibili con quest versione di QuestHelper. Usa una versione nuova, o cancella le variabili salvate.",
   HOME_NOT_KNOWN = "La tua località base è sconosciuta. Appena puoi, parla con un locandiere per reimpostarla.",
   PRIVATE_SERVER = "QuestHelper non sopporta i server privati.",
-  PLEASE_RESTART = nil,
-  NOT_UNZIPPED_CORRECTLY = nil,
-  PLEASE_DONATE = nil,
-  HOW_TO_CONFIGURE = nil,
+  PLEASE_RESTART = "C'è stato un errore con la partenza di QuestHelper. Consigliamo di uscire da World of Warcraft totalmente e di riprovare.",
+  NOT_UNZIPPED_CORRECTLY = "QuestHelper non è installato corretamente. Raccomandiamo di usare Curse Client o 7zip per installarlo. Assicurati che le sottodirectory sono esatte.",
+  PLEASE_DONATE = "%(QuestHelper è implementato dalle vostre donazioni!) In qualunque modo voi contribuiate è apprezzato, e poche donazioni al mese rendono possibile aggiornare il nostro lavoro. Scrivete %h (/qh donate) per maggiori informazioni ",
+  HOW_TO_CONFIGURE = "QuestHelper non è stato ancora settato,ma puo essere configurato scrivendo %h(/qh settings). L'aiuto è disponibile scrivendo %h(/qh help) ",
   
   -- Route related text.
   ROUTES_CHANGED = "I percorsi di volo del tuo personaggio sono stati modificati.",
@@ -37,7 +37,7 @@ QuestHelper_Translations.itIT =
   OBJECTIVE_REASON_FALLBACK = "%h1 per la quest %h2.",
   OBJECTIVE_REASON_TURNIN = "Svolta nella quest %h1.",
   OBJECTIVE_PURCHASE = "Compra da %h1.",
-  OBJECTIVE_TALK = "Parla con &h1.",
+  OBJECTIVE_TALK = "Parla con %h1.",
   OBJECTIVE_SLAY = "Uccidi %h1.",
   OBJECTIVE_LOOT = "Saccheggia %h1.",
   
@@ -66,7 +66,7 @@ QuestHelper_Translations.itIT =
   REMOVED_OBJ = "Rimosso: %1",
   USER_OBJ = "Obiettivo personalizzato: %h1",
   UNKNOWN_OBJ = "Non so dove dovresti andare per quell'obiettivo.",
-  INACCESSIBLE_OBJ = nil,
+  INACCESSIBLE_OBJ = "QuestHelper è inabilitato a trovare una locazione utile per %h1. Abbiamo aggiunto una locazione impossibile da trovare. Se riesci a trovare questo obbiettivo,ti preghiamo di inviarci i tuoi dati! (%h(/qh submit))",
   
   SEARCHING_STATE = "Ricerca: %1",
   SEARCHING_LOCAL = "Luoghi %1",
@@ -111,7 +111,7 @@ QuestHelper_Translations.itIT =
   NAG_MULTIPLE_NEW = "Hai %h(nuove informazioni) su %h1, e %h(informazioni aggiornate) su %h2.",
   NAG_SINGLE_NEW = "Hai %h(nuove informazioni) su %h1.",
   NAG_ADDITIONAL = "Hai %h(informazioni aggiuntive) su %h1.",
-  NAG_POLLUTED = nil,
+  NAG_POLLUTED = "Il tuo database è stato \"corrotto\" da informazioni provenienti da un server test o privato,e saranno ripulite al ravvio.",
   
   NAG_NOT_NEW = "Non hai nessuna informazione che non sia già nel database statico.",
   NAG_NEW = "Potresti prendere in considerazione la possibilità di condividere i tuoi dati così da permettere agli altri di beneficiarne.",
@@ -125,7 +125,7 @@ QuestHelper_Translations.itIT =
   NAG_SINGLE_MONSTER_OBJ = "un obiettivo mostro",
   NAG_SINGLE_EVENT_OBJ = "un obiettivo evento",
   NAG_SINGLE_REPUTATION_OBJ = "un obiettivo reputazione",
-  NAG_SINGLE_PLAYER_OBJ = nil,
+  NAG_SINGLE_PLAYER_OBJ = "obbiettivo personale",
   
   NAG_MULTIPLE_FP = "%1 flight master",
   NAG_MULTIPLE_QUEST = "%1 quest",
@@ -135,7 +135,7 @@ QuestHelper_Translations.itIT =
   NAG_MULTIPLE_MONSTER_OBJ = "%1 obiettivi mostro",
   NAG_MULTIPLE_EVENT_OBJ = "%1 obiettivi evento",
   NAG_MULTIPLE_REPUTATION_OBJ = "%1 obiettivi reputazione",
-  NAG_MULTIPLE_PLAYER_OBJ = nil,
+  NAG_MULTIPLE_PLAYER_OBJ = "%1 obbiettivi personali",
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "Progresso di %1:",
@@ -169,7 +169,7 @@ QuestHelper_Translations.itIT =
   MENU_ZONE_FILTER = "%1 Filtro zona",
   MENU_DONE_FILTER = "%1 Filtrato",
   MENU_BLOCKED_FILTER = "%1 Filtro bloccato",
-  MENU_WATCHED_FILTER = nil,
+  MENU_WATCHED_FILTER = "&1 Filtro mostrato",
   MENU_LEVEL_FILTER = "%1 Filtro livello",
   MENU_LEVEL_OFFSET = "Scarto del filtro livello",
   MENU_ICON_SCALE = "Dimensione icone",
