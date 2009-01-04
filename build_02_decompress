@@ -1,0 +1,71 @@
+#!/usr/local/bin/python3.0
+
+import re
+import os
+import sys
+import bz2
+import hashlib
+
+
+
+import utility
+import S3
+
+if not os.path.exists("data/02"):
+  os.makedirs("data/02")
+
+currentfiles = {}
+for path, dirs, files in os.walk("data/01"):
+  currentfiles.update({file:os.path.join(path, file) for file in files})
+print("Currentfiles isolated: %d" % len(currentfiles))
+
+treg = re.compile("data/02/[0-9a-f]{2,2}/([0-9a-f]{32,32})")
+decofiles = {}
+for path, dirs, files in os.walk("data/02"):
+  match = treg.match(path)
+  if match:
+    decofiles[match.group(1)] = path
+print("Decofiles isolated: %d" % len(decofiles))
+
+touchfiles = sorted(set([tag for tag in currentfiles.keys()]) | set([tag for tag in decofiles.keys()]))
+
+def doDecompress(tag, filename, formatstring):
+  assert(os.system("rm -rf tempdir") == 0)
+  os.mkdir("tempdir")
+  assert(os.system(formatstring.format(file = filename, destination = "tempdir")) == 0)
+  srcdir = "data/02/%s/%s" % (tag[0:2], tag)
+  try:
+    os.makedirs(srcdir)
+    for path, dirs, files in os.walk("tempdir"):
+      for file in files:
+        with open(os.path.join(path, file), "rb") as f:
+          dat = f.read()
+        
+        cs = hashlib.md5(dat).hexdigest()
+        with open("%s/%s" % (srcdir, cs), "wb") as f:
+          f.write(dat)
+  except:
+    assert(os.system("rm -rf %s" % srcdir) == 0)
+    raise
+
+nmatch = re.compile("[^:]+: (.*)")
+for tag in touchfiles:
+  assert(tag in currentfiles)
+  if not tag in decofiles:
+    print("Scanning %s" % tag)
+    ftype = nmatch.match(utility.exe("file %s" % currentfiles[tag])).group(1)
+    print(ftype)
+    if ftype.find("Zip archive data") != -1:
+      doDecompress(tag, currentfiles[tag], "unzip {file} -d {destination}")
+    elif ftype.find("RAR archive data") != -1:
+      doDecompress(tag, currentfiles[tag], "unrar e -o- {file} {destination}")
+    elif ftype.find("PNG image data") != -1 or ftype.find("JPEG image data") != -1:
+      # What? No.
+      os.makedirs("data/02/%s/%s" % (tag[0:2], tag))
+    elif (ftype.find("ASCII") != -1 or ftype.find("UTF-8 Unicode") != -1) and ftype.find("text") != -1 or ftype == "data":
+      os.makedirs("data/02/%s/%s" % (tag[0:2], tag))
+      os.symlink("../../../../%s" % currentfiles[tag], "data/02/%s/%s/%s" % (tag[0:2], tag, tag))
+    else:
+      assert(0)
+
+

@@ -4,6 +4,7 @@ import re
 import os
 import sys
 import bz2
+import hashlib
 
 import utility
 import S3
@@ -52,6 +53,7 @@ for tag in touchfiles:
     dat = conn.get(BUCKET, serverfiles[tag]).object.data
     #print("Downloaded, %d" % len(dat))
     dat = bz2.decompress(dat)
+    assert(str(hashlib.md5(dat).hexdigest(), "ascii") == tag)
     #print("Decompressed to %d" % len(dat))
     if not os.path.exists("data/01/%s" % tag[0:2]):
       os.makedirs("data/01/%s" % tag[0:2])
