@@ -14,7 +14,7 @@ QuestHelper_Translations.nlNL =
   PLEASE_RESTART = "Er is een error gevonden tijdens het opstarten van World of Warcraft, exit dit programma helemaal en probeer het opnieuw.",
   NOT_UNZIPPED_CORRECTLY = nil,
   PLEASE_DONATE = nil,
-  HOW_TO_CONFIGURE = nil,
+  HOW_TO_CONFIGURE = "Questelper heeft nog geen werkende settings pagina, maar dit kan geconfigureerd worden door %h(/qh settings) te typen. Hulp is beschikbaar met %h(/qh help).",
   
   -- Route related text.
   ROUTES_CHANGED = "De vliegroutes voor jouw karakter zijn veranderd.",
@@ -92,11 +92,11 @@ QuestHelper_Translations.nlNL =
   HIDDEN_NONE = "Er zijn geen doelen verborgen voor je.",
   DEPENDS_ON_SINGLE = "Hangt van '%1' af.",
   DEPENDS_ON_COUNT = "Hangt van %1 verborgen doelen af.",
-  FILTERED_LEVEL = "Gefilterd voor je level.",
+  FILTERED_LEVEL = "Gefilterd als gevolg van je level.",
   FILTERED_ZONE = "Gefilterd voor je zone.",
   FILTERED_COMPLETE = "Gefilterd omdat je het al voltooid heb.",
   FILTERED_BLOCKED = "Gefilterd door een eerder incompleet doel.",
-  FILTERED_UNWATCHED = nil,
+  FILTERED_UNWATCHED = "Uitgefilterd omdat het niet gevolgd wordt in het Quest logboek",
   FILTERED_USER = "Je hebt dit doel verborgen.",
   FILTERED_UNKNOWN = "Geen idee hoe dit te voltooien.",
   
@@ -111,7 +111,7 @@ QuestHelper_Translations.nlNL =
   NAG_MULTIPLE_NEW = "Je hebt nieuwe informatie voor %h1: %h(new information). En geupdated informatie voor %h2: %h(updated information).",
   NAG_SINGLE_NEW = "Je hebt nieuwe informatie voor %h1: %h(new information).",
   NAG_ADDITIONAL = "Je hebt meer informatie voor %h1 verkregen.",
-  NAG_POLLUTED = nil,
+  NAG_POLLUTED = "Je database is vervuild met informatie van een test of private server en wordt opgeschoond bij opstarten.",
   
   NAG_NOT_NEW = "Je hebt geen nieuwe informatie voor de database.",
   NAG_NEW = "Deel je informatie, zodat anderen er ook van kunnen profiteren.",
@@ -169,7 +169,7 @@ QuestHelper_Translations.nlNL =
   MENU_ZONE_FILTER = "%1 Zone Filter",
   MENU_DONE_FILTER = "%1 Afgerond Filter",
   MENU_BLOCKED_FILTER = "%1 Geblokkeerd Filter",
-  MENU_WATCHED_FILTER = nil,
+  MENU_WATCHED_FILTER = "%1 Volg filter",
   MENU_LEVEL_FILTER = "%1 Level Filter",
   MENU_LEVEL_OFFSET = "Level Filter Afstand",
   MENU_ICON_SCALE = "Icoon Grootte",
