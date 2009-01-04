@@ -8,6 +8,9 @@ import bz2
 import utility
 import S3
 
+if not os.path.exists("data/01"):
+  os.makedirs("data/01")
+
 def getAll(conn, bucket, prefix):
   reply = conn.list_bucket(bucket, options={"prefix":prefix})
   rv = reply.entries
@@ -30,12 +33,9 @@ BUCKET="questhelper_data"
 conn = S3.AWSAuthConnection(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
 generator = S3.QueryStringAuthGenerator(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
 
-if not os.path.exists("data/01"):
-  os.makedirs("data/01")
-
 print("Starting")
 tregex = re.compile("rawdata_([0-9a-f]{32,32}).*\.bz2")
-serverfiles = {tregex.match(x.key).group(1):x.key for x in utility.getAll(conn, BUCKET, "rawdata_")}
+serverfiles = {tregex.match(x.key).group(1):x.key for x in getAll(conn, BUCKET, "rawdata_")}
 print("Serverfiles isolated: %d" % len(serverfiles))
 
 currentfiles = {}
