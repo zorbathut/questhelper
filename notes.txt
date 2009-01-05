@@ -1,4 +1,4 @@
-A variety of steps! Each one needs an input file and a predictable output file.
+A variety of steps! Each one needs an input file and a predictable output location.
 
 * 1: Download (no input file)
 * 2: Decompress to inputfilename/hash.lua
