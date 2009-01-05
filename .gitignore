@@ -1,3 +1,5 @@
 .sconsign.dblite
 *.pyc
 data
+*.o
+compile

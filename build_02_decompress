@@ -47,6 +47,7 @@ def doDecompress(tag, filename, formatstring):
   except:
     assert(os.system("rm -rf %s" % srcdir) == 0)
     raise
+  assert(os.system("rm -rf tempdir") == 0)
 
 failures = [
   # Pictures!
