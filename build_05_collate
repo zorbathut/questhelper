@@ -1,0 +1,40 @@
+#!/usr/local/bin/python3.0
+
+import re
+import os
+import sys
+import hashlib
+
+import utility
+
+if not os.path.exists("data/05"):
+  os.makedirs("data/05")
+
+treg = re.compile("data/04/[0-9a-f]{2,2}/[0-9a-f]{32,32}/([0-9a-f]{32,32})")
+datafiles = {}
+for path, dirs, files in os.walk("data/04"):
+  for file in files:
+    tfile = os.path.join(path, file)
+    match = treg.match(tfile)
+    if match:
+      datafiles[match.group(1)] = tfile
+print("Datafiles isolated: %d" % len(datafiles))
+
+colfiles = {}
+for path, dirs, files in os.walk("data/05"):
+  colfiles.update({file:os.path.join(path, file) for file in files})
+print("Colfiles isolated: %d" % len(colfiles))
+
+
+touchfiles = sorted(set([tag for tag in colfiles.keys()]) | set([tag for tag in datafiles.keys()]))
+
+
+for tag in touchfiles:
+  assert(tag in datafiles)
+  if not tag in colfiles:
+    print("Linking %s" % tag)
+    if not os.path.exists("data/05/%s" % (tag[0:2])):
+      os.makedirs("data/05/%s" % (tag[0:2]))
+    os.symlink("../../../%s" % datafiles[tag], "data/05/%s/%s" % (tag[0:2], tag))
+
+

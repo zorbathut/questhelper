@@ -31,11 +31,12 @@ for tag in touchfiles:
     print("Upgrading %s" % tag)
     
     ndat = utility.exe_bin("lua build_04_update_core.lua %s" % collatefiles[tag])
+    
+    os.makedirs("data/04/%s/%s" % (tag[0:2], tag))
     if len(ndat) == 0:
       continue
       
     hex = hashlib.md5(ndat).hexdigest()
     
-    os.makedirs("data/04/%s/%s" % (tag[0:2], tag))
     with open("data/04/%s/%s/%s" % (tag[0:2], tag, hex), "wb") as f:
       f.write(ndat)

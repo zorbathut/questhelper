@@ -7,7 +7,6 @@ A variety of steps! Each one needs an input file and a predictable output locati
 * 5: Collate right back into hash.lua
 * 6: Rename into inputfilename/UID_timestamp.lua
 * 7: Combine into UID/timestamp.lua
-* 8: Cull into UID/timestamp.lua with only the most recent allowed
-* 9: Collate into UID.lua
-* 10: Dump into binary data
-* 11: Process!
+* 8: Cull into UID_timestamp.lua with only the most recent allowed
+* 9: Dump into binary data
+* 10: Process!
