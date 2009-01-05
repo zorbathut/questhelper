@@ -3,13 +3,9 @@
 import re
 import os
 import sys
-import bz2
 import hashlib
 
-
-
 import utility
-import S3
 
 if not os.path.exists("data/02"):
   os.makedirs("data/02")
