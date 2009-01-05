@@ -1,0 +1,47 @@
+#!/usr/local/bin/python3.0
+
+import re
+import os
+import sys
+import hashlib
+
+import utility
+
+if not os.path.exists("data/08"):
+  os.makedirs("data/08")
+
+treg = re.compile("^data/07/[0-9a-zA-Z]+/([^/]+)/([0-9]+)$")
+ltstamp = {}
+distillfiles = {}
+for path, dirs, files in os.walk("data/07"):
+  for file in files:
+    tfile = os.path.join(path, file)
+    match = treg.match(tfile)
+    id = match.group(1)
+    ts = match.group(2)
+    if not id in ltstamp or int(ltstamp[id]) < int(ts):
+      if id in ltstamp:
+        print("overwrite %s: %s with %s" % (id, ltstamp[id], ts))
+        del distillfiles["%s_%s" % (id, ltstamp[id])]
+        del ltstamp[id]
+      ltstamp[id] = ts
+      distillfiles["%s_%s" % (id, ts)] = tfile
+print("Idfiles isolated: %d" % len(distillfiles))
+
+realfiles = {}
+for path, dirs, files in os.walk("data/08"):
+  realfiles.update({file:os.path.join(path, file) for file in files})
+print("Realfiles isolated: %d" % len(realfiles))
+
+
+touchfiles = sorted(set([tag for tag in distillfiles.keys()]) | set([tag for tag in realfiles.keys()]))
+
+for tag in touchfiles:
+  assert(tag in distillfiles)
+  if not tag in realfiles:
+    print("Linking %s" % tag)
+    if not os.path.exists("data/08/%s" % (tag[0:1])):
+      os.makedirs("data/08/%s" % (tag[0:1]))
+    os.symlink("../../../%s" % distillfiles[tag], "data/08/%s/%s" % (tag[0:1], tag))
+
+
