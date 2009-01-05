@@ -1,10 +1,10 @@
-./build_01_copy
-./build_02_decompress
-./build_03_collate
-./build_04_update
-./build_05_collate
-./build_06_identify
-./build_07_collate
-./build_08_distill
-./build_09_dump
+./build_01_copy && \
+./build_02_decompress && \
+./build_03_collate && \
+./build_04_update && \
+./build_05_collate && \
+./build_06_identify && \
+./build_07_collate && \
+./build_08_distill && \
+./build_09_dump && \
 scons compile

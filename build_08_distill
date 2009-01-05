@@ -21,7 +21,7 @@ for path, dirs, files in os.walk("data/07"):
     ts = match.group(2)
     if not id in ltstamp or int(ltstamp[id]) < int(ts):
       if id in ltstamp:
-        print("overwrite %s: %s with %s" % (id, ltstamp[id], ts))
+        # print("overwrite %s: %s with %s" % (id, ltstamp[id], ts))
         del distillfiles["%s_%s" % (id, ltstamp[id])]
         del ltstamp[id]
       ltstamp[id] = ts
@@ -37,7 +37,9 @@ print("Realfiles isolated: %d" % len(realfiles))
 touchfiles = sorted(set([tag for tag in distillfiles.keys()]) | set([tag for tag in realfiles.keys()]))
 
 for tag in touchfiles:
-  assert(tag in distillfiles)
+  if not tag in distillfiles:
+    print("Removing %s" % tag)
+    os.remove(realfiles[tag])
   if not tag in realfiles:
     print("Linking %s" % tag)
     if not os.path.exists("data/08/%s" % (tag[0:1])):

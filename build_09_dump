@@ -23,7 +23,9 @@ print("Dumpfiles isolated: %d" % len(dumpfiles))
 touchfiles = sorted(set([tag for tag in readyfiles.keys()]) | set([tag for tag in dumpfiles.keys()]))
 
 for tag in touchfiles:
-  assert(tag in readyfiles)
+  if not tag in readyfiles:
+    print("Removing %s" % tag)
+    os.remove(dumpfiles[tag])
   if not tag in dumpfiles:
     print("Dumping %s" % tag)
     
