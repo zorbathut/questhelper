@@ -236,6 +236,7 @@ function QuestHelper:Initialize()
       ["collect_notifier.lua"] = true,
       ["collect_bitstream.lua"] = true,
       ["collect_spec.lua"] = true,
+      ["collect_upgrade.lua"] = true,
     }
 
   for file, version in pairs(QuestHelper_File) do
