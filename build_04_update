@@ -29,12 +29,13 @@ for tag in touchfiles:
   assert(tag in collatefiles)
   if not tag in upgradefiles:
     print("Upgrading %s" % tag)
-    os.system("rm tempout.lua")
     
-    assert(os.system("lua build_04_update_core.lua %s" % collatefiles[tag]))
+    ndat = utility.exe_bin("lua build_04_update_core.lua %s" % collatefiles[tag])
+    if len(ndat) == 0:
+      continue
+      
+    hex = hashlib.md5(ndat).hexdigest()
     
     os.makedirs("data/04/%s/%s" % (tag[0:2], tag))
-    if os.path.exists("tempout.lua"):
-      hash = utility.exe("md5 tempout.lua")
-      assert(os.system("cp tempout.lua data/04/%s/%s/%s" % (tag[0:2], tag, hash)))
-
+    with open("data/04/%s/%s/%s" % (tag[0:2], tag, hex), "wb") as f:
+      f.write(ndat)
