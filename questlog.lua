@@ -73,7 +73,7 @@ function QuestHelper:GetQuestLogObjective(quest_index, objective_index)
     
     _, _, wanted, have, need = string.find(text, "^%s*(.-)%s*:%s*(.-)%s*/%s*(.-)%s*$")
     if not wanted then
-      _, _, wanted = string.find("^%s*(.-)%s*$")
+      _, _, wanted = string.find(text, "^%s*(.-)%s*$")
       have, need = 0, 1
     end
   end
