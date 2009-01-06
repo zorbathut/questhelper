@@ -37,7 +37,7 @@ persistence =
 				f:write(string.format("N%sn", tostring(item)));
 			end;
 		["string"] = function (f, item, level)
-				f:write(string.format("SL%dl%ss", #item, item));
+				f:write(string.format("SN%dn", item:len()) .. item .. "s");
 			end;
 		["boolean"] = function (f, item, level)
 				if item then
@@ -49,12 +49,12 @@ persistence =
 		["table"] = function (f, item, level)
         local ct = 0
         for k, v in pairs(item) do ct = ct + 1 end
-        f:write(string.format("TL%dl", ct))
+        f:write(string.format("TN%dn", ct))
 				for k, v in pairs(item) do
 					persistence.write(f, k);
 					persistence.write(f, v);
 				end
-        f:write("T");
+        f:write("t");
 			end;
 	}
 }
