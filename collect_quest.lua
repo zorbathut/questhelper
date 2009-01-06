@@ -132,9 +132,8 @@ end
 local changed = false
 local first = true
 
-local function EnterWorld()
+local function Init()
   first = true
-  deebey = ScanQuests()
 end
 
 local function LogChanged()
@@ -177,7 +176,7 @@ AbandonQuest = function ()
   AbandonQuest_Orig()
 end
 
-function UpdateQuests()
+local function UpdateQuests()
   if first then deebey = ScanQuests() first = false end
   if not changed then return end
   changed = false
@@ -294,5 +293,10 @@ function QH_Collect_Quest_Init(QHCData, API)
   API.Registrar_EventHook("CHAT_MSG_LOOT", Looted)
   API.Registrar_EventHook("COMBAT_LOG_EVENT_UNFILTERED", Combat)
   
-  API.Registrar_EventHook("PLAYER_ENTERING_WORLD", EnterWorld)
+  -- Here's a pile of events that seem to trigger during startup that also don't seem like would trigger while questing.
+  -- We'll lose a few quest updates from this, but that's OK.
+  API.Registrar_EventHook("PLAYER_ENTERING_WORLD", Init)
+  API.Registrar_EventHook("UNIT_MODEL_CHANGED", Init)
+  API.Registrar_EventHook("GUILDBANK_UPDATE_WITHDRAWMONEY", Init)
+  API.Registrar_EventHook("UPDATE_TICKET", Init)
 end
