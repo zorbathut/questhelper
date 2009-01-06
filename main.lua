@@ -789,6 +789,8 @@ function QuestHelper:OnEvent(event)
     please_donate_enabled = QHNagInit()
     startup_time = GetTime()
     please_donate_initted = true
+    
+    QHUpdateNagInit()
   end
   
   QH_Timeslice_Increment(GetTime() - tstart, "event")
@@ -809,6 +811,7 @@ function QuestHelper:OnUpdate()
     startup_time = nil
     please_donate_enabled = false
   end
+  QHUpdateNagTick() -- These probably shouldn't be in OnUpdate. Eventually I'll move them somewhere cleaner.
   
   if init_cartographer_later and Cartographer_Waypoints then    -- there has to be a better way to do this
     init_cartographer_later = false

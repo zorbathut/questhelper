@@ -341,3 +341,25 @@ function QHNagInit()
   
   return QuestHelper_Pref.nag_type == "ON"
 end
+
+
+local update_nag_yell_at = nil
+
+function QHUpdateNagInit()
+  if not QuestHelper_Pref.update_nag_last_version or QuestHelper_Pref.update_nag_last_version ~= GetAddOnMetadata("QuestHelper", "Version") then
+    QuestHelper_Pref.update_nag_last_version = GetAddOnMetadata("QuestHelper", "Version")
+    QuestHelper_Pref.update_nag_next_notify = time() + 14 * day
+  end
+  
+  if QuestHelper_Pref.update_nag_next_notify < time() then
+    update_nag_yell_at = time() + 60 * 10 + 50 * 60 * math.random() -- 10 to 60 minutes from now
+  end
+end
+
+function QHUpdateNagTick()
+  if update_nag_yell_at and update_nag_yell_at < time() then
+    QuestHelper:TextOut(QHText("TIME_TO_UPDATE"))
+    QuestHelper_Pref.update_nag_next_notify = time() + day + day * math.random()
+    update_nag_yell_at = nil
+  end
+end
