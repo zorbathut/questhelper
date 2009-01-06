@@ -1,4 +1,13 @@
 
+== Version 0.80 1/3/2009 ==
+
+* Database update
+* Translation update
+* Move translations into their own directory
+* Get rid of yet more private server data (stop submitting that)
+* Possible fix of the excessive-diffs error
+* Remove some accidentally-left-in debug output
+
 == Version 0.79 12/28/2008 ==
 
 * You can stop reading here, nothing below this line will be of any interest to anyone. Seriously. This is one of the longest and most boring set of changes I've ever done.
