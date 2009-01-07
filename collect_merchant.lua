@@ -3,6 +3,9 @@ QuestHelper_Loadtime["collect_merchant.lua"] = GetTime()
 
 -- http://www.penny-arcade.com/comic/2005/01/05/
 
+local debug_output = false
+if QuestHelper_File["collect_merchant.lua"] == "Development Version" then debug_output = true end
+
 local QHCM
 
 local IsMonsterGUID
@@ -23,6 +26,9 @@ local function AddChatType(typ)
 end
 
 local function MerchantShow()
+  local ct = GetMerchantNumItems()
+  for i = 1, ct do if not GetMerchantItemLink(i) then return end end  -- We want to make sure it's cached, otherwise we'll return wonky data. Technically this biases things away from "yes he's a shopkeeper", but honestly, it doesn't matter that much.
+  
   targ = AddChatType("shop")
   if not targ then return end -- welllllp
   
@@ -30,10 +36,12 @@ local function MerchantShow()
   --QuestHelper:TextOut(string.format("nitems %d", ct))
   
   for i = 1, ct do
-    local itemid = GetItemType(GetMerchantItemLink(i))
+    local itemid = GetMerchantItemLink(i)
+    QuestHelper: Assert(itemid)
+    itemid = GetItemType(itemid)
     local _, _, price, quant, avail, _, _ = GetMerchantItemInfo(i)
     local dstr = string.format("%d@@%d@@%d@@%d", itemid, quant, avail, price)
-    --QuestHelper:TextOut(dstr)
+    if debug_output then QuestHelper:TextOut(dstr) end
     QHCM["shop_" .. dstr] = (QHCM["shop_" .. dstr] or 0) + 1
   end
 end
