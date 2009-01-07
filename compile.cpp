@@ -1,4 +1,6 @@
 
+#include "compile_error.h"
+
 #include "boost/filesystem.hpp"
 #include <sys/stat.h>
 
@@ -12,101 +14,6 @@
 #include <fstream>
 
 using namespace std;
-
-enum LTE { LT_TABLE, LT_STRING, LT_NUMBER, LT_NIL, LT_BOOL };
-class LuaType {
-public:
-  LTE type;
-
-  vector<pair<LuaType, LuaType> > table;
-  string strv;
-  double number;
-  bool boolean;
-
-  const LuaType &operator[](const LuaType &lt) const {
-    assert(type == LT_TABLE);
-    for(int i = 0; i < table.size(); i++)
-      if(table[i].first == lt)
-        return table[i].second;
-    printf("Doesn't have ");
-    lt.print();
-    printf("\n");
-    assert(0);
-  }
-  bool has(const LuaType &lt) const {
-    assert(type == LT_TABLE);
-    for(int i = 0; i < table.size(); i++)
-      if(table[i].first == lt)
-        return true;
-    return false;
-  }
-  
-  bool operator==(const LuaType &cmp) const {
-    if(type != cmp.type) return false;
-    assert(type != LT_TABLE);
-    if(type == LT_STRING) return strv == cmp.strv;
-    if(type == LT_NUMBER) return number == cmp.number;
-    if(type == LT_BOOL) return boolean == cmp.boolean;
-    if(type == LT_NIL) return true;
-    assert(0);
-  }
-  bool operator==(const string &cmp_str) const {
-    return type == LT_STRING && cmp_str == strv;
-  }
-  bool operator==(const char *cmp_str) const {
-    return type == LT_STRING && cmp_str == strv;
-  }
-  
-  LuaType() { type = LT_NIL; }
-  LuaType(const LuaType &rhs) {
-    type = rhs.type;
-    table = rhs.table;
-    strv = rhs.strv;
-    number = rhs.number;
-    boolean = rhs.boolean;
-  }
-  ~LuaType() { };
-  
-  LuaType(const string &in_str) {
-    type = LT_STRING;
-    strv = in_str;
-  }
-  LuaType(const char *in_str) {
-    type = LT_STRING;
-    strv = in_str;
-  }
-  const string &str() const {
-    assert(type == LT_STRING);
-    return strv;
-  }
-  
-  void print(int depth = -1) const {
-    if(type == LT_NIL) {
-      printf("(nil)");
-    } else if(type == LT_BOOL) {
-      printf(boolean ? "True" : "False");
-    } else if(type == LT_NUMBER) {
-      printf("%f", number);
-    } else if(type == LT_STRING) {
-      printf("\"%s\"", strv.c_str());
-    } else if(type == LT_TABLE) {
-      if(depth == 0) {
-        printf("(table)");
-      } else {
-        printf("{ ");
-        for(int i = 0; i < table.size(); i++) {
-          if(i) printf(", ");
-          table[i].first.print(depth - 1);
-          printf(" = ");
-          table[i].second.print(depth - 1);
-        }
-        printf("}");
-      }
-    } else {
-      assert(0);
-    }
-  }
-};
 
 void parseLuaType(const char *&ptx, LuaType *rv, int *tokens) {  // urgh *&
   if(*ptx == 'I') {
@@ -192,10 +99,11 @@ void loadLuaType(const string &filename, LuaType *rv) {
   assert(pt == pte);
 }
 
+void Compile(const LuaType &lt);
+void Complete();
+
 int main() {
-  vector<LuaType> files;
-  
-  system("rm -rf intermed");
+  int q = system("rm -rf intermed");  // we're only storing it to make the damn warning go away
   
   int maxfiles = 1000000;
   //maxfiles = 10;
@@ -210,54 +118,19 @@ int main() {
     sort(fnames.begin(), fnames.end());
     if(fnames.size() > maxfiles) fnames.resize(maxfiles);
     
-    files.resize(fnames.size());
     for(int i = 0; i < fnames.size(); i++) {
-      loadLuaType(fnames[i], &files[i]);
+      LuaType lt;
+      loadLuaType(fnames[i], &lt);
+      Compile(lt);
     }
   }
   
-  // Error calculations!
-  {
-    map<string, map<string, vector<string> > > dat;
-    for(int i = 0; i < files.size(); i++) {
-      assert(files[i].type == LT_TABLE);
-      for(int j = 0; j < files[i].table.size(); j++) {
-        if(files[i].table[j].first == "QuestHelper_Errors") {
-          const LuaType &group = files[i].table[j].second;
-          for(int m = 0; m < group.table.size(); m++) {
-            const LuaType &g2 = group.table[m].second;
-            for(int k = 0; k < g2.table.size(); k++) {
-              const LuaType &ltd = g2.table[k].second;
-              string chunk = ltd["stack"].str();
-              if(ltd.has("addons"))
-                chunk += "\n" + ltd["addons"].str();
-              if(ltd.has("message"))
-                chunk = ltd["message"].str() + "\n" + chunk;
-              dat[ltd["toc_version"].str()][ltd["stack"].str()].push_back(chunk);
-            }
-          }
-        }
-      }
-    }
-    
-    for(map<string, map<string, vector<string> > >::const_iterator itr = dat.begin(); itr != dat.end(); itr++) {
-      vector<pair<int, pair<string, vector<string> > > > dat;
-      for(map<string, vector<string> >::const_iterator titr = itr->second.begin(); titr != itr->second.end(); titr++) {
-        dat.push_back(make_pair(titr->second.size(), *titr));
-      }
-      sort(dat.begin(), dat.end());
-      reverse(dat.begin(), dat.end());
-      
-      mkdir(("intermed/" + itr->first).c_str(), 0755);
-      for(int i = 0; i < dat.size(); i++) {
-        char bf[100];
-        sprintf(bf, "%03d_%05d.txt", i, dat[i].first);
-        ofstream ofs(("intermed/" + itr->first + "/" + bf).c_str());
-        ofs << dat[i].second.first << endl;
-        ofs << endl << endl << endl;
-        for(int j = 0; j < dat[i].second.second.size(); j++)
-          ofs << dat[i].second.second[j] << endl << endl << endl;
-      }
-    }
-  }
+  Complete();
+}
+
+void Compile(const LuaType &lt) {
+  CompileError(lt);
+}
+void Complete() {
+  CompleteError();
 }
