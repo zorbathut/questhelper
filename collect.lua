@@ -97,6 +97,7 @@ function QH_Collector_Init()
   
   QH_Collect_Loot_Init(QHCData, API)
   QH_Collect_Equip_Init(QHCData, API)
+  QH_Collect_Merchant_Init(QHCData, API)
   
   if not QHCData.realms then QHCData.realms = {} end
   QHCData.realms[GetRealmName()] = (QHCData.realms[GetRealmName()] or 0) + 1 -- I'm not entirely sure why I'm counting
