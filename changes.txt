@@ -1,4 +1,12 @@
 
+== Version 0.81 1/7/2009 ==
+
+* Rip out more private server data (ffs stop submitting that)
+* Add merchant tracking code
+* Try to fix the excessive-diffs issue again (I think I got it this time)
+* Small bugfixes
+* Standard database updates
+
 == Version 0.80 1/3/2009 ==
 
 * Database update
