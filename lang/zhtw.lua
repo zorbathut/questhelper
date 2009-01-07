@@ -3,18 +3,18 @@
 QuestHelper_Translations.zhTW =
  {
   -- Displayed by locale chooser.
-  LOCALE_NAME = "正體中文",
+  LOCALE_NAME = "繁體中文",
   
   -- Messages used when starting.
   LOCALE_ERROR = "你所儲存的語言設定，與本機的魔獸世界的區域語言設定並不符合。如要繼續使用QuestHelper，請您將語言設定改回原本的設定值，或是輸入%h(/qh purge)來刪除。",
   ZONE_LAYOUT_ERROR = "本插件拒絕繼續執行，以避免破壞你所儲存的資料。請您等候下一個可以處理此新區域資料的版本推出後，再使用最新版本的本插件",
-  DOWNGRADE_ERROR = "您所儲存的資料，與本版本的QuestHelper並不相容。請您使用新版的QuestHelper，或是請您清除您所儲存的variables紀錄。",
+  DOWNGRADE_ERROR = "您所儲存的舊設定資料，與本版本的QuestHelper並不相容。請您使用新版的QuestHelper，或是刪除WTF目錄下的QuestHelper紀錄檔。",
   HOME_NOT_KNOWN = "目前無法得知您爐石所設定的城鎮。當您有機會經過旅店的時候，請您與旅店老闆談話，並設置您的爐石位置。",
-  PRIVATE_SERVER = nil,
-  PLEASE_RESTART = nil,
+  PRIVATE_SERVER = "本插件不支援私服",
+  PLEASE_RESTART = "QuestHelper 啟始失敗無法載入, 請重開魔獸世界再試一下.",
   NOT_UNZIPPED_CORRECTLY = nil,
-  PLEASE_DONATE = nil,
-  HOW_TO_CONFIGURE = nil,
+  PLEASE_DONATE = "有關捐助給作者持續更新 QuestHelper 的方式, 請輸入 /qh donate 查看",
+  HOW_TO_CONFIGURE = "輸入 /qh settings 可進入QuestHelper GUI設定頁面, 或輸入 /qh help 查看指令.",
   
   -- Route related text.
   ROUTES_CHANGED = "你角色的飛行路徑資訊已經更新了。",
@@ -33,9 +33,9 @@ QuestHelper_Translations.zhTW =
   SLAY_VERB = "殺死",
   ACQUIRE_VERB = "需要",
   
-  OBJECTIVE_REASON = "任務 %h3\\r需要 %1%h2", -- %1 is a verb, %2 is a noun (item or monster)
-  OBJECTIVE_REASON_FALLBACK = "任務 %h2\\r需要 %h1",
-  OBJECTIVE_REASON_TURNIN = "轉向任務 %h1",
+  OBJECTIVE_REASON = "任務 %h3 需要 %1%h2", -- %1 is a verb, %2 is a noun (item or monster)
+  OBJECTIVE_REASON_FALLBACK = "任務 %h2 需要 %h1",
+  OBJECTIVE_REASON_TURNIN = "歸還任務 %h1",
   OBJECTIVE_PURCHASE = "從%h1購得",
   OBJECTIVE_TALK = "與 %1 交談",
   OBJECTIVE_SLAY = "殺死 %h1",
@@ -83,7 +83,7 @@ QuestHelper_Translations.zhTW =
   PEER_OTHER = "協助 %1 藉由 %h2.",
   
   PEER_NEWER = "%h1使用了較新的版本,你應該更新了",
-  PEER_OLDER = "%h1 使用了較舊的版本",
+  PEER_OLDER = "%h1使用了較舊的版本",
   
   UNKNOWN_MESSAGE = "無法得知的訊息 '%1' 從 '%2'.",
   
@@ -96,7 +96,7 @@ QuestHelper_Translations.zhTW =
   FILTERED_ZONE = "由區域過濾",
   FILTERED_COMPLETE = "由完成度過濾",
   FILTERED_BLOCKED = "以先前未完成的目標過濾",
-  FILTERED_UNWATCHED = nil,
+  FILTERED_UNWATCHED = "隱藏未設定任務追蹤的任務",
   FILTERED_USER = "您已設定此物件為隱藏",
   FILTERED_UNKNOWN = "不知道如何完成任務",
   
@@ -114,8 +114,8 @@ QuestHelper_Translations.zhTW =
   NAG_POLLUTED = nil,
   
   NAG_NOT_NEW = "在您的靜態資料庫中，找不到沒有可以使用的資料",
-  NAG_NEW = "建議您將你的資料分享出來，以使其他使用者也可受益。",
-  NAG_INSTRUCTIONS = "請您輸入%h(/qh sumbit)的指令，這將會有一份指南，教您如何將任務資料庫分享出來",
+  NAG_NEW = "建議您將你的資料分享出來，分享給其他使用者。",
+  NAG_INSTRUCTIONS = "請您輸入%h(/qh sumbit)的指令，可以查看教您如何將任務資料庫分享出來的說明.",
   
   NAG_SINGLE_FP = "一為飛行管理員",
   NAG_SINGLE_QUEST = "一個任務",
@@ -141,7 +141,7 @@ QuestHelper_Translations.zhTW =
   PEER_PROGRESS = "%1 目前的進度",
   TRAVEL_ESTIMATE = "預估飛行時間為：",
   TRAVEL_ESTIMATE_VALUE = "%t1",
-  WAYPOINT_REASON = "探查 %h1 邊界規劃路線至:",
+  WAYPOINT_REASON = "探查 %h1 相鄰規劃路線至:",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -158,8 +158,8 @@ QuestHelper_Translations.zhTW =
   MENU_TRACKER_OPTIONS = "\"任務追蹤\"",
   MENU_QUEST_TRACKER = "%1 任務追蹤",
   MENU_TRACKER_LEVEL = "%1 任務等級",
-  MENU_TRACKER_QCOLOUR = "%1 依等級適合度的任務顏色提示",
-  MENU_TRACKER_OCOLOUR = "%1 依目前進度的任務顏色提示",
+  MENU_TRACKER_QCOLOUR = "%1 依適合等級為任務添上顏色變化",
+  MENU_TRACKER_OCOLOUR = "%1 依目前進度為任務添上顏色變化",
   MENU_TRACKER_SCALE = "追蹤器的大小",
   MENU_TRACKER_RESET = "重置位置",
   MENU_FLIGHT_TIMER = "%1 飛行計時器",
@@ -173,7 +173,7 @@ QuestHelper_Translations.zhTW =
   MENU_LEVEL_FILTER = "%1 任務等級的過濾",
   MENU_LEVEL_OFFSET = "關閉等級過濾",
   MENU_ICON_SCALE = "圖示比例",
-  MENU_FILTERS = "過濾器",
+  MENU_FILTERS = "過濾",
   MENU_PERFORMANCE = "路徑的效率",
   MENU_LOCALE = "語系",
   MENU_PARTY = "小隊",
