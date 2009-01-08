@@ -88,6 +88,11 @@ QuestHelper_Translations.enUS =
   WILL_RESET_PATH = "Will reset pathing information.",
   UPDATING_ROUTE = "Refreshing route.",
   
+  -- Special tracker text
+  QH_LOADING = "QuestHelper is loading (%1%%)...",
+  QUESTS_HIDDEN_1 = "Quests may be hidden",
+  QUESTS_HIDDEN_2 = "(\"/qh hidden\" to list)",
+  
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Available Locales:",
   LOCALE_CHANGED = "Locale changed to: %h1",

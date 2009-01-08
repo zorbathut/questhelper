@@ -461,9 +461,9 @@ local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
   return x, y, gap, count
 end
 
-local loading_vquest = { cat = "quest", obj = "7777/Questhelper is loading...", after = {}, watched = true }
-local hidden_vquest1 = { cat = "quest", obj = "7778/Quests may be hidden", after = {}, watched = true }
-local hidden_vquest2 = { cat = "quest", obj = "7778/    (\"/qh hidden\" to list)", after = {}, watched = true }
+local loading_vquest = { cat = "quest", obj = "7777/" .. QHFormat("QH_LOADING", "0"), after = {}, watched = true }
+local hidden_vquest1 = { cat = "quest", obj = "7778/" .. QHText("QUESTS_HIDDEN_1"), after = {}, watched = true }
+local hidden_vquest2 = { cat = "quest", obj = "7778/" .. QHText("QUESTS_HIDDEN_2"), after = {}, watched = true }
 
 function tracker:update(delta)
   if not delta then
@@ -541,7 +541,7 @@ function tracker:update(delta)
       loadedshow = true
       
       if QuestHelper_Flight_Updates and QuestHelper_Flight_Updates_Current and QuestHelper_Flight_Updates > 0 and QuestHelper_Flight_Updates_Current < QuestHelper_Flight_Updates then
-        loading_vquest.obj = string.format("7777/QuestHelper is loading (%2d%%)...", QuestHelper_Flight_Updates_Current * 100 / QuestHelper_Flight_Updates)
+        loading_vquest.obj = string.format("7777/" .. QHFormat("QH_LOADING", string.format("%d", QuestHelper_Flight_Updates_Current * 100 / QuestHelper_Flight_Updates)))
       end
     end
     

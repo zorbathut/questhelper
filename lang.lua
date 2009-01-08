@@ -22,6 +22,7 @@ end
 
 local sub_array = nil
 local function doSub(op, index)
+  if op == "" and index == "" then return "%" end
   local i = tonumber(index)
   if i then
     -- Pass the selected argument through a function and insert the result.
