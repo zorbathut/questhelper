@@ -35,7 +35,7 @@ QuestHelper_DefaultPref =
   solo = false,
   comm = false,
   show_ants = true,
-  level = 2,
+  level = 3,
   hide = false,
   cart_wp = true,
   tomtom_wp = true,
@@ -468,6 +468,19 @@ function QuestHelper:Initialize()
   end
 
   local version = GetAddOnMetadata("QuestHelper", "Version") or "Unknown"
+  if QuestHelper_Pref.level == 2 then -- this is a pretty horrifying hack. Really, there should be the concept of "default" and "nondefault" parameters. But we don't have that, so we just change people's settings without asking them, because We Know Better (forecast: people complaining that we don't know better)
+    if QuestHelper_Version == "0.81" or
+      QuestHelper_Version == "0.80" or 
+      QuestHelper_Version == "0.79" or 
+      QuestHelper_Version == "0.78" or 
+      QuestHelper_Version == "0.77" or 
+      QuestHelper_Version == "0.76" or 
+      QuestHelper_Version == "0.75" or 
+      QuestHelper_Version == "0.74" or 
+      QuestHelper_Version == "0.73" then
+      QuestHelper_Pref.level = 3
+    end
+  end
   if QuestHelper_Version ~= version then
     QuestHelper_Version = version
     self:ChangeLog()
