@@ -248,7 +248,7 @@ function QuestHelper:Initialize()
       DEFAULT_CHAT_FRAME:AddMessage(errmsg)
       uninstallederr = uninstallederr .. "    " .. errmsg .. "\n"
       file_problem = true
-    elseif version ~= expected_version or true then
+    elseif version ~= expected_version then
       local errmsg = "Wrong version of QuestHelper file: "..file.." (found '"..version.."', should be '"..expected_version.."')"
       DEFAULT_CHAT_FRAME:AddMessage(errmsg)
       uninstallederr = uninstallederr .. "    " .. errmsg .. "\n"
