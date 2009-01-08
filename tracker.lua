@@ -269,8 +269,12 @@ local function ccode(r1, g1, b1, r2, g2, b2, p)
 end
 
 local function qname(title, level)
-  if QuestHelper_Pref.track_level and level ~= 7777 then
+  if QuestHelper_Pref.track_level and level ~= 7777 and level ~= 7778 then
     title = string.format("[%d] %s", level, title)
+  end
+  
+  if level == 7778 then
+    level = -7778
   end
   
   if QuestHelper_Pref.track_qcolour then
@@ -291,7 +295,9 @@ local function qname(title, level)
       elseif player_level >= 6 then grey = player_level - math.floor(player_level/10) - 5
       else grey = 0 end
       
-      if level > grey then
+      if level == -7778 then
+        colour = "|cff808080"
+      elseif level > grey then
         colour = ccode(0, 1, 0, 1, 1, 0, (grey-level)/(grey-player_level))
       else
         colour = ccode(.4, .4, .4, .2, .8, .2, (1-level)/(1-grey))
@@ -456,6 +462,8 @@ local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
 end
 
 local loading_vquest = { cat = "quest", obj = "7777/Questhelper is loading...", after = {}, watched = true }
+local hidden_vquest1 = { cat = "quest", obj = "7778/Quests may be hidden", after = {}, watched = true }
+local hidden_vquest2 = { cat = "quest", obj = "7778/    (\"/qh hidden\" to list)", after = {}, watched = true }
 
 function tracker:update(delta)
   if not delta then
@@ -506,6 +514,7 @@ function tracker:update(delta)
     local x, y = 4, 4
     local gap = 0
     local track_size = QuestHelper_Pref.track_size
+    local quests_added = {}
     
     for quest, objs in pairs(used_items) do
       for obj, item in pairs(objs) do
@@ -524,10 +533,12 @@ function tracker:update(delta)
     end
     
     -- Add our little "not yet loaded" notification
+    local loadedshow = false
     if not QuestHelper.Routing.map_walker then
       local count
       x, y, gap, count = addobj(loading_vquest, seen, nil, nil, x, y, gap)
       added = added + count
+      loadedshow = true
       
       if QuestHelper_Flight_Updates and QuestHelper_Flight_Updates_Current and QuestHelper_Flight_Updates > 0 and QuestHelper_Flight_Updates_Current < QuestHelper_Flight_Updates then
         loading_vquest.obj = string.format("7777/QuestHelper is loading (%2d%%)...", QuestHelper_Flight_Updates_Current * 100 / QuestHelper_Flight_Updates)
@@ -556,6 +567,7 @@ function tracker:update(delta)
               local count
               x, y, gap, count = addobj(q, seen, obj_index_lookup, nil, x, y, gap)
               added = added + count
+              quests_added[q] = true
             end
           end
         end
@@ -576,6 +588,7 @@ function tracker:update(delta)
       local count
       x, y, gap, count = addobj(objective, seen, obj_index_lookup, watched_filter, x, y, gap)
       added = added + count
+      quests_added[objective] = true
     end
     
     -- Add an extra large gap to seperate the watched objectives from the automatic objectives.
@@ -587,10 +600,31 @@ function tracker:update(delta)
         local count
         x, y, gap, count = addobj(objective, seen, obj_index_lookup, nil, x, y, gap)
         added = added + count
+        quests_added[objective] = true
         
         if added > track_size then
           break
         end
+      end
+    end
+    
+    if not loadedshow and added < track_size then
+      local added = 0
+      local notadded = 0
+      for k, v in pairs(quest_lookup) do
+        if not quests_added[v] then
+          notadded = notadded + 1
+        else
+          added = added + 1
+        end
+      end
+      
+      if notadded > 0 then
+        gap = gap * 10
+        x, y, gap, count = addobj(hidden_vquest1, seen, nil, nil, x, y, gap)
+        added = added + count
+        x, y, gap, count = addobj(hidden_vquest2, seen, nil, nil, x, y, gap)
+        added = added + count
       end
     end
     
