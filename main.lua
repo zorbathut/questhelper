@@ -239,13 +239,19 @@ function QuestHelper:Initialize()
       ["collect_upgrade.lua"] = true,
       ["collect_merchant.lua"] = true,
     }
+    
+  local uninstallederr = ""
 
   for file, version in pairs(QuestHelper_File) do
     if not expected_files[file] then
-      DEFAULT_CHAT_FRAME:AddMessage("Unexpected QuestHelper file: "..file)
+      local errmsg = "Unexpected QuestHelper file: "..file
+      DEFAULT_CHAT_FRAME:AddMessage(errmsg)
+      uninstallederr = uninstallederr .. "    " .. errmsg .. "\n"
       file_problem = true
-    elseif version ~= expected_version then
-      DEFAULT_CHAT_FRAME:AddMessage("Wrong version of QuestHelper file: "..file.." (found '"..version.."', should be '"..expected_version.."')")
+    elseif version ~= expected_version or true then
+      local errmsg = "Wrong version of QuestHelper file: "..file.." (found '"..version.."', should be '"..expected_version.."')"
+      DEFAULT_CHAT_FRAME:AddMessage(errmsg)
+      uninstallederr = uninstallederr .. "    " .. errmsg .. "\n"
       if version ~= "Development Version" and expected_version ~= "Development Version" then
         -- Developers are allowed to mix dev versions with release versions
         file_problem = true
@@ -255,7 +261,9 @@ function QuestHelper:Initialize()
 
   for file in pairs(expected_files) do
     if not QuestHelper_File[file] then
-      DEFAULT_CHAT_FRAME:AddMessage("Missing QuestHelper file: "..file)
+      local errmsg = "Missing QuestHelper file: "..file
+      DEFAULT_CHAT_FRAME:AddMessage(errmsg)
+      uninstallederr = uninstallederr .. "    " .. errmsg .. "\n"
       file_problem = true
     end
   end
@@ -264,13 +272,15 @@ function QuestHelper:Initialize()
   QuestHelper_File = nil
 
   if QuestHelper_StaticData and not QuestHelper_StaticData[GetLocale()] then
+    local errmsg = "Static data does not seem to exist"
+    DEFAULT_CHAT_FRAME:AddMessage(errmsg)
+    uninstallederr = uninstallederr .. "    " .. errmsg .. "\n"
     file_problem = true
-    DEFAULT_CHAT_FRAME:AddMessage("Static data does not seem to exist")
   end
 
   if file_problem then
     message(QHText("PLEASE_RESTART"))
-    QuestHelper_ErrorCatcher_ExplicitError("not-installed-properly")
+    QuestHelper_ErrorCatcher_ExplicitError("not-installed-properly" .. "\n" .. uninstallederr)
     QuestHelper = nil     -- Just in case anybody else is checking for us, we're not home
     return
   end
