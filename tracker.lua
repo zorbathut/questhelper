@@ -463,7 +463,7 @@ end
 
 local loading_vquest = { cat = "quest", obj = "7777/" .. QHFormat("QH_LOADING", "0"), after = {}, watched = true }
 local hidden_vquest1 = { cat = "quest", obj = "7778/" .. QHText("QUESTS_HIDDEN_1"), after = {}, watched = true }
-local hidden_vquest2 = { cat = "quest", obj = "7778/" .. QHText("QUESTS_HIDDEN_2"), after = {}, watched = true }
+local hidden_vquest2 = { cat = "quest", obj = "7778/    " .. QHText("QUESTS_HIDDEN_2"), after = {}, watched = true }
 
 function tracker:update(delta)
   if not delta then
