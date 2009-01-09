@@ -1,6 +1,7 @@
 .sconsign.dblite
 *.pyc
 data
-*.o
-compile
 intermed
+
+*.so
+*.os

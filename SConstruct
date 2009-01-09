@@ -2,5 +2,6 @@
 def command(name, deps, line):
   AlwaysBuild(Alias(name, deps, line))
 
-prog = Program(["compile.cpp", "compile_error.cpp"], CPPFLAGS="-O2", LIBS=["boost_filesystem", "pthread", "tcmalloc"])
-command("run", prog, "./compile")
+lib = SharedLibrary(target = "compile_core", source = ["compile_core.cpp"], CPPPATH="/usr/include/lua5.1", LIBS="luabind")
+command("run", lib, "lua compile.lua")
+

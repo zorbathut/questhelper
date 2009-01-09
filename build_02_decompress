@@ -120,7 +120,7 @@ for tag in touchfiles:
         handled = True
     
     if not handled:
-      if ftype.find("gzip compressed data, from Unix") != -1:
+      if ftype.find("gzip compressed data") != -1:
         doDecompress(tag, currentfiles[tag], "BASHHACK gunzip < {file} > {destination}/file")
         handled = True
     
