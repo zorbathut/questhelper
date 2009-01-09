@@ -192,6 +192,8 @@ FileUtil.copyDirectoryRecursively = function(src, dest)
     print(string.format("Failed to copy %s to %s", src, dest))
     assert(false)
   end
+  
+  os.execute(string.format("rm -rf %s/.*", dest))
 end
 
 FileUtil.extension = function(filename)
