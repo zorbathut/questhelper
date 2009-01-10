@@ -18,15 +18,18 @@ function ChainBlock_Create(linkfrom, factory, sortpred, filter)
   setmetatable(ninst, ChainBlock_mt)
   ninst.factory = factory
   ninst.sortpred = sortpred
+  ninst.filter = filter
   ninst.items = {}
   ninst.data = {}
   ninst.linkto = {}
-  ninst.process = function (key, subkey, value) for _, v in pairs(ninst.linkto) do v:Insert(key, subkey, value) end end
+  ninst.process = function (key, subkey, value, identifier) for _, v in pairs(ninst.linkto) do v:Insert(key, subkey, value, identifier) end end
   if linkfrom then linkfrom:AddLinkTo(ninst) end
   return ninst
 end
 
-function ChainBlock:Insert(key, subkey, value)
+function ChainBlock:Insert(key, subkey, value, identifier)
+  if self.filter and self.filter ~= identifier then return end
+  
   if not subkey then
     self:GetItem(key):Data(key, subkey, value, self.process)
   else

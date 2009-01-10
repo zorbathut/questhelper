@@ -2,7 +2,13 @@
 loadfile("compile_chain.lua")()
 loadfile("compile_debug.lua")()
 
+package.loadlib("/home/zorba/build/libcompile_core.so", "init")()   -- this will fuck me someday
+
 os.execute("rm -rf intermed")
+
+greet()
+slice_loc("testing")
+if true then return end
 
 -- package.loadlib("/home/zorba/build/libcompile_core.so", "init")()
 -- greet()
@@ -14,18 +20,19 @@ local chainhead = ChainBlock_Create(nil,
       for k, v in pairs(dat.QuestHelper_Errors) do
         for _, d in pairs(v) do
           d.key = k
-          Output(d.local_version, nil, d)
+          Output(d.local_version, nil, d, "error")
         end
       end
     end
-  } end,
-  nil, nil)
+  } end
+)
 
 local error_collater = ChainBlock_Create(chainhead,
   function (key) return {
     accum = {},
     
     Data = function (self, key, subkey, value, Output)
+      assert(value.local_version)
       if not value.toc_version or value.local_version ~= value.toc_version then return end
       local signature
       if value.key ~= "crashes" then signature = value.key end
@@ -51,7 +58,8 @@ local error_collater = ChainBlock_Create(chainhead,
       end
     end
   } end,
-  nil, nil)
+  nil, "error"
+)
 
 do
   local function acuv(tab, ites)
@@ -93,8 +101,8 @@ do
         
         fil:close()
       end
-    } end,
-    nil, nil)
+    } end
+  )
 end
 
 local count = 0
