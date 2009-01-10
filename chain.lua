@@ -13,7 +13,6 @@ No need for inheritance, honestly.
 local ChainBlock = {}
 local ChainBlock_mt = { __index = ChainBlock }
 
-
 function ChainBlock_Create(factory, sortpred, linkfrom)
   local ninst = {}
   setmetatable(ninst, ChainItem_mt)
@@ -23,7 +22,7 @@ function ChainBlock_Create(factory, sortpred, linkfrom)
   ninst.data = {}
   ninst.linkto = {}
   ninst.process = function (key, subkey, value) for _, v in pairs(ninst.linkto) do v:Insert(key, subkey, value) end end
-  linkfrom.AddLinkTo(ninst)
+  if linkfrom then linkfrom.AddLinkTo(ninst) end
   return ninst
 end
 
@@ -44,7 +43,7 @@ function ChainBlock:Finish()
     end
   end
   for _, v in pairs(self.items) do
-    v:Finish()
+    if v.Finish then v:Finish() end
   end
   for _, v in pairs(self.linkto) do
     v:Finish()
