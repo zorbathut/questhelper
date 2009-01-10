@@ -4,9 +4,24 @@ loadfile("chain.lua")()
 -- package.loadlib("/home/zorba/build/libcompile_core.so", "init")()
 -- greet()
 
-local chainhead = ChainBlock_Create(function () return {
-    Data = function (key, subkey, value)
-      print(key)
+local chainhead = ChainBlock_Create(nil,
+  function () return {
+    Data = function (self, key, subkey, value, Output)
+      dat = loadfile(key)()
+      for k, v in pairs(dat.QuestHelper_Errors) do
+        for _, d in pairs(v) do
+          d.key = k
+          Output(d.local_version, nil, d)
+        end
+      end
+    end
+  } end,
+  nil, nil)
+
+local error_collater = ChainBlock_Create(chainhead,
+  function (key) print("constructed " .. tostring(key)) return {
+    Data = function (self, key, subkey, value, Output)
+      print(value)
     end
   } end,
   nil, nil)
