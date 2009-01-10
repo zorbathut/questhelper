@@ -67,6 +67,7 @@ public:
   unsigned int *getPtr(int x, int y) { return &data[y * wid + x]; }
   
   void copyfrom(const Image &image, int x, int y) {
+    printf("%d/%d of %d/%d", x, y, wid, hei);
     assert(x >= 0);
     assert(y >= 0);
     assert(x + image.wid <= wid);
