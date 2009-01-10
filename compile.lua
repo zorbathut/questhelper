@@ -1,5 +1,5 @@
 
-loadfile("chain.lua")()
+loadfile("compile_chain.lua")()
 
 -- package.loadlib("/home/zorba/build/libcompile_core.so", "init")()
 -- greet()
