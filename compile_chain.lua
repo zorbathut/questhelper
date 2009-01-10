@@ -48,7 +48,11 @@ function ChainBlock:Finish()
   if self.unfinished > 0 then return end -- NOT . . . FINISHED . . . YET
   
   for k, v in pairs(self.data) do
-    --table.sort(v, function (a, b) return self.sortpred(a.subkey, b.subkey) end)
+    if self.sortpred then
+      table.sort(v, function (a, b) return self.sortpred(a.subkey, b.subkey) end)
+    else
+      table.sort(v, function (a, b) return a.subkey < b.subkey end)
+    end
     local item = self:GetItem(k)
     for _, d in pairs(v) do
       item:Data(k, d.subkey, d.value, self.process)

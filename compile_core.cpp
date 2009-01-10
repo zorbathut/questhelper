@@ -67,6 +67,11 @@ public:
   unsigned int *getPtr(int x, int y) { return &data[y * wid + x]; }
   
   void copyfrom(const Image &image, int x, int y) {
+    assert(x >= 0);
+    assert(y >= 0);
+    assert(x + image.wid <= wid);
+    assert(y + image.hei <= hei);
+    
     unsigned int *itx = getPtr(x, y);
     const unsigned int *src = image.getPtr(0, 0);
     for(int i = 0; i < image.hei; i++) {
@@ -94,8 +99,7 @@ class ImageTileWriter : boost::noncopyable {
   png_structp png_ptr;
   png_infop info_ptr;
 public:
-  ImageTileWriter(const string &fname, int xblock, int yblock, int blocksize) : temp(xblock * blocksize, yblock) {
-    printf("Opening %s %dx%d\n", fname.c_str(), xblock, yblock);
+  ImageTileWriter(const string &fname, int xblock, int yblock, int blocksize) : temp(xblock * blocksize, blocksize) {
     cury = 0;
     curx = -1;
     
@@ -133,6 +137,7 @@ public:
     vector<png_bytep> dats;
     for(int i = 0; i < chunk; i++)
       dats.push_back((png_bytep)temp.getPtr(0, i));
+
     png_write_rows(png_ptr, &dats[0], chunk);
     
     temp.clear();
@@ -142,6 +147,7 @@ public:
   }
   
   void write_tile(int x, int y, const Image &tile) {
+    printf("Tile %d/%d\n", x, y);
     assert(y >= cury);
     assert(y > cury || x > curx);
     

@@ -50,7 +50,7 @@ local chainhead = ChainBlock_Create(nil,
                   end
                   pos.zonecolor = self.zonecolors[zname]
                   if pos[1] and pos[2] and pos[3] then  -- These might be invalid if there are nils embedded in the string. They might still be useful with only one or two nils, but I've got a bunch of data and don't really need more.
-                    Output(string.format("%d@%04d@%04d", pos[1], math.floor(pos[2] / zone_image_chunksize), math.floor(pos[3] / zone_image_chunksize)), nil, pos, "zone")
+                    Output(string.format("%d@%04d@%04d", pos[1], math.floor(pos[3] / zone_image_chunksize), math.floor(pos[2] / zone_image_chunksize)), nil, pos, "zone") -- This is inverted - it's continent, y, x, for proper sorting.
                     Output(string.format("%d", pos[1]), nil, {math.floor(pos[2] / zone_image_chunksize), math.floor(pos[3] / zone_image_chunksize)}, "zone_bounds")
                   end
                 end
@@ -111,12 +111,14 @@ do
         if not subkey then
           self.bounds = value
           self.imagewriter = ImageTileWriter(string.format("intermed/zone_%s.png", key), self.bounds.ex - self.bounds.sx + 1, self.bounds.ey - self.bounds.sy + 1, zone_image_outchunk)
+          print("imagewritten")
           return
         end
         
-        local xp, yp = string.match(subkey, "%d+@(%d+)@(%d+)")
+        local yp, xp = string.match(subkey, "%d+@(%d+)@(%d+)")
         xp = xp + self.bounds.sx
         yp = yp + self.bounds.sy
+        print(key, subkey)
         self.imagewriter:write_tile(xp, yp, value)
       end,
       
