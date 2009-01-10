@@ -222,7 +222,7 @@ for f in string.gmatch(flist, "[^\n]+") do
   table.insert(filz, f)
   count = count + 1
   
-  if count == 10 then break end
+  --if count == 10 then break end
 end
 
 for k, v in pairs(filz) do
