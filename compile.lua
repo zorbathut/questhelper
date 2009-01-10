@@ -2,9 +2,12 @@
 loadfile("compile_chain.lua")()
 loadfile("compile_debug.lua")()
 
-package.loadlib("/home/zorba/build/libcompile_core.so", "init")()   -- this will fuck me someday
+ll, err = package.loadlib("/home/zorba/build/libcompile_core.so", "init")
+if not ll then print(err) return end
+ll()
 
 os.execute("rm -rf intermed")
+os.execute("mkdir intermed")
 
 math.umod = function (val, med)
   if val < 0 then
@@ -47,7 +50,8 @@ local chainhead = ChainBlock_Create(nil,
                   end
                   pos.zonecolor = self.zonecolors[zname]
                   if pos[1] and pos[2] and pos[3] then  -- These might be invalid if there are nils embedded in the string. They might still be useful with only one or two nils, but I've got a bunch of data and don't really need more.
-                    Output(string.format("%d@%d@%d", pos[1], math.floor(pos[2] / zone_image_chunksize), math.floor(pos[3] / zone_image_chunksize)), nil, pos, "zone")
+                    Output(string.format("%d@%04d@%04d", pos[1], math.floor(pos[2] / zone_image_chunksize), math.floor(pos[3] / zone_image_chunksize)), nil, pos, "zone")
+                    Output(string.format("%d", pos[1]), nil, {math.floor(pos[2] / zone_image_chunksize), math.floor(pos[3] / zone_image_chunksize)}, "zone_bounds")
                   end
                 end
               end end
@@ -65,7 +69,7 @@ Zone collation
 ]]
 
 do
-  local zone_collector = ChainBlock_Create(chainhead,
+  local zone_draw = ChainBlock_Create({chainhead},
     function (key) return {
       imagepiece = Image(zone_image_outchunk, zone_image_outchunk),
       
@@ -74,10 +78,54 @@ do
       end,
       
       Finish = function(self, Output)
-        Output("", nil, {loc = key, image = imagepiece})
+        Output(string.gsub(key, "@.*", ""), key, self.imagepiece, "zone_stitch")
       end,
     } end,
     nil, "zone"
+  )
+  
+  local zone_bounds = ChainBlock_Create({chainhead},
+    function (key) return {
+      sx = 1000,
+      sy = 1000,
+      ex = -1000,
+      ey = -1000,
+      
+      Data = function(self, key, subkey, value, Output)
+        self.sx = math.min(self.sx, value[1])
+        self.sy = math.min(self.sy, value[2])
+        self.ex = math.max(self.ex, value[1])
+        self.ey = math.max(self.ey, value[2])
+      end,
+      
+      Finish = function(self, Output)
+        Output(key, nil, {sx = self.sx, sy = self.sy, ex = self.ex, ey = self.ey}, "zone_stitch")
+      end,
+    } end,
+    nil, "zone_bounds"
+  )
+  
+  local stitch = ChainBlock_Create({zone_draw, zone_bounds},
+    function (key) return {
+      Data = function(self, key, subkey, value, Output)
+        if not subkey then
+          self.bounds = value
+          self.imagewriter = ImageTileWriter(string.format("intermed/zone_%s.png", key), self.bounds.ex - self.bounds.sx + 1, self.bounds.ey - self.bounds.sy + 1, zone_image_outchunk)
+          return
+        end
+        
+        local xp, yp = string.match(subkey, "%d+@(%d+)@(%d+)")
+        xp = xp + self.bounds.sx
+        yp = yp + self.bounds.sy
+        self.imagewriter:write_tile(xp, yp, value)
+      end,
+      
+      Finish = function(self, Output)
+        print("finish", key)
+        self.imagewriter:finish()
+      end,
+    } end,
+    nil, "zone_stitch"
   )
 end
 
@@ -87,7 +135,7 @@ Error collation
 ]]
 
 do
-  local error_collater = ChainBlock_Create(chainhead,
+  local error_collater = ChainBlock_Create({chainhead},
     function (key) return {
       accum = {},
       
@@ -138,7 +186,7 @@ do
       return rv
     end
     
-    local error_writer = ChainBlock_Create(error_collater,
+    local error_writer = ChainBlock_Create({error_collater},
       function (key) return {
         Data = function (self, key, subkey, value, Output)
           os.execute("mkdir -p intermed/error/" .. value.ver)
@@ -184,3 +232,5 @@ end
 
 print("Finishing")
 chainhead:Finish()
+
+check_semiass_failure()

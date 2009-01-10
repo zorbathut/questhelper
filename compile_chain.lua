@@ -22,8 +22,14 @@ function ChainBlock_Create(linkfrom, factory, sortpred, filter)
   ninst.items = {}
   ninst.data = {}
   ninst.linkto = {}
+  ninst.unfinished = 0
   ninst.process = function (key, subkey, value, identifier) for _, v in pairs(ninst.linkto) do v:Insert(key, subkey, value, identifier) end end
-  if linkfrom then linkfrom:AddLinkTo(ninst) end
+  if linkfrom then
+    for k, v in pairs(linkfrom) do
+      v:AddLinkTo(ninst)
+      ninst.unfinished = ninst.unfinished + 1
+    end
+  end
   return ninst
 end
 
@@ -38,8 +44,11 @@ function ChainBlock:Insert(key, subkey, value, identifier)
 end
 
 function ChainBlock:Finish()
+  self.unfinished = self.unfinished - 1
+  if self.unfinished > 0 then return end -- NOT . . . FINISHED . . . YET
+  
   for k, v in pairs(self.data) do
-    table.sort(v, function (a, b) return self.sortpred(a.subkey, b.subkey) end)
+    --table.sort(v, function (a, b) return self.sortpred(a.subkey, b.subkey) end)
     local item = self:GetItem(k)
     for _, d in pairs(v) do
       item:Data(k, d.subkey, d.value, self.process)
@@ -64,4 +73,9 @@ function ChainBlock:GetItem(key)
     self.items[key] = self.factory(key)
   end
   return self.items[key]
+end
+
+function ChainBlock:GetData(key)
+  if not self.data[key] then print("Makin' new data repo, " .. key) self.data[key] = {} end
+  return self.data[key]
 end
