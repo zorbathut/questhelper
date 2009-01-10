@@ -1,4 +1,4 @@
-./build_01_copy && \
+#./build_01_copy && \
 ./build_02_decompress && \
 ./build_03_collate && \
 ./build_04_update && \
