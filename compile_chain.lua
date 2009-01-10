@@ -42,13 +42,14 @@ function ChainBlock:Finish()
       item:Data(k, d.subkey, d.value, self.process)
     end
   end
+  self.data = nil
   for _, v in pairs(self.items) do
-    if v.Finish then v:Finish() end
+    if v.Finish then v:Finish(self.process) end
   end
+  self.items = nil
   for _, v in pairs(self.linkto) do
     v:Finish()
   end
-  self.data = nil
 end
 
 function ChainBlock:AddLinkTo(item)

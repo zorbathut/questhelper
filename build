@@ -6,5 +6,4 @@
 ./build_06_identify && \
 ./build_07_collate && \
 ./build_08_distill && \
-./build_09_dump && \
 scons compile
