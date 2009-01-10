@@ -42,8 +42,9 @@ for tag in touchfiles:
     os.remove(realfiles[tag])
   if not tag in realfiles:
     print("Linking %s" % tag)
-    if not os.path.exists("data/08/%s" % (tag[0:1])):
-      os.makedirs("data/08/%s" % (tag[0:1]))
-    os.symlink("../../../%s" % distillfiles[tag], "data/08/%s/%s" % (tag[0:1], tag))
+    os.symlink("../../%s" % distillfiles[tag], "data/08/%s" % tag)
+    #if not os.path.exists("data/08/%s" % (tag[0:1])):
+      #os.makedirs("data/08/%s" % (tag[0:1]))
+    #os.symlink("../../../%s" % distillfiles[tag], "data/08/%s/%s" % (tag[0:1], tag))
 
 
