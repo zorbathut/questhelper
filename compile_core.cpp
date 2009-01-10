@@ -67,7 +67,6 @@ public:
   unsigned int *getPtr(int x, int y) { return &data[y * wid + x]; }
   
   void copyfrom(const Image &image, int x, int y) {
-    printf("%d/%d of %d/%d", x, y, wid, hei);
     assert(x >= 0);
     assert(y >= 0);
     assert(x + image.wid <= wid);
@@ -148,7 +147,6 @@ public:
   }
   
   void write_tile(int x, int y, const Image &tile) {
-    printf("Tile %d/%d\n", x, y);
     assert(y >= cury);
     assert(y > cury || x > curx);
     
@@ -171,7 +169,6 @@ public:
   }
   
   ~ImageTileWriter() {
-    printf("Closing %dx%d\n", wid, hei);
     semi_assert(!fp);
   }
 };

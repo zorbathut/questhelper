@@ -21,7 +21,7 @@ local zone_image_chunksize = 1024
 local zone_image_descale = 4
 local zone_image_outchunk = zone_image_chunksize / zone_image_descale
 
-local chainhead = ChainBlock_Create(nil,
+local chainhead = ChainBlock_Create("chainhead", nil,
   function () return {
     zonecolors = {},
     
@@ -69,7 +69,7 @@ Zone collation
 ]]
 
 do
-  local zone_draw = ChainBlock_Create({chainhead},
+  local zone_draw = ChainBlock_Create("zone_draw", {chainhead},
     function (key) return {
       imagepiece = Image(zone_image_outchunk, zone_image_outchunk),
       
@@ -84,7 +84,7 @@ do
     nil, "zone"
   )
   
-  local zone_bounds = ChainBlock_Create({chainhead},
+  local zone_bounds = ChainBlock_Create("zone_bounds", {chainhead},
     function (key) return {
       sx = 1000,
       sy = 1000,
@@ -105,25 +105,23 @@ do
     nil, "zone_bounds"
   )
   
-  local stitch = ChainBlock_Create({zone_draw, zone_bounds},
+  local zone_stitch = ChainBlock_Create("zone_stitch", {zone_draw, zone_bounds},
     function (key) return {
       Data = function(self, key, subkey, value, Output)
         if not subkey then
           self.bounds = value
           self.imagewriter = ImageTileWriter(string.format("intermed/zone_%s.png", key), self.bounds.ex - self.bounds.sx + 1, self.bounds.ey - self.bounds.sy + 1, zone_image_outchunk)
-          print("imagewritten")
           return
         end
         
         local yp, xp = string.match(subkey, "%d+@(%d+)@(%d+)")
-        xp = xp + self.bounds.sx
-        yp = yp + self.bounds.sy
-        print(key, subkey)
+        xp = xp - self.bounds.sx
+        yp = yp - self.bounds.sy
+
         self.imagewriter:write_tile(xp, yp, value)
       end,
       
       Finish = function(self, Output)
-        print("finish", key)
         self.imagewriter:finish()
       end,
     } end,
@@ -137,7 +135,7 @@ Error collation
 ]]
 
 do
-  local error_collater = ChainBlock_Create({chainhead},
+  local error_collater = ChainBlock_Create("error_collater", {chainhead},
     function (key) return {
       accum = {},
       
@@ -188,7 +186,7 @@ do
       return rv
     end
     
-    local error_writer = ChainBlock_Create({error_collater},
+    local error_writer = ChainBlock_Create("error_writer", {error_collater},
       function (key) return {
         Data = function (self, key, subkey, value, Output)
           os.execute("mkdir -p intermed/error/" .. value.ver)
