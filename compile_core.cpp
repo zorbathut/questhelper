@@ -76,8 +76,8 @@ public:
     const unsigned int *src = image.getPtr(0, 0);
     for(int i = 0; i < image.hei; i++) {
       memcpy(itx, src, sizeof(unsigned int) * image.wid);
-      itx += hei;
-      src += image.hei;
+      itx += wid;
+      src += image.wid;
     }
   }
   
@@ -98,8 +98,10 @@ class ImageTileWriter : boost::noncopyable {
   FILE *fp;
   png_structp png_ptr;
   png_infop info_ptr;
+  
 public:
   ImageTileWriter(const string &fname, int xblock, int yblock, int blocksize) : temp(xblock * blocksize, blocksize) {
+    printf("Constructing, temp is %dx%d\n", xblock * blocksize, blocksize);
     cury = 0;
     curx = -1;
     
@@ -122,13 +124,13 @@ public:
     
     png_init_io(png_ptr, fp);
     
-    png_set_filter(png_ptr, 0, PNG_ALL_FILTERS);
-    png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
+    //png_set_filter(png_ptr, 0, PNG_ALL_FILTERS);
+    //png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
     
     png_set_IHDR(png_ptr, info_ptr, wid * chunk, hei * chunk, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-    png_set_filler(png_ptr, 0, PNG_FILLER_BEFORE);
     
     png_write_info(png_ptr, info_ptr);
+    png_set_filler(png_ptr, 255, PNG_FILLER_AFTER);
   }
   
   void flush_row() {
@@ -153,6 +155,7 @@ public:
     while(y > cury)
       flush_row();
     
+    curx = x;
     temp.copyfrom(tile, x * chunk, 0);
   }
   

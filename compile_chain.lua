@@ -10,6 +10,15 @@ Parameters to a block consist only of the construction function for the type it'
 No need for inheritance, honestly.
 ]]
 
+local nextProgressTime = 0
+
+function ProgressMessage(msg)
+  if os.time() > nextProgressTime then
+    nextProgressTime = os.time() + 15
+    print(msg)
+  end
+end
+
 local ChainBlock = {}
 local ChainBlock_mt = { __index = ChainBlock }
 
@@ -66,7 +75,7 @@ function ChainBlock:Finish()
     
     local ict = 0
     for _, d in pairs(v) do
-      if math.mod(ict, 1000) == 0 then print(string.format("Sorting %s, %d/%d + %d/%d", self.id, sdcc, sdc, ict, #v)) end
+      ProgressMessage(string.format("Sorting %s, %d/%d + %d/%d", self.id, sdcc, sdc, ict, #v))
       ict = ict + 1
       item:Data(k, d.subkey, d.value, self.process)
     end

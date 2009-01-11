@@ -21,10 +21,10 @@ local zone_image_chunksize = 1024
 local zone_image_descale = 4
 local zone_image_outchunk = zone_image_chunksize / zone_image_descale
 
+local zonecolors = {}
+
 local chainhead = ChainBlock_Create("chainhead", nil,
   function () return {
-    zonecolors = {},
-    
     Data = function (self, key, subkey, value, Output)
       dat = loadfile(key)()
       for k, v in pairs(dat.QuestHelper_Errors) do
@@ -38,25 +38,40 @@ local chainhead = ChainBlock_Create("chainhead", nil,
         if string.find(verchunk, "enUS") then -- hacky hacky
           -- zones!
           if v.zone then for zname, zdat in pairs(v.zone) do
+            local items = {}
+            
             for _, key in pairs({"border", "update"}) do
-              if zdat[key] then for idx, chunk in pairs(zdat[key]) do
-                if math.mod(#chunk, 11) ~= 0 then print("Non-splittable chunk, " .. tostring(#chunk)) break end -- hmmmm
+              if items and zdat[key] then for idx, chunk in pairs(zdat[key]) do
+                if math.mod(#chunk, 11) ~= 0 then items = nil end
+                if not items then break end -- abort, abort
+                
                 assert(math.mod(#chunk, 11) == 0, tostring(#chunk))
                 for point = 1, #chunk, 11 do
                   local pos = {slice_loc(string.sub(chunk, point, point + 10))}
-                  if not self.zonecolors[zname] then
+                  if not zonecolors[zname] then
                     local r, g, b = math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255))
-                    self.zonecolors[zname] = r * 65536 + g * 256 + b
+                    zonecolors[zname] = r * 65536 + g * 256 + b
                   end
-                  pos.zonecolor = self.zonecolors[zname]
+                  pos.zonecolor = zonecolors[zname]
                   if pos[1] and pos[2] and pos[3] then  -- These might be invalid if there are nils embedded in the string. They might still be useful with only one or two nils, but I've got a bunch of data and don't really need more.
-                    Output(string.format("%d@%04d@%04d", pos[1], math.floor(pos[3] / zone_image_chunksize), math.floor(pos[2] / zone_image_chunksize)), nil, pos, "zone") -- This is inverted - it's continent, y, x, for proper sorting.
-                    Output(string.format("%d", pos[1]), nil, {math.floor(pos[2] / zone_image_chunksize), math.floor(pos[3] / zone_image_chunksize)}, "zone_bounds")
+                    if pos[1] ~= 0 and pos[1] ~= 3 and pos[1] ~= -77 then
+                      items = nil
+                      break
+                    end
+                    
+                    table.insert(items, pos)
                   end
                 end
               end end
             end
+            
+            if items then for _, v in pairs(items) do
+              Output(string.format("%d@%04d@%04d", v[1], math.floor(v[3] / zone_image_chunksize), math.floor(v[2] / zone_image_chunksize)), nil, v, "zone") -- This is inverted - it's continent, y, x, for proper sorting.
+              Output(string.format("%d", v[1]), nil, {math.floor(v[2] / zone_image_chunksize), math.floor(v[3] / zone_image_chunksize)}, "zone_bounds")
+            end end
           end end
+        else
+          print("Dumped, locale " .. verchunk)
         end
       end
     end
@@ -72,13 +87,15 @@ do
   local zone_draw = ChainBlock_Create("zone_draw", {chainhead},
     function (key) return {
       imagepiece = Image(zone_image_outchunk, zone_image_outchunk),
+      ct = 0,
       
       Data = function(self, key, subkey, value, Output)
         self.imagepiece:set(math.floor(math.umod(value[2], zone_image_chunksize) / zone_image_descale), math.floor(math.umod(value[3], zone_image_chunksize) / zone_image_descale), value.zonecolor)
+        self.ct = self.ct + 1
       end,
       
       Finish = function(self, Output)
-        Output(string.gsub(key, "@.*", ""), key, self.imagepiece, "zone_stitch")
+        if self.ct > 0 then Output(string.gsub(key, "@.*", ""), key, self.imagepiece, "zone_stitch") end
       end,
     } end,
     nil, "zone"
@@ -86,20 +103,25 @@ do
   
   local zone_bounds = ChainBlock_Create("zone_bounds", {chainhead},
     function (key) return {
-      sx = 1000,
-      sy = 1000,
-      ex = -1000,
-      ey = -1000,
+      sx = 1000000,
+      sy = 1000000,
+      ex = -1000000,
+      ey = -1000000,
+      
+      ct = 0,
       
       Data = function(self, key, subkey, value, Output)
         self.sx = math.min(self.sx, value[1])
         self.sy = math.min(self.sy, value[2])
         self.ex = math.max(self.ex, value[1])
         self.ey = math.max(self.ey, value[2])
+        self.ct = self.ct + 1
       end,
       
       Finish = function(self, Output)
-        Output(key, nil, {sx = self.sx, sy = self.sy, ex = self.ex, ey = self.ey}, "zone_stitch")
+        if self.ct > 1000 then
+          Output(key, nil, {sx = self.sx, sy = self.sy, ex = self.ex, ey = self.ey}, "zone_stitch")
+        end
       end,
     } end,
     nil, "zone_bounds"
@@ -114,7 +136,10 @@ do
           return
         end
         
-        local yp, xp = string.match(subkey, "%d+@(%d+)@(%d+)")
+        if not self.bounds then return end
+        
+        local yp, xp = string.match(subkey, "[%d-]+@([%d-]+)@([%d-]+)")
+        if not xp or not yp then print(subkey) end
         xp = xp - self.bounds.sx
         yp = yp - self.bounds.sy
 
@@ -122,7 +147,7 @@ do
       end,
       
       Finish = function(self, Output)
-        self.imagewriter:finish()
+        if self.imagewriter then self.imagewriter:finish() end
       end,
     } end,
     nil, "zone_stitch"
@@ -216,13 +241,16 @@ end
 
 local count = 0
 
+--local s = 3500
+--local e = 3700
+
 flist = io.popen("ls data/08"):read("*a")
 local filz = {}
 for f in string.gmatch(flist, "[^\n]+") do
-  table.insert(filz, f)
+  if not s or count >= s then table.insert(filz, f) end
   count = count + 1
   
-  --if count == 10 then break end
+  if count == e then break end
 end
 
 for k, v in pairs(filz) do
