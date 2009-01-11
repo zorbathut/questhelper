@@ -15,7 +15,7 @@ QuestHelper_Translations.deDE =
   NOT_UNZIPPED_CORRECTLY = "QuestHelper wurde nicht ordnungsgemäß installiert. Wir empfehlen den Curse-Client oder 7zip für die Installation. Achte darauf, dass Unterverzeichnisse entpackt werden.",
   PLEASE_DONATE = "%h(QuestHelper lebt nur von Spenden!) Jeder Beitrag ist willkommen. Ein paar Dollar im Monat stellen sicher, dass ich am Addon arbeite und es aktualisiere. Gib %h(/qh donate) ein, um weitere Informationen zu erhalten.",
   HOW_TO_CONFIGURE = "Questhelper hat noch keine funktionierende Einstellungsseite, aber Sie können es konfigurieren wenn Sie %h(/qh settings) eintippen. Die Hilfe ist verfügbar mit der Eingabe von %h(/qh help).",
-  TIME_TO_UPDATE = nil,
+  TIME_TO_UPDATE = "Warscheinlich ist eine %h(neue QuestHelper-Version) erhältlich. Neue Versionen enthalten neue Funktionen, neue Quest-Daten und behobene Fehler. Du solltest updaten!",
   
   -- Route related text.
   ROUTES_CHANGED = "Die Flugstrecken für deinen Charakter wurden verändert.",
@@ -26,9 +26,9 @@ QuestHelper_Translations.deDE =
   UPDATING_ROUTE = "Strecke wird neu berechnet.",
   
   -- Special tracker text
-  QH_LOADING = nil,
-  QUESTS_HIDDEN_1 = nil,
-  QUESTS_HIDDEN_2 = nil,
+  QH_LOADING = "QuestHelper wird geladen: (%1%%)",
+  QUESTS_HIDDEN_1 = "Quests sind vielleicht ausgeblendet",
+  QUESTS_HIDDEN_2 = "(\"/qh hidde\" zur Liste",
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Verfügbare Sprachen:",
@@ -71,7 +71,7 @@ QuestHelper_Translations.deDE =
   CREATED_OBJ = "Erstellt: %1",
   REMOVED_OBJ = "Gelöscht: %1",
   USER_OBJ = "Benutzerziel: %h1",
-  UNKNOWN_OBJ = "Ich weiß nicht, wo du für dieses Ziel hingehen solltest.",
+  UNKNOWN_OBJ = "QuestHelper weiß nicht, wo du für dieses Ziel hingehen solltest.",
   INACCESSIBLE_OBJ = "QuestHelper konnte keinen sinnvollen Ort für %h1 finden. Wir haben deiner Aufgabenliste möglicherweise einen nicht zu findenden Ort hinzugefügt. Wenn du eine nützliche Version dieses Objekts findest, sende deine Daten ein! (%h(/qh submit))",
   
   SEARCHING_STATE = "Suche: %1",
@@ -136,7 +136,7 @@ QuestHelper_Translations.deDE =
   NAG_MULTIPLE_FP = "%1 Flugmeistern",
   NAG_MULTIPLE_QUEST = "%1 Quests",
   NAG_MULTIPLE_ROUTE = "%1 Flugstrecken",
-  NAG_MULTIPLE_ITEM_OBJ = "%1 Gegenstandsielen",
+  NAG_MULTIPLE_ITEM_OBJ = "%1 Gegenstandszielen",
   NAG_MULTIPLE_OBJECT_OBJ = "%1 Objektzielen",
   NAG_MULTIPLE_MONSTER_OBJ = "%1 Monsterzielen",
   NAG_MULTIPLE_EVENT_OBJ = "%1 Ereigniszielen",
@@ -194,7 +194,7 @@ QuestHelper_Translations.deDE =
   -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
   TOOLTIP_WATCHED = "Von QuestHelper beobachtet.",
   TOOLTIP_QUEST = "Für die Quest %h1.",
-  TOOLTIP_PURCHASE = "Erwerbe %h1.",
+  TOOLTIP_PURCHASE = "Kuafe %h1.",
   TOOLTIP_SLAY = "Töte für %h1.",
   TOOLTIP_LOOT = "Erbeute für %h1."
  }

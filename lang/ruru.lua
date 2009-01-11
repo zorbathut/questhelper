@@ -14,7 +14,7 @@ QuestHelper_Translations.ruRU =
   PLEASE_RESTART = "При запуске КвестХелпера произошла ошибка. Пожалуйста выйдите из игры полностью и попробуйте еще раз.",
   NOT_UNZIPPED_CORRECTLY = "КвестХелпер был установлен некорректно. Рекомендуется использовать либо Curse Client, либо программу 7zip для инсталляции. Убедитесь, что поддиректории распаковываются верно.",
   PLEASE_DONATE = "%h(Дело КвестХелпера живет благодаря Вашим пожертвованиям!) Мы будем благодарны за Все, что вы сможете пожертвовать - даже несколько долларов в месяц позволит быть уверенным, что я продолжу обновлять и работать над этим аддоном. Введите %(/qh donate) для информации.",
-  HOW_TO_CONFIGURE = nil,
+  HOW_TO_CONFIGURE = "QuestHelper пока не имеет работающей страници опций, но может быть настроен при введинии %h(/qh settings). Помощь доступна при наборе %h(/qh help).",
   TIME_TO_UPDATE = nil,
   
   -- Route related text.
@@ -36,7 +36,7 @@ QuestHelper_Translations.ruRU =
   LOCALE_UNKNOWN = "Локализация %h1 неизвестна.",
   
   -- Words used for objectives.
-  SLAY_VERB = "Завалить",
+  SLAY_VERB = "Убить",
   ACQUIRE_VERB = "Добыть",
   
   OBJECTIVE_REASON = "%1 %h2 для квеста %h3.", -- %1 is a verb, %2 is a noun (item or monster)
