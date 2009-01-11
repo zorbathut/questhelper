@@ -1,4 +1,4 @@
--- Please see lang_enus.lua for reference.
+-- Please see enus.lua for reference.
 
 QuestHelper_Translations.koKR =
  {
@@ -15,6 +15,7 @@ QuestHelper_Translations.koKR =
   NOT_UNZIPPED_CORRECTLY = "QuestHelper 설치가 잘못되었습니다. Curse Client나 7zip을 이용해서 설치하시기를 권장합니다. 하위 폴더가 설치되었는지 확인하세요.",
   PLEASE_DONATE = nil,
   HOW_TO_CONFIGURE = "퀘스트 헬퍼는 설정 페이지를 가지고 있지 않지만, %h(/qh settings)를 채팅창에 입력하여 설정할 수 있습니다. 도움말은 %h(/qh help)를 입력하세요.",
+  TIME_TO_UPDATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "당신의 이동 경로가 변경되었습니다.",
@@ -23,6 +24,11 @@ QuestHelper_Translations.koKR =
   TALK_TO_FLIGHT_MASTER_COMPLETE = "완료",
   WILL_RESET_PATH = "이동 정보가 재설정 됩니다.",
   UPDATING_ROUTE = "경로 재설정",
+  
+  -- Special tracker text
+  QH_LOADING = nil,
+  QUESTS_HIDDEN_1 = nil,
+  QUESTS_HIDDEN_2 = nil,
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "이용 가능한 로케일 :",
@@ -127,15 +133,15 @@ QuestHelper_Translations.koKR =
   NAG_SINGLE_REPUTATION_OBJ = "목표 명예",
   NAG_SINGLE_PLAYER_OBJ = "목표 플레이어",
   
-  NAG_MULTIPLE_FP = nil,
-  NAG_MULTIPLE_QUEST = "%1 퀘스트",
-  NAG_MULTIPLE_ROUTE = "%1 비행 경로",
-  NAG_MULTIPLE_ITEM_OBJ = "%1 목표 아이템",
-  NAG_MULTIPLE_OBJECT_OBJ = "%1 목표 목적",
-  NAG_MULTIPLE_MONSTER_OBJ = "%1 목표 몬스터",
-  NAG_MULTIPLE_EVENT_OBJ = "%1 목표 이벤트",
-  NAG_MULTIPLE_REPUTATION_OBJ = "%1 목표 명예",
-  NAG_MULTIPLE_PLAYER_OBJ = "%1 목표 플레이어",
+  NAG_MULTIPLE_FP = "비행 조련사 도우미 %1",
+  NAG_MULTIPLE_QUEST = "퀘스트 %1",
+  NAG_MULTIPLE_ROUTE = "비행 경로 %1",
+  NAG_MULTIPLE_ITEM_OBJ = "목표 아이템 %1",
+  NAG_MULTIPLE_OBJECT_OBJ = "목표 목적 %1",
+  NAG_MULTIPLE_MONSTER_OBJ = "목표 몬스터 %1",
+  NAG_MULTIPLE_EVENT_OBJ = "목표 이벤트 %1",
+  NAG_MULTIPLE_REPUTATION_OBJ = "목표 명예 %1",
+  NAG_MULTIPLE_PLAYER_OBJ = "목표 플레이어 %1",
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1의 진행상황 :",
@@ -145,7 +151,7 @@ QuestHelper_Translations.koKR =
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "퀘스트헬퍼",
-  QH_BUTTON_TOOLTIP1 = nil,
+  QH_BUTTON_TOOLTIP1 = "왼쪽 클릭 : 경로 정보 %1",
   QH_BUTTON_TOOLTIP2 = "오른쪽 클릭: 설정 메뉴",
   QH_BUTTON_SHOW = "보이기",
   QH_BUTTON_HIDE = "숨기기",
@@ -154,31 +160,31 @@ QuestHelper_Translations.koKR =
   MENU_SETTINGS = "설정",
   MENU_ENABLE = "켜기",
   MENU_DISABLE = "끄기",
-  MENU_OBJECTIVE_TIPS = "%1 목표 툴팁",
+  MENU_OBJECTIVE_TIPS = "목표 툴팁 %1",
   MENU_TRACKER_OPTIONS = "퀘스트 추적기",
   MENU_QUEST_TRACKER = "%1 퀘스트 추적기",
-  MENU_TRACKER_LEVEL = "%1 퀘스트 레벨",
-  MENU_TRACKER_QCOLOUR = "%1 퀘스트 레벨 색깔",
-  MENU_TRACKER_OCOLOUR = "%1 퀘스트 진행 색깔",
+  MENU_TRACKER_LEVEL = "퀘스트 레벨 %1",
+  MENU_TRACKER_QCOLOUR = "퀘스트 레벨 색깔 %1",
+  MENU_TRACKER_OCOLOUR = "퀘스트 진행 색깔 %1",
   MENU_TRACKER_SCALE = "추적기 크기",
   MENU_TRACKER_RESET = "위치 초기화",
   MENU_FLIGHT_TIMER = "비행 시간 타이머",
-  MENU_ANT_TRAILS = nil,
-  MENU_WAYPOINT_ARROW = "%1 웨이포인트 화살표",
-  MENU_MAP_BUTTON = "%1 지도 버튼",
-  MENU_ZONE_FILTER = "%1 존 필터",
+  MENU_ANT_TRAILS = "경로 점선 %1",
+  MENU_WAYPOINT_ARROW = "웨이포인트 화살표 %1",
+  MENU_MAP_BUTTON = "지도 버튼 %1",
+  MENU_ZONE_FILTER = "존 필터 %1",
   MENU_DONE_FILTER = "%1 완료 필터",
   MENU_BLOCKED_FILTER = nil,
   MENU_WATCHED_FILTER = nil,
-  MENU_LEVEL_FILTER = "%1 레벨 필터",
+  MENU_LEVEL_FILTER = "레벨 필터 %1",
   MENU_LEVEL_OFFSET = "레벨 필터 레벨",
   MENU_ICON_SCALE = "아이콘 크기",
   MENU_FILTERS = "필터",
   MENU_PERFORMANCE = nil,
   MENU_LOCALE = "로케일",
   MENU_PARTY = "파티",
-  MENU_PARTY_SHARE = "%1 목표 공유",
-  MENU_PARTY_SOLO = "%1 파티 무시",
+  MENU_PARTY_SHARE = "목표 공유 %1",
+  MENU_PARTY_SOLO = "파티 무시 %1",
   MENU_HELP = "도움말",
   MENU_HELP_SLASH = "슬래쉬 명령어",
   MENU_HELP_CHANGES = "바뀐점",

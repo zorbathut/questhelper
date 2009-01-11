@@ -1,4 +1,4 @@
--- Please see lang_enus.lua for reference.
+-- Please see enus.lua for reference.
 
 QuestHelper_Translations.frFR =
  {
@@ -15,6 +15,7 @@ QuestHelper_Translations.frFR =
   NOT_UNZIPPED_CORRECTLY = "QuestHelper n'a pas été installé correctement. Nous recommandons d'utiliser le Curse Client ou 7zip pour l'installation. Assurez vous que les sous-dossiers sont extraits",
   PLEASE_DONATE = "%h(QuestHelper survit pour le moment grâce à vos dons !) Toute contribution sera appréciée, et quelques dollars par mois me permettront d'assurer les mises à jour et le bon fonctionnement. Entrez %h(/qh donate) pour plus d'informations. ",
   HOW_TO_CONFIGURE = "QuestHelper n'a pas encore une page de configuration fonctionelle, mais peut être configuré en tapant %h(/qh settings). L'aide est disponible en utilisant %h(/qh help).",
+  TIME_TO_UPDATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "Les itinéraires de vol de votre personnage ont été modifiés.",
@@ -23,6 +24,11 @@ QuestHelper_Translations.frFR =
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Merci.",
   WILL_RESET_PATH = "Réinitialisation des informations de route.",
   UPDATING_ROUTE = "Route actualisée.",
+  
+  -- Special tracker text
+  QH_LOADING = nil,
+  QUESTS_HIDDEN_1 = nil,
+  QUESTS_HIDDEN_2 = nil,
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Langues disponibles:",

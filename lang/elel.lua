@@ -1,4 +1,4 @@
--- Please see lang_enus.lua for reference.
+-- Please see enus.lua for reference.
 
 QuestHelper_Translations.elEL =
  {
@@ -15,6 +15,7 @@ QuestHelper_Translations.elEL =
   NOT_UNZIPPED_CORRECTLY = "Ο Βοηθός Αποστολών δεν εγκαταστάθηκε σωστά. Δοκιμάστε πάλι και κάντε σωστή εξαγωγή με το Zip.",
   PLEASE_DONATE = "%h (ο βοηθός αποστολών επιβιώνει μόνο με δωρεές!).Ότι έχετε ευχαρίστηση θα μας βοηθήσει να λειτουργούμε.Πληκτρολογήστε %h(/qh donate) για περισσότερες πληροφορίες.",
   HOW_TO_CONFIGURE = nil,
+  TIME_TO_UPDATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "Οι διαδρομές πτήσεις έχουν αλλάξει για τον χαρακτήρα σας.",
@@ -23,6 +24,11 @@ QuestHelper_Translations.elEL =
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Ευχαριστώ.",
   WILL_RESET_PATH = "Θα ξαναφορτώσει τις πληροφορίες διαδρομής.",
   UPDATING_ROUTE = "Ανανέωση διαδρομής.",
+  
+  -- Special tracker text
+  QH_LOADING = nil,
+  QUESTS_HIDDEN_1 = nil,
+  QUESTS_HIDDEN_2 = nil,
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Διαθέσιμες Γλωσσες:",

@@ -1,4 +1,4 @@
--- Please see lang_enus.lua for reference.
+-- Please see enus.lua for reference.
 
 QuestHelper_Translations.esMX =
  {
@@ -15,6 +15,7 @@ QuestHelper_Translations.esMX =
   NOT_UNZIPPED_CORRECTLY = nil,
   PLEASE_DONATE = "%h (¡QuestHelper actualmente sobrevive de sus donaciones!) Cualquier contibución suya es apreciada, y solo unos pocos dólares al mes aseguran que yo lo mantendré actualizado y en funcionamiento. Teclee %h(/qh donate) para mas información.",
   HOW_TO_CONFIGURE = nil,
+  TIME_TO_UPDATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "Las rutas de vuelo de su personaje han sido modificadas.",
@@ -23,6 +24,11 @@ QuestHelper_Translations.esMX =
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Gracias.",
   WILL_RESET_PATH = "Se restablecerá la información de rutas.",
   UPDATING_ROUTE = "Actualizando ruta.",
+  
+  -- Special tracker text
+  QH_LOADING = nil,
+  QUESTS_HIDDEN_1 = nil,
+  QUESTS_HIDDEN_2 = nil,
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Idiomas disponibles:",

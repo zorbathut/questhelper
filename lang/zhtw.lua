@@ -1,4 +1,4 @@
--- Please see lang_enus.lua for reference.
+-- Please see enus.lua for reference.
 
 QuestHelper_Translations.zhTW =
  {
@@ -15,6 +15,7 @@ QuestHelper_Translations.zhTW =
   NOT_UNZIPPED_CORRECTLY = nil,
   PLEASE_DONATE = "有關捐助給作者持續更新 QuestHelper 的方式, 請輸入 /qh donate 查看",
   HOW_TO_CONFIGURE = "輸入 /qh settings 可進入QuestHelper GUI設定頁面, 或輸入 /qh help 查看指令.",
+  TIME_TO_UPDATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "你角色的飛行路徑資訊已經更新了。",
@@ -23,6 +24,11 @@ QuestHelper_Translations.zhTW =
   TALK_TO_FLIGHT_MASTER_COMPLETE = "感謝您。",
   WILL_RESET_PATH = "將重新擬定路徑的資訊",
   UPDATING_ROUTE = "更新路線",
+  
+  -- Special tracker text
+  QH_LOADING = nil,
+  QUESTS_HIDDEN_1 = nil,
+  QUESTS_HIDDEN_2 = nil,
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "可使用的語系：",

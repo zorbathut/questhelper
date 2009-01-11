@@ -1,4 +1,4 @@
--- Please see lang_enus.lua for reference.
+-- Please see enus.lua for reference.
 
 QuestHelper_Translations.nlNL =
  {
@@ -7,22 +7,28 @@ QuestHelper_Translations.nlNL =
   
   -- Messages used when starting.
   LOCALE_ERROR = "Sorry, de vertaling van je opgeslagen data komt niet overeen met de taal van je WoW client. Om QuestHelper te gebruiken herstel je de vertaling of verwijder je de data door het volgende te typen: %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Ik kan niet opstarten, omdat ik bang ben anders je saved data kapot te maken. Wacht alsjeblieft op een patch die wel deze zone layout aankan.",
+  ZONE_LAYOUT_ERROR = "Ik kan niet opstarten, omdat ik bang ben anders je opgeslagen data kapot te maken. Wacht alsjeblieft op een patch die wel deze zone layout aankan.",
   DOWNGRADE_ERROR = "Je opgeslagen data is niet bruikbaar met deze versie van QuestHelper. Gebruik een nieuwere versie of verwijder je 'saved variables' data.",
   HOME_NOT_KNOWN = "Je thuis is niet bekend. Praat met een innkeeper om deze in te stellen.",
   PRIVATE_SERVER = "Private servers worden niet door QuestHelper ondersteund.",
   PLEASE_RESTART = "Er is een error gevonden tijdens het opstarten van World of Warcraft, exit dit programma helemaal en probeer het opnieuw.",
-  NOT_UNZIPPED_CORRECTLY = nil,
-  PLEASE_DONATE = nil,
+  NOT_UNZIPPED_CORRECTLY = "QuestHelper is niet goed geinstalleerd. we raden aan om de curse cleint of 7zip te installeren. Controleer of de sub-mappen uit zijn gepakt.",
+  PLEASE_DONATE = "%h(QuestHelper currently survives on your donations!) Alles wat je kunt missen is welkom, en een paar euro per maand zorgen ervoor dat ik het kan updaten en werkend kan houden. Type %h(/qh donate) voor meer informatie.",
   HOW_TO_CONFIGURE = "Questelper heeft nog geen werkende settings pagina, maar dit kan geconfigureerd worden door %h(/qh settings) te typen. Hulp is beschikbaar met %h(/qh help).",
+  TIME_TO_UPDATE = nil,
   
   -- Route related text.
-  ROUTES_CHANGED = "De vliegroutes voor jouw karakter zijn veranderd.",
+  ROUTES_CHANGED = "De vliegroutes voor je karakter zijn veranderd.",
   HOME_CHANGED = "Je thuis is veranderd.",
-  TALK_TO_FLIGHT_MASTER = "Praat alsjeblieft met de lokale Flightmaster.",
+  TALK_TO_FLIGHT_MASTER = "Praat met de lokale Flightmaster.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Bedankt.",
   WILL_RESET_PATH = "Routes worden opnieuw ingesteld.",
-  UPDATING_ROUTE = "Vliegroutes worden ververst.",
+  UPDATING_ROUTE = "Route wordt ververst.",
+  
+  -- Special tracker text
+  QH_LOADING = nil,
+  QUESTS_HIDDEN_1 = nil,
+  QUESTS_HIDDEN_2 = nil,
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Beschikbare Vertalingen:",
@@ -65,8 +71,8 @@ QuestHelper_Translations.nlNL =
   CREATED_OBJ = "Gemaakt: %1",
   REMOVED_OBJ = "Verwijderd: %1",
   USER_OBJ = "Gebruikers Doel: %h1",
-  UNKNOWN_OBJ = "Geen idee waar je naar toe moet..., sorry.",
-  INACCESSIBLE_OBJ = nil,
+  UNKNOWN_OBJ = "Geen idee waar je dat doel kunt vinden.",
+  INACCESSIBLE_OBJ = "QuestHelper heeft geen locatie gevonden voor %h1. We hebben een zo-goed-als-onmogelijk-vindbare locatie aan de doelenlijst toegevoegd. Wanneer je een bruikbare versie van dit object vind, deel dan je data! (%h( /qh submit))",
   
   SEARCHING_STATE = "Aan het zoeken: %1",
   SEARCHING_LOCAL = "Local %1",
@@ -100,7 +106,7 @@ QuestHelper_Translations.nlNL =
   FILTERED_USER = "Je hebt dit doel verborgen.",
   FILTERED_UNKNOWN = "Geen idee hoe dit te voltooien.",
   
-  HIDDEN_SHOW = "Laat zien.",
+  HIDDEN_SHOW = "Toon.",
   DISABLE_FILTER = "Zet filter: %1 uit.",
   FILTER_DONE = "klaar",
   FILTER_ZONE = "zone",
@@ -145,8 +151,8 @@ QuestHelper_Translations.nlNL =
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
-  QH_BUTTON_TOOLTIP1 = "Linkermuis klik: %1 route informatie.",
-  QH_BUTTON_TOOLTIP2 = "Rechtermuis klik: Toon Instellingen.",
+  QH_BUTTON_TOOLTIP1 = "Links klik: %1 route informatie.",
+  QH_BUTTON_TOOLTIP2 = "Rechts klik: Toon Instellingen.",
   QH_BUTTON_SHOW = "Laat zien",
   QH_BUTTON_HIDE = "Verberg",
 

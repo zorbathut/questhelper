@@ -1,4 +1,4 @@
--- Please see lang_enus.lua for reference.
+-- Please see enus.lua for reference.
 
 QuestHelper_Translations.ptBR =
  {
@@ -14,7 +14,8 @@ QuestHelper_Translations.ptBR =
   PLEASE_RESTART = "Ocorreu um erro ao iniciar o QuestHelper. Por favor feche completamente o World of Warcraft e tente de novo.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper foi instalado incorretamente. Recomendamos que use o Curse Cliente ou 7zip para instalar. Verifica se as subpastas foram extraidas.",
   PLEASE_DONATE = "%h (QuestHelper sobrevive das suas donações!) Qualquer contribuição será apreciada, bastaré alguns dolares por mês para que eu me mantenha a trabalhar. Digite %h(/qh donate) para mais informações.",
-  HOW_TO_CONFIGURE = nil,
+  HOW_TO_CONFIGURE = "O QuestHelper ainda não tem uma página de configurações funcionando, mas pode ser configurado digitando %h (/qh settings). A ajuda está disponível através de %h(/qh help). ",
+  TIME_TO_UPDATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "As rotas de vôo para o seu personagem foram alteradas.",
@@ -23,6 +24,11 @@ QuestHelper_Translations.ptBR =
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Obrigado.",
   WILL_RESET_PATH = "Irá resetar a informação do caminho",
   UPDATING_ROUTE = "Atualizando rotas.",
+  
+  -- Special tracker text
+  QH_LOADING = nil,
+  QUESTS_HIDDEN_1 = nil,
+  QUESTS_HIDDEN_2 = nil,
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Idiomas disponíveis: ",

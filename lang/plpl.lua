@@ -1,4 +1,4 @@
--- Please see lang_enus.lua for reference.
+-- Please see enus.lua for reference.
 
 QuestHelper_Translations.plPL =
  {
@@ -15,6 +15,7 @@ QuestHelper_Translations.plPL =
   NOT_UNZIPPED_CORRECTLY = nil,
   PLEASE_DONATE = nil,
   HOW_TO_CONFIGURE = "QuestHelper nie ma jeszcze gotowej strony ustawień, ale może być skonfigurowany poprzez komendę %h(/qh ustawienia). Pomoc jest udzielana poprzez %h(/qh pomoc).",
+  TIME_TO_UPDATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = nil,
@@ -23,6 +24,11 @@ QuestHelper_Translations.plPL =
   TALK_TO_FLIGHT_MASTER_COMPLETE = nil,
   WILL_RESET_PATH = nil,
   UPDATING_ROUTE = nil,
+  
+  -- Special tracker text
+  QH_LOADING = nil,
+  QUESTS_HIDDEN_1 = nil,
+  QUESTS_HIDDEN_2 = nil,
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = nil,
@@ -150,10 +156,10 @@ QuestHelper_Translations.plPL =
   QH_BUTTON_SHOW = nil,
   QH_BUTTON_HIDE = nil,
 
-  MENU_CLOSE = nil,
+  MENU_CLOSE = "Zamknij menu",
   MENU_SETTINGS = nil,
-  MENU_ENABLE = nil,
-  MENU_DISABLE = nil,
+  MENU_ENABLE = "Włączenie",
+  MENU_DISABLE = "Wyłączenie",
   MENU_OBJECTIVE_TIPS = nil,
   MENU_TRACKER_OPTIONS = nil,
   MENU_QUEST_TRACKER = nil,
@@ -162,24 +168,24 @@ QuestHelper_Translations.plPL =
   MENU_TRACKER_OCOLOUR = nil,
   MENU_TRACKER_SCALE = nil,
   MENU_TRACKER_RESET = nil,
-  MENU_FLIGHT_TIMER = nil,
+  MENU_FLIGHT_TIMER = "%1 Czas lotu",
   MENU_ANT_TRAILS = nil,
   MENU_WAYPOINT_ARROW = nil,
   MENU_MAP_BUTTON = nil,
   MENU_ZONE_FILTER = nil,
-  MENU_DONE_FILTER = nil,
-  MENU_BLOCKED_FILTER = nil,
+  MENU_DONE_FILTER = "%1 Zrobione filtry",
+  MENU_BLOCKED_FILTER = "%1 Zablokowane filtry",
   MENU_WATCHED_FILTER = nil,
   MENU_LEVEL_FILTER = nil,
   MENU_LEVEL_OFFSET = nil,
   MENU_ICON_SCALE = nil,
-  MENU_FILTERS = nil,
+  MENU_FILTERS = "Filtry",
   MENU_PERFORMANCE = nil,
   MENU_LOCALE = nil,
   MENU_PARTY = nil,
   MENU_PARTY_SHARE = nil,
   MENU_PARTY_SOLO = nil,
-  MENU_HELP = nil,
+  MENU_HELP = "Pomoc",
   MENU_HELP_SLASH = nil,
   MENU_HELP_CHANGES = nil,
   MENU_HELP_SUBMIT = nil,

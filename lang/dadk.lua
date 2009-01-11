@@ -1,4 +1,4 @@
--- Please see lang_enus.lua for reference.
+-- Please see enus.lua for reference.
 
 QuestHelper_Translations.daDK =
  {
@@ -15,6 +15,7 @@ QuestHelper_Translations.daDK =
   NOT_UNZIPPED_CORRECTLY = "QuestHelper var installeret forkert. Vi anbefaler enten at bruge Curse Client eller 7zip til installering. Vær sikker på underdirektorier er udpakket.",
   PLEASE_DONATE = nil,
   HOW_TO_CONFIGURE = "QuestHelper har ikke en fungerende indstillingsside endnu, men kan blive konfigureret ved at skrive %h(/qh settings). Hjælp er tilgængelig med %h(/qh help).",
+  TIME_TO_UPDATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "Flyveruterne for din karakter er blevet ændret.",
@@ -23,6 +24,11 @@ QuestHelper_Translations.daDK =
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Tak.",
   WILL_RESET_PATH = "Ruteinformation vil blive nulstillet.",
   UPDATING_ROUTE = "Opdaterer rute.",
+  
+  -- Special tracker text
+  QH_LOADING = nil,
+  QUESTS_HIDDEN_1 = nil,
+  QUESTS_HIDDEN_2 = nil,
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Tilgængelige sprog:",

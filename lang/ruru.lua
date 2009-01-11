@@ -1,4 +1,4 @@
--- Please see lang_enus.lua for reference.
+-- Please see enus.lua for reference.
 
 QuestHelper_Translations.ruRU =
  {
@@ -10,19 +10,25 @@ QuestHelper_Translations.ruRU =
   ZONE_LAYOUT_ERROR = "Боюсь, при загрузке вы потеряете все свои сохранённые данные Пожалуйста, дождитесь выхода патча для обновления информации по новым зонам.",
   DOWNGRADE_ERROR = "Ваши сохранённые данные не подходят для этой версии КвестХэлпера. Используйте новую версию, или удалите старые данные.",
   HOME_NOT_KNOWN = "Местоположение вашего дома неизвестно. Когда будет возможность, пожалуйста, поговорите с Инкипером и обновите информацию о вашем доме.",
-  PRIVATE_SERVER = "КвестХелпер не поддерживает пиратские сервера.",
+  PRIVATE_SERVER = "КвестХелпер не поддерживает частные серверы.",
   PLEASE_RESTART = "При запуске КвестХелпера произошла ошибка. Пожалуйста выйдите из игры полностью и попробуйте еще раз.",
   NOT_UNZIPPED_CORRECTLY = "КвестХелпер был установлен некорректно. Рекомендуется использовать либо Curse Client, либо программу 7zip для инсталляции. Убедитесь, что поддиректории распаковываются верно.",
   PLEASE_DONATE = "%h(Дело КвестХелпера живет благодаря Вашим пожертвованиям!) Мы будем благодарны за Все, что вы сможете пожертвовать - даже несколько долларов в месяц позволит быть уверенным, что я продолжу обновлять и работать над этим аддоном. Введите %(/qh donate) для информации.",
   HOW_TO_CONFIGURE = nil,
+  TIME_TO_UPDATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "Маршруты полётов для вашего персонажа обновлены.",
   HOME_CHANGED = "Ваш дом сменился.",
-  TALK_TO_FLIGHT_MASTER = "Будьте любезны, поговорите с Мастером Полётов.",
+  TALK_TO_FLIGHT_MASTER = "Пожалуйста, поговорите с мастером полётов.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Спасибо.",
   WILL_RESET_PATH = "Сброс информации по маршрутам.",
   UPDATING_ROUTE = "Обновляются маршруты.",
+  
+  -- Special tracker text
+  QH_LOADING = nil,
+  QUESTS_HIDDEN_1 = nil,
+  QUESTS_HIDDEN_2 = nil,
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Доступные локализации:",
@@ -38,7 +44,7 @@ QuestHelper_Translations.ruRU =
   OBJECTIVE_REASON_TURNIN = "Цель квеста %h1.",
   OBJECTIVE_PURCHASE = "Приобрести от %h1.",
   OBJECTIVE_TALK = "Поговорить с %h1.",
-  OBJECTIVE_SLAY = "Завалить %h1.",
+  OBJECTIVE_SLAY = "Убить %h1.",
   OBJECTIVE_LOOT = "Лут %h1.",
   
   ZONE_BORDER = "%1/%2 граница",
@@ -115,7 +121,7 @@ QuestHelper_Translations.ruRU =
   
   NAG_NOT_NEW = "У вас нет информации которой не было бы в статичной базе.",
   NAG_NEW = "Если вы раздадите свою информацию другим, им это сильно пригодится.",
-  NAG_INSTRUCTIONS = "Для помощи наберите %h(/qh submit",
+  NAG_INSTRUCTIONS = "Наберите %h(/qh submit) для получения инструкций по отправке данных.",
   
   NAG_SINGLE_FP = "Мастер полетов",
   NAG_SINGLE_QUEST = "Задание",
@@ -141,47 +147,47 @@ QuestHelper_Translations.ruRU =
   PEER_PROGRESS = "%1's прогресс:",
   TRAVEL_ESTIMATE = "Время прибытия:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
-  WAYPOINT_REASON = "Посетите %h1 для полёта в:",
+  WAYPOINT_REASON = "Посетите %h1 по дороге к:",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "КвестХэлпер",
-  QH_BUTTON_TOOLTIP1 = "Левый клик: %1 информация по маршрутам.",
-  QH_BUTTON_TOOLTIP2 = "Правый клик: Показать меню настроек.",
+  QH_BUTTON_TOOLTIP1 = "Левый клик: %1 информацию по маршрутам.",
+  QH_BUTTON_TOOLTIP2 = "Правый клик: показать меню настроек.",
   QH_BUTTON_SHOW = "Показать",
   QH_BUTTON_HIDE = "Скрыть",
 
   MENU_CLOSE = "Закрыть меню",
   MENU_SETTINGS = "Настройки",
-  MENU_ENABLE = "Показать",
-  MENU_DISABLE = "Скрыть",
-  MENU_OBJECTIVE_TIPS = "% 1 Цель Подсказки",
-  MENU_TRACKER_OPTIONS = "Опции Тракера",
-  MENU_QUEST_TRACKER = "Квест Трекер",
-  MENU_TRACKER_LEVEL = "Уровни Заданий",
-  MENU_TRACKER_QCOLOUR = "Цвет (сложность квестов)",
-  MENU_TRACKER_OCOLOUR = "Цвета",
+  MENU_ENABLE = "Включить",
+  MENU_DISABLE = "Отключить",
+  MENU_OBJECTIVE_TIPS = "%1 подсказку цели",
+  MENU_TRACKER_OPTIONS = "Отслеживание заданий",
+  MENU_QUEST_TRACKER = "%1 отслеживание заданий",
+  MENU_TRACKER_LEVEL = "%1 отображение уровней заданий",
+  MENU_TRACKER_QCOLOUR = "%1 окраску заданий по сложности",
+  MENU_TRACKER_OCOLOUR = "%1 Цвета",
   MENU_TRACKER_SCALE = "Размер Тракера",
   MENU_TRACKER_RESET = "Сброс позиции",
-  MENU_FLIGHT_TIMER = "%1 Таймер полёта",
-  MENU_ANT_TRAILS = "%1 Оптимальный путь",
-  MENU_WAYPOINT_ARROW = "%1 Направляющую стрелку",
-  MENU_MAP_BUTTON = "%1 Кнопку карты",
-  MENU_ZONE_FILTER = "%1 Фильтр зоны",
-  MENU_DONE_FILTER = "%1 Фильтр завершённости",
-  MENU_BLOCKED_FILTER = "%1 Фильтр блокировки",
-  MENU_WATCHED_FILTER = "%1 Фильтр отслеживания",
-  MENU_LEVEL_FILTER = "%1 Фильтр уровней",
+  MENU_FLIGHT_TIMER = "%1 таймер полёта",
+  MENU_ANT_TRAILS = "%1 оптимальный путь",
+  MENU_WAYPOINT_ARROW = "%1 направляющую стрелку",
+  MENU_MAP_BUTTON = "%1 кнопку на карте",
+  MENU_ZONE_FILTER = "%1 фильтр зоны",
+  MENU_DONE_FILTER = "%1 фильтр завершённости",
+  MENU_BLOCKED_FILTER = "%1 фильтр блокировки",
+  MENU_WATCHED_FILTER = "%1 фильтр отслеживания",
+  MENU_LEVEL_FILTER = "%1 фильтр уровней",
   MENU_LEVEL_OFFSET = "Параметры фильтра уровней",
   MENU_ICON_SCALE = "Размер иконки",
   MENU_FILTERS = "Фильтры",
   MENU_PERFORMANCE = "Настройки производительности",
   MENU_LOCALE = "Локализация",
   MENU_PARTY = "Группа",
-  MENU_PARTY_SHARE = "Делиться Квестом Опции",
-  MENU_PARTY_SOLO = "Игнорировать Пати",
+  MENU_PARTY_SHARE = "%1 обмен целями",
+  MENU_PARTY_SOLO = "%1 игнорирование группы",
   MENU_HELP = "Помошь",
   MENU_HELP_SLASH = "Слешовые Команды",
-  MENU_HELP_CHANGES = "Чендж Лог",
+  MENU_HELP_CHANGES = "История изменений",
   MENU_HELP_SUBMIT = "Передача данных",
   
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.

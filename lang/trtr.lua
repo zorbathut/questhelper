@@ -1,4 +1,4 @@
--- Please see lang_enus.lua for reference.
+-- Please see enus.lua for reference.
 
 QuestHelper_Translations.trTR =
  {
@@ -15,6 +15,7 @@ QuestHelper_Translations.trTR =
   NOT_UNZIPPED_CORRECTLY = nil,
   PLEASE_DONATE = nil,
   HOW_TO_CONFIGURE = nil,
+  TIME_TO_UPDATE = nil,
   
   -- Route related text.
   ROUTES_CHANGED = "Uçus noktalariniza bakilarak eklenti veritabani güncellendi.",
@@ -23,6 +24,11 @@ QuestHelper_Translations.trTR =
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Tesekkürler.",
   WILL_RESET_PATH = "Rota bilgileri sifirlandi.",
   UPDATING_ROUTE = "Rota Güncelleniyor.",
+  
+  -- Special tracker text
+  QH_LOADING = nil,
+  QUESTS_HIDDEN_1 = nil,
+  QUESTS_HIDDEN_2 = nil,
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Kullanilabilir diller:",
