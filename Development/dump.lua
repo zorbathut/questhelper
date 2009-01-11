@@ -153,8 +153,33 @@ local function isArray(obj)
   return false
 end
 
+local reserved_words =
+ {
+  ["and"] = true,
+  ["break"] = true,
+  ["do"] = true,
+  ["else"] = true,
+  ["elseif"] = true,
+  ["end"] = true,
+  ["false"] = true,
+  ["for"] = true,
+  ["function"] = true,
+  ["if"] = true,
+  ["in"] = true,
+  ["local"] = true,
+  ["nil"] = true,
+  ["not"] = true,
+  ["or"] = true,
+  ["repeat"] = true,
+  ["return"] = true,
+  ["then"] = true,
+  ["true"] = true,
+  ["until"] = true,
+  ["while"] = true
+ }
+
 local function isSafeString(obj)
-  return type(obj) == "string" and string.len(obj) > 0 and string.find(obj, "^[%a_][%a%d_]*$")
+  return type(obj) == "string" and not reserved_words[obj] and obj:find("^[%a_][%w_]*$")
 end
 
 DumpRecurse = function(buffer, prebuf, variable, depth)
