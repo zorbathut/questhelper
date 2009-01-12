@@ -1,4 +1,11 @@
 
+== Version 0.83 1/13/2009 ==
+
+* Filter out the "hidden quests" warning if you have the zone, done, or watched filters on. Still getting false positives on it? Tell me! I want to know what it is doing wrong. I'm trying to rig it so it Just Plain Works in 99% of cases, and then I'll add an option to disable it in the remaining 1%. If I add the option now, everyone will just be annoyed and use the option and I won't get the information I need. Tell me what you're doing to cause it to show up unnecessarily!
+* Little extra debug code to try solving a problem
+* DB update, of course.
+* Lots of stuff going on behind the scenes! Trust me. It's there. I am *weaving code into bolts of awesome*
+
 == Version 0.82 1/8/2009 ==
 
 * More debug output for the "improperly installed" error so I can figure out WTF is going on
