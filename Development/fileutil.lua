@@ -78,6 +78,7 @@ local function escapeForPattern(text)
 end
 
 FileUtil.fileHash = function(filename)
+  print(string.format("Hashing " .. filename))
   local stream = io.popen(string.format("sha1sum %s", FileUtil.quoteFile(filename)))
   
   if not stream then
