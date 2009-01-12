@@ -495,6 +495,13 @@ function tracker:update(delta)
   local s = 1/self:GetEffectiveScale()
   x, y = x*s, y*s
 
+  QuestHelper: Assert(x)
+  QuestHelper: Assert(y)
+  QuestHelper: Assert(self:GetLeft())
+  QuestHelper: Assert(self:GetBottom())
+  QuestHelper: Assert(self:GetRight())
+  QuestHelper: Assert(self:GetTop())
+  
   local inside = x >= self:GetLeft() and y >= self:GetBottom() and x < self:GetRight() and y < self:GetTop()
   if inside ~= was_inside then
     was_inside = inside
@@ -608,7 +615,7 @@ function tracker:update(delta)
       end
     end
     
-    if not loadedshow and added < track_size then
+    if not loadedshow and added < track_size and not QuestHelper_Pref.filter_done and not QuestHelper_Pref.filter_zone and not QuestHelper_Pref.filter_watched then
       local added = 0
       local notadded = 0
       for k, v in pairs(quest_lookup) do
