@@ -471,19 +471,18 @@ function QuestHelper:Initialize()
   local major, minor = (QuestHelper_Version or ""):match("^(%d+)%.(%d+)")
   major, minor = tonumber(major), tonumber(minor)
 
-  -- For versions before 0.82...
-  if major == 0 and minor and minor < 82 then
+  -- For versions before 0.82, we're changing the default level offset to 3.
+  if major == 0 and minor and minor < 82 and QuestHelper_Pref.level == 2 then
+    QuestHelper_Pref.level = nil
+  end
+  
+  -- For versions before 0.83...
+  if major == 0 and minor and minor < 83 then
     -- remove all keys that match their default setting.
     for key, val in pairs(QuestHelper_DefaultPref) do
       if QuestHelper_Pref[key] == val then
         QuestHelper_Pref[key] = nil
       end
-    end
-
-    -- Also, unset QuestHelper_Pref.level if it is equal to 2, so that will inherit the new default of 3.
-    -- We just change people's settings without asking them, because We Know Better (forecast: people complaining that we don't know better)
-    if QuestHelper_Pref.level == 2 then
-      QuestHelper_Pref.level = nil
     end
   end
 
