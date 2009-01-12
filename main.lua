@@ -274,6 +274,8 @@ function QuestHelper:Initialize()
   if QuestHelper_StaticData and not QuestHelper_StaticData[GetLocale()] then
     local errmsg = "Static data does not seem to exist"
     DEFAULT_CHAT_FRAME:AddMessage(errmsg)
+    
+    -- TODO: Are you sure this should be an error? Shouldn't we let people we don't have data for collect their own?
     uninstallederr = uninstallederr .. "    " .. errmsg .. "\n"
     file_problem = true
   end
@@ -376,11 +378,8 @@ function QuestHelper:Initialize()
   self:RegisterEvent("GOSSIP_SHOW")
   self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE")
 
-  for key, def in pairs(QuestHelper_DefaultPref) do
-    if QuestHelper_Pref[key] == nil then
-      QuestHelper_Pref[key] = def
-    end
-  end
+  -- Use DefaultPref as fallback for unset preference keys.
+  setmetatable(QuestHelper_Pref, {__index=QuestHelper_DefaultPref})
 
   self:SetLocaleFonts()
 
@@ -468,19 +467,26 @@ function QuestHelper:Initialize()
   end
 
   local version = GetAddOnMetadata("QuestHelper", "Version") or "Unknown"
-  if QuestHelper_Pref.level == 2 then -- this is a pretty horrifying hack. Really, there should be the concept of "default" and "nondefault" parameters. But we don't have that, so we just change people's settings without asking them, because We Know Better (forecast: people complaining that we don't know better)
-    if QuestHelper_Version == "0.81" or
-      QuestHelper_Version == "0.80" or 
-      QuestHelper_Version == "0.79" or 
-      QuestHelper_Version == "0.78" or 
-      QuestHelper_Version == "0.77" or 
-      QuestHelper_Version == "0.76" or 
-      QuestHelper_Version == "0.75" or 
-      QuestHelper_Version == "0.74" or 
-      QuestHelper_Version == "0.73" then
-      QuestHelper_Pref.level = 3
+
+  local major, minor = (QuestHelper_Version or ""):match("^(%d+)%.(%d+)")
+  major, minor = tonumber(major), tonumber(minor)
+
+  -- For versions before 0.82...
+  if major == 0 and minor and minor < 82 then
+    -- remove all keys that match their default setting.
+    for key, val in pairs(QuestHelper_DefaultPref) do
+      if QuestHelper_Pref[key] == val then
+        QuestHelper_Pref[key] = nil
+      end
+    end
+
+    -- Also, unset QuestHelper_Pref.level if it is equal to 2, so that will inherit the new default of 3.
+    -- We just change people's settings without asking them, because We Know Better (forecast: people complaining that we don't know better)
+    if QuestHelper_Pref.level == 2 then
+      QuestHelper_Pref.level = nil
     end
   end
+
   if QuestHelper_Version ~= version then
     QuestHelper_Version = version
     self:ChangeLog()
