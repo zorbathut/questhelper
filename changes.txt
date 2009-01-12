@@ -4,7 +4,7 @@
 * More debug output for the "improperly installed" error so I can figure out WTF is going on
 * Bump the default level filter for quests up to +3, and bump people's preferences to +3 if they're at the current default of +2 (if you really wanted +2, sorry, change it back after the first load, it'll only do it once)
 * (unless there's a bug I guess, fingers crossed)
-* Add a notification that there may be filtered quests if the tracker isn't full and there's quests filtered. I think it will work, it's a bit hacky. Will it annoy people? Who knows! Let me know if you find it helpful/annoying/attractive/fruity/whatever.
+* Add a notification that there may be filtered quests if the tracker isn't full and there's quests filtered. I think it will work, it's a bit hacky. Will it annoy people? Who knows! Let me know if you find it helpful/annoying/attractive/corn-laden/whatever.
 
 == Version 0.81 1/7/2009 ==
 
