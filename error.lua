@@ -129,7 +129,8 @@ function QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack, ...)
 end
 
 function QuestHelper_ErrorCatcher.OnError(o_msg, o_frame, o_stack, o_etype, ...)
-  if (
+  if o_msg and
+    (
       string.find(o_msg, "QuestHelper")  -- Obviously we care about our bugs
       or string.find(debugstack(2, 20, 20), "QuestHelper")  -- We're being a little overzealous and catching any bug with "QuestHelper" in the stack. This possibly should be removed, I'm not sure it's ever caught anything interesting.
     )
