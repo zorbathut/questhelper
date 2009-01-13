@@ -13,9 +13,9 @@ QuestHelper_Translations.koKR =
   PRIVATE_SERVER = "퀘스트헬퍼는 해적서버를 지원하지 않습니다.",
   PLEASE_RESTART = "퀘스트헬퍼를 시작하지 못했습니다. 월드 오브 워크래프트를 완전히 종료하고 다시 시도하세요.",
   NOT_UNZIPPED_CORRECTLY = "퀘스트헬퍼가 제대로 설치되지 않았습니다. Curse 클라이언트나 7zip을 이용한 설치를 권장합니다. 하위 폴더가 설치되었는지 확인하세요.",
-  PLEASE_DONATE = nil,
+  PLEASE_DONATE = "%h 퀘스트헬퍼는 여러분의 기부에 의해 운영되고 있습니다! 한달에 몇 달러만 기부해 주시면 저는 업데이트를 계속하겠습니다. 더 많은 정보를 원하시면 %h(/qh donate)를 입력하세요.",
   HOW_TO_CONFIGURE = "퀘스트헬퍼는 아직 설정 페이지가 없지만, %h(/qh settings)를 입력창에 입력하여 설정할 수 있습니다. 도움말은 %h(/qh help)를 입력하세요.",
-  TIME_TO_UPDATE = nil,
+  TIME_TO_UPDATE = "새로운 %h 버전이 업데이트 되었습니다. 새 버전에서는 보통 새로운 모습, 추가된 퀘스트 그리고 버그가 수정됩니다. 업데이트 하세요!",
   
   -- Route related text.
   ROUTES_CHANGED = "당신의 비행 경로가 변경되었습니다.",
@@ -158,8 +158,8 @@ QuestHelper_Translations.koKR =
 
   MENU_CLOSE = "메뉴 닫기",
   MENU_SETTINGS = "설정",
-  MENU_ENABLE = "켜기",
-  MENU_DISABLE = "끄기",
+  MENU_ENABLE = "켜짐",
+  MENU_DISABLE = "꺼짐",
   MENU_OBJECTIVE_TIPS = "목표 툴팁 %1",
   MENU_TRACKER_OPTIONS = "퀘스트 추적기",
   MENU_QUEST_TRACKER = "퀘스트 추적기 %1",
