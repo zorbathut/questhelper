@@ -194,7 +194,7 @@ QuestHelper_Translations.deDE =
   -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
   TOOLTIP_WATCHED = "Von QuestHelper beobachtet.",
   TOOLTIP_QUEST = "Für die Quest %h1.",
-  TOOLTIP_PURCHASE = "Kuafe %h1.",
+  TOOLTIP_PURCHASE = "Kaufe %h1.",
   TOOLTIP_SLAY = "Töte für %h1.",
   TOOLTIP_LOOT = "Erbeute für %h1."
  }
