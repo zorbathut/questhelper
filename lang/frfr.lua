@@ -26,8 +26,8 @@ QuestHelper_Translations.frFR =
   UPDATING_ROUTE = "Route actualisée.",
   
   -- Special tracker text
-  QH_LOADING = nil,
-  QUESTS_HIDDEN_1 = nil,
+  QH_LOADING = "Chargement de questHelper (%1%%)...",
+  QUESTS_HIDDEN_1 = "Les quêtes peuvent êtres cachées",
   QUESTS_HIDDEN_2 = nil,
   
   -- Locale switcher.
