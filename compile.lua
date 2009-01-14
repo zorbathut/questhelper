@@ -24,7 +24,7 @@ local zone_image_outchunk = zone_image_chunksize / zone_image_descale
 
 local zonecolors = {}
 
-local function sortfaction(a, b)
+local function sortversion(a, b)
   local mtcha, mtchb = not string.match(a, "[%d.]*"), not string.match(b, "[%d.]*")
   if mtcha == mtchb then return a > b end -- common case. Right now, version numbers are such that simple alphabetization sorts properly (although we want it to be sorted backwards.)
   return mtchb -- mtchb is true if b is not a proper string. if b isn't a proper string, we want it after the rest, so we want a first.
@@ -43,10 +43,12 @@ local chainhead = ChainBlock_Create("chainhead", nil,
       
       for verchunk, v in pairs(dat.QuestHelper_Collector) do
         local qhv, wowv, locale, faction = string.match(verchunk, "([0-9.]+) on ([0-9.]+)/([a-zA-Z]+)/([12])")
-        if qhv and wowv and locale and faction and locale == "enUS" then -- hacky hacky
+        if qhv and wowv and locale and faction and locale == "enUS" and not sortversion("0.80", qhv) then -- hacky hacky
           -- quests!
+          print(v.quest)
           if v.quest then for qid, qdat in pairs(v.quest) do
-            Output(string.format("%d", qid), qhv, "quest")
+            Output(string.format("%d", qid), qhv, qdat, "quest")
+            print("hey quests")
           end end
           
           -- zones!
@@ -95,29 +97,33 @@ local chainhead = ChainBlock_Create("chainhead", nil,
 *****************************************************************
 Quest collation
 ]]
---[[
+
 local quest_slurp = ChainBlock_Create("quest_slurp", {chainhead},
   function (key) return {
     Data = function(self, key, subkey, value, Output)
-        value.start = split_se_key_core(value.start)
-        value.end = split_se_key_core(value.end)
-        
-        for k, v in pairs(value) do
-          local item = string.match(k, "criteria_([%d]+)_satisfied")
-          if item then
-            value[k] = SplitSatisfied(value[k])
-          end
-        end
-        
-        dbgout(value)
-      end,
+      print("we got a quest")
+      if value.start then value.start = split_quest_startend(value.start) end
+      if value["end"] then   --sigh
+        value.finish = split_quest_startend(value["end"])
+        value["end"] = nil
+      end
       
-      Finish = function(self, Output)
-      end,
+      for k, v in pairs(value) do
+        local item = string.match(k, "criteria_([%d]+)_satisfied")
+        if item then
+          value[k] = split_quest_satisfied(value[k])
+        end
+      end
+      
+      --dbgout(value)
+    end,
+    
+    Finish = function(self, Output)
+    end,
   } end,
-  sortfaction, "quest"
+  sortversion, "quest"
 )
-  ]]
+
 --[[
 *****************************************************************
 Zone collation
@@ -281,7 +287,7 @@ end
 
 local count = 0
 
-local e = 10
+local e = 100
 --local s = 3500
 --local e = 3700
 

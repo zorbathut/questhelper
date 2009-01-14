@@ -63,31 +63,117 @@ void slice_loc(lua_State *L, const std::string &dat) {
   
   getLoc(dat.c_str()).push(L);
 }
-/*
-void split_se_key_core(lua_State &l, const std::string &dat) {
+
+// we don't bother with the end because it's null-terminated
+void parsechunks(const char **st, map<char, vector<int> > *out) {
+  while(out->count(**st)) {
+    char cite = **st;
+    (*st)++;
+    const char *stm = *st;
+    while(true) {
+      assert(**st == tolower(cite) || isdigit(**st));
+      if(**st == tolower(cite)) break;
+      (*st)++;
+    }
+    (*out)[cite].push_back(atoi(stm));
+    (*st)++;
+  }
+}
+
+void tableize(lua_State *L, const vector<int> &vek) {
+  lua_newtable(L);
+  for(int i = 0; i < vek.size(); i++) {
+    lua_pushnumber(L, i + 1);
+    lua_pushnumber(L, vek[i]);
+    lua_settable(L, -3);
+  }
+}
+
+void split_quest_startend(lua_State *L, const std::string &dat) {
   const char *st = dat.c_str();
   const char *ed = st + dat.size();
+  
+  lua_newtable(L);
+  
+  int ct = 1;
   while(st != ed) {
-    vector<int> monsty;
-    while(true) {
-      if(*st == 'M') {
-        st++;
-        const char *stm = st;
-        while(true) {
-          assert(*st == 'm' || isdigit(*st));
-          if(*st == 'm') break;
-          st++;
-        }
-        monsty.push_back(atoi(stm));
-        st++;
-      }
-      
-      const char *stl = st;
-      st += 11;
-      assert(st <= ed);
-      
+    lua_pushnumber(L, ct++);
+    
+    map<char, vector<int> > matrix;
+    vector<int> &monsty = matrix['M'];
+    
+    parsechunks(&st, &matrix);
+    
+    const char *stl = st;
+    st += 11;
+    assert(st <= ed);
+    
+    Loc luc = getLoc(stl);
+    
+    lua_newtable(L);
+    lua_pushstring(L, "monsters");
+    tableize(L, monsty);
+    lua_settable(L, -3);
+    lua_pushstring(L, "loc");
+    luc.push(L);
+    lua_settable(L, -3);
+    lua_settable(L, -3);
+  }
 }
-*/
+
+void split_quest_satisfied(lua_State *L, const std::string &dat) {
+  const char *st = dat.c_str();
+  const char *ed = st + dat.size();
+  
+  lua_newtable(L);
+  
+  int ct = 1;
+  while(st != ed) {
+    lua_pushnumber(L, ct++);
+    
+    map<char, vector<int> > matrix;
+    const vector<int> &monsty = matrix['M'];
+    const vector<int> &item = matrix['I'];
+    const vector<int> &count = matrix['C'];
+    
+    parsechunks(&st, &matrix);
+    assert(count.size() <= 1);
+    
+    assert(*st == 'L');
+    st++;
+    
+    const char *stl = st;
+    st += 11;
+    assert(st <= ed);
+    assert(*st == 'l');
+    
+    Loc luc = getLoc(stl);
+    
+    st++;
+    
+    lua_newtable(L);
+    if(monsty.size()) {
+      lua_pushstring(L, "monsters");
+      tableize(L, monsty);
+      lua_settable(L, -3);
+    }
+    if(item.size()) {
+      lua_pushstring(L, "item");
+      tableize(L, item);
+      lua_settable(L, -3);
+    }
+    if(count.size()) {
+      lua_pushstring(L, "count");
+      lua_pushnumber(L, count[0]);
+      lua_settable(L, -3);
+    }
+    lua_pushstring(L, "loc");
+    luc.push(L);
+    lua_settable(L, -3);
+    lua_settable(L, -3);
+  }
+}
+
 class Image : boost::noncopyable {
   vector<unsigned int> data;
   int wid;
@@ -232,7 +318,8 @@ extern "C" int init(lua_State* L) {
   module(L)
   [
     def("slice_loc", &slice_loc, raw(_1)),
-    //def("split_se_key_core", &split_se_key_core, raw(_1)),
+    def("split_quest_startend", &split_quest_startend, raw(_1)),
+    def("split_quest_satisfied", &split_quest_satisfied, raw(_1)),
     def("check_semiass_failure", &check_semiass_failure),
     class_<Image>("Image")
       .def(constructor<int, int>())
