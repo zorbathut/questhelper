@@ -5,45 +5,89 @@
 
 #include <luabind/luabind.hpp>
 #include <boost/noncopyable.hpp>
+#include <boost/optional.hpp>
 
 #include <png.h>
 
 using namespace std;
+using boost::optional;
 
 bool semiass_failure = false;
 #define semi_assert(x) (__builtin_expect(!!(x), 1) ? (void)(1) : (printf("SEMIASSERT at %s:%d - %s\n", __FILE__, __LINE__, #x), semiass_failure = true, (void)(1)))
 
-void poosh_char(lua_State *L, signed char val) {
-  if(val == -128) {
-    lua_pushnil(L);
-  } else {
-    lua_pushinteger(L, val);
+template<typename T> void pushit(lua_State *L, const string &vid, optional<T> &v) {
+  if(v) {
+    lua_pushlstring(L, vid.data(), vid.size());
+    lua_pushnumber(L, *v);
+    lua_settable(L, -3);
   }
 }
 
-void poosh_defloat(lua_State *L, signed int val) {
-  if(val == -2147483648) {
-    lua_pushnil(L);
-  } else {
-    lua_pushnumber(L, (float)val / 1000);
+struct Loc {
+  optional<int> c;
+  optional<float> x;
+  optional<float> y;
+  optional<int> rc;
+  optional<int> rz;
+  
+  void push(lua_State *L) {
+    lua_newtable(L);
+    
+    pushit(L, "c", c);
+    pushit(L, "x", x);
+    pushit(L, "y", y);
+    pushit(L, "rc", rc);
+    pushit(L, "rz", rz);
   }
-}
+};
+
+Loc getLoc(const char *pt) {
+  signed char c = pt[0];
+  signed int x = *(int*)&(pt[1]);  // go go gadget alignment error
+  signed int y = *(int*)&(pt[5]);
+  signed char rc = pt[9];
+  signed char rz = pt[10];
+  
+  Loc rv;
+  if(c != -128) rv.c = c;
+  if(x != -2147483648) rv.x = x / 1000.0;
+  if(y != -2147483648) rv.y = y / 1000.0;
+  if(rc != -128) rv.rc = rc;
+  if(rz != -128) rv.rz = rz;
+  
+  return rv;
+};
 
 void slice_loc(lua_State *L, const std::string &dat) {
   assert(dat.size() == 11);
-  signed char contid = dat[0];
-  signed int x = *(int*)&(dat[1]);  // go go gadget alignment error
-  signed int y = *(int*)&(dat[5]);
-  signed char rc = dat[9];
-  signed char rz = dat[10];
   
-  poosh_char(L, contid);
-  poosh_defloat(L, x);
-  poosh_defloat(L, y);
-  poosh_char(L, rc);
-  poosh_char(L, rz);
+  getLoc(dat.c_str()).push(L);
 }
-
+/*
+void split_se_key_core(lua_State &l, const std::string &dat) {
+  const char *st = dat.c_str();
+  const char *ed = st + dat.size();
+  while(st != ed) {
+    vector<int> monsty;
+    while(true) {
+      if(*st == 'M') {
+        st++;
+        const char *stm = st;
+        while(true) {
+          assert(*st == 'm' || isdigit(*st));
+          if(*st == 'm') break;
+          st++;
+        }
+        monsty.push_back(atoi(stm));
+        st++;
+      }
+      
+      const char *stl = st;
+      st += 11;
+      assert(st <= ed);
+      
+}
+*/
 class Image : boost::noncopyable {
   vector<unsigned int> data;
   int wid;
@@ -188,6 +232,7 @@ extern "C" int init(lua_State* L) {
   module(L)
   [
     def("slice_loc", &slice_loc, raw(_1)),
+    //def("split_se_key_core", &split_se_key_core, raw(_1)),
     def("check_semiass_failure", &check_semiass_failure),
     class_<Image>("Image")
       .def(constructor<int, int>())

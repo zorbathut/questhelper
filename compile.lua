@@ -1,3 +1,4 @@
+#!/usr/bin/lua
 
 loadfile("compile_chain.lua")()
 loadfile("compile_debug.lua")()
@@ -23,6 +24,12 @@ local zone_image_outchunk = zone_image_chunksize / zone_image_descale
 
 local zonecolors = {}
 
+local function sortfaction(a, b)
+  local mtcha, mtchb = not string.match(a, "[%d.]*"), not string.match(b, "[%d.]*")
+  if mtcha == mtchb then return a > b end -- common case. Right now, version numbers are such that simple alphabetization sorts properly (although we want it to be sorted backwards.)
+  return mtchb -- mtchb is true if b is not a proper string. if b isn't a proper string, we want it after the rest, so we want a first.
+end
+
 local chainhead = ChainBlock_Create("chainhead", nil,
   function () return {
     Data = function (self, key, subkey, value, Output)
@@ -35,7 +42,13 @@ local chainhead = ChainBlock_Create("chainhead", nil,
       end
       
       for verchunk, v in pairs(dat.QuestHelper_Collector) do
-        if string.find(verchunk, "enUS") then -- hacky hacky
+        local qhv, wowv, locale, faction = string.match(verchunk, "([0-9.]+) on ([0-9.]+)/([a-zA-Z]+)/([12])")
+        if qhv and wowv and locale and faction and locale == "enUS" then -- hacky hacky
+          -- quests!
+          if v.quest then for qid, qdat in pairs(v.quest) do
+            Output(string.format("%d", qid), qhv, "quest")
+          end end
+          
           -- zones!
           if v.zone then for zname, zdat in pairs(v.zone) do
             local items = {}
@@ -47,14 +60,14 @@ local chainhead = ChainBlock_Create("chainhead", nil,
                 
                 assert(math.mod(#chunk, 11) == 0, tostring(#chunk))
                 for point = 1, #chunk, 11 do
-                  local pos = {slice_loc(string.sub(chunk, point, point + 10))}
+                  local pos = slice_loc(string.sub(chunk, point, point + 10))
                   if not zonecolors[zname] then
                     local r, g, b = math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255))
                     zonecolors[zname] = r * 65536 + g * 256 + b
                   end
                   pos.zonecolor = zonecolors[zname]
-                  if pos[1] and pos[2] and pos[3] then  -- These might be invalid if there are nils embedded in the string. They might still be useful with only one or two nils, but I've got a bunch of data and don't really need more.
-                    if pos[1] ~= 0 and pos[1] ~= 3 and pos[1] ~= -77 then
+                  if pos.c and pos.x and pos.y then  -- These might be invalid if there are nils embedded in the string. They might still be useful with only one or two nils, but I've got a bunch of data and don't really need more.
+                    if pos.c ~= 0 and pos.c ~= 3 and pos.c ~= -77 then
                       items = nil
                       break
                     end
@@ -66,8 +79,8 @@ local chainhead = ChainBlock_Create("chainhead", nil,
             end
             
             if items then for _, v in pairs(items) do
-              Output(string.format("%d@%04d@%04d", v[1], math.floor(v[3] / zone_image_chunksize), math.floor(v[2] / zone_image_chunksize)), nil, v, "zone") -- This is inverted - it's continent, y, x, for proper sorting.
-              Output(string.format("%d", v[1]), nil, {math.floor(v[2] / zone_image_chunksize), math.floor(v[3] / zone_image_chunksize)}, "zone_bounds")
+              Output(string.format("%d@%04d@%04d", v.c, math.floor(v.y / zone_image_chunksize), math.floor(v.x / zone_image_chunksize)), nil, v, "zone") -- This is inverted - it's continent, y, x, for proper sorting.
+              Output(string.format("%d", v.c), nil, {math.floor(v.x / zone_image_chunksize), math.floor(v.y / zone_image_chunksize)}, "zone_bounds")
             end end
           end end
         else
@@ -80,6 +93,33 @@ local chainhead = ChainBlock_Create("chainhead", nil,
 
 --[[
 *****************************************************************
+Quest collation
+]]
+--[[
+local quest_slurp = ChainBlock_Create("quest_slurp", {chainhead},
+  function (key) return {
+    Data = function(self, key, subkey, value, Output)
+        value.start = split_se_key_core(value.start)
+        value.end = split_se_key_core(value.end)
+        
+        for k, v in pairs(value) do
+          local item = string.match(k, "criteria_([%d]+)_satisfied")
+          if item then
+            value[k] = SplitSatisfied(value[k])
+          end
+        end
+        
+        dbgout(value)
+      end,
+      
+      Finish = function(self, Output)
+      end,
+  } end,
+  sortfaction, "quest"
+)
+  ]]
+--[[
+*****************************************************************
 Zone collation
 ]]
 
@@ -90,7 +130,7 @@ do
       ct = 0,
       
       Data = function(self, key, subkey, value, Output)
-        self.imagepiece:set(math.floor(math.umod(value[2], zone_image_chunksize) / zone_image_descale), math.floor(math.umod(value[3], zone_image_chunksize) / zone_image_descale), value.zonecolor)
+        self.imagepiece:set(math.floor(math.umod(value.x, zone_image_chunksize) / zone_image_descale), math.floor(math.umod(value.y, zone_image_chunksize) / zone_image_descale), value.zonecolor)
         self.ct = self.ct + 1
       end,
       
@@ -241,6 +281,7 @@ end
 
 local count = 0
 
+local e = 10
 --local s = 3500
 --local e = 3700
 
