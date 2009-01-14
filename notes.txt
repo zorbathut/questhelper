@@ -10,3 +10,14 @@ A variety of steps! Each one needs an input file and a predictable output locati
 * 8: Cull into UID_timestamp.lua with only the most recent allowed
 * 9: Dump into binary data
 * 10: Process!
+
+
+
+Here's the next steps.
+
+* Compile monster data
+* Compile item drop data
+* Compile item world-acquire data
+* Compile quest data
+
+That should give me enough data for a shot at 1.0.0. More later.
