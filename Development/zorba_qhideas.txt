@@ -309,22 +309,26 @@ QuestHelper_Collector = {
         }
       }
     },
-    TODO ["quest"] = {
+    ["quest"] = {
       [QuestID] = {
         name = "Hello!",
         level = 40,
-        start = "monster/1234@@DENS",
-        end = "monster/5678@@DENS",
-        objectives = {
-          { "monster/1234" = 12, "monster/4456" = 2 },
-          { "item/1234" = 9, },
-          { "reputation/1234" = 14, },
+        start = "M1234mDENSM1234mDENS", -- again, I kind of fucked this up, but it should be readable since M isn't a valid continent
+        end = "M1234mDENSM1234mDENS",
+        criteria_1_text = "hello I am a monster"
+        criteria_1_type = "monster"
+        criteria_1_satisfied = "(C3c)M1234mI1234iL(locbolus)l"
+        items_reward = {
+          [id] = count
         }
+        items_choice = {
+          [id] = count
+        }
+        
+        -- TODO
         repgain = { faction, amount }
         xpgain = { level, amount }
         moneygain = { level, amount }
-        itemgain = { }
-        itemchoice = { }
         completedby = { "CLVSPEC", "CLVSPEC" }
       }
     },
