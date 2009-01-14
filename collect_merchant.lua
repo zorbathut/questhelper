@@ -41,7 +41,7 @@ local function MerchantShow()
     itemid = GetItemType(itemid)
     local _, _, price, quant, avail, _, _ = GetMerchantItemInfo(i)
     local dstr = string.format("%d@@%d@@%d@@%d", itemid, quant, avail, price)
-    if debug_output then QuestHelper:TextOut(dstr) end
+    --if debug_output then QuestHelper:TextOut(dstr) end
     QHCM["shop_" .. dstr] = (QHCM["shop_" .. dstr] or 0) + 1
   end
 end
