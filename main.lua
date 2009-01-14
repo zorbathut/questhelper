@@ -476,8 +476,8 @@ function QuestHelper:Initialize()
     QuestHelper_Pref.level = nil
   end
   
-  -- For versions before 0.83...
-  if major == 0 and minor and minor < 83 then
+  -- For versions before 0.84...
+  if major == 0 and minor and minor < 84 then
     -- remove all keys that match their default setting.
     for key, val in pairs(QuestHelper_DefaultPref) do
       if QuestHelper_Pref[key] == val then
