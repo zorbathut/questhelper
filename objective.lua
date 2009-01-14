@@ -1117,6 +1117,8 @@ function QuestHelper:GetObjective(category, objective)
 end
 
 function QuestHelper:AppendObjectivePosition(objective, i, x, y, w)
+  if not i then return end  -- We don't have a player position. We have a pile of poop. Enjoy your poop.
+  
   local pos = objective.o.pos
   if not pos then
     if objective.o.drop or objective.o.contained then
