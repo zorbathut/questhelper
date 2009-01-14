@@ -1,4 +1,10 @@
 #!/usr/bin/lua
+--[[
+local orig_print = print
+local orig_write = io.write
+print = function (...) orig_print(debug.getinfo(2,"n").name, ...) end
+io.write = function (...) orig_write(debug.getinfo(2,"n").name, ...) end
+]]
 
 loadfile("compile_chain.lua")()
 loadfile("compile_debug.lua")()
@@ -30,6 +36,20 @@ local function sortversion(a, b)
   return mtchb -- mtchb is true if b is not a proper string. if b isn't a proper string, we want it after the rest, so we want a first.
 end
 
+local function accumulate_positions(accu, tpos)
+  if not tpos then return end
+  assert(tpos.c)
+  assert(tpos.x)
+  assert(tpos.y)
+  if not accu[tpos.c] then
+    accu[tpos.c] = {x = tpos.x, y = tpos.y, weight = 1}
+  else
+    accu[tpos.c].x = accu[tpos.c].x + tpos.x
+    accu[tpos.c].y = accu[tpos.c].y + tpos.y
+    accu[tpos.c].weight = accu[tpos.c].weight
+  end
+end
+
 local chainhead = ChainBlock_Create("chainhead", nil,
   function () return {
     Data = function (self, key, subkey, value, Output)
@@ -43,12 +63,12 @@ local chainhead = ChainBlock_Create("chainhead", nil,
       
       for verchunk, v in pairs(dat.QuestHelper_Collector) do
         local qhv, wowv, locale, faction = string.match(verchunk, "([0-9.]+) on ([0-9.]+)/([a-zA-Z]+)/([12])")
-        if qhv and wowv and locale and faction and locale == "enUS" and not sortversion("0.80", qhv) then -- hacky hacky
+        if qhv and wowv and locale and faction and locale == "enUS"
+          and not sortversion("0.80", qhv) -- hacky hacky
+        then 
           -- quests!
-          print(v.quest)
           if v.quest then for qid, qdat in pairs(v.quest) do
             Output(string.format("%d", qid), qhv, qdat, "quest")
-            print("hey quests")
           end end
           
           -- zones!
@@ -63,18 +83,20 @@ local chainhead = ChainBlock_Create("chainhead", nil,
                 assert(math.mod(#chunk, 11) == 0, tostring(#chunk))
                 for point = 1, #chunk, 11 do
                   local pos = slice_loc(string.sub(chunk, point, point + 10))
-                  if not zonecolors[zname] then
-                    local r, g, b = math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255))
-                    zonecolors[zname] = r * 65536 + g * 256 + b
-                  end
-                  pos.zonecolor = zonecolors[zname]
-                  if pos.c and pos.x and pos.y then  -- These might be invalid if there are nils embedded in the string. They might still be useful with only one or two nils, but I've got a bunch of data and don't really need more.
-                    if pos.c ~= 0 and pos.c ~= 3 and pos.c ~= -77 then
-                      items = nil
-                      break
+                  if pos then
+                    if not zonecolors[zname] then
+                      local r, g, b = math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255))
+                      zonecolors[zname] = r * 65536 + g * 256 + b
                     end
-                    
-                    table.insert(items, pos)
+                    pos.zonecolor = zonecolors[zname]
+                    if pos.c and pos.x and pos.y then  -- These might be invalid if there are nils embedded in the string. They might still be useful with only one or two nils, but I've got a bunch of data and don't really need more.
+                      if pos.c ~= 0 and pos.c ~= 3 and pos.c ~= -77 then
+                        items = nil
+                        break
+                      end
+                      
+                      table.insert(items, pos)
+                    end
                   end
                 end
               end end
@@ -100,25 +122,46 @@ Quest collation
 
 local quest_slurp = ChainBlock_Create("quest_slurp", {chainhead},
   function (key) return {
+    accum = {name = {}, criteria = {}, level = {}, start = {}, finish = {}},
+    
     Data = function(self, key, subkey, value, Output)
-      print("we got a quest")
       if value.start then value.start = split_quest_startend(value.start) end
       if value["end"] then   --sigh
         value.finish = split_quest_startend(value["end"])
         value["end"] = nil
       end
       
+      if not value.criteria then value.criteria = {} end
       for k, v in pairs(value) do
-        local item = string.match(k, "criteria_([%d]+)_satisfied")
-        if item then
-          value[k] = split_quest_satisfied(value[k])
+        local item, token = string.match(k, "criteria_([%d]+)_([a-z]+)")
+        if token then
+          assert(item)
+          
+          if token == "satisfied" then
+            value[k] = split_quest_satisfied(value[k])
+          end
+          
+          if not value.criteria[tonumber(item)] then value.criteria[tonumber(item)] = {} end
+          value.criteria[tonumber(item)][token] = value[k]
+          value[k] = nil
         end
       end
       
-      --dbgout(value)
+      
+      if value.start then for k, v in pairs(value.start) do accumulate_positions(self.accum.start, v.loc) end end
+      if value.finish then for k, v in pairs(value.finish) do accumulate_positions(self.accum.finish, v.loc) end end
+      for id, dat in pairs(value.criteria) do
+        if dat.satisfied then
+          if not self.accum.criteria[id] then self.accum.criteria[id] = {} end
+          for k, v in pairs(dat.satisfied) do
+            accumulate_positions(self.accum.criteria[id], v.loc)
+          end
+        end
+      end
     end,
     
     Finish = function(self, Output)
+      --dbgout(self.accum)
     end,
   } end,
   sortversion, "quest"

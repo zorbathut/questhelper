@@ -31,13 +31,17 @@ struct Loc {
   optional<int> rz;
   
   void push(lua_State *L) {
-    lua_newtable(L);
-    
-    pushit(L, "c", c);
-    pushit(L, "x", x);
-    pushit(L, "y", y);
-    pushit(L, "rc", rc);
-    pushit(L, "rz", rz);
+    if(c || x || y || rc || rz) {
+      lua_newtable(L);
+      
+      pushit(L, "c", c);
+      pushit(L, "x", x);
+      pushit(L, "y", y);
+      pushit(L, "rc", rc);
+      pushit(L, "rz", rz);
+    } else {
+      lua_pushnil(L);
+    }
   }
 };
 
@@ -231,7 +235,6 @@ class ImageTileWriter : boost::noncopyable {
   
 public:
   ImageTileWriter(const string &fname, int xblock, int yblock, int blocksize) : temp(xblock * blocksize, blocksize) {
-    printf("Constructing, temp is %dx%d\n", xblock * blocksize, blocksize);
     cury = 0;
     curx = -1;
     
