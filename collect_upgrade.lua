@@ -20,4 +20,18 @@ function QH_Collector_Upgrade()
     
     QuestHelper_Collector_Version = 3
   end
+  
+  if QuestHelper_Collector_Version == 3 then
+    -- Screwed up the item collection code in instances. Obliterate old data, try again.
+    for locale, data in pairs(QuestHelper_Collector) do
+      if data.item then
+        for id, dat in pairs(data.item) do
+          dat.equip_no = nil
+          dat.equip_yes = nil
+        end
+      end
+    end
+    
+    QuestHelper_Collector_Version = 4
+  end
 end
