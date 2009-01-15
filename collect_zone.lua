@@ -21,7 +21,11 @@ local function DoZoneUpdate(label, debugverbose)
   end
   
   QHCZ[zname].mapname = GetMapInfo()
-  Merger.Add(znl, GetLoc(), true)
+  
+  local loc = GetLoc()
+  if loc == "€\000\000\000€\000\000\000€€€" then return end -- this is kind of the "null value"
+  
+  Merger.Add(znl, loc, true)
 end
 
 local function OnEvent()
