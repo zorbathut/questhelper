@@ -49,13 +49,19 @@ persistence =
 			end;
 		["table"] = function (f, item, level)
 				f:write("{\n");
-				for k, v in pairs(item) do
+        local order = {}
+        for k, v in pairs(item) do
+          table.insert(order, k)
+        end
+        table.sort(order)
+        
+				for _, v in pairs(order) do
 					persistence.writeIndent(f, level+1);
 					f:write("[");
-					persistence.write(f, k, level+1);
-					f:write("] = ");
 					persistence.write(f, v, level+1);
-					f:write(";\n");
+					f:write("] = ");
+					persistence.write(f, item[v], level+1);
+					f:write(",\n");
 				end
 				persistence.writeIndent(f, level);
 				f:write("}");

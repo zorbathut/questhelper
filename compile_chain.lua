@@ -14,7 +14,7 @@ local nextProgressTime = 0
 
 function ProgressMessage(msg)
   if os.time() > nextProgressTime then
-    nextProgressTime = os.time() + 15
+    nextProgressTime = os.time() + 5
     print(msg)
   end
 end
@@ -88,9 +88,14 @@ function ChainBlock:Finish()
     if v.Finish then v:Finish(self.process) end
   end
   self.items = nil
+  
+  print("Chaining " .. self.id)
+  
   for _, v in pairs(self.linkto) do
     v:Finish()
   end
+  
+  print("Done " .. self.id)
 end
 
 function ChainBlock:AddLinkTo(item)

@@ -6,6 +6,8 @@ print = function (...) orig_print(debug.getinfo(2,"n").name, ...) end
 io.write = function (...) orig_write(debug.getinfo(2,"n").name, ...) end
 ]]
 
+local do_zone_map = false
+
 require("persistence")
 require("compile_chain")
 require("compile_debug")
@@ -96,7 +98,7 @@ local chainhead = ChainBlock_Create("chainhead", nil,
       for verchunk, v in pairs(dat.QuestHelper_Collector) do
         local qhv, wowv, locale, faction = string.match(verchunk, "([0-9.]+) on ([0-9.]+)/([a-zA-Z]+)/([12])")
         if qhv and wowv and locale and faction and locale == "enUS"
-          and not sortversion("0.80", qhv) -- hacky hacky
+          --and not sortversion("0.80", qhv) -- hacky hacky
         then 
           -- quests!
           if v.quest then for qid, qdat in pairs(v.quest) do
@@ -104,7 +106,7 @@ local chainhead = ChainBlock_Create("chainhead", nil,
           end end
           
           -- zones!
-          if v.zone then for zname, zdat in pairs(v.zone) do
+          if do_zone_map and v.zone then for zname, zdat in pairs(v.zone) do
             local items = {}
             
             for _, key in pairs({"border", "update"}) do
@@ -199,15 +201,26 @@ local quest_slurp = ChainBlock_Create("quest_slurp", {chainhead},
       assert(tablesize(self.accum.level) <= 1)
       
       local qout = {}
-      qout.criteria = {}
       for k, v in pairs(self.accum.criteria) do
       
+        if not qout.criteria then qout.criteria = {} end
         -- This should be fallback code if it can't figure out which monster or item it actually needs. Right now, it's the only code.
         -- Also, we're going to have a much, much better method for accumulating and distilling positions eventually.
         qout.criteria[k] = { loc = position_finalize(v) }
       end
       
-      Output("", nil, {id="quest", key=tonumber(key), data=qout})
+      qout.start = { loc = position_finalize(self.accum.start) }
+      qout.finish = { loc = position_finalize(self.accum.finish) }
+      
+      local has_stuff = false
+      for k, v in pairs(qout) do
+        has_stuff = true
+        break
+      end
+      
+      if has_stuff then
+        Output("", nil, {id="quest", key=tonumber(key), data=qout})
+      end
     end,
   } end,
   sortversion, "quest"
@@ -218,7 +231,7 @@ local quest_slurp = ChainBlock_Create("quest_slurp", {chainhead},
 Zone collation
 ]]
 
-do
+if do_zone_map then
   local zone_draw = ChainBlock_Create("zone_draw", {chainhead},
     function (key) return {
       imagepiece = Image(zone_image_outchunk, zone_image_outchunk),
@@ -405,7 +418,7 @@ end
 
 local count = 0
 
-local e = 100
+--local e = 100
 --local s = 3500
 --local e = 3700
 

@@ -1,17 +1,17 @@
 
 -- This is pretty much a copy of code from inside build_04_update_core.lua
 
-local persistence
+local persistence_loc
 
-persistence =
+persistence_loc =
 {
 	store = function (path, ...)
 		local f = { write = function(self, dat) io.write(dat) end }
 		if f then
-			persistence.write(f, select(1,...), 0);
+			persistence_loc.write(f, select(1,...), 0);
 			for i = 2, select("#", ...) do
 				f:write(", ");
-				persistence.write(f, select(i,...), 0);
+				persistence_loc.write(f, select(i,...), 0);
 			end;
 		else
 			error(e);
@@ -30,7 +30,7 @@ persistence =
 	
 	write = function (f, item, level)
 		local t = type(item);
-		persistence.writers[t](f, item, level);
+		persistence_loc.writers[t](f, item, level);
 	end;
 	
 	writeIndent = function (f, level)
@@ -57,16 +57,17 @@ persistence =
 				end
 			end;
 		["table"] = function (f, item, level)
+        print("grarg")
 				f:write("{");
 				for k, v in pairs(item) do
-					persistence.writeIndent(f, level+1);
+					persistence_loc.writeIndent(f, level+1);
 					f:write("[");
-					persistence.write(f, k, level+1);
+					persistence_loc.write(f, k, level+1);
 					f:write("] = ");
-					persistence.write(f, v, level+1);
+					persistence_loc.write(f, v, level+1);
 					f:write(";");
 				end
-				persistence.writeIndent(f, level);
+				persistence_loc.writeIndent(f, level);
 				f:write("}");
 			end;
 		["function"] = function (f, item, level)
@@ -98,6 +99,6 @@ persistence =
 ---- Okay that's the end of the wad of code
 
 function dbgout(item)
-  persistence.store("tmpout.lua", item)  -- The filename is an artifact of the code, I don't feel like fixing it
+  persistence_loc.store("tmpout.lua", item)  -- The filename is an artifact of the code, I don't feel like fixing it
   io.write("\n")
 end
