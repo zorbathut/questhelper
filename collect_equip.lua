@@ -7,6 +7,7 @@ if QuestHelper_File["collect_equip.lua"] == "Development Version" then debug_out
 local GetItemType
 local Notifier
 local GetSpecBolus
+local Patterns
 
 local QHCI
 
@@ -85,9 +86,9 @@ local function Recheck(item, location, competing)
 end
 
 local function Looted(message)
-  if string.find(message, string.gsub(LOOT_ITEM_CREATED_SELF, "%%.*", "")) then  -- YOU CANNOT EAT A PURSE
-    return
-  end
+  item = string.match(message, Patterns.LOOT_ITEM_PUSHED_SELF)
+  if not item then item = string.match(message, Patterns.LOOT_ITEM_SELF) end
+  if not item then return end
   
   local item = GetItemType(message, true)
   
@@ -111,6 +112,12 @@ end
 function QH_Collect_Equip_Init(QHCData, API)
   if not QHCData.item then QHCData.item = {} end
   QHCI = QHCData.item
+  
+  Patterns = API.Patterns
+  QuestHelper: Assert(Patterns)
+  
+  API.Patterns_Register("LOOT_ITEM_PUSHED_SELF", "|c.*|r")
+  API.Patterns_Register("LOOT_ITEM_SELF", "|c.*|r")
   
   API.Registrar_EventHook("CHAT_MSG_LOOT", Looted)
   
