@@ -36,11 +36,15 @@ local function sortversion(a, b)
   return mtchb -- mtchb is true if b is not a proper string. if b isn't a proper string, we want it after the rest, so we want a first.
 end
 
-local function accumulate_positions(accu, tpos)
-  if not tpos then return end
-  assert(tpos.c)
-  assert(tpos.x)
-  assert(tpos.y)
+local function valid_pos(ite)
+  if not ite then return end
+  if not ite.c or not ite.x or not ite.y or not ite.rc or not ite.rz then return end
+  if ite.c ~= 0 and ite.c ~= 3 and ite.c ~= -77 then return end
+  return true
+end
+
+local function position_accumulate(accu, tpos)
+  if not valid_pos(tpos) then return end
   if not accu[tpos.c] then
     accu[tpos.c] = {x = tpos.x, y = tpos.y, weight = 1}
   else
@@ -48,6 +52,30 @@ local function accumulate_positions(accu, tpos)
     accu[tpos.c].y = accu[tpos.c].y + tpos.y
     accu[tpos.c].weight = accu[tpos.c].weight
   end
+end
+
+local function position_finalize(accu)
+  local best_continent = nil
+  local best_continent_count = 0
+  for c, v in pairs(accu) do
+    if accu[c].weight > best_continent_count then
+      best_continent_count = accu[c].weight
+      best_continent = c
+    end
+  end
+  if best_continent then
+    return { c = best_continent, x = accu[best_continent].x / accu[best_continent].weight, y = accu[best_continent].y / accu[best_continent].weight }
+  else
+    return nil
+  end
+end
+
+local function tablesize(tab)
+  local ct = 0
+  for _, _ in pairs(tab) do
+    ct = ct + 1
+  end
+  return ct
 end
 
 local chainhead = ChainBlock_Create("chainhead", nil,
@@ -90,7 +118,7 @@ local chainhead = ChainBlock_Create("chainhead", nil,
                     end
                     pos.zonecolor = zonecolors[zname]
                     if pos.c and pos.x and pos.y then  -- These might be invalid if there are nils embedded in the string. They might still be useful with only one or two nils, but I've got a bunch of data and don't really need more.
-                      if pos.c ~= 0 and pos.c ~= 3 and pos.c ~= -77 then
+                      if not valid_pos(pos) then
                         items = nil
                         break
                       end
@@ -147,21 +175,35 @@ local quest_slurp = ChainBlock_Create("quest_slurp", {chainhead},
         end
       end
       
-      
-      if value.start then for k, v in pairs(value.start) do accumulate_positions(self.accum.start, v.loc) end end
-      if value.finish then for k, v in pairs(value.finish) do accumulate_positions(self.accum.finish, v.loc) end end
+      if value.start then for k, v in pairs(value.start) do position_accumulate(self.accum.start, v.loc) end end
+      if value.finish then for k, v in pairs(value.finish) do position_accumulate(self.accum.finish, v.loc) end end
       for id, dat in pairs(value.criteria) do
         if dat.satisfied then
           if not self.accum.criteria[id] then self.accum.criteria[id] = {} end
           for k, v in pairs(dat.satisfied) do
-            accumulate_positions(self.accum.criteria[id], v.loc)
+            position_accumulate(self.accum.criteria[id], v.loc)
           end
         end
       end
+      
+      if value.name then self.accum.name[value.name] = (self.accum.name[value.name] or 0) + 1 end -- as of this writing we're not actually storing names, so, welp
+      if value.level then self.accum.name[value.level] = (self.accum.name[value.level] or 0) + 1 end
     end,
     
     Finish = function(self, Output)
-      --dbgout(self.accum)
+      assert(tablesize(self.accum.name) <= 1)
+      assert(tablesize(self.accum.level) <= 1)
+      
+      local qout = {}
+      qout.criteria = {}
+      for k, v in pairs(self.accum.criteria) do
+      
+        -- This should be fallback code if it can't figure out which monster or item it actually needs. Right now, it's the only code.
+        -- Also, we're going to have a much, much better method for accumulating and distilling positions eventually.
+        qout.criteria[k] = { loc = position_finalize(v) }
+      end
+      
+      dbgout(qout)
     end,
   } end,
   sortversion, "quest"

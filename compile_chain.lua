@@ -84,7 +84,7 @@ function ChainBlock:Finish()
   print("Finishing " .. self.id)
   
   self.data = nil
-  for _, v in pairs(self.items) do
+  for k, v in pairs(self.items) do
     if v.Finish then v:Finish(self.process) end
   end
   self.items = nil
