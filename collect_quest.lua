@@ -75,6 +75,13 @@ local function ScanQuests() -- make it local once we've debugged it
           QHCQ[id][string.format("criteria_%d_type", i)] = type
           --QuestHelper:TextOut(string.format("%s, %s", desc, type))
         end
+        
+        local title, _, tag, groupcount, _, _, _, daily = GetQuestLogTitle(index)
+        
+        QHCQ[id].name = title
+        QHCQ[id].tag = tag
+        QHCQ[id].groupcount = (groupcount or -1)
+        QHCQ[id].daily = (not not daily)
       end
       
       dbx[id] = {}
