@@ -532,7 +532,11 @@ QuestHelper currently survives on |cffff8000your donations|r. I'm trying to make
 
 There's a lot of stuff I plan to add if I can get enough donations to live off. Some of the most-requested features include:
 
+  |cff40bbffReduced memory and CPU usage for smoother gameplay|r
+  
   |cff40bbffFlying mount support for both Northrend and Outland|r
+  
+  |cff40bbffBetter support for Northrend "phased" quests|r
   
   |cff40bbffAchievementHelper, built right into QuestHelper|r
   
