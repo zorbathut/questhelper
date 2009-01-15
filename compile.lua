@@ -6,8 +6,9 @@ print = function (...) orig_print(debug.getinfo(2,"n").name, ...) end
 io.write = function (...) orig_write(debug.getinfo(2,"n").name, ...) end
 ]]
 
-loadfile("compile_chain.lua")()
-loadfile("compile_debug.lua")()
+require("persistence")
+require("compile_chain")
+require("compile_debug")
 
 ll, err = package.loadlib("/home/zorba/build/libcompile_core.so", "init")
 if not ll then print(err) return end
@@ -15,6 +16,9 @@ ll()
 
 os.execute("rm -rf intermed")
 os.execute("mkdir intermed")
+
+os.execute("rm -rf final")
+os.execute("mkdir final")
 
 math.umod = function (val, med)
   if val < 0 then
@@ -50,7 +54,7 @@ local function position_accumulate(accu, tpos)
   else
     accu[tpos.c].x = accu[tpos.c].x + tpos.x
     accu[tpos.c].y = accu[tpos.c].y + tpos.y
-    accu[tpos.c].weight = accu[tpos.c].weight
+    accu[tpos.c].weight = accu[tpos.c].weight + 1
   end
 end
 
@@ -203,7 +207,7 @@ local quest_slurp = ChainBlock_Create("quest_slurp", {chainhead},
         qout.criteria[k] = { loc = position_finalize(v) }
       end
       
-      dbgout(qout)
+      Output("", nil, {id="quest", key=tonumber(key), data=qout})
     end,
   } end,
   sortversion, "quest"
@@ -284,6 +288,35 @@ do
     nil, "zone_stitch"
   )
 end
+
+--[[
+*****************************************************************
+Final file generation
+]]
+
+local sources = {}
+if quest_slurp then table.insert(sources, quest_slurp) end
+
+local fileout = ChainBlock_Create("fileout", sources,
+  function (key) return {
+    finalfile = {},
+    
+    Data = function(self, key, subkey, value, Output)
+      if not self.finalfile[value.id] then self.finalfile[value.id] = {} end
+      assert(not self.finalfile[value.id][value.key])
+      self.finalfile[value.id][value.key] = value.data
+    end,
+    
+    Finish = function(self, Output)
+      fil = io.open("final/static.lua", "w")
+      
+      fil:write("QuestHelper_Static = ")
+      persistence.store(fil, self.finalfile)
+      
+      fil:close()
+    end,
+  } end
+)
 
 --[[
 *****************************************************************
