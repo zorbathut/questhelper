@@ -417,6 +417,8 @@ end
 
 local function LootOpened()
 
+  local targetguid = UnitGUID("target")
+
   -- We're cleaning up the monster charts here, on the theory that if someone is looting, they're okay with a tiny lag spike.
   if last_cleanup + 300 < GetTime() then
     local cleanup = {}
@@ -444,9 +446,9 @@ local function LootOpened()
     spot = QHC.fishing[loc]
     prefix = "fish"
     
-  elseif pickpocket_phase == PP_PHASE_COMPLETE and pickpocket_timestamp and pickpocket_timestamp + 1 > GetTime() and UnitGUID("target") == pickpocket_otarget_guid then
-    if debug_output then QuestHelper:TextOut(string.format("Pickpocketing from %s/%s", pickpocket_target, UnitName("target"), UnitGUID("target"))) end
-    local mid = GetMonsterType(UnitGUID("target"))
+  elseif pickpocket_phase == PP_PHASE_COMPLETE and pickpocket_timestamp and pickpocket_timestamp + 1 > GetTime() and targetguid == pickpocket_otarget_guid then
+    if debug_output then QuestHelper:TextOut(string.format("Pickpocketing from %s/%s", pickpocket_target, UnitName("target"), targetguid)) end
+    local mid = GetMonsterType(targetguid)
     if not QHC.monster[mid] then QHC.monster[mid] = {} end
     spot = QHC.monster[mid]
     prefix = "rob"
@@ -480,22 +482,22 @@ local function LootOpened()
     spot = QHC.item[touched_itemid]
     prefix = "open"
     
-  elseif UnitGUID("target") and (monsterstate[UnitGUID("target")] == MS_TAPPED_LOOTABLE or monsterstate[UnitGUID("target")] == MS_TAPPED_LOOTABLE_TRIVIAL) and monstertimeout[UnitGUID("target")] > GetTime() and (not pickpocket_timestamp or pickpocket_timestamp + 5 < GetTime()) and (not last_timestamp or last_timestamp + 5 < GetTime()) and (last_succeed_trade + 5 < GetTime()) then -- haha holy shit
+  elseif targetguid and (monsterstate[targetguid] == MS_TAPPED_LOOTABLE or monsterstate[targetguid] == MS_TAPPED_LOOTABLE_TRIVIAL) and monstertimeout[targetguid] > GetTime() and (not pickpocket_timestamp or pickpocket_timestamp + 5 < GetTime()) and (not last_timestamp or last_timestamp + 5 < GetTime()) and (last_succeed_trade + 5 < GetTime()) then -- haha holy shit
     -- Monster is lootable, so we loot the monster. Should we check to see if it's dead first? Probably.
-    if debug_output then QuestHelper:TextOut(string.format("Monsterloot from %s/%s", UnitName("target"), UnitGUID("target"))) end
+    if debug_output then QuestHelper:TextOut(string.format("Monsterloot from %s/%s", UnitName("target"), targetguid)) end
 
-    local mid = GetMonsterType(UnitGUID("target"))
+    local mid = GetMonsterType(targetguid)
     if not QHC.monster[mid] then QHC.monster[mid] = {} end
     spot = QHC.monster[mid]
-    if monsterstate[UnitGUID("target")] == MS_TAPPED_LOOTABLE then
+    if monsterstate[targetguid] == MS_TAPPED_LOOTABLE then
       prefix = "loot"
-    elseif monsterstate[UnitGUID("target")] == MS_TAPPED_LOOTABLE_TRIVIAL then
+    elseif monsterstate[targetguid] == MS_TAPPED_LOOTABLE_TRIVIAL then
       prefix = "loot_trivial" -- might be a better way to do this, but we'll see
     end
     
-    monsterstate[UnitGUID("target")] = MS_TAPPED_LOOTED
-    monstertimeout[UnitGUID("target")] = GetTime() + 300
-    monsterrefresh[UnitGUID("target")] = GetTime() + 2
+    monsterstate[targetguid] = MS_TAPPED_LOOTED
+    monstertimeout[targetguid] = GetTime() + 300
+    monsterrefresh[targetguid] = GetTime() + 2
   else
     if debug_output then QuestHelper:TextOut("Who knows") end  -- ugh
     local loc = GetLoc()
