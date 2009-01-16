@@ -26,9 +26,9 @@ QuestHelper_Translations.ptBR =
   UPDATING_ROUTE = "Atualizando rotas.",
   
   -- Special tracker text
-  QH_LOADING = nil,
-  QUESTS_HIDDEN_1 = nil,
-  QUESTS_HIDDEN_2 = nil,
+  QH_LOADING = "QuestHelper está carregando (%1%%)...",
+  QUESTS_HIDDEN_1 = "Quests podem estar escondida.",
+  QUESTS_HIDDEN_2 = "(\"/qh hidden\" para listar(quests escondidas)",
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Idiomas disponíveis: ",
