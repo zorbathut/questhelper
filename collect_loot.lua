@@ -70,9 +70,11 @@ local function MembersUpdate()
 end
 
 local MS_TAPPED_US = 1
-local MS_TAPPED_OTHER = 2
-local MS_TAPPED_LOOTABLE = 3
-local MS_TAPPED_LOOTED = 4
+local MS_TAPPED_US_TRIVIAL = 2
+local MS_TAPPED_OTHER = 3
+local MS_TAPPED_LOOTABLE = 4
+local MS_TAPPED_LOOTABLE_TRIVIAL = 5
+local MS_TAPPED_LOOTED = 6
 
 local last_cleanup = GetTime()
 
@@ -86,16 +88,28 @@ local monstertimeout = {}
 -- As such, we need to check for monster deaths that the player may never have actually targeted. It gets, to put it mildly, grim, and unfortunately we'll never be able to solve it entirely.
 -- Worse, we need to *not* record item drops for things that we never actually "saw" but that were lootable anyway, because if we do, we bias the results towards positive (i.e. if we AOE ten monsters down, and two of them drop, and we loot those, that's 2/2 if we record the drops, and 0/0 if we don't, while what we really want is 2/10. 0/0 is at least "not wrong".)
 -- On top of this, we want to avoid looting "discarded items", but unfortunately there's no real good way to determine this. Welp.
+local last_scan = 0
+-- Here's a little bottleneck - we're going to try to only do one scan per second. Fingers crossed.
+
 local function CombatLogEvent(_, event, sourceguid, _, _, destguid, _, _, _, spellname)
   -- There's many things that are handled here.
   -- First, if there's any damage messages coming either to or from a party member, we check to see if that monster is tapped by us. If it's tapped, we cache the value for 15 seconds, expiring entirely in 30.
   -- Second, there's the Death message. If it's tapped by us, increases the kill count by 1/partymembers and changes its state to lootable.
   if event ~= "UNIT_DIED" then
+    if last_scan > GetTime() then return end -- welp
+    
     -- Something has been attacked by something, maybe.
     if not string.find(event, "_DAMAGE$") then return end -- We only care about something punching something else.
     
-    local target
-    if members[sourceguid] then target = destguid elseif members[destguid] then target = sourceguid end -- If one of the items is in our party, the other is our target.
+    local target, source
+    if members[sourceguid] then
+      source = sourceguid
+      target = destguid
+    elseif members[destguid] then
+      source = targetguid
+      target = sourceguid
+    end -- If one of the items is in our party, the other is our target.
+    
     if not target then return end   -- If we don't have a target, then nobody is in our party, and we don't care.
     
     if monsterrefresh[target] and monsterrefresh[target] > GetTime() then return end -- we already have fresh data, so we're good
@@ -104,37 +118,47 @@ local function CombatLogEvent(_, event, sourceguid, _, _, destguid, _, _, _, spe
     local targ
     for _, v in pairs(members_refs) do
       targ = v .. "target"   if UnitGUID(targ) == target then break end
+      targ = nil
+    end
+    for _, v in pairs(members_refs) do
       targ = v .. "pettarget"   if UnitGUID(targ) == target then break end
       targ = nil
     end
+    last_scan = GetTime()
     
-    if not targ then return end -- Well, nobody seems to be targeting it. That's . . . odd, and annoying. We'll take a look at it next combat message, I suppose.
+    if not targ then
+      --monsterrefresh[target] = GetTime() + 5
+      --monstertimeout[target] = GetTime() + 5
+      return
+    end -- Well, nobody seems to be targeting it. That's . . . odd, and annoying. We were thinking of tossing on a 5-second timeout. But we didn't, because we decided the global one-second lockout might help. So we'll do that for now.
     
     -- Okay. So we know who's targeting it. Now, let's see who has it tapped, if anyone.
     if not UnitIsTapped(targ) then
-      -- Great. Nobody is. That is just *great*. Look how exuberant I feel at this moment.
+      -- Great. Nobody is. That is just *great*. Look how exuberant I feel at this moment. You know what? 5-second timeout.
       monsterstate[target] = nil
-      monsterrefresh[target] = nil
-      monstertimeout[target] = nil
+      monsterrefresh[target] = GetTime() + 5
+      monstertimeout[target] = GetTime() + 5
       --QuestHelper:TextOut(string.format("Monster ignorified"))
     else
       -- We know someone is, so we're going to set up our caching . . .
       monsterrefresh[target] = GetTime() + 15
       monstertimeout[target] = GetTime() + 30
-      monsterstate[target] = (UnitIsTappedByPlayer(targ) and not UnitIsTrivial(targ)) and MS_TAPPED_US or MS_TAPPED_OTHER -- and figure out if it's us. Or if it's trivial. we ignore it if it's trivial, since it's much less likely to be looted and that could throw off our numbers
-      --QuestHelper:TextOut(string.format("Monster %s set to %s", target, (monsterstate[target] == MS_TAPPED_US) and "MS_TAPPED_US" or "MS_TAPPED_OTHER"))
+      monsterstate[target] = (UnitIsTappedByPlayer(targ)) and (not UnitIsTrivial(targ) and MS_TAPPED_US or MS_TAPPED_US_TRIVIAL) or MS_TAPPED_OTHER -- and figure out if it's us. Or if it's trivial. We somewhat-ignore it if it's trivial, since it's much less likely to be looted and that could throw off our numbers
+      if debug_output then QuestHelper:TextOut(string.format("Monster %s set to %s", target, (monsterstate[target] == MS_TAPPED_US) and "MS_TAPPED_US" or "MS_TAPPED_OTHER")) end
     end
     
     -- DONE
   else
     -- It's dead. Hooray!
     
-    if monsterstate[destguid] and monstertimeout[destguid] > GetTime() and monsterstate[destguid] == MS_TAPPED_US and members_count > 0 then -- yaaay
+    if monsterstate[destguid] and monstertimeout[destguid] > GetTime() and (monsterstate[destguid] == MS_TAPPED_US or monsterstate[destguid] == MS_TAPPED_US_TRIVIAL) and members_count > 0 then -- yaaay
       local type = GetMonsterType(destguid)
       if not QHC.monster[type] then QHC.monster[type] = {} end
-      QHC.monster[type].kills = (QHC.monster[type].kills or 0) + 1 / members_count  -- Hopefully, most people loot their kills. Divide by members_count 'cause there's a 1/members chance that we get to loot.
+      if monsterstate[destguid] == MS_TAPPED_US then
+        QHC.monster[type].kills = (QHC.monster[type].kills or 0) + 1 / members_count  -- Hopefully, most people loot their kills. Divide by members_count 'cause there's a 1/members chance that we get to loot. We'll flag the loot count some other way if it was a trivial monster.
+      end
       
-      monsterstate[destguid] = MS_TAPPED_LOOTABLE
+      monsterstate[destguid] = (monsterstate[destguid] == MS_TAPPED_US and MS_TAPPED_LOOTABLE or MS_TAPPED_LOOTABLE_TRIVIAL)
       monsterrefresh[destguid] = GetTime() + 600
       monstertimeout[destguid] = GetTime() + 600
       --QuestHelper:TextOut(string.format("Tapped monster %s slain, set to lootable", destguid))
@@ -409,14 +433,6 @@ local function LootOpened()
 
   -- First off, we try to figure out where the hell these items came from.
   
-  --QuestHelper:TextOut(string.format("%s %s %s", tostring(last_phase == LAST_PHASE_COMPLETE), tostring(last_spell == "Mining"), tostring(last_timestamp + 1 > GetTime())))
-  --QuestHelper:TextOut(string.format("%s %s %s", tostring(last_phase == LAST_PHASE_COMPLETE), tostring(last_spell == "Mining"), tostring(last_timestamp + 1 > GetTime())))
-  
-  --if last_timestamp then QuestHelper:TextOut(string.format("%s %s %s", tostring(last_phase == LAST_PHASE_COMPLETE), tostring(last_spell == "Mining"), tostring(last_timestamp + 1 > GetTime()))) else QuestHelper:TextOut("timmy") end
-  --if pickpocket_phase == PP_PHASE_COMPLETE then QuestHelper:TextOut(string.format("%s", tostring(pickpocket_timestamp))) else QuestHelper:TextOut("nein") end
-  
-  --local beef = string.format("%s/%s %s/%s", tostring(last_target), tostring(last_target_guid), tostring(last_otarget), tostring(last_otarget_guid))
-  
   local spot = nil
   local prefix = nil
   
@@ -464,17 +480,22 @@ local function LootOpened()
     spot = QHC.item[touched_itemid]
     prefix = "open"
     
-  elseif UnitGUID("target") and monsterstate[UnitGUID("target")] == MS_TAPPED_LOOTABLE and monstertimeout[UnitGUID("target")] > GetTime() and (not pickpocket_timestamp or pickpocket_timestamp + 5 < GetTime()) and (not last_timestamp or last_timestamp + 5 < GetTime()) and (last_succeed_trade + 5 < GetTime()) then
-    -- Monster is lootable, so we loot the monster
+  elseif UnitGUID("target") and (monsterstate[UnitGUID("target")] == MS_TAPPED_LOOTABLE or monsterstate[UnitGUID("target")] == MS_TAPPED_LOOTABLE_TRIVIAL) and monstertimeout[UnitGUID("target")] > GetTime() and (not pickpocket_timestamp or pickpocket_timestamp + 5 < GetTime()) and (not last_timestamp or last_timestamp + 5 < GetTime()) and (last_succeed_trade + 5 < GetTime()) then -- haha holy shit
+    -- Monster is lootable, so we loot the monster. Should we check to see if it's dead first? Probably.
     if debug_output then QuestHelper:TextOut(string.format("Monsterloot from %s/%s", UnitName("target"), UnitGUID("target"))) end
-    monsterstate[UnitGUID("target")] = MS_TAPPED_LOOTED
-    monstertimeout[UnitGUID("target")] = GetTime() + 300
-    monsterrefresh[UnitGUID("target")] = GetTime() + 2
+
     local mid = GetMonsterType(UnitGUID("target"))
     if not QHC.monster[mid] then QHC.monster[mid] = {} end
     spot = QHC.monster[mid]
-    prefix = "loot"
+    if monsterstate[UnitGUID("target")] == MS_TAPPED_LOOTABLE then
+      prefix = "loot"
+    elseif monsterstate[UnitGUID("target")] == MS_TAPPED_LOOTABLE_TRIVIAL then
+      prefix = "loot_trivial" -- might be a better way to do this, but we'll see
+    end
     
+    monsterstate[UnitGUID("target")] = MS_TAPPED_LOOTED
+    monstertimeout[UnitGUID("target")] = GetTime() + 300
+    monsterrefresh[UnitGUID("target")] = GetTime() + 2
   else
     if debug_output then QuestHelper:TextOut("Who knows") end  -- ugh
     local loc = GetLoc()
