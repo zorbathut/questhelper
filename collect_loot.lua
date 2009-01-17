@@ -114,17 +114,13 @@ local function CombatLogEvent(_, event, sourceguid, _, _, destguid, _, _, _, spe
     
     if monsterrefresh[target] and monsterrefresh[target] > GetTime() then return end -- we already have fresh data, so we're good
     
-    -- Now comes the tricky part. We can't just look at the target because we're not allowed to target by GUID. So we iterate through all the party/raid members, and their pets, and hope *someone* has it targeted. Luckily, we can stop once we find someone who does.
+    -- Now comes the tricky part. We can't just look at the target because we're not allowed to target by GUID. So we iterate through all the party/raid members and hope *someone* has it targeted. Luckily, we can stop once we find someone who does.
     local targ
     for _, v in pairs(members_refs) do
       targ = v .. "target"   if UnitGUID(targ) == target then break end
       targ = nil
     end
-    for _, v in pairs(members_refs) do
-      targ = v .. "pettarget"   if UnitGUID(targ) == target then break end
-      targ = nil
-    end
-    last_scan = GetTime()
+    last_scan = GetTime() + 1
     
     if not targ then
       --monsterrefresh[target] = GetTime() + 5
@@ -138,13 +134,13 @@ local function CombatLogEvent(_, event, sourceguid, _, _, destguid, _, _, _, spe
       monsterstate[target] = nil
       monsterrefresh[target] = GetTime() + 5
       monstertimeout[target] = GetTime() + 5
-      --QuestHelper:TextOut(string.format("Monster ignorified"))
+      if debug_output then QuestHelper:TextOut(string.format("Monster ignorified")) end
     else
       -- We know someone is, so we're going to set up our caching . . .
       monsterrefresh[target] = GetTime() + 15
       monstertimeout[target] = GetTime() + 30
       monsterstate[target] = (UnitIsTappedByPlayer(targ)) and (not UnitIsTrivial(targ) and MS_TAPPED_US or MS_TAPPED_US_TRIVIAL) or MS_TAPPED_OTHER -- and figure out if it's us. Or if it's trivial. We somewhat-ignore it if it's trivial, since it's much less likely to be looted and that could throw off our numbers
-      if debug_output then QuestHelper:TextOut(string.format("Monster %s set to %s", target, (monsterstate[target] == MS_TAPPED_US) and "MS_TAPPED_US" or "MS_TAPPED_OTHER")) end
+      if debug_output then QuestHelper:TextOut(string.format("Monster %s set to %d, %s, %s", target, monsterstate[target], tostring(UnitIsTappedByPlayer(targ)), tostring(UnitIsTrivial(targ)))) end
     end
     
     -- DONE
@@ -484,7 +480,7 @@ local function LootOpened()
     
   elseif targetguid and (monsterstate[targetguid] == MS_TAPPED_LOOTABLE or monsterstate[targetguid] == MS_TAPPED_LOOTABLE_TRIVIAL) and monstertimeout[targetguid] > GetTime() and (not pickpocket_timestamp or pickpocket_timestamp + 5 < GetTime()) and (not last_timestamp or last_timestamp + 5 < GetTime()) and (last_succeed_trade + 5 < GetTime()) then -- haha holy shit
     -- Monster is lootable, so we loot the monster. Should we check to see if it's dead first? Probably.
-    if debug_output then QuestHelper:TextOut(string.format("Monsterloot from %s/%s", UnitName("target"), targetguid)) end
+    if debug_output then QuestHelper:TextOut(string.format("%s from %s/%s", (monsterstate[targetguid] == MS_TAPPED_LOOTABLE and "Monsterloot" or "Trivial monsterloot"), UnitName("target"), targetguid)) end
 
     local mid = GetMonsterType(targetguid)
     if not QHC.monster[mid] then QHC.monster[mid] = {} end

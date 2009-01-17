@@ -125,7 +125,7 @@ local eventy = {}
 local function Looted(message)
   local ltype = GetItemType(message, true)
   table.insert(eventy, {time = GetTime(), event = string.format("I%di", ltype)})
-  if debug_output then QuestHelper:TextOut(string.format("Added event %s", string.format("I%di", ltype))) end
+  --if debug_output then QuestHelper:TextOut(string.format("Added event %s", string.format("I%di", ltype))) end
 end
 
 local function Combat(_, event, _, _, _, guid)
@@ -133,7 +133,7 @@ local function Combat(_, event, _, _, _, guid)
   if not IsMonsterGUID(guid) then return end
   local mtype = GetMonsterType(guid, true)
   table.insert(eventy, {time = GetTime(), event = string.format("M%dm", mtype)})
-  if debug_output then QuestHelper:TextOut(string.format("Added event %s", string.format("M%dm", mtype))) end
+  --if debug_output then QuestHelper:TextOut(string.format("Added event %s", string.format("M%dm", mtype))) end
 end
 
 local changed = false
