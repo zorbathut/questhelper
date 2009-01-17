@@ -829,12 +829,15 @@ local map_shown_decay = 0
 local delayed_action = 100
 --local update_count = 0
 local ontaxi = false
+local frams = 0
 
 function QuestHelper:OnUpdate()
   local tstart = GetTime()
+  frams = frams + 1
   
   if not QuestHelper_Loadtime["onupdate"] then QuestHelper_Loadtime["onupdate"] = GetTime() end
 
+  if frams == 250 then please_donate_enabled = false end -- TOOK TOO LONG >:(
   if please_donate_enabled and startup_time and startup_time + 1 < GetTime() then
     QuestHelper:TextOut(QHText("PLEASE_DONATE"))
     startup_time = nil
