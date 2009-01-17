@@ -1,4 +1,11 @@
 
+== Version 0.84 1/16/2009 ==
+
+* Add the concept of "default parameters" to preferences so I don't have to unilaterally screw with people's preferences again. This change may also screw with people's preferences. Go find that picture of Picard covering his face in frustration, that's the expression I'm making right now.
+* Possibly fix that ancient nilposition error
+* A few cleanups and improvements to the data collection code
+* Maybe fix that reported lag issue with the third phase of Malygos. Maybe not. I don't have access to a raiding group, so I honestly can't tell you if it's fixed. I sort of wildly guessed at the problem, and then wildly guessed at a fix, so . . . yeah! Let me know!
+
 == Version 0.83 1/13/2009 ==
 
 * Filter out the "hidden quests" warning if you have the zone, done, or watched filters on. Still getting false positives on it? Tell me! I want to know what it is doing wrong. I'm trying to rig it so it Just Plain Works in 99% of cases, and then I'll add an option to disable it in the remaining 1%. If I add the option now, everyone will just be annoyed and use the option and I won't get the information I need. Tell me what you're doing to cause it to show up unnecessarily!
