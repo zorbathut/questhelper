@@ -37,7 +37,7 @@ QuestHelper_Translations.ruRU =
   
   -- Words used for objectives.
   SLAY_VERB = "Убейте",
-  ACQUIRE_VERB = "Получите",
+  ACQUIRE_VERB = "Добудьте",
   
   OBJECTIVE_REASON = "%1 %h2 для задания %h3.", -- %1 is a verb, %2 is a noun (item or monster)
   OBJECTIVE_REASON_FALLBACK = "%h1 для задания %h2.",
@@ -83,9 +83,9 @@ QuestHelper_Translations.ruRU =
   SEARCHING_DONE = "Готово!",
   
   -- Shared objectives.
-  PEER_TURNIN = "Подождите пока %h1 сдаст %h2.",
-  PEER_LOCATION = "Помогите %h1 добраться до места в области %h2.",
-  PEER_ITEM = "Помогите %1 получить %h2.",
+  PEER_TURNIN = "Подождите пока %h1 завершит %h2.",
+  PEER_LOCATION = "Помогите %h1 добраться до места в %h2.",
+  PEER_ITEM = "Помогите %1 добыть %h2.",
   PEER_OTHER = "Помогите %1 с %h2.",
   
   PEER_NEWER = "%h1 использует протокол новой версии. Наверное, время обновиться.",
@@ -195,7 +195,7 @@ QuestHelper_Translations.ruRU =
   TOOLTIP_WATCHED = "Отслеживается QuestHelper'ом",
   TOOLTIP_QUEST = "Для задания %h1.",
   TOOLTIP_PURCHASE = "Купите %h1.",
-  TOOLTIP_SLAY = "Убейте для задания %h1.",
-  TOOLTIP_LOOT = "Соберите добычу для задания %h1."
+  TOOLTIP_SLAY = "Убейте, чтобы получить %h1.",
+  TOOLTIP_LOOT = "Соберите добычу, чтобы получить %h1."
  }
 
