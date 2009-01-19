@@ -9,6 +9,13 @@ QuestHelper_Loadtime["routing_loc.lua"] = GetTime()
 
 -- Also, we're gonna pull something similar as with Collect to wrap everything up and not pollute the global space. But for now we don't.
 
-function NewLoc()
-  return QuestHelper:CreateTable("location")
+function NewLoc(c, x, y)
+  QuestHelper: Assert(c)
+  QuestHelper: Assert(x)
+  QuestHelper: Assert(y)
+  local tab = QuestHelper:CreateTable("location")
+  tab.c = c
+  tab.x = x
+  tab.y = y
+  return tab
 end
