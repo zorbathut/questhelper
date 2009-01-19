@@ -239,6 +239,8 @@ function QuestHelper:Initialize()
       ["collect_upgrade.lua"] = true,
       ["collect_merchant.lua"] = true,
       
+      ["routing_loc.lua"] = true,
+      ["routing_route.lua"] = true,
       ["routing_core.lua"] = true,
     }
     
