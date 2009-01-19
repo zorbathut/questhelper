@@ -20,7 +20,10 @@ function Public_Process()
   QuestHelper: Assert(Dist)
   while true do
     if GetTime() > last_yell + 5 then
-      
+      RTO("still tickin'")
+      last_yell = GetTime()
+    end
+    
     QH_Timeslice_Yield()  -- "heh"
   end
 end

@@ -2,7 +2,7 @@
 -- This is a garbage file that I'm going to be using to test the new routing system.
 
 Public_Init(
-  function(path) print("Path notified!") end,
+  function(path) RTO("Path notified!") end,
   function(loc1, loc2)
     -- Distance function
     if loc1.c == loc2.c then
