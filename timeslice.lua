@@ -53,6 +53,8 @@ local prioritize = {
 }
 
 function QH_Timeslice_Add(workfunc, name)
+  QuestHelper: Assert(workfunc)
+  QuestHelper: Assert(name)
   local priority = prioritize[name] or 0
   if coroutine_verbose then QuestHelper:TextOut(string.format("timeslice: %s added (%s, %d)", name, tostring(workfunc), priority)) end
   local ncoro = coroutine.create(workfunc)

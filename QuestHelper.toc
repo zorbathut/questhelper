@@ -138,6 +138,7 @@ collect_bitstream.lua
 collect_upgrade.lua
 collect_merchant.lua
 
+routing_debug.lua
 routing_loc.lua
 routing_route.lua
 routing_core.lua

@@ -239,6 +239,7 @@ function QuestHelper:Initialize()
       ["collect_upgrade.lua"] = true,
       ["collect_merchant.lua"] = true,
       
+      ["routing_debug.lua"] = true,
       ["routing_loc.lua"] = true,
       ["routing_route.lua"] = true,
       ["routing_core.lua"] = true,
@@ -506,10 +507,11 @@ function QuestHelper:Initialize()
     end
   end
   
+  --[[
   QH_Timeslice_Add(function ()
     self:ResetPathing()
     self.Routing:Initialize()       -- Set up the routing task
-  end, "init")
+  end, "init")]] -- FUCK YOU BOXBOT
   
   --[[ -- This is just an example of how the WoW profiler biases its profiles heavily.  
   function C()

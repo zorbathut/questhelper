@@ -1,8 +1,6 @@
 
 -- This is a garbage file that I'm going to be using to test the new routing system.
 
-PathNotifier, Distance
-
 Public_Init(
   function(path) print("Path notified!") end,
   function(loc1, loc2)
@@ -17,4 +15,4 @@ Public_Init(
   end
 )
 
-QH_Timeslice_Add(public_process, "new_routing")
+QH_Timeslice_Add(Public_Process, "new_routing")

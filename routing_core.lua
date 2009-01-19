@@ -13,10 +13,14 @@ function Public_Init(PathNotifier, Distance)
   QuestHelper: Assert(Dist)
 end
 
+local last_yell = GetTime()
+
 function Public_Process()
   QuestHelper: Assert(Notifier)
   QuestHelper: Assert(Dist)
   while true do
+    if GetTime() > last_yell + 5 then
+      
     QH_Timeslice_Yield()  -- "heh"
   end
 end
