@@ -1,0 +1,41 @@
+
+
+
+first let's implement a fucking arrow
+
+
+
+Routing core module. Functions:
+
+-- Construction: Distance function, new-path notification function
+
+Process()
+
+NodeAdd(loc)
+NodeRemove(loc)
+NodeObsoletes(loc1, loc2)
+NodeRequires(loc1, loc2)
+-- We'll have Node Value in here later
+
+DistanceSet(loc1, loc2) -- this is for a "hard" distance, where it's computed more exactly
+DistanceClear()
+
+
+
+
+Coordinator has similar functions:
+
+-- Construction: Soft distance function, hard distance function, new-path notification function
+
+Process()
+
+NodeAdd(loc, tier)
+NodeRemove(loc)
+NodeObsoletes(loc1, loc2)
+NodeRequires(loc1, loc2)
+
+
+
+
+-- Other things:
+* Some way to obsolete paths in various manners. "Hard" and "Soft" distances.
