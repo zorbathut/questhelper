@@ -48,6 +48,7 @@ local prioritize = {
   init = 100,
   criteria = 10,
   lzw = -5,
+  new_routing = -9,
   routing = -10,
 }
 

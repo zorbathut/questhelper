@@ -141,6 +141,7 @@ collect_merchant.lua
 routing_loc.lua
 routing_route.lua
 routing_core.lua
+routing_test.lua
 
 cartographer.lua
 tomtom.lua

@@ -2,32 +2,43 @@ QuestHelper_File["routing_core.lua"] = "Development Version"
 QuestHelper_Loadtime["routing_core.lua"] = GetTime()
 
 
+local Notifier
+local Dist
+
 -- Initialize with the necessary functions
-local function Public_Init(PathNotifier, Distance)
+function Public_Init(PathNotifier, Distance)
+  Notifier = PathNotifier
+  Dist = Distance
+  QuestHelper: Assert(Notifier)
+  QuestHelper: Assert(Dist)
 end
 
--- Process CPU for a bit
-local function Public_Process()
+function Public_Process()
+  QuestHelper: Assert(Notifier)
+  QuestHelper: Assert(Dist)
+  while true do
+    QH_Timeslice_Yield()  -- "heh"
+  end
 end
 
 -- Add a node to route to
-local function Public_NodeAdd()
+function Public_NodeAdd()
 end
 
 -- Remove a node with the given location
-local function Public_NodeRemove()
+function Public_NodeRemove()
 end
 
 -- Add a note that node 1 makes node 2 obsolete (in some sense, it instantly completes node 2.) Right now, this is a symmetrical relationship.
-local function Public_NodeObsoletes()
+function Public_NodeObsoletes()
 end
 
 -- Add a note that node 1 requires node 2.
-local function Public_NodeRequires()
+function Public_NodeRequires()
 end
 
 -- Wipe and re-cache all distances.
-local function Public_DistanceClear()
+function Public_DistanceClear()
 end
 
 
