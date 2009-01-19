@@ -138,6 +138,8 @@ collect_bitstream.lua
 collect_upgrade.lua
 collect_merchant.lua
 
+routing_core.lua
+
 cartographer.lua
 tomtom.lua
 
