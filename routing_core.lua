@@ -1,7 +1,7 @@
 QuestHelper_File["routing_core.lua"] = "Development Version"
 QuestHelper_Loadtime["routing_core.lua"] = GetTime()
 
--- Ant colony optimization. Moving from X to Y has the quality (Adjacency[x,y]^alpha)*(Weights[x,y]^beta). Sum all available qualities, then choose weighted randomly.
+-- Ant colony optimization. Moving from X to Y has the quality (Distance[x,y]^alpha)*(Weight[x,y]^beta). Sum all available qualities, then choose weighted randomly.
 -- Weight adjustment: Weight[x,y] = Weight[x,y]*weightadj + (1/distance_of_travel)
 
 -- Configuration
@@ -9,8 +9,8 @@ QuestHelper_Loadtime["routing_core.lua"] = GetTime()
   local AntCount = 20 -- number of ants to run before doing a pheremone pass
 
     -- Weighting for the various factors
-  local PheremoneFactor = 1
   local WeightFactor = 1
+  local DistanceFactor = 1
 -- End configuration
 
 local Notifier
@@ -28,8 +28,8 @@ local Dist
 
   local NodeLookup = {[StartNode] = 1}
   local NodeList = {[1] = StartNode}
-  local Adjacency = {0}
-  local Weights = {0}
+  local Distance = {0}
+  local Weight = {0}
 
   local function GetIndex(x, y) return (x - 1) * CurrentNodes + y end
 -- End node storage and data structures
@@ -45,6 +45,61 @@ end
 
 local last_yell = GetTime()
 
+local last_best = nil
+
+local function GetWeight(x, y)
+  local idx = GetIndex(x, y)
+  if not Weight[idx] or not Distance[idx] then
+    RTO(string.format("%d/%d %d", x, y, CurrentNodes))
+    QuestHelper: Assert(x <= CurrentNodes)
+    QuestHelper: Assert(y <= CurrentNodes)
+  end
+  return math.pow(Weight[idx], WeightFactor) * math.pow(Distance[idx], DistanceFactor)
+end
+
+local function RunAnt()
+  local route = NewRoute()
+  route[1] = 1
+  route.distance = 0
+  
+  local needed = {}
+  local needed_count = -1 -- gets rid of 1 earlier
+  for _, v in ipairs(ActiveNodes) do
+    needed[v] = true
+    needed_count = needed_count + 1
+  end
+  needed[1] = nil
+  
+  local curloc = 1
+  
+  while needed_count > 0 do
+    local accumulated_weight = 0
+    for k, _ in pairs(needed) do
+      accumulated_weight = accumulated_weight + GetWeight(curloc, k)
+    end
+  
+    accumulated_weight = accumulated_weight * math.random()
+    
+    local nod = nil
+    for k, _ in pairs(needed) do
+      accumulated_weight = accumulated_weight - GetWeight(curloc, k)
+      if accumulated_weight < 0 then
+        nod = k
+        break
+      end
+    end
+    
+    QuestHelper: Assert(nod)
+    
+    needed[nod] = nil
+    needed_count = needed_count - 1
+    route.distance = route.distance + Distance[GetIndex(curloc, nod)]
+    table.insert(route, nod)
+  end
+  
+  return route
+end
+
 -- Core loop
 function Public_Process()
   QuestHelper: Assert(Notifier)
@@ -54,6 +109,36 @@ function Public_Process()
       RTO("still tickin'")
       last_yell = GetTime()
     end
+    
+    local trouts = {}
+    for x = 1, AntCount do
+      table.insert(trouts, RunAnt())
+      RTO(string.format("Path generated: %f", trouts[#trouts].distance))
+      if not last_best or last_best.distance > trouts[#trouts].distance then
+        last_best = trouts[#trouts]
+        Notifier(last_best)
+      end
+    end
+    
+    for _, x in ipairs(ActiveNodes) do
+      for _, y in ipairs(ActiveNodes) do
+        local idx = GetIndex(x, y)
+        Weight[idx] = Weight[idx] * PheremonePreservation
+      end
+    end
+    
+    local weitotal = 0
+    local weicount = 0
+    for _, x in ipairs(trouts) do
+      local amount = 1 / x.distance
+      for y = 1, #x - 1 do
+        local idx = GetIndex(x[y], x[y + 1])
+        Weight[idx] = Weight[idx] + amount
+        weitotal = weitotal + Weight[idx]
+        weicount = weicount + 1
+      end
+    end
+    RTO(string.format("Weight average is %f", weitotal / weicount))
     
     QH_Timeslice_Yield()  -- "heh"
   end
@@ -83,8 +168,8 @@ end
           newweight[dst] = 0
           dst = dst + 1
         else
-          newadj[dst] = Adjacency[src]
-          newweight[dst] = Weights[src]
+          newadj[dst] = Distance[src]
+          newweight[dst] = Weight[src]
           dst = dst + 1
           src = src + 1
         end
@@ -97,14 +182,14 @@ end
     end
     --[[
     RTO(tostring(src))
-    RTO(tostring(#Adjacency))
+    RTO(tostring(#Distance))
     RTO(tostring(dst))
     RTO(tostring(CurrentNodes))]]
     
-    QuestHelper: Assert(src == #Adjacency + 1)
+    QuestHelper: Assert(src == #Distance + 1)
     QuestHelper: Assert(dst == (CurrentNodes + 1) * (CurrentNodes + 1) + 1)
-    Adjacency = newadj
-    Weights = newweight
+    Distance = newadj
+    Weight = newweight
     
     CurrentNodes = CurrentNodes + 1
     table.insert(DeadNodes, CurrentNodes)
@@ -137,8 +222,12 @@ end
       --RTO("ANIDX: " .. tostring(x))
       --RTO("ANIDXT: " .. tostring(ActiveNodes[x]))
       --RTO("ANIDXTNL: " .. tostring(NodeList[ActiveNodes[x]]))
-      Adjacency[GetIndex(ActiveNodes[x], idx)] = Dist(NodeList[ActiveNodes[x]], nod)
-      Adjacency[GetIndex(idx, ActiveNodes[x])] = Dist(nod, NodeList[ActiveNodes[x]])
+      Distance[GetIndex(ActiveNodes[x], idx)] = Dist(NodeList[ActiveNodes[x]], nod)
+      Distance[GetIndex(idx, ActiveNodes[x])] = Dist(nod, NodeList[ActiveNodes[x]])
+      
+      -- these are wrong, we'll fix 'em later
+      Weight[GetIndex(ActiveNodes[x], idx)] = 0.01
+      Weight[GetIndex(idx, ActiveNodes[x])] = 0.01
       
       -- I don't even know what default weights should look like, so, you know, fuck the man and all
     end
@@ -179,7 +268,7 @@ function TestShit()
   for x = 1, #ActiveNodes do
     local ts = ""
     for y = 1, #ActiveNodes do
-      ts = ts .. string.format("%f ", Adjacency[GetIndex(ActiveNodes[x], ActiveNodes[y])])
+      ts = ts .. string.format("%f ", Distance[GetIndex(ActiveNodes[x], ActiveNodes[y])])
     end
     RTO(ts)
   end
@@ -196,8 +285,8 @@ function TestShit()
   local fail = false
   for x = 1, #ActiveNodes do
     for y = 1, #ActiveNodes do
-      if not (Dist(NodeList[ActiveNodes[x]], NodeList[ActiveNodes[y]]) == Adjacency[GetIndex(ActiveNodes[x], ActiveNodes[y])]) then
-        RTO(string.format("%d/%d (%d/%d) should be %f, is %f", x, y, ActiveNodes[x], ActiveNodes[y], Dist(NodeList[ActiveNodes[x]], NodeList[ActiveNodes[y]]),Adjacency[GetIndex(ActiveNodes[x], ActiveNodes[y])]))
+      if not (Dist(NodeList[ActiveNodes[x]], NodeList[ActiveNodes[y]]) == Distance[GetIndex(ActiveNodes[x], ActiveNodes[y])]) then
+        RTO(string.format("%d/%d (%d/%d) should be %f, is %f", x, y, ActiveNodes[x], ActiveNodes[y], Dist(NodeList[ActiveNodes[x]], NodeList[ActiveNodes[y]]),Distance[GetIndex(ActiveNodes[x], ActiveNodes[y])]))
         fail = true
       end
     end

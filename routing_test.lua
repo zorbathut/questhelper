@@ -5,7 +5,7 @@ Public_SetStart(NewLoc(0, 37663, 19658)) -- Ironforge
 
 function doit()
   Public_Init(
-    function(path) RTO("Path notified!") end,
+    function(path) RTO(string.format("Path notified! New weight is %f", path.distance)) end,
     function(loc1, loc2)
       -- Distance function
       if loc1.c == loc2.c then
@@ -33,6 +33,11 @@ function doit()
   table.insert(nta,NewLoc(3, 40000, 29000))
   table.insert(nta,NewLoc(3, 40000, 26700))
   
+  for _, v in pairs(nta) do
+    Public_NodeAdd(v)
+  end
+  
+    --[[
   for x= 1, 1000 do
     local rem = (math.random() > 0.5)
     if rem and #ntr > 0 then
@@ -48,5 +53,5 @@ function doit()
     end
   end
   
-  RTO("Done testing")
+  RTO("Done testing")]]
 end
