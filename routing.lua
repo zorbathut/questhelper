@@ -1058,6 +1058,7 @@ function Routing:RouteUpdateRoutine()
           -- We don't advance recheck_position unless the node doesn't get moved.
           -- TODO: As the this code is apparently bugged, it's gotten into an infinite loop of constantly swapping
           -- and hence never advancing. As a work around for now, we'll always advance.
+          -- THIS IS A GREAT IDEA
         --else
         self.recheck_position = self.recheck_position + 1
         

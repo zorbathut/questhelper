@@ -953,7 +953,7 @@ function QuestHelper:OnUpdate()
   QH_Timeslice_Work()
 end
 
--- Some or all of these may be nil. c,x,y should be enough for a location - c is the pure continent (currently either 0 or 3 for Azeroth or Outland) and x,y are the coordinates within that continent.
+-- Some or all of these may be nil. c,x,y should be enough for a location - c is the pure continent (currently either 0 or 3 for Azeroth or Outland, or -77 for the DK starting zone) and x,y are the coordinates within that continent.
 -- rc and rz are the continent and zone that Questhelper thinks it's within. For various reasons, this isn't perfect. TODO: Base it off the map zone name identifiers instead of the map itself?
 function QuestHelper:RetrieveRawLocation()
   return self.collect_c, self.collect_x, self.collect_y, self.collect_rc, self.collect_rz 

@@ -1,6 +1,11 @@
 
 -- This is a garbage file that I'm going to be using to test the new routing system.
 
+-- This is for updating the minimap.
+--minimap_dodad:SetObjective(route[1])
+-- This is for the map path.
+--map_walker:RouteChanged()
+
 Public_SetStart(NewLoc(0, 37663, 19658)) -- Ironforge
 
 function doit()
