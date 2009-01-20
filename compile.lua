@@ -7,6 +7,7 @@ io.write = function (...) orig_write(debug.getinfo(2,"n").name, ...) end
 ]]
 
 local do_zone_map = false
+local do_errors = false
 
 require("persistence")
 require("compile_chain")
@@ -88,10 +89,13 @@ local chainhead = ChainBlock_Create("chainhead", nil,
   function () return {
     Data = function (self, key, subkey, value, Output)
       dat = loadfile(key)()
-      for k, v in pairs(dat.QuestHelper_Errors) do
-        for _, d in pairs(v) do
-          d.key = k
-          Output(d.local_version, nil, d, "error")
+      
+      if do_errors then
+        for k, v in pairs(dat.QuestHelper_Errors) do
+          for _, d in pairs(v) do
+            d.key = k
+            Output(d.local_version, nil, d, "error")
+          end
         end
       end
       
@@ -193,11 +197,16 @@ local quest_slurp = ChainBlock_Create("quest_slurp", {chainhead},
       end
       
       if value.name then self.accum.name[value.name] = (self.accum.name[value.name] or 0) + 1 end -- as of this writing we're not actually storing names, so, welp
-      if value.level then self.accum.name[value.level] = (self.accum.name[value.level] or 0) + 1 end
+      if value.level then self.accum.level[value.level] = (self.accum.level[value.level] or 0) + 1 end
     end,
     
     Finish = function(self, Output)
-      assert(tablesize(self.accum.name) <= 1)
+      if true or tablesize(self.accum.name) > 1 then
+        for k, v in pairs(self.accum.name) do
+          print(k, v)
+        end
+        assert(tablesize(self.accum.name) <= 1) -- will fail
+      end
       assert(tablesize(self.accum.level) <= 1)
       
       local qout = {}
@@ -336,7 +345,7 @@ local fileout = ChainBlock_Create("fileout", sources,
 Error collation
 ]]
 
-do
+if do_errors then
   local error_collater = ChainBlock_Create("error_collater", {chainhead},
     function (key) return {
       accum = {},
