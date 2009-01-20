@@ -36,40 +36,38 @@ local function AllocateExtraNode()
   local newweight = {}
   local src = 1
   local dst = 1
-  for y=1, CurrentNodes + 1 do
-    if y == CurrentNodes then
-      for x=1, CurrentNodes + 1 do
+  for y=1, CurrentNodes do  
+    for x=1, CurrentNodes + 1 do
+      if x == CurrentNodes + 1 then
         newadj[dst] = 0
         newweight[dst] = 0
         dst = dst + 1
-      end
-    else
-      for x=1, CurrentNodes + 1 do
-        if x == CurrentNodes then
-          newadj[dst] = 0
-          newweight[dst] = 0
-          dst = dst + 1
-        else
-          newadj[dst] = Adjacency[src]
-          newweight[dst] = Weights[src]
-          dst = dst + 1
-          src = src + 1
-        end
+      else
+        newadj[dst] = Adjacency[src]
+        newweight[dst] = Weights[src]
+        dst = dst + 1
+        src = src + 1
       end
     end
   end
+  for x=1, CurrentNodes + 1 do
+    newadj[dst] = 0
+    newweight[dst] = 0
+    dst = dst + 1
+  end
+  --[[
   RTO(tostring(src))
   RTO(tostring(#Adjacency))
   RTO(tostring(dst))
-  RTO(tostring(CurrentNodes))
+  RTO(tostring(CurrentNodes))]]
   
   QuestHelper: Assert(src == #Adjacency + 1)
   QuestHelper: Assert(dst == (CurrentNodes + 1) * (CurrentNodes + 1) + 1)
   Adjacency = newadj
   Weights = newweight
   
-  table.insert(DeadNodes, CurrentNodes)
   CurrentNodes = CurrentNodes + 1
+  table.insert(DeadNodes, CurrentNodes)
   return AllocateExtraNode() -- ha ha
 end
 
@@ -111,18 +109,19 @@ end
 -- Add a node to route to
 function Public_NodeAdd(nod)
   TestShit()
+  QuestHelper: Assert(nod)
   QuestHelper: Assert(not NodeLookup[nod])
   
   local idx = AllocateExtraNode()
-  RTO("AEN: " .. tostring(idx))
+  --RTO("|cffFF8080AEN: " .. tostring(idx))
   NodeLookup[nod] = idx
   NodeList[idx] = nod
   for x = 1, #ActiveNodes do
-    RTO("ANIDX: " .. tostring(x))
-    RTO("ANIDXT: " .. tostring(ActiveNodes[x]))
-    RTO("ANIDXTNL: " .. tostring(NodeList[ActiveNodes[x]]))
-    Adjacency[GetIndex(x, idx)] = Dist(NodeList[ActiveNodes[x]], nod)
-    Adjacency[GetIndex(idx, x)] = Dist(nod, NodeList[ActiveNodes[x]])
+    --RTO("ANIDX: " .. tostring(x))
+    --RTO("ANIDXT: " .. tostring(ActiveNodes[x]))
+    --RTO("ANIDXTNL: " .. tostring(NodeList[ActiveNodes[x]]))
+    Adjacency[GetIndex(ActiveNodes[x], idx)] = Dist(NodeList[ActiveNodes[x]], nod)
+    Adjacency[GetIndex(idx, ActiveNodes[x])] = Dist(nod, NodeList[ActiveNodes[x]])
     
     -- I don't even know what default weights should look like, so, you know, fuck the man and all
   end
@@ -130,7 +129,17 @@ function Public_NodeAdd(nod)
 end
 
 -- Remove a node with the given location
-function Public_NodeRemove()
+function Public_NodeRemove(nod)
+  TestShit()
+  QuestHelper: Assert(nod)
+  QuestHelper: Assert(NodeLookup[nod])
+  --RTO("|cffFF8080RFN: " .. tostring(NodeLookup[nod]))
+  NodeList[NodeLookup[nod]] = nil
+  table.insert(DeadNodes, NodeLookup[nod])
+  for k, v in pairs(ActiveNodes) do if v == NodeLookup[nod] then table.remove(ActiveNodes, k) break end end -- this is pretty awful
+  NodeLookup[nod] = nil
+  -- We don't have to modify the table itself, some sections are just "dead".
+  TestShit()
 end
 
 -- Add a note that node 1 makes node 2 obsolete (in some sense, it instantly completes node 2.) Right now, this is a symmetrical relationship.
@@ -148,6 +157,7 @@ end
 
 
 function TestShit()
+--[[
   for x = 1, #ActiveNodes do
     local ts = ""
     for y = 1, #ActiveNodes do
@@ -155,12 +165,26 @@ function TestShit()
     end
     RTO(ts)
   end
+  ]]
   
+  --[[
+  RTO("Lookup table")
+  for x = 1, #ActiveNodes do
+    RTO(tostring(ActiveNodes[x]))
+  end
+  RTO("Lookup table done")
+  ]]
+  
+  local fail = false
   for x = 1, #ActiveNodes do
     for y = 1, #ActiveNodes do
-      QuestHelper: Assert(Dist(NodeList[ActiveNodes[x]], NodeList[ActiveNodes[y]]) == Adjacency[GetIndex(ActiveNodes[x], ActiveNodes[y])])
+      if not (Dist(NodeList[ActiveNodes[x]], NodeList[ActiveNodes[y]]) == Adjacency[GetIndex(ActiveNodes[x], ActiveNodes[y])]) then
+        RTO(string.format("%d/%d (%d/%d) should be %f, is %f", x, y, ActiveNodes[x], ActiveNodes[y], Dist(NodeList[ActiveNodes[x]], NodeList[ActiveNodes[y]]),Adjacency[GetIndex(ActiveNodes[x], ActiveNodes[y])]))
+        fail = true
+      end
     end
   end
+  QuestHelper: Assert(not fail)
 end
 
 -- weeeeee
