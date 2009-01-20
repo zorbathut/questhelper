@@ -18,8 +18,6 @@ function doit()
     end
   )
 
-  QH_Timeslice_Add(Public_Process, "new_routing")
-
   local nta = {}
   local ntr = {}
   table.insert(nta,NewLoc(0, 39000, 17000))
@@ -54,4 +52,6 @@ function doit()
   end
   
   RTO("Done testing")]]
+  
+  QH_Timeslice_Add(Public_Process, "new_routing")
 end

@@ -30,6 +30,8 @@ local Dist
   local NodeList = {[1] = StartNode}
   local Distance = {0}
   local Weight = {0}
+  
+  local weight_ave = 0.001
 
   local function GetIndex(x, y) return (x - 1) * CurrentNodes + y end
 -- End node storage and data structures
@@ -48,6 +50,7 @@ local last_yell = GetTime()
 local last_best = nil
 
 local function GetWeight(x, y)
+  if x == y then return 0.00000000001 end -- sigh
   local idx = GetIndex(x, y)
   if not Weight[idx] or not Distance[idx] then
     RTO(string.format("%d/%d %d", x, y, CurrentNodes))
@@ -101,6 +104,7 @@ local function RunAnt()
     needed_count = needed_count - 1
     route.distance = route.distance + Distance[GetIndex(curloc, nod)]
     table.insert(route, nod)
+    curloc = nod
   end
   
   return route
@@ -110,6 +114,7 @@ end
 function Public_Process()
   QuestHelper: Assert(Notifier)
   QuestHelper: Assert(Dist)
+  
   while true do
     if GetTime() > last_yell + 5 then
       RTO("still tickin'")
@@ -119,7 +124,7 @@ function Public_Process()
     local trouts = {}
     for x = 1, AntCount do
       table.insert(trouts, RunAnt())
-      if last_best then RTO(string.format("Path generated: %s vs %s", PathToString(trouts[#trouts]), PathToString(last_best))) end
+      --if last_best then RTO(string.format("Path generated: %s vs %s", PathToString(trouts[#trouts]), PathToString(last_best))) end
       if not last_best or last_best.distance > trouts[#trouts].distance then
         last_best = trouts[#trouts]
         Notifier(last_best)
@@ -144,7 +149,7 @@ function Public_Process()
         weicount = weicount + 1
       end
     end
-    --RTO(string.format("Weight average is %f", weitotal / weicount))
+    weight_ave = weitotal / weicount
     
     QH_Timeslice_Yield()  -- "heh"
   end
@@ -231,11 +236,8 @@ end
       Distance[GetIndex(ActiveNodes[x], idx)] = Dist(NodeList[ActiveNodes[x]], nod)
       Distance[GetIndex(idx, ActiveNodes[x])] = Dist(nod, NodeList[ActiveNodes[x]])
       
-      -- these are wrong, we'll fix 'em later
-      Weight[GetIndex(ActiveNodes[x], idx)] = 0.01
-      Weight[GetIndex(idx, ActiveNodes[x])] = 0.01
-      
-      -- I don't even know what default weights should look like, so, you know, fuck the man and all
+      Weight[GetIndex(ActiveNodes[x], idx)] = weight_ave
+      Weight[GetIndex(idx, ActiveNodes[x])] = weight_ave
     end
     TestShit()
   end
