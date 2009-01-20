@@ -6,3 +6,16 @@ QuestHelper_Loadtime["routing_route.lua"] = GetTime()
 function NewRoute()
   return QuestHelper:CreateTable("route")
 end
+
+function PathToString(path)
+  local dout
+  for _, v in ipairs(path) do
+    if dout then
+      dout = dout .. string.format(", %d", v)
+    else
+      dout = string.format("%d", v)
+    end
+  end
+  
+  return string.format("[%s]:%f", dout, path.distance)
+end

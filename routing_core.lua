@@ -5,12 +5,12 @@ QuestHelper_Loadtime["routing_core.lua"] = GetTime()
 -- Weight adjustment: Weight[x,y] = Weight[x,y]*weightadj + (1/distance_of_travel)
 
 -- Configuration
-  local PheremonePreservation = 0.8 -- must be within 0 and 1 exclusive
+  local PheremonePreservation = 0.99 -- must be within 0 and 1 exclusive
   local AntCount = 20 -- number of ants to run before doing a pheremone pass
 
     -- Weighting for the various factors
   local WeightFactor = 1
-  local DistanceFactor = 1
+  local DistanceFactor = -0.5
 -- End configuration
 
 local Notifier
@@ -89,7 +89,13 @@ local function RunAnt()
       end
     end
     
-    QuestHelper: Assert(nod)
+    if not nod then
+      RTO("no nod :(")
+      for k, _ in pairs(needed) do
+        nod = k
+        break
+      end
+    end
     
     needed[nod] = nil
     needed_count = needed_count - 1
@@ -113,7 +119,7 @@ function Public_Process()
     local trouts = {}
     for x = 1, AntCount do
       table.insert(trouts, RunAnt())
-      RTO(string.format("Path generated: %f", trouts[#trouts].distance))
+      if last_best then RTO(string.format("Path generated: %s vs %s", PathToString(trouts[#trouts]), PathToString(last_best))) end
       if not last_best or last_best.distance > trouts[#trouts].distance then
         last_best = trouts[#trouts]
         Notifier(last_best)
@@ -138,7 +144,7 @@ function Public_Process()
         weicount = weicount + 1
       end
     end
-    RTO(string.format("Weight average is %f", weitotal / weicount))
+    --RTO(string.format("Weight average is %f", weitotal / weicount))
     
     QH_Timeslice_Yield()  -- "heh"
   end
