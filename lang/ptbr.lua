@@ -15,7 +15,7 @@ QuestHelper_Translations.ptBR =
   NOT_UNZIPPED_CORRECTLY = "QuestHelper foi instalado incorretamente. Recomendamos que use o Curse Cliente ou 7zip para instalar. Verifica se as subpastas foram extraidas.",
   PLEASE_DONATE = "%h (QuestHelper sobrevive das suas donações!) Qualquer contribuição será apreciada, bastaré alguns dolares por mês para que eu me mantenha a trabalhar. Digite %h(/qh donate) para mais informações.",
   HOW_TO_CONFIGURE = "O QuestHelper ainda não tem uma página de configurações funcionando, mas pode ser configurado digitando %h (/qh settings). A ajuda está disponível através de %h(/qh help). ",
-  TIME_TO_UPDATE = nil,
+  TIME_TO_UPDATE = "Pode haver uma %h disponível. Novas versões normalmente incluem novas características, novo banco de dados de quest, e erros concertados. Por favor, atualize!",
   
   -- Route related text.
   ROUTES_CHANGED = "As rotas de vôo para o seu personagem foram alteradas.",

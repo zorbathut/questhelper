@@ -15,7 +15,7 @@ QuestHelper_Translations.svSE =
   NOT_UNZIPPED_CORRECTLY = "QuestHelper blev felaktigt installerad. Vi rekomenderar avv du antingen använder Curse Client eller 7zip för att installera. Säkerställ att underkataloger blir extraherade.",
   PLEASE_DONATE = "%h(QuestHelper lever just nu på dina donationer!) Allt du kan bidra med uppskattas, och endast några dollar i månaden försäkrar att jag kommer fortsätta uppdatera och hålla det fungerande. Skriv %h(/qh donate) för mer information.",
   HOW_TO_CONFIGURE = "QuestHelper har ingen fungerande inställningssida, men kan konfigureras genom att skriva %h(/qh settings). Hjälp är tillgänglig med %h(/qh help).",
-  TIME_TO_UPDATE = nil,
+  TIME_TO_UPDATE = "Det finns en nyare version utav %h(new QuestHelper version). Uppdatera!",
   
   -- Route related text.
   ROUTES_CHANGED = "Flygvägen för din karaktär har ändrats",
@@ -26,9 +26,9 @@ QuestHelper_Translations.svSE =
   UPDATING_ROUTE = "Uppdaterar rutt.",
   
   -- Special tracker text
-  QH_LOADING = nil,
-  QUESTS_HIDDEN_1 = nil,
-  QUESTS_HIDDEN_2 = nil,
+  QH_LOADING = "QuestHelper laddas (%1%%)...",
+  QUESTS_HIDDEN_1 = "Eventuella gömda uppdrag",
+  QUESTS_HIDDEN_2 = "(\"/qh hidden\" för att visa)",
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Tillgängliga språk:",
@@ -95,7 +95,7 @@ QuestHelper_Translations.svSE =
   
   -- Hidden objectives.
   HIDDEN_TITLE = "Gömda Uppdrag",
-  HIDDEN_NONE = "Det finns inga objekt gömda i från dig",
+  HIDDEN_NONE = "Inga uppdrag är gömda för dig",
   DEPENDS_ON_SINGLE = "Beroende av '%1'.",
   DEPENDS_ON_COUNT = "Beroende av %1 gömda uppdrag.",
   FILTERED_LEVEL = "Filtrerad på grund av nivå.",
