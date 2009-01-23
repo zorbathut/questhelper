@@ -192,7 +192,7 @@ end
 
 function QuestHelper:TimeString(seconds)
   if not seconds then
-    self:AppendNotificationError("2008-10-8 nil-timestring")
+    --self:AppendNotificationError("2008-10-8 nil-timestring")   -- we're just going to do away with this entirely, the fact is that a lot of this is going to be ripped to shreds soon anyway
     return "(unknown)"
   end
   
