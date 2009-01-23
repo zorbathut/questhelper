@@ -441,7 +441,7 @@ for f in string.gmatch(flist, "[^\n]+") do
   if not s or count >= s then table.insert(filz, {fname = f, id = count}) end
   count = count + 1
   
-  if count > e then break end
+  if e and count > e then break end
 end
 
 for k, v in pairs(filz) do
