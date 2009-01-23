@@ -79,7 +79,6 @@ function ChainBlock:Finish()
     for _, d in pairs(v) do
       ProgressMessage(string.format("Sorting %s, %d/%d + %d/%d", self.id, sdcc, sdc, ict, #v))
       ict = ict + 1
-      print(type(d.value.fileid))
       if d.value.fileid then push_file_id(d.value.fileid) else push_file_id(-1) end
       item:Data(k, d.subkey, d.value, self.process)
       pop_file_id()

@@ -6,8 +6,8 @@ print = function (...) orig_print(debug.getinfo(2,"n").name, ...) end
 io.write = function (...) orig_write(debug.getinfo(2,"n").name, ...) end
 ]]
 
-local do_zone_map = false
-local do_errors = false
+local do_zone_map = true
+local do_errors = true
 
 require("persistence")
 require("compile_chain")
@@ -41,6 +41,15 @@ local function sortversion(a, b)
   local mtcha, mtchb = not string.match(a, "[%d.]*"), not string.match(b, "[%d.]*")
   if mtcha == mtchb then return a > b end -- common case. Right now, version numbers are such that simple alphabetization sorts properly (although we want it to be sorted backwards.)
   return mtchb -- mtchb is true if b is not a proper string. if b isn't a proper string, we want it after the rest, so we want a first.
+end
+
+local function most_common(tbl)
+  local mcv = nil
+  local mcvw = nil
+  for k, v in pairs(tbl) do
+    if not mcvw or v > mcvw then mcv, mcvw = k, v end
+  end
+  return mcv
 end
 
 local function valid_pos(ite)
@@ -179,7 +188,6 @@ local quest_slurp = ChainBlock_Create("quest_slurp", {chainhead},
           assert(item)
           
           if token == "satisfied" then
-            print(key)
             value[k] = split_quest_satisfied(value[k])
           end
           
@@ -200,18 +208,19 @@ local quest_slurp = ChainBlock_Create("quest_slurp", {chainhead},
         end
       end
       
-      if value.name then self.accum.name[value.name] = (self.accum.name[value.name] or 0) + 1 end -- as of this writing we're not actually storing names, so, welp
+      
+      if value.name then
+        local vnx = string.match(value.name, "%b[]%s*(.*)")
+        if not vnx then vnx = value.name end
+        if vnx ~= value.name then print(value.name, vnx) end
+        self.accum.name[vnx] = (self.accum.name[vnx] or 0) + 1
+      end
       if value.level then self.accum.level[value.level] = (self.accum.level[value.level] or 0) + 1 end
     end,
     
     Finish = function(self, Output)
-      if true or tablesize(self.accum.name) > 1 then
-        for k, v in pairs(self.accum.name) do
-          print(k, v)
-        end
-        assert(tablesize(self.accum.name) <= 1) -- will fail
-      end
-      assert(tablesize(self.accum.level) <= 1)
+      self.accum.name = most_common(self.accum.name)
+      self.accum.level = most_common(self.accum.level)
       
       local qout = {}
       for k, v in pairs(self.accum.criteria) do
@@ -224,6 +233,9 @@ local quest_slurp = ChainBlock_Create("quest_slurp", {chainhead},
       
       qout.start = { loc = position_finalize(self.accum.start) }
       qout.finish = { loc = position_finalize(self.accum.finish) }
+      
+      -- we don't actually care about the level, so we don't bother to store it. Really, we only care about the name for debug purposes also, so we should probably get rid of it before release.
+      qout.name = self.accum.name
       
       local has_stuff = false
       for k, v in pairs(qout) do
