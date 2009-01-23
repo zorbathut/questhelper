@@ -268,7 +268,7 @@ end
 function QuestHelper:AppendPosition(list, index, x, y, w, min_dist)
   if not x or not y or (x == 0 and y == 0) or x <= -0.1 or y <= -0.1 or x >= 1.1 or y >= 1.1 then
     local nc, nz, nx, ny = self.Astrolabe:GetCurrentPlayerPosition()
-    self:AppendNotificationError("2008-10-6 nil-position", string.format("nilposition, %s %s %s %s vs %s %s", tostring(nc), tostring(nz), tostring(nx), tostring(ny), tostring(x), tostring(y)))
+    --self:AppendNotificationError("2008-10-6 nil-position", string.format("nilposition, %s %s %s %s vs %s %s", tostring(nc), tostring(nz), tostring(nx), tostring(ny), tostring(x), tostring(y)))  -- We're just not worrying about this too much anymore. Slash and burn.
     return list -- This isn't a real position.
   end
   
