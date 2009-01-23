@@ -56,6 +56,7 @@ failures = [
   "GIF image data",
   "PC bitmap data",
   "Targa image data", # I think we've got all the major ones now, right?
+  "TIFF image data", # Come on. TIFF? Seriously? TIFF?
   
   # Totally worthless
   "vCard visiting card",
