@@ -94,6 +94,7 @@ local chainhead = ChainBlock_Create("chainhead", nil,
         for k, v in pairs(dat.QuestHelper_Errors) do
           for _, d in pairs(v) do
             d.key = k
+            d.fileid = value.fileid
             Output(d.local_version, nil, d, "error")
           end
         end
@@ -106,6 +107,7 @@ local chainhead = ChainBlock_Create("chainhead", nil,
         then 
           -- quests!
           if v.quest then for qid, qdat in pairs(v.quest) do
+            qdat.fileid = value.fileid
             Output(string.format("%d", qid), qhv, qdat, "quest")
           end end
           
@@ -141,8 +143,9 @@ local chainhead = ChainBlock_Create("chainhead", nil,
             end
             
             if items then for _, v in pairs(items) do
+              v.fileid = value.fileid
               Output(string.format("%d@%04d@%04d", v.c, math.floor(v.y / zone_image_chunksize), math.floor(v.x / zone_image_chunksize)), nil, v, "zone") -- This is inverted - it's continent, y, x, for proper sorting.
-              Output(string.format("%d", v.c), nil, {math.floor(v.x / zone_image_chunksize), math.floor(v.y / zone_image_chunksize)}, "zone_bounds")
+              Output(string.format("%d", v.c), nil, {fileid = value.fileid; math.floor(v.x / zone_image_chunksize), math.floor(v.y / zone_image_chunksize)}, "zone_bounds")
             end end
           end end
         else
@@ -176,6 +179,7 @@ local quest_slurp = ChainBlock_Create("quest_slurp", {chainhead},
           assert(item)
           
           if token == "satisfied" then
+            print(key)
             value[k] = split_quest_satisfied(value[k])
           end
           
@@ -428,21 +432,21 @@ end
 local count = 0
 
 --local e = 100
---local s = 3500
---local e = 3700
+--local s = 2650
+--local e = 2650
 
 flist = io.popen("ls data/08"):read("*a")
 local filz = {}
 for f in string.gmatch(flist, "[^\n]+") do
-  if not s or count >= s then table.insert(filz, f) end
+  if not s or count >= s then table.insert(filz, {fname = f, id = count}) end
   count = count + 1
   
-  if count == e then break end
+  if count > e then break end
 end
 
 for k, v in pairs(filz) do
-  print(string.format("%d/%d: %s", k, #filz, v))
-  chainhead:Insert("data/08/" .. v, nil, nil)
+  print(string.format("%d/%d: %s", k, #filz, v.fname))
+  chainhead:Insert("data/08/" .. v.fname, nil, {fileid = v.id})
 end
 
 print("Finishing")

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstdio>
 #include <errno.h>
+#include <stack>
 
 #include <luabind/luabind.hpp>
 #include <boost/noncopyable.hpp>
@@ -14,6 +15,28 @@ using boost::optional;
 
 bool semiass_failure = false;
 #define semi_assert(x) (__builtin_expect(!!(x), 1) ? (void)(1) : (printf("SEMIASSERT at %s:%d - %s\n", __FILE__, __LINE__, #x), semiass_failure = true, (void)(1)))
+
+stack<int> ids;
+
+int cur_file_id() {
+  if(ids.empty()) {
+    return -77;
+  } else {
+    return ids.top();
+  }
+}
+
+#define CHECK(x) (__builtin_expect(!!(x), 1) ? (void)(1) : (printf("CHECK at %s:%d / %d - %s\n", __FILE__, __LINE__, cur_file_id(), #x), throw("CHECK failed")))
+
+void push_file_id(int loc_id) {
+  ids.push(loc_id);
+}
+
+
+void pop_file_id() {
+  CHECK(!ids.empty());
+  ids.pop();
+}
 
 template<typename T> void pushit(lua_State *L, const string &vid, optional<T> &v) {
   if(v) {
@@ -63,7 +86,7 @@ Loc getLoc(const char *pt) {
 };
 
 void slice_loc(lua_State *L, const std::string &dat) {
-  assert(dat.size() == 11);
+  CHECK(dat.size() == 11);
   
   getLoc(dat.c_str()).push(L);
 }
@@ -75,7 +98,7 @@ void parsechunks(const char **st, map<char, vector<int> > *out) {
     (*st)++;
     const char *stm = *st;
     while(true) {
-      assert(**st == tolower(cite) || isdigit(**st));
+      CHECK(**st == tolower(cite) || isdigit(**st));
       if(**st == tolower(cite)) break;
       (*st)++;
     }
@@ -110,7 +133,7 @@ void split_quest_startend(lua_State *L, const std::string &dat) {
     
     const char *stl = st;
     st += 11;
-    assert(st <= ed);
+    CHECK(st <= ed);
     
     Loc luc = getLoc(stl);
     
@@ -141,15 +164,20 @@ void split_quest_satisfied(lua_State *L, const std::string &dat) {
     const vector<int> &count = matrix['C'];
     
     parsechunks(&st, &matrix);
-    assert(count.size() <= 1);
+    CHECK(count.size() <= 1);
     
-    assert(*st == 'L');
+    CHECK(*st == 'L');
     st++;
     
     const char *stl = st;
     st += 11;
-    assert(st <= ed);
-    assert(*st == 'l');
+    CHECK(st <= ed);
+    if(*st != 'l') {
+      // This is flimsy.
+      lua_pop(L, 2);
+      break;
+    }
+    CHECK(*st == 'l');
     
     Loc luc = getLoc(stl);
     
@@ -184,16 +212,16 @@ class Image : boost::noncopyable {
   int hei;
 public:
   Image(int width, int height) {
-    assert(width >= 0);
-    assert(height >= 0);
+    CHECK(width >= 0);
+    CHECK(height >= 0);
     wid = width;
     hei = height;
     data.resize(width * height, 0);
   }
   
   void set(int x, int y, unsigned int pix) {
-    assert(x >= 0 && x < wid);
-    assert(y >= 0 && y < wid);
+    CHECK(x >= 0 && x < wid);
+    CHECK(y >= 0 && y < wid);
     data[y * wid + x] = pix;
   }
   
@@ -201,10 +229,10 @@ public:
   unsigned int *getPtr(int x, int y) { return &data[y * wid + x]; }
   
   void copyfrom(const Image &image, int x, int y) {
-    assert(x >= 0);
-    assert(y >= 0);
-    assert(x + image.wid <= wid);
-    assert(y + image.hei <= hei);
+    CHECK(x >= 0);
+    CHECK(y >= 0);
+    CHECK(x + image.wid <= wid);
+    CHECK(y + image.hei <= hei);
     
     unsigned int *itx = getPtr(x, y);
     const unsigned int *src = image.getPtr(0, 0);
@@ -243,16 +271,16 @@ public:
     chunk = blocksize;
     
     fp = fopen(fname.c_str(), "wb");
-    assert(fp);
+    CHECK(fp);
     
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    assert(png_ptr);
+    CHECK(png_ptr);
     
     info_ptr = png_create_info_struct(png_ptr);
-    assert(info_ptr);
+    CHECK(info_ptr);
     
     if(setjmp(png_jmpbuf(png_ptr))) {
-      assert(0);
+      CHECK(0);
     }
     
     png_init_io(png_ptr, fp);
@@ -267,7 +295,7 @@ public:
   }
   
   void flush_row() {
-    assert(cury != hei);
+    CHECK(cury != hei);
     
     vector<png_bytep> dats;
     for(int i = 0; i < chunk; i++)
@@ -282,8 +310,8 @@ public:
   }
   
   void write_tile(int x, int y, const Image &tile) {
-    assert(y >= cury);
-    assert(y > cury || x > curx);
+    CHECK(y >= cury);
+    CHECK(y > cury || x > curx);
     
     while(y > cury)
       flush_row();
@@ -310,7 +338,8 @@ public:
 };
 
 void check_semiass_failure() {
-  assert(!semiass_failure);
+  CHECK(!semiass_failure);
+  CHECK(ids.empty());
 };
 
 extern "C" int init(lua_State* L) {
@@ -320,6 +349,8 @@ extern "C" int init(lua_State* L) {
 
   module(L)
   [
+    def("push_file_id", &push_file_id),
+    def("pop_file_id", &pop_file_id),
     def("slice_loc", &slice_loc, raw(_1)),
     def("split_quest_startend", &split_quest_startend, raw(_1)),
     def("split_quest_satisfied", &split_quest_satisfied, raw(_1)),
