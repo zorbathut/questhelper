@@ -62,7 +62,7 @@ QuestHelper_Translations.plPL =
   IGNORE = "Zignoruj",
   
   IGNORED_PRIORITY_TITLE = "Zaznaczony priorytet będzie ignorowany.",
-  IGNORED_PRIORITY_FIX = nil,
+  IGNORED_PRIORITY_FIX = "zaakceptuj ten sam priorytet do blokowanych obiektów",
   IGNORED_PRIORITY_IGNORE = "Sam ustwię priorytet.",
   
   -- Custom objectives.
@@ -160,13 +160,13 @@ QuestHelper_Translations.plPL =
   MENU_SETTINGS = "Ustawienia",
   MENU_ENABLE = "Włączenie",
   MENU_DISABLE = "Wyłączenie",
-  MENU_OBJECTIVE_TIPS = nil,
-  MENU_TRACKER_OPTIONS = nil,
-  MENU_QUEST_TRACKER = nil,
+  MENU_OBJECTIVE_TIPS = "Menu zadań",
+  MENU_TRACKER_OPTIONS = "zaznaczenie zadań",
+  MENU_QUEST_TRACKER = "Zaznaczanie zadań",
   MENU_TRACKER_LEVEL = "%1 Poziom Questów",
-  MENU_TRACKER_QCOLOUR = nil,
-  MENU_TRACKER_OCOLOUR = nil,
-  MENU_TRACKER_SCALE = nil,
+  MENU_TRACKER_QCOLOUR = "kolor poziomu questów",
+  MENU_TRACKER_OCOLOUR = "kolor zadań",
+  MENU_TRACKER_SCALE = "rozmiar szukania",
   MENU_TRACKER_RESET = "Zresetuj pozycje",
   MENU_FLIGHT_TIMER = "%1 Czas lotu",
   MENU_ANT_TRAILS = "%1 \"Szlak Mrówek\"",
