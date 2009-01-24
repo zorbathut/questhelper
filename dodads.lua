@@ -669,9 +669,16 @@ function QuestHelper:CreateMipmapDodad()
         local path, travel_time
         
         if QuestHelper.target then
-          for i in ipairs(QuestHelper.target[1]) do QuestHelper: Assert(QuestHelper.target[2][i], "nil flightpath error resurgence!") end
-          path, travel_time = QuestHelper:ComputeRoute(QuestHelper.target, self.objective.pos)
-          travel_time = travel_time + math.max(0, QuestHelper.target_time-time())
+          
+          -- Okay, this is another "fix the symptom without fixing the cause" hack. Not good, but a lot of this is going away anyway.
+          local has_path = true
+          for i in ipairs(QuestHelper.target[1]) do if not QuestHelper.target[2][i] then has_path = false end end
+          if has_path then
+            path, travel_time = QuestHelper:ComputeRoute(QuestHelper.target, self.objective.pos)
+            travel_time = travel_time + math.max(0, QuestHelper.target_time-time())
+          else
+            QuestHelper:TextOut("yes it is happening")
+          end
         else
           path, travel_time = QuestHelper:ComputeRoute(QuestHelper.pos, self.objective.pos)
         end
