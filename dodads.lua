@@ -5,7 +5,8 @@ local ofs = 0.000723339 * (GetScreenHeight()/GetScreenWidth() + 1/3) * 70.4;
 local radius = ofs / 1.166666666666667;
 
 local function convertLocation(p)
-  return p.c, 0, p.x, p.y
+  --return p.c, 0, p.x, p.y
+  return 0, 0, globx, globy
 end
 
 local function convertLocationToScreen(p, c, z)
@@ -311,6 +312,9 @@ function QuestHelper:AppendObjectiveToTooltip(o)
   select(2, self.tooltip:GetPrevLines()):SetFont(self.font.sans, 11)
 end
 
+globx = 0.5
+globy = 0.5
+
 function QuestHelper:CreateWorldMapDodad(objective, index)
   local icon = CreateFrame("Button", nil, QuestHelper.map_overlay)
   icon:SetFrameStrata("FULLSCREEN")
@@ -374,8 +378,10 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
       self.dot:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -3*QuestHelper_Pref.scale, 3*QuestHelper_Pref.scale)
       
       QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(objective))
+      --QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, 0, 0, globx, globy)
     else
       self.objective = nil
+      QuestHelper:TextOut("H5")
       self:Hide()
     end
   end
@@ -509,16 +515,18 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   end
   
   function icon:OnLeave()
+    QuestHelper:TextOut("H6")
     QuestHelper.tooltip:Hide()
     self.show_glow = false
     self.old_count = 0
   end
   
   function icon:OnEvent(event)
-    if self.objective and self.objective.pos then
+    if self.objective then
       QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(self.objective.pos))
     else
       self.objective = nil
+      QuestHelper:TextOut("H7")
       self:Hide()
     end
   end
@@ -624,28 +632,12 @@ function QuestHelper:CreateMipmapDodad()
   icon.bg:SetDrawLayer("BACKGROUND")
   icon.bg:SetAllPoints()
   
-  function icon:NextObjective()
-    for i, o in ipairs(QuestHelper.route) do
-      if not QuestHelper.to_remove[o] and o.pos and not o.filter_blocked then
-        return o
-      end
-    end
-    
-    return nil
-  end
-  
   function icon:OnUpdate(elapsed)
     if self.objective then
-      if not self.objective.pos then
-        self.objective = self:NextObjective()
-        if not self.objective then
-          self:Hide()
-          return
-        end
-      end
       
       self:Show()
       
+      --[=[
       if self.recalc_timeout <= 0 and not QuestHelper.graph_in_limbo and QuestHelper.Routing.map_walker then
         self.recalc_timeout = 50
         
@@ -759,8 +751,9 @@ function QuestHelper:CreateMipmapDodad()
           self.phase = self.phase+elapsed*3.5
         end
         self.arrow:SetModelScale(0.600000023841879+0.1*math.sin(self.phase))
-      end
+      end]=]
     else
+      QuestHelper:TextOut("H1")
       self:Hide()
     end
   end
@@ -774,6 +767,7 @@ function QuestHelper:CreateMipmapDodad()
         self:Show()
       else
         QuestHelper:InvokeWaypointCallbacks()
+        QuestHelper:TextOut("H2")
         self:Hide()
       end
       
@@ -798,6 +792,7 @@ function QuestHelper:CreateMipmapDodad()
   end
   
   function icon:OnLeave()
+    QuestHelper:TextOut("H3")
     QuestHelper.tooltip:Hide()
   end
   
@@ -811,9 +806,10 @@ function QuestHelper:CreateMipmapDodad()
   end
   
   function icon:OnEvent()
-    if self.objective and self.objective.pos then
+    if self.objective then
       self:Show()
     else
+      QuestHelper:TextOut("H4")
       self:Hide()
     end
   end
