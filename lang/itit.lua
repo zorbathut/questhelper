@@ -15,7 +15,7 @@ QuestHelper_Translations.itIT =
   NOT_UNZIPPED_CORRECTLY = "QuestHelper non è installato corretamente. Raccomandiamo di usare Curse Client o 7zip per installarlo. Assicurati che le sottodirectory sono esatte.",
   PLEASE_DONATE = "%(QuestHelper è implementato dalle vostre donazioni!) In qualunque modo voi contribuiate è apprezzato, e poche donazioni al mese rendono possibile aggiornare il nostro lavoro. Scrivete %h (/qh donate) per maggiori informazioni ",
   HOW_TO_CONFIGURE = "QuestHelper non è stato ancora settato,ma puo essere configurato scrivendo %h(/qh settings). L'aiuto è disponibile scrivendo %h(/qh help) ",
-  TIME_TO_UPDATE = nil,
+  TIME_TO_UPDATE = "Potrebbe esserci una %h(nuova versione di QuestHelper) disponibile. Le nuove versioni di solito includono nuove funzioni, novi database delle quest, e fix dei bug. Perfavore aggiorna la tua versione!",
   
   -- Route related text.
   ROUTES_CHANGED = "I percorsi di volo del tuo personaggio sono stati modificati.",
@@ -26,9 +26,9 @@ QuestHelper_Translations.itIT =
   UPDATING_ROUTE = "Sto aggiornando il percorso.",
   
   -- Special tracker text
-  QH_LOADING = nil,
-  QUESTS_HIDDEN_1 = nil,
-  QUESTS_HIDDEN_2 = nil,
+  QH_LOADING = "QuestHelper si sta caricando (%1%%)...",
+  QUESTS_HIDDEN_1 = "Le Quest potrebbero essere nascoste",
+  QUESTS_HIDDEN_2 = "(scrivi \"/qh hidden\" per una lista)",
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Lingue disponibili:",
