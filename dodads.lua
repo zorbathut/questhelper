@@ -5,13 +5,11 @@ local ofs = 0.000723339 * (GetScreenHeight()/GetScreenWidth() + 1/3) * 70.4;
 local radius = ofs / 1.166666666666667;
 
 local function convertLocation(p)
-  local c, x, y = p[1].c, p[3], p[4]
-  x, y = x/QuestHelper.continent_scales_x[c], y/QuestHelper.continent_scales_y[c]
-  return c, 0, x, y
+  return p.c, 0, p.x, p.y
 end
 
 local function convertLocationToScreen(p, c, z)
-  return QuestHelper.Astrolabe:TranslateWorldMapPosition(p[1].c, 0, p[3]/QuestHelper.continent_scales_x[p[1].c], p[4]/QuestHelper.continent_scales_y[p[1].c], c, z)
+  return QuestHelper.Astrolabe:TranslateWorldMapPosition(p.c, 0, p.x, p.y, c, z)
 end
 
 local function convertNodeToScreen(n, c, z)
@@ -77,15 +75,6 @@ local function ClampLine(x1, y1, x2, y2)
   end
 end
 
-local function pushPath(list, path, c, z)
-  if path then
-    pushPath(list, path.p, c, z)
-    local t = QuestHelper:CreateTable()
-    t[1], t[2] = QuestHelper.Astrolabe:TranslateWorldMapPosition(path.c, 0, path.x/QuestHelper.continent_scales_x[path.c], path.y/QuestHelper.continent_scales_y[path.c], c, z)
-    table.insert(list, t)
-  end
-end
-
 function QuestHelper:CreateWorldMapWalker()
   local walker = CreateFrame("Button", nil, QuestHelper.map_overlay)
   walker:SetWidth(0)
@@ -104,7 +93,7 @@ function QuestHelper:CreateWorldMapWalker()
   function walker:OnUpdate(elapsed)
     local out = 0
     
-    if QuestHelper_Pref.show_ants then
+    --[[if QuestHelper_Pref.show_ants then
       local points = self.points
       
       self.phase = self.phase + elapsed * 0.66
@@ -147,23 +136,17 @@ function QuestHelper:CreateWorldMapWalker()
           end
         end
       end
-    end
+    end]]
     
     while #self.dots > out do
       QuestHelper:ReleaseTexture(table.remove(self.dots))
     end
   end
   
-  function walker:RouteChanged()
+  function walker:RouteChanged(route)
+    if route then self.route = route end -- we cache it so we can refer to it later when the world map changes
+    
     if self.frame.Astrolabe.WorldMapVisible then
-      for i, obj in pairs(self.frame.route) do
-        if not obj.pos then
-          -- No. Just no.
-          QuestHelper:AppendNotificationError("10-10-2008 pathfinding/dodads nil coroutine race condition bug")
-          return   -- return "failure :("
-        end
-      end
-      
       local points = self.points
       local cur = self.frame.pos
       
@@ -173,40 +156,47 @@ function QuestHelper:CreateWorldMapWalker()
       
       local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
       
+      -- I'm not quite sure what the point of this is.
+      --[[
       if self.frame.target then
         travel_time = math.max(0, self.frame.target_time-time())
         cur = self.frame.target
         local t = self.frame:CreateTable()
         t[1], t[2] = convertLocationToScreen(cur, c, z)
         table.insert(points, t)
-      end
+      end]]
       
-      for i, obj in pairs(self.frame.route) do
-        local path, d = self.frame:ComputeRoute(cur, obj.pos)
+      for i, obj in ipairs(self.route) do
+        QuestHelper:TextOut(string.format("%s", tostring(obj)))
+        -- What's list for?
+        --[[
+        local t = QuestHelper:CreateTable()
+        t[1], t[2] = QuestHelper.Astrolabe:TranslateWorldMapPosition(obj.c, 0, obj.x/QuestHelper.continent_scales_x[obj.c], obj.y/QuestHelper.continent_scales_y[obj.c], c, z)
         
-        pushPath(points, path, c, z)
+        table.insert(list, t)]]
         
-        travel_time = travel_time + d
-        obj.travel_time = travel_time
-        
-        cur = obj.pos
+        -- We're ignoring travel time for now.
+        --[[
+        travel_time = travel_time + 60
+        obj.travel_time = travel_time]]
         
         local t = self.frame:CreateTable()
-        t[1], t[2] = convertLocationToScreen(cur, c, z)
+        t[1], t[2] = convertLocationToScreen(obj, c, z)
         
         table.insert(points, t)
+        QuestHelper:TextOut(string.format("%s/%s/%s to %s/%s", tostring(obj.c), tostring(obj.x), tostring(obj.y), tostring(t[1]), tostring(t[2])))
       end
       
-      for i = 1, #self.frame.route do
+      for i = 1, #self.route do
         local dodad = self.map_dodads[i]
         if not dodad then
-          self.map_dodads[i] = self.frame:CreateWorldMapDodad(self.frame.route[i], i)
+          self.map_dodads[i] = self.frame:CreateWorldMapDodad(self.route[i], i)
         else
-          self.map_dodads[i]:SetObjective(self.frame.route[i], i)
+          self.map_dodads[i]:SetObjective(self.route[i], i)
         end
       end
 
-      for i = #self.frame.route+1,self.used_map_dodads do
+      for i = #self.route+1,self.used_map_dodads do
         self.map_dodads[i]:SetObjective(nil, 0)
       end
 
@@ -214,7 +204,7 @@ function QuestHelper:CreateWorldMapWalker()
     end
   end
   
-  walker:SetScript("OnEvent", walker.RouteChanged)
+  walker:SetScript("OnEvent", function () walker:RouteChanged() end)  -- we do this just to strip the parameters out
   walker:RegisterEvent("WORLD_MAP_UPDATE")
   
   walker:SetScript("OnUpdate", walker.OnUpdate)
@@ -373,17 +363,17 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
         self.bg = QuestHelper:CreateIconTexture(self, 16)
       else
         -- otherwise give it the background selected by the objective
-        self.bg = QuestHelper:CreateIconTexture(self, objective.icon_bg)
+        self.bg = QuestHelper:CreateIconTexture(self, objective.icon_bg or 16)
       end
       
-      self.dot = QuestHelper:CreateIconTexture(self, objective.icon_id)
+      self.dot = QuestHelper:CreateIconTexture(self, objective.icon_id or 6)
       
       self.bg:SetDrawLayer("BACKGROUND")
       self.bg:SetAllPoints()
       self.dot:SetPoint("TOPLEFT", self, "TOPLEFT", 3*QuestHelper_Pref.scale, -3*QuestHelper_Pref.scale)
       self.dot:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -3*QuestHelper_Pref.scale, 3*QuestHelper_Pref.scale)
       
-      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(objective.pos))
+      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(objective))
     else
       self.objective = nil
       self:Hide()

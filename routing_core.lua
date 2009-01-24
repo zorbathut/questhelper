@@ -110,6 +110,15 @@ local function RunAnt()
   return route
 end
 
+local function BetterRoute(route)
+  local rt = {}
+  for k, v in ipairs(route) do
+    rt[k] = NodeList[v]
+  end
+  rt.distance = route.distance -- this is probably temporary
+  Notifier(rt)
+end
+
 -- Core loop
 function Public_Process()
   QuestHelper: Assert(Notifier)
@@ -127,7 +136,7 @@ function Public_Process()
       --if last_best then RTO(string.format("Path generated: %s vs %s", PathToString(trouts[#trouts]), PathToString(last_best))) end
       if not last_best or last_best.distance > trouts[#trouts].distance then
         last_best = trouts[#trouts]
-        Notifier(last_best)
+        BetterRoute(last_best)
       end
     end
     
