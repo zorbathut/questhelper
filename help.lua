@@ -688,10 +688,10 @@ commands =
     
     {"PERFLOAD",
        "Sets or shows the initialization workload. Higher numbers will make QuestHelper load faster, lower numbers will result in better framerate while it's loading.",
-       {{"/qh perfboot", "Show current Performance Factor"},
-        {"/qh perfboot 1", "Sets standard performance"},
-        {"/qh perfboot 50%", "Does half as much background processing"},
-        {"/qh perfboot 3", "Loads 3 times as quickly."}},
+       {{"/qh perfload", "Show current Performance Factor"},
+        {"/qh perfload 1", "Sets standard performance"},
+        {"/qh perfload 50%", "Does half as much background processing"},
+        {"/qh perfload 3", "Loads 3 times as quickly."}},
         QuestHelper.genericSetScale, QuestHelper, "perfload_scale", "boot performance factor", .2, 5},
         
     {"TOP",
