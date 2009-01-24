@@ -9,16 +9,16 @@ QuestHelper_Translations.daDK =
   LOCALE_ERROR = "Sproget i dine gemte data stemmer ikke med sproget til WoW klienten. For at bruge QuestHelper skal du enten ændre sproget tilbage, eller slette dataerne ved at skrive %h(/qh purge).",
   ZONE_LAYOUT_ERROR = "Jeg nægter at køre, af frygt for at ødelægge dine gemte data. Vent venligst på en ny patch, der vil være i stand til at håndtere det nye zonelayout.",
   DOWNGRADE_ERROR = "Dine gemte data er ikke kompatible med denne version af QuestHelper. Brug en nyere version eller slet dine gemte variabler.",
-  HOME_NOT_KNOWN = "Dit hjem er ikke kendt. Når du får chancen, venligst tal med din innkeeper og nulstil det.",
+  HOME_NOT_KNOWN = "Dit hjem er ukendt. Tal venligst med din innkeeper ved førstkommende lejlighed og nulstil det.",
   PRIVATE_SERVER = "QuestHelper understøtter ikke private servere.",
-  PLEASE_RESTART = "Der var en fejl ved start af QuestHelper. Vær venlig at afslutte World of Warcraft helt og prøv igen.",
+  PLEASE_RESTART = "Der opstod en fejl ved start af QuestHelper. Vær venlig at afslutte World of Warcraft helt og prøv igen.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper var installeret forkert. Vi anbefaler enten at bruge Curse Client eller 7zip til installering. Vær sikker på underdirektorier er udpakket.",
-  PLEASE_DONATE = nil,
-  HOW_TO_CONFIGURE = "QuestHelper har ikke en fungerende indstillingsside endnu, men kan blive konfigureret ved at skrive %h(/qh settings). Hjælp er tilgængelig med %h(/qh help).",
-  TIME_TO_UPDATE = nil,
+  PLEASE_DONATE = "%h(QuestHelper er afhængig af dine bidrag!) Ethvert bidrag modtages med tak. Blot et par dollars om måneden, sikrer at jeg holder det opdateret og kørende. Skriv %h(\"/qh donate\") for yderligere oplysninger.",
+  HOW_TO_CONFIGURE = "QuestHelper har ikke en fungerende indstillingsside endnu, men kan konfigureres ved at skrive %h(/qh settings). Hjælp er tilgængelig med %h(/qh help).",
+  TIME_TO_UPDATE = "Der er evt. en %h(ny QuestHelper version) klar. Nye versioner kan indeholde nye funktioner, nye quest databaser, og fejlrettelser. Opdater venligst!",
   
   -- Route related text.
-  ROUTES_CHANGED = "Flyveruterne for din karakter er blevet ændret.",
+  ROUTES_CHANGED = "Dine flyveruter er blevet ændret.",
   HOME_CHANGED = "Dit hjem er blevet ændret.",
   TALK_TO_FLIGHT_MASTER = "Snak venligst med din lokale flyveleder.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Tak.",
@@ -26,9 +26,9 @@ QuestHelper_Translations.daDK =
   UPDATING_ROUTE = "Opdaterer rute.",
   
   -- Special tracker text
-  QH_LOADING = nil,
-  QUESTS_HIDDEN_1 = nil,
-  QUESTS_HIDDEN_2 = nil,
+  QH_LOADING = "QuestHelper indlæser (%1%%)...",
+  QUESTS_HIDDEN_1 = "Der er evt. skjulte quests.",
+  QUESTS_HIDDEN_2 = "(\"/qh hidden\" for liste)",
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Tilgængelige sprog:",
@@ -47,7 +47,7 @@ QuestHelper_Translations.daDK =
   OBJECTIVE_SLAY = "Dræb %h1.",
   OBJECTIVE_LOOT = "Saml %h1.",
   
-  ZONE_BORDER = "%1/%2 grænse",
+  ZONE_BORDER = "Grænse mellem %1/%2",
   
   -- Stuff used in objective menus.
   PRIORITY = "Prioritet",
@@ -62,7 +62,7 @@ QuestHelper_Translations.daDK =
   IGNORE = "Ignore",
   
   IGNORED_PRIORITY_TITLE = "Den valgte prioritet bliver ignoreret.",
-  IGNORED_PRIORITY_FIX = "Sæt samme prioritet til de(t) blokerede objekt(er).",
+  IGNORED_PRIORITY_FIX = "Sæt samme prioritet til de(t) blokerende mål.",
   IGNORED_PRIORITY_IGNORE = "Jeg sætter selv prioriten.",
   
   -- Custom objectives.
@@ -72,7 +72,7 @@ QuestHelper_Translations.daDK =
   REMOVED_OBJ = "Fjernet: %1",
   USER_OBJ = "Brugerobjektiv: %h1",
   UNKNOWN_OBJ = "Jeg ved ikke, hvor du skal gå hen med dette objektiv.",
-  INACCESSIBLE_OBJ = nil,
+  INACCESSIBLE_OBJ = "QuestHelper kan ikke finde en brugbar position til &h1. Vi har tilføjet en formodenligt utilgengængelig position til din list. Indsend venligst dine data, hvis du finder en brugbar udgave af emnet! (%h(/q submit)) ",
   
   SEARCHING_STATE = "Søger: %1",
   SEARCHING_LOCAL = "Sprog %1",
@@ -86,7 +86,7 @@ QuestHelper_Translations.daDK =
   PEER_TURNIN = "Vent på at %h1 afleverer %h2.",
   PEER_LOCATION = "Hjælp %h1 med at nå et sted i %h2.",
   PEER_ITEM = "Hjælp %1 med at få fat i %h2.",
-  PEER_OTHER = "Assistér %1 med %h2.",
+  PEER_OTHER = "Hjælp %1 med %h2.",
   
   PEER_NEWER = "%h1 bruger en nyere protokolversion. Måske det er på tide at opgradere.",
   PEER_OLDER = "%h1 bruger en ældre protokolversion.",
@@ -96,8 +96,8 @@ QuestHelper_Translations.daDK =
   -- Hidden objectives.
   HIDDEN_TITLE = "Gemte Objekter",
   HIDDEN_NONE = "Der er ingen gemte objekter for dig.",
-  DEPENDS_ON_SINGLE = "Kommer an på '%1'.",
-  DEPENDS_ON_COUNT = "Kommer an på %1 gemte objekter.",
+  DEPENDS_ON_SINGLE = "Afhænger af '%1'.",
+  DEPENDS_ON_COUNT = "Afhænger af %1 gemte mål.",
   FILTERED_LEVEL = "Filtreret på grund af level.",
   FILTERED_ZONE = "Filtreret på grund af område.",
   FILTERED_COMPLETE = "Filtreret da det er afsluttet.",
@@ -121,7 +121,7 @@ QuestHelper_Translations.daDK =
   
   NAG_NOT_NEW = "Du har ingen information, som ikke allerede er i den statiske database.",
   NAG_NEW = "Du bør overveje, at dele dine data, så andre kan gøre brug af dem.",
-  NAG_INSTRUCTIONS = "Skriv %h(/qh submit) for instruktioner til at sende data.",
+  NAG_INSTRUCTIONS = "Skriv %h(/qh submit) for instruktioner om at indsende data.",
   
   NAG_SINGLE_FP = "en flyveleder",
   NAG_SINGLE_QUEST = "en quest",
@@ -135,7 +135,7 @@ QuestHelper_Translations.daDK =
   
   NAG_MULTIPLE_FP = "%1 flyveledere",
   NAG_MULTIPLE_QUEST = "%1 quests",
-  NAG_MULTIPLE_ROUTE = "%1 flyve ruter",
+  NAG_MULTIPLE_ROUTE = "%1 flyveruter",
   NAG_MULTIPLE_ITEM_OBJ = "%1 genstand objektiver",
   NAG_MULTIPLE_OBJECT_OBJ = "%1 objekt objektiver",
   NAG_MULTIPLE_MONSTER_OBJ = "%1 monster objektiver",
@@ -144,7 +144,7 @@ QuestHelper_Translations.daDK =
   NAG_MULTIPLE_PLAYER_OBJ = "%1 spiller objektiver",
   
   -- Stuff used by dodads.
-  PEER_PROGRESS = "%1's fremskridt:",
+  PEER_PROGRESS = "%1s fremskridt:",
   TRAVEL_ESTIMATE = "Anslået rejsetid:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Besøg %h1 på vej til:",
@@ -154,7 +154,7 @@ QuestHelper_Translations.daDK =
   QH_BUTTON_TOOLTIP1 = "Venstreklik: %1 rute information.",
   QH_BUTTON_TOOLTIP2 = "Højreklik: Vis Indstillingsmenu.",
   QH_BUTTON_SHOW = "Vis",
-  QH_BUTTON_HIDE = "Gem",
+  QH_BUTTON_HIDE = "Skjul",
 
   MENU_CLOSE = "Luk Menu",
   MENU_SETTINGS = "Indstillinger",
@@ -167,7 +167,7 @@ QuestHelper_Translations.daDK =
   MENU_TRACKER_QCOLOUR = "%1 Quest Sværhedsgrads Farver",
   MENU_TRACKER_OCOLOUR = "%1 Objektiv Fremgangs Farver",
   MENU_TRACKER_SCALE = "Tracker Skalering",
-  MENU_TRACKER_RESET = "Nulstil Position",
+  MENU_TRACKER_RESET = "Nulstil Placering",
   MENU_FLIGHT_TIMER = "%1 Flyvetid",
   MENU_ANT_TRAILS = "%1 Myre Spor",
   MENU_WAYPOINT_ARROW = "%1 Waypoint Pil",
@@ -194,7 +194,7 @@ QuestHelper_Translations.daDK =
   -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
   TOOLTIP_WATCHED = "Fulgt af QuestHelper",
   TOOLTIP_QUEST = "Til Questen %h1.",
-  TOOLTIP_PURCHASE = "Køb %h1",
+  TOOLTIP_PURCHASE = "Køb %h1.",
   TOOLTIP_SLAY = "Dræb for %h1.",
   TOOLTIP_LOOT = "Plyndr fra %h1."
  }

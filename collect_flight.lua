@@ -7,6 +7,9 @@ if QuestHelper_File["collect_flight.lua"] == "Development Version" then debug_ou
 local QHCFM
 local QHCFT
 
+local IsMonsterGUID
+local GetMonsterType
+
 local function GetRoute(currentname, endnode)
   local path = currentname .. "@@" .. TaxiNodeName(endnode)
   
@@ -56,7 +59,7 @@ local function TaximapOpened()
     QHCFM[name].x, QHCFM[name].y = TaxiNodePosition(i)
     if type == "CURRENT" then
       local guid = UnitGUID("target")
-      if guid then QHCFM[name].master = GetMonsterType(guid) end
+      if guid and IsMonsterGUID(guid) then QHCFM[name].master = GetMonsterType(guid) end
     end
     
     if type ~= "CURRENT" then
@@ -94,6 +97,11 @@ function QH_Collect_Flight_Init(QHCData, API)
   if not QHCData.flight_times then QHCData.flight_times = {} end
   QHCFM, QHCFT = QHCData.flight_master, QHCData.flight_times
   
+  IsMonsterGUID = API.Utility_IsMonsterGUID
+  GetMonsterType = API.Utility_GetMonsterType
+  QuestHelper: Assert(IsMonsterGUID)
+  QuestHelper: Assert(GetMonsterType)
+
   API.Registrar_EventHook("TAXIMAP_OPENED", TaximapOpened)
   
   API.Registrar_OnUpdateHook(OnUpdate)

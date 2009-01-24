@@ -12,10 +12,10 @@ QuestHelper_Translations.zhTW =
   HOME_NOT_KNOWN = "目前無法得知您爐石所設定的城鎮。當您有機會經過旅店的時候，請您與旅店老闆談話，並設置您的爐石位置。",
   PRIVATE_SERVER = "本插件不支援私服",
   PLEASE_RESTART = "QuestHelper 啟始失敗無法載入, 請重開魔獸世界再試一下.",
-  NOT_UNZIPPED_CORRECTLY = nil,
+  NOT_UNZIPPED_CORRECTLY = "Quest Helper未正確安裝，我們建議使用Curse客戶端或者7Zip解壓縮程式來安裝。請確定子目錄皆有解壓縮。",
   PLEASE_DONATE = "有關捐助給作者持續更新 QuestHelper 的方式, 請輸入 /qh donate 查看",
   HOW_TO_CONFIGURE = "輸入 /qh settings 可進入QuestHelper GUI設定頁面, 或輸入 /qh help 查看指令.",
-  TIME_TO_UPDATE = nil,
+  TIME_TO_UPDATE = "可能有%h(新的QuestHelper版本) 可供使用，新的版本通常包含新功能、新任務資料庫以及臭蟲的修正。請更新您的版本！",
   
   -- Route related text.
   ROUTES_CHANGED = "你角色的飛行路徑資訊已經更新了。",
@@ -26,9 +26,9 @@ QuestHelper_Translations.zhTW =
   UPDATING_ROUTE = "更新路線",
   
   -- Special tracker text
-  QH_LOADING = nil,
-  QUESTS_HIDDEN_1 = nil,
-  QUESTS_HIDDEN_2 = nil,
+  QH_LOADING = "QestHelper正在載入（%1%%）...",
+  QUESTS_HIDDEN_1 = "任務可能已隱藏",
+  QUESTS_HIDDEN_2 = "(“/qh 隱藏“ 於列表中“）",
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "可使用的語系：",
@@ -117,7 +117,7 @@ QuestHelper_Translations.zhTW =
   NAG_MULTIPLE_NEW = "您有%h(新的)%h1資料，並且%h(更新了)%h2資料。",
   NAG_SINGLE_NEW = "您有 %h(新的) %h1 %h(資料)",
   NAG_ADDITIONAL = "你有 %h(附加訊息) 於 %h1.",
-  NAG_POLLUTED = nil,
+  NAG_POLLUTED = "您的資料庫因私人或測試伺服器的資訊而不正確，並將在啓動時清除",
   
   NAG_NOT_NEW = "在您的靜態資料庫中，找不到沒有可以使用的資料",
   NAG_NEW = "建議您將你的資料分享出來，分享給其他使用者。",
@@ -131,7 +131,7 @@ QuestHelper_Translations.zhTW =
   NAG_SINGLE_MONSTER_OBJ = "一個怪物目標",
   NAG_SINGLE_EVENT_OBJ = "一個事件目標",
   NAG_SINGLE_REPUTATION_OBJ = "一個聲望目標",
-  NAG_SINGLE_PLAYER_OBJ = nil,
+  NAG_SINGLE_PLAYER_OBJ = "一位玩家目標",
   
   NAG_MULTIPLE_FP = "%1 飛行管理員",
   NAG_MULTIPLE_QUEST = "%1 任務資訊",

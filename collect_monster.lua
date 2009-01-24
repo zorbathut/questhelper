@@ -10,6 +10,7 @@ local GetLoc
 local Merger
 local Patterns
 
+local IsMonsterGUID
 local GetMonsterUID
 local GetMonsterType
 
@@ -49,6 +50,7 @@ local function MouseoverUnit()
   if UnitExists("mouseover") and UnitIsVisible("mouseover") and not UnitIsPlayer("mouseover") and not UnitPlayerControlled("mouseover") then
     local guid = UnitGUID("mouseover")
     
+    if not IsMonsterGUID(guid) then return end -- pet that isn't controlled by a player? NPC pet? It's kind of unclear, but I'm getting some, so, FIXED
     local creatureid = GetMonsterUID(guid)
     
     if not recentlySeenCritters[creatureid] then
@@ -117,8 +119,10 @@ function QH_Collect_Monster_Init(QHCData, API)
   Merger = API.Utility_Merger
   QuestHelper: Assert(Merger)
   
+  IsMonsterGUID = API.Utility_IsMonsterGUID
   GetMonsterUID = API.Utility_GetMonsterUID
   GetMonsterType = API.Utility_GetMonsterType
+  QuestHelper: Assert(IsMonsterGUID)
   QuestHelper: Assert(GetMonsterUID)
   QuestHelper: Assert(GetMonsterType)
 end

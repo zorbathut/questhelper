@@ -1,4 +1,10 @@
 
+== Version 0.85 1/24/2009 ==
+
+* Fixed a large pile of small bugs.
+
+At this point I'm mostly just maintaining this version while I do work on another branch. You won't see any new features for a while, but rest assured there's a lot being worked on. I do finally have my error collection code working properly, so I'm going to be patching up the most common bugs to make QH rock-solid.
+
 == Version 0.84 1/16/2009 ==
 
 * Add the concept of "default parameters" to preferences so I don't have to unilaterally screw with people's preferences again. This change may also screw with people's preferences. Go find that picture of Picard covering his face in frustration, that's the expression I'm making right now.
