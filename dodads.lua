@@ -677,7 +677,7 @@ function QuestHelper:CreateMipmapDodad()
             path, travel_time = QuestHelper:ComputeRoute(QuestHelper.target, self.objective.pos)
             travel_time = travel_time + math.max(0, QuestHelper.target_time-time())
           else
-            QuestHelper:TextOut("yes it is happening")
+            --QuestHelper:TextOut("yes here is the nil bug")
           end
         else
           path, travel_time = QuestHelper:ComputeRoute(QuestHelper.pos, self.objective.pos)
