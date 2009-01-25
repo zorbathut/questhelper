@@ -5,8 +5,8 @@ local ofs = 0.000723339 * (GetScreenHeight()/GetScreenWidth() + 1/3) * 70.4;
 local radius = ofs / 1.166666666666667;
 
 local function convertLocation(p)
-  --return p.c, 0, p.x, p.y
-  return 0, 0, globx, globy
+  local c, x, y = QuestHelper.Astrolabe:FromAbsoluteContinentPosition(p.c, p.x, p.y)
+  return c, 0, x, y
 end
 
 local function convertLocationToScreen(p, c, z)
