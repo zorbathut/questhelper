@@ -523,7 +523,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   
   function icon:OnEvent(event)
     if self.objective then
-      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(self.objective.pos))
+      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(self.objective))
     else
       self.objective = nil
       QuestHelper:TextOut("H7")
