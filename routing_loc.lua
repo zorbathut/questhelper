@@ -19,3 +19,7 @@ function NewLoc(c, x, y)
   tab.y = y
   return tab
 end
+
+function IsLoc(c)
+  return c and c.c and c.x and c.y
+end

@@ -39,7 +39,7 @@ function pin()
   QuestHelper:TextOut("^.*: (%d+)/(%d+)(" .. complete_suffix .. ")?$")
 end
 
-local function ScanQuests() -- make it local once we've debugged it
+local function ScanQuests()
   
   local selected
   local index = 1
