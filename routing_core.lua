@@ -77,10 +77,13 @@ local function RunAnt()
   
   while needed_count > 0 do
     local accumulated_weight = 0
+    local tweight = 0
     for k, _ in pairs(needed) do
+      QuestHelper:TextOut(tostring(GetWeight(curloc, k)))
       accumulated_weight = accumulated_weight + GetWeight(curloc, k)
     end
   
+    tweight = accumulated_weight
     accumulated_weight = accumulated_weight * math.random()
     
     local nod = nil
@@ -93,7 +96,7 @@ local function RunAnt()
     end
     
     if not nod then
-      RTO("no nod :(")
+      RTO(string.format("no nod :( %f/%f", accumulated_weight, tweight))
       for k, _ in pairs(needed) do
         nod = k
         break
@@ -143,22 +146,30 @@ function Public_Process()
     for _, x in ipairs(ActiveNodes) do
       for _, y in ipairs(ActiveNodes) do
         local idx = GetIndex(x, y)
-        Weight[idx] = Weight[idx] * PheremonePreservation
+        Weight[idx] = Weight[idx] * PheremonePreservation + 1e-20 -- ensure that it never hits 0
       end
     end
     
-    local weitotal = 0
-    local weicount = 0
     for _, x in ipairs(trouts) do
       local amount = 1 / x.distance
       for y = 1, #x - 1 do
         local idx = GetIndex(x[y], x[y + 1])
         Weight[idx] = Weight[idx] + amount
+      end
+    end
+    
+    local weitotal = 0
+    local weicount = 0
+    for _, x in ipairs(ActiveNodes) do
+      for _, y in ipairs(ActiveNodes) do
+        local idx = GetIndex(x, y)
         weitotal = weitotal + Weight[idx]
         weicount = weicount + 1
       end
     end
+    
     weight_ave = weitotal / weicount
+    --QuestHelper:TextOut(tostring(weight_ave))
     
     QH_Timeslice_Yield()  -- "heh"
   end

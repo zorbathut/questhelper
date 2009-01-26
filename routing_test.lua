@@ -8,22 +8,25 @@
 
 Public_SetStart(NewLoc(0, 37663, 19658)) -- Ironforge
 
-function doit()
-  local temp_walker = QuestHelper:CreateWorldMapWalker()
+local temp_walker = QuestHelper:CreateWorldMapWalker()
 
-  Public_Init(
-    function(path) RTO(string.format("Path notified! New weight is %f", path.distance)) temp_walker:RouteChanged(path) end,
-    function(loc1, loc2)
-      -- Distance function
-      if loc1.c == loc2.c then
-        local dx = loc1.x - loc2.x
-        local dy = loc1.y - loc2.y
-        return math.sqrt(dx * dx + dy * dy)
-      else
-        return 1000000 -- one milllllion time units
-      end
+Public_Init(
+  function(path) RTO(string.format("Path notified! New weight is %f", path.distance)) temp_walker:RouteChanged(path) end,
+  function(loc1, loc2)
+    -- Distance function
+    if loc1.c == loc2.c then
+      local dx = loc1.x - loc2.x
+      local dy = loc1.y - loc2.y
+      return math.sqrt(dx * dx + dy * dy)
+    else
+      return 1000000 -- one milllllion time units
     end
-  )
+  end
+)
+
+QH_Timeslice_Add(Public_Process, "new_routing")
+
+function doit()
 
   local nta = {}
   local ntr = {}
@@ -59,8 +62,6 @@ function doit()
   end
   
   RTO("Done testing")]]
-  
-  QH_Timeslice_Add(Public_Process, "new_routing")
 end
 
 function addmore()

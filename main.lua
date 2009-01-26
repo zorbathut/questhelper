@@ -207,15 +207,6 @@ function QuestHelper:Initialize()
       ["lang.lua"] = true,
 
       ["static.lua"] = true,
-      ["static_deDE.lua"] = true,
-      ["static_enUS.lua"] = true,
-      ["static_esES.lua"] = true,
-      ["static_esMX.lua"] = true,
-      ["static_frFR.lua"] = true,
-      ["static_koKR.lua"] = true,
-      ["static_ruRU.lua"] = true,
-      ["static_zhCN.lua"] = true,
-      ["static_zhTW.lua"] = true,
 
       ["collect.lua"] = true,
       ["collect_achievement.lua"] = true,
@@ -243,6 +234,8 @@ function QuestHelper:Initialize()
       ["routing_loc.lua"] = true,
       ["routing_route.lua"] = true,
       ["routing_core.lua"] = true,
+      
+      ["director_quest.lua"] = true,
     }
     
   local uninstallederr = ""
