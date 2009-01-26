@@ -173,7 +173,7 @@ function QuestHelper:CreateWorldMapWalker()
       end]]
       
       for i, obj in ipairs(self.route) do
-        QuestHelper:TextOut(string.format("%s", tostring(obj)))
+        --QuestHelper:TextOut(string.format("%s", tostring(obj)))
         -- What's list for?
         --[[
         local t = QuestHelper:CreateTable()

@@ -79,7 +79,6 @@ local function RunAnt()
     local accumulated_weight = 0
     local tweight = 0
     for k, _ in pairs(needed) do
-      QuestHelper:TextOut(tostring(GetWeight(curloc, k)))
       accumulated_weight = accumulated_weight + GetWeight(curloc, k)
     end
   
@@ -169,7 +168,6 @@ function Public_Process()
     end
     
     weight_ave = weitotal / weicount
-    --QuestHelper:TextOut(tostring(weight_ave))
     
     QH_Timeslice_Yield()  -- "heh"
   end
@@ -241,8 +239,6 @@ end
 
   -- Add a node to route to
   function Public_NodeAdd(nod)
-    QuestHelper:TextOut(tostring(nod))
-    QuestHelper:TextOut(QuestHelper:StringizeTable(nod))
     QuestHelper: Assert(IsLoc(nod))
     TestShit()
     QuestHelper: Assert(nod)
