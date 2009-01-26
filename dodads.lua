@@ -4,13 +4,17 @@ QuestHelper_Loadtime["dodads.lua"] = GetTime()
 local ofs = 0.000723339 * (GetScreenHeight()/GetScreenWidth() + 1/3) * 70.4;
 local radius = ofs / 1.166666666666667;
 
+-- These conversions are nasty, and this entire section needs a serious cleanup.
 local function convertLocation(p)
   local c, x, y = QuestHelper.Astrolabe:FromAbsoluteContinentPosition(p.c, p.x, p.y)
   return c, 0, x, y
 end
 
 local function convertLocationToScreen(p, c, z)
-  return QuestHelper.Astrolabe:TranslateWorldMapPosition(p.c, 0, p.x, p.y, c, z)
+  local pc, _, px, py = convertLocation(p)
+  local ox, oy = QuestHelper.Astrolabe:TranslateWorldMapPosition(pc, 0, px, py, c, z)
+  --QuestHelper:TextOut(string.format("%f/%f/%f to %f/%f/%f to %f/%f %f/%f", p.c, p.x, p.y, pc, px, py, c, z, ox, oy))
+  return ox, oy
 end
 
 local function convertNodeToScreen(n, c, z)
@@ -94,7 +98,7 @@ function QuestHelper:CreateWorldMapWalker()
   function walker:OnUpdate(elapsed)
     local out = 0
     
-    --[[if QuestHelper_Pref.show_ants then
+    if QuestHelper_Pref.show_ants then
       local points = self.points
       
       self.phase = self.phase + elapsed * 0.66
@@ -104,7 +108,8 @@ function QuestHelper:CreateWorldMapWalker()
       
       local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
       
-      local last_x, last_y = self.frame.Astrolabe:TranslateWorldMapPosition(self.frame.c, self.frame.z, self.frame.x, self.frame.y, c, z) local remainder = self.phase
+      local last_x, last_y = self.frame.Astrolabe:TranslateWorldMapPosition(self.frame.c, self.frame.z, self.frame.x, self.frame.y, c, z)
+      local remainder = self.phase
       
       for i, pos in ipairs(points) do
         local new_x, new_y = unpack(pos)
@@ -137,7 +142,7 @@ function QuestHelper:CreateWorldMapWalker()
           end
         end
       end
-    end]]
+    end
     
     while #self.dots > out do
       QuestHelper:ReleaseTexture(table.remove(self.dots))
@@ -185,7 +190,7 @@ function QuestHelper:CreateWorldMapWalker()
         t[1], t[2] = convertLocationToScreen(obj, c, z)
         
         table.insert(points, t)
-        QuestHelper:TextOut(string.format("%s/%s/%s to %s/%s", tostring(obj.c), tostring(obj.x), tostring(obj.y), tostring(t[1]), tostring(t[2])))
+        --QuestHelper:TextOut(string.format("%s/%s/%s to %s/%s", tostring(obj.c), tostring(obj.x), tostring(obj.y), tostring(t[1]), tostring(t[2])))
       end
       
       for i = 1, #self.route do
