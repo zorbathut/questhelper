@@ -249,6 +249,8 @@ end
       Weight[GetIndex(idx, ActiveNodes[x])] = weight_ave
     end
     TestShit()
+    
+    last_best = nil
   end
 
   -- Remove a node with the given location
@@ -263,6 +265,8 @@ end
     NodeLookup[nod] = nil
     -- We don't have to modify the table itself, some sections are just "dead".
     TestShit()
+    
+    last_best = nil
   end
 -- End node allocation and deallocation
 

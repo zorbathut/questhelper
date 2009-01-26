@@ -62,3 +62,9 @@ function doit()
   
   QH_Timeslice_Add(Public_Process, "new_routing")
 end
+
+function addmore()
+  for k = 1, 8 do
+    Public_NodeAdd(NewLoc(0, math.random() * 50000, math.random() * 30000))
+  end
+end
