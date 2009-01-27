@@ -70,6 +70,13 @@ local function position_accumulate(accu, tpos)
   end
 end
 
+local function position_has(accu)
+  for c, v in pairs(accu) do
+    return true -- ha ha
+  end
+  return false
+end
+
 local function position_finalize(accu)
   local best_continent = nil
   local best_continent_count = 0
@@ -228,11 +235,11 @@ local quest_slurp = ChainBlock_Create("quest_slurp", {chainhead},
         if not qout.criteria then qout.criteria = {} end
         -- This should be fallback code if it can't figure out which monster or item it actually needs. Right now, it's the only code.
         -- Also, we're going to have a much, much better method for accumulating and distilling positions eventually.
-        qout.criteria[k] = { loc = position_finalize(v) }
+        if position_has(v) then qout.criteria[k] = { loc = position_finalize(v) } end
       end
       
-      qout.start = { loc = position_finalize(self.accum.start) }
-      qout.finish = { loc = position_finalize(self.accum.finish) }
+      --if position_has(self.accum.start) then qout.start = { loc = position_finalize(self.accum.start) } end  -- we don't actually care about the start position
+      if position_has(self.accum.finish) then qout.finish = { loc = position_finalize(self.accum.finish) } end
       
       -- we don't actually care about the level, so we don't bother to store it. Really, we only care about the name for debug purposes also, so we should probably get rid of it before release.
       qout.name = self.accum.name
