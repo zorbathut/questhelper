@@ -11,6 +11,9 @@ QuestHelper_Loadtime["routing_core.lua"] = GetTime()
     -- Weighting for the various factors
   local WeightFactor = 1
   local DistanceFactor = -0.5
+  
+  -- Small amount to add to all weights to ensure it never hits, and to make sure things can still be chosen after a lot of iterations
+  local UniversalBonus = 1e-20
 -- End configuration
 
 local Notifier
@@ -145,7 +148,7 @@ function Public_Process()
     for _, x in ipairs(ActiveNodes) do
       for _, y in ipairs(ActiveNodes) do
         local idx = GetIndex(x, y)
-        Weight[idx] = Weight[idx] * PheremonePreservation + 1e-20 -- ensure that it never hits 0
+        Weight[idx] = Weight[idx] * PheremonePreservation + UniversalBonus
       end
     end
     
