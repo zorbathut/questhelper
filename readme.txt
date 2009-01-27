@@ -1,3 +1,40 @@
+
+Okay most of what's far below is invalid now. Here's the dealio, with new data structures.
+
+First off, the Location. Right now a Location is the following:
+{ c = continent, x = x_pos, y = y_pos }
+"continent" can be any of the following
+0: Azeroth
+3: Outland
+-77: Death Knight starting zone
+
+x and y are coordinates in the zone, in *yards*. This means that, assuming you can take a straight path between any two locations, you can calculate the distance only from the locations. Neato.
+
+*This will probably be changing one way or another* - locations should be assumed opaque unless you really, really need to look inside.
+
+
+Second, metaobjectives. A metaobjective is something that includes objectives - a quest, for example. Metaobjectives themselves never show up "in the world". A metaobjective must have at least one objective. Metaobjectives can actually have child metaobjectives as well, though this is rare.
+{ desc = (description), why = (metaobjective), [1, etc] = (Objective/Metaobjective) }
+desc is a plaintext description, why is a link to its parent (if one exists), and the standard table is a list of objectives it contains. At some point this will need to include dependency data as well.
+
+Third, objectives.
+{ desc = (description), why = (metaobjective), loc = (Location) }
+desc is just a plaintext description of what to do, possibly with WoW color codes. loc is a Location at which it can be done.
+
+So, for example, assuming we have an objective obj:
+
+string.format("%s for %s", obj.desc, obj.why.desc) -- outputs "Kill Cubist Monk for quest Art Annihilation", and if we wanted to do the obvious recursion, we could generate things like "Explore North Haverbrook for achievement Explore Haverbrook Depths for achievement Explore Fuckin' Everywhere"
+
+
+
+
+
+
+
+
+
+------ INVALID STUFF BEGINS HERE
+
 If you're reading this, you're probably interested in doing development on this codebase.
 
 Ha ha, you poor, poor fool.

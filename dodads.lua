@@ -187,7 +187,7 @@ function QuestHelper:CreateWorldMapWalker()
         obj.travel_time = travel_time]]
         
         local t = self.frame:CreateTable()
-        t[1], t[2] = convertLocationToScreen(obj, c, z)
+        t[1], t[2] = convertLocationToScreen(obj.loc, c, z)
         
         table.insert(points, t)
         --QuestHelper:TextOut(string.format("%s/%s/%s to %s/%s", tostring(obj.c), tostring(obj.x), tostring(obj.y), tostring(t[1]), tostring(t[2])))
@@ -382,7 +382,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
       self.dot:SetPoint("TOPLEFT", self, "TOPLEFT", 3*QuestHelper_Pref.scale, -3*QuestHelper_Pref.scale)
       self.dot:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -3*QuestHelper_Pref.scale, 3*QuestHelper_Pref.scale)
       
-      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(objective))
+      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(objective.loc))
       --QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, 0, 0, globx, globy)
     else
       self.objective = nil
@@ -528,7 +528,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   
   function icon:OnEvent(event)
     if self.objective then
-      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(self.objective))
+      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(self.objective.loc))
     else
       self.objective = nil
       QuestHelper:TextOut("H7")

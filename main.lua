@@ -236,6 +236,8 @@ function QuestHelper:Initialize()
       ["routing_core.lua"] = true,
       
       ["director_quest.lua"] = true,
+      
+      ["db_get.lua"] = true,
     }
     
   local uninstallederr = ""

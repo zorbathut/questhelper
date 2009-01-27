@@ -242,7 +242,7 @@ end
 
   -- Add a node to route to
   function Public_NodeAdd(nod)
-    QuestHelper: Assert(IsLoc(nod))
+    --QuestHelper:TextOut(tostring(nod))
     TestShit()
     QuestHelper: Assert(nod)
     QuestHelper: Assert(not NodeLookup[nod])
