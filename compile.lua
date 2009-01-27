@@ -37,20 +37,29 @@ local zone_image_outchunk = zone_image_chunksize / zone_image_descale
 
 local zonecolors = {}
 
+--[[
+*****************************************************************
+Utility functions
+]]
+
 local function sortversion(a, b)
   local mtcha, mtchb = not string.match(a, "[%d.]*"), not string.match(b, "[%d.]*")
   if mtcha == mtchb then return a > b end -- common case. Right now, version numbers are such that simple alphabetization sorts properly (although we want it to be sorted backwards.)
   return mtchb -- mtchb is true if b is not a proper string. if b isn't a proper string, we want it after the rest, so we want a first.
 end
 
-local function most_common(tbl)
-  local mcv = nil
-  local mcvw = nil
-  for k, v in pairs(tbl) do
-    if not mcvw or v > mcvw then mcv, mcvw = k, v end
+local function tablesize(tab)
+  local ct = 0
+  for _, _ in pairs(tab) do
+    ct = ct + 1
   end
-  return mcv
+  return ct
 end
+
+--[[
+*****************************************************************
+Position accumulation
+]]
 
 local function valid_pos(ite)
   if not ite then return end
@@ -93,13 +102,53 @@ local function position_finalize(accu)
   end
 end
 
-local function tablesize(tab)
-  local ct = 0
-  for _, _ in pairs(tab) do
-    ct = ct + 1
+--[[
+*****************************************************************
+List-accum functions
+]]
+
+local function list_accumulate(item, id, inp)
+  if not inp then return end
+  
+  if not item[id] then item[id] = {} end
+  local t = item[id]
+  
+  for k, v in pairs(inp) do
+    t[v] = (t[v] or 0) + 1
   end
-  return ct
 end
+
+local function list_most_common(tbl)
+  local mcv = nil
+  local mcvw = nil
+  for k, v in pairs(tbl) do
+    if not mcvw or v > mcvw then mcv, mcvw = k, v end
+  end
+  return mcv
+end
+
+--[[
+*****************************************************************
+Locale name accum functions
+]]
+
+local function name_accumulate(accum, name, locale)
+  if not accum[locale] then accum[locale] = {} end
+  accum[locale][name] = (accum[locale][name] or 0) + 1
+end
+
+local function name_resolve(accum)
+  local rv = {}
+  for k, v in pairs(accum) do
+    rv[k] = list_most_common(v)
+  end
+  return rv
+end
+
+--[[
+*****************************************************************
+Chain head
+]]
 
 local chainhead = ChainBlock_Create("chainhead", nil,
   function () return {
@@ -118,17 +167,25 @@ local chainhead = ChainBlock_Create("chainhead", nil,
       
       for verchunk, v in pairs(dat.QuestHelper_Collector) do
         local qhv, wowv, locale, faction = string.match(verchunk, "([0-9.]+) on ([0-9.]+)/([a-zA-Z]+)/([12])")
-        if qhv and wowv and locale and faction and locale == "enUS"
+        if qhv and wowv and locale and faction
           --and not sortversion("0.80", qhv) -- hacky hacky
         then 
           -- quests!
           if v.quest then for qid, qdat in pairs(v.quest) do
             qdat.fileid = value.fileid
+            qdat.locale = locale
             Output(string.format("%d", qid), qhv, qdat, "quest")
           end end
           
+          -- items!
+          if v.item then for iid, idat in pairs(v.item) do
+            idat.fileid = value.fileid
+            idat.locale = locale
+            Output(string.format("%d", iid), qhv, idat, "item")
+          end end
+          
           -- zones!
-          if do_zone_map and v.zone then for zname, zdat in pairs(v.zone) do
+          if locale == "enUS" and do_zone_map and v.zone then for zname, zdat in pairs(v.zone) do
             local items = {}
             
             for _, key in pairs({"border", "update"}) do
@@ -174,89 +231,246 @@ local chainhead = ChainBlock_Create("chainhead", nil,
 
 --[[
 *****************************************************************
+Item collation
+]]
+
+local item_slurp
+
+--[[
+do
+  item_slurp = ChainBlock_Create("item_slurp", {chainhead},
+    function (key) return {
+      accum = {name = {}},
+      
+      -- Here's our actual data
+      Data = function(self, key, subkey, value, Output)
+        -- Split apart the start/end info. This includes locations and possibly the monster that was targeted.
+        if value.start then value.start = split_quest_startend(value.start) end
+        if value["end"] then   --sigh
+          value.finish = split_quest_startend(value["end"])
+          value["end"] = nil
+        end
+        
+        -- Parse apart the old complicated criteria strings
+        if not value.criteria then value.criteria = {} end
+        for k, v in pairs(value) do
+          local item, token = string.match(k, "criteria_([%d]+)_([a-z]+)")
+          if token then
+            assert(item)
+            
+            if token == "type" then print("toktype " .. v) end
+            
+            if token == "satisfied" then
+              value[k] = split_quest_satisfied(value[k])
+            end
+            
+            if not value.criteria[tonumber(item)] then value.criteria[tonumber(item)] = {} end
+            value.criteria[tonumber(item)][token] = value[k]
+            value[k] = nil
+          end
+        end
+        
+        -- Accumulate the old criteria strings into our new data
+        if value.start then for k, v in pairs(value.start) do position_accumulate(self.accum.start, v.loc) end end
+        if value.finish then for k, v in pairs(value.finish) do position_accumulate(self.accum.finish, v.loc) end end
+        for id, dat in pairs(value.criteria) do
+          if not self.accum.criteria[id] then self.accum.criteria[id] = {count = 0, loc = {}, monster = {}, item = {}} end
+          local cid = self.accum.criteria[id]
+          
+          if dat.satisfied then
+            for k, v in pairs(dat.satisfied) do
+              position_accumulate(cid.loc, v.loc)
+              cid.count = cid.count + (v.c or 1)
+              list_accumulate(cid, "monster", v.monster)
+              list_accumulate(cid, "item", v.item)
+            end
+          end
+          
+          if dat.type then
+            if not cid.type then
+              cid.type = dat.type
+            else
+              assert(cid.type == dat.type)
+            end
+          end
+        end
+        
+        -- Accumulate names and levels
+        if value.name then
+          -- Names is a little complicated - we want to get rid of any recommended-level tags that we might have.
+          local vnx = string.match(value.name, "%b[]%s*(.*)")
+          if not vnx then vnx = value.name end
+          if vnx ~= value.name then print(value.name, vnx) end
+          self.accum.name[vnx] = (self.accum.name[vnx] or 0) + 1
+        end
+        if value.level then self.accum.level[value.level] = (self.accum.level[value.level] or 0) + 1 end
+      end,
+      
+      Finish = function(self, Output)
+        self.accum.name = most_common(self.accum.name)
+        self.accum.level = most_common(self.accum.level)
+        
+        local qout = {}
+        for k, v in pairs(self.accum.criteria) do
+        
+          if not qout.criteria then qout.criteria = {} end
+          -- This should be fallback code if it can't figure out which monster or item it actually needs. Right now, it's the only code.
+          -- Also, we're going to have a much, much better method for accumulating and distilling positions eventually.
+          if position_has(v) then qout.criteria[k] = { loc = position_finalize(v.loc) } end
+          
+          -- temp debug output
+          -- We shouldn't actually be doing this, we should be figuring out which monsters and items this really correlates to.
+          -- We're currently not. However, this will require correlating with the names for monsters and items.
+          qout.criteria[k].type = v.type
+          if v.type == "monster" then
+            qout.criteria[k].count = v.count
+            qout.criteria[k].monster = v.monster
+          elseif v.type == "item" then
+            qout.criteria[k].count = v.count
+            qout.criteria[k].item = v.item
+          end
+        end
+        
+        --if position_has(self.accum.start) then qout.start = { loc = position_finalize(self.accum.start) } end  -- we don't actually care about the start position
+        if position_has(self.accum.finish) then qout.finish = { loc = position_finalize(self.accum.finish) } end
+        
+        -- we don't actually care about the level, so we don't bother to store it. Really, we only care about the name for debug purposes also, so we should probably get rid of it before release.
+        qout.name = self.accum.name
+        
+        local has_stuff = false
+        for k, v in pairs(qout) do
+          has_stuff = true
+          break
+        end
+        
+        if has_stuff then
+          Output("", nil, {id="quest", key=tonumber(key), data=qout})
+        end
+      end,
+    } end,
+    sortversion, "item"
+  )
+end]]
+
+--[[
+*****************************************************************
 Quest collation
 ]]
 
-local quest_slurp = ChainBlock_Create("quest_slurp", {chainhead},
-  function (key) return {
-    accum = {name = {}, criteria = {}, level = {}, start = {}, finish = {}},
-    
-    Data = function(self, key, subkey, value, Output)
-      if value.start then value.start = split_quest_startend(value.start) end
-      if value["end"] then   --sigh
-        value.finish = split_quest_startend(value["end"])
-        value["end"] = nil
-      end
+local quest_slurp
+
+do
+  quest_slurp = ChainBlock_Create("quest_slurp", {chainhead},
+    function (key) return {
+      accum = {name = {}, criteria = {}, level = {}, start = {}, finish = {}},
       
-      if not value.criteria then value.criteria = {} end
-      for k, v in pairs(value) do
-        local item, token = string.match(k, "criteria_([%d]+)_([a-z]+)")
-        if token then
-          assert(item)
-          
-          if token == "satisfied" then
-            value[k] = split_quest_satisfied(value[k])
-          end
-          
-          if not value.criteria[tonumber(item)] then value.criteria[tonumber(item)] = {} end
-          value.criteria[tonumber(item)][token] = value[k]
-          value[k] = nil
+      -- Here's our actual data
+      Data = function(self, key, subkey, value, Output)
+        -- Split apart the start/end info. This includes locations and possibly the monster that was targeted.
+        if value.start then value.start = split_quest_startend(value.start) end
+        if value["end"] then   --sigh
+          value.finish = split_quest_startend(value["end"])
+          value["end"] = nil
         end
-      end
-      
-      if value.start then for k, v in pairs(value.start) do position_accumulate(self.accum.start, v.loc) end end
-      if value.finish then for k, v in pairs(value.finish) do position_accumulate(self.accum.finish, v.loc) end end
-      for id, dat in pairs(value.criteria) do
-        if dat.satisfied then
-          if not self.accum.criteria[id] then self.accum.criteria[id] = {} end
-          for k, v in pairs(dat.satisfied) do
-            position_accumulate(self.accum.criteria[id], v.loc)
+        
+        -- Parse apart the old complicated criteria strings
+        if not value.criteria then value.criteria = {} end
+        for k, v in pairs(value) do
+          local item, token = string.match(k, "criteria_([%d]+)_([a-z]+)")
+          if token then
+            assert(item)
+            
+            if token == "satisfied" then
+              value[k] = split_quest_satisfied(value[k])
+            end
+            
+            if not value.criteria[tonumber(item)] then value.criteria[tonumber(item)] = {} end
+            value.criteria[tonumber(item)][token] = value[k]
+            value[k] = nil
           end
         end
-      end
+        
+        -- Accumulate the old criteria strings into our new data
+        if value.start then for k, v in pairs(value.start) do position_accumulate(self.accum.start, v.loc) end end
+        if value.finish then for k, v in pairs(value.finish) do position_accumulate(self.accum.finish, v.loc) end end
+        for id, dat in pairs(value.criteria) do
+          if not self.accum.criteria[id] then self.accum.criteria[id] = {count = 0, loc = {}, monster = {}, item = {}} end
+          local cid = self.accum.criteria[id]
+          
+          if dat.satisfied then
+            for k, v in pairs(dat.satisfied) do
+              position_accumulate(cid.loc, v.loc)
+              cid.count = cid.count + (v.c or 1)
+              list_accumulate(cid, "monster", v.monster)
+              list_accumulate(cid, "item", v.item)
+            end
+          end
+          
+          if dat.type then
+            if not cid.type then
+              cid.type = dat.type
+            else
+              assert(cid.type == dat.type)
+            end
+          end
+        end
+        
+        -- Accumulate names and levels
+        if value.name then
+          -- Names is a little complicated - we want to get rid of any recommended-level tags that we might have.
+          local vnx = string.match(value.name, "%b[]%s*(.*)")
+          if not vnx then vnx = value.name end
+          
+          name_accumulate(self.accum.name, vnx, value.locale)
+        end
+        if value.level then self.accum.level[value.level] = (self.accum.level[value.level] or 0) + 1 end
+      end,
       
-      
-      if value.name then
-        local vnx = string.match(value.name, "%b[]%s*(.*)")
-        if not vnx then vnx = value.name end
-        if vnx ~= value.name then print(value.name, vnx) end
-        self.accum.name[vnx] = (self.accum.name[vnx] or 0) + 1
-      end
-      if value.level then self.accum.level[value.level] = (self.accum.level[value.level] or 0) + 1 end
-    end,
-    
-    Finish = function(self, Output)
-      self.accum.name = most_common(self.accum.name)
-      self.accum.level = most_common(self.accum.level)
-      
-      local qout = {}
-      for k, v in pairs(self.accum.criteria) do
-      
-        if not qout.criteria then qout.criteria = {} end
-        -- This should be fallback code if it can't figure out which monster or item it actually needs. Right now, it's the only code.
-        -- Also, we're going to have a much, much better method for accumulating and distilling positions eventually.
-        if position_has(v) then qout.criteria[k] = { loc = position_finalize(v) } end
-      end
-      
-      --if position_has(self.accum.start) then qout.start = { loc = position_finalize(self.accum.start) } end  -- we don't actually care about the start position
-      if position_has(self.accum.finish) then qout.finish = { loc = position_finalize(self.accum.finish) } end
-      
-      -- we don't actually care about the level, so we don't bother to store it. Really, we only care about the name for debug purposes also, so we should probably get rid of it before release.
-      qout.name = self.accum.name
-      
-      local has_stuff = false
-      for k, v in pairs(qout) do
-        has_stuff = true
-        break
-      end
-      
-      if has_stuff then
-        Output("", nil, {id="quest", key=tonumber(key), data=qout})
-      end
-    end,
-  } end,
-  sortversion, "quest"
-)
+      Finish = function(self, Output)
+        self.accum.name = name_resolve(self.accum.name)
+        self.accum.level = list_most_common(self.accum.level)
+        
+        local qout = {}
+        for k, v in pairs(self.accum.criteria) do
+        
+          if not qout.criteria then qout.criteria = {} end
+          -- This should be fallback code if it can't figure out which monster or item it actually needs. Right now, it's the only code.
+          -- Also, we're going to have a much, much better method for accumulating and distilling positions eventually.
+          if position_has(v) then qout.criteria[k] = { loc = position_finalize(v.loc) } end
+          
+          -- temp debug output
+          -- We shouldn't actually be doing this, we should be figuring out which monsters and items this really correlates to.
+          -- We're currently not. However, this will require correlating with the names for monsters and items.
+          qout.criteria[k].type = v.type
+          if v.type == "monster" then
+            qout.criteria[k].count = v.count
+            qout.criteria[k].monster = v.monster
+          elseif v.type == "item" then
+            qout.criteria[k].count = v.count
+            qout.criteria[k].item = v.item
+          end
+        end
+        
+        --if position_has(self.accum.start) then qout.start = { loc = position_finalize(self.accum.start) } end  -- we don't actually care about the start position
+        if position_has(self.accum.finish) then qout.finish = { loc = position_finalize(self.accum.finish) } end
+        
+        -- we don't actually care about the level, so we don't bother to store it. Really, we only care about the name for debug purposes also, so we should probably get rid of it before release.
+        qout.name = self.accum.name
+        
+        local has_stuff = false
+        for k, v in pairs(qout) do
+          has_stuff = true
+          break
+        end
+        
+        if has_stuff then
+          Output("", nil, {id="quest", key=tonumber(key), data=qout})
+        end
+      end,
+    } end,
+    sortversion, "quest"
+  )
+end
 
 --[[
 *****************************************************************
@@ -448,9 +662,10 @@ if do_errors then
   end
 end
 
-local count = 0
+local count = 1
 
---local e = 100
+local s = 100
+local e = 200
 --local s = 2650
 --local e = 2650
 

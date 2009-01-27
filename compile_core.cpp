@@ -185,7 +185,7 @@ void split_quest_satisfied(lua_State *L, const std::string &dat) {
     
     lua_newtable(L);
     if(monsty.size()) {
-      lua_pushstring(L, "monsters");
+      lua_pushstring(L, "monster");
       tableize(L, monsty);
       lua_settable(L, -3);
     }

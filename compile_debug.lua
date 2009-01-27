@@ -34,9 +34,7 @@ persistence_loc =
 	end;
 	
 	writeIndent = function (f, level)
-		for i = 1, level do
-			f:write("\t");
-		end;
+    f:write(" ")
 	end;
 	
 	writers = {
@@ -57,7 +55,6 @@ persistence_loc =
 				end
 			end;
 		["table"] = function (f, item, level)
-        print("grarg")
 				f:write("{");
 				for k, v in pairs(item) do
 					persistence_loc.writeIndent(f, level+1);
