@@ -627,6 +627,7 @@ local QuestHelper_PrivateServerBlacklist_Exact = {
   "I Sell Consumables",
   "Armor Raid Tier V",
   "Bobby", -- I have no idea if this is an actual private server NPC
+  "world translate",
 }
 
 local matchstring = nil
