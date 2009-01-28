@@ -80,8 +80,11 @@ local function ClampLine(x1, y1, x2, y2)
   end
 end
 
+local walker_loc
+
 function QuestHelper:CreateWorldMapWalker()
   local walker = CreateFrame("Button", nil, QuestHelper.map_overlay)
+  walker_loc = walker
   walker:SetWidth(0)
   walker:SetHeight(0)
   walker:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", 0, 0)
@@ -174,12 +177,11 @@ function QuestHelper:CreateWorldMapWalker()
       
       for i, obj in ipairs(self.route) do
         --QuestHelper:TextOut(string.format("%s", tostring(obj)))
-        -- What's list for?
-        --[[
-        local t = QuestHelper:CreateTable()
-        t[1], t[2] = QuestHelper.Astrolabe:TranslateWorldMapPosition(obj.c, 0, obj.x/QuestHelper.continent_scales_x[obj.c], obj.y/QuestHelper.continent_scales_y[obj.c], c, z)
         
-        table.insert(list, t)]]
+        local t = QuestHelper:CreateTable()
+        t[1], t[2] = convertLocationToScreen(obj.loc, c, z)
+        
+        table.insert(list, t)
         
         -- We're ignoring travel time for now.
         --[[
@@ -240,7 +242,7 @@ function QuestHelper:GetOverlapObjectives(obj)
   
   local s = 10*QuestHelper_Pref.scale
   
-  for i, o in ipairs(self.route) do
+  for i, o in ipairs(walker_loc.route) do
     --QuestHelper: Assert(o, string.format("nil dodads pos issue, o %s", tostring(o)))
     --QuestHelper: Assert(o.pos, string.format("nil dodads pos issue, pos %s", QuestHelper:StringizeTable(o)))
     if o == obj then
@@ -307,7 +309,8 @@ end
 function QuestHelper:AppendObjectiveToTooltip(o)
   local theme = self:GetColourTheme()
   
-  self.tooltip:AddLine(o:Reason(), unpack(theme.tooltip))
+  --self.tooltip:AddLine(o:Reason(), unpack(theme.tooltip))
+  self.tooltip:AddLine(o.desc .. " for " .. o.why.desc, unpack(theme.tooltip))
   self.tooltip:GetPrevLines():SetFont(self.font.serif, 14)
   
   self:AppendObjectiveProgressToTooltip(o, self.tooltip, QuestHelper.font.sans)
