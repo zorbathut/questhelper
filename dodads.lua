@@ -178,10 +178,11 @@ function QuestHelper:CreateWorldMapWalker()
       for i, obj in ipairs(self.route) do
         --QuestHelper:TextOut(string.format("%s", tostring(obj)))
         
+        --[[
         local t = QuestHelper:CreateTable()
         t[1], t[2] = convertLocationToScreen(obj.loc, c, z)
         
-        table.insert(list, t)
+        table.insert(list, t)]]
         
         -- We're ignoring travel time for now.
         --[[
