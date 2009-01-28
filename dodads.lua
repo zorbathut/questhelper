@@ -188,28 +188,30 @@ function QuestHelper:CreateWorldMapWalker()
         --[[
         travel_time = travel_time + 60
         obj.travel_time = travel_time]]
-        
-        local t = self.frame:CreateTable()
-        t[1], t[2] = convertLocationToScreen(obj.loc, c, z)
-        
-        table.insert(points, t)
+        if i > 1 then -- skip the start location
+          local t = self.frame:CreateTable()
+          t[1], t[2] = convertLocationToScreen(obj.loc, c, z)
+          
+          table.insert(points, t)
+        end
         --QuestHelper:TextOut(string.format("%s/%s/%s to %s/%s", tostring(obj.c), tostring(obj.x), tostring(obj.y), tostring(t[1]), tostring(t[2])))
       end
       
-      for i = 1, #self.route do
-        local dodad = self.map_dodads[i]
+      local skip_item = 1 -- 1 to skip the player, 0 to not
+      for i = skip_item + 1, #self.route do
+        local dodad = self.map_dodads[i - skip_item]
         if not dodad then
-          self.map_dodads[i] = self.frame:CreateWorldMapDodad(self.route[i], i)
+          self.map_dodads[i - skip_item] = self.frame:CreateWorldMapDodad(self.route[i], i)
         else
-          self.map_dodads[i]:SetObjective(self.route[i], i)
+          self.map_dodads[i - skip_item]:SetObjective(self.route[i], i)
         end
       end
 
-      for i = #self.route+1,self.used_map_dodads do
+      for i = #self.route,self.used_map_dodads do
         self.map_dodads[i]:SetObjective(nil, 0)
       end
 
-      self.used_map_dodads = #self.frame.route
+      self.used_map_dodads = #self.route - skip_item
     end
   end
   

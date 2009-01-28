@@ -16,6 +16,8 @@ Public_SetStart(MakeTest(0, 37663, 19658, "Start")) -- Ironforge
 
 local temp_walker = QuestHelper:CreateWorldMapWalker()
 
+QuestHelper:TextOut("PIINIT")
+
 Public_Init(
   function(path) RTO(string.format("Path notified! New weight is %f", path.distance)) temp_walker:RouteChanged(path) end,
   function(loc1, loc2)
@@ -27,10 +29,20 @@ Public_Init(
     else
       return 1000000 -- one milllllion time units
     end
+  end,
+  function()
+    local c, x, y = QuestHelper:RetrieveRawLocation()
+    if c and x and y then
+      Public_SetStart(MakeTest(c, x, y, "Start"))
+    end
   end
 )
 
+QuestHelper:TextOut("TSLA")
+
 QH_Timeslice_Add(Public_Process, "new_routing")
+
+QuestHelper:TextOut("shoop da woop")
 
 function doit()
 

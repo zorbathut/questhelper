@@ -18,6 +18,7 @@ QuestHelper_Loadtime["routing_core.lua"] = GetTime()
 
 local Notifier
 local Dist
+local PassDone
 
 -- Node storage and data structures
   local MaxNodes = math.floor(math.sqrt(math.pow(2, 19)))
@@ -40,11 +41,14 @@ local Dist
 -- End node storage and data structures
 
 -- Initialization
-function Public_Init(PathNotifier, Distance)
+function Public_Init(PathNotifier, Distance, Pass)
+  QuestHelper:TextOut("init")
   Notifier = PathNotifier
   Dist = Distance
+  PassDone = Pass
   QuestHelper: Assert(Notifier)
   QuestHelper: Assert(Dist)
+  QuestHelper: Assert(Pass)
 end
 -- End initialization
 
@@ -130,6 +134,8 @@ function Public_Process()
   QuestHelper: Assert(Dist)
   
   while true do
+    PassDone()
+    
     if GetTime() > last_yell + 5 then
       RTO("still tickin'")
       last_yell = GetTime()
@@ -236,8 +242,14 @@ end
     StartNode = stt
     NodeLookup[StartNode] = 1
     
-    -- TODO: recalculate distances also
-    -- TODO: properly deallocate old startnode
+    for _, v in ipairs(ActiveNodes) do
+      if v ~= 1 then
+        Distance[GetIndex(1, v)] = Dist(NodeList[1], NodeList[v])
+        Distance[GetIndex(v, 1)] = Dist(NodeList[v], NodeList[1])
+      end
+    end
+    
+    -- TODO: properly deallocate old startnode?
   end
 
   -- Add a node to route to
