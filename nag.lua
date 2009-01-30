@@ -359,7 +359,7 @@ end
 function QHUpdateNagTick()
   if update_nag_yell_at and update_nag_yell_at < time() then
     QuestHelper:TextOut(QHText("TIME_TO_UPDATE"))
-    QuestHelper_Pref.update_nag_next_notify = time() + day + day * math.random()
+    QuestHelper_Pref.update_nag_next_notify = time() + day * 6 + day * 2 * math.random()
     update_nag_yell_at = nil
   end
 end
