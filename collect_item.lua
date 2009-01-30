@@ -10,6 +10,8 @@ local QHCI
 
 -- We could probably snag data from other locations as well, but at the moment, we're not.
 local function Tooltipy(self, ...)
+  if not self.GetItem then return end -- ughhhh, inventoryonpar
+  
   local _, ilink = self:GetItem()
   if not ilink then return end
   
