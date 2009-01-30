@@ -19,7 +19,7 @@ local temp_walker = QuestHelper:CreateWorldMapWalker()
 QuestHelper:TextOut("PIINIT")
 
 Public_Init(
-  function(path) RTO(string.format("Path notified! New weight is %f", path.distance)) temp_walker:RouteChanged(path) end,
+  function(path) RTO(string.format("Path notified! New weight is %f", path.distance)) temp_walker:RouteChanged(path) tracker_update_route(path) end,
   function(loc1, loc2)
     -- Distance function
     if loc1.loc.c == loc2.loc.c then

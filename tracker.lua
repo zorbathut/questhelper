@@ -1,6 +1,39 @@
 QuestHelper_File["tracker.lua"] = "Development Version"
 QuestHelper_Loadtime["tracker.lua"] = GetTime()
 
+--[[ NOTES TO SELF
+
+So here's what we want to do.
+
+We want a "refresh notification" where we send it the current route.
+
+If things aren't in the route, we don't care about them . . . unless they're pinned.
+
+So we have "refresh notification" and "pin toggles". In both cases, the objective and only the objective is passed in. Right now there's no concept of priority within the pins.
+
+We're also not bothering with the whole metaobjective tree, we're just going one step up.
+
+So, our algorithm:
+
+Note that "add" means "add iff it hasn't already been added."
+
+Iff we haven't loaded yet, add a loaded message and a gap.
+
+For each pinned objective, add the metaobjective and all objectives in its internal order. Iff we added things, add a gap.
+
+For each route objective, add the metaobjective and all objectives in route order.
+
+Later on we'll add an option for "splitting" metaobjectives, or possibly following the metaobjective tree all the way up.
+
+
+
+So, "add" is complicated, due to the two requirements. We have to both add everything, and not add everything *yet*. I think the goal here is to make an Add function for adding a metaobjective that takes a list of objectives to be children, then doublecheck inside the function that we have all objectives.
+  
+We don't actually want "all objectives" long-term, note, we want only unfinished objectives. I sort of don't like the idea of keeping "finished objectives" around, however. Maybe we should only toss objectives in if they're in the routing system? Then how do I handle unknown objectives? (Simple - you pin them, and point out that we don't know how to do them.)
+  
+Also, to handle the "moving things around", we need to be a little clever. One line might be either a metaobjective or an objective, but in either case, we need a counter for which case it is. If everything shuffles, and we had two copies of metaobjective, MO1 moves to MO1 and MO2 moves to MO2. Easy.
+]]
+
 local tracker = CreateFrame("Frame", "QuestHelperQuestWatchFrame", UIParent)
 local minbutton = CreateFrame("Button", "QuestHelperQuestWatchFrameMinimizeButton", UIParent)
 
@@ -86,9 +119,16 @@ minbutton:SetScript("OnLeave", function (self)
   self:SetAlpha(QuestHelper_Pref.track_minimized and .3 or .5)
 end)
 
-local unused_items = {}
+-- used_items[objective][index]
+-- used_count[objective] is incremented as the last valid index
+-- so, therefore, used_items[objective][used_count[objective]] is not nil
 local used_items = {}
+local used_count = {}
 
+-- it's possible for an item to be in neither used_items nor recycled_items, if it's in the process of fading out
+local recycled_items = {}
+
+-- These two functions are basically identical. Combine them.
 local function itemupdate(item, delta)
   local done = true
   
@@ -108,11 +148,11 @@ local function itemupdate(item, delta)
     item.t = t
     local it = 1-t
     local sp = math.sqrt(t-t*t)
-    item.x, item.y = item.sx*it+item.dx*t+(item.sy-item.dy)*sp, item.sy*it+item.dy*t+(item.dx-item.sx)*sp
+    item.x, item.y = item.sx*it+item.ex*t+(item.sy-item.ey)*sp, item.sy*it+item.ey*t+(item.ex-item.sx)*sp
     done = false
   else
     item.t = 1
-    item.x, item.y = item.dx, item.dy
+    item.x, item.y = item.ex, item.ey
   end
   
   item:ClearAllPoints()
@@ -133,6 +173,7 @@ local function itemfadeout(item, delta)
     item:SetAlpha(1)
     item:Hide()
     item:SetScript("OnUpdate", nil)
+    table.insert(recycled_items, item)
     return
   end
   
@@ -142,10 +183,10 @@ local function itemfadeout(item, delta)
     item.t = t
     local it = 1-t
     local sp = math.sqrt(t-t*t)
-    item.x, item.y = item.sx*it+item.dx*t+(item.sy-item.dy)*sp, item.sy*it+item.dy*t+(item.dx-item.sx)*sp
+    item.x, item.y = item.sx*it+item.ex*t+(item.sy-item.ey)*sp, item.sy*it+item.ey*t+(item.ex-item.sx)*sp
   else
     item.t = 1
-    item.x, item.y = item.dx, item.dy
+    item.x, item.y = item.ex, item.ey
   end
   
   item:ClearAllPoints()
@@ -160,7 +201,7 @@ function QH_ToggleQuestLog()   -- This seems to be gone in 3.0, so I'm adding it
 	end
 end
 
-
+-- Grim stuff with uberquest, I need a better way to handle this
 local function itemclick(item, button)
   if button == "RightButton" then
     local quest = item.quest
@@ -208,53 +249,62 @@ local function itemclick(item, button)
   end
 end
 
-local function addItem(name, quest, obj, y, qname)
-  local x = qname and 4 or 20
-  local item = used_items[quest] and used_items[quest][obj]
+local function allocateItem()
+  local item
+  
+  item = table.remove(recycled_items)
+  if item then return item end
+  
+  item = CreateFrame("Frame", nil, tracker)
+  item.text = item:CreateFontString()
+  item.text:SetShadowColor(0, 0, 0, .8)
+  item.text:SetShadowOffset(1, -1)
+  item.text:SetPoint("TOPLEFT", item)
+end
+
+-- This is adding a *single item*. This won't be called by the main parsing loop, but it does need some serious hackery. Let's see now
+local function addItem(obj, y, meta)
+  used_count[objective] = (used_count[objective] or 0) + 1
+  if not used_items[objective] then used_items[objective] = {} end
+  local item = used_items[objective][used_count[objective]]
+  
+  local x = meta and 4 or 20
+  
   if not item then
-    item = next(unused_items)
-    if item then
-      unused_items[item] = nil
-    else
-      item = CreateFrame("Frame", nil, tracker)
-      item.text = item:CreateFontString()
-      item.text:SetShadowColor(0, 0, 0, .8)
-      item.text:SetShadowOffset(1, -1)
-      item.text:SetPoint("TOPLEFT", item)
-    end
+    used_items[objective][used_count[objective]] = allocateItem()
+    item = used_items[objective][used_count[objective]]
     
-    if qname then
+    if meta then
       item.text:SetFont(QuestHelper.font.serif, 12)
       item.text:SetTextColor(.82, .65, 0)
     else
       item.text:SetFont(QuestHelper.font.sans, 12)
       item.text:SetTextColor(.82, .82, .82)
     end
-    
-    if not used_items[quest] then used_items[quest] = {} end
-    
-    used_items[quest][obj] = item
-    item.sx, item.sy, item.x, item.y, item.dx, item.dy, item.t = x+30, y, x, y, x, y, 0
+
+    item.sx, item.sy, item.x, item.y, item.ex, item.ey, item.t = x+30, y, x, y, x, y, 0
     item:SetScript("OnUpdate", itemupdate)
     item:SetAlpha(0)
     item:Show()
   end
   
-  item.used = true
+  item.objective = obj
   
-  item.quest = qname
-  item.text:SetText(name)
+  item.text:SetText(item.obj.desc)
+  
   local w, h = item.text:GetWidth(), item.text:GetHeight()
   item:SetWidth(w)
   item:SetHeight(h)
   
+  --[[
   if qname then
     item:SetScript("OnMouseDown", itemclick)
     item:EnableMouse(true)
   end
+  ]]
   
-  if item.dx ~= x or item.dy ~= y then
-    item.sx, item.sy, item.dx, item.dy = item.x, item.y, x, y
+  if item.ex ~= x or item.ey ~= y then
+    item.sx, item.sy, item.ex, item.ey = item.x, item.y, x, y
     item.t = 0
     item:SetScript("OnUpdate", itemupdate)
   end
@@ -262,6 +312,7 @@ local function addItem(name, quest, obj, y, qname)
   return w+x+4, h
 end
 
+--[[  -- these will be plugged in later one way or another
 local function ccode(r1, g1, b1, r2, g2, b2, p)
   local ip
   p, ip = p*255, 255-p*255
@@ -317,44 +368,21 @@ local function oname(text, pct)
   
   return text
 end
+]]
 
-local function removeUnusedItem(quest, obj, item)
-  unused_items[item] = true
-  used_items[quest][obj] = nil
-  if not next(used_items[quest]) then used_items[quest] = nil end
-  item.used = false
+local function removeUnusedItem(item)
   item.t = 0
-  item.sx, item.sy = item.x, item.y
-  item.dx, item.dy = item.x+30, item.y
+  item.sx, item.sy, item.dx, item.dy = item.x, item.y, item.x+30, item.y
   item:SetScript("OnMouseDown", nil)
   item:EnableMouse(false)
   item:SetScript("OnUpdate", itemfadeout)
 end
 
-local resizing = false
+--[=[
 local check_delay = 4
-local seen = {}
-local obj_list = {}
-local obj_index_lookup = {}
-local quest_lookup = {}
 local was_inside = false
 
-local function watched_filter(obj)
-  return obj:IsWatched()
-end
-
-local function objlist_sort(a, b)
-  return (obj_index_lookup[a] or 0) < (obj_index_lookup[b] or 0)
-end
-
-function tracker:reset()
-  for quest, objs in pairs(used_items) do
-    for obj, item in pairs(objs) do
-      removeUnusedItem(quest, obj, item)
-      check_delay = 1e99
-    end
-  end
-end
+-- :ughh:
 
 local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
   local count = 0
@@ -460,62 +488,19 @@ local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
   
   return x, y, gap, count
 end
+]=]
 
 local loading_vquest = { cat = "quest", obj = "7777/" .. QHFormat("QH_LOADING", "0"), after = {}, watched = true }
 local hidden_vquest1 = { cat = "quest", obj = "7778/" .. QHText("QUESTS_HIDDEN_1"), after = {}, watched = true }
 local hidden_vquest2 = { cat = "quest", obj = "7778/    " .. QHText("QUESTS_HIDDEN_2"), after = {}, watched = true }
 
-function tracker:update(delta)
-  if not delta then
-    -- This is called without a value when the questlog is updated.
-    -- We'll make sure we update the display on the next update.
-    check_delay = 1e99
-    return
-  end
-  
-  if resizing then
-    local t = self.t+delta
-    
-    if t > 1 then
-      self:SetWidth(self.dw)
-      self:SetHeight(self.dh)
-      resizing = false
-    else
-      self.t = t
-      local it = 1-t
-      self:SetWidth(self.sw*it+self.dw*t)
-      self:SetHeight(self.sh*it+self.dh*t)
-    end
-  end
-  
-  -- Manually checking if the mouse is in the frame, because if I used on OnEnter, i'd have to enable mouse input,
-  -- and if I did that, it would prevent the player from using the mouse to change the view if they clicked inside
-  -- the tracker.
-  local x, y = GetCursorPosition()
-  local s = 1/self:GetEffectiveScale()
-  x, y = x*s, y*s
+local route = {}
+local pinned = {}
 
-  QuestHelper: Assert(x)
-  QuestHelper: Assert(y)
-  QuestHelper: Assert(self:GetLeft())
-  QuestHelper: Assert(self:GetBottom())
-  QuestHelper: Assert(self:GetRight())
-  QuestHelper: Assert(self:GetTop())
+function tracker_rescan()
+  QuestHelper:TextOut("tracker rescan")
+  --[[
   
-  local inside = x >= self:GetLeft() and y >= self:GetBottom() and x < self:GetRight() and y < self:GetTop()
-  if inside ~= was_inside then
-    was_inside = inside
-    if inside then
-      minbutton:SetAlpha(.7)
-    elseif not QuestHelper_Pref.track_minimized then
-      minbutton:SetAlpha(0)
-    end
-  end
-  
-  check_delay = check_delay + delta
-  if check_delay > 5 or (not QuestHelper.Routing.map_walker and check_delay > 0.5) then
-    check_delay = 0
-    
     local quests = QuestHelper.quest_log
     local added = 0
     local x, y = 4, 4
@@ -665,12 +650,86 @@ function tracker:update(delta)
     end
     
     added = 0
+    ]]
+end
+
+function tracker_update_route(new_route)
+  route = new_route
+  tracker_rescan()
+end
+
+function tracker_pin(objective)
+  pinned[objective] = true
+end
+
+function tracker_unpin(objective)
+  pinned[objective] = nil -- nil, not false, so it'll be garbage-collected appropriately
+end
+
+
+
+local resizing = false
+
+-- This function does the grunt work of cursor positioning and rescaling. It does not actually reorganize items.
+function tracker:update(delta)
+  if not delta then
+    -- This is called without a value when the questlog is updated.
+    -- We'll make sure we update the display on the next update.
+    check_delay = 1e99
+    return
+  end
+  
+  if resizing then
+    local t = self.t+delta
+    
+    if t > 1 then
+      self:SetWidth(self.dw)
+      self:SetHeight(self.dh)
+      resizing = false
+    else
+      self.t = t
+      local it = 1-t
+      self:SetWidth(self.sw*it+self.dw*t)
+      self:SetHeight(self.sh*it+self.dh*t)
+    end
+  end
+  
+  -- Manually checking if the mouse is in the frame, because if I used on OnEnter, i'd have to enable mouse input,
+  -- and if I did that, it would prevent the player from using the mouse to change the view if they clicked inside
+  -- the tracker.
+  local x, y = GetCursorPosition()
+  local s = 1/self:GetEffectiveScale()
+  x, y = x*s, y*s
+
+  QuestHelper: Assert(x)
+  QuestHelper: Assert(y)
+  QuestHelper: Assert(self:GetLeft())
+  QuestHelper: Assert(self:GetBottom())
+  QuestHelper: Assert(self:GetRight())
+  QuestHelper: Assert(self:GetTop())
+  
+  local inside = x >= self:GetLeft() and y >= self:GetBottom() and x < self:GetRight() and y < self:GetTop()
+  if inside ~= was_inside then
+    was_inside = inside
+    if inside then
+      minbutton:SetAlpha(.7)
+    elseif not QuestHelper_Pref.track_minimized then
+      minbutton:SetAlpha(0)
+    end
+  end
+  
+  check_delay = check_delay + delta
+  if check_delay > 5 or (not QuestHelper.Routing.map_walker and check_delay > 0.5) then
+    check_delay = 0
+    
+    tracker_rescan()
   end
 end
 
 tracker:SetScript("OnUpdate", tracker.update)
 
--- Some hooks to update the tracker when quests are added or removed.
+-- Some hooks to update the tracker when quests are added or removed. These should be moved into the quest director.
+--[[
 local orig_AddQuestWatch, orig_RemoveQuestWatch = AddQuestWatch, RemoveQuestWatch
 
 function AddQuestWatch(...)
@@ -681,7 +740,7 @@ end
 function RemoveQuestWatch(...)
   tracker:update()
   return orig_RemoveQuestWatch(...)
-end
+end]]
 
 -------------------------------------------------------------------------------------------------
 -- This batch of stuff is to make sure the original tracker (and any modifications) stay hidden
