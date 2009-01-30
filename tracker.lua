@@ -703,12 +703,13 @@ function tracker:update(delta)
 
   QuestHelper: Assert(x)
   QuestHelper: Assert(y)
-  QuestHelper: Assert(self:GetLeft())
+  --[[  QuestHelper: Assert(self:GetLeft())
   QuestHelper: Assert(self:GetBottom())
   QuestHelper: Assert(self:GetRight())
-  QuestHelper: Assert(self:GetTop())
+  QuestHelper: Assert(self:GetTop())]]
   
-  local inside = x >= self:GetLeft() and y >= self:GetBottom() and x < self:GetRight() and y < self:GetTop()
+  -- Sometimes it just doesn't know its own coordinates. Not sure why. Maybe this will fix it.
+  local inside = (self:GetLeft() and (x >= self:GetLeft() and y >= self:GetBottom() and x < self:GetRight() and y < self:GetTop()))
   if inside ~= was_inside then
     was_inside = inside
     if inside then
