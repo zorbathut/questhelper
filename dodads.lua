@@ -159,7 +159,7 @@ function QuestHelper:CreateWorldMapWalker()
       for i, obj in pairs(self.frame.route) do
         if not obj.pos then
           -- No. Just no.
-          QuestHelper:AppendNotificationError("10-10-2008 pathfinding/dodads nil coroutine race condition bug")
+          --QuestHelper:AppendNotificationError("10-10-2008 pathfinding/dodads nil coroutine race condition bug")
           return   -- return "failure :("
         end
       end
