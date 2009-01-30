@@ -19,7 +19,6 @@ local yelled_at_user = false
 local first_error = nil
 
 QuestHelper_Errors = {}
-QuestHelper_Errors.crashes = {}
 
 function QuestHelper_ErrorCatcher.TextError(text)
   DEFAULT_CHAT_FRAME:AddMessage(string.format("|cffff8080QuestHelper Error Handler: |r%s", text))
@@ -70,26 +69,47 @@ function QuestHelper_ErrorCatcher.GetAddOns()
 	return addlist
 end
 
+local error_uniqueness_whitelist = {
+  ["count"] = true,
+  ["timestamp"] = true,
+}
 
 -- here's the logic
 function QuestHelper_ErrorCatcher.CondenseErrors()
-  while next(startup_errors) do
-    _, err = next(startup_errors)
-    table.remove(startup_errors)
-    
-    local found = false
-    
-    for _, item in ipairs(QuestHelper_Errors.crashes) do
-      if item.message == err.message and item.stack == err.stack and item.local_version == err.local_version and item.toc_version == err.toc_version and item.addons == err.addons and item.game_version == err.game_version and item.locale == err.locale then
-        found = true
-        item.count = item.count + 1
+  if completely_started then
+    while next(startup_errors) do
+      _, err = next(startup_errors)
+      table.remove(startup_errors)
+      
+      if not QuestHelper_Errors[err.type] then QuestHelper_Errors[err.type] = {} end
+      
+      local found = false
+      
+      for _, item in ipairs(QuestHelper_Errors[err.type]) do
+        local match = true
+        for k, v in pairs(err.dat) do
+          if not error_uniqueness_whitelist[k] and item[k] ~= v then match = false break end
+        end
+        if match then for k, v in pairs(item) do
+          if not error_uniqueness_whitelist[k] and err.dat[k] ~= v then match = false break end
+        end end
+        if match then
+          found = true
+          item.count = (item.count or 1) + 1
+          break
+        end
+      end
+      
+      if not found then
+        table.insert(QuestHelper_Errors[err.type], err.dat)
       end
     end
-    
-    if not found then
-      table.insert(QuestHelper_Errors.crashes, err)
-    end
   end
+end
+
+function QuestHelper_ErrorCatcher_RegisterError(typ, dat)
+  table.insert(startup_errors, {type = typ, dat = dat})
+  QuestHelper_ErrorCatcher.CondenseErrors()
 end
 
 function QuestHelper_ErrorPackage(depth)
@@ -112,15 +132,14 @@ function QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack, ...)
   local terror = QuestHelper_ErrorPackage()
   
   terror.message = msg
-  terror.count = 0
   terror.addons = QuestHelper_ErrorCatcher.GetAddOns()
   terror.stack = o_stack or terror.stack
   
-  table.insert(startup_errors, terror)
+  QuestHelper_ErrorCatcher_RegisterError("crash", terror)
   
   if not first_error then first_error = terror end
   
-  if completely_started then QuestHelper_ErrorCatcher.CondenseErrors() end
+  QuestHelper_ErrorCatcher.CondenseErrors()
   
   if not yelled_at_user then
     message("QuestHelper has broken. You may have to restart WoW. Type \"/qh error\" for a detailed error message.")
@@ -131,11 +150,15 @@ end
 function QuestHelper_ErrorCatcher.OnError(o_msg, o_frame, o_stack, o_etype, ...)
   if o_msg and
     (
-      string.find(o_msg, "QuestHelper")  -- Obviously we care about our bugs
-      or string.find(debugstack(2, 20, 20), "QuestHelper")  -- We're being a little overzealous and catching any bug with "QuestHelper" in the stack. This possibly should be removed, I'm not sure it's ever caught anything interesting.
+      (
+        string.find(o_msg, "QuestHelper")  -- Obviously we care about our bugs
+      )
+      or (
+        string.find(debugstack(2, 20, 20), "QuestHelper")  -- We're being a little overzealous and catching any bug with "QuestHelper" in the stack. This possibly should be removed, I'm not sure it's ever caught anything interesting.
+        and not string.find(o_msg, "Cartographer_POI")  -- Cartographer started throwing ridiculous numbers of errors on startup with QH in the stack, and since we caught stuff with QH in the stack, we decided these errors were ours. Urgh. Disabled.
+      )
     )
-    and not string.find(o_msg, "Cartographer_POI")  -- Cartographer started throwing ridiculous numbers of errors on startup with QH in the stack, and since we caught stuff with QH in the stack, we decided these errors were ours. Urgh. Disabled.
-    and not string.find(o_msg, "msg: WTF\Account")  -- Sometimes the WTF file gets corrupted. This isn't our fault, since we weren't involved in writing it, and there's also nothing we can do about it - in fact we can't even retrieve the remnants of the old file. We may as well just ignore it. I suppose we could pop up a little dialog saying "clear some space on your hard drive, dufus" but, meh.
+    and not string.match(o_msg, "WTF\\Account\\.*")  -- Sometimes the WTF file gets corrupted. This isn't our fault, since we weren't involved in writing it, and there's also nothing we can do about it - in fact we can't even retrieve the remnants of the old file. We may as well just ignore it. I suppose we could pop up a little dialog saying "clear some space on your hard drive, dufus" but, meh.
     then
       QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack)
   end
@@ -147,6 +170,12 @@ seterrorhandler(QuestHelper_ErrorCatcher.OnError) -- at this point we can catch 
 
 function QuestHelper_ErrorCatcher.CompletelyStarted()
   completely_started = true
+  
+  -- Our old code generated a horrifying number of redundant items. My bad. I considered going and trying to collate them into one chunk, but I think I'm just going to wipe them - it's easier, faster, and should fix some performance issues.
+  if not QuestHelper_Errors.version or QuestHelper_Errors.version ~= 1 then
+    QuestHelper_Errors = {version = 1}
+  end
+  
   QuestHelper_ErrorCatcher.CondenseErrors()
 end
 
