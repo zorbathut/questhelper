@@ -379,7 +379,6 @@ local function removeUnusedItem(item)
 end
 
 --[=[
-local check_delay = 4
 local was_inside = false
 
 -- :ughh:
@@ -669,6 +668,7 @@ end
 
 
 local resizing = false
+local check_delay = 4
 
 -- This function does the grunt work of cursor positioning and rescaling. It does not actually reorganize items.
 function tracker:update(delta)
@@ -719,7 +719,7 @@ function tracker:update(delta)
   end
   
   check_delay = check_delay + delta
-  if check_delay > 5 or (not QuestHelper.Routing.map_walker and check_delay > 0.5) then
+  if check_delay > 5 then
     check_delay = 0
     
     tracker_rescan()
