@@ -156,7 +156,7 @@ local function itemupdate(item, delta)
   end
   
   item:ClearAllPoints()
-  item:SetPoint("TOPLEFT", tracker, "TOPLEFT", item.x, item.y)
+  item:SetPoint("TOPLEFT", tracker, "TOPLEFT", item.x, -item.y)
   
   if done then
     item:SetScript("OnUpdate", nil)
@@ -190,7 +190,7 @@ local function itemfadeout(item, delta)
   end
   
   item:ClearAllPoints()
-  item:SetPoint("TOPLEFT", tracker, "TOPLEFT", item.x, item.y)
+  item:SetPoint("TOPLEFT", tracker, "TOPLEFT", item.x, -item.y)
 end
 
 function QH_ToggleQuestLog()   -- This seems to be gone in 3.0, so I'm adding it here.
@@ -260,20 +260,15 @@ local function allocateItem()
   item.text:SetShadowColor(0, 0, 0, .8)
   item.text:SetShadowOffset(1, -1)
   item.text:SetPoint("TOPLEFT", item)
+  return item
 end
 
 -- This is adding a *single item*. This won't be called by the main parsing loop, but it does need some serious hackery. Let's see now
 local function addItem(objective, y, meta)
-  QuestHelper:TextOut("gawhat")
-
+  QuestHelper:TextOut(string.format("placing at %d", y))
   used_count[objective] = (used_count[objective] or 0) + 1
   if not used_items[objective] then used_items[objective] = {} end
   local item = used_items[objective][used_count[objective]]
-  
-  QuestHelper:TextOut("gawho")
-  
-  local q
-  q()
   
   local x = meta and 4 or 20
   
@@ -288,6 +283,8 @@ local function addItem(objective, y, meta)
       item.text:SetFont(QuestHelper.font.sans, 12)
       item.text:SetTextColor(.82, .82, .82)
     end
+    
+    item.obj = objective
 
     item.sx, item.sy, item.x, item.y, item.ex, item.ey, item.t = x+30, y, x, y, x, y, 0
     item:SetScript("OnUpdate", itemupdate)
@@ -295,17 +292,11 @@ local function addItem(objective, y, meta)
     item:Show()
   end
   
-  QuestHelper:TextOut("gawas")
-  
-  item.objective = obj
-  
   item.text:SetText(item.obj.desc)
   
   local w, h = item.text:GetWidth(), item.text:GetHeight()
   item:SetWidth(w)
   item:SetHeight(h)
-  
-  QuestHelper:TextOut("gawillbe")
   
   --[[
   if qname then
@@ -320,19 +311,14 @@ local function addItem(objective, y, meta)
     item:SetScript("OnUpdate", itemupdate)
   end
   
-  QuestHelper:TextOut("gaforsooth")
-  
-  return w+x+4, h
+  QuestHelper:TextOut(string.format("returning %d", h))
+  return w+x+4, y+h
 end
 
 local function addMetaObjective(metaobj, items, y)
   local x
-  QuestHelper:TextOut("bloog")
   x, y = addItem(metaobj, y, true)
-  QuestHelper:TextOut("blong")
-  QuestHelper:TextOut(QuestHelper:StringizeTable(items))
   for _, v in ipairs(items) do
-    QuestHelper:TextOut("aiai")
     x, y = addItem(v, y, false)
   end
   return y
@@ -542,10 +528,10 @@ function tracker_rescan()
   for k, v in pairs(used_items) do
     if not used_count[k] or used_count[k] < #v then
       local ttp = {}
-      for m = 1, used_count[k] do
+      for m = 1, (used_count[k] or 0) do
         table.insert(ttp, v[m])
       end
-      for m = used_count[k] + 1, #v do
+      for m = (used_count[k] or 0) + 1, #v do
         removeUnusedItem(v[m])
       end
       used_items[k] = ttp
