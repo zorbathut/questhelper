@@ -263,10 +263,17 @@ local function allocateItem()
 end
 
 -- This is adding a *single item*. This won't be called by the main parsing loop, but it does need some serious hackery. Let's see now
-local function addItem(obj, y, meta)
+local function addItem(objective, y, meta)
+  QuestHelper:TextOut("gawhat")
+
   used_count[objective] = (used_count[objective] or 0) + 1
   if not used_items[objective] then used_items[objective] = {} end
   local item = used_items[objective][used_count[objective]]
+  
+  QuestHelper:TextOut("gawho")
+  
+  local q
+  q()
   
   local x = meta and 4 or 20
   
@@ -288,6 +295,8 @@ local function addItem(obj, y, meta)
     item:Show()
   end
   
+  QuestHelper:TextOut("gawas")
+  
   item.objective = obj
   
   item.text:SetText(item.obj.desc)
@@ -295,6 +304,8 @@ local function addItem(obj, y, meta)
   local w, h = item.text:GetWidth(), item.text:GetHeight()
   item:SetWidth(w)
   item:SetHeight(h)
+  
+  QuestHelper:TextOut("gawillbe")
   
   --[[
   if qname then
@@ -309,7 +320,22 @@ local function addItem(obj, y, meta)
     item:SetScript("OnUpdate", itemupdate)
   end
   
+  QuestHelper:TextOut("gaforsooth")
+  
   return w+x+4, h
+end
+
+local function addMetaObjective(metaobj, items, y)
+  local x
+  QuestHelper:TextOut("bloog")
+  x, y = addItem(metaobj, y, true)
+  QuestHelper:TextOut("blong")
+  QuestHelper:TextOut(QuestHelper:StringizeTable(items))
+  for _, v in ipairs(items) do
+    QuestHelper:TextOut("aiai")
+    x, y = addItem(v, y, false)
+  end
+  return y
 end
 
 --[[  -- these will be plugged in later one way or another
@@ -498,6 +524,34 @@ local pinned = {}
 
 function tracker_rescan()
   QuestHelper:TextOut("tracker rescan")
+  
+  used_count = {} -- reset this
+  
+  local mo_done = {}
+  
+  local y = 0
+  
+  for k, v in pairs(pinned) do
+    if not mo_done[k] then
+      QuestHelper:TextOut("amo")
+      y = addMetaObjective(k, k, y) -- It's like KY. Only better, and faintly racist.
+      mo_done[k] = true
+    end
+  end
+  
+  for k, v in pairs(used_items) do
+    if not used_count[k] or used_count[k] < #v then
+      local ttp = {}
+      for m = 1, used_count[k] do
+        table.insert(ttp, v[m])
+      end
+      for m = used_count[k] + 1, #v do
+        removeUnusedItem(v[m])
+      end
+      used_items[k] = ttp
+    end
+  end
+  
   --[[
   
     local quests = QuestHelper.quest_log
@@ -657,12 +711,15 @@ function tracker_update_route(new_route)
   tracker_rescan()
 end
 
-function tracker_pin(objective)
-  pinned[objective] = true
+function tracker_pin(metaobjective)
+  QuestHelper:TextOut("hey hey")
+  pinned[metaobjective] = true
+  tracker_rescan()
 end
 
-function tracker_unpin(objective)
-  pinned[objective] = nil -- nil, not false, so it'll be garbage-collected appropriately
+function tracker_unpin(metaobjective)
+  pinned[metaobjective] = nil -- nil, not false, so it'll be garbage-collected appropriately
+  tracker_rescan()
 end
 
 
