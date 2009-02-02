@@ -265,7 +265,6 @@ end
 
 -- This is adding a *single item*. This won't be called by the main parsing loop, but it does need some serious hackery. Let's see now
 local function addItem(objective, y, meta)
-  QuestHelper:TextOut(string.format("placing at %d", y))
   used_count[objective] = (used_count[objective] or 0) + 1
   if not used_items[objective] then used_items[objective] = {} end
   local item = used_items[objective][used_count[objective]]
@@ -311,7 +310,6 @@ local function addItem(objective, y, meta)
     item:SetScript("OnUpdate", itemupdate)
   end
   
-  QuestHelper:TextOut(string.format("returning %d", h))
   return w+x+4, y+h
 end
 
@@ -517,11 +515,29 @@ function tracker_rescan()
   
   local y = 0
   
+  local had_pinned = false
+  
   for k, v in pairs(pinned) do
     if not mo_done[k] then
       QuestHelper:TextOut("amo")
       y = addMetaObjective(k, k, y) -- It's like KY. Only better, and faintly racist.
       mo_done[k] = true
+      had_pinned = true
+    end
+  end
+  
+  if had_pinned then y = y + 10 end
+  
+  local metalookup = {}
+  for k, v in ipairs(route) do
+    if not metalookup[v.why] then metalookup[v.why] = {} end
+    table.insert(metalookup[v.why], v)
+  end
+  
+  for k, v in ipairs(route) do
+    if not mo_done[v.why] then
+      y = addMetaObjective(v.why, metalookup[v.why], y)
+      mo_done[v.why] = true
     end
   end
   
