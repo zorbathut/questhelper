@@ -1,4 +1,13 @@
 
+== Version 0.86 2/2/2009 ==
+
+* Fixed a glitch in error recording that may have been causing excess CPU and RAM usage
+* Cleared out old error data to save people's RAM
+* Possibly fix the old tracker.lua assert error. Possibly make it worse! IT IS AN ADVENTURE TO ALL
+* Rig it to be a little more durable versus InventoryOnPar
+* More private server data removed :(
+* Nag people to update significantly more rarely
+
 == Version 0.85 1/24/2009 ==
 
 * Fixed a large pile of small bugs.
