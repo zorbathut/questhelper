@@ -379,9 +379,8 @@ function QuestHelper:IsWrath()
 end
 
 function QuestHelper:AppendNotificationError(type, data)
-  if not QuestHelper_Errors[type] then QuestHelper_Errors[type] = {} end
   local terror = QuestHelper_ErrorPackage(2)
   terror.data = data
-  table.insert(QuestHelper_Errors[type], terror)
+  QuestHelper_ErrorCatcher_RegisterError(type, terror)
 end
 
