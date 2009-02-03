@@ -13,7 +13,14 @@ QuestHelper_Loadtime["routing_core.lua"] = GetTime()
   local DistanceFactor = -0.5
   
   -- Small amount to add to all weights to ensure it never hits, and to make sure things can still be chosen after a lot of iterations
-  local UniversalBonus = 1e-20
+  local UniversalBonus = 1
+  
+  -- Weight added is 1/([0-1] + BestWorstAdjustment)
+  local BestWorstAdjustment = 0.01
+  
+  -- How much do we want to factor in the "reverse path" weights
+  local AsymmetryFactor = 0.2
+  local SymmetryFactor = 0.5
 -- End configuration
 
 local Notifier
@@ -35,7 +42,7 @@ local PassDone
   local Distance = {0}
   local Weight = {0}
   
-  local weight_ave = 0.001
+  weight_ave = 0.001
 
   local function GetIndex(x, y) return (x - 1) * CurrentNodes + y end
 -- End node storage and data structures
@@ -59,12 +66,19 @@ local last_best = nil
 local function GetWeight(x, y)
   if x == y then return 0.00000000001 end -- sigh
   local idx = GetIndex(x, y)
+  local revidx = GetIndex(y, x)
   if not Weight[idx] or not Distance[idx] then
     RTO(string.format("%d/%d %d", x, y, CurrentNodes))
     QuestHelper: Assert(x <= CurrentNodes)
     QuestHelper: Assert(y <= CurrentNodes)
   end
-  return math.pow(Weight[idx], WeightFactor) * math.pow(Distance[idx], DistanceFactor)
+  local bonus
+  if Distance[idx] == Distance[revidx] then
+    bonus = SymmetryFactor
+  else
+    bonus = AsymmetryFactor
+  end
+  return math.pow(Weight[idx] + Weight[revidx] * bonus, WeightFactor) * math.pow(Distance[idx], DistanceFactor)
 end
 
 local function RunAnt()
@@ -141,6 +155,8 @@ function Public_Process()
       last_yell = GetTime()
     end
     
+    local worst = 0
+    
     local trouts = {}
     for x = 1, AntCount do
       table.insert(trouts, RunAnt())
@@ -149,6 +165,15 @@ function Public_Process()
         last_best = trouts[#trouts]
         BetterRoute(last_best)
       end
+      
+      worst = math.max(worst, trouts[#trouts].distance)
+    end
+    
+    local scale
+    if worst == last_best.distance then
+      scale = 1
+    else
+      scale = 1 / (worst - last_best.distance)
     end
     
     for _, x in ipairs(ActiveNodes) do
@@ -159,7 +184,7 @@ function Public_Process()
     end
     
     for _, x in ipairs(trouts) do
-      local amount = 1 / x.distance
+      local amount = 1 / ((x.distance - last_best.distance) / scale + BestWorstAdjustment)
       for y = 1, #x - 1 do
         local idx = GetIndex(x[y], x[y + 1])
         Weight[idx] = Weight[idx] + amount
@@ -338,6 +363,17 @@ function TestShit()
     end
   end
   QuestHelper: Assert(not fail)
+end
+
+function HackeryDump()
+  local st = "{"
+  for k, v in pairs(ActiveNodes) do
+    if v ~= 1 then
+      st = st .. string.format("{c = %d, x = %f, y = %f}, ", NodeList[k].loc.c, NodeList[k].loc.x, NodeList[k].loc.y)
+    end
+  end
+  st = st .. "}"
+  assert(false, st)
 end
 
 -- weeeeee
