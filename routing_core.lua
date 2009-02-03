@@ -5,22 +5,23 @@ QuestHelper_Loadtime["routing_core.lua"] = GetTime()
 -- Weight adjustment: Weight[x,y] = Weight[x,y]*weightadj + (1/distance_of_travel)
 
 -- Configuration
-  local PheremonePreservation = 0.99 -- must be within 0 and 1 exclusive
+  local PheremonePreservation = 0.85 -- must be within 0 and 1 exclusive
   local AntCount = 20 -- number of ants to run before doing a pheremone pass
 
-    -- Weighting for the various factors
-  local WeightFactor = 1
-  local DistanceFactor = -0.5
+  -- Weighting for the various factors
+  local WeightFactor = 1.35
+  local DistanceFactor = -0.6
+  local DistanceDeweight = 0.8 -- Add this to all distances to avoid sqrt(-1) deals
   
   -- Small amount to add to all weights to ensure it never hits, and to make sure things can still be chosen after a lot of iterations
-  local UniversalBonus = 1
+  local UniversalBonus = 0.89
   
   -- Weight added is 1/([0-1] + BestWorstAdjustment)
-  local BestWorstAdjustment = 0.01
+  local BestWorstAdjustment = 0.009
   
   -- How much do we want to factor in the "reverse path" weights
   local AsymmetryFactor = 0.2
-  local SymmetryFactor = 0.5
+  local SymmetryFactor = 0.6
 -- End configuration
 
 local Notifier
@@ -29,7 +30,6 @@ local PassDone
 
 -- Node storage and data structures
   local MaxNodes = math.floor(math.sqrt(math.pow(2, 19)))
-  RTO(tostring(MaxNodes))
 
   local CurrentNodes = 1
   local ActiveNodes = {1}
@@ -49,7 +49,6 @@ local PassDone
 
 -- Initialization
 function Public_Init(PathNotifier, Distance, Pass)
-  QuestHelper:TextOut("init")
   Notifier = PathNotifier
   Dist = Distance
   PassDone = Pass
@@ -62,6 +61,12 @@ end
 local last_yell = GetTime()
 
 local last_best = nil
+
+local function ValidateNumber(x)
+  QuestHelper: Assert(x == x)
+  QuestHelper: Assert(x ~= math.huge)
+  QuestHelper: Assert(x ~= -math.huge)
+end
 
 local function GetWeight(x, y)
   if x == y then return 0.00000000001 end -- sigh
@@ -78,7 +83,10 @@ local function GetWeight(x, y)
   else
     bonus = AsymmetryFactor
   end
-  return math.pow(Weight[idx] + Weight[revidx] * bonus, WeightFactor) * math.pow(Distance[idx], DistanceFactor)
+  local weight = math.pow(Weight[idx] + Weight[revidx] * bonus, WeightFactor) * math.pow(Distance[idx] + DistanceDeweight, DistanceFactor)
+  --print(Weight[idx], Weight[revidx], bonus, WeightFactor, Distance[idx], DistanceFactor)
+  --ValidateNumber(weight)
+  return weight
 end
 
 local function RunAnt()
@@ -143,67 +151,73 @@ local function BetterRoute(route)
 end
 
 -- Core loop
+function ProcessOnePass()
+  PassDone()
+  
+  if GetTime() > last_yell + 5 then
+    RTO("still tickin'")
+    last_yell = GetTime()
+  end
+  
+  local worst = 0
+  
+  local trouts = {}
+  for x = 1, AntCount do
+    table.insert(trouts, RunAnt())
+    --if last_best then RTO(string.format("Path generated: %s vs %s", PathToString(trouts[#trouts]), PathToString(last_best))) end
+    if not last_best or last_best.distance > trouts[#trouts].distance then
+      last_best = trouts[#trouts]
+      BetterRoute(last_best)
+    end
+    
+    worst = math.max(worst, trouts[#trouts].distance)
+  end
+  
+  local scale
+  if worst == last_best.distance then
+    scale = 1
+  else
+    scale = 1 / (worst - last_best.distance)
+  end
+  
+  for _, x in ipairs(ActiveNodes) do
+    for _, y in ipairs(ActiveNodes) do
+      local idx = GetIndex(x, y)
+      Weight[idx] = Weight[idx] * PheremonePreservation + UniversalBonus
+      --ValidateNumber(Weight[idx])
+    end
+  end
+  
+  for _, x in ipairs(trouts) do
+    local amount = 1 / ((x.distance - last_best.distance) / scale + BestWorstAdjustment)
+    for y = 1, #x - 1 do
+      local idx = GetIndex(x[y], x[y + 1])
+      Weight[idx] = Weight[idx] + amount
+      --ValidateNumber(Weight[idx])
+    end
+  end
+  
+  local weitotal = 0
+  local weicount = 0
+  for _, x in ipairs(ActiveNodes) do
+    for _, y in ipairs(ActiveNodes) do
+      local idx = GetIndex(x, y)
+      weitotal = weitotal + Weight[idx]
+      weicount = weicount + 1
+    end
+  end
+  
+  weight_ave = weitotal / weicount
+  
+  QH_Timeslice_Yield()  -- "heh"
+end
+
 function Public_Process()
   QuestHelper: Assert(Notifier)
   QuestHelper: Assert(Dist)
   
   while true do
-    PassDone()
-    
-    if GetTime() > last_yell + 5 then
-      RTO("still tickin'")
-      last_yell = GetTime()
-    end
-    
-    local worst = 0
-    
-    local trouts = {}
-    for x = 1, AntCount do
-      table.insert(trouts, RunAnt())
-      --if last_best then RTO(string.format("Path generated: %s vs %s", PathToString(trouts[#trouts]), PathToString(last_best))) end
-      if not last_best or last_best.distance > trouts[#trouts].distance then
-        last_best = trouts[#trouts]
-        BetterRoute(last_best)
-      end
-      
-      worst = math.max(worst, trouts[#trouts].distance)
-    end
-    
-    local scale
-    if worst == last_best.distance then
-      scale = 1
-    else
-      scale = 1 / (worst - last_best.distance)
-    end
-    
-    for _, x in ipairs(ActiveNodes) do
-      for _, y in ipairs(ActiveNodes) do
-        local idx = GetIndex(x, y)
-        Weight[idx] = Weight[idx] * PheremonePreservation + UniversalBonus
-      end
-    end
-    
-    for _, x in ipairs(trouts) do
-      local amount = 1 / ((x.distance - last_best.distance) / scale + BestWorstAdjustment)
-      for y = 1, #x - 1 do
-        local idx = GetIndex(x[y], x[y + 1])
-        Weight[idx] = Weight[idx] + amount
-      end
-    end
-    
-    local weitotal = 0
-    local weicount = 0
-    for _, x in ipairs(ActiveNodes) do
-      for _, y in ipairs(ActiveNodes) do
-        local idx = GetIndex(x, y)
-        weitotal = weitotal + Weight[idx]
-        weicount = weicount + 1
-      end
-    end
-    
-    weight_ave = weitotal / weicount
-    
-    QH_Timeslice_Yield()  -- "heh"
+    ProcessOnePass()
   end
 end
 -- End core loop
@@ -218,7 +232,7 @@ end
       return nod
     end
     
-    RTO(string.format("Expanding from %d to %d", CurrentNodes, CurrentNodes + 1))
+    --RTO(string.format("Expanding from %d to %d", CurrentNodes, CurrentNodes + 1))
     QuestHelper: Assert(CurrentNodes < MaxNodes)
     local newadj = {}
     local newweight = {}
