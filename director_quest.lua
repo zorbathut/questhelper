@@ -37,7 +37,9 @@ local function UpdateQuests()
           if db then
             local lbcount = GetNumQuestLeaderBoards(index)
             for i = 1, GetNumQuestLeaderBoards(index) do
-              local _, _, done = GetQuestLogLeaderBoard(i, index)
+              local desc, _, done = GetQuestLogLeaderBoard(i, index)
+              if db[i] then db[i].desc = desc end
+              
               if not done then if db[i] and db[i].loc then
                 nactive[db[i]] = true
                 if not active[db[i]] then
