@@ -25,7 +25,7 @@ function DB_GetItem(group, id)
     if not q then return end
     
     ite = {} -- we don't want to mutate the existing quest data
-    ite.desc = string.format("Quest %s", q.name or "(unknown)")  -- this gets changed later
+    ite.desc = string.format("Quest %s", q.name.enUS or "(unknown)")  -- this gets changed later
     
     if q.criteria then for k, v in ipairs(q.criteria) do
       table.insert(ite, {desc = string.format("Criteria %d", k), why = ite, loc = v.loc})
