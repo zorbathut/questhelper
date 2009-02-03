@@ -36,6 +36,17 @@ local function UpdateQuests()
           
           if db then
             local lbcount = GetNumQuestLeaderBoards(index)
+            
+            local turnin
+            
+            if db[lbcount + 1] and db[lbcount + 1].loc then
+              turnin = db[lbcount + 1]
+              nactive[db[lbcount + 1]] = true
+              if not active[db[lbcount + 1]] then
+                QH_Route_NodeAdd(db[lbcount + 1])
+              end
+            end
+            
             for i = 1, GetNumQuestLeaderBoards(index) do
               local desc, _, done = GetQuestLogLeaderBoard(i, index)
               if db[i] then db[i].desc = desc end
@@ -44,15 +55,9 @@ local function UpdateQuests()
                 nactive[db[i]] = true
                 if not active[db[i]] then
                   QH_Route_NodeAdd(db[i])
+                  if turnin then QH_Route_NodeRequires(turnin, db[i]) end
                 end
               end end
-            end
-            
-            if db[lbcount + 1] and db[lbcount + 1].loc then
-              nactive[db[lbcount + 1]] = true
-              if not active[db[lbcount + 1]] then
-                QH_Route_NodeAdd(db[lbcount + 1])
-              end
             end
           end
         end

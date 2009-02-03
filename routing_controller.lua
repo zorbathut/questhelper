@@ -33,6 +33,10 @@ function QH_Route_NodeRemove(node)
   table.insert(pending, function () Route_Core_NodeRemove(node) end)
 end
 
+function QH_Route_NodeRequires(a, b)
+  table.insert(pending, function () Route_Core_NodeRequires(a, b) end)
+end
+
 Route_Core_Init(
   function(path) temp_walker:RouteChanged(path) tracker_update_route(path) end,
   function(loc1, loc2)

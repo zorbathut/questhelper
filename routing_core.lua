@@ -33,6 +33,10 @@ local Dist
   local CurrentNodes = 1
   local ActiveNodes = {1}
   local DeadNodes = {}
+  
+  local DependencyLinks = {}  -- Everything that node X depends on (integers)
+  local DependencyLinksReverse = {}  -- Everything that depends on node X (integers)
+  local DependencyCounts = {[1] = 0}  -- How many different nodes node X depends on
 
   local StartNode = {}
 
@@ -89,10 +93,17 @@ local function RunAnt()
   route[1] = 1
   route.distance = 0
   
+  local dependencies = {}
+  
   local needed = {}
   local needed_count = -1 -- gets rid of 1 earlier
+  local needed_ready_count = -1
   for _, v in ipairs(ActiveNodes) do
-    needed[v] = true
+    dependencies[v] = DependencyCounts[v]
+    if dependencies[v] == 0 then
+      needed[v] = true
+      needed_ready_count = needed_ready_count + 1
+    end
     needed_count = needed_count + 1
   end
   needed[1] = nil
@@ -100,6 +111,7 @@ local function RunAnt()
   local curloc = 1
   
   while needed_count > 0 do
+    QuestHelper: Assert(needed_ready_count > 0)
     local accumulated_weight = 0
     local tweight = 0
     for k, _ in pairs(needed) do
@@ -128,11 +140,20 @@ local function RunAnt()
     
     needed[nod] = nil
     needed_count = needed_count - 1
+    needed_ready_count = needed_ready_count - 1
+    if DependencyLinksReverse[nod] then for _, v in ipairs(DependencyLinksReverse[nod]) do
+      dependencies[v] = dependencies[v] - 1
+      if dependencies[v] == 0 then
+        needed[v] = true
+        needed_ready_count = needed_ready_count + 1
+      end
+    end end
     route.distance = route.distance + Distance[GetIndex(curloc, nod)]
     table.insert(route, nod)
     curloc = nod
   end
   
+  QuestHelper: Assert(needed_ready_count == 0)
   return route
 end
 
@@ -295,6 +316,8 @@ end
     end
     --TestShit()
     
+    DependencyCounts[idx] = 0
+    
     last_best = nil
   end
 
@@ -303,13 +326,35 @@ end
     --TestShit()
     QuestHelper: Assert(nod)
     QuestHelper: Assert(NodeLookup[nod])
+    
+    local idx = NodeLookup[nod]
     --RTO("|cffFF8080RFN: " .. tostring(NodeLookup[nod]))
-    NodeList[NodeLookup[nod]] = nil
-    table.insert(DeadNodes, NodeLookup[nod])
-    for k, v in pairs(ActiveNodes) do if v == NodeLookup[nod] then table.remove(ActiveNodes, k) break end end -- this is pretty awful
+    NodeList[idx] = nil
+    table.insert(DeadNodes, idx)
+    for k, v in pairs(ActiveNodes) do if v == idx then table.remove(ActiveNodes, k) break end end -- this is pretty awful
     NodeLookup[nod] = nil
     -- We don't have to modify the table itself, some sections are just "dead".
     --TestShit()
+    
+    DependencyCounts[idx] = nil
+    
+    if DependencyLinks[idx] then
+      for k, v in pairs(DependencyLinks) do
+        for m, f in pairs(DependencyLinksReverse[v]) do
+          if f == idx then table.remove(DependencyLinksReverse[v], m) break end
+        end
+      end
+    end
+    DependencyLinks[idx] = nil
+    
+    if DependencyLinksReverse[idx] then
+      for k, v in pairs(DependencyLinksReverse) do
+        for m, f in pairs(DependencyLinks[v]) do
+          if f == idx then table.remove(DependencyLinks[v], m) DependencyCounts[v] = DependencyCounts[v] - 1 break end
+        end
+      end
+    end
+    DependencyLinksReverse[idx] = nil
     
     last_best = nil
   end
@@ -320,7 +365,20 @@ function QH_Route_Core_NodeObsoletes()
 end
 
 -- Add a note that node 1 requires node 2.
-function QH_Route_Core_NodeRequires()
+function QH_Route_Core_NodeRequires(a, b)
+  local aidx = NodeLookup[a]
+  local bidx = NodeLookup[b]
+  QuestHelper: Assert(aidx)
+  QuestHelper: Assert(bidx)
+  QuestHelper: Assert(aidx ~= bidx)
+  
+  DependencyCounts[aidx] = DependencyCounts[aidx] + 1
+  
+  if not DependencyLinks[aidx] then DependencyLinks[aidx] = {} end
+  table.insert(DependencyLinks[aidx], bidx)
+  
+  if not DependencyLinksReverse[bidx] then DependencyLinksReverse[bidx] = {} end
+  table.insert(DependencyLinksReverse[bidx], aidx)
 end
 
 -- Wipe and re-cache all distances.
