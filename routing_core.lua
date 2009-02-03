@@ -55,8 +55,6 @@ function QH_Route_Core_Init(PathNotifier, Distance)
 end
 -- End initialization
 
-local last_yell = GetTime()
-
 local last_best = nil
 
 local function ValidateNumber(x)
@@ -149,11 +147,6 @@ end
 
 -- Core process function
 function QH_Route_Core_Process()
-  if GetTime() > last_yell + 5 then
-    RTO("still tickin'")
-    last_yell = GetTime()
-  end
-  
   local worst = 0
   
   local trouts = {}

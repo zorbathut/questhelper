@@ -507,8 +507,6 @@ local route = {}
 local pinned = {}
 
 function tracker_rescan()
-  QuestHelper:TextOut("tracker rescan")
-  
   used_count = {} -- reset this
   
   local mo_done = {}

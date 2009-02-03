@@ -49,6 +49,9 @@ Route_Core_Init(
 
 local StartObjective = {desc = "Start", tracker_hidden = true} -- this should never be displayed
 
+local lapa = GetTime()
+local passcount = 0
+
 local function process()
   while true do
     local c, x, y = QuestHelper:RetrieveRawLocation()
@@ -66,6 +69,13 @@ local function process()
     pending = {}
     
     Route_Core_Process()
+    
+    passcount = passcount + 1
+    if lapa + 60 < GetTime() then
+      QuestHelper:TextOut(string.format("%d passes in the last minute", passcount))
+      lapa = lapa + 60
+      passcount = 0
+    end
   end
 end
 
