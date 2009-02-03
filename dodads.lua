@@ -390,7 +390,6 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
       --QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, 0, 0, globx, globy)
     else
       self.objective = nil
-      QuestHelper:TextOut("H5")
       self:Hide()
     end
   end
@@ -524,7 +523,6 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   end
   
   function icon:OnLeave()
-    QuestHelper:TextOut("H6")
     QuestHelper.tooltip:Hide()
     self.show_glow = false
     self.old_count = 0
@@ -535,7 +533,6 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
       QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(self.objective.loc))
     else
       self.objective = nil
-      QuestHelper:TextOut("H7")
       self:Hide()
     end
   end
@@ -762,7 +759,6 @@ function QuestHelper:CreateMipmapDodad()
         self.arrow:SetModelScale(0.600000023841879+0.1*math.sin(self.phase))
       end]=]
     else
-      QuestHelper:TextOut("H1")
       self:Hide()
     end
   end
@@ -776,7 +772,6 @@ function QuestHelper:CreateMipmapDodad()
         self:Show()
       else
         QuestHelper:InvokeWaypointCallbacks()
-        QuestHelper:TextOut("H2")
         self:Hide()
       end
       
@@ -801,7 +796,6 @@ function QuestHelper:CreateMipmapDodad()
   end
   
   function icon:OnLeave()
-    QuestHelper:TextOut("H3")
     QuestHelper.tooltip:Hide()
   end
   
@@ -818,7 +812,6 @@ function QuestHelper:CreateMipmapDodad()
     if self.objective then
       self:Show()
     else
-      QuestHelper:TextOut("H4")
       self:Hide()
     end
   end
