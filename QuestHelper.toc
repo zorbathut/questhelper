@@ -137,7 +137,7 @@ routing_debug.lua
 routing_loc.lua
 routing_route.lua
 routing_core.lua
-routing_test.lua
+routing_controller.lua
 
 db_get.lua
 

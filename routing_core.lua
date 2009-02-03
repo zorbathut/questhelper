@@ -2,7 +2,7 @@ QuestHelper_File["routing_core.lua"] = "Development Version"
 QuestHelper_Loadtime["routing_core.lua"] = GetTime()
 
 -- Ant colony optimization. Moving from X to Y has the quality (Distance[x,y]^alpha)*(Weight[x,y]^beta). Sum all available qualities, then choose weighted randomly.
--- Weight adjustment: Weight[x,y] = Weight[x,y]*weightadj + (1/distance_of_travel)
+-- Weight adjustment: Weight[x,y] = Weight[x,y]*weightadj + sum(alltravels)(1/distance_of_travel)    (note: this is somewhat out of date)
 
 -- Configuration
   local PheremonePreservation = 0.80 -- must be within 0 and 1 exclusive
@@ -26,7 +26,6 @@ QuestHelper_Loadtime["routing_core.lua"] = GetTime()
 
 local Notifier
 local Dist
-local PassDone
 
 -- Node storage and data structures
   local MaxNodes = math.floor(math.sqrt(math.pow(2, 19)))
@@ -48,13 +47,11 @@ local PassDone
 -- End node storage and data structures
 
 -- Initialization
-function Public_Init(PathNotifier, Distance, Pass)
+function QH_Route_Core_Init(PathNotifier, Distance)
   Notifier = PathNotifier
   Dist = Distance
-  PassDone = Pass
   QuestHelper: Assert(Notifier)
   QuestHelper: Assert(Dist)
-  QuestHelper: Assert(Pass)
 end
 -- End initialization
 
@@ -150,10 +147,8 @@ local function BetterRoute(route)
   Notifier(rt)
 end
 
--- Core loop
-function ProcessOnePass()
-  PassDone()
-  
+-- Core process function
+function QH_Route_Core_Process()
   if GetTime() > last_yell + 5 then
     RTO("still tickin'")
     last_yell = GetTime()
@@ -211,15 +206,6 @@ function ProcessOnePass()
   
   QH_Timeslice_Yield()  -- "heh"
 end
-
-function Public_Process()
-  QuestHelper: Assert(Notifier)
-  QuestHelper: Assert(Dist)
-  
-  while true do
-    ProcessOnePass()
-  end
-end
 -- End core loop
 
 -- Node allocation and deallocation
@@ -274,7 +260,7 @@ end
   end
 
   -- Set the start location
-  function Public_SetStart(stt)
+  function QH_Route_Core_SetStart(stt)
     -- We do some kind of ghastly things here.
     NodeLookup[StartNode] = nil
     NodeList[1] = stt
@@ -292,9 +278,9 @@ end
   end
 
   -- Add a node to route to
-  function Public_NodeAdd(nod)
+  function QH_Route_Core_NodeAdd(nod)
     --QuestHelper:TextOut(tostring(nod))
-    TestShit()
+    --TestShit()
     QuestHelper: Assert(nod)
     QuestHelper: Assert(not NodeLookup[nod])
     
@@ -312,14 +298,14 @@ end
       Weight[GetIndex(ActiveNodes[x], idx)] = weight_ave
       Weight[GetIndex(idx, ActiveNodes[x])] = weight_ave
     end
-    TestShit()
+    --TestShit()
     
     last_best = nil
   end
 
   -- Remove a node with the given location
-  function Public_NodeRemove(nod)
-    TestShit()
+  function QH_Route_Core_NodeRemove(nod)
+    --TestShit()
     QuestHelper: Assert(nod)
     QuestHelper: Assert(NodeLookup[nod])
     --RTO("|cffFF8080RFN: " .. tostring(NodeLookup[nod]))
@@ -328,25 +314,25 @@ end
     for k, v in pairs(ActiveNodes) do if v == NodeLookup[nod] then table.remove(ActiveNodes, k) break end end -- this is pretty awful
     NodeLookup[nod] = nil
     -- We don't have to modify the table itself, some sections are just "dead".
-    TestShit()
+    --TestShit()
     
     last_best = nil
   end
 -- End node allocation and deallocation
 
 -- Add a note that node 1 makes node 2 obsolete (in some sense, it instantly completes node 2.) Right now, this is a symmetrical relationship.
-function Public_NodeObsoletes()
+function QH_Route_Core_NodeObsoletes()
 end
 
 -- Add a note that node 1 requires node 2.
-function Public_NodeRequires()
+function QH_Route_Core_NodeRequires()
 end
 
 -- Wipe and re-cache all distances.
-function Public_DistanceClear()
+function QH_Route_Core_DistanceClear()
 end
 
-
+--[==[
 
 function TestShit()
 --[[
@@ -389,5 +375,6 @@ function HackeryDump()
   st = st .. "}"
   assert(false, st)
 end
+]==]
 
 -- weeeeee

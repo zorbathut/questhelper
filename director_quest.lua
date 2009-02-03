@@ -41,7 +41,7 @@ local function UpdateQuests()
               if not done then if db[i] and db[i].loc then
                 nactive[db[i]] = true
                 if not active[db[i]] then
-                  Public_NodeAdd(db[i])
+                  QH_Route_NodeAdd(db[i])
                 end
               end end
             end
@@ -49,7 +49,7 @@ local function UpdateQuests()
             if db[lbcount + 1] and db[lbcount + 1].loc then
               nactive[db[lbcount + 1]] = true
               if not active[db[lbcount + 1]] then
-                Public_NodeAdd(db[lbcount + 1])
+                QH_Route_NodeAdd(db[lbcount + 1])
               end
             end
           end
@@ -60,7 +60,7 @@ local function UpdateQuests()
     
     for k, v in pairs(active) do
       if not nactive[k] then
-        Public_NodeRemove(k)
+        QH_Route_NodeRemove(k)
       end
     end
     
