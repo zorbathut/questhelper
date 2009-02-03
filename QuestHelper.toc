@@ -82,6 +82,10 @@ lang\zhtw.lua
 
 upgrade.lua
 main.lua
+
+# we really want to move this up, but things need to be better structured eventually
+manager_event.lua
+
 recycle.lua
 objective.lua
 quest.lua

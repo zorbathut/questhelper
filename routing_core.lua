@@ -5,23 +5,23 @@ QuestHelper_Loadtime["routing_core.lua"] = GetTime()
 -- Weight adjustment: Weight[x,y] = Weight[x,y]*weightadj + (1/distance_of_travel)
 
 -- Configuration
-  local PheremonePreservation = 0.85 -- must be within 0 and 1 exclusive
+  local PheremonePreservation = 0.80 -- must be within 0 and 1 exclusive
   local AntCount = 20 -- number of ants to run before doing a pheremone pass
 
-  -- Weighting for the various factors
-  local WeightFactor = 1.35
-  local DistanceFactor = -0.6
-  local DistanceDeweight = 0.8 -- Add this to all distances to avoid sqrt(-1) deals
+    -- Weighting for the various factors
+  local WeightFactor = 0.80
+  local DistanceFactor = -3.5
+  local DistanceDeweight = 1.5 -- Add this to all distances to avoid sqrt(-1) deals
   
   -- Small amount to add to all weights to ensure it never hits, and to make sure things can still be chosen after a lot of iterations
-  local UniversalBonus = 0.89
+  local UniversalBonus = 0.25
   
   -- Weight added is 1/([0-1] + BestWorstAdjustment)
-  local BestWorstAdjustment = 0.009
+  local BestWorstAdjustment = 0.015
   
   -- How much do we want to factor in the "reverse path" weights
-  local AsymmetryFactor = 0.2
-  local SymmetryFactor = 0.6
+  local AsymmetryFactor = 0.32
+  local SymmetryFactor = 0.45
 -- End configuration
 
 local Notifier

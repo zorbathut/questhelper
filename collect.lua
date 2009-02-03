@@ -25,7 +25,7 @@ frame:SetScript("OnEvent", OnEvent)
 
 frame:Show()
 
-function EventHookRegistrar(event, func)
+local function EventHookRegistrar(event, func)
   QuestHelper:Assert(func)
   if not EventRegistrar[event] then
     frame:RegisterEvent(event)
@@ -34,7 +34,7 @@ function EventHookRegistrar(event, func)
   table.insert(EventRegistrar[event], func)
 end
 
-function OnUpdateHookRegistrar(func)
+local function OnUpdateHookRegistrar(func)
   QuestHelper:Assert(func)
   table.insert(OnUpdateRegistrar, func)
 end
@@ -53,7 +53,7 @@ GameTooltip:SetScript("OnShow", function (self, ...)
   end
 end)
 
-function TooltipHookRegistrar(func)
+local function TooltipHookRegistrar(func)
   QuestHelper:Assert(func)
   table.insert(TooltipRegistrar, func)
 end

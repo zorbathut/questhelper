@@ -175,7 +175,9 @@ function QuestHelper:Initialize()
       ["bst_astrolabe.lua"] = true,
       ["bst_ctl.lua"] = true,
       ["bst_libaboutpanel.lua"] = true,
-
+      
+      ["manager_event.lua"] = true,
+      
       ["upgrade.lua"] = true,
       ["main.lua"] = true,
       ["recycle.lua"] = true,

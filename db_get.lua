@@ -31,7 +31,7 @@ function DB_GetItem(group, id)
       table.insert(ite, {desc = string.format("Criteria %d", k), why = ite, loc = v.loc})
     end end
     if q.finish then
-      table.insert(ite, {desc = "Turn in quest", why = ite, loc = q.finish.loc})
+      table.insert(ite, {desc = "Turn in quest", why = ite, loc = q.finish.loc, tracker_hidden = true})
     end
   else
     ite = QuestHelper_Static[group][id]

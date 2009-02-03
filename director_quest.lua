@@ -9,42 +9,64 @@ local function GetQuestType(link)
   ))
 end
 
+local update = true
+local function UpdateTrigger()
+  QuestHelper:TextOut("updatetrig")
+  update = true
+end
+
 local active = {}
 
-function refresh_quest()  
-  local index = 1
+local function UpdateQuests()
+  QuestHelper:TextOut("updatedo")
+  if update then
   
-  local nactive = {}
-  
-  while true do
-    if not GetQuestLogTitle(index) then break end
+    local index = 1
     
-    local qlink = GetQuestLink(index)
-    if qlink then
-      local id = GetQuestType(qlink)
-      if id then
-        local db = DB_GetItem("quest_metaobjective", id)
-        if db then
-          nactive[id] = true
+    local nactive = {}
+    
+    while true do
+      if not GetQuestLogTitle(index) then break end
+      
+      local qlink = GetQuestLink(index)
+      if qlink then
+        local id = GetQuestType(qlink)
+        if id then
+          local db = DB_GetItem("quest_metaobjective", id)
           
-          if not active[id] then
-            QuestHelper:TextOut(tostring(id))
-            local qdat = QuestHelper_Static.quest[id]
-            for k, v in ipairs(db) do if v.loc then Public_NodeAdd(v) end end
+          if db then
+            local lbcount = GetNumQuestLeaderBoards(index)
+            for i = 1, GetNumQuestLeaderBoards(index) do
+              local _, _, done = GetQuestLogLeaderBoard(i, index)
+              if not done then if db[i] and db[i].loc then
+                nactive[db[i]] = true
+                if not active[db[i]] then
+                  Public_NodeAdd(db[i])
+                end
+              end end
+            end
+            
+            if db[lbcount + 1] and db[lbcount + 1].loc then
+              nactive[db[lbcount + 1]] = true
+              if not active[db[lbcount + 1]] then
+                Public_NodeAdd(db[lbcount + 1])
+              end
+            end
           end
         end
       end
+      index = index + 1
     end
-    index = index + 1
-  end
-  
-  for k, v in pairs(active) do
-    if not nactive[k] then
-      local db = DB_GetItem("quest", k)
-      
-      for k, v in ipairs(db) do if v.loc then Public_NodeRemove(v) end end
+    
+    for k, v in pairs(active) do
+      if not nactive[k] then
+        Public_NodeRemove(k)
+      end
     end
+    
+    active = nactive
   end
-  
-  active = nactive
 end
+
+QuestHelper.EventHookRegistrar("UNIT_QUEST_LOG_CHANGED", UpdateTrigger)
+QuestHelper.EventHookRegistrar("QUEST_LOG_UPDATE", UpdateQuests)

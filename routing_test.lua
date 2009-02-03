@@ -27,7 +27,7 @@ Public_Init(
       local dy = loc1.loc.y - loc2.loc.y
       return math.sqrt(dx * dx + dy * dy)
     else
-      return 1000000 -- one milllllion time units
+      return 100000 -- one milllllion time units
     end
   end,
   function()
