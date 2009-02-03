@@ -529,13 +529,35 @@ function tracker_rescan()
   local metalookup = {}
   for k, v in ipairs(route) do
     if not metalookup[v.why] then metalookup[v.why] = {} end
-    table.insert(metalookup[v.why], v)
+    if not v.tracker_hidden then table.insert(metalookup[v.why], v) end
   end
   
-  for k, v in ipairs(route) do
-    if not mo_done[v.why] then
-      y = addMetaObjective(v.why, metalookup[v.why], y)
-      mo_done[v.why] = true
+  do
+    local current_mo
+    local current_mo_cluster
+    for k, v in ipairs(route) do
+      if not v.why.tracker_hidden then
+        if current_mo and v.why ~= current_mo then
+          y = addMetaObjective(current_mo, current_mo_cluster, y)
+          current_mo, current_mo_cluster = nil, nil
+        end
+        
+        if not v.why.tracker_split then
+          if not mo_done[v.why] then
+            y = addMetaObjective(v.why, metalookup[v.why], y)
+            mo_done[v.why] = true
+          end
+        else
+          if not current_mo then
+            current_mo = v.why
+            current_mo_cluster = {}
+          end
+          if not v.tracker_hidden then table.insert(current_mo_cluster, v) end
+        end
+      end
+    end
+    if current_mo then
+      y = addMetaObjective(current_mo, current_mo_cluster, y)
     end
   end
   

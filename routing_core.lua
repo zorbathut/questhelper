@@ -339,7 +339,7 @@ end
     DependencyCounts[idx] = nil
     
     if DependencyLinks[idx] then
-      for k, v in pairs(DependencyLinks) do
+      for k, v in pairs(DependencyLinks[idx]) do
         for m, f in pairs(DependencyLinksReverse[v]) do
           if f == idx then table.remove(DependencyLinksReverse[v], m) break end
         end
@@ -348,7 +348,7 @@ end
     DependencyLinks[idx] = nil
     
     if DependencyLinksReverse[idx] then
-      for k, v in pairs(DependencyLinksReverse) do
+      for k, v in pairs(DependencyLinksReverse[idx]) do
         for m, f in pairs(DependencyLinks[v]) do
           if f == idx then table.remove(DependencyLinks[v], m) DependencyCounts[v] = DependencyCounts[v] - 1 break end
         end
