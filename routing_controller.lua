@@ -56,8 +56,11 @@ local function process()
       Route_Core_SetStart({desc = "Start", why = StartObjective, loc = NewLoc(c, x, y, "Start"), tracker_hidden = true})
     end
     
+    QH_Timeslice_Yield()
+    
     for k, v in ipairs(pending) do
       v()
+      QH_Timeslice_Yield()
     end
     
     pending = {}

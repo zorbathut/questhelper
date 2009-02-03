@@ -166,6 +166,8 @@ function QH_Route_Core_Process()
     end
     
     worst = math.max(worst, trouts[#trouts].distance)
+    
+    QH_Timeslice_Yield()
   end
   
   local scale
