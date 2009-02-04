@@ -65,6 +65,7 @@ function QuestHelper:SetLocale(loc)
 end
 
 function QuestHelper:ToggleHide()
+--[=[ -- disabled for now
   local current_objective = self.minimap_dodad.objective
   
   QuestHelper_Pref.hide = not QuestHelper_Pref.hide
@@ -98,6 +99,7 @@ function QuestHelper:ToggleHide()
     -- self:TextOut(QHText("UPDATING_ROUTE"))
     QH_Timeslice_Bonus(20)        -- Let the corutine do some overtime...
   end
+]=]
 end
 
 function QuestHelper:ToggleShare()

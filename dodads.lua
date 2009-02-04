@@ -639,95 +639,44 @@ function QuestHelper:CreateMipmapDodad()
   icon.bg:SetAllPoints()
   
   function icon:OnUpdate(elapsed)
-    if self.objective then
+    if self.obj then
       
       self:Show()
       
-      --[=[
-      if self.recalc_timeout <= 0 and not QuestHelper.graph_in_limbo and QuestHelper.Routing.map_walker then
-        self.recalc_timeout = 50
-        
-        self.objective = self:NextObjective()
-        
-        if not self.objective then
-          self:Hide()
-          return
-        end
-        
-        local path, travel_time
-        
-        if QuestHelper.target then
-          
-          -- Okay, this is another "fix the symptom without fixing the cause" hack. Not good, but a lot of this is going away anyway.
-          local has_path = true
-          for i in ipairs(QuestHelper.target[1]) do if not QuestHelper.target[2][i] then has_path = false end end
-          if has_path then
-            path, travel_time = QuestHelper:ComputeRoute(QuestHelper.target, self.objective.pos)
-            travel_time = travel_time + math.max(0, QuestHelper.target_time-time())
-          else
-            --QuestHelper:TextOut("yes here is the nil bug")
-          end
-        else
-          path, travel_time = QuestHelper:ComputeRoute(QuestHelper.pos, self.objective.pos)
-        end
-        
-        local t = self.target
-        local id = self.objective.icon_id
-        t[1], t[2], t[3], t[4] = convertLocation(self.objective.pos)
-        t[5] = nil
-        
-        self.objective.travel_time = travel_time
-        
-        while path do
-          if path.g > 10.0 then
-            id = 8
-            t[1] = path.c
-            t[2] = 0
-            t[3] = path.x / QuestHelper.continent_scales_x[path.c]
-            t[4] = path.y / QuestHelper.continent_scales_y[path.c]
-            t[5] = path.name or "waypoint"
-          end
-          path = path.p
-        end
-        
-        if not self.dot or id ~= self.icon_id then
-          self.icon_id = id
-          if self.dot then QuestHelper:ReleaseTexture(self.dot) end
-          self.dot = QuestHelper:CreateIconTexture(self, self.icon_id)
-          self.dot:SetPoint("TOPLEFT", icon, "TOPLEFT", 2, -2)
-          self.dot:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -2, 2)
-        end
-        
-        if UnitIsDeadOrGhost("player") then
-          QuestHelper:InvokeWaypointCallbacks()
-        else
-          local reason = (t[5] and (QHFormat("WAYPOINT_REASON", t[5]).."\n"..self.objective:Reason(true)))
-                         or self.objective:Reason(true)
-          
-          if QuestHelper.c == t[1] then
-            -- Translate the position to the zone the player is standing in.
-            local c, z = QuestHelper.c, QuestHelper.z
-            local x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], c, z)
-            QuestHelper:InvokeWaypointCallbacks(c, z, x, y, reason)
-          else
-            -- Try to find the nearest zone on the continent the objective is in.
-            local index, distsqr, x, y
-            for z, i in pairs(QuestHelper_IndexLookup[t[1]]) do
-              local _x, _y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], t[1], z)
-              local d = (_x-0.5)*(_x-0.5)+(_y-0.5)*(_y-0.5)
-              if not index or d < distsqr then
-                index, distsqr, x, y = i, d, _x, _y
-              end
-            end
-            local c, z = QuestHelper_IndexLookup[index]
-            QuestHelper:InvokeWaypointCallbacks(c, z, x, y, reason)
-          end
-        end
-        
-        QuestHelper.Astrolabe:PlaceIconOnMinimap(self, unpack(self.target))
-      else
-        self.recalc_timeout = self.recalc_timeout - 1
+      if not self.dot then
+        if self.dot then QuestHelper:ReleaseTexture(self.dot) end
+        self.dot = QuestHelper:CreateIconTexture(self, self.icon_id)
+        self.dot:SetPoint("TOPLEFT", icon, "TOPLEFT", 2, -2)
+        self.dot:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -2, 2)
       end
+      
+      --[=[if UnitIsDeadOrGhost("player") then
+        QuestHelper:InvokeWaypointCallbacks()
+      else
+        local reason = (t[5] and (QHFormat("WAYPOINT_REASON", t[5]).."\n"..self.objective:Reason(true)))
+                       or self.objective:Reason(true)
+        
+        if QuestHelper.c == t[1] then
+          -- Translate the position to the zone the player is standing in.
+          local c, z = QuestHelper.c, QuestHelper.z
+          local x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], c, z)
+          QuestHelper:InvokeWaypointCallbacks(c, z, x, y, reason)
+        else
+          -- Try to find the nearest zone on the continent the objective is in.
+          local index, distsqr, x, y
+          for z, i in pairs(QuestHelper_IndexLookup[t[1]]) do
+            local _x, _y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], t[1], z)
+            local d = (_x-0.5)*(_x-0.5)+(_y-0.5)*(_y-0.5)
+            if not index or d < distsqr then
+              index, distsqr, x, y = i, d, _x, _y
+            end
+          end
+          local c, z = QuestHelper_IndexLookup[index]
+          QuestHelper:InvokeWaypointCallbacks(c, z, x, y, reason)
+        end
+      end]=]
+      
+      QuestHelper.Astrolabe:PlaceIconOnMinimap(self, convertLocation(self.obj.loc))
       
       local edge = QuestHelper.Astrolabe:IsIconOnEdge(self)
       
@@ -757,31 +706,31 @@ function QuestHelper:CreateMipmapDodad()
           self.phase = self.phase+elapsed*3.5
         end
         self.arrow:SetModelScale(0.600000023841879+0.1*math.sin(self.phase))
-      end]=]
+      end
     else
       self:Hide()
     end
   end
   
-  function icon:SetObjective(objective)
+  function icon:SetObjective(obj)
     self:SetHeight(20*QuestHelper_Pref.scale)
     self:SetWidth(20*QuestHelper_Pref.scale)
     
-    if objective ~= self.objective then
-      if objective and not QuestHelper_Pref.hide then
+    if obj ~= self.obj then
+      if obj and not QuestHelper_Pref.hide then
         self:Show()
       else
         QuestHelper:InvokeWaypointCallbacks()
         self:Hide()
       end
       
-      self.objective = objective
+      self.obj = obj
       self.recalc_timeout = 0
     end
   end
   
   function icon:OnEnter()
-    if self.objective then
+    if self.obj and false then
       QuestHelper.tooltip:SetOwner(self, "ANCHOR_CURSOR")
       QuestHelper.tooltip:ClearLines()
       
@@ -803,13 +752,13 @@ function QuestHelper:CreateMipmapDodad()
     if self.objective then
       local menu = QuestHelper:CreateMenu()
       QuestHelper:CreateMenuTitle(menu, self.objective:Reason(true))
-      QuestHelper:AddObjectiveOptionsToMenu(self.objective, menu)
+      QuestHelper:AddObjectiveOptionsToMenu(self.obj, menu)
       menu:ShowAtCursor()
     end
   end
   
   function icon:OnEvent()
-    if self.objective then
+    if self.obj then
       self:Show()
     else
       self:Hide()

@@ -84,6 +84,9 @@ lang\zhtw.lua
 # Basic utilities used for miscellaneous things, also creates the QH frame
 utility.lua
 
+# Memory management, depends on nothing, calls nothing. I don't mention when things depend on this - it's not as extensively used as it used to be, but it's still under basic-utilities.
+recycle.lua
+
 # Event manager module. Depends on nothing, calls no external functions.
 manager_event.lua
 
@@ -113,7 +116,6 @@ core.lua
 upgrade.lua
 main.lua
 
-recycle.lua
 objective.lua
 quest.lua
 questlog.lua

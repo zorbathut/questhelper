@@ -448,8 +448,6 @@ function QuestHelper:Initialize()
     -- self:TextOut(QHText("HOME_NOT_KNOWN"))
   end
 
-  self.minimap_dodad = self:CreateMipmapDodad()
-
   if QuestHelper_Pref.map_button then
       QuestHelper:InitMapButton()
   end
