@@ -1,8 +1,6 @@
 QuestHelper_File["main.lua"] = "Development Version"
 QuestHelper_Loadtime["main.lua"] = GetTime()
 
-QuestHelper = CreateFrame("Frame", "QuestHelper", nil)
-
 -- Just to make sure it's always 'seen' (there's nothing that can be seen, but still...), and therefore always updating.
 QuestHelper:SetFrameStrata("TOOLTIP")
 
@@ -207,6 +205,7 @@ function QuestHelper:Initialize()
       ["error.lua"] = true,
       ["timeslice.lua"] = true,
       ["lang.lua"] = true,
+      ["core.lua"] = true,
 
       ["static.lua"] = true,
 

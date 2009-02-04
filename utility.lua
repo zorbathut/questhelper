@@ -1,6 +1,8 @@
 QuestHelper_File["utility.lua"] = "Development Version"
 QuestHelper_Loadtime["utility.lua"] = GetTime()
 
+QuestHelper = CreateFrame("Frame", "QuestHelper", nil)
+
 local default_colour_theme =
   {message_prefix={0.4, 0.78, 1},
    message={1, 0.6, 0.2},

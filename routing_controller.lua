@@ -21,7 +21,6 @@ QH_Route_Core_NodeObsoletes = nil
 QH_Route_Core_NodeRequires = nil
 QH_Route_Core_DistanceClear = nil
 
-local temp_walker = QuestHelper:CreateWorldMapWalker()
 
 local pending = {}
 
@@ -37,8 +36,14 @@ function QH_Route_NodeRequires(a, b)
   table.insert(pending, function () Route_Core_NodeRequires(a, b) end)
 end
 
+local notification_funcs = {}
+
+function QH_Route_RegisterNotification(func)
+  table.insert(notification_funcs, func)
+end
+
 Route_Core_Init(
-  function(path) temp_walker:RouteChanged(path) tracker_update_route(path) end,
+  function(path) for _, v in pairs(notification_funcs) do v(path) end end,
   function(loc1, loc2)
     -- Distance function
     if loc1.loc.c == loc2.loc.c then

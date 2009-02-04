@@ -41,9 +41,10 @@
 #
 # Per-character stuff needs to be consolidated as well, which will happen in some future version. I need to see how it handles *removing* variables. And yeah we're adding more per-character stuff already argharblrghab
 
-
+# Exists just for load-profiling's sake
 bst_pre.lua
 
+# Loads before everything else so we can catch errors in everything else
 error.lua
 
 bst_libaboutpanel.lua
@@ -80,18 +81,42 @@ lang\svse.lua
 lang\trtr.lua
 lang\zhtw.lua
 
+# Basic utilities used for miscellaneous things, also creates the QH frame
+utility.lua
+
+# Event manager module. Depends on nothing, calls no external functions.
+manager_event.lua
+
+# Database module. Depends on nothing, calls no external functions.
+db_get.lua
+
+# Timeslice module. Depends on nothing, calls no external functions besides a few basic system-API things.
+timeslice.lua
+
+# Routing module. Depends on Timeslice, calls almost no external functions (handles its own get-player-position stuff via RetrieveRawLocation, but that's it.)
+routing_debug.lua
+routing_loc.lua
+routing_route.lua
+routing_core.lua
+routing_controller.lua
+
+# Directors
+# Quest module. Depends on Database, Routing, and Event Manager, interfaces with WoW UI.
+director_quest.lua
+
+# Map and minimap dodads. Old code. Depends on nothing, interfaces with WoW UI.
+dodads.lua
+
+# New coordinator system. Depends on pretty much everything.
+core.lua
+
 upgrade.lua
 main.lua
-
-# we really want to move this up, but things need to be better structured eventually
-manager_event.lua
 
 recycle.lua
 objective.lua
 quest.lua
 questlog.lua
-utility.lua
-dodads.lua
 graph.lua
 teleport.lua
 pathfinding.lua
@@ -108,8 +133,6 @@ tracker.lua
 objtips.lua
 textviewer.lua
 help.lua
-
-timeslice.lua
 
 collect.lua
 collect_achievement.lua
@@ -132,16 +155,6 @@ collect_spec.lua
 collect_bitstream.lua
 collect_upgrade.lua
 collect_merchant.lua
-
-routing_debug.lua
-routing_loc.lua
-routing_route.lua
-routing_core.lua
-routing_controller.lua
-
-db_get.lua
-
-director_quest.lua
 
 cartographer.lua
 tomtom.lua
