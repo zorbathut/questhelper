@@ -63,19 +63,21 @@ local passcount = 0
 
 local function process()
   while true do
+    -- snag stuff so we don't accidentally end up changing pending in two things at once
+    while #pending > 0 do
+      local lpending = pending
+      pending = {}
+      
+      for k, v in ipairs(lpending) do
+        v()
+        QH_Timeslice_Yield()
+      end
+    end
+    
     local c, x, y = QuestHelper:RetrieveRawLocation()
     if c and x and y then
       Route_Core_SetStart({desc = "Start", why = StartObjective, loc = NewLoc(c, x, y, "Start"), tracker_hidden = true})
     end
-    
-    QH_Timeslice_Yield()
-    
-    for k, v in ipairs(pending) do
-      v()
-      QH_Timeslice_Yield()
-    end
-    
-    pending = {}
     
     Route_Core_Process()
     
@@ -85,6 +87,8 @@ local function process()
       lapa = lapa + 60
       passcount = 0
     end
+    
+    QH_Timeslice_Yield()
   end
 end
 
