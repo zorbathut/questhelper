@@ -56,22 +56,22 @@ local function MakeQuestTitle(title, level)
   
   local isgray = (plevel - floor(grayd) >= level)
   
-  return string.format("%s[%d] %s", isgray and "|cffd0d0d0" or difficulty_color(((level - plevel) / grayd + 1) / 2), level, title)
+  return string.format("%s[%d] %s", isgray and "|cffb0b0b0" or difficulty_color(((level - plevel) / grayd + 1) / 2), level, title)
 end
 
 local function MakeQuestObjectiveTitle(title, typ, done)
   local target, have, need = objective_parse[typ](title, done)
-  QuestHelper:TextOut(string.format("%s becomes %s/%s/%s", tostring(title), tostring(target), tostring(have), tostring(need)))
+  --QuestHelper:TextOut(string.format("%s becomes %s/%s/%s", tostring(title), tostring(target), tostring(have), tostring(need)))
   
   if not target then
     -- well, that didn't work
     target, have, need = string.match(title, "^%s*(.-)%s*:%s*(.-)%s*/%s*(.-)%s*$")
-    QuestHelper:TextOut(string.format("%s rebecomes %s/%s/%s", tostring(title), tostring(target), tostring(have), tostring(need)))
+    --QuestHelper:TextOut(string.format("%s rebecomes %s/%s/%s", tostring(title), tostring(target), tostring(have), tostring(need)))
   end
   
   if not target then
     target, have, need = string.match(title, "^%s*(.-)%s*$"), (done and 1 or 0), 1
-    QuestHelper:TextOut(string.format("%s rerebecomes %s/%s/%s", tostring(title), tostring(target), tostring(have), tostring(need)))
+    --QuestHelper:TextOut(string.format("%s rerebecomes %s/%s/%s", tostring(title), tostring(target), tostring(have), tostring(need)))
   end
   
   QuestHelper: Assert(target) -- This will fail repeatedly. Come on. We all know it.
