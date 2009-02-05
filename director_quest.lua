@@ -94,6 +94,7 @@ end
 local function Clicky(index)
   ShowUIPanel(QuestLogFrame)
   QuestLog_SetSelection(index)
+  QuestLog_Update()
 end
 
 local function UpdateQuests()
