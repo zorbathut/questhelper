@@ -149,6 +149,7 @@ function QuestHelper:ToggleTrackLevel()
     self:TextOut("Display of levels in the quest tracker has been |cffff0000disabled|r.")
   end
   self.tracker:reset()
+  tracker_rescan()
 end
 
 function QuestHelper:ToggleTrackQColour()
@@ -159,6 +160,7 @@ function QuestHelper:ToggleTrackQColour()
     self:TextOut("Colour for quest difficulty in quest tracker has been |cffff0000disabled|r.")
   end
   self.tracker:reset()
+  tracker_rescan()
 end
 
 function QuestHelper:ToggleTrackOColour()
@@ -169,6 +171,7 @@ function QuestHelper:ToggleTrackOColour()
     self:TextOut("Colour for objective progress in quest tracker has been |cffff0000disabled|r.")
   end
   self.tracker:reset()
+  tracker_rescan()
 end
 
 function QuestHelper:ToggleTooltip()

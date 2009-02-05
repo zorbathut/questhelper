@@ -87,6 +87,9 @@ utility.lua
 # Memory management, depends on nothing, calls nothing. I don't mention when things depend on this - it's not as extensively used as it used to be, but it's still under basic-utilities.
 recycle.lua
 
+# Patterns for parsing the GlobalString patterns. Depends on nothing, calls nothing. Honestly, it's better than collect_pattern, I should probably be using it there. I need util_ or something.
+pattern.lua
+
 # Event manager module. Depends on nothing, calls no external functions.
 manager_event.lua
 
@@ -104,7 +107,7 @@ routing_core.lua
 routing_controller.lua
 
 # Directors
-# Quest module. Depends on Database, Routing, and Event Manager, interfaces with WoW UI.
+# Quest module. Depends on Database, Routing, Patterns, and Event Manager, interfaces with WoW UI.
 director_quest.lua
 
 # Map and minimap dodads. Old code. Depends on nothing, interfaces with WoW UI.
@@ -129,7 +132,6 @@ hidden.lua
 nag.lua
 comm.lua
 mapbutton.lua
-pattern.lua
 flightpath.lua
 tracker.lua
 objtips.lua

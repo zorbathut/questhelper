@@ -5,5 +5,5 @@ local walker = QuestHelper:CreateWorldMapWalker()
 local minimap = QuestHelper:CreateMipmapDodad()
 
 QH_Route_RegisterNotification(function (route) walker:RouteChanged(route) end)
-QH_Route_RegisterNotification(function (route) tracker_update_route(route) end)
+QH_Route_RegisterNotification(function (route) QH_Tracker_UpdateRoute(route) end)
 QH_Route_RegisterNotification(function (route) minimap:SetObjective(route[2]) end)

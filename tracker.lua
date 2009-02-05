@@ -506,7 +506,7 @@ local hidden_vquest2 = { cat = "quest", obj = "7778/    " .. QHText("QUESTS_HIDD
 local route = {}
 local pinned = {}
 
-function tracker_rescan()
+function QH_Tracker_Rescan()
   used_count = {} -- reset this
   
   local mo_done = {}
@@ -728,20 +728,20 @@ function tracker_rescan()
     ]]
 end
 
-function tracker_update_route(new_route)
+function QH_Tracker_UpdateRoute(new_route)
   route = new_route
-  tracker_rescan()
+  QH_Tracker_Rescan()
 end
 
-function tracker_pin(metaobjective)
+function QH_Tracker_Pin(metaobjective)
   QuestHelper:TextOut("hey hey")
   pinned[metaobjective] = true
-  tracker_rescan()
+  QH_Tracker_Rescan()
 end
 
-function tracker_unpin(metaobjective)
+function QH_Tracker_Unpin(metaobjective)
   pinned[metaobjective] = nil -- nil, not false, so it'll be garbage-collected appropriately
-  tracker_rescan()
+  QH_Tracker_Rescan()
 end
 
 
@@ -802,7 +802,7 @@ function tracker:update(delta)
   if check_delay > 5 then
     check_delay = 0
     
-    tracker_rescan()
+    QH_Tracker_Rescan()
   end
 end
 
