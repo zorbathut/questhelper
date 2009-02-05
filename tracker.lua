@@ -193,7 +193,7 @@ local function itemfadeout(item, delta)
   item:SetPoint("TOPLEFT", tracker, "TOPLEFT", item.x, -item.y)
 end
 
-function QH_ToggleQuestLog()   -- This seems to be gone in 3.0, so I'm adding it here.
+--[[function QH_ToggleQuestLog()   -- This seems to be gone in 3.0, so I'm adding it here.
 	if (QuestLogFrame:IsShown()) then
 		HideUIPanel(QuestLogFrame);
 	else
@@ -247,7 +247,7 @@ local function itemclick(item, button)
       index = index + 1
     end
   end
-end
+end]]
 
 local function allocateItem()
   local item
@@ -291,18 +291,16 @@ local function addItem(objective, y, meta)
     item:Show()
   end
   
-  item.text:SetText(item.obj.desc)
+  item.text:SetText(item.obj.tracker_desc)
   
   local w, h = item.text:GetWidth(), item.text:GetHeight()
   item:SetWidth(w)
   item:SetHeight(h)
   
-  --[[
-  if qname then
-    item:SetScript("OnMouseDown", itemclick)
+  if objective.tracker_clicked then
+    item:SetScript("OnMouseDown", objective.tracker_clicked)
     item:EnableMouse(true)
   end
-  ]]
   
   if item.ex ~= x or item.ey ~= y then
     item.sx, item.sy, item.ex, item.ey = item.x, item.y, x, y

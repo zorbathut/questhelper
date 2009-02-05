@@ -91,6 +91,11 @@ local function MakeQuestObjectiveTitle(title, typ, done)
   end
 end
 
+local function Clicky(index)
+  ShowUIPanel(QuestLogFrame)
+  QuestLog_SetSelection(index)
+end
+
 local function UpdateQuests()
   QuestHelper:TextOut("updatedo")
   if update then
@@ -110,7 +115,10 @@ local function UpdateQuests()
           local db = DB_GetItem("quest_metaobjective", id)
           
           if db then
-            db.desc = MakeQuestTitle(title, level)
+            local lindex = index
+            db.desc = title
+            db.tracker_desc = MakeQuestTitle(title, level)
+            db.tracker_clicked = function () Clicky(lindex) end
             
             local lbcount = GetNumQuestLeaderBoards(index)
             
@@ -118,19 +126,21 @@ local function UpdateQuests()
             
             if db[lbcount + 1] and db[lbcount + 1].loc then
               turnin = db[lbcount + 1]
-              nactive[db[lbcount + 1]] = true
-              if not active[db[lbcount + 1]] then
+              nactive[turnin] = true
+              if not active[turnin] then
+                turnin.tracker_clicked = function () Clicky(lindex) end
                 QH_Route_NodeAdd(db[lbcount + 1])
               end
             end
             
             for i = 1, GetNumQuestLeaderBoards(index) do
               local desc, typ, done = GetQuestLogLeaderBoard(i, index)
-              if db[i] then db[i].desc = MakeQuestObjectiveTitle(desc, typ, done) end
+              if db[i] then db[i].tracker_desc = MakeQuestObjectiveTitle(desc, typ, done) db[i].desc = desc end
               
               if not done then if db[i] and db[i].loc then
                 nactive[db[i]] = true
                 if not active[db[i]] then
+                  db[i].tracker_clicked = function () Clicky(lindex) end
                   QH_Route_NodeAdd(db[i])
                   if turnin then QH_Route_NodeRequires(turnin, db[i]) end
                 end
