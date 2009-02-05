@@ -113,8 +113,12 @@ local function list_accumulate(item, id, inp)
   if not item[id] then item[id] = {} end
   local t = item[id]
   
-  for k, v in pairs(inp) do
-    t[v] = (t[v] or 0) + 1
+  if type(inp) == "table" then
+    for k, v in pairs(inp) do
+      t[v] = (t[v] or 0) + 1
+    end
+  else
+    t[inp] = (t[inp] or 0) + 1
   end
 end
 
@@ -406,13 +410,7 @@ do
             end
           end
           
-          if dat.type then
-            if not cid.type then
-              cid.type = dat.type
-            else
-              assert(cid.type == dat.type)
-            end
-          end
+          list_accumulate(cid, "type", dat.type)
         end
         
         -- Accumulate names and levels
@@ -432,11 +430,15 @@ do
         
         local qout = {}
         for k, v in pairs(self.accum.criteria) do
-        
+          
+          v.type = list_most_common(v.type)
+          
           if not qout.criteria then qout.criteria = {} end
           -- This should be fallback code if it can't figure out which monster or item it actually needs. Right now, it's the only code.
           -- Also, we're going to have a much, much better method for accumulating and distilling positions eventually.
-          if position_has(v) then qout.criteria[k] = { loc = position_finalize(v.loc) } end
+          qout.criteria[k] = {}
+          
+          if position_has(v) then qout.criteria[k].loc = position_finalize(v.loc) end
           
           -- temp debug output
           -- We shouldn't actually be doing this, we should be figuring out which monsters and items this really correlates to.
@@ -568,7 +570,10 @@ local fileout = ChainBlock_Create("fileout", sources,
     
     Finish = function(self, Output)
       fil = io.open("final/static.lua", "w")
-      
+      fil:write([=[QuestHelper_File["static.lua"] = "Development Version"
+QuestHelper_Loadtime["static.lua"] = GetTime()
+
+]=])
       fil:write("QuestHelper_Static = ")
       persistence.store(fil, self.finalfile)
       
@@ -664,10 +669,8 @@ end
 
 local count = 1
 
-local s = 100
-local e = 200
---local s = 2650
---local e = 2650
+--local s = 1048
+--local e = 1048
 
 flist = io.popen("ls data/08"):read("*a")
 local filz = {}

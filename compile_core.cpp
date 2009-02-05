@@ -133,6 +133,11 @@ void split_quest_startend(lua_State *L, const std::string &dat) {
     
     const char *stl = st;
     st += 11;
+    if(st > ed) {
+      // This is flimsy.
+      lua_pop(L, 2);
+      break;
+    }
     CHECK(st <= ed);
     
     Loc luc = getLoc(stl);
