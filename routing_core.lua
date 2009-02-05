@@ -1,6 +1,23 @@
 QuestHelper_File["routing_core.lua"] = "Development Version"
 QuestHelper_Loadtime["routing_core.lua"] = GetTime()
 
+--[[
+
+let's think about clustering
+
+Easiest way to pass in clusters, as we've already observed, is to just have a "cluster object" to pass in as an addition. This isn't a node, and we don't want to require "clusters" when people just want to add a single node. It isn't an objective either - it's a group of objectives, because when we return a route, we return a series of objectives.
+
+So, "add cluster" is intrinsically different.
+
+The next question, though, is how we link things. I'm liking the idea of the same ol' "link cluster X to cluster Y" thing. I think it's a good idea to create a list of "start nodes", though.
+
+We're going to restrict it so that dependencies can only be done with clusters, just for the sake of my sanity.
+This will also probably make it easier to ignore single parts of clusters, since we can do so by just tweaking the cluster definitions. I think this works.
+
+I think this works tomorrow.
+
+]]
+
 -- Ant colony optimization. Moving from X to Y has the quality (Distance[x,y]^alpha)*(Weight[x,y]^beta). Sum all available qualities, then choose weighted randomly.
 -- Weight adjustment: Weight[x,y] = Weight[x,y]*weightadj + sum(alltravels)(1/distance_of_travel)    (note: this is somewhat out of date)
 
@@ -138,9 +155,12 @@ local function RunAnt()
       end
     end
     
+    -- Now we've chosen stuff. Bookkeeping.
     needed[nod] = nil
     needed_count = needed_count - 1
     needed_ready_count = needed_ready_count - 1
+    
+    -- Dependency links.
     if DependencyLinksReverse[nod] then for _, v in ipairs(DependencyLinksReverse[nod]) do
       dependencies[v] = dependencies[v] - 1
       if dependencies[v] == 0 then
@@ -148,6 +168,7 @@ local function RunAnt()
         needed_ready_count = needed_ready_count + 1
       end
     end end
+    
     route.distance = route.distance + Distance[GetIndex(curloc, nod)]
     table.insert(route, nod)
     curloc = nod
