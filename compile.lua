@@ -161,10 +161,12 @@ local chainhead = ChainBlock_Create("chainhead", nil,
       
       if do_errors then
         for k, v in pairs(dat.QuestHelper_Errors) do
-          for _, d in pairs(v) do
-            d.key = k
-            d.fileid = value.fileid
-            Output(d.local_version, nil, d, "error")
+          if k ~= "version" then
+            for _, d in pairs(v) do
+              d.key = k
+              d.fileid = value.fileid
+              Output(d.local_version, nil, d, "error")
+            end
           end
         end
       end
