@@ -141,39 +141,6 @@ function QuestHelper:ToggleTrack()
   end
 end
 
-function QuestHelper:ToggleTrackLevel()
-  QuestHelper_Pref.track_level = not QuestHelper_Pref.track_level
-  if QuestHelper_Pref.track_level then
-    self:TextOut("Display of levels in the quest tracker has been |cff00ff00enabled|r.")
-  else
-    self:TextOut("Display of levels in the quest tracker has been |cffff0000disabled|r.")
-  end
-  self.tracker:reset()
-  tracker_rescan()
-end
-
-function QuestHelper:ToggleTrackQColour()
-  QuestHelper_Pref.track_qcolour = not QuestHelper_Pref.track_qcolour
-  if QuestHelper_Pref.track_qcolour then
-    self:TextOut("Colour for quest difficulty in quest tracker has been |cff00ff00enabled|r.")
-  else
-    self:TextOut("Colour for quest difficulty in quest tracker has been |cffff0000disabled|r.")
-  end
-  self.tracker:reset()
-  tracker_rescan()
-end
-
-function QuestHelper:ToggleTrackOColour()
-  QuestHelper_Pref.track_ocolour = not QuestHelper_Pref.track_ocolour
-  if QuestHelper_Pref.track_ocolour then
-    self:TextOut("Colour for objective progress in quest tracker has been |cff00ff00enabled|r.")
-  else
-    self:TextOut("Colour for objective progress in quest tracker has been |cffff0000disabled|r.")
-  end
-  self.tracker:reset()
-  tracker_rescan()
-end
-
 function QuestHelper:ToggleTooltip()
   QuestHelper_Pref.tooltip = not QuestHelper_Pref.tooltip
   if QuestHelper_Pref.tooltip then
@@ -625,18 +592,6 @@ commands =
      "Scales the quest tracker provided by QuestHelper. Will accept values between 50% and 300%.",
      {},
      QuestHelper.TrackerScale, QuestHelper},
-    
-    {"TLEVEL",
-     "Toggles display of levels in the quest tracker provided by QuestHelper.",
-     {}, QuestHelper.ToggleTrackLevel, QuestHelper},
-    
-    {"TQCOL",
-     "Toggles display of colours for the difficulty level of quests in the quest tracker provided by QuestHelper.",
-     {}, QuestHelper.ToggleTrackQColour, QuestHelper},
-    
-    {"TOCOL",
-     "Toggles display of colours for objective progress in the quest tracker provided by QuestHelper.",
-     {}, QuestHelper.ToggleTrackOColour, QuestHelper},
     
     {"TRESET",
      "Reset's the position of the quest tracker provided by QuestHelper, in cause you move it somewhere inaccessable.",
