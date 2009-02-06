@@ -62,18 +62,8 @@ local lapa = GetTime()
 local passcount = 0
 
 local function process()
+  -- Order here is important. We don't want to update the location, then wait for a while as we add nodes. We also need the location updated before nodes are added. This way, it all works and we don't need anything outside the loop.
   while true do
-    -- snag stuff so we don't accidentally end up changing pending in two things at once
-    while #pending > 0 do
-      local lpending = pending
-      pending = {}
-      
-      for k, v in ipairs(lpending) do
-        v()
-        QH_Timeslice_Yield()
-      end
-    end
-    
     local c, x, y = QuestHelper:RetrieveRawLocation()
     if c and x and y then
       Route_Core_SetStart({desc = "Start", why = StartObjective, loc = NewLoc(c, x, y, "Start"), tracker_hidden = true})
@@ -89,6 +79,17 @@ local function process()
     end
     
     QH_Timeslice_Yield()
+    
+    -- snag stuff so we don't accidentally end up changing pending in two things at once
+    while #pending > 0 do
+      local lpending = pending
+      pending = {}
+      
+      for k, v in ipairs(lpending) do
+        v()
+        QH_Timeslice_Yield()
+      end
+    end
   end
 end
 
