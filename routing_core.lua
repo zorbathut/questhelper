@@ -145,12 +145,17 @@ local function RunAnt()
   
   local curloc = 1
   
+  local gwc = {}
+  
   while needed_count > 0 do
     QuestHelper: Assert(needed_ready_count > 0)
+    
     local accumulated_weight = 0
     local tweight = 0
     for k, _ in pairs(needed) do
-      accumulated_weight = accumulated_weight + GetWeight(curloc, k)
+      local tw = GetWeight(curloc, k)
+      gwc[k] = tw
+      accumulated_weight = accumulated_weight + tw
     end
   
     tweight = accumulated_weight
@@ -158,7 +163,7 @@ local function RunAnt()
     
     local nod = nil
     for k, _ in pairs(needed) do
-      accumulated_weight = accumulated_weight - GetWeight(curloc, k)
+      accumulated_weight = accumulated_weight - gwc[k]
       if accumulated_weight < 0 then
         nod = k
         break
