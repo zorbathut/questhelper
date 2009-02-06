@@ -51,9 +51,15 @@ local Dist
   local ActiveNodes = {1}
   local DeadNodes = {}
   
-  local DependencyLinks = {}  -- Everything that node X depends on (integers)
-  local DependencyLinksReverse = {}  -- Everything that depends on node X (integers)
-  local DependencyCounts = {[1] = 0}  -- How many different nodes node X depends on
+  -- Clusters
+  local Cluster = {} -- Goes from cluster ID to node IDs
+  local ClusterLookup = {} -- Goes from node ID to cluster ID
+  local ClusterTableLookup = {} -- Goes from the actual cluster table to the cluster ID
+  local ClusterDead = {} -- List of dead clusters that can be reclaimed
+  
+  local DependencyLinks = {}  -- Every cluster that cluster X depends on
+  local DependencyLinksReverse = {}  -- Every cluster that cluster X depends on
+  local DependencyCounts = {[1] = 0}  -- How many different nodes cluster X depends on
 
   local StartNode = {}
 
@@ -115,14 +121,30 @@ local function RunAnt()
   local needed = {}
   local needed_count = -1 -- gets rid of 1 earlier
   local needed_ready_count = -1
+  
+  for k, v in ipairs(DependencyCounts) do
+    dependencies[k] = v
+  end
+  
   for _, v in ipairs(ActiveNodes) do
-    dependencies[v] = DependencyCounts[v]
-    if dependencies[v] == 0 then
+    local need = false
+    
+    if ClusterLookup[v] then
+      if dependencies[ClusterLookup[v]] == 0 then
+        need = true
+      end
+    else
+      need = true
+    end
+    
+    if need then
       needed[v] = true
       needed_ready_count = needed_ready_count + 1
     end
+    
     needed_count = needed_count + 1
   end
+  
   needed[1] = nil
   
   local curloc = 1
@@ -156,18 +178,31 @@ local function RunAnt()
     end
     
     -- Now we've chosen stuff. Bookkeeping.
-    needed[nod] = nil
-    needed_count = needed_count - 1
-    needed_ready_count = needed_ready_count - 1
-    
-    -- Dependency links.
-    if DependencyLinksReverse[nod] then for _, v in ipairs(DependencyLinksReverse[nod]) do
-      dependencies[v] = dependencies[v] - 1
-      if dependencies[v] == 0 then
-        needed[v] = true
-        needed_ready_count = needed_ready_count + 1
+    if ClusterLookup[nod] then
+      local clust = ClusterLookup[nod]
+      
+      -- Obliterate other cluster items.
+      for _, v in pairs(Cluster[clust]) do
+        needed[v] = nil
+        needed_count = needed_count - 1
+        needed_ready_count = needed_ready_count - 1
       end
-    end end
+      
+      -- Dependency links.
+      if DependencyLinksReverse[clust] then for _, v in ipairs(DependencyLinksReverse[clust]) do
+        dependencies[v] = dependencies[v] - 1
+        if dependencies[v] == 0 then
+          for _, v in pairs(Cluster[v]) do
+            needed[v] = true
+            needed_ready_count = needed_ready_count + 1
+          end
+        end
+      end end
+    else
+      needed[nod] = nil
+      needed_count = needed_count - 1
+      needed_ready_count = needed_ready_count - 1
+    end
     
     route.distance = route.distance + Distance[GetIndex(curloc, nod)]
     table.insert(route, nod)
@@ -313,9 +348,8 @@ end
     
     -- TODO: properly deallocate old startnode?
   end
-
-  -- Add a node to route to
-  function QH_Route_Core_NodeAdd(nod)
+  
+  local function QH_Route_Core_NodeAdd_Internal(nod)
     --QuestHelper:TextOut(tostring(nod))
     --TestShit()
     QuestHelper: Assert(nod)
@@ -337,13 +371,18 @@ end
     end
     --TestShit()
     
-    DependencyCounts[idx] = 0
-    
     last_best = nil
+    
+    return idx
+  end
+
+  -- Add a node to route to
+  function QH_Route_Core_NodeAdd(nod)
+    QH_Route_Core_NodeAdd_Internal(nod) -- we're just stripping the return value, really
   end
 
   -- Remove a node with the given location
-  function QH_Route_Core_NodeRemove(nod)
+  local function QH_Route_Core_NodeRemove_Internal(nod)
     --TestShit()
     QuestHelper: Assert(nod)
     QuestHelper: Assert(NodeLookup[nod])
@@ -357,41 +396,86 @@ end
     -- We don't have to modify the table itself, some sections are just "dead".
     --TestShit()
     
-    DependencyCounts[idx] = nil
-    
-    if DependencyLinks[idx] then
-      for k, v in pairs(DependencyLinks[idx]) do
-        for m, f in pairs(DependencyLinksReverse[v]) do
-          if f == idx then table.remove(DependencyLinksReverse[v], m) break end
-        end
-      end
-    end
-    DependencyLinks[idx] = nil
-    
-    if DependencyLinksReverse[idx] then
-      for k, v in pairs(DependencyLinksReverse[idx]) do
-        for m, f in pairs(DependencyLinks[v]) do
-          if f == idx then table.remove(DependencyLinks[v], m) DependencyCounts[v] = DependencyCounts[v] - 1 break end
-        end
-      end
-    end
-    DependencyLinksReverse[idx] = nil
-    
     last_best = nil
+    
+    return idx
+  end
+  
+  function QH_Route_Core_NodeRemove(nod)
+    QH_Route_Core_NodeRemove_Internal(nod)
   end
 -- End node allocation and deallocation
 
--- Add a note that node 1 makes node 2 obsolete (in some sense, it instantly completes node 2.) Right now, this is a symmetrical relationship.
-function QH_Route_Core_NodeObsoletes()
+function QH_Route_Core_ClusterAdd(clust)
+  QuestHelper: Assert(#clust > 0)
+  local clustid = table.remove(ClusterDead)
+  if not clustid then clustid = #Cluster + 1 end
+  
+  QuestHelper:TextOut(string.format("Adding cluster %d", clustid))
+  
+  Cluster[clustid] = {}
+  ClusterTableLookup[clust] = clustid
+  
+  for _, v in ipairs(clust) do
+    local idx = QH_Route_Core_NodeAdd_Internal(v)
+    ClusterLookup[idx] = clustid
+    table.insert(Cluster[clustid], idx)
+  end
+  
+  DependencyCounts[clustid] = 0
+end
+
+function QH_Route_Core_ClusterRemove(clust)
+  local clustid = ClusterTableLookup[clust]
+  
+  QuestHelper:TextOut(string.format("Removing cluster %d", clustid))
+  
+  for _, v in ipairs(clust) do
+    local idx = QH_Route_Core_NodeRemove_Internal(v)
+    ClusterLookup[idx] = nil
+  end
+  
+  DependencyCounts[clustid] = nil
+  
+  if DependencyLinks[clustid] then
+    for k, v in pairs(DependencyLinks[clustid]) do
+      for m, f in pairs(DependencyLinksReverse[v]) do
+        if f == clustid then
+          table.remove(DependencyLinksReverse[v], m)
+          break
+        end
+      end
+    end
+  end
+  DependencyLinks[clustid] = nil
+  
+  if DependencyLinksReverse[clustid] then
+    for k, v in pairs(DependencyLinksReverse[clustid]) do
+      for m, f in pairs(DependencyLinks[v]) do
+        if f == clustid then
+          table.remove(DependencyLinks[v], m)
+          DependencyCounts[v] = DependencyCounts[v] - 1
+          break
+        end
+      end
+    end
+  end
+  DependencyLinksReverse[clustid] = nil
+  
+  Cluster[clustid] = nil
+  ClusterTableLookup[clust] = nil
+  table.insert(ClusterDead, clustid)
 end
 
 -- Add a note that node 1 requires node 2.
-function QH_Route_Core_NodeRequires(a, b)
-  local aidx = NodeLookup[a]
-  local bidx = NodeLookup[b]
+function QH_Route_Core_ClusterRequires(a, b)
+  local aidx = ClusterTableLookup[a]
+  local bidx = ClusterTableLookup[b]
   QuestHelper: Assert(aidx)
   QuestHelper: Assert(bidx)
   QuestHelper: Assert(aidx ~= bidx)
+  
+  QuestHelper:TextOut(string.format("Linking cluster %d->%d", aidx, bidx))
   
   DependencyCounts[aidx] = DependencyCounts[aidx] + 1
   
@@ -400,6 +484,8 @@ function QH_Route_Core_NodeRequires(a, b)
   
   if not DependencyLinksReverse[bidx] then DependencyLinksReverse[bidx] = {} end
   table.insert(DependencyLinksReverse[bidx], aidx)
+  
+  last_best = nil
 end
 
 -- Wipe and re-cache all distances.

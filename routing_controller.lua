@@ -8,8 +8,9 @@ local Route_Core_NodeAdd = QH_Route_Core_NodeAdd
 local Route_Core_NodeRemove = QH_Route_Core_NodeRemove
 local Route_Core_SetStart = QH_Route_Core_SetStart
 
-local Route_Core_NodeObsoletes = QH_Route_Core_NodeObsoletes
-local Route_Core_NodeRequires = QH_Route_Core_NodeRequires
+local Route_Core_ClusterAdd = QH_Route_Core_ClusterAdd
+local Route_Core_ClusterRemove = QH_Route_Core_ClusterRemove
+local Route_Core_ClusterRequires = QH_Route_Core_ClusterRequires
 local Route_Core_DistanceClear = QH_Route_Core_DistanceClear
 
 QH_Route_Core_Process = nil
@@ -32,8 +33,16 @@ function QH_Route_NodeRemove(node)
   table.insert(pending, function () Route_Core_NodeRemove(node) end)
 end
 
-function QH_Route_NodeRequires(a, b)
-  table.insert(pending, function () Route_Core_NodeRequires(a, b) end)
+function QH_Route_ClusterAdd(node)
+  table.insert(pending, function () Route_Core_ClusterAdd(node) end)
+end
+
+function QH_Route_ClusterRemove(node)
+  table.insert(pending, function () Route_Core_ClusterRemove(node) end)
+end
+
+function QH_Route_ClusterRequires(a, b)
+  table.insert(pending, function () Route_Core_ClusterRequires(a, b) end)
 end
 
 local notification_funcs = {}

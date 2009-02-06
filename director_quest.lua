@@ -97,7 +97,7 @@ local function Clicky(index)
   QuestLog_Update()
 end
 
-local function UpdateQuests()
+function UpdateQuests()
   QuestHelper:TextOut("updatedo")
   if update then
   
@@ -115,6 +115,7 @@ local function UpdateQuests()
         if id then
           local db = DB_GetItem("quest_metaobjective", id)
           
+          QuestHelper:TextOut(tostring(db))
           if db then
             local lindex = index
             db.desc = title
@@ -125,25 +126,32 @@ local function UpdateQuests()
             
             local turnin
             
-            if db[lbcount + 1] and db[lbcount + 1].loc then
+            if db[lbcount + 1] and #db[lbcount + 1] > 0 then
               turnin = db[lbcount + 1]
               nactive[turnin] = true
               if not active[turnin] then
-                turnin.tracker_clicked = function () Clicky(lindex) end
-                QH_Route_NodeAdd(db[lbcount + 1])
+                for k, v in ipairs(turnin) do
+                  v.tracker_clicked = function () Clicky(lindex) end
+                end
+                QH_Route_ClusterAdd(db[lbcount + 1])
               end
             end
             
             for i = 1, GetNumQuestLeaderBoards(index) do
               local desc, typ, done = GetQuestLogLeaderBoard(i, index)
-              if db[i] then db[i].tracker_desc = MakeQuestObjectiveTitle(desc, typ, done) db[i].desc = desc end
+              if db[i] then
+                for k, v in ipairs(db[i]) do
+                  v.tracker_desc = MakeQuestObjectiveTitle(desc, typ, done)
+                  v.desc = desc
+                  v.tracker_clicked = function () Clicky(lindex) end
+                end
+              end
               
-              if not done then if db[i] and db[i].loc then
+              if not done then if db[i] and #db[i] > 0 then
                 nactive[db[i]] = true
                 if not active[db[i]] then
-                  db[i].tracker_clicked = function () Clicky(lindex) end
-                  QH_Route_NodeAdd(db[i])
-                  if turnin then QH_Route_NodeRequires(turnin, db[i]) end
+                  QH_Route_ClusterAdd(db[i])
+                  if turnin then QH_Route_ClusterRequires(turnin, db[i]) end
                 end
               end end
             end
