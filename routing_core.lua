@@ -45,8 +45,6 @@ local Notifier
 local Dist
 
 -- Node storage and data structures
-  local MaxNodes = math.floor(math.sqrt(math.pow(2, 19)))
-
   local CurrentNodes = 1
   local ActiveNodes = {1}
   local DeadNodes = {}
@@ -65,12 +63,10 @@ local Dist
 
   local NodeLookup = {[StartNode] = 1}
   local NodeList = {[1] = StartNode}
-  local Distance = {0}
-  local Weight = {0}
+  local Distance = {{0}}
+  local Weight = {{0}}
   
   weight_ave = 0.001
-
-  local function GetIndex(x, y) return (x - 1) * CurrentNodes + y end
 -- End node storage and data structures
 
 -- Initialization
@@ -92,20 +88,20 @@ end
 
 local function GetWeight(x, y)
   if x == y then return 0.00000000001 end -- sigh
-  local idx = GetIndex(x, y)
-  local revidx = GetIndex(y, x)
-  if not Weight[idx] or not Distance[idx] then
+  --local idx = GetIndex(x, y)
+  --local revidx = GetIndex(y, x)
+  if not Weight[x][y] or not Distance[x][y] then
     RTO(string.format("%d/%d %d", x, y, CurrentNodes))
     QuestHelper: Assert(x <= CurrentNodes)
     QuestHelper: Assert(y <= CurrentNodes)
   end
   local bonus
-  if Distance[idx] == Distance[revidx] then
+  if Distance[x][y] == Distance[y][x] then
     bonus = SymmetryFactor
   else
     bonus = AsymmetryFactor
   end
-  local weight = math.pow(Weight[idx] + Weight[revidx] * bonus, WeightFactor) * math.pow(Distance[idx] + DistanceDeweight, DistanceFactor)
+  local weight = math.pow(Weight[x][y] + Weight[y][x] * bonus, WeightFactor) * math.pow(Distance[x][y] + DistanceDeweight, DistanceFactor)
   --print(Weight[idx], Weight[revidx], bonus, WeightFactor, Distance[idx], DistanceFactor)
   --ValidateNumber(weight)
   return weight
@@ -204,7 +200,7 @@ local function RunAnt()
       needed_ready_count = needed_ready_count - 1
     end
     
-    route.distance = route.distance + Distance[GetIndex(curloc, nod)]
+    route.distance = route.distance + Distance[curloc][nod]
     table.insert(route, nod)
     curloc = nod
   end
@@ -249,8 +245,8 @@ function QH_Route_Core_Process()
   
   for _, x in ipairs(ActiveNodes) do
     for _, y in ipairs(ActiveNodes) do
-      local idx = GetIndex(x, y)
-      Weight[idx] = Weight[idx] * PheremonePreservation + UniversalBonus
+      --local idx = GetIndex(x, y)
+      Weight[x][y] = Weight[x][y] * PheremonePreservation + UniversalBonus
       --ValidateNumber(Weight[idx])
     end
   end
@@ -258,8 +254,8 @@ function QH_Route_Core_Process()
   for _, x in ipairs(trouts) do
     local amount = 1 / ((x.distance - last_best.distance) / scale + BestWorstAdjustment)
     for y = 1, #x - 1 do
-      local idx = GetIndex(x[y], x[y + 1])
-      Weight[idx] = Weight[idx] + amount
+      --local idx = GetIndex(x[y], x[y + 1])
+      Weight[x[y]][x[y + 1]] = Weight[x[y]][x[y + 1]] + amount
       --ValidateNumber(Weight[idx])
     end
   end
@@ -268,8 +264,8 @@ function QH_Route_Core_Process()
   local weicount = 0
   for _, x in ipairs(ActiveNodes) do
     for _, y in ipairs(ActiveNodes) do
-      local idx = GetIndex(x, y)
-      weitotal = weitotal + Weight[idx]
+      --local idx = GetIndex(x, y)
+      weitotal = weitotal + Weight[x][y]
       weicount = weicount + 1
     end
   end
@@ -290,41 +286,19 @@ end
       return nod
     end
     
-    --RTO(string.format("Expanding from %d to %d", CurrentNodes, CurrentNodes + 1))
-    QuestHelper: Assert(CurrentNodes < MaxNodes)
-    local newadj = {}
-    local newweight = {}
-    local src = 1
-    local dst = 1
-    for y=1, CurrentNodes do  
-      for x=1, CurrentNodes + 1 do
-        if x == CurrentNodes + 1 then
-          newadj[dst] = 0
-          newweight[dst] = 0
-          dst = dst + 1
-        else
-          newadj[dst] = Distance[src]
-          newweight[dst] = Weight[src]
-          dst = dst + 1
-          src = src + 1
-        end
-      end
+    for _, v in ipairs(Distance) do
+      table.insert(v, 0)
     end
-    for x=1, CurrentNodes + 1 do
-      newadj[dst] = 0
-      newweight[dst] = 0
-      dst = dst + 1
+    for _, v in ipairs(Weight) do
+      table.insert(v, 0)
     end
-    --[[
-    RTO(tostring(src))
-    RTO(tostring(#Distance))
-    RTO(tostring(dst))
-    RTO(tostring(CurrentNodes))]]
+    table.insert(Distance, {})
+    table.insert(Weight, {})
     
-    QuestHelper: Assert(src == #Distance + 1)
-    QuestHelper: Assert(dst == (CurrentNodes + 1) * (CurrentNodes + 1) + 1)
-    Distance = newadj
-    Weight = newweight
+    for k = 1, CurrentNodes + 1 do
+      table.insert(Distance[#Distance], 0)
+      table.insert(Weight[#Weight], 0)
+    end
     
     CurrentNodes = CurrentNodes + 1
     table.insert(DeadNodes, CurrentNodes)
@@ -341,8 +315,8 @@ end
     
     for _, v in ipairs(ActiveNodes) do
       if v ~= 1 then
-        Distance[GetIndex(1, v)] = Dist(NodeList[1], NodeList[v])
-        Distance[GetIndex(v, 1)] = Dist(NodeList[v], NodeList[1])
+        Distance[1][v] = Dist(NodeList[1], NodeList[v])
+        Distance[v][1] = Dist(NodeList[v], NodeList[1])
       end
     end
     
@@ -363,11 +337,11 @@ end
       --RTO("ANIDX: " .. tostring(x))
       --RTO("ANIDXT: " .. tostring(ActiveNodes[x]))
       --RTO("ANIDXTNL: " .. tostring(NodeList[ActiveNodes[x]]))
-      Distance[GetIndex(ActiveNodes[x], idx)] = Dist(NodeList[ActiveNodes[x]], nod)
-      Distance[GetIndex(idx, ActiveNodes[x])] = Dist(nod, NodeList[ActiveNodes[x]])
+      Distance[ActiveNodes[x]][idx] = Dist(NodeList[ActiveNodes[x]], nod)
+      Distance[idx][ActiveNodes[x]] = Dist(nod, NodeList[ActiveNodes[x]])
       
-      Weight[GetIndex(ActiveNodes[x], idx)] = weight_ave
-      Weight[GetIndex(idx, ActiveNodes[x])] = weight_ave
+      Weight[ActiveNodes[x]][idx] = weight_ave
+      Weight[idx][ActiveNodes[x]] = weight_ave
     end
     --TestShit()
     
