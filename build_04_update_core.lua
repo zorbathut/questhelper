@@ -26,7 +26,7 @@ for _, v in pairs({"QuestHelper_Collector", "QuestHelper_Collector_Version", "Qu
   csave[v] = chunk[v]
 end
 
-local neededutils = {"pairs"}
+local neededutils = {"pairs", "type"}
 
 for _, v in pairs(neededutils) do
   csave[v] = _G[v]

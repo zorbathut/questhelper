@@ -6,8 +6,8 @@ print = function (...) orig_print(debug.getinfo(2,"n").name, ...) end
 io.write = function (...) orig_write(debug.getinfo(2,"n").name, ...) end
 ]]
 
-local do_zone_map = true
-local do_errors = true
+local do_zone_map = false
+local do_errors = false
 
 require("persistence")
 require("compile_chain")
@@ -186,6 +186,7 @@ Locale name accum functions
 ]]
 
 local function name_accumulate(accum, name, locale)
+  if not name then return end
   if not accum[locale] then accum[locale] = {} end
   accum[locale][name] = (accum[locale][name] or 0) + 1
 end
@@ -239,6 +240,14 @@ local chainhead = ChainBlock_Create("chainhead", nil,
             Output(string.format("%d", iid), qhv, idat, "item")
           end end
           
+          -- monsters!
+          if v.monster then for mid, mdat in pairs(v.monster) do
+            print(mid, mdat)
+            mdat.fileid = value.fileid
+            mdat.locale = locale
+            Output(string.format("%d", mid), qhv, mdat, "monster")
+          end end
+          
           -- zones!
           if locale == "enUS" and do_zone_map and v.zone then for zname, zdat in pairs(v.zone) do
             local items = {}
@@ -286,108 +295,25 @@ local chainhead = ChainBlock_Create("chainhead", nil,
 
 --[[
 *****************************************************************
-Item collation
+Monster collation
 ]]
 
-local item_slurp
+local monster_slurp
 
---[[
 do
-  item_slurp = ChainBlock_Create("item_slurp", {chainhead},
+  monster_slurp = ChainBlock_Create("monster_slurp", {chainhead},
     function (key) return {
       accum = {name = {}},
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
-        -- Split apart the start/end info. This includes locations and possibly the monster that was targeted.
-        if value.start then value.start = split_quest_startend(value.start) end
-        if value["end"] then   --sigh
-          value.finish = split_quest_startend(value["end"])
-          value["end"] = nil
-        end
-        
-        -- Parse apart the old complicated criteria strings
-        if not value.criteria then value.criteria = {} end
-        for k, v in pairs(value) do
-          local item, token = string.match(k, "criteria_([%d]+)_([a-z]+)")
-          if token then
-            assert(item)
-            
-            if token == "type" then print("toktype " .. v) end
-            
-            if token == "satisfied" then
-              value[k] = split_quest_satisfied(value[k])
-            end
-            
-            if not value.criteria[tonumber(item)] then value.criteria[tonumber(item)] = {} end
-            value.criteria[tonumber(item)][token] = value[k]
-            value[k] = nil
-          end
-        end
-        
-        -- Accumulate the old criteria strings into our new data
-        if value.start then for k, v in pairs(value.start) do position_accumulate(self.accum.start, v.loc) end end
-        if value.finish then for k, v in pairs(value.finish) do position_accumulate(self.accum.finish, v.loc) end end
-        for id, dat in pairs(value.criteria) do
-          if not self.accum.criteria[id] then self.accum.criteria[id] = {count = 0, loc = {}, monster = {}, item = {}} end
-          local cid = self.accum.criteria[id]
-          
-          if dat.satisfied then
-            for k, v in pairs(dat.satisfied) do
-              position_accumulate(cid.loc, v.loc)
-              cid.count = cid.count + (v.c or 1)
-              list_accumulate(cid, "monster", v.monster)
-              list_accumulate(cid, "item", v.item)
-            end
-          end
-          
-          if dat.type then
-            if not cid.type then
-              cid.type = dat.type
-            else
-              assert(cid.type == dat.type)
-            end
-          end
-        end
-        
-        -- Accumulate names and levels
-        if value.name then
-          -- Names is a little complicated - we want to get rid of any recommended-level tags that we might have.
-          local vnx = string.match(value.name, "%b[]%s*(.*)")
-          if not vnx then vnx = value.name end
-          if vnx ~= value.name then print(value.name, vnx) end
-          self.accum.name[vnx] = (self.accum.name[vnx] or 0) + 1
-        end
-        if value.level then self.accum.level[value.level] = (self.accum.level[value.level] or 0) + 1 end
+        name_accumulate(self.accum.name, value.name, value.locale)
       end,
       
       Finish = function(self, Output)
-        self.accum.name = most_common(self.accum.name)
-        self.accum.level = most_common(self.accum.level)
+        self.accum.name = name_resolve(self.accum.name)
         
         local qout = {}
-        for k, v in pairs(self.accum.criteria) do
-        
-          if not qout.criteria then qout.criteria = {} end
-          -- This should be fallback code if it can't figure out which monster or item it actually needs. Right now, it's the only code.
-          -- Also, we're going to have a much, much better method for accumulating and distilling positions eventually.
-          if position_has(v) then qout.criteria[k] = { loc = position_finalize(v.loc) } end
-          
-          -- temp debug output
-          -- We shouldn't actually be doing this, we should be figuring out which monsters and items this really correlates to.
-          -- We're currently not. However, this will require correlating with the names for monsters and items.
-          qout.criteria[k].type = v.type
-          if v.type == "monster" then
-            qout.criteria[k].count = v.count
-            qout.criteria[k].monster = v.monster
-          elseif v.type == "item" then
-            qout.criteria[k].count = v.count
-            qout.criteria[k].item = v.item
-          end
-        end
-        
-        --if position_has(self.accum.start) then qout.start = { loc = position_finalize(self.accum.start) } end  -- we don't actually care about the start position
-        if position_has(self.accum.finish) then qout.finish = { loc = position_finalize(self.accum.finish) } end
         
         -- we don't actually care about the level, so we don't bother to store it. Really, we only care about the name for debug purposes also, so we should probably get rid of it before release.
         qout.name = self.accum.name
@@ -397,15 +323,53 @@ do
           has_stuff = true
           break
         end
-        
         if has_stuff then
-          Output("", nil, {id="quest", key=tonumber(key), data=qout})
+          Output("", nil, {id="monster", key=tonumber(key), data=qout})
+        end
+      end,
+    } end,
+    sortversion, "monster"
+  )
+end
+
+--[[
+*****************************************************************
+Item collation
+]]
+
+local item_slurp
+
+do
+  item_slurp = ChainBlock_Create("item_slurp", {chainhead},
+    function (key) return {
+      accum = {name = {}},
+      
+      -- Here's our actual data
+      Data = function(self, key, subkey, value, Output)
+        name_accumulate(self.accum.name, value.name, value.locale)
+      end,
+      
+      Finish = function(self, Output)
+        self.accum.name = name_resolve(self.accum.name)
+        
+        local qout = {}
+        
+        -- we don't actually care about the level, so we don't bother to store it. Really, we only care about the name for debug purposes also, so we should probably get rid of it before release.
+        qout.name = self.accum.name
+        
+        local has_stuff = false
+        for k, v in pairs(qout) do
+          has_stuff = true
+          break
+        end
+        if has_stuff then
+          Output("", nil, {id="item", key=tonumber(key), data=qout})
         end
       end,
     } end,
     sortversion, "item"
   )
-end]]
+end
 
 --[[
 *****************************************************************
@@ -515,7 +479,6 @@ do
           has_stuff = true
           break
         end
-        
         if has_stuff then
           Output("", nil, {id="quest", key=tonumber(key), data=qout})
         end
@@ -608,6 +571,8 @@ Final file generation
 
 local sources = {}
 if quest_slurp then table.insert(sources, quest_slurp) end
+if item_slurp then table.insert(sources, item_slurp) end
+if monster_slurp then table.insert(sources, monster_slurp) end
 
 local fileout = ChainBlock_Create("fileout", sources,
   function (key) return {

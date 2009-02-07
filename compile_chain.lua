@@ -14,7 +14,7 @@ local nextProgressTime = 0
 
 function ProgressMessage(msg)
   if os.time() > nextProgressTime then
-    nextProgressTime = os.time() + 5
+    nextProgressTime = os.time() + 1
     print(msg)
   end
 end
@@ -88,7 +88,7 @@ function ChainBlock:Finish()
   self.broadcasted = nil
   
   for k, v in pairs(self.data) do
-    print(string.format("Sorting %s, %d/%d", self.id, sdcc, sdc))
+    ProgressMessage(string.format("Sorting %s, %d/%d", self.id, sdcc, sdc))
     sdcc = sdcc + 1
     
     for _, bv in ipairs(self.broadcasted_keyed) do
