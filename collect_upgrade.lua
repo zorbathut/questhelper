@@ -34,4 +34,21 @@ function QH_Collector_Upgrade()
     
     QuestHelper_Collector_Version = 4
   end
+  
+  if QuestHelper_Collector_Version == 4 then
+    -- Munged the shops rather badly. Whoopsydaisy.
+    for locale, data in pairs(QuestHelper_Collector) do
+      if data.monster then
+        local nv = {}
+        for id, dat in pairs(data.monster) do
+          if type(dat) == "string" then
+            nv[id] = dat
+          end
+        end
+        data.monster = nv
+      end
+    end
+    
+    QuestHelper_Collector_Version = 5
+  end
 end
