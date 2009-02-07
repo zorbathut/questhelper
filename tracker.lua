@@ -298,7 +298,7 @@ local function addItem(objective, y, meta)
   item:SetHeight(h)
   
   if objective.tracker_clicked then
-    item:SetScript("OnMouseDown", objective.tracker_clicked)
+    item:SetScript("OnMouseDown", function (self, button) if button == "RightButton" then objective.tracker_clicked() end end)
     item:EnableMouse(true)
   end
   
