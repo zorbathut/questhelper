@@ -11,11 +11,13 @@ end
 
 local update = true
 local function UpdateTrigger()
-  QuestHelper:TextOut("updatetrig")
   update = true
 end
 
 local active = {}
+
+-- It's possible that things end up garbage-collected and we end up with different tables than we expect. This is something that the entire system is kind of prone to. The solution's pretty easy - we just have to store them ourselves while we're using them.
+local active_db = {}
 
 local objective_parse = {
   item = function (txt) return QuestHelper:convertPattern(QUEST_OBJECTS_FOUND)(txt) end,
@@ -98,12 +100,12 @@ local function Clicky(index)
 end
 
 function UpdateQuests()
-  QuestHelper:TextOut("updatedo")
   if update then
   
     local index = 1
     
     local nactive = {}
+    local nactive_db = {}
     
     while true do
       local title, level = GetQuestLogTitle(index)
@@ -114,8 +116,8 @@ function UpdateQuests()
         local id = GetQuestType(qlink)
         if id then
           local db = DB_GetItem("quest_metaobjective", id)
+          table.insert(nactive_db, db)  -- garbage collector go away
           
-          QuestHelper:TextOut(tostring(db))
           if db then
             local lindex = index
             db.desc = title
@@ -168,6 +170,7 @@ function UpdateQuests()
     end
     
     active = nactive
+    active_db = nactive_db
   end
 end
 

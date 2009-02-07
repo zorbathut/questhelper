@@ -61,6 +61,7 @@ Interface\Addons\Questhelper\objective.lua:30: stack overflow
 @ Teleporters functional?
   @ Mage teleport
   @ Druid teleport
+  @ DK teleport
   @ Hearthstone?
 * Build!
 
