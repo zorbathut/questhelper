@@ -41,7 +41,7 @@ function QH_Collector_Upgrade()
       if data.monster then
         local nv = {}
         for id, dat in pairs(data.monster) do
-          if type(dat) == "string" then
+          if type(dat) == "table" then
             nv[id] = dat
           end
         end
