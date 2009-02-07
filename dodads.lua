@@ -397,43 +397,41 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   function icon:SetGlow(list)
     local w, h = QuestHelper.map_overlay:GetWidth(), QuestHelper.map_overlay:GetHeight()
     local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
-    local _, x_size, y_size = QuestHelper.Astrolabe:ComputeDistance(c, z, 0.25, 0.25, c, z, 0.75, 0.75)
     
-    x_size = math.max(25, 200 / x_size * w)
-    y_size = math.max(25, 200 / y_size * h)
+    local clusters = {}
+    
+    for _, v in ipairs(list) do 
+      clusters[v.cluster] = true
+    end
     
     local out = 1
-    for _, objective in ipairs(list) do 
-      if objective.p then for _, list in pairs(objective.p) do
-        for _, p in ipairs(list) do
-          local x, y = p[3], p[4]
-          x, y = x / QuestHelper.continent_scales_x[p[1].c], y / QuestHelper.continent_scales_y[p[1].c]
-          x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(p[1].c, 0, x, y, c, z)
-          if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
-            if not self.glow_list then
-              self.glow_list = QuestHelper:CreateTable()
-            end
-            
-            tex = self.glow_list[out]
-            if not tex then
-              tex = QuestHelper:CreateGlowTexture(self)
-              table.insert(self.glow_list, tex)
-            end
-            out = out + 1
-            
-            tex:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", x*w, -y*h)
-            tex:SetVertexColor(1,1,1,0)
-            tex:SetWidth(x_size)
-            tex:SetHeight(y_size)
-            tex:Show()
-            tex.max_alpha = 1/p[5]
+    for clust, _ in pairs(clusters) do
+      for _, obj in pairs(clust) do
+        local x, y = convertLocationToScreen(obj.loc, c, z)
+        if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
+          if not self.glow_list then
+            self.glow_list = QuestHelper:CreateTable()
           end
-        end end
+          
+          tex = self.glow_list[out]
+          if not tex then
+            tex = QuestHelper:CreateGlowTexture(self)
+            table.insert(self.glow_list, tex)
+          end
+          out = out + 1
+          
+          tex:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", x*w, -y*h)
+          tex:SetVertexColor(1,1,1,0)
+          tex:SetWidth(h / 4) -- we want it to be a circle
+          tex:SetHeight(h / 4)
+          tex:Show()
+          tex.max_alpha = 1
+        end
       end
     end
     
     if self.glow_list then
-      for i = out,#self.glow_list do
+      while #self.glow_list >= out do
         QuestHelper:ReleaseTexture(table.remove(self.glow_list))
       end
       
