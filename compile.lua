@@ -58,8 +58,44 @@ end
 
 --[[
 *****************************************************************
+Weighted multi-concept accumulation
+]]
+
+local function weighted_concept_finalize(data, fraction, minimum)
+  table.sort(data, function (a, b) return a.w > b.w end)
+
+  local tw = 0
+  for _, v in pairs(data) do
+    tw = tw + v.w
+  end
+  
+  local ept
+  local wacu = 0
+  for k, v in pairs(data) do
+    wacu = wacu + v.w
+    v.w = nil
+    if wacu >= tw * fraction or (data[k + 1] and data[k + 1].w < minimum) then
+      ept = k
+      break
+    end
+  end
+  assert(ept, tw)
+  
+  while #data > ept do table.remove(data) end
+  
+  return data
+end
+
+--[[
+*****************************************************************
 Position accumulation
 ]]
+
+local function distance(a, b)
+  local x = a.x - b.x
+  local y = a.y - b.y
+  return math.sqrt(x*x+y*y)
+end
 
 local function valid_pos(ite)
   if not ite then return end
@@ -71,11 +107,26 @@ end
 local function position_accumulate(accu, tpos)
   if not valid_pos(tpos) then return end
   if not accu[tpos.c] then
-    accu[tpos.c] = {x = tpos.x, y = tpos.y, weight = 1}
+    accu[tpos.c] = {}
+  end
+  
+  local conti = accu[tpos.c]
+  local closest = nil
+  local clodist = 300
+  for k, v in ipairs(conti) do
+    local cdist = distance(tpos, v)
+    if cdist < clodist then
+      clodist = cdist
+      closest = v
+    end
+  end
+  
+  if closest then
+    closest.x = (closest.x * closest.w + tpos.x) / (closest.w + 1)
+    closest.y = (closest.y * closest.w + tpos.y) / (closest.w + 1)
+    closest.w = closest.w + 1
   else
-    accu[tpos.c].x = accu[tpos.c].x + tpos.x
-    accu[tpos.c].y = accu[tpos.c].y + tpos.y
-    accu[tpos.c].weight = accu[tpos.c].weight + 1
+    table.insert(conti, {x = tpos.x, y = tpos.y, w = 1})
   end
 end
 
@@ -87,19 +138,17 @@ local function position_has(accu)
 end
 
 local function position_finalize(accu)
-  local best_continent = nil
-  local best_continent_count = 0
-  for c, v in pairs(accu) do
-    if accu[c].weight > best_continent_count then
-      best_continent_count = accu[c].weight
-      best_continent = c
+  if not position_has(accu) then return end
+  
+  local pozes = {}
+  local tw = 0
+  for c, ci in pairs(accu) do
+    for _, v in ipairs(ci) do
+      table.insert(pozes, {c = c, x = v.x, y = v.y, w = v.w})
     end
   end
-  if best_continent then
-    return { c = best_continent, x = accu[best_continent].x / accu[best_continent].weight, y = accu[best_continent].y / accu[best_continent].weight }
-  else
-    return nil
-  end
+  
+  return weighted_concept_finalize(pozes, 0.8, 10)
 end
 
 --[[
@@ -423,7 +472,7 @@ do
           
           name_accumulate(self.accum.name, vnx, value.locale)
         end
-        if value.level then self.accum.level[value.level] = (self.accum.level[value.level] or 0) + 1 end
+        list_accumulate(self.accum, "level", value.level)
       end,
       
       Finish = function(self, Output)
@@ -673,6 +722,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
+local e = 100
 
 flist = io.popen("ls data/08"):read("*a")
 local filz = {}
