@@ -165,7 +165,7 @@ function UpdateQuests()
     
     for k, v in pairs(active) do
       if not nactive[k] then
-        QH_Route_NodeRemove(k)
+        QH_Route_ClusterRemove(k)
       end
     end
     

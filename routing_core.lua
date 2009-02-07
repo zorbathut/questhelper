@@ -57,7 +57,7 @@ local Dist
   
   local DependencyLinks = {}  -- Every cluster that cluster X depends on
   local DependencyLinksReverse = {}  -- Every cluster that cluster X depends on
-  local DependencyCounts = {[1] = 0}  -- How many different nodes cluster X depends on
+  local DependencyCounts = {}  -- How many different nodes cluster X depends on
 
   local StartNode = {}
 
@@ -118,7 +118,7 @@ local function RunAnt()
   local needed_count = -1 -- gets rid of 1 earlier
   local needed_ready_count = -1
   
-  for k, v in ipairs(DependencyCounts) do
+  for k, v in pairs(DependencyCounts) do
     dependencies[k] = v
   end
   
@@ -126,6 +126,7 @@ local function RunAnt()
     local need = false
     
     if ClusterLookup[v] then
+      QuestHelper: Assert(dependencies[ClusterLookup[v]])
       if dependencies[ClusterLookup[v]] == 0 then
         need = true
       end
@@ -146,6 +147,8 @@ local function RunAnt()
   local curloc = 1
   
   local gwc = {}
+  
+  QuestHelper: Assert(needed_ready_count > 0 or needed_count == 0)
   
   while needed_count > 0 do
     QuestHelper: Assert(needed_ready_count > 0)
@@ -420,6 +423,7 @@ function QH_Route_Core_ClusterRemove(clust)
     for k, v in pairs(DependencyLinks[clustid]) do
       for m, f in pairs(DependencyLinksReverse[v]) do
         if f == clustid then
+          QuestHelper:TextOut(string.format("Unlinking cluster %d needs %d", clustid, v))
           table.remove(DependencyLinksReverse[v], m)
           break
         end
@@ -432,6 +436,7 @@ function QH_Route_Core_ClusterRemove(clust)
     for k, v in pairs(DependencyLinksReverse[clustid]) do
       for m, f in pairs(DependencyLinks[v]) do
         if f == clustid then
+          QuestHelper:TextOut(string.format("Unlinking cluster %d needs %d", v, clustid))
           table.remove(DependencyLinks[v], m)
           DependencyCounts[v] = DependencyCounts[v] - 1
           break
@@ -454,7 +459,7 @@ function QH_Route_Core_ClusterRequires(a, b)
   QuestHelper: Assert(bidx)
   QuestHelper: Assert(aidx ~= bidx)
   
-  QuestHelper:TextOut(string.format("Linking cluster %d->%d", aidx, bidx))
+  QuestHelper:TextOut(string.format("Linking cluster %d needs %d", aidx, bidx))
   
   DependencyCounts[aidx] = DependencyCounts[aidx] + 1
   
@@ -471,7 +476,13 @@ end
 function QH_Route_Core_DistanceClear()
 end
 
---[==[
+--[=[function findin(tab, val)
+  local ct = 0
+  for k, v in pairs(tab) do
+    if v == val then ct = ct + 1 end
+  end
+  return ct == 1
+end
 
 function TestShit()
 --[[
@@ -495,12 +506,45 @@ function TestShit()
   local fail = false
   for x = 1, #ActiveNodes do
     for y = 1, #ActiveNodes do
-      if not (Dist(NodeList[ActiveNodes[x]], NodeList[ActiveNodes[y]]) == Distance[GetIndex(ActiveNodes[x], ActiveNodes[y])]) then
-        RTO(string.format("%d/%d (%d/%d) should be %f, is %f", x, y, ActiveNodes[x], ActiveNodes[y], Dist(NodeList[ActiveNodes[x]], NodeList[ActiveNodes[y]]),Distance[GetIndex(ActiveNodes[x], ActiveNodes[y])]))
+      if not (Dist(NodeList[ActiveNodes[x]], NodeList[ActiveNodes[y]]) == Distance[ActiveNodes[x]][ActiveNodes[y]]) then
+        RTO(string.format("%d/%d (%d/%d) should be %f, is %f", x, y, ActiveNodes[x], ActiveNodes[y], Dist(NodeList[ActiveNodes[x]], NodeList[ActiveNodes[y]]),Distance[ActiveNodes[x]][ActiveNodes[y]]))
         fail = true
       end
     end
   end
+  
+  for k, v in pairs(DependencyLinks) do
+    QuestHelper: Assert(#v == DependencyCounts[k])
+  end
+  
+  for k, v in pairs(DependencyCounts) do
+    QuestHelper: Assert(v == (DependencyLinks[k] and #DependencyLinks[k] or 0))
+  end
+  
+  for k, v in pairs(DependencyLinks) do
+    for _, v2 in pairs(v) do
+      QuestHelper: Assert(findin(DependencyLinksReverse[v2], k))
+    end
+  end
+  
+  for k, v in pairs(DependencyLinksReverse) do
+    for _, v2 in pairs(v) do
+      QuestHelper: Assert(findin(DependencyLinks[v2], k))
+    end
+  end
+  
+  for k, v in pairs(ClusterLookup) do
+    QuestHelper: Assert(Cluster[v])
+    QuestHelper: Assert(findin(Cluster[v], k))
+    QuestHelper: Assert(DependencyCounts[v])
+  end
+  
+  for k, v in pairs(Cluster) do
+    for _, v2 in pairs(v) do
+      QuestHelper: Assert(ClusterLookup[v2] == k)
+    end
+  end
+  
   QuestHelper: Assert(not fail)
 end
 
@@ -513,7 +557,6 @@ function HackeryDump()
   end
   st = st .. "}"
   assert(false, st)
-end
-]==]
+end]=]
 
 -- weeeeee

@@ -32,7 +32,7 @@ function DB_GetItem(group, id)
     
     if q.criteria then for k, c in ipairs(q.criteria) do
       local ttx = {}
-      QuestHelper:TextOut(string.format("critty %d %d", k, c.loc and #c.loc or -1))
+      --QuestHelper:TextOut(string.format("critty %d %d", k, c.loc and #c.loc or -1))
       if c.loc then for m, v in ipairs(c.loc) do
         table.insert(ttx, {desc = string.format("Criteria %d", k), clusterpart = m, why = ite, loc = v})
       end end
@@ -40,7 +40,7 @@ function DB_GetItem(group, id)
     end end
     if q.finish then
       local ttx = {}
-      QuestHelper:TextOut(string.format("finny %d", q.finish.loc and #q.finish.loc or -1))
+      --QuestHelper:TextOut(string.format("finny %d", q.finish.loc and #q.finish.loc or -1))
       for m, v in ipairs(q.finish.loc) do
         table.insert(ttx, {desc = "Turn in quest", clusterpart = m, why = ite, loc = v, tracker_hidden = true})
       end
