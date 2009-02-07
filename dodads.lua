@@ -730,16 +730,16 @@ function QuestHelper:CreateMipmapDodad()
   end
   
   function icon:OnEnter()
-    if self.obj and false then
+    if self.obj then
       QuestHelper.tooltip:SetOwner(self, "ANCHOR_CURSOR")
       QuestHelper.tooltip:ClearLines()
       
-      if self.target[5] then
+      --[[if self.target[5] then
         QuestHelper.tooltip:AddLine(QHFormat("WAYPOINT_REASON", self.target[5]), unpack(QuestHelper:GetColourTheme().tooltip))
         QuestHelper.tooltip:GetPrevLines():SetFont(QuestHelper.font.serif, 14)
-      end
+      end]]
       
-      QuestHelper:AppendObjectiveToTooltip(self.objective)
+      QuestHelper:AppendObjectiveToTooltip(self.obj)
       QuestHelper.tooltip:Show()
     end
   end
