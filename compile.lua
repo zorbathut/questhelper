@@ -639,7 +639,7 @@ local fileout = ChainBlock_Create("fileout", sources,
     finalfile = {},
     
     Data = function(self, key, subkey, value, Output)
-      if value.name then value.name = value.name.enUS end -- needs improvement
+      if value.data.name then value.data.name = value.data.name.enUS end -- needs improvement
       
       if not self.finalfile[value.id] then self.finalfile[value.id] = {} end
       assert(not self.finalfile[value.id][value.key])
