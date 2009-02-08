@@ -508,7 +508,7 @@ do
           if v.type == "monster" then
             snaggy = find_important(v.monster, v.count)
           elseif v.type == "item" then
-            snaggy = find_important(v.item, v.count)
+            --snaggy = find_important(v.item, v.count)
           end
           
           if snaggy then
