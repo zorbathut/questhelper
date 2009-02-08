@@ -36,7 +36,7 @@ function ChainBlock_Create(id, linkfrom, factory, sortpred, filter)
   ninst.broadcasted_keyed = {}
   ninst.unfinished = 0
   ninst.process = function (key, subkey, value, identifier) for _, v in pairs(ninst.linkto) do v:Insert(key, subkey, value, identifier) end end
-  ninst.broadcast = function (subkey, value, identifier) for _, v in pairs(ninst.linkdo) do v:Broadcast(subkey, value, identifier) end end
+  ninst.broadcast = function (subkey, value, identifier) for _, v in pairs(ninst.linkto) do v:Broadcast(subkey, value, identifier) end end
   if linkfrom then
     for k, v in pairs(linkfrom) do
       v:AddLinkTo(ninst)
@@ -59,7 +59,7 @@ function ChainBlock:Insert(key, subkey, value, identifier)
 end
 
 function ChainBlock:Broadcast(subkey, value, identifier)
-  if self.filter and self.filter ~= identifier then return end
+  if self.filter and identifier and self.filter ~= identifier then return end
 
   if subkey then
     table.insert(self.broadcasted_keyed, {subkey = subkey, value = value})

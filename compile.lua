@@ -242,7 +242,6 @@ local chainhead = ChainBlock_Create("chainhead", nil,
           
           -- monsters!
           if v.monster then for mid, mdat in pairs(v.monster) do
-            print(mid, mdat)
             mdat.fileid = value.fileid
             mdat.locale = locale
             Output(string.format("%d", mid), qhv, mdat, "monster")
@@ -303,10 +302,24 @@ local monster_slurp
 do
   monster_slurp = ChainBlock_Create("monster_slurp", {chainhead},
     function (key) return {
-      accum = {name = {}},
+      accum = {name = {}, loc = {}},
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
+        for _, v in ipairs(value) do
+          if math.mod(#v, 13) ~= 0 then
+            print("Not synch!")
+            return
+          end
+        end
+        
+        for _, v in ipairs(value) do
+          for off = 1, #v, 13 do
+            local tite = slice_loc(v:sub(off, off + 10))
+            if tite then position_accumulate(self.accum.loc, {tite.c, tite.x, tite.y}) end
+          end
+        end
+        
         name_accumulate(self.accum.name, value.name, value.locale)
       end,
       
@@ -317,6 +330,7 @@ do
         
         -- we don't actually care about the level, so we don't bother to store it. Really, we only care about the name for debug purposes also, so we should probably get rid of it before release.
         qout.name = self.accum.name
+        if position_has(self.accum.loc) then qout.loc = position_finalize(self.accum.loc) end
         
         local has_stuff = false
         for k, v in pairs(qout) do
@@ -331,6 +345,22 @@ do
     sortversion, "monster"
   )
 end
+
+local monster_pack = ChainBlock_Create("monster_pack", {monster_slurp},
+  function (key) return {
+    data = {},
+    
+    Data = function(self, key, subkey, value, Output)
+      assert(not self.data[value.key])
+      if not self.data[value.key] then self.data[value.key] = {} end
+      self.data[value.key] = value.data
+    end,
+    
+    Finish = function(self, Output, Broadcast)
+      Broadcast(nil, {monster=self.data})
+    end,
+  } end
+)
 
 --[[
 *****************************************************************
