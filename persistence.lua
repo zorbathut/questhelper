@@ -53,7 +53,10 @@ persistence =
         for k, v in pairs(item) do
           table.insert(order, k)
         end
-        table.sort(order)
+        table.sort(order, function (a, b)
+          if type(a) == type(b) then return a < b end
+          return type(a) < type(b)
+        end)
         
 				for _, v in pairs(order) do
 					persistence.writeIndent(f, level+1);

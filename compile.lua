@@ -62,6 +62,12 @@ Weighted multi-concept accumulation
 ]]
 
 local function weighted_concept_finalize(data, fraction, minimum)
+  if #data == 0 then return end
+
+  fraction = fraction or 0.9
+  minimum = minimum or 1
+  
+  
   table.sort(data, function (a, b) return a.w > b.w end)
 
   local tw = 0
@@ -316,11 +322,17 @@ do
         for _, v in ipairs(value) do
           for off = 1, #v, 13 do
             local tite = slice_loc(v:sub(off, off + 10))
-            if tite then position_accumulate(self.accum.loc, {tite.c, tite.x, tite.y}) end
+            if tite then position_accumulate(self.accum.loc, tite) end
           end
         end
         
-        name_accumulate(self.accum.name, value.name, value.locale)
+        -- someday we'll add more to this
+        for k, v in pairs(value) do
+          if type(k) == "string" then
+            local q = string.match(k, "name_(.*)")
+            if q then name_accumulate(self.accum.name, q, value.locale) end
+          end
+        end
       end,
       
       Finish = function(self, Output)
@@ -409,6 +421,15 @@ Quest collation
 local quest_slurp
 
 do
+  local function find_important(dat, count)
+    local mungedat = {}
+    for k, v in pairs(dat) do
+      table.insert(mungedat, {d = k, w = v})
+    end
+    
+    return weighted_concept_finalize(mungedat, 0.9, 10) -- this is not ideal, but it's functional
+  end
+
   quest_slurp = ChainBlock_Create("quest_slurp", {chainhead},
     function (key) return {
       accum = {name = {}, criteria = {}, level = {}, start = {}, finish = {}},
@@ -479,22 +500,31 @@ do
           v.type = list_most_common(v.type)
           
           if not qout.criteria then qout.criteria = {} end
-          -- This should be fallback code if it can't figure out which monster or item it actually needs. Right now, it's the only code.
-          -- Also, we're going to have a much, much better method for accumulating and distilling positions eventually.
-          qout.criteria[k] = {}
-          
-          if position_has(v) then qout.criteria[k].loc = position_finalize(v.loc) end
           
           -- temp debug output
           -- We shouldn't actually be doing this, we should be figuring out which monsters and items this really correlates to.
           -- We're currently not. However, this will require correlating with the names for monsters and items.
-          qout.criteria[k].type = v.type
+          local snaggy
           if v.type == "monster" then
-            qout.criteria[k].count = v.count
-            qout.criteria[k].monster = v.monster
+            snaggy = find_important(v.monster, v.count)
           elseif v.type == "item" then
-            qout.criteria[k].count = v.count
-            qout.criteria[k].item = v.item
+            snaggy = find_important(v.item, v.count)
+          end
+          
+          if snaggy then
+            assert(#snaggy > 0)
+            qout.criteria[k] = {}
+            qout.criteria[k].snaggy = true
+            for _, x in ipairs(snaggy) do
+              table.insert(qout.criteria[k], {v.type, x.d})
+            end
+          else
+            -- Fallback code if it can't figure out which monster or item it actually needs. Right now, it's the only code.
+            -- Also, we're going to have a much, much better method for accumulating and distilling positions eventually.
+            qout.criteria[k] = {}
+            qout.criteria[k].type = v.type
+            
+            if position_has(v) then qout.criteria[k].loc = position_finalize(v.loc) end
           end
         end
         
