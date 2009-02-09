@@ -752,7 +752,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
-local e = 100
+local e = 5
 
 flist = io.popen("ls data/08"):read("*a")
 local filz = {}

@@ -67,31 +67,84 @@ end
 
 
 
+local inflight_bytes = 0
+
+local alist_start = 1
+local alist_end = 1
+local appender_list = {}
+
 local file_cache = {}
+
+local Appender = {}
+local Appender_mt = { __index = Appender }
+
+local function flush_one_appender()
+  assert(alist_start ~= alist_end)
+  appender_list[alist_start]:flush()
+  appender_list[alist_start].poison = true
+  local fid = appender_list[alist_start].fname
+  file_cache[fname] = nil
+  appender_list[alist_start] = nil
+  alist_start = alist_start + 1
+end
+local function make_appender(fname)
+  while inflight_bytes > 32 * 1024 * 1024 do
+    flush_one_appender()
+  end
+  
+  local ninst = {}
+  setmetatable(ninst, Appender_mt)
+  ninst.fname = fname
+  appender_list[alist_end] = ninst
+  alist_end = alist_end + 1
+  return ninst
+end
+function Appender:write(...)
+  assert(not self.poison)
+  for k, v in ipairs{...} do
+    inflight_bytes = inflight_bytes + #v
+    table.insert(self, v)
+    for i = #self - 1, 1, -1 do
+      if string.len(self[i]) > string.len(self[i + 1]) then break end
+      self[i] = self[i] .. table.remove(self, i + 1)
+    end
+  end
+end
+function Appender:flush()
+  assert(not self.poison)
+  local f, reason = io.open(self.fname, "ab")
+  if not f and string.find(reason, "No such file or directory") then
+    os.execute("mkdir -p " .. string.match(self.fname, "(.*)/.-"))
+    f, reason = io.open(self.fname, "ab")
+  end
+  assert(f, reason)
+  
+  for _, v in ipairs(self) do
+    --print(string.format("Flushing %d to %s", #v, self.fname))
+    inflight_bytes = inflight_bytes - #v
+    f:write(v)
+  end
+  
+  while #self > 0 do table.remove(self) end
+  
+  f:close()
+end
+
+
+
 local function flush_cache()
   print("Flushing cache")
   if file_cache then
     for k, v in pairs(file_cache) do
-      v:close()
+      v:flush()
     end
-    file_cache = {}
   end
 end
 
 local function get_file(fname)
   if file_cache[fname] then return file_cache[fname] end
-  local f, reason = io.open(fname, "ab")
-  if not f and string.find(reason, "No such file or directory") then
-    os.execute("mkdir -p " .. string.match(fname, "(.*)/.-"))
-    f, reason = io.open(fname, "ab")
-  end
-  if not f and string.find(reason, "Too many open files") then
-    flush_cache()
-    f, reason = io.open(fname, "ab")
-  end
-  assert(f, reason)
-  file_cache[fname] = f
-  return f
+  file_cache[fname] = make_appender(fname)
+  return file_cache[fname]
 end
 
 
@@ -111,7 +164,6 @@ local shard_count
 local block_lookup = {}
 
 function ChainBlock_Init(init_f, ...)
-  dbgout(arg)
   if arg[1] == "master" then
     mode = MODE_MASTER
     init_f()
@@ -132,26 +184,32 @@ function ChainBlock_Init(init_f, ...)
     mode = MODE_SOLO
     init_f()
   end
-  
-  print(mode)
 end
 
 function ChainBlock_Work()
   if mode == MODE_SLAVE then
-    print("slavemode")
     local prefix = string.format("temp/%s/%d", slaveblock, shard)
     local hnd = io.popen(string.format("ls %s", prefix))
+    
+    local tblock = block_lookup[slaveblock]
+    local ckey = nil
     for line in hnd:lines() do
-      print("reading " .. line)
+      print("reading " .. prefix .. "/" .. line)
+      local tkey = string.match(line, "([a-f0-9]*)_.*")
+      if tkey ~= ckey then
+        tblock:Finish()
+        ckey = tkey
+      end
       jamtable = {}
       loadfile(prefix .. "/" .. line)()
       
-      local tblock = block_lookup[slaveblock]
       for _, v in ipairs(jamtable) do
         tblock:Insert(v.key, v.subkey, v.value)
       end
-      tblock:Finish()
     end
+    
+    tblock:Finish()
+    
     hnd:close()
     flush_cache()
     return true
@@ -211,7 +269,7 @@ function ChainBlock_Create(id, linkfrom, factory, sortpred, filter)
 end
 
 function ChainBlock:Insert(key, subkey, value, identifier)
-  if self.filter and self.filter ~= identifier then return end
+  if self.filter and identifier and self.filter ~= identifier then return end
   
   if mode ~= MODE_SOLO and slaveblock ~= self.id then
     local f = get_file(string.format("temp/%s/%d/%s_%s", self.id, shardy(key, shard_count), md5_clean(key):sub(1,2), shard))
@@ -257,11 +315,11 @@ function ChainBlock:Finish()
     
   elseif mode == MODE_SLAVE and slaveblock ~= self.id then
     return
-  elseif mode == MODE_SOLO or (mode == MODE_SLAVE and slaveblock == self.id)then
+  elseif mode == MODE_SOLO or (mode == MODE_SLAVE and slaveblock == self.id) then
     self.unfinished = self.unfinished - 1
     if self.unfinished > 0 and mode == MODE_SOLO then return end -- NOT . . . FINISHED . . . YET
     
-    print("Sorting " .. self.id)
+    if mode == MODE_SOLO then print("Sorting " .. self.id) end
     
     local sdc = 0
     for k, v in pairs(self.data) do sdc = sdc + 1 end
@@ -302,9 +360,9 @@ function ChainBlock:Finish()
       
       self.data[k] = 0 -- This is kind of like setting it to nil, but instead of not working, it does work.
     end
-    self.broadcasted_keyed = nil
+    self.broadcasted_keyed = {}
     
-    print("Finishing " .. self.id)
+    if mode == MODE_SOLO then print("Finishing " .. self.id) end
     
     self.data = {}
     for k, v in pairs(self.items) do
@@ -313,13 +371,13 @@ function ChainBlock:Finish()
     end
     self.items = {}
     
-    print("Chaining " .. self.id)
+    if mode == MODE_SOLO then print("Chaining " .. self.id) end
     
     for _, v in pairs(self.linkto) do
       v:Finish()
     end
     
-    print("Done " .. self.id)
+    if mode == MODE_SOLO then print("Done " .. self.id) end
   end
 end
 
