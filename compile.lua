@@ -13,15 +13,16 @@ require("persistence")
 require("compile_chain")
 require("compile_debug")
 
-ll, err = package.loadlib("/home/zorba/build/libcompile_core.so", "init")
+ll, err = package.loadlib("/nfs/build/libcompile_core.so", "init")
 if not ll then print(err) return end
 ll()
 
-os.execute("rm -rf intermed")
-os.execute("mkdir intermed")
+ChainBlock_Init(function () 
+  os.execute("rm -rf intermed")
+  os.execute("mkdir intermed")
 
-os.execute("rm -rf final")
-os.execute("mkdir final")
+  os.execute("rm -rf final")
+  os.execute("mkdir final") end, ...)
 
 math.umod = function (val, med)
   if val < 0 then
@@ -744,6 +745,8 @@ if do_errors then
     )
   end
 end
+
+if ChainBlock_Work() then return end
 
 local count = 1
 
