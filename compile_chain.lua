@@ -133,7 +133,6 @@ end
 
 
 local function flush_cache()
-  print("Flushing cache")
   if file_cache then
     for k, v in pairs(file_cache) do
       v:flush()
@@ -194,7 +193,6 @@ function ChainBlock_Work()
     local tblock = block_lookup[slaveblock]
     local ckey = nil
     for line in hnd:lines() do
-      print("reading " .. prefix .. "/" .. line)
       local tkey = string.match(line, "([a-f0-9]*)_.*")
       if tkey ~= ckey then
         tblock:Finish()
