@@ -1,4 +1,10 @@
 
+== Version 0.87 2/10/2009 ==
+
+* Update translations
+* Update database
+* Fix a bug in the merchant data recorder
+
 == Version 0.86 2/2/2009 ==
 
 * Fixed a glitch in error recording that may have been causing excess CPU and RAM usage
