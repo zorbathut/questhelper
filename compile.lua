@@ -8,6 +8,7 @@ io.write = function (...) orig_write(debug.getinfo(2,"n").name, ...) end
 
 local do_zone_map = false
 local do_errors = true
+local do_compile = false
 
 require("persistence")
 require("compile_chain")
@@ -234,21 +235,21 @@ local chainhead = ChainBlock_Create("chainhead", nil,
           --and not sortversion("0.80", qhv) -- hacky hacky
         then 
           -- quests!
-          if v.quest then for qid, qdat in pairs(v.quest) do
+          if do_compile and v.quest then for qid, qdat in pairs(v.quest) do
             qdat.fileid = value.fileid
             qdat.locale = locale
             Output(string.format("%d", qid), qhv, qdat, "quest")
           end end
           
           -- items!
-          if v.item then for iid, idat in pairs(v.item) do
+          if do_compile and v.item then for iid, idat in pairs(v.item) do
             idat.fileid = value.fileid
             idat.locale = locale
             Output(string.format("%d", iid), qhv, idat, "item")
           end end
           
           -- monsters!
-          if v.monster then for mid, mdat in pairs(v.monster) do
+          if do_compile and v.monster then for mid, mdat in pairs(v.monster) do
             mdat.fileid = value.fileid
             mdat.locale = locale
             Output(string.format("%d", mid), qhv, mdat, "monster")
@@ -306,7 +307,7 @@ Monster collation
 
 local monster_slurp
 
-do
+if do_compile then 
   monster_slurp = ChainBlock_Create("monster_slurp", {chainhead},
     function (key) return {
       accum = {name = {}, loc = {}},
@@ -359,21 +360,24 @@ do
   )
 end
 
-local monster_pack = ChainBlock_Create("monster_pack", {monster_slurp},
-  function (key) return {
-    data = {},
-    
-    Data = function(self, key, subkey, value, Output)
-      assert(not self.data[value.key])
-      if not self.data[value.key] then self.data[value.key] = {} end
-      self.data[value.key] = value.data
-    end,
-    
-    Finish = function(self, Output, Broadcast)
-      Broadcast(nil, {monster=self.data})
-    end,
-  } end
-)
+local monster_pack
+if do_compile then 
+  monster_pack = ChainBlock_Create("monster_pack", {monster_slurp},
+    function (key) return {
+      data = {},
+      
+      Data = function(self, key, subkey, value, Output)
+        assert(not self.data[value.key])
+        if not self.data[value.key] then self.data[value.key] = {} end
+        self.data[value.key] = value.data
+      end,
+      
+      Finish = function(self, Output, Broadcast)
+        Broadcast(nil, {monster=self.data})
+      end,
+    } end
+  )
+end
 
 --[[
 *****************************************************************
@@ -382,7 +386,7 @@ Item collation
 
 local item_slurp
 
-do
+if do_compile then
   item_slurp = ChainBlock_Create("item_slurp", {chainhead},
     function (key) return {
       accum = {name = {}},
@@ -421,7 +425,7 @@ Quest collation
 
 local quest_slurp
 
-do
+if do_compile then
   local function find_important(dat, count)
     local mungedat = {}
     for k, v in pairs(dat) do
@@ -675,7 +679,7 @@ if do_errors then
         assert(value.local_version)
         if not value.toc_version or value.local_version ~= value.toc_version then return end
         local signature
-        if value.key ~= "crashes" then signature = value.key end
+        if value.key ~= "crash" then signature = value.key end
         if not signature then signature = value.message end
         local v = value.local_version
         if not self.accum[v] then self.accum[v] = {} end
