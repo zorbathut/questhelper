@@ -55,6 +55,8 @@ I'm pretty sure this works, but I'm running out of hard drive space.
 require("luarocks.require")
 require("md5")
 require("persistence")
+require("pluto")
+require("gzio")
 
 local nextProgressTime = 0
 
@@ -62,6 +64,7 @@ local function ProgressMessage(msg)
   if os.time() > nextProgressTime then
     nextProgressTime = os.time() + 1
     print(msg)
+    io.stdout:flush()
   end
 end
 
@@ -83,12 +86,14 @@ local function flush_one_appender()
   appender_list[alist_start]:flush()
   appender_list[alist_start].poison = true
   local fid = appender_list[alist_start].fname
-  file_cache[fname] = nil
+  file_cache[fid] = nil
   appender_list[alist_start] = nil
   alist_start = alist_start + 1
 end
 local function make_appender(fname)
-  while inflight_bytes > 32 * 1024 * 1024 do
+  assert(fname)
+  
+  while inflight_bytes > 64 * 1024 * 1024 do
     flush_one_appender()
   end
   
@@ -112,11 +117,23 @@ function Appender:write(...)
 end
 function Appender:flush()
   assert(not self.poison)
-  local f, reason = io.open(self.fname, "ab")
-  if not f and string.find(reason, "No such file or directory") then
-    os.execute("mkdir -p " .. string.match(self.fname, "(.*)/.-"))
-    f, reason = io.open(self.fname, "ab")
+  if #self == 0 then return end
+  
+  ProgressMessage(string.format("Flushing cache %s ...", self.fname))
+  
+  local composite_name
+  while true do
+    composite_name = string.format("%s_%d", self.fname, math.random(10000))
+    local tst, rs = io.open(composite_name, "wx")
+    if rs and string.find(rs, "No such file or directory") then
+      assert(os.execute("mkdir -p " .. string.match(self.fname, "(.*)/.-")) == 0)
+    elseif tst then
+      tst:close()
+      break
+    end
   end
+  
+  local f, reason = gzio.open(composite_name, "w")
   assert(f, reason)
   
   for _, v in ipairs(self) do
@@ -160,15 +177,29 @@ local slaveblock
 local shard
 local shard_count
 
+local shard_ips = {}
+
 local block_lookup = {}
 
-function ChainBlock_Init(init_f, ...)
+function ChainBlock_Init(init_f)
   if arg[1] == "master" then
     mode = MODE_MASTER
     init_f()
-    os.execute("rm -rf temp")
+    
+    os.execute("rm -rf temp_removing")
+    os.execute("mv temp temp_removing")
+    io.popen("rm -rf temp_removing", "w")
+    
     shard = 0
-    shard_count = 4
+    
+    for k = 2, #arg do
+      table.insert(shard_ips, arg[k])
+    end
+    shard_count = #shard_ips
+    
+    local print_bk = print
+    print = function(...) print_bk("Master", ...) end
+    
   elseif arg[1] == "slave" then
     mode = MODE_SLAVE
     slaveblock = arg[2]
@@ -177,6 +208,12 @@ function ChainBlock_Init(init_f, ...)
     assert(slaveblock)
     assert(shard)
     assert(shard_count)
+    
+    local print_bk = print
+    local shardid = string.format("Shard %d/%d %s", shard, shard_count, slaveblock)
+    print = function(...) print_bk(shardid, ...) end
+    
+    ProgressMessage("Starting")
   elseif arg[1] then
     assert(false)
   else
@@ -192,23 +229,36 @@ function ChainBlock_Work()
     
     local tblock = block_lookup[slaveblock]
     local ckey = nil
+    
+    local lines = {}
     for line in hnd:lines() do
+      table.insert(lines, line)
+    end
+    hnd:close()
+    
+    for pos, line in ipairs(lines) do
+      ProgressMessage(string.format("Processing %d/%d", pos, #lines))
       local tkey = string.match(line, "([a-f0-9]*)_.*")
       if tkey ~= ckey then
         tblock:Finish()
         ckey = tkey
       end
+      
       jamtable = {}
-      loadfile(prefix .. "/" .. line)()
+      local fil = gzio.open(prefix .. "/" .. line, "r")
+      loadstring(fil:read("*a"))()
+      fil:close()
+      os.execute(string.format("rm %s/%s", prefix, line))
       
       for _, v in ipairs(jamtable) do
-        tblock:Insert(v.key, v.subkey, v.value)
+        local tab = pluto.unpersist({}, v)
+        tblock:Insert(tab.key, tab.subkey, tab.value)
       end
     end
     
     tblock:Finish()
     
-    hnd:close()
+    
     flush_cache()
     return true
   end
@@ -270,9 +320,9 @@ function ChainBlock:Insert(key, subkey, value, identifier)
   if self.filter and identifier and self.filter ~= identifier then return end
   
   if mode ~= MODE_SOLO and slaveblock ~= self.id then
-    local f = get_file(string.format("temp/%s/%d/%s_%s", self.id, shardy(key, shard_count), md5_clean(key):sub(1,2), shard))
+    local f = get_file(string.format("temp/%s/%d/%s_%s", self.id, shardy(key, shard_count), md5_clean(key):sub(1,1), shard))
     f:write("table.insert(jamtable, ")
-    persistence.store(f, {key = key, subkey = subkey, value = value})
+    f:write(string.format("%q", pluto.persist({}, {key = key, subkey = subkey, value = value})))
     f:write(")\n")
   else
     if not subkey then
@@ -304,9 +354,15 @@ function ChainBlock:Finish()
     
     self.unfinished = self.unfinished - 1
     if self.unfinished > 0 then return end -- NOT . . . FINISHED . . . YET
+    
+    local pypes = {}
     for k = 1, shard_count do
-      assert(os.execute(string.format("luajit -O2 compile.lua slave %s %d %d", self.id, k, shard_count)) == 0)
+      table.insert(pypes, io.popen(string.format("ssh %s \"cd /nfs/build && luajit -O2 compile.lua slave %s %d %d\"", shard_ips[k], self.id, k, shard_count), "w"))
     end
+    for k, v in pairs(pypes) do
+      v:close()
+    end
+    
     for _, v in pairs(self.linkto) do
       v:Finish()
     end

@@ -7,7 +7,7 @@ io.write = function (...) orig_write(debug.getinfo(2,"n").name, ...) end
 ]]
 
 local do_zone_map = false
-local do_errors = false
+local do_errors = true
 
 require("persistence")
 require("compile_chain")
@@ -752,7 +752,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
-local e = 5
+--local e = 100
 
 flist = io.popen("ls data/08"):read("*a")
 local filz = {}
