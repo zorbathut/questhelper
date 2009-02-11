@@ -1,9 +1,11 @@
 
-== Version 0.87 2/10/2009 ==
+== Version 0.87 2/11/2009 ==
 
 * Update translations
 * Update database
 * Fix a bug in the merchant data recorder
+
+I've heard reports of a new bug in 3.0.9. I can't duplicate it, and nobody's given me "/qh error" reports yet. Get those bug reports in if you're having trouble.
 
 == Version 0.86 2/2/2009 ==
 
