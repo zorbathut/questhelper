@@ -99,10 +99,10 @@ QuestHelper_Translations.itIT =
   DEPENDS_ON_SINGLE = "Dipende da '%1'",
   DEPENDS_ON_COUNT = "Dipende da %1 obiettivi nascosti.",
   FILTERED_LEVEL = "Nascosto per il livello.",
-  FILTERED_ZONE = "Nascosto per la zona",
+  FILTERED_ZONE = "Filtrato per la zona",
   FILTERED_COMPLETE = "Nascosto per il completamento",
   FILTERED_BLOCKED = "Nascosto per un obiettivo precedente incompleto",
-  FILTERED_UNWATCHED = "123",
+  FILTERED_UNWATCHED = "Filtrato per non essere Mostrato nel Quest Log",
   FILTERED_USER = "Hai richiesto che questo obiettivo venga nascosto.",
   FILTERED_UNKNOWN = "Non so come completare.",
   

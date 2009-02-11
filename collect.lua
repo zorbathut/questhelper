@@ -1,7 +1,7 @@
 QuestHelper_File["collect.lua"] = "Development Version"
 QuestHelper_Loadtime["collect.lua"] = GetTime()
 
-local QuestHelper_Collector_Version_Current = 4
+local QuestHelper_Collector_Version_Current = 5
 
 QuestHelper_Collector = {}
 QuestHelper_Collector_Version = QuestHelper_Collector_Version_Current

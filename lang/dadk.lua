@@ -8,13 +8,13 @@ QuestHelper_Translations.daDK =
   -- Messages used when starting.
   LOCALE_ERROR = "Sproget i dine gemte data stemmer ikke med sproget til WoW klienten. For at bruge QuestHelper skal du enten ændre sproget tilbage, eller slette dataerne ved at skrive %h(/qh purge).",
   ZONE_LAYOUT_ERROR = "Jeg nægter at køre, af frygt for at ødelægge dine gemte data. Vent venligst på en ny patch, der vil være i stand til at håndtere det nye zonelayout.",
-  DOWNGRADE_ERROR = "Dine gemte data er ikke kompatible med denne version af QuestHelper. Brug en nyere version eller slet dine gemte variabler.",
+  DOWNGRADE_ERROR = "Dine gemte data er ikke kompatible med denne version af QuestHelper. Brug en nyere version eller slet din savedvariables fil",
   HOME_NOT_KNOWN = "Dit hjem er ukendt. Tal venligst med din innkeeper ved førstkommende lejlighed og nulstil det.",
   PRIVATE_SERVER = "QuestHelper understøtter ikke private servere.",
   PLEASE_RESTART = "Der opstod en fejl ved start af QuestHelper. Vær venlig at afslutte World of Warcraft helt og prøv igen.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper var installeret forkert. Vi anbefaler enten at bruge Curse Client eller 7zip til installering. Vær sikker på underdirektorier er udpakket.",
   PLEASE_DONATE = "%h(QuestHelper er afhængig af dine bidrag!) Ethvert bidrag modtages med tak. Blot et par dollars om måneden, sikrer at jeg holder det opdateret og kørende. Skriv %h(\"/qh donate\") for yderligere oplysninger.",
-  HOW_TO_CONFIGURE = "QuestHelper har ikke en fungerende indstillingsside endnu, men kan konfigureres ved at skrive %h(/qh settings). Hjælp er tilgængelig med %h(/qh help).",
+  HOW_TO_CONFIGURE = "QuestHelper har endnu ikke en fungerende indstillingsside endnu, men kan konfigureres ved at skrive %h(/qh settings). Hjælp er tilgængelig med %h(/qh help).",
   TIME_TO_UPDATE = "Der er evt. en %h(ny QuestHelper version) klar. Nye versioner kan indeholde nye funktioner, nye quest databaser, og fejlrettelser. Opdater venligst!",
   
   -- Route related text.
@@ -63,7 +63,7 @@ QuestHelper_Translations.daDK =
   
   IGNORED_PRIORITY_TITLE = "Den valgte prioritet bliver ignoreret.",
   IGNORED_PRIORITY_FIX = "Sæt samme prioritet til de(t) blokerende mål.",
-  IGNORED_PRIORITY_IGNORE = "Jeg sætter selv prioriten.",
+  IGNORED_PRIORITY_IGNORE = "Jeg sætter selv prioriterne.",
   
   -- Custom objectives.
   RESULTS_TITLE = "Søgeresultater",
@@ -72,7 +72,7 @@ QuestHelper_Translations.daDK =
   REMOVED_OBJ = "Fjernet: %1",
   USER_OBJ = "Brugerobjektiv: %h1",
   UNKNOWN_OBJ = "Jeg ved ikke, hvor du skal gå hen med dette objektiv.",
-  INACCESSIBLE_OBJ = "QuestHelper kan ikke finde en brugbar position til &h1. Vi har tilføjet en formodenligt utilgengængelig position til din list. Indsend venligst dine data, hvis du finder en brugbar udgave af emnet! (%h(/q submit)) ",
+  INACCESSIBLE_OBJ = "QuestHelper kan ikke finde en brugbar position til %h1. Vi har tilføjet en formodenligt utilgengængelig position til din list. Indsend venligst dine data, hvis du finder en brugbar udgave af emnet! (%h(/q submit)) ",
   
   SEARCHING_STATE = "Søger: %1",
   SEARCHING_LOCAL = "Sprog %1",
@@ -101,13 +101,13 @@ QuestHelper_Translations.daDK =
   FILTERED_LEVEL = "Filtreret på grund af level.",
   FILTERED_ZONE = "Filtreret på grund af område.",
   FILTERED_COMPLETE = "Filtreret da det er afsluttet.",
-  FILTERED_BLOCKED = "Filtreret grundet forudgående mål der ikke er afsluttet",
+  FILTERED_BLOCKED = "Filtreret på grund af forudgående mål der ikke er afsluttet",
   FILTERED_UNWATCHED = "Filtreret da det ikke bliver sporet i quest loggen",
   FILTERED_USER = "Du har anmodet om, at dette objektiv bliver gemt.",
   FILTERED_UNKNOWN = "Jeg ved ikke hvordan det færdiggøres.",
   
   HIDDEN_SHOW = "Vis.",
-  DISABLE_FILTER = "Lukkede filtre: %1",
+  DISABLE_FILTER = "Slå filter fra: %1",
   FILTER_DONE = "færdig",
   FILTER_ZONE = "område",
   FILTER_LEVEL = "level",
@@ -173,7 +173,7 @@ QuestHelper_Translations.daDK =
   MENU_WAYPOINT_ARROW = "%1 Waypoint Pil",
   MENU_MAP_BUTTON = "%1 Kort Knap",
   MENU_ZONE_FILTER = "%1 Zone Filter",
-  MENU_DONE_FILTER = "%1 Færdig Filter",
+  MENU_DONE_FILTER = "%1 Færdigt Filter",
   MENU_BLOCKED_FILTER = "%1 Blokeret Filter",
   MENU_WATCHED_FILTER = "%1 Overvåget Filter",
   MENU_LEVEL_FILTER = "%1 Level Filter",
@@ -186,8 +186,8 @@ QuestHelper_Translations.daDK =
   MENU_PARTY_SHARE = "%1 Objektiv Deling",
   MENU_PARTY_SOLO = "%1 Ignorer Gruppe",
   MENU_HELP = "Hjælp",
-  MENU_HELP_SLASH = "Skråstreg Kommandoer",
-  MENU_HELP_CHANGES = "Ændre log",
+  MENU_HELP_SLASH = "Kommandoer",
+  MENU_HELP_CHANGES = "Ændringer",
   MENU_HELP_SUBMIT = "Sender data",
   
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.

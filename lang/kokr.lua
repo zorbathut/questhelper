@@ -158,8 +158,8 @@ QuestHelper_Translations.koKR =
 
   MENU_CLOSE = "메뉴 닫기",
   MENU_SETTINGS = "설정",
-  MENU_ENABLE = "켜짐",
-  MENU_DISABLE = "꺼짐",
+  MENU_ENABLE = "켜기",
+  MENU_DISABLE = "끄기",
   MENU_OBJECTIVE_TIPS = "목표 툴팁 %1",
   MENU_TRACKER_OPTIONS = "퀘스트 추적기",
   MENU_QUEST_TRACKER = "퀘스트 추적기 %1",

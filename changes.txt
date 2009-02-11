@@ -1,4 +1,21 @@
 
+== Version 0.87 2/11/2009 ==
+
+* Update translations
+* Update database
+* Fix a bug in the merchant data recorder
+
+I've heard reports of a new bug in 3.0.9. I can't duplicate it, and nobody's given me "/qh error" reports yet. Get those bug reports in if you're having trouble.
+
+== Version 0.86 2/2/2009 ==
+
+* Fixed a glitch in error recording that may have been causing excess CPU and RAM usage
+* Cleared out old error data to save people's RAM
+* Possibly fix the old tracker.lua assert error. Possibly make it worse! IT IS AN ADVENTURE TO ALL
+* Rig it to be a little more durable versus InventoryOnPar
+* More private server data removed :(
+* Nag people to update significantly more rarely
+
 == Version 0.85 1/24/2009 ==
 
 * Fixed a large pile of small bugs.

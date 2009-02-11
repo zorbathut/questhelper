@@ -14,8 +14,8 @@ QuestHelper_Translations.deDE =
   PLEASE_RESTART = "Beim Starten von QuestHelper ist ein Fehler aufgetreten. Beende World of Warcraft vollständig und versuche es erneut.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper wurde nicht ordnungsgemäß installiert. Wir empfehlen den Curse-Client oder 7zip für die Installation. Achte darauf, dass Unterverzeichnisse entpackt werden.",
   PLEASE_DONATE = "%h(QuestHelper lebt nur von Spenden!) Jeder Beitrag ist willkommen. Ein paar Dollar im Monat stellen sicher, dass ich am Addon arbeite und es aktualisiere. Gib %h(/qh donate) ein, um weitere Informationen zu erhalten.",
-  HOW_TO_CONFIGURE = "Questhelper hat noch keine funktionierende Einstellungsseite, aber Sie können es konfigurieren wenn Sie %h(/qh settings) eintippen. Die Hilfe ist verfügbar mit der Eingabe von %h(/qh help).",
-  TIME_TO_UPDATE = "Warscheinlich ist eine %h(neue QuestHelper-Version) erhältlich. Neue Versionen enthalten neue Funktionen, neue Quest-Daten und behobene Fehler. Du solltest updaten!",
+  HOW_TO_CONFIGURE = "Questhelper hat noch keine funktionierende Einstellungsseite. Du kannst es konfigurieren, indem du %h(/qh settings) eintippst. Mit %h(/qh help) rufst du die Hilfe auf.",
+  TIME_TO_UPDATE = "Möglicherweise ist eine %h(neue QuestHelper-Version) verfügbar. Neue Versionen umfassen gewöhnlich neue Funktionen, neue Questdatenbanken und Bugfixes. Du solltest ein Update durchführen!",
   
   -- Route related text.
   ROUTES_CHANGED = "Die Flugstrecken für deinen Charakter wurden verändert.",
@@ -27,8 +27,8 @@ QuestHelper_Translations.deDE =
   
   -- Special tracker text
   QH_LOADING = "QuestHelper wird geladen: (%1%%)",
-  QUESTS_HIDDEN_1 = "Quests sind vielleicht ausgeblendet",
-  QUESTS_HIDDEN_2 = "(\"/qh hidde\" zur Liste",
+  QUESTS_HIDDEN_1 = "Quests sind vielleicht ausgeblendet.",
+  QUESTS_HIDDEN_2 = "(\"/qh hidden\" zum Auflisten)",
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Verfügbare Sprachen:",

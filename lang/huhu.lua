@@ -10,12 +10,12 @@ QuestHelper_Translations.huHU =
   ZONE_LAYOUT_ERROR = "Sajnálom, de meg kelell tagadnom működésem, az eddig felhalmozott adatok védelméért. Kérlek várj, míg kijön egy frissítés, ami képes lesz kezelni az új terület kialakítását.",
   DOWNGRADE_ERROR = "A rögzített adatok nem kompatibilisek a QuestHelper ezen verziójával. Tölts le egy újabb verziót, vagy töröld a mentett adatokat a 'Saved Variables' mappádban.",
   HOME_NOT_KNOWN = "Nem tudom hol van az otthonod. Amikor csak tudsz, beszélj az 'Innkeeper'-eddel, és kérj új HS-t.",
-  PRIVATE_SERVER = nil,
-  PLEASE_RESTART = nil,
-  NOT_UNZIPPED_CORRECTLY = nil,
-  PLEASE_DONATE = nil,
-  HOW_TO_CONFIGURE = nil,
-  TIME_TO_UPDATE = nil,
+  PRIVATE_SERVER = "QuestHelper nem fog futni Tört Szerveren...",
+  PLEASE_RESTART = "Hiba történt a QuestHelper indításakor. Kérlek zárd be teljesen a WoW-ot, és lépj be újra!",
+  NOT_UNZIPPED_CORRECTLY = "A QuestHelper hibásan lett telepítve! Kérlek telepítsd újta a hivatalos Curse oldalról, az ottani telepítési-utasításokat követve!",
+  PLEASE_DONATE = "%h( A QuestHelper-t jelenleg a Ti Adományaitok tartják életben!) Bármennyit, amit tudtok nélkülözni, szívesen fogadunk, és pár száz forint havonta is segít, hogy működésben, és frissítve tartsam az AddOnt. Több információért írd be: %h(/qh donate)",
+  HOW_TO_CONFIGURE = "Még nincs működő Beállítások része ezen QuestHelpernek, de konfigurálhatod, ha beírod: %h(/qh settings). Segítség a %h(/qh help) beírásával érhatő el.",
+  TIME_TO_UPDATE = "Valószinűleg létezik egy újabb QuestHelper verzió ( %h )! Újabb verziók újabb funkciókat, quest-adatbázisokat és hibajavításokat tartalmaznak. Kérlek, frissíts!",
   
   -- Route related text.
   ROUTES_CHANGED = "E karakter repülési útvonalai megváltoztak.",
@@ -26,9 +26,9 @@ QuestHelper_Translations.huHU =
   UPDATING_ROUTE = "Útvonalterv frissítése.",
   
   -- Special tracker text
-  QH_LOADING = nil,
-  QUESTS_HIDDEN_1 = nil,
-  QUESTS_HIDDEN_2 = nil,
+  QH_LOADING = "QuestHelper betöltése folyamatban... (%1%%)",
+  QUESTS_HIDDEN_1 = "Rejtett Questek lehetnek...",
+  QUESTS_HIDDEN_2 = "( Használd a \"/qh hidden\" parancsot a felsoroláshoz)",
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Választható nyelvek:",
@@ -72,7 +72,7 @@ QuestHelper_Translations.huHU =
   REMOVED_OBJ = "%1 törölve",
   USER_OBJ = "Felhasználói Feladat: %h1",
   UNKNOWN_OBJ = "Nemtudom hova kellene menned, hogy teljesítsd eme feladatod.",
-  INACCESSIBLE_OBJ = nil,
+  INACCESSIBLE_OBJ = "A QuestHelper nem talált használható elhelyezést ennek: %h1. Hozzáadtam egy valószinűleg-lehetetlen-megtalálni pozíciót a feladataidhoz. Ha sikerül megtalálnod az valós helyét, kérlek küld el az adatbázisod: (%h(/qh submit))",
   
   SEARCHING_STATE = "Keresés folyamatban a(z) %1 közt...",
   SEARCHING_LOCAL = "Helyi %1",
@@ -102,7 +102,7 @@ QuestHelper_Translations.huHU =
   FILTERED_ZONE = "Rejtve, mivel másik területen található.",
   FILTERED_COMPLETE = "Rejtve, mivel kész.",
   FILTERED_BLOCKED = "Rejtve inkompatibiliis elsődleges feladat miatt.",
-  FILTERED_UNWATCHED = nil,
+  FILTERED_UNWATCHED = "Szűrve, mert nincs benne a Quest Log-odban!",
   FILTERED_USER = "Te rejtetted el ezt a feladatot.",
   FILTERED_UNKNOWN = "Nem tudom, hogyan kell megcsinálni.",
   
@@ -117,7 +117,7 @@ QuestHelper_Translations.huHU =
   NAG_MULTIPLE_NEW = "%h(Új információd) van %h1, és %h(frissített adatod) %h2.",
   NAG_SINGLE_NEW = "%h(Új információd) van %h1.",
   NAG_ADDITIONAL = "%h(További információt) gyűjtöttél erről: %h1",
-  NAG_POLLUTED = nil,
+  NAG_POLLUTED = "Az adatbázisod szennyezett Tört Szerverről ( vagy teszt szerverről ) származó információval, a következő indításkor megtisztja önmagát.",
   
   NAG_NOT_NEW = "Eddig még nem gyűjtöttél semmilyen olyan adatot ami ne lenne benne a Fő Adatbankban.",
   NAG_NEW = "Megoszthatod az eddig rögzített adatjaidat, hogy mások hasznára is lehessen.",
@@ -131,7 +131,7 @@ QuestHelper_Translations.huHU =
   NAG_SINGLE_MONSTER_OBJ = "egy mob-feladatról",
   NAG_SINGLE_EVENT_OBJ = "egy esemény-feladatról",
   NAG_SINGLE_REPUTATION_OBJ = "egy reputáció-feladatról",
-  NAG_SINGLE_PLAYER_OBJ = nil,
+  NAG_SINGLE_PLAYER_OBJ = "egy játékos feladatról",
   
   NAG_MULTIPLE_FP = "%1 'Griffesről'",
   NAG_MULTIPLE_QUEST = "%1 questről",
@@ -141,7 +141,7 @@ QuestHelper_Translations.huHU =
   NAG_MULTIPLE_MONSTER_OBJ = "%1 mob-feladatról",
   NAG_MULTIPLE_EVENT_OBJ = "%1 esemény-feladatról",
   NAG_MULTIPLE_REPUTATION_OBJ = "%1 reputáció-feladatról",
-  NAG_MULTIPLE_PLAYER_OBJ = nil,
+  NAG_MULTIPLE_PLAYER_OBJ = "%1 játékos feladatról",
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1 így halad:",
@@ -175,7 +175,7 @@ QuestHelper_Translations.huHU =
   MENU_ZONE_FILTER = "%1 a Terület-Szűrőt",
   MENU_DONE_FILTER = "%1 a Kész-Szűrőt",
   MENU_BLOCKED_FILTER = "%1 a Blokkolt-Szűrőt",
-  MENU_WATCHED_FILTER = nil,
+  MENU_WATCHED_FILTER = "%1 Figyelő-Szűrőt",
   MENU_LEVEL_FILTER = "%1 a Szint-Szűrőt",
   MENU_LEVEL_OFFSET = "Szint-Szűrő Eltolása:",
   MENU_ICON_SCALE = "Ikonok Méretezése:",

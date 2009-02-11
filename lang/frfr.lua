@@ -15,7 +15,7 @@ QuestHelper_Translations.frFR =
   NOT_UNZIPPED_CORRECTLY = "QuestHelper n'a pas été installé correctement. Nous recommandons d'utiliser le Curse Client ou 7zip pour l'installation. Assurez vous que les sous-dossiers sont extraits",
   PLEASE_DONATE = "%h(QuestHelper survit pour le moment grâce à vos dons !) Toute contribution sera appréciée, et quelques dollars par mois me permettront d'assurer les mises à jour et le bon fonctionnement. Entrez %h(/qh donate) pour plus d'informations. ",
   HOW_TO_CONFIGURE = "QuestHelper n'a pas encore une page de configuration fonctionelle, mais peut être configuré en tapant %h(/qh settings). L'aide est disponible en utilisant %h(/qh help).",
-  TIME_TO_UPDATE = nil,
+  TIME_TO_UPDATE = "Il est possible qu'une %h(nouvelle version de QuestHelper) soit disponible. Les nouvelles versions incluent généralement de nouvelles caractéristiques, de nouvelles bases de données de quêtes, et des corrections pour les bogues. Merci de mettre à jour!",
   
   -- Route related text.
   ROUTES_CHANGED = "Les itinéraires de vol de votre personnage ont été modifiés.",
