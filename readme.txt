@@ -29,6 +29,49 @@ string.format("%s for %s", obj.desc, obj.why.desc) -- outputs "Kill Cubist Monk 
 
 
 
+Hrm, what about chained objectives?
+
+Kill Cubist Monk for
+Item Philosopher's Finger Puzzle for
+Item Phlosopher's Jewel for
+Quest Lol Sucker
+
+One way or another, "Kill Cubist Monk" is going to end up in the Quest tree. It links to a "semi-objective" which doesn't necessarily have a location. Does this make sense? I am unsure.
+
+Objectives have Purpose?
+Maybe Why should be more complicated?
+Why is used for the tracker. Maybe that should be tracker_group instead. Then Why can link to an array of reasons why that objective exists.
+
+
+
+Okay, there's three kinds of "why".
+
+First, there's the immediate why. We kill this creature to get this item, we get this item to get another item, we get that item for a quest, we get that quest for an achievement.
+
+Second, there's the tracker-group why - how things should be displayed on the tracker.
+
+Third, there's the ultimate why.
+
+Ultimate can just be found by following Immediate up the chain.
+
+Tracker-group is a little weirder, as it's more of a display issue. Maybe we should just have things "up the chain" marked as tracker items?
+
+
+
+While we're working on this, let's deal with the multi-objective issue. One objective might have multiple reasons it's needed. So: just trace up multiple paths along the "why" chain? Any circular dependencies are very bad, but we can break if that happens.
+
+
+
+Okay, the problem here is that I have multiple definitions of "objective". One definition is "something we need to do", and another is "how we do it".
+
+The problem shows up in spades with routing. If we define it as "something we do", then in theory, we might be given the same objective twice. That probably breaks things. In fact, I don't think I want to support it at all.
+
+On the other hand, it's already desc/loc/why. If we share loc's, that's totally fine.
+
+
+
+When we're returning a route from the routing engine, we return a series of objectives. Each one needs to include all normal information on why we're doing it, along with a *specific* location that we should be directing the user towards.
+
 
 
 
