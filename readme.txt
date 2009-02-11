@@ -73,6 +73,9 @@ On the other hand, it's already desc/loc/why. If we share loc's, that's totally 
 When we're returning a route from the routing engine, we return a series of objectives. Each one needs to include all normal information on why we're doing it, along with a *specific* location that we should be directing the user towards.
 
 
+Okay, the dumb thing I'm doing is trying to assemble objectives and metaobjectives in the db layer. That is stupid. That should be moved into the director layer, and "loc" should be the only thing copied - the rest should be created on demand. PROBLEM SOLVED.
+
+
 
 
 
