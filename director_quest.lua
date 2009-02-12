@@ -1,6 +1,45 @@
 QuestHelper_File["director_quest.lua"] = "Development Version"
 QuestHelper_Loadtime["director_quest.lua"] = GetTime()
 
+
+local quest_list = {}
+local quest_list_used = {}
+
+local function GetQuestMetaobjective(questid)
+  if not quest_list[questid] then
+    local q = DB_GetItem("quest", questid)
+    
+    if not q then return end
+    
+    ite = {} -- we don't want to mutate the existing quest data
+    ite.desc = string.format("Quest %s", q.name.enUS or "(unknown)")  -- this gets changed later
+    ite.based_on = q -- We're storing this for kind of complicated reasons. We're going to be linking directly to the original quest loc tables. If we didn't store this, it could theoretically be garbage-collected. Then, later, if someone tried accessing the quest directly, they'd end up with the quest . . . and a new set of loc tables. Storing this is solely to prevent the garbage collector from collecting the quest,ID pair until the quest_metaobjective,ID pair is gone.
+    
+    if q.criteria then for k, c in ipairs(q.criteria) do
+      local ttx = {}
+      --QuestHelper:TextOut(string.format("critty %d %d", k, c.loc and #c.loc or -1))
+      if c.loc then for m, v in ipairs(c.loc) do
+        table.insert(ttx, {desc = string.format("Criteria %d", k), clusterpart = m, why = ite, loc = v, cluster = ttx})
+      end end
+      table.insert(ite, ttx)
+    end end
+    if q.finish then
+      local ttx = {}
+      --QuestHelper:TextOut(string.format("finny %d", q.finish.loc and #q.finish.loc or -1))
+      for m, v in ipairs(q.finish.loc) do
+        table.insert(ttx, {desc = "Turn in quest", clusterpart = m, why = ite, loc = v, tracker_hidden = true, cluster = ttx})
+      end
+      table.insert(ite, ttx)
+    end
+    
+    quest_list[questid] = ite
+  end
+  
+  quest_list_used[questid] = quest_list[questid]
+  return quest_list[questid]
+end
+
+
 local function GetQuestType(link)
   return tonumber(string.match(link,
     "^|cff%x%x%x%x%x%x|Hquest:(%d+):[%d-]+|h%[[^%]]*%]|h|r$"
@@ -105,7 +144,7 @@ function UpdateQuests()
     local index = 1
     
     local nactive = {}
-    local nactive_db = {}
+    quest_list_used = {}
     
     while true do
       local title, level = GetQuestLogTitle(index)
@@ -115,8 +154,7 @@ function UpdateQuests()
       if qlink then
         local id = GetQuestType(qlink)
         if id then
-          local db = DB_GetItem("quest_metaobjective", id)
-          table.insert(nactive_db, db)  -- garbage collector go away
+          local db = GetQuestMetaobjective(id)
           
           if db then
             local lindex = index
@@ -170,7 +208,8 @@ function UpdateQuests()
     end
     
     active = nactive
-    active_db = nactive_db
+    
+    quest_list = quest_list_used
   end
 end
 
