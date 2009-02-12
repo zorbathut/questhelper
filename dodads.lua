@@ -638,9 +638,6 @@ function QuestHelper:CreateMipmapDodad()
   
   function icon:OnUpdate(elapsed)
     if self.obj then
-      
-      self:Show()
-      
       if not self.dot then
         if self.dot then QuestHelper:ReleaseTexture(self.dot) end
         self.dot = QuestHelper:CreateIconTexture(self, self.icon_id)
