@@ -18,9 +18,20 @@ local function GetQuestMetaobjective(questid)
     if q.criteria then for k, c in ipairs(q.criteria) do
       local ttx = {}
       --QuestHelper:TextOut(string.format("critty %d %d", k, c.loc and #c.loc or -1))
-      if c.loc then for m, v in ipairs(c.loc) do
-        table.insert(ttx, {desc = string.format("Criteria %d", k), clusterpart = m, why = ite, loc = v, cluster = ttx})
-      end end
+      
+      if c.loc then
+        for m, v in ipairs(c.loc) do
+          QuestHelper: Assert(#c == 0)
+          table.insert(ttx, {desc = string.format("Criteria %d", k), clusterpart = #ttx, why = ite, loc = v, cluster = ttx})
+        end
+      else
+        for _, v in ipairs(c) do
+          local deeb = DB_GetItem(v[1], v[2])
+          if deeb.loc then for _, v in ipairs(deeb.loc) do
+            table.insert(ttx, {desc = string.format("Criteria %d", k), clusterpart = #ttx, why = ite, loc = v, cluster = ttx})
+          end end
+        end
+      end
       table.insert(ite, ttx)
     end end
     if q.finish then
