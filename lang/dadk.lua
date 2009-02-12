@@ -7,12 +7,12 @@ QuestHelper_Translations.daDK =
   
   -- Messages used when starting.
   LOCALE_ERROR = "Sproget i dine gemte data stemmer ikke med sproget til WoW klienten. For at bruge QuestHelper skal du enten ændre sproget tilbage, eller slette dataerne ved at skrive %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Jeg nægter at køre, af frygt for at ødelægge dine gemte data. Vent venligst på en ny patch, der vil være i stand til at håndtere det nye zonelayout.",
+  ZONE_LAYOUT_ERROR = "Jeg nægter at starte, af frygt for at ødelægge dine gemte data. Vent venligst på en ny patch, der vil være i stand til at håndtere det nye zonelayout.",
   DOWNGRADE_ERROR = "Dine gemte data er ikke kompatible med denne version af QuestHelper. Brug en nyere version eller slet din savedvariables fil",
   HOME_NOT_KNOWN = "Dit hjem er ukendt. Tal venligst med din innkeeper ved førstkommende lejlighed og nulstil det.",
   PRIVATE_SERVER = "QuestHelper understøtter ikke private servere.",
   PLEASE_RESTART = "Der opstod en fejl ved start af QuestHelper. Vær venlig at afslutte World of Warcraft helt og prøv igen.",
-  NOT_UNZIPPED_CORRECTLY = "QuestHelper var installeret forkert. Vi anbefaler enten at bruge Curse Client eller 7zip til installering. Vær sikker på underdirektorier er udpakket.",
+  NOT_UNZIPPED_CORRECTLY = "QuestHelper var installeret forkert. Vi anbefaler enten at bruge Curse Client eller 7zip til installering. Vær sikker på undermapperne er udpakket.",
   PLEASE_DONATE = "%h(QuestHelper er afhængig af dine bidrag!) Ethvert bidrag modtages med tak. Blot et par dollars om måneden, sikrer at jeg holder det opdateret og kørende. Skriv %h(\"/qh donate\") for yderligere oplysninger.",
   HOW_TO_CONFIGURE = "QuestHelper har endnu ikke en fungerende indstillingsside endnu, men kan konfigureres ved at skrive %h(/qh settings). Hjælp er tilgængelig med %h(/qh help).",
   TIME_TO_UPDATE = "Der er evt. en %h(ny QuestHelper version) klar. Nye versioner kan indeholde nye funktioner, nye quest databaser, og fejlrettelser. Opdater venligst!",
