@@ -8,7 +8,7 @@ io.write = function (...) orig_write(debug.getinfo(2,"n").name, ...) end
 
 local do_zone_map = false
 local do_errors = true
-local do_compile = false
+local do_compile = true
 
 require("persistence")
 require("compile_chain")
@@ -305,6 +305,48 @@ local chainhead = ChainBlock_Create("chainhead", nil,
 Monster collation
 ]]
 
+local srces = {
+ eng = {},
+ mine = {},
+ herb = {},
+ skin = {},
+ open = {},
+ extract = {},
+ de = {},
+ prospect = {},
+ mill = {},
+ 
+ loot = {ignoreyesno = true},
+ loot_trivial = {ignoreyesno = true},
+ 
+ rob = {ignoreyesno = true},
+ fish = {ignoreyesno = true},
+}
+
+local function loot_accumulate(source, sourcetok, Output)
+  for typ, specs in pairs(srces) do
+    if not specs[ignoreyesno] then
+      local yes = source[typ .. "_yes"] or 0
+      local no = source[typ .. "_no"] or 0
+      
+      if yes + no < 10 then continue end -- DENY
+      
+      if yes / (yes + no) < 0.95 then continue end -- DOUBLEDENY
+    end
+    
+    -- We don't actually care about frequency at the moment, just where people tend to get it from. This works in most cases.
+    if source[typ .. "_loot"] then for k, c in pairs(source[typ .. "_loot"]) do
+      Output(tostring(k), nil, {source = sourcetok, count = c, type = typ}, "loot")
+    end end
+  end
+  
+  for k, _ in pairs(source) do
+    if type(k) ~= "string" then continue end
+    local tag = k:match("([^_]+)_items")
+    assert(not tag or srces[tag])
+  end
+end
+
 local monster_slurp
 
 if do_compile then 
@@ -328,13 +370,15 @@ if do_compile then
           end
         end
         
-        -- someday we'll add more to this
+        -- accumulate names
         for k, v in pairs(value) do
           if type(k) == "string" then
             local q = string.match(k, "name_(.*)")
             if q then name_accumulate(self.accum.name, q, value.locale) end
           end
         end
+        
+        loot_accumulate(value, {type = "monster", id = tonumber(key)}, Output)
       end,
       
       Finish = function(self, Output)
@@ -352,7 +396,8 @@ if do_compile then
           break
         end
         if has_stuff then
-          Output("", nil, {id="monster", key=tonumber(key), data=qout})
+          assert(tonumber(key))
+          Output("", nil, {id="monster", key=tonumber(key), data=qout}, "output")
         end
       end,
     } end,
@@ -360,6 +405,7 @@ if do_compile then
   )
 end
 
+--[[
 local monster_pack
 if do_compile then 
   monster_pack = ChainBlock_Create("monster_pack", {monster_slurp},
@@ -377,7 +423,7 @@ if do_compile then
       end,
     } end
   )
-end
+end]]
 
 --[[
 *****************************************************************
@@ -387,13 +433,15 @@ Item collation
 local item_slurp
 
 if do_compile then
-  item_slurp = ChainBlock_Create("item_slurp", {chainhead},
+  local item_slurp_first = ChainBlock_Create("item_slurp", {chainhead},
     function (key) return {
       accum = {name = {}},
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
         name_accumulate(self.accum.name, value.name, value.locale)
+        
+        loot_accumulate(value, {type = "item", id = tonumber(key)}, Output)
       end,
       
       Finish = function(self, Output)
@@ -410,11 +458,80 @@ if do_compile then
           break
         end
         if has_stuff then
-          Output("", nil, {id="item", key=tonumber(key), data=qout})
+          Output(key, nil, {type = "core", data = qout}, "item")
         end
       end,
     } end,
     sortversion, "item"
+  )
+  
+  
+  -- Input to this module is kind of byzantine, so I'm documenting it here.
+  -- {Key, Subkey, Value}
+  
+  -- {999, nil, {source = {type = "monster", id = 12345}, count = 104, type = "skin"}}
+  -- Means: "We've seen 104 skinnings of item #999 from monster #12345"
+  local lootables = {}
+  if monster_slurp then table.insert(lootables, monster_slurp) end
+  if item_slurp_first then table.insert(lootables, item_slurp_first) end
+  
+  local loot_slurp = ChainBlock_Create("loot_slurp", lootables,
+    function (key) return {
+      lookup = setmetatable({__exists__ = {}}, 
+        {__index = function(self, key)
+          if not rawget(self, key.sourcetype) then self[key.sourcetype] = {} end
+          if not self[key.sourcetype][key.sourceid] then self[key.sourcetype][key.sourceid] = {} end
+          if not self[key.sourcetype][key.sourceid][key.type] then self[key.sourcetype][key.sourceid][key.type] = key  table.insert(self.__exists__, key) end
+          return self[key.sourcetype][key.sourceid][key.type]
+        end
+        }),
+      
+      -- Here's our actual data
+      Data = function(self, key, subkey, value, Output)
+        print("ldatin")
+        local vx = self.lookup[{sourcetype = value.source.type, sourceid = value.source.id, type = value.type}]
+        vx.w = (vx.w or 0) + value.count
+      end,
+      
+      Finish = function(self, Output)
+        local tacu = {}
+        for k, v in pairs(self.lookup.__exists__) do
+          table.insert(tacu, v)
+        end
+        
+        print("lootout")
+        Output(key, nil, {type = "loot", data = weighted_concept_finalize(tacu, 0.9, 10)}, "item")
+      end,
+    } end,
+    nil, "loot"
+  )
+  
+  item_slurp = ChainBlock_Create("item_merge", {item_slurp_first, loot_slurp},
+    function (key) return {
+      accum = {},
+      
+      -- Here's our actual data
+      Data = function(self, key, subkey, value, Output)
+        assert(not self.accum[value.type])
+        self.accum[value.type] = value.data
+      end,
+      
+      Finish = function(self, Output)
+        local qout = self.accum.core
+        if not qout then qout = {} end -- Surprisingly, we don't care much about the "core".
+        
+        if self.accum.loot then for k, v in pairs(self.accum.loot) do
+          qout[k] = v
+          qout.mergey = true
+        end end
+        
+        if key ~= "gold" then -- okay technically the whole thing could have been ignored, but
+          assert(tonumber(key))
+          Output("", nil, {id="item", key=tonumber(key), data=qout}, "output")
+        end
+      end,
+    } end,
+    nil, "item"
   )
 end
 
@@ -513,13 +630,12 @@ if do_compile then
           if v.type == "monster" then
             snaggy = find_important(v.monster, v.count)
           elseif v.type == "item" then
-            --snaggy = find_important(v.item, v.count)
+            snaggy = find_important(v.item, v.count)
           end
           
           if snaggy then
             assert(#snaggy > 0)
             qout.criteria[k] = {}
-            qout.criteria[k].snaggy = true
             for _, x in ipairs(snaggy) do
               table.insert(qout.criteria[k], {v.type, x.d})
             end
@@ -545,7 +661,8 @@ if do_compile then
           break
         end
         if has_stuff then
-          Output("", nil, {id="quest", key=tonumber(key), data=qout})
+          assert(tonumber(key))
+          Output("", nil, {id="quest", key=tonumber(key), data=qout}, "output")
         end
       end,
     } end,
@@ -644,6 +761,9 @@ local fileout = ChainBlock_Create("fileout", sources,
     finalfile = {},
     
     Data = function(self, key, subkey, value, Output)
+      assert(value.data)
+      assert(value.id)
+      assert(value.key)
       if value.data.name then value.data.name = value.data.name.enUS end -- needs improvement
       
       if not self.finalfile[value.id] then self.finalfile[value.id] = {} end
@@ -662,7 +782,8 @@ QuestHelper_Loadtime["static.lua"] = GetTime()
       
       fil:close()
     end,
-  } end
+  } end,
+  nil, "output"
 )
 
 --[[
@@ -756,7 +877,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
---local e = 100
+local e = 5
 
 flist = io.popen("ls data/08"):read("*a")
 local filz = {}

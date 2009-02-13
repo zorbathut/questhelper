@@ -70,99 +70,23 @@ end
 
 
 
-local inflight_bytes = 0
-
-local alist_start = 1
-local alist_end = 1
-local appender_list = {}
-
 local file_cache = {}
-
-local Appender = {}
-local Appender_mt = { __index = Appender }
-
-local function flush_one_appender()
-  assert(alist_start ~= alist_end)
-  appender_list[alist_start]:flush()
-  appender_list[alist_start].poison = true
-  local fid = appender_list[alist_start].fname
-  file_cache[fid] = nil
-  appender_list[alist_start] = nil
-  alist_start = alist_start + 1
-end
-local function make_appender(fname)
-  assert(fname)
-  
-  while inflight_bytes > 64 * 1024 * 1024 do
-    flush_one_appender()
-  end
-  
-  local ninst = {}
-  setmetatable(ninst, Appender_mt)
-  ninst.fname = fname
-  appender_list[alist_end] = ninst
-  alist_end = alist_end + 1
-  return ninst
-end
-function Appender:write(...)
-  assert(not self.poison)
-  for k, v in ipairs{...} do
-    inflight_bytes = inflight_bytes + #v
-    table.insert(self, v)
-    for i = #self - 1, 1, -1 do
-      if string.len(self[i]) > string.len(self[i + 1]) then break end
-      self[i] = self[i] .. table.remove(self, i + 1)
-    end
-  end
-end
-function Appender:flush()
-  assert(not self.poison)
-  if #self == 0 then return end
-  
-  ProgressMessage(string.format("Flushing cache %s ...", self.fname))
-  
-  local composite_name
-  while true do
-    composite_name = string.format("%s_%d", self.fname, math.random(10000))
-    local tst, rs = io.open(composite_name, "wx")
-    if rs and string.find(rs, "No such file or directory") then
-      assert(os.execute("mkdir -p " .. string.match(self.fname, "(.*)/.-")) == 0)
-    elseif tst then
-      tst:close()
-      break
-    end
-  end
-  
-  local f, reason = gzio.open(composite_name, "w")
-  assert(f, reason)
-  
-  for _, v in ipairs(self) do
-    --print(string.format("Flushing %d to %s", #v, self.fname))
-    inflight_bytes = inflight_bytes - #v
-    f:write(v)
-  end
-  
-  while #self > 0 do table.remove(self) end
-  
-  f:close()
-end
-
-
-
-local function flush_cache()
-  if file_cache then
-    for k, v in pairs(file_cache) do
-      v:flush()
-    end
-  end
-end
 
 local function get_file(fname)
   if file_cache[fname] then return file_cache[fname] end
-  file_cache[fname] = make_appender(fname)
+  file_cache[fname] = gzio.open(fname, "w")
+  if not file_cache[fname] then
+    assert(os.execute("mkdir -p " .. string.match(fname, "(.*)/.-")) == 0)
+    file_cache[fname] = gzio.open(fname, "w")
+  end
   return file_cache[fname]
 end
-
+local function flush_cache()
+  for k, v in pairs(file_cache) do
+    v:close()
+  end
+  file_cache = {}
+end
 
 
 
@@ -252,7 +176,7 @@ function ChainBlock_Work()
       
       for _, v in ipairs(jamtable) do
         local tab = pluto.unpersist({}, v)
-        tblock:Insert(tab.key, tab.subkey, tab.value)
+        tblock:Insert(tab.key, tab.subkey, tab.value, tblock.filter)
       end
     end
     
@@ -317,7 +241,7 @@ function ChainBlock_Create(id, linkfrom, factory, sortpred, filter)
 end
 
 function ChainBlock:Insert(key, subkey, value, identifier)
-  if self.filter and identifier and self.filter ~= identifier then return end
+  if self.filter and self.filter ~= identifier then return end
   
   if mode ~= MODE_SOLO and slaveblock ~= self.id then
     local f = get_file(string.format("temp/%s/%d/%s_%s", self.id, shardy(key, shard_count), md5_clean(key):sub(1,1), shard))
