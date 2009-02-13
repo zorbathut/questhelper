@@ -358,7 +358,6 @@ if do_compile then
       Data = function(self, key, subkey, value, Output)
         for _, v in ipairs(value) do
           if math.mod(#v, 13) ~= 0 then
-            print("Not synch!")
             return
           end
         end
@@ -488,7 +487,6 @@ if do_compile then
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
-        print("ldatin")
         local vx = self.lookup[{sourcetype = value.source.type, sourceid = value.source.id, type = value.type}]
         vx.w = (vx.w or 0) + value.count
       end,
@@ -499,7 +497,6 @@ if do_compile then
           table.insert(tacu, v)
         end
         
-        print("lootout")
         Output(key, nil, {type = "loot", data = weighted_concept_finalize(tacu, 0.9, 10)}, "item")
       end,
     } end,
@@ -877,7 +874,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
-local e = 5
+local e = 1000
 
 flist = io.popen("ls data/08"):read("*a")
 local filz = {}

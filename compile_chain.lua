@@ -244,7 +244,7 @@ function ChainBlock:Insert(key, subkey, value, identifier)
   if self.filter and self.filter ~= identifier then return end
   
   if mode ~= MODE_SOLO and slaveblock ~= self.id then
-    local f = get_file(string.format("temp/%s/%d/%s_%s", self.id, shardy(key, shard_count), md5_clean(key):sub(1,1), shard))
+    local f = get_file(string.format("temp/%s/%d/%s_%s_%s", self.id, shardy(key, shard_count), md5_clean(key):sub(1,1), (mode == MODE_MASTER and "master" or slaveblock), shard))
     f:write("table.insert(jamtable, ")
     f:write(string.format("%q", pluto.persist({}, {key = key, subkey = subkey, value = value})))
     f:write(")\n")
