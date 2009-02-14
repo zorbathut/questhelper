@@ -160,12 +160,31 @@ function ChainBlock_Work()
     end
     hnd:close()
     
+    local broadcasts = {}
+    for pos, line in ipairs(lines) do
+      if line:match("broadcast_.*") then
+      jamtable = {}
+        local fil = gzio.open(prefix .. "/" .. line, "r")
+        loadstring(fil:read("*a"))()
+        fil:close()
+        os.execute(string.format("rm %s/%s", prefix, line))
+        for _, v in ipairs(jamtable) do
+          table.insert(broadcasts, v)
+        end
+      end
+    end
+    
     for pos, line in ipairs(lines) do
       ProgressMessage(string.format("Processing %d/%d", pos, #lines))
       local tkey = string.match(line, "([a-f0-9]*)_.*")
       if tkey ~= ckey then
         tblock:Finish()
         ckey = tkey
+        
+        for k, v in ipairs(broadcasts) do
+          local tab = pluto.unpersist({}, v)
+          tblock:Broadcast(tab.id, tab.value)
+        end
       end
       
       jamtable = {}
@@ -223,10 +242,9 @@ function ChainBlock_Create(id, linkfrom, factory, sortpred, filter)
   ninst.data = {}
   ninst.linkto = {}
   ninst.broadcasted = {}
-  ninst.broadcasted_keyed = {}
   ninst.unfinished = 0
   ninst.process = function (key, subkey, value, identifier) for _, v in pairs(ninst.linkto) do v:Insert(key, subkey, value, identifier) end end
-  ninst.broadcast = function (subkey, value, identifier) for _, v in pairs(ninst.linkto) do v:Broadcast(subkey, value, identifier) end end
+  ninst.broadcast = function (id, value) for _, v in pairs(ninst.linkto) do v:Broadcast(id, value) end end
   if linkfrom then
     for k, v in pairs(linkfrom) do
       v:AddLinkTo(ninst)
@@ -259,25 +277,37 @@ function ChainBlock:Insert(key, subkey, value, identifier)
   end
 end
 
---[[
-function ChainBlock:Broadcast(subkey, value, identifier)
-  if self.filter and identifier and self.filter ~= identifier then return end
 
-  if subkey then
-    table.insert(self.broadcasted_keyed, {subkey = subkey, value = value})
+function ChainBlock:Broadcast(id, value)
+  if mode ~= MODE_SOLO and slaveblock ~= self.id then
+    for k = 1, shard_count do
+      local f = get_file(string.format("temp/%s/%d/broadcast_%s_%s", self.id, k, (mode == MODE_MASTER and "master" or slaveblock), shard))
+      f:write("table.insert(jamtable, ")
+      f:write(string.format("%q", pluto.persist({}, {id = id, value = value})))
+      f:write(")\n")
+    end
   else
-    table.insert(self.broadcasted, value)
+    table.insert(self.broadcasted, {id = id, value = value})
   end
 end
-]]
+
+
+local finish_root_node = true
+
+local timing = {}
 
 function ChainBlock:Finish()
   if mode == MODE_MASTER then
+  
+    local frn = finish_root_node
+    finish_root_node = false
   
     flush_cache()
     
     self.unfinished = self.unfinished - 1
     if self.unfinished > 0 then return end -- NOT . . . FINISHED . . . YET
+    
+    local start = os.time()
     
     local pypes = {}
     for k = 1, shard_count do
@@ -287,8 +317,16 @@ function ChainBlock:Finish()
       v:close()
     end
     
+    table.insert(timing, {id = self.id, dur = os.time() - start})
+    
     for _, v in pairs(self.linkto) do
       v:Finish()
+    end
+    
+    if frn then
+      for k, v in ipairs(timing) do
+        print(string.format("%20s %4d", v.id, v.dur))
+      end
     end
     
   elseif mode == MODE_SLAVE and slaveblock ~= self.id then
@@ -306,7 +344,7 @@ function ChainBlock:Finish()
     if #self.broadcasted > 0 then
       for k, v in pairs(self.items) do
         for _, d in pairs(self.broadcasted) do
-          v:Data(k, nil, v, self.process, self.broadcast)
+          v:Receive(d.id, d.value)
         end
       end
     end
@@ -315,10 +353,6 @@ function ChainBlock:Finish()
     for k, v in pairs(self.data) do
       ProgressMessage(string.format("Sorting %s, %d/%d", self.id, sdcc, sdc))
       sdcc = sdcc + 1
-      
-      for _, bv in ipairs(self.broadcasted_keyed) do
-        table.insert(v, bv)
-      end
       
       if self.sortpred then
         table.sort(v, function (a, b) return self.sortpred(a.subkey, b.subkey) end)
@@ -338,7 +372,6 @@ function ChainBlock:Finish()
       
       self.data[k] = 0 -- This is kind of like setting it to nil, but instead of not working, it does work.
     end
-    self.broadcasted_keyed = {}
     
     if mode == MODE_SOLO then print("Finishing " .. self.id) end
     
@@ -371,6 +404,7 @@ function ChainBlock:GetItem(key)
 end
 
 function ChainBlock:GetData(key)
+  self:GetItem(key) -- just to ensure
   if not self.data[key] then self.data[key] = {} end
   return self.data[key]
 end

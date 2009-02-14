@@ -212,7 +212,7 @@ end
 Chain head
 ]]
 
-local chainhead = ChainBlock_Create("chainhead", nil,
+local chainhead = ChainBlock_Create("parse", nil,
   function () return {
     Data = function (self, key, subkey, value, Output)
       dat = loadfile(key)()
@@ -325,7 +325,7 @@ local srces = {
 
 local function loot_accumulate(source, sourcetok, Output)
   for typ, specs in pairs(srces) do
-    if not specs[ignoreyesno] then
+    if not specs.ignoreyesno then
       local yes = source[typ .. "_yes"] or 0
       local no = source[typ .. "_no"] or 0
       
@@ -429,10 +429,11 @@ end]]
 Item collation
 ]]
 
+local item_name_package
 local item_slurp
 
 if do_compile then
-  local item_slurp_first = ChainBlock_Create("item_slurp", {chainhead},
+  local item_slurp_first = ChainBlock_Create("item_parse", {chainhead},
     function (key) return {
       accum = {name = {}},
       
@@ -451,6 +452,8 @@ if do_compile then
         -- we don't actually care about the level, so we don't bother to store it. Really, we only care about the name for debug purposes also, so we should probably get rid of it before release.
         qout.name = self.accum.name
         
+        Output("", nil, {key = key, name = qout.name}, "name")
+        
         local has_stuff = false
         for k, v in pairs(qout) do
           has_stuff = true
@@ -464,6 +467,22 @@ if do_compile then
     sortversion, "item"
   )
   
+  item_name_package = ChainBlock_Create("item_name_package", {item_slurp_first},
+    function (key) return {
+      accum = {},
+      
+      -- Here's our actual data
+      Data = function(self, key, subkey, value, Output)
+        assert(not self.accum[value.key])
+        self.accum[value.key] = value.name
+      end,
+      
+      Finish = function(self, Output, Broadcast)
+        Broadcast("item_name_package", self.accum)
+      end,
+    } end,
+    nil, "name"
+  )
   
   -- Input to this module is kind of byzantine, so I'm documenting it here.
   -- {Key, Subkey, Value}
@@ -474,7 +493,7 @@ if do_compile then
   if monster_slurp then table.insert(lootables, monster_slurp) end
   if item_slurp_first then table.insert(lootables, item_slurp_first) end
   
-  local loot_slurp = ChainBlock_Create("loot_slurp", lootables,
+  local loot_merge = ChainBlock_Create("loot_merge", lootables,
     function (key) return {
       lookup = setmetatable({__exists__ = {}}, 
         {__index = function(self, key)
@@ -503,7 +522,7 @@ if do_compile then
     nil, "loot"
   )
   
-  item_slurp = ChainBlock_Create("item_merge", {item_slurp_first, loot_slurp},
+  item_slurp = ChainBlock_Create("item_slurp", {item_slurp_first, loot_slurp},
     function (key) return {
       accum = {},
       
@@ -549,7 +568,7 @@ if do_compile then
     return weighted_concept_finalize(mungedat, 0.9, 10) -- this is not ideal, but it's functional
   end
 
-  quest_slurp = ChainBlock_Create("quest_slurp", {chainhead},
+  quest_slurp = ChainBlock_Create("quest_slurp", {chainhead, item_name_package},
     function (key) return {
       accum = {name = {}, criteria = {}, level = {}, start = {}, finish = {}},
       
@@ -609,6 +628,10 @@ if do_compile then
         list_accumulate(self.accum, "level", value.level)
       end,
       
+      Receive = function(self, id, data)
+        self.namedb = data
+      end,
+      
       Finish = function(self, Output)
         self.accum.name = name_resolve(self.accum.name)
         self.accum.level = list_most_common(self.accum.level)
@@ -623,18 +646,20 @@ if do_compile then
           -- temp debug output
           -- We shouldn't actually be doing this, we should be figuring out which monsters and items this really correlates to.
           -- We're currently not. However, this will require correlating with the names for monsters and items.
-          local snaggy
+          local snaggy, typ
           if v.type == "monster" then
             snaggy = find_important(v.monster, v.count)
+            typ = "kill"
           elseif v.type == "item" then
             snaggy = find_important(v.item, v.count)
+            typ = "get"
           end
           
           if snaggy then
             assert(#snaggy > 0)
             qout.criteria[k] = {}
             for _, x in ipairs(snaggy) do
-              table.insert(qout.criteria[k], {v.type, x.d})
+              table.insert(qout.criteria[k], {sourcetype = v.type, sourceid = x.d, type = typ})
             end
           else
             -- Fallback code if it can't figure out which monster or item it actually needs. Right now, it's the only code.
@@ -874,7 +899,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
-local e = 1000
+local e = 25
 
 flist = io.popen("ls data/08"):read("*a")
 local filz = {}
