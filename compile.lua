@@ -549,7 +549,6 @@ if do_compile then
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
-        print(string.format("snatched %s/%s", key, value.type))
         assert(not self.accum[value.type])
         self.accum[value.type] = value.data
       end,
@@ -583,9 +582,13 @@ local quest_slurp
 if do_compile then
   local function find_important(dat, count)
     local mungedat = {}
+    local tweight = 0
     for k, v in pairs(dat) do
       table.insert(mungedat, {d = k, w = v})
+      tweight = tweight + v
     end
+    
+    if tweight < count / 2 then return end  -- we just don't have enough, something's gone wrong
     
     return weighted_concept_finalize(mungedat, 0.9, 10, count) -- this is not ideal, but it's functional
   end

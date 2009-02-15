@@ -190,6 +190,8 @@ function ChainBlock_Work()
     end
     
     for pos, line in ipairs(lines) do
+      ProgressMessage(string.format("Progress, %d/%d", pos, #lines))
+      
       if line:match("broadcast_.*") then continue end
       
       local tkey = string.match(line, "([a-f0-9]*)_.*")
@@ -204,7 +206,9 @@ function ChainBlock_Work()
       end
       
       local fil = gzio.open(prefix .. "/" .. line, "r")
-      local str = fil:read("*a")
+      local str, err = fil:read("*a")
+      
+      assert(str, err)
 
       fil:close()
 
