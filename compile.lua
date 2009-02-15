@@ -10,6 +10,8 @@ local do_zone_map = false
 local do_errors = true
 local do_compile = true
 
+local dbg_data = true
+
 require("persistence")
 require("compile_chain")
 require("compile_debug")
@@ -63,18 +65,20 @@ end
 Weighted multi-concept accumulation
 ]]
 
-local function weighted_concept_finalize(data, fraction, minimum)
+local function weighted_concept_finalize(data, fraction, minimum, total_needed)
   if #data == 0 then return end
 
   fraction = fraction or 0.9
   minimum = minimum or 1
   
-  
   table.sort(data, function (a, b) return a.w > b.w end)
 
-  local tw = 0
-  for _, v in pairs(data) do
-    tw = tw + v.w
+  local tw = total_needed
+  if not tw then
+    tw = 0
+    for _, v in pairs(data) do
+      tw = tw + v.w
+    end
   end
   
   local ept
@@ -82,10 +86,18 @@ local function weighted_concept_finalize(data, fraction, minimum)
   for k, v in pairs(data) do
     wacu = wacu + v.w
     v.w = nil
-    if wacu >= tw * fraction or (data[k + 1] and data[k + 1].w < minimum) then
+    if wacu >= tw * fraction or (data[k + 1] and data[k + 1].w < minimum) or not data[k + 1] then
       ept = k
       break
     end
+  end
+  
+  if not ept then
+    print(total_needed)
+    for k, v in pairs(data) do
+      print("", v.w)
+    end
+    assert(false)
   end
   assert(ept, tw)
   
@@ -293,7 +305,7 @@ local chainhead = ChainBlock_Create("parse", nil,
             end end
           end end
         else
-          print("Dumped, locale " .. verchunk)
+          --print("Dumped, locale " .. verchunk)
         end
       end
     end
@@ -336,7 +348,9 @@ local function loot_accumulate(source, sourcetok, Output)
     
     -- We don't actually care about frequency at the moment, just where people tend to get it from. This works in most cases.
     if source[typ .. "_loot"] then for k, c in pairs(source[typ .. "_loot"]) do
-      Output(tostring(k), nil, {source = sourcetok, count = c, type = typ}, "loot")
+      if k ~= "gold" then
+        Output(tostring(k), nil, {source = sourcetok, count = c, type = typ}, "loot")
+      end
     end end
   end
   
@@ -504,17 +518,24 @@ if do_compile then
         end
         }),
       
+      dtime = 0,
+      
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
+        --local st = os.time()
         local vx = self.lookup[{sourcetype = value.source.type, sourceid = value.source.id, type = value.type}]
         vx.w = (vx.w or 0) + value.count
+        --self.dtime = self.dtime + os.time() - st
       end,
       
       Finish = function(self, Output)
+        --local st = os.time()
         local tacu = {}
         for k, v in pairs(self.lookup.__exists__) do
           table.insert(tacu, v)
         end
+        
+        --local tacuc = #tacu
         
         Output(key, nil, {type = "loot", data = weighted_concept_finalize(tacu, 0.9, 10)}, "item")
       end,
@@ -522,12 +543,13 @@ if do_compile then
     nil, "loot"
   )
   
-  item_slurp = ChainBlock_Create("item_slurp", {item_slurp_first, loot_slurp},
+  item_slurp = ChainBlock_Create("item_slurp", {item_slurp_first, loot_merge},
     function (key) return {
       accum = {},
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
+        print(string.format("snatched %s/%s", key, value.type))
         assert(not self.accum[value.type])
         self.accum[value.type] = value.data
       end,
@@ -565,7 +587,7 @@ if do_compile then
       table.insert(mungedat, {d = k, w = v})
     end
     
-    return weighted_concept_finalize(mungedat, 0.9, 10) -- this is not ideal, but it's functional
+    return weighted_concept_finalize(mungedat, 0.9, 10, count) -- this is not ideal, but it's functional
   end
 
   quest_slurp = ChainBlock_Create("quest_slurp", {chainhead, item_name_package},
@@ -658,6 +680,14 @@ if do_compile then
           if snaggy then
             assert(#snaggy > 0)
             qout.criteria[k] = {}
+            
+            if dbg_data then
+              qout.criteria[k].item = v.item
+              qout.criteria[k].monster = v.monster
+              qout.criteria[k].count = v.count
+              qout.criteria[k].type = v.type
+            end
+            
             for _, x in ipairs(snaggy) do
               table.insert(qout.criteria[k], {sourcetype = v.type, sourceid = x.d, type = typ})
             end
@@ -684,6 +714,7 @@ if do_compile then
         end
         if has_stuff then
           assert(tonumber(key))
+          --print("Quest output " .. tostring(key))
           Output("", nil, {id="quest", key=tonumber(key), data=qout}, "output")
         end
       end,
@@ -899,7 +930,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
-local e = 25
+local e = 1000
 
 flist = io.popen("ls data/08"):read("*a")
 local filz = {}

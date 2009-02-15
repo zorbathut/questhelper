@@ -11,4 +11,3 @@ def command(name, deps, line):
 lib = SharedLibrary(target = "compile_core", source = ["compile_core.cpp"], CPPPATH="/usr/include/lua5.1", LIBS=["luabind", "png"], CXXFLAGS="-g", LINKFLAGS="-g")
 command("compile", lib, "luajit -O2 compile.lua master 192.168.42.64 192.168.42.64 192.168.42.64 192.168.42.65 192.168.42.65 192.168.42.65")
 command("compile_local", lib, "luajit -O2 compile.lua")
-

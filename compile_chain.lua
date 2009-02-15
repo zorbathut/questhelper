@@ -57,6 +57,7 @@ require("md5")
 require("persistence")
 require("pluto")
 require("gzio")
+require("bit")
 
 local nextProgressTime = 0
 
@@ -64,10 +65,26 @@ local function ProgressMessage(msg)
   if os.time() > nextProgressTime then
     nextProgressTime = os.time() + 1
     print(msg)
-    io.stdout:flush()
   end
 end
 
+
+local function persist_dump(dat)
+  local len = #dat
+  return string.char(bit.band(#dat, 0xff), bit.band(#dat, 0xff00) / 256, bit.band(#dat, 0xff0000) / 65536, bit.band(#dat, 0xff000000) / 16777216) .. dat
+end
+
+local function persist_split(dat, dest)
+  local cp = 1
+  while cp <= #dat do
+    assert(cp + 4 <= #dat)
+    local a, b, c, d = dat:byte(cp, cp + 3)
+    cp = cp + 4
+    local len = a + b * 256 + c * 65536 + d * 16777216
+    table.insert(dest, dat:sub(cp, cp + len))
+    cp = cp + len
+  end
+end
 
 
 local file_cache = {}
@@ -135,7 +152,7 @@ function ChainBlock_Init(init_f)
     
     local print_bk = print
     local shardid = string.format("Shard %d/%d %s", shard, shard_count, slaveblock)
-    print = function(...) print_bk(shardid, ...) end
+    print = function(...) print_bk(shardid, ...) io.stdout:flush() end
     
     ProgressMessage("Starting")
   elseif arg[1] then
@@ -163,19 +180,18 @@ function ChainBlock_Work()
     local broadcasts = {}
     for pos, line in ipairs(lines) do
       if line:match("broadcast_.*") then
-      jamtable = {}
         local fil = gzio.open(prefix .. "/" .. line, "r")
-        loadstring(fil:read("*a"))()
+        local dat = fil:read("*a")
         fil:close()
         os.execute(string.format("rm %s/%s", prefix, line))
-        for _, v in ipairs(jamtable) do
-          table.insert(broadcasts, v)
-        end
+        
+        persist_split(dat, broadcasts)
       end
     end
     
     for pos, line in ipairs(lines) do
-      ProgressMessage(string.format("Processing %d/%d", pos, #lines))
+      if line:match("broadcast_.*") then continue end
+      
       local tkey = string.match(line, "([a-f0-9]*)_.*")
       if tkey ~= ckey then
         tblock:Finish()
@@ -187,14 +203,21 @@ function ChainBlock_Work()
         end
       end
       
-      jamtable = {}
       local fil = gzio.open(prefix .. "/" .. line, "r")
-      loadstring(fil:read("*a"))()
+      local str = fil:read("*a")
+
       fil:close()
+
       os.execute(string.format("rm %s/%s", prefix, line))
       
-      for _, v in ipairs(jamtable) do
-        local tab = pluto.unpersist({}, v)
+      local strs = {}
+      persist_split(str, strs)
+      
+      local up = {}
+      for _, v in ipairs(strs) do
+        table.insert(up, pluto.unpersist({}, v))
+      end
+      for _, tab in ipairs(up) do
         tblock:Insert(tab.key, tab.subkey, tab.value, tblock.filter)
       end
     end
@@ -258,14 +281,13 @@ function ChainBlock_Create(id, linkfrom, factory, sortpred, filter)
   return ninst
 end
 
+
 function ChainBlock:Insert(key, subkey, value, identifier)
   if self.filter and self.filter ~= identifier then return end
   
   if mode ~= MODE_SOLO and slaveblock ~= self.id then
     local f = get_file(string.format("temp/%s/%d/%s_%s_%s", self.id, shardy(key, shard_count), md5_clean(key):sub(1,1), (mode == MODE_MASTER and "master" or slaveblock), shard))
-    f:write("table.insert(jamtable, ")
-    f:write(string.format("%q", pluto.persist({}, {key = key, subkey = subkey, value = value})))
-    f:write(")\n")
+    f:write(persist_dump(pluto.persist({}, {key = key, subkey = subkey, value = value})))
   else
     if not subkey then
       if value.fileid then push_file_id(value.fileid) else push_file_id(-1) end
@@ -282,9 +304,7 @@ function ChainBlock:Broadcast(id, value)
   if mode ~= MODE_SOLO and slaveblock ~= self.id then
     for k = 1, shard_count do
       local f = get_file(string.format("temp/%s/%d/broadcast_%s_%s", self.id, k, (mode == MODE_MASTER and "master" or slaveblock), shard))
-      f:write("table.insert(jamtable, ")
-      f:write(string.format("%q", pluto.persist({}, {id = id, value = value})))
-      f:write(")\n")
+      f:write(persist_dump(pluto.persist({}, {id = id, value = value})))
     end
   else
     table.insert(self.broadcasted, {id = id, value = value})
@@ -335,7 +355,7 @@ function ChainBlock:Finish()
     self.unfinished = self.unfinished - 1
     if self.unfinished > 0 and mode == MODE_SOLO then return end -- NOT . . . FINISHED . . . YET
     
-    if mode == MODE_SOLO then print("Sorting " .. self.id) end
+    if mode == MODE_SOLO then print("Broadcasting " .. self.id) end
     
     local sdc = 0
     for k, v in pairs(self.data) do sdc = sdc + 1 end
@@ -349,6 +369,8 @@ function ChainBlock:Finish()
       end
     end
     self.broadcasted = {}
+    
+    if mode == MODE_SOLO then print("Sorting " .. self.id) end
     
     for k, v in pairs(self.data) do
       ProgressMessage(string.format("Sorting %s, %d/%d", self.id, sdcc, sdc))
