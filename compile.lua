@@ -221,6 +221,84 @@ end
 
 --[[
 *****************************************************************
+Loot accumulation functions
+]]
+
+local srces = {
+ eng = {},
+ mine = {},
+ herb = {},
+ skin = {},
+ open = {},
+ extract = {},
+ de = {},
+ prospect = {},
+ mill = {},
+ 
+ loot = {ignoreyesno = true},
+ loot_trivial = {ignoreyesno = true, become = "loot"},
+ 
+ rob = {ignoreyesno = true},
+ fish = {ignoreyesno = true},
+}
+
+local function loot_accumulate(source, sourcetok, Output)
+  for typ, specs in pairs(srces) do
+    if not specs.ignoreyesno then
+      local yes = source[typ .. "_yes"] or 0
+      local no = source[typ .. "_no"] or 0
+      
+      if yes + no < 10 then continue end -- DENY
+      
+      if yes / (yes + no) < 0.95 then continue end -- DOUBLEDENY
+    end
+    
+    -- We don't actually care about frequency at the moment, just where people tend to get it from. This works in most cases.
+    if source[typ .. "_loot"] then for k, c in pairs(source[typ .. "_loot"]) do
+      if k ~= "gold" then
+        Output(tostring(k), nil, {source = sourcetok, count = c, type = specs.become or typ}, "loot")
+      end
+    end end
+  end
+  
+  for k, _ in pairs(source) do
+    if type(k) ~= "string" then continue end
+    local tag = k:match("([^_]+)_items")
+    assert(not tag or srces[tag])
+  end
+end
+
+--[[
+*****************************************************************
+Standard data accumulation functions
+]]
+
+local function standard_pos_accum(accum, value)
+  for _, v in ipairs(value) do
+    if math.mod(#v, 13) ~= 0 then
+      return true
+    end
+  end
+  
+  for _, v in ipairs(value) do
+    for off = 1, #v, 13 do
+      local tite = slice_loc(v:sub(off, off + 10))
+      if tite then position_accumulate(accum.loc, tite) end
+    end
+  end
+end
+
+local function standard_name_accum(accum, value)
+  for k, v in pairs(value) do
+    if type(k) == "string" then
+      local q = string.match(k, "name_(.*)")
+      if q then name_accumulate(accum.name, q, value.locale) end
+    end
+  end
+end
+
+--[[
+*****************************************************************
 Chain head
 ]]
 
@@ -257,14 +335,20 @@ local chainhead = ChainBlock_Create("parse", nil,
           if do_compile and v.item then for iid, idat in pairs(v.item) do
             idat.fileid = value.fileid
             idat.locale = locale
-            Output(string.format("%d", iid), qhv, idat, "item")
+            Output(tostring(iid), qhv, idat, "item")
           end end
           
           -- monsters!
           if do_compile and v.monster then for mid, mdat in pairs(v.monster) do
             mdat.fileid = value.fileid
             mdat.locale = locale
-            Output(string.format("%d", mid), qhv, mdat, "monster")
+            Output(tostring(mid), qhv, mdat, "monster")
+          end end
+          
+          -- objects!
+          if do_compile and v.object then for oid, odat in pairs(v.object) do
+            odat.fileid = value.fileid
+            Output(string.format("%s@@%s", oid, locale), qhv, odat, "object")
           end end
           
           -- zones!
@@ -314,52 +398,189 @@ local chainhead = ChainBlock_Create("parse", nil,
 
 --[[
 *****************************************************************
-Monster collation
+Object collation
 ]]
 
-local srces = {
- eng = {},
- mine = {},
- herb = {},
- skin = {},
- open = {},
- extract = {},
- de = {},
- prospect = {},
- mill = {},
- 
- loot = {ignoreyesno = true},
- loot_trivial = {ignoreyesno = true},
- 
- rob = {ignoreyesno = true},
- fish = {ignoreyesno = true},
-}
+local object_slurp
 
-local function loot_accumulate(source, sourcetok, Output)
-  for typ, specs in pairs(srces) do
-    if not specs.ignoreyesno then
-      local yes = source[typ .. "_yes"] or 0
-      local no = source[typ .. "_no"] or 0
+if do_compile then 
+  local object_locate = ChainBlock_Create("object_locate", {chainhead},
+    function (key) return {
+      accum = {name = {}, loc = {}},
       
-      if yes + no < 10 then continue end -- DENY
+      -- Here's our actual data
+      Data = function(self, key, subkey, value, Output)
+        local name, locale = key:match("(.*)@@(.*)")
+        
+        if standard_pos_accum(self.accum, value) then return end
+        
+        while #value > 0 do table.remove(value) end
+        
+        table.insert(accum, value)
+      end,
       
-      if yes / (yes + no) < 0.95 then continue end -- DOUBLEDENY
-    end
-    
-    -- We don't actually care about frequency at the moment, just where people tend to get it from. This works in most cases.
-    if source[typ .. "_loot"] then for k, c in pairs(source[typ .. "_loot"]) do
-      if k ~= "gold" then
-        Output(tostring(k), nil, {source = sourcetok, count = c, type = typ}, "loot")
+      Finish = function(self, Output, Broadcast)
+        local name, locale = key:match("(.*)@@(.*)")
+        
+        local qout = {}
+        
+        if position_has(self.accum.loc) then
+          qout.loc = position_finalize(self.accum.loc)
+        else
+          return  -- BZZZZZT
+        end
+        
+        if locale == "enUS" then
+          Broadcast("object", {name = name, loc = self.accum.loc})
+          Output("", nil, {type = "data", name = key, data = self.accum}, "combine")
+        else
+          Output(key, nil, self.accum.loc, "link")
+          Output("", nil, {type = "data", name = key, data = self.accum}, "combine")
+        end
+      end,
+    } end,
+    sortversion, "object"
+  )
+  
+  local function find_closest(loc, locblock)
+    local closest = 5000000000  -- yeah, that's five billion. five fuckin' billion.
+    for _, ite in ipairs(locblock) do
+      if loc.c == locblock.c then
+        local tx = loc.x - locblock.x
+        local ty = loc.y - locblock.y
+        local d = tx * tx + ty * ty
+        if d < closest then
+          closest = d
+        end
       end
-    end end
+    end
+    return closest
   end
   
-  for k, _ in pairs(source) do
-    if type(k) ~= "string" then continue end
-    local tag = k:match("([^_]+)_items")
-    assert(not tag or srces[tag])
-  end
+  local object_link = ChainBlock_Create("object_link", {object_locate},
+    function (key) return {
+      
+      compare = {},
+      
+      -- Here's our actual data
+      Data = function(self, key, subkey, value, Output)
+        assert(not self.key)
+        assert(not self.value)
+        
+        self.key = key
+        self.value = value
+      end,
+      
+      Receive = function(self, id, data)
+        assert(id == "object")
+        assert(data)
+        assert(not self.compare[data.name])
+        
+        self.compare[data.name] = data.loc
+      end,
+      
+      Finish = function(self, Output, Broadcast)
+        assert(self.key)
+        assert(self.value)
+        assert(self.compare)
+        
+        local results = {}
+        
+        for enuname, loca in pairs(self.compare) do
+          local yaku = 0
+          for _, cl in ipairs(loca) do
+            yaku = yaku + find_closest(cl, self.loc)
+          end
+          for _, cl in ipairs(self.loc) do
+            yaku = yaku + find_closest(cl, loca.loc)
+          end
+          yaku = yaku / (#loca + #self.loc)
+          assert(not results[enuname])
+          results[enuname] = loca
+        end
+        
+        Output("", nil, {type = "linkage", key = key, data = results})
+      end,
+    } end
+  )
+  
+  local object_combine = ChainBlock_Create("object_combine", {object_locate, object_link},
+    function (key) return {
+    
+      local source = {}
+      local links = {}
+    
+      Data = function(self, key, subkey, value, Output)
+        if value.type == "data" then
+          assert(not source[value.key])
+          source[value.key] = value.data
+        elseif value.type == "linkage" then
+          assert(not links[value.key])
+          links[value.key] = value.data
+          -- insert shit into a heap
+        end
+      end,
+      
+      Receive = function() end,
+      
+      Finish = function(self, Output, Broadcast)
+        -- pull shit out of the heap, link things up
+        
+        -- determine unique IDs for everything we have left
+        
+        -- output stuff for actual parsing and processing of any remaining data
+        -- also, output a chart of what we linked
+        -- remember to output that chart in order-of-linkage
+      end,
+    } end,
+    nil, "combine"
+  )
+  
+  
+  -- then, now that we finally have IDs, we do our standard mambo of stuff
+  
+  
+  --[[object_slurp = ChainBlock_Create("object_slurp", {chainhead},
+    function (key) return {
+      accum = {name = {}, loc = {}},
+      
+      -- Here's our actual data
+      Data = function(self, key, subkey, value, Output)
+        if standard_pos_accum(self.accum, value) then return end
+        name_accumulate(self.accum.name, key, value.locale)
+        
+        while #value > 0 do table.remove(value) end
+        value.locale = nil
+        
+        table.insert(accum, value)
+      end,
+      
+      Finish = function(self, Output)
+        self.accum.name = name_resolve(self.accum.name)
+        
+        local qout = {}
+        
+        if dbg_data then qout.name = self.accum.name end
+        if position_has(self.accum.loc) then qout.loc = position_finalize(self.accum.loc) end
+        
+        local has_stuff = false
+        for k, v in pairs(qout) do
+          has_stuff = true
+          break
+        end
+        if has_stuff then
+          Output("", nil, {id="object", key=key, data=qout}, "output")
+        end
+      end,
+    } end,
+    sortversion, "object"
+  )]]
 end
+
+--[[
+*****************************************************************
+Monster collation
+]]
 
 local monster_slurp
 
@@ -370,26 +591,8 @@ if do_compile then
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
-        for _, v in ipairs(value) do
-          if math.mod(#v, 13) ~= 0 then
-            return
-          end
-        end
-        
-        for _, v in ipairs(value) do
-          for off = 1, #v, 13 do
-            local tite = slice_loc(v:sub(off, off + 10))
-            if tite then position_accumulate(self.accum.loc, tite) end
-          end
-        end
-        
-        -- accumulate names
-        for k, v in pairs(value) do
-          if type(k) == "string" then
-            local q = string.match(k, "name_(.*)")
-            if q then name_accumulate(self.accum.name, q, value.locale) end
-          end
-        end
+        if standard_pos_accum(self.accum, value) then return end
+        if standard_name_accum(self.accum, value) then return end
         
         loot_accumulate(value, {type = "monster", id = tonumber(key)}, Output)
       end,
@@ -400,7 +603,7 @@ if do_compile then
         local qout = {}
         
         -- we don't actually care about the level, so we don't bother to store it. Really, we only care about the name for debug purposes also, so we should probably get rid of it before release.
-        qout.name = self.accum.name
+        if dbg_data then qout.name = self.accum.name end
         if position_has(self.accum.loc) then qout.loc = position_finalize(self.accum.loc) end
         
         local has_stuff = false
@@ -464,7 +667,7 @@ if do_compile then
         local qout = {}
         
         -- we don't actually care about the level, so we don't bother to store it. Really, we only care about the name for debug purposes also, so we should probably get rid of it before release.
-        qout.name = self.accum.name
+        if dbg_data then qout.name = self.accum.name end
         
         Output("", nil, {key = key, name = qout.name}, "name")
         
@@ -708,7 +911,7 @@ if do_compile then
         if position_has(self.accum.finish) then qout.finish = { loc = position_finalize(self.accum.finish) } end
         
         -- we don't actually care about the level, so we don't bother to store it. Really, we only care about the name for debug purposes also, so we should probably get rid of it before release.
-        qout.name = self.accum.name
+        if dbg_data then qout.name = self.accum.name end
         
         local has_stuff = false
         for k, v in pairs(qout) do
@@ -811,6 +1014,7 @@ local sources = {}
 if quest_slurp then table.insert(sources, quest_slurp) end
 if item_slurp then table.insert(sources, item_slurp) end
 if monster_slurp then table.insert(sources, monster_slurp) end
+if object_slurp then table.insert(sources, object_slurp) end
 
 local fileout = ChainBlock_Create("fileout", sources,
   function (key) return {
@@ -933,7 +1137,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
-local e = 1000
+--local e = 1000
 
 flist = io.popen("ls data/08"):read("*a")
 local filz = {}
