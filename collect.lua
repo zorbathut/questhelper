@@ -81,7 +81,7 @@ function QH_Collector_Init()
   end
   
   local sig = string.format("%s on %s/%s/%d", GetAddOnMetadata("QuestHelper", "Version"), GetBuildInfo(), GetLocale(), QuestHelper:PlayerFaction())
-  if not QuestHelper_Collector[sig] then QuestHelper_Collector[sig] = {} end
+  if not QuestHelper_Collector[sig] or QuestHelper_Collector[sig].compressed then QuestHelper_Collector[sig] = {} end -- fuckin' bullshit, man
   local QHCData = QuestHelper_Collector[sig]
   assert(not QHCData.compressed)
   QHCData.modified = time()
