@@ -3,6 +3,8 @@
 
 * Compress old collected data. Should reduce memory requirements substantially, after a period of time in which it uses far more memory than it used to. May also improve load speed.
 * Add some extra data I need to actually cull old data in the future, which should reduce memory usage further (once I implement it)
+* Trying to track down and fix the collect_spec.lua issue. Do you use a PowerPC Mac? Get in touch with me! I want you to help me debug this!
+* Maybe fix the tracker.lua compare-nil-with-number issue
 * Standard db/translation update
 
 == Version 0.87 2/11/2009 ==
