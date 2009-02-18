@@ -1,4 +1,10 @@
 
+== Version 0.88 2/18/2009 ==
+
+* Compress old collected data. Should reduce memory requirements substantially, after a period of time in which it uses far more memory than it used to. May also improve load speed.
+* Add some extra data I need to actually cull old data in the future, which should reduce memory usage further (once I implement it)
+* Standard db/translation update
+
 == Version 0.87 2/11/2009 ==
 
 * Update translations
