@@ -4,17 +4,17 @@ QuestHelper_Loadtime["collect_spec.lua"] = GetTime()
 local Bitstream
 
 local classlookup = {
-  DEATHKNIGHT = "K",
-  DRUID = "D",
-  HUNTER = "H",
-  MAGE = "M",
-  PALADIN = "N",
-  PRIEST = "P",
-  ROGUE = "R",
-  SHAMAN = "S",
-  WARLOCK = "L",
-  WARRIOR = "W",
-}
+  ["DEATHKNIGHT"] = "K",
+  ["DRUID"] = "D",
+  ["HUNTER"] = "H",
+  ["MAGE"] = "M",
+  ["PALADIN"] = "N",
+  ["PRIEST"] = "P",
+  ["ROGUE"] = "R",
+  ["SHAMAN"] = "S",
+  ["WARLOCK"] = "L",
+  ["WARRIOR"] = "W"
+};
 
 local function GetSpecBolus()
   local _, id = UnitClass("player")
