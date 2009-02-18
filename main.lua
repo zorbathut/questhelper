@@ -46,6 +46,9 @@ QuestHelper_DefaultPref =
   map_button = true
  }
 
+-- We do it here also in case things decide they care about preferences before the init function is called. Shouldn't happen, but maybe does.
+setmetatable(QuestHelper_Pref, {__index=QuestHelper_DefaultPref})
+
 QuestHelper_FlightInstructors = {}
 QuestHelper_FlightLinks = {}
 QuestHelper_FlightRoutes = {}
@@ -164,6 +167,9 @@ local init_cartographer_later = false
 
 function QuestHelper:Initialize()
   QuestHelper_Loadtime["init_start"] = GetTime()
+  
+  -- Use DefaultPref as fallback for unset preference keys.
+  setmetatable(QuestHelper_Pref, {__index=QuestHelper_DefaultPref})
   
   local file_problem = false
   local expected_version = GetAddOnMetadata("QuestHelper", "Version")
@@ -377,9 +383,6 @@ function QuestHelper:Initialize()
   self:RegisterEvent("BAG_UPDATE")
   self:RegisterEvent("GOSSIP_SHOW")
   self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE")
-
-  -- Use DefaultPref as fallback for unset preference keys.
-  setmetatable(QuestHelper_Pref, {__index=QuestHelper_DefaultPref})
 
   self:SetLocaleFonts()
 
