@@ -1,6 +1,9 @@
 QuestHelper_File["collect.lua"] = "Development Version"
 QuestHelper_Loadtime["collect.lua"] = GetTime()
 
+local debug_output = false
+if QuestHelper_File["collect.lua"] == "Development Version" then debug_output = true end
+
 local QuestHelper_Collector_Version_Current = 5
 
 QuestHelper_Collector = {}
@@ -65,15 +68,24 @@ local API = {
   Callback_RawLocation = function () return QuestHelper:RetrieveRawLocation() end,
 }
 
+local CompressCollection
+
 function QH_Collector_Init()
   -- First we update shit
   QH_Collector_Upgrade()
   
   QuestHelper: Assert(QuestHelper_Collector_Version == QuestHelper_Collector_Version_Current)
   
+  for _, v in pairs(QuestHelper_Collector) do
+    if not v.modified then v.modified = time() - 7 * 24 * 60 * 60 end  -- eugh. Yeah, we set it to be a week ago. It's pretty grim.
+  end
+  
   local sig = string.format("%s on %s/%s/%d", GetAddOnMetadata("QuestHelper", "Version"), GetBuildInfo(), GetLocale(), QuestHelper:PlayerFaction())
   if not QuestHelper_Collector[sig] then QuestHelper_Collector[sig] = {} end
   local QHCData = QuestHelper_Collector[sig]
+  assert(not QHCData.compressed)
+  QHCData.modified = time()
+  
 
   QH_Collect_Util_Init(nil, API)  -- Some may actually add their own functions to the API, and should go first. There's no real formalized order, I just know which depend on others, and it's heavily asserted so it will break if it goes in the wrong order.
   QH_Collect_Merger_Init(nil, API)
@@ -101,6 +113,8 @@ function QH_Collector_Init()
   
   if not QHCData.realms then QHCData.realms = {} end
   QHCData.realms[GetRealmName()] = (QHCData.realms[GetRealmName()] or 0) + 1 -- I'm not entirely sure why I'm counting
+  
+  API.Utility_Notifier(GetTime() + 30 * 60, function () CompressCollection(QHCData, API.Utility_Merger, API.Utility_LZW.Compress, API.Utility_Notifier) end)
 end
 
 function QH_Collector_OnUpdate()
@@ -109,4 +123,85 @@ function QH_Collector_OnUpdate()
     v()
   end
   QH_Timeslice_Increment(GetTime() - tstart, "collect_update")
+end
+
+
+
+--- I've tossed the compression stuff down here just 'cause I don't feel like making an entire file for it (even though I probably should.)
+
+local seritem
+
+local serializers = {
+  ["nil"] = function(item, add)
+    add("nil")
+  end,
+  ["number"] = function(item, add)
+    add(tostring(item))
+  end,
+  ["string"] = function(item, add)
+    add(string.format("%q", item))
+  end,
+  ["boolean"] = function(item, add)
+    add(item and "true" or "false")
+  end,
+  ["table"] = function(item, add)
+    add("{")
+    local first = true
+    for k, v in pairs(item) do
+      if not first then add(",") end
+      first = false
+      add("[")
+      seritem(k, add)
+      add("]=")
+      seritem(v, add)
+    end
+    add("}")
+  end,
+}
+
+seritem = function(item, add)
+  QH_Timeslice_Yield()
+  serializers[type(item)](item, add)
+end
+
+local function DoCompress(item, merger, comp)
+if debug_output then QuestHelper: TextOut("Item condensing") end
+  local ts = GetTime()
+  
+  local target = {}
+  for k, v in pairs(item) do
+    if k ~= "modified" then
+      target[k] = v
+    end
+  end
+  
+  local mg = {}
+  seritem(target, function(dat) merger.Add(mg, dat) end)
+  
+  local tg = merger.Finish(mg)
+  if debug_output then QuestHelper: TextOut(string.format("Item condensed to %d bytes, %f taken so far", #tg, GetTime() - ts)) end
+  mg = nil
+  
+  local cmp = comp(tg, 256, 8)
+  
+  for k, v in pairs(target) do
+    if k ~= "modified" then
+      item[k] = nil
+    end
+  end
+  item.compressed = cmp
+  
+  if debug_output then QuestHelper: TextOut(string.format("Item compressed to %d bytes (previously %d), %f taken", #cmp, #tg, GetTime() - ts)) end
+end
+
+CompressCollection = function(active, merger, comp, notifier)
+  for _, v in pairs(QuestHelper_Collector) do
+    if v ~= active and not v.compressed then
+      QH_Timeslice_Add(function ()
+        DoCompress(v, merger, comp)
+        notifier(GetTime() + 30 * 60, function () CompressCollection(active, merger, comp, notifier) end)
+      end, "compress")
+      break
+    end
+  end
 end

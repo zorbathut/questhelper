@@ -8,7 +8,7 @@ local function QH_LZW_Decompress(input, tokens, outbits)
   local d = {}
   local i
   for i = 0, tokens-1 do
-    d[i] = string.char(i)
+    d[i] = {[0] = string.char(i)}
   end
   
   local dsize = tokens + 1  -- we use the "tokens" value as an EOF marker
@@ -26,8 +26,8 @@ local function QH_LZW_Decompress(input, tokens, outbits)
   local tok = i:depend(bits)
   if tok == tokens then return "" end -- Okay. There's nothing. We get it.
   
-  Merger.Add(rv, d[tok])
-  local w = d[tok]
+  Merger.Add(rv, d[bit.mod(tok, tokens)][math.floor(tok / tokens)])
+  local w = d[bit.mod(tok, tokens)][math.floor(tok / tokens)]
   while true do
     if idlect == 100 then
       QH_Timeslice_Yield()
@@ -46,8 +46,8 @@ local function QH_LZW_Decompress(input, tokens, outbits)
     if tok == tokens then break end -- we're done!
     
     local entry
-    if d[tok] then
-      entry = d[tok]
+    if d[bit.mod(tok, tokens)][math.floor(tok / tokens)] then
+      entry = d[bit.mod(tok, tokens)][math.floor(tok / tokens)]
     elseif tok == dsize - 1 then
       entry = w .. w:sub(1, 1)
     else
@@ -55,7 +55,7 @@ local function QH_LZW_Decompress(input, tokens, outbits)
     end
     Merger.Add(rv, entry)
     
-    d[dsize - 1] = w .. entry:sub(1, 1) -- Naturally, we're writing to one *less* than dsize, since we already incremented.
+    d[bit.mod(dsize - 1, tokens)][math.floor((dsize - 1) / tokens)] = w .. entry:sub(1, 1) -- Naturally, we're writing to one *less* than dsize, since we already incremented.
     
     w = entry
   end
@@ -65,10 +65,10 @@ end
 
 local function QH_LZW_Compress(input, tokens, outbits)
   -- shared init code
-  local d = {}  
+  local d = {}
   local i
   for i = 0, tokens-1 do
-    d[string.char(i)] = i
+    d[string.char(i)] = {[""] = i}
   end
   
   local dsize = tokens + 1  -- we use the "tokens" value as an EOF marker
@@ -93,11 +93,11 @@ local function QH_LZW_Compress(input, tokens, outbits)
     
     local c = input:sub(ci, ci)
     local wcp = w .. c
-    if d[wcp] then
+    if d[wcp:sub(1, 1)][wcp:sub(2)] then
       w = wcp
     else
-      r:append(d[w], bits)
-      d[wcp] = dsize
+      r:append(d[w:sub(1, 1)][w:sub(2)], bits)
+      d[wcp:sub(1, 1)][wcp:sub(2)] = dsize
       dsize = dsize + 1
       if dsize > nextbits then
         bits = bits + 1
@@ -106,7 +106,7 @@ local function QH_LZW_Compress(input, tokens, outbits)
       w = c
     end
   end
-  if w ~= "" then r:append(d[w], bits) end
+  if w ~= "" then r:append(d[w:sub(1, 1)][w:sub(2)], bits) end
   
   dsize = dsize + 1   -- Our decompressor doesn't realize we're ending here, so it will have added a table entry for that last token. Sigh.
   if dsize > nextbits then
