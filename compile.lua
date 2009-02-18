@@ -12,9 +12,35 @@ local do_compile = true
 
 local dbg_data = true
 
+require("luarocks.require")
 require("persistence")
 require("compile_chain")
 require("compile_debug")
+require("bit")
+
+local LZW
+
+do
+  local world = {}
+  world.QuestHelper_File = {}
+  world.QuestHelper_Loadtime = {}
+  world.GetTime = function() return 0 end
+  world.QuestHelper = { Assert = function(...) assert(...) end }
+  world.string = string
+  world.table = table
+  world.bit = bit
+  world.strbyte = string.byte
+  world.QH_Timeslice_Yield = function() end
+  setfenv(loadfile("../questhelper/collect_merger.lua"), world)()
+  setfenv(loadfile("../questhelper/collect_bitstream.lua"), world)()
+  setfenv(loadfile("../questhelper/collect_lzw.lua"), world)()
+  local api = {}
+  world.QH_Collect_Merger_Init(nil, api)
+  world.QH_Collect_Bitstream_Init(nil, api)
+  world.QH_Collect_LZW_Init(nil, api)
+  LZW = api.Utility_LZW
+end
+  
 
 ll, err = package.loadlib("/nfs/build/libcompile_core.so", "init")
 if not ll then print(err) return end
@@ -306,6 +332,7 @@ local chainhead = ChainBlock_Create("parse", nil,
   function () return {
     Data = function (self, key, subkey, value, Output)
       dat = loadfile(key)()
+      assert(dat)
       
       if do_errors then
         for k, v in pairs(dat.QuestHelper_Errors) do
@@ -324,6 +351,18 @@ local chainhead = ChainBlock_Create("parse", nil,
         if qhv and wowv and locale and faction
           --and not sortversion("0.80", qhv) -- hacky hacky
         then 
+          if v.compressed then
+            local deco = "return " .. LZW.Decompress(v.compressed, 256, 8)
+            print(#v.compressed, #deco)
+            local tx = loadstring(deco)()
+            assert(tx)
+            v.compressed = nil
+            for tk, tv in pairs(tx) do
+              v[tk] = tv
+            end
+          end
+          assert(not v.compressed)
+          
           -- quests!
           if do_compile and v.quest then for qid, qdat in pairs(v.quest) do
             qdat.fileid = value.fileid
@@ -403,7 +442,7 @@ Object collation
 
 local object_slurp
 
-if do_compile then 
+if do_compile and false then 
   local object_locate = ChainBlock_Create("object_locate", {chainhead},
     function (key) return {
       accum = {name = {}, loc = {}},
@@ -416,7 +455,7 @@ if do_compile then
         
         while #value > 0 do table.remove(value) end
         
-        table.insert(accum, value)
+        table.insert(self.accum, value)
       end,
       
       Finish = function(self, Output, Broadcast)
@@ -507,8 +546,8 @@ if do_compile then
   local object_combine = ChainBlock_Create("object_combine", {object_locate, object_link},
     function (key) return {
     
-      local source = {}
-      local links = {}
+      source = {},
+      links = {},
     
       Data = function(self, key, subkey, value, Output)
         if value.type == "data" then
@@ -1137,7 +1176,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
---local e = 1000
+--local e = 1
 
 flist = io.popen("ls data/08"):read("*a")
 local filz = {}
