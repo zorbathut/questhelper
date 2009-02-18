@@ -2,6 +2,10 @@
 == Version 0.88 2/18/2009 ==
 
 * Compress old collected data. Should reduce memory requirements substantially, after a period of time in which it uses far more memory than it used to. May also improve load speed.
+    * Quick bit of documentation here, embedded in the changelist file like all good documentation:
+    * "/qh top" will tell you what it has left to do - it'll say (4 uncompressed IDs) at the end of the last line. If it doesn't say that, it doesn't have anything left to compress.
+    * "/qh top perf" will tell you if it's currently compressing - if it has uncompressed IDs, and it's spent any time in the "compress" function, then it's currently busy compressing.
+    * In general you shouldn't care, though memory use will spike a bit while it's compressing.
 * Add some extra data I need to actually cull old data in the future, which should reduce memory usage further (once I implement it)
 * Trying to track down and fix the collect_spec.lua issue. Do you use a PowerPC Mac? Get in touch with me! I want you to help me debug this!
 * Maybe fix the tracker.lua compare-nil-with-number issue
