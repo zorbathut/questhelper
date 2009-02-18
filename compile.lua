@@ -299,15 +299,16 @@ end
 Standard data accumulation functions
 ]]
 
-local function standard_pos_accum(accum, value)
+local function standard_pos_accum(accum, value, fluff)
+  if not fluff then fluff = 0 end
   for _, v in ipairs(value) do
-    if math.mod(#v, 13) ~= 0 then
+    if math.mod(#v, 11 + fluff) ~= 0 then
       return true
     end
   end
   
   for _, v in ipairs(value) do
-    for off = 1, #v, 13 do
+    for off = 1, #v, 11 + fluff do
       local tite = slice_loc(v:sub(off, off + 10))
       if tite then position_accumulate(accum.loc, tite) end
     end
@@ -442,7 +443,7 @@ Object collation
 
 local object_slurp
 
-if do_compile and false then 
+if do_compile then 
   local object_locate = ChainBlock_Create("object_locate", {chainhead},
     function (key) return {
       accum = {name = {}, loc = {}},
@@ -450,6 +451,7 @@ if do_compile and false then
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
         local name, locale = key:match("(.*)@@(.*)")
+        if #value > 0 then print("OBJDATA", locale, #value, value.fileid) end
         
         if standard_pos_accum(self.accum, value) then return end
         
@@ -465,15 +467,17 @@ if do_compile and false then
         
         if position_has(self.accum.loc) then
           qout.loc = position_finalize(self.accum.loc)
+          print("VICTORY", #qout.loc)
         else
           return  -- BZZZZZT
         end
         
+        print(locale)
         if locale == "enUS" then
-          Broadcast("object", {name = name, loc = self.accum.loc})
+          Broadcast("object", {name = name, loc = qout.loc})
           Output("", nil, {type = "data", name = key, data = self.accum}, "combine")
         else
-          Output(key, nil, self.accum.loc, "link")
+          Output(key, nil, qout.loc, "link")
           Output("", nil, {type = "data", name = key, data = self.accum}, "combine")
         end
       end,
@@ -483,10 +487,11 @@ if do_compile and false then
   
   local function find_closest(loc, locblock)
     local closest = 5000000000  -- yeah, that's five billion. five fuckin' billion.
+    --print(#locblock)
     for _, ite in ipairs(locblock) do
-      if loc.c == locblock.c then
-        local tx = loc.x - locblock.x
-        local ty = loc.y - locblock.y
+      if loc.c == ite.c then
+        local tx = loc.x - ite.x
+        local ty = loc.y - ite.y
         local d = tx * tx + ty * ty
         if d < closest then
           closest = d
@@ -503,11 +508,14 @@ if do_compile and false then
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
+        print("OBJLINK")
         assert(not self.key)
-        assert(not self.value)
+        assert(not self.loc)
+        assert(key)
+        assert(value)
         
         self.key = key
-        self.value = value
+        self.loc = value
       end,
       
       Receive = function(self, id, data)
@@ -520,10 +528,11 @@ if do_compile and false then
       
       Finish = function(self, Output, Broadcast)
         assert(self.key)
-        assert(self.value)
+        assert(self.loc)
         assert(self.compare)
         
         local results = {}
+        local res_size = 0
         
         for enuname, loca in pairs(self.compare) do
           local yaku = 0
@@ -531,38 +540,136 @@ if do_compile and false then
             yaku = yaku + find_closest(cl, self.loc)
           end
           for _, cl in ipairs(self.loc) do
-            yaku = yaku + find_closest(cl, loca.loc)
+            yaku = yaku + find_closest(cl, loca)
           end
           yaku = yaku / (#loca + #self.loc)
           assert(not results[enuname])
-          results[enuname] = loca
+          results[enuname] = yaku
+          res_size = res_size + 1
         end
         
-        Output("", nil, {type = "linkage", key = key, data = results})
+        Output("", nil, {type = "linkage", key = key, data = results}, "combine")
       end,
-    } end
+    } end,
+    nil, "link"
   )
+  
+  local function heap_left(x) return (2*x) end
+  local function heap_right(x) return (2*x + 1) end
+  
+  local function heap_sane(heap)
+    local dmp = ""
+    local finishbefore = 2
+    for i = 1, #heap do
+      if i == finishbefore then
+        print(dmp)
+        dmp = ""
+        finishbefore = finishbefore * 2
+      end
+      dmp = dmp .. string.format("%f ", heap[i].c)
+    end
+    print(dmp)
+    print("")
+    for i = 1, #heap do
+      assert(not heap[heap_left(i)] or heap[i].c <= heap[heap_left(i)].c)
+      assert(not heap[heap_right(i)] or heap[i].c <= heap[heap_right(i)].c)
+    end
+  end
+  
+  local function heap_insert(heap, item)
+    assert(item)
+    table.insert(heap, item)
+    local pt = #heap
+    while pt > 1 do
+      local ptd2 = math.floor(pt / 2)
+      if heap[ptd2].c <= heap[pt].c then
+        break
+      end
+      local tmp = heap[pt]
+      heap[pt] = heap[ptd2]
+      heap[ptd2] = tmp
+      pt = ptd2
+    end
+    --heap_sane(heap)
+  end
+  
+
+  local function heap_extract(heap)
+    local rv = heap[1]
+    if #heap == 1 then table.remove(heap) return rv end
+    heap[1] = table.remove(heap)
+    local idx = 1
+    while idx < #heap do
+      local minix = idx
+      if heap[heap_left(idx)] and heap[heap_left(idx)].c < heap[minix].c then minix = heap_left(idx) end
+      if heap[heap_right(idx)] and heap[heap_right(idx)].c < heap[minix].c then minix = heap_right(idx) end
+      if minix ~= idx then
+        local tx = heap[minix]
+        heap[minix] = heap[idx]
+        heap[idx] = tx
+        idx = minix
+      else
+        break
+      end
+    end
+    --heap_sane(heap)
+    return rv
+  end
+  
+  --[[
+  do
+    local heaptest = {}
+    for k = 1, 10 do
+      heap_insert(heaptest, {c = math.random()})
+    end
+    while #heaptest > 0 do
+      heap_extract(heaptest)
+    end
+  end]]
   
   local object_combine = ChainBlock_Create("object_combine", {object_locate, object_link},
     function (key) return {
     
       source = {},
-      links = {},
+      heap = {},
     
       Data = function(self, key, subkey, value, Output)
+        print("ocombine data")
         if value.type == "data" then
-          assert(not source[value.key])
-          source[value.key] = value.data
+          assert(not self.source[value.key])
+          local name, locale = value.name:match("(.*)@@(.*)")
+          if not self.source[locale] then self.source[locale] = {} end
+          self.source[locale][name] = value.data
+          
+          if locale == "enUS" then
+            self.source[locale][name].linkedto = {}
+          end
         elseif value.type == "linkage" then
-          assert(not links[value.key])
-          links[value.key] = value.data
+          local name, locale = value.key:match("(.*)@@(.*)")  -- boobies regexp
           -- insert shit into a heap
+          for k, v in pairs(value.data) do
+            heap_insert(self.heap, {c = v, dst_locale = locale, dst = name, src = k})
+          end
         end
       end,
       
       Receive = function() end,
       
       Finish = function(self, Output, Broadcast)
+        print("heap is", #self.heap)
+        
+        local llst = 0
+        while #self.heap > 0 do
+          local ite = heap_extract(self.heap)
+          assert(ite.c >= llst)
+          llst = ite.c
+          
+          if not self.source.enUS[ite.src].linkedto[ite.dst_locale] and not self.source[ite.dst_locale][ite.dst].linked then
+            self.source.enUS[ite.src].linkedto[ite.dst_locale] = ite.dst
+            self.source[ite.dst_locale][ite.dst].linked = true
+            print(string.format("Linked %s to %s/%s (%f)", ite.src, ite.dst_locale, ite.dst, ite.c))
+          end
+        end
         -- pull shit out of the heap, link things up
         
         -- determine unique IDs for everything we have left
@@ -630,7 +737,7 @@ if do_compile then
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
-        if standard_pos_accum(self.accum, value) then return end
+        if standard_pos_accum(self.accum, value, 2) then return end
         if standard_name_accum(self.accum, value) then return end
         
         loot_accumulate(value, {type = "monster", id = tonumber(key)}, Output)
@@ -1176,7 +1283,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
---local e = 1
+local e = 25
 
 flist = io.popen("ls data/08"):read("*a")
 local filz = {}
