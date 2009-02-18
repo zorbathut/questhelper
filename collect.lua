@@ -114,7 +114,11 @@ function QH_Collector_Init()
   if not QHCData.realms then QHCData.realms = {} end
   QHCData.realms[GetRealmName()] = (QHCData.realms[GetRealmName()] or 0) + 1 -- I'm not entirely sure why I'm counting
   
-  API.Utility_Notifier(GetTime() + 30 * 60, function () CompressCollection(QHCData, API.Utility_Merger, API.Utility_LZW.Compress, API.Utility_Notifier) end)
+  -- So, why do we delay it?
+  -- It's simple. People are gonna update to this version, and then they're going to look at the memory usage. Then they will panic because omg this version uses so much more memory, I bet that will somehow hurt my framerates in a way which is not adequately explained!
+  -- So instead, we just wait half an hour before compressing. Compression will still get done, and I won't have to deal with panicked comments about how bloated QH has gotten.
+  -- Want QH to work better? Just make that "30 * 60" bit into "0" instead.
+  API.Utility_Notifier(GetTime() + 30 * 60, function() CompressCollection(QHCData, API.Utility_Merger, API.Utility_LZW.Compress) end)
 end
 
 function QH_Collector_OnUpdate()
@@ -194,12 +198,12 @@ if debug_output then QuestHelper: TextOut("Item condensing") end
   if debug_output then QuestHelper: TextOut(string.format("Item compressed to %d bytes (previously %d), %f taken", #cmp, #tg, GetTime() - ts)) end
 end
 
-CompressCollection = function(active, merger, comp, notifier)
+CompressCollection = function(active, merger, comp)
   for _, v in pairs(QuestHelper_Collector) do
     if v ~= active and not v.compressed then
       QH_Timeslice_Add(function ()
         DoCompress(v, merger, comp)
-        notifier(GetTime() + 30 * 60, function () CompressCollection(active, merger, comp, notifier) end)
+        CompressCollection(active, merger, comp)
       end, "compress")
       break
     end
