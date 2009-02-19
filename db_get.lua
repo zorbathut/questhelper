@@ -26,15 +26,24 @@ local function mark(tab, tomark)
 end
 
 function DB_GetItem(group, id)
+  QuestHelper: Assert(group, string.format("%s %s", tostring(group), tostring(id)))
+  QuestHelper: Assert(id, string.format("%s %s", tostring(group), tostring(id)))
   local ite = DBC_Get(group, id)
   if ite then return ite end
   
   QuestHelper:TextOut(string.format("%s %d", group, id))
   
-  ite = QuestHelper_Static[group][id]
+  if QuestHelper_Static[group] then
+    ite = QuestHelper_Static[group][id]
+  end
   
-  mark(ite, ite)
+  if ite then
+    mark(ite, ite)
+    
+    DBC_Put(group, id, ite)
+  else
+    QuestHelper:TextOut(string.format("Tried to get %s/%s, failed", tostring(group), tostring(id)))
+  end
   
-  DBC_Put(group, id, ite)
   return ite
 end
