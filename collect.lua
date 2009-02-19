@@ -7,7 +7,6 @@ if QuestHelper_File["collect.lua"] == "Development Version" then debug_output = 
 local QuestHelper_Collector_Version_Current = 5
 
 QuestHelper_Collector = {}
-QuestHelper_Collector_Version = QuestHelper_Collector_Version_Current
 
 local EventRegistrar = {}
 local OnUpdateRegistrar = {}
@@ -71,22 +70,22 @@ local API = {
 local CompressCollection
 
 function QH_Collector_Init()
-  -- First we update shit
-  QH_Collector_Upgrade()
+  QH_Collector_UpgradeAll(QuestHelper_Collector)
   
-  QuestHelper: Assert(QuestHelper_Collector_Version == QuestHelper_Collector_Version_Current)
+
   
   for _, v in pairs(QuestHelper_Collector) do
     if not v.modified then v.modified = time() - 7 * 24 * 60 * 60 end  -- eugh. Yeah, we set it to be a week ago. It's pretty grim.
+    if not v.version then v.version = QuestHelper_Collector_Version end -- double-eugh. Man did I fuck this thing up.
   end
   
   local sig = string.format("%s on %s/%s/%d", GetAddOnMetadata("QuestHelper", "Version"), GetBuildInfo(), GetLocale(), QuestHelper:PlayerFaction())
-  if not QuestHelper_Collector[sig] or QuestHelper_Collector[sig].compressed then QuestHelper_Collector[sig] = {} end -- fuckin' bullshit, man
+  if not QuestHelper_Collector[sig] or QuestHelper_Collector[sig].compressed then QuestHelper_Collector[sig] = {version = QuestHelper_Collector_Version} end -- fuckin' bullshit, man
   local QHCData = QuestHelper_Collector[sig]
-  assert(not QHCData.compressed)
+  QuestHelper: Assert(not QHCData.compressed)
+  QuestHelper: Assert(QHCData.version == QuestHelper_Collector_Version_Current)
   QHCData.modified = time()
   
-
   QH_Collect_Util_Init(nil, API)  -- Some may actually add their own functions to the API, and should go first. There's no real formalized order, I just know which depend on others, and it's heavily asserted so it will break if it goes in the wrong order.
   QH_Collect_Merger_Init(nil, API)
   QH_Collect_Bitstream_Init(nil, API)

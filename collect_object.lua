@@ -36,10 +36,8 @@ local function Tooltipy(self, ...)
         end
       end
       if not skintype then return end -- we are neither!
-    else
+    elseif lines == 0 then  -- this isn't much of anything, is it
       return
-      -- It looks like a lot of UI mods just end up displaying zero-line tooltips. Argh. Tinytip seems to be the worst offender. Guess this goes bye-bye, so much for errorchecking.
-      --QuestHelper: Assert(lines == 1, string.format("Zorba knew there was going to be bug here, but couldn't figure out how to check it more throughly. Please report this, and if possible, say what you just moved the mouse over! Thanks!")) -- I just know this is going to break in stupid ways later on
     end
     
     local name = _G["GameTooltipTextLeft1"]:GetText()
