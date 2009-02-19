@@ -7,6 +7,7 @@ if QuestHelper_File["collect.lua"] == "Development Version" then debug_output = 
 local QuestHelper_Collector_Version_Current = 6
 
 QuestHelper_Collector = {}
+QuestHelper_Collector_Version = QuestHelper_Collector_Version_Current
 
 local EventRegistrar = {}
 local OnUpdateRegistrar = {}
@@ -84,12 +85,11 @@ local CompressCollection
 function QH_Collector_Init()
   QH_Collector_UpgradeAll(QuestHelper_Collector)
   
-
-  
   for _, v in pairs(QuestHelper_Collector) do
     if not v.modified then v.modified = time() - 7 * 24 * 60 * 60 end  -- eugh. Yeah, we set it to be a week ago. It's pretty grim.
-    if not v.version then v.version = QuestHelper_Collector_Version end -- double-eugh. Man did I fuck this thing up.
   end
+  
+  QuestHelper_Collector_Version = QuestHelper_Collector_Version_Current
   
   local sig = string.format("%s on %s/%s/%d", GetAddOnMetadata("QuestHelper", "Version"), GetBuildInfo(), GetLocale(), QuestHelper:PlayerFaction())
   if not QuestHelper_Collector[sig] or QuestHelper_Collector[sig].compressed then QuestHelper_Collector[sig] = {version = QuestHelper_Collector_Version} end -- fuckin' bullshit, man
@@ -144,6 +144,11 @@ end
 
 --- I've tossed the compression stuff down here just 'cause I don't feel like making an entire file for it (even though I probably should.)
 
+local noncompressible = {
+  modified = true,
+  version = true,
+}
+
 local seritem
 
 local serializers = {
@@ -165,9 +170,16 @@ local serializers = {
     for k, v in pairs(item) do
       if not first then add(",") end
       first = false
-      add("[")
-      seritem(k, add)
-      add("]=")
+      
+      if type(k) == "string" and k:match("[a-zA-Z][a-zA-Z_0-9]*") then
+        add(k)
+      else
+        add("[")
+        seritem(k, add)
+        add("]")
+      end
+      
+      add("=")
       seritem(v, add)
     end
     add("}")
@@ -185,7 +197,7 @@ if debug_output then QuestHelper: TextOut("Item condensing") end
   
   local target = {}
   for k, v in pairs(item) do
-    if k ~= "modified" then
+    if not noncompressible[k] then
       target[k] = v
     end
   end
@@ -200,7 +212,7 @@ if debug_output then QuestHelper: TextOut("Item condensing") end
   local cmp = comp(tg, 256, 8)
   
   for k, v in pairs(target) do
-    if k ~= "modified" then
+    if not noncompressible[k] then
       item[k] = nil
     end
   end
