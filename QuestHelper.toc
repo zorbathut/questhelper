@@ -26,6 +26,7 @@
 # QuestHelper_FlightInstructors: List of known flight instructors.
 # QuestHelper_FlightRoutes: List of known flight routes, with travel time.
 # QuestHelper_SeenRealms: Realms that have been seen by the player (largely exists to catch private servers)
+# QuestHelper_SaveDate: Date of last shutdown.
 #
 # New data gathering:
 # QuestHelper_Collector: Most new data. In one huge horrible pile, but a *properly categorized* huge horrible pile
@@ -33,7 +34,6 @@
 # Misc:
 # QuestHelper_Pref: User preferences
 # QuestHelper_UID: User unique ID
-# QuestHelper_SaveDate: Date of last shutdown
 # QuestHelper_Errors: List of errors seen
 #
 # Everything under "Old data gathering" will go away once the new data gathering is in place.
