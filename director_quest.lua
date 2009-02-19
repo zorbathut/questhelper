@@ -2,6 +2,29 @@ QuestHelper_File["director_quest.lua"] = "Development Version"
 QuestHelper_Loadtime["director_quest.lua"] = GetTime()
 
 
+local function AppendObjlinks(target, source, seen)
+  if not seen then seen = {} end
+  
+  QuestHelper: Assert(not seen[source])
+  
+  if seen[source] then return end
+  
+  seen[source] = true
+  if source.loc then
+    for m, v in ipairs(source.loc) do
+      QuestHelper: Assert(#source == 0)
+      table.insert(target, {loc = v})
+    end
+  else
+    QuestHelper:TextOut(QuestHelper:StringizeRecursive(source, 2))
+    for _, v in ipairs(source) do
+      AppendObjlinks(target, DB_GetItem(v.sourcetype, v.sourceid))
+    end
+  end
+  seen[source] = false
+end
+
+
 local quest_list = {}
 local quest_list_used = {}
 
@@ -12,26 +35,21 @@ local function GetQuestMetaobjective(questid)
     if not q then return end
     
     ite = {} -- we don't want to mutate the existing quest data
-    ite.desc = string.format("Quest %s", q.name.enUS or "(unknown)")  -- this gets changed later
+    ite.desc = string.format("Quest %s", q.name or "(unknown)")  -- this gets changed later anyway
     ite.based_on = q -- We're storing this for kind of complicated reasons. We're going to be linking directly to the original quest loc tables. If we didn't store this, it could theoretically be garbage-collected. Then, later, if someone tried accessing the quest directly, they'd end up with the quest . . . and a new set of loc tables. Storing this is solely to prevent the garbage collector from collecting the quest,ID pair until the quest_metaobjective,ID pair is gone.
     
     if q.criteria then for k, c in ipairs(q.criteria) do
       local ttx = {}
       --QuestHelper:TextOut(string.format("critty %d %d", k, c.loc and #c.loc or -1))
       
-      if c.loc then
-        for m, v in ipairs(c.loc) do
-          QuestHelper: Assert(#c == 0)
-          table.insert(ttx, {desc = string.format("Criteria %d", k), clusterpart = #ttx, why = ite, loc = v, cluster = ttx})
-        end
-      else
-        for _, v in ipairs(c) do
-          local deeb = DB_GetItem(v[1], v[2])
-          if deeb.loc then for _, v in ipairs(deeb.loc) do
-            table.insert(ttx, {desc = string.format("Criteria %d", k), clusterpart = #ttx, why = ite, loc = v, cluster = ttx})
-          end end
-        end
+      AppendObjlinks(ttx, c)
+      for idx, v in pairs(ttx) do
+        v.desc = string.format("Criteria %d", k)
+        v.clusterpart = idx
+        v.why = ite
+        v.cluster = ttx
       end
+      
       table.insert(ite, ttx)
     end end
     if q.finish then
