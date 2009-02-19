@@ -448,37 +448,44 @@ if do_compile then
     function (key) return {
       accum = {name = {}, loc = {}},
       
+      fids = {},
+      
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
         local name, locale = key:match("(.*)@@(.*)")
-        if #value > 0 then print("OBJDATA", locale, #value, value.fileid) end
         
         if standard_pos_accum(self.accum, value) then return end
         
         while #value > 0 do table.remove(value) end
         
         table.insert(self.accum, value)
+        self.fids[value.fileid] = true
       end,
       
       Finish = function(self, Output, Broadcast)
+        local fidc = 0
+        for k, v in pairs(self.fids) do
+          fidc = fidc + 1
+        end
+        
+        if fidc < 3 then return end -- bzzzzzt
+        
         local name, locale = key:match("(.*)@@(.*)")
         
         local qout = {}
         
         if position_has(self.accum.loc) then
           qout.loc = position_finalize(self.accum.loc)
-          print("VICTORY", #qout.loc)
         else
           return  -- BZZZZZT
         end
         
-        print(locale)
         if locale == "enUS" then
           Broadcast("object", {name = name, loc = qout.loc})
-          Output("", nil, {type = "data", name = key, data = self.accum}, "combine")
+          Output("", nil, {type = "data", name = key, data = self.accum}, "reparse")
         else
           Output(key, nil, qout.loc, "link")
-          Output("", nil, {type = "data", name = key, data = self.accum}, "combine")
+          Output("", nil, {type = "data", name = key, data = self.accum}, "reparse")
         end
       end,
     } end,
@@ -508,7 +515,6 @@ if do_compile then
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
-        print("OBJLINK")
         assert(not self.key)
         assert(not self.loc)
         assert(key)
@@ -548,7 +554,17 @@ if do_compile then
           res_size = res_size + 1
         end
         
-        Output("", nil, {type = "linkage", key = key, data = results}, "combine")
+        local nres_size = 0
+        local nres = {}
+        for k, v in pairs(results) do
+          if v < 1000000 then
+            nres[k] = v
+            nres_size = nres_size + 1
+          end
+        end
+        
+        print(res_size, nres_size)
+        Output("", nil, {key = key, data = nres}, "combine")
       end,
     } end,
     nil, "link"
@@ -627,29 +643,20 @@ if do_compile then
     end
   end]]
   
-  local object_combine = ChainBlock_Create("object_combine", {object_locate, object_link},
+  local object_combine = ChainBlock_Create("object_combine", {object_link},
     function (key) return {
     
-      source = {},
+      source = {enUS = {}},
       heap = {},
     
       Data = function(self, key, subkey, value, Output)
-        print("ocombine data")
-        if value.type == "data" then
-          assert(not self.source[value.key])
-          local name, locale = value.name:match("(.*)@@(.*)")
-          if not self.source[locale] then self.source[locale] = {} end
-          self.source[locale][name] = value.data
-          
-          if locale == "enUS" then
-            self.source[locale][name].linkedto = {}
-          end
-        elseif value.type == "linkage" then
-          local name, locale = value.key:match("(.*)@@(.*)")  -- boobies regexp
-          -- insert shit into a heap
-          for k, v in pairs(value.data) do
-            heap_insert(self.heap, {c = v, dst_locale = locale, dst = name, src = k})
-          end
+        local name, locale = value.key:match("(.*)@@(.*)")  -- boobies regexp
+        -- insert shit into a heap
+        if not self.source[locale] then self.source[locale] = {} end
+        self.source[locale][name] = {}
+        for k, v in pairs(value.data) do
+          self.source.enUS[k] = {linkedto = {}}
+          heap_insert(self.heap, {c = v, dst_locale = locale, dst = name, src = k})
         end
       end,
       
@@ -1283,7 +1290,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
-local e = 25
+local e = 1000
 
 flist = io.popen("ls data/08"):read("*a")
 local filz = {}
