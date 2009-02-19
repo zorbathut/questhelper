@@ -45,6 +45,26 @@ function QH_Collector_Upgrade(chunk)
     
     chunk.version = 5
   end
+  
+  if chunk.version == 5 then
+    -- Horrible things involving objects. Let's preserve what we can.
+    local new_obj = {}
+    for k, v in pairs(chunk.object) do
+      local keep = false
+      for tk, _ in pairs(v) do
+        if type(tk) == "string" and tk:match("[a-z]+_loot") then
+          keep = true
+          break
+        end
+      end
+      
+      if keep then new_obj[k] = v end
+    end
+    
+    chunk.object = new_obj
+    
+    chunk.version = 6
+  end
 end
 
 function QH_Collector_UpgradeAll(Collector)
