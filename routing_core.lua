@@ -69,6 +69,10 @@ local Dist
   weight_ave = 0.001
 -- End node storage and data structures
 
+function QH_Route_Core_NodeCount()
+  return CurrentNodes
+end
+
 -- Initialization
 function QH_Route_Core_Init(PathNotifier, Distance)
   Notifier = PathNotifier

@@ -3,6 +3,8 @@ QuestHelper_Loadtime["routing_controller.lua"] = GetTime()
 
 local Route_Core_Process = QH_Route_Core_Process
 
+local Route_Core_NodeCount = QH_Route_Core_NodeCount
+
 local Route_Core_Init = QH_Route_Core_Init
 local Route_Core_NodeAdd = QH_Route_Core_NodeAdd
 local Route_Core_NodeRemove = QH_Route_Core_NodeRemove
@@ -82,7 +84,7 @@ local function process()
     
     passcount = passcount + 1
     if lapa + 60 < GetTime() then
-      QuestHelper:TextOut(string.format("%d passes in the last minute", passcount))
+      QuestHelper:TextOut(string.format("%d passes in the last minute, %d nodes", passcount, Route_Core_NodeCount()))
       lapa = lapa + 60
       passcount = 0
     end
