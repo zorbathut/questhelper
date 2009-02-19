@@ -402,7 +402,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
     
     for _, v in ipairs(list) do 
       if v.cluster then
-        for _, i in ipairs(clust) do
+        for _, i in ipairs(v.cluster) do
           nodes[i] = true
         end
       else
@@ -412,7 +412,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
     
     
     local out = 1
-    for _, obj in pairs(nodes) do
+    for obj, _ in pairs(nodes) do
       local x, y = convertLocationToScreen(obj.loc, c, z)
       if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
         if not self.glow_list then
