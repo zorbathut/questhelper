@@ -4,7 +4,7 @@ QuestHelper_Loadtime["collect.lua"] = GetTime()
 local debug_output = false
 if QuestHelper_File["collect.lua"] == "Development Version" then debug_output = true end
 
-local QuestHelper_Collector_Version_Current = 5
+local QuestHelper_Collector_Version_Current = 6
 
 QuestHelper_Collector = {}
 
@@ -41,8 +41,20 @@ function OnUpdateHookRegistrar(func)
   table.insert(OnUpdateRegistrar, func)
 end
 
+local suppress = false
+
+ -- real tooltips don't use this function
+local SetTextScript = GameTooltip.SetText
+GameTooltip.SetText = function (...)
+  suppress = true
+  SetTextScript(...)
+  suppress = false
+end
+
 local OriginalScript = GameTooltip:GetScript("OnShow")
 GameTooltip:SetScript("OnShow", function (self, ...)
+  if suppress then return end
+  
   if not self then self = GameTooltip end
   
   local tstart = GetTime()

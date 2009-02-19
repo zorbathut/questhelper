@@ -1,4 +1,9 @@
 
+== Version 0.89 2/18/2009 ==
+
+* Fixed horrifying bug in object collection that resulted in a huge amount of missing data. Sigh. Please submit your files after this weekend, I can really use them. (/qh submit)
+* Fixed mistake in the design for data compression that makes it a little tricky to update version numbers
+
 == Version 0.88 2/18/2009 ==
 
 * Compress old collected data. Should reduce memory requirements substantially, after a period of time in which it uses far more memory than it used to. May also improve load speed.
