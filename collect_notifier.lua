@@ -11,6 +11,8 @@ local function OnUpdate()
 end
 
 local function AddItem(time, func)
+  QuestHelper: Assert(time)
+  QuestHelper: Assert(func)
   table.insert(NotificationsPending, {time = time, func = func})
   table.sort(NotificationsPending, function (a, b) return a.time < b.time end)  -- haha who cares about efficiency anyway, NOT ME that is for certain
 end

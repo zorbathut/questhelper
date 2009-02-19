@@ -45,21 +45,22 @@ function QH_Timeslice_Bonus(quantity)
 end
 
 local prioritize = {
-  init = 100,
-  criteria = 10,
-  lzw = -5,
-  new_routing = -9,
-  routing = -10,
+  init = {100},
+  criteria = {10},
+  lzw = {-5},
+  compress = {-8, 5},
+  routing = {-10},
 }
 
 function QH_Timeslice_Add(workfunc, name)
   QuestHelper: Assert(workfunc)
   QuestHelper: Assert(name)
-  local priority = prioritize[name] or 0
+  local priority = prioritize[name] and prioritize[name][1] or 0
+  local sharding = prioritize[name] and prioritize[name][2] or 1
   if coroutine_verbose then QuestHelper:TextOut(string.format("timeslice: %s added (%s, %d)", name, tostring(workfunc), priority)) end
   local ncoro = coroutine.create(workfunc)
   QuestHelper: Assert(ncoro)
-  table.insert(coroutine_list, {priority = priority, name = name, coro = ncoro, active = true})
+  table.insert(coroutine_list, {priority = priority, sharding = sharding, name = name, coro = ncoro, active = true})
 end
 
 function QH_Timeslice_Toggle(name, flag)
@@ -76,7 +77,13 @@ function QH_Timeslice_Work()
   coro = nil
   key = nil
   for k, v in pairs(coroutine_list) do
-    if v.active and (not coro or v.priority > coro.priority) then coro = v; key = k end
+    if v.active then
+      --if v.sharding then QuestHelper:TextOut(string.format("%d mod %d is %d, %s", time(), v.sharding, bit.mod(time(), v.sharding), tostring(bit.mod(time(), v.sharding) == 0))) end
+      if (not v.sharding or bit.mod(time(), v.sharding) == 0) and (not coro or (v.priority > coro.priority)) then
+        coro = v
+        key = k
+      end
+    end
   end
   
   if coro then

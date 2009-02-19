@@ -404,7 +404,18 @@ function QuestHelper:Top(cmd)
   end
   
   UpdateAddOnMemoryUsage()
-  self:TextOut(string.format("QuestHelper is using %dkb of RAM (%s/%s/%s/%s).", GetAddOnMemoryUsage("QuestHelper"), QuestHelper_local_version, QuestHelper_toc_version, GetBuildInfo(), GetLocale()))
+  
+  local uncd = 0
+  for k, v in pairs(QuestHelper_Collector) do
+    if not v.compressed then uncd = uncd + 1 end
+  end
+  uncd = uncd - 1
+  local uncs = ""
+  if uncd > 0 then
+    uncs = string.format(" (%d uncompressed IDs)", uncd)
+  end
+  
+  self:TextOut(string.format("QuestHelper is using %dkb of RAM (%s/%s/%s/%s)%s", GetAddOnMemoryUsage("QuestHelper"), QuestHelper_local_version, QuestHelper_toc_version, GetBuildInfo(), GetLocale(), uncs))
 end
 
 function QuestHelper:ToggleMapButton()

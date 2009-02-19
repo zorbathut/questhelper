@@ -10,12 +10,12 @@ QuestHelper_Translations.trTR =
   ZONE_LAYOUT_ERROR = "Kaydedilmis verilerinize hasar vermekten korkmaksizin çalismayi reddediyorum. Lütfen yeni bölgeyi kontrol edebilecek bir güncelleme çikana kadar bekleyin.",
   DOWNGRADE_ERROR = "Kayitli verileriniz QuestHelper'in bu versiyonuyla uyumlu degil Yeni bir versiyon indirin veya kayitli verilerinizi silin.",
   HOME_NOT_KNOWN = "Belirli bir konaklama yeriniz yok, firsat buldugunuzda barmen ile konusarak bir yer belirleyin.",
-  PRIVATE_SERVER = nil,
-  PLEASE_RESTART = nil,
+  PRIVATE_SERVER = "QuestHelper özel sunucuları desteklemiyor.",
+  PLEASE_RESTART = "QuestHelper başlatılırken hata oluştu. Lütfen World Of Warcraft'tan tamamen çıkın ve yeniden deneyin.",
   NOT_UNZIPPED_CORRECTLY = nil,
   PLEASE_DONATE = nil,
-  HOW_TO_CONFIGURE = nil,
-  TIME_TO_UPDATE = nil,
+  HOW_TO_CONFIGURE = "QuestHelper şimdilik bir özelleştirme sayfasına sahip değil, ama özelleştirmek için %h(/qh settings) yazın. %h(/qh help) yardım alabilirsiniz.",
+  TIME_TO_UPDATE = "%h(yeni sürüm QuestHelper) kullanılabilir. Yeni sürüm yeni özellikler içerir, yeni veritabanı, ve iyileştirmeler. Lütfen güncelleyin!",
   
   -- Route related text.
   ROUTES_CHANGED = "Uçus noktalariniza bakilarak eklenti veritabani güncellendi.",
@@ -26,7 +26,7 @@ QuestHelper_Translations.trTR =
   UPDATING_ROUTE = "Rota Güncelleniyor.",
   
   -- Special tracker text
-  QH_LOADING = nil,
+  QH_LOADING = "QuestHelper yükleniyor (%1%%)...",
   QUESTS_HIDDEN_1 = nil,
   QUESTS_HIDDEN_2 = nil,
   
@@ -62,7 +62,7 @@ QuestHelper_Translations.trTR =
   IGNORE = "Dikkate alma",
   
   IGNORED_PRIORITY_TITLE = "Seçilmis öncelik dikkate alinmayacak.",
-  IGNORED_PRIORITY_FIX = "Engelleyici islere ayni önceligi uygula.",
+  IGNORED_PRIORITY_FIX = "Engellenen islere ayni önceligi uygula.",
   IGNORED_PRIORITY_IGNORE = "Öncelikleri ben ayarlayacagim",
   
   -- Custom objectives.
@@ -139,7 +139,7 @@ QuestHelper_Translations.trTR =
   NAG_MULTIPLE_ITEM_OBJ = "%1 Esya Görevleri.",
   NAG_MULTIPLE_OBJECT_OBJ = nil,
   NAG_MULTIPLE_MONSTER_OBJ = "%1 Yaratık Görevleri.",
-  NAG_MULTIPLE_EVENT_OBJ = nil,
+  NAG_MULTIPLE_EVENT_OBJ = "%1 ",
   NAG_MULTIPLE_REPUTATION_OBJ = "%1 Reputation Görevleri",
   NAG_MULTIPLE_PLAYER_OBJ = nil,
   
@@ -175,7 +175,7 @@ QuestHelper_Translations.trTR =
   MENU_ZONE_FILTER = "%1 Alan Filtresi",
   MENU_DONE_FILTER = "%1 Tamamlanmış Filtre.",
   MENU_BLOCKED_FILTER = "%1 Engellenmiş Filtre",
-  MENU_WATCHED_FILTER = nil,
+  MENU_WATCHED_FILTER = "%1 Izleme Filtresi",
   MENU_LEVEL_FILTER = "%1 Seviye Filtresi",
   MENU_LEVEL_OFFSET = "Level Filtre Ofseti",
   MENU_ICON_SCALE = "Simgelerin büyüklüğü",
