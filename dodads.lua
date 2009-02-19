@@ -398,35 +398,40 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
     local w, h = QuestHelper.map_overlay:GetWidth(), QuestHelper.map_overlay:GetHeight()
     local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
     
-    local clusters = {}
+    local nodes = {}
     
     for _, v in ipairs(list) do 
-      clusters[v.cluster] = true
+      if v.cluster then
+        for _, i in ipairs(clust) do
+          nodes[i] = true
+        end
+      else
+        nodes[v] = true
+      end
     end
     
+    
     local out = 1
-    for clust, _ in pairs(clusters) do
-      for _, obj in pairs(clust) do
-        local x, y = convertLocationToScreen(obj.loc, c, z)
-        if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
-          if not self.glow_list then
-            self.glow_list = QuestHelper:CreateTable()
-          end
-          
-          tex = self.glow_list[out]
-          if not tex then
-            tex = QuestHelper:CreateGlowTexture(self)
-            table.insert(self.glow_list, tex)
-          end
-          out = out + 1
-          
-          tex:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", x*w, -y*h)
-          tex:SetVertexColor(1,1,1,0)
-          tex:SetWidth(h / 4) -- we want it to be a circle
-          tex:SetHeight(h / 4)
-          tex:Show()
-          tex.max_alpha = 1
+    for _, obj in pairs(nodes) do
+      local x, y = convertLocationToScreen(obj.loc, c, z)
+      if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
+        if not self.glow_list then
+          self.glow_list = QuestHelper:CreateTable()
         end
+        
+        tex = self.glow_list[out]
+        if not tex then
+          tex = QuestHelper:CreateGlowTexture(self)
+          table.insert(self.glow_list, tex)
+        end
+        out = out + 1
+        
+        tex:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", x*w, -y*h)
+        tex:SetVertexColor(1,1,1,0)
+        tex:SetWidth(h / 4) -- we want it to be a circle
+        tex:SetHeight(h / 4)
+        tex:Show()
+        tex.max_alpha = 1
       end
     end
     
