@@ -27,8 +27,8 @@ QuestHelper_Translations.elEL =
   
   -- Special tracker text
   QH_LOADING = "Φόρτωση Quest Helper (%1%%)...",
-  QUESTS_HIDDEN_1 = nil,
-  QUESTS_HIDDEN_2 = nil,
+  QUESTS_HIDDEN_1 = "Οι αποστολές μπορεί να είναι κρυμμένες",
+  QUESTS_HIDDEN_2 = "(\"/qh hidden\" για να δεις τις κρυφές)",
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Διαθέσιμες Γλωσσες:",
