@@ -4,8 +4,9 @@ QuestHelper_Loadtime["tooltip.lua"] = GetTime()
 local function DoTooltip(self, tooltipi)
   QuestHelper:TextOut(string.format("Got %d items", #tooltipi))
   for data, _ in pairs(tooltipi) do
-    self:AddLine(data.desc)
-    self:AddLine("we hateses you")
+    QuestHelper:TextOut(QuestHelper:StringizeTable(data))
+    self:AddLine(data.desc, 1, 1, 1)
+    QuestHelper:AppendObjectiveProgressToTooltip(data, self)
   end
 end
 
@@ -78,7 +79,6 @@ GameTooltip:SetScript("OnShow", function (self, ...)
   
   if ulink and IsMonsterGUID(ulink) then
     local ite = tostring(GetMonsterType(ulink))
-    print(ite)
     
     if ctts["monster"] and ctts["monster"][ite] then
       DoTooltip(self, ctts["monster"][ite])

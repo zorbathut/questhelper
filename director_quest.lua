@@ -278,6 +278,8 @@ function UpdateQuests()
                 
                 db[i].progress[UnitName("player")] = {have, need, have / need}
                 
+                db[i].desc = QHFormat("TOOLTIP_QUEST", title)
+                
                 for k, v in ipairs(db[i]) do
                   v.tracker_desc = MakeQuestObjectiveTitle(desc, typ, done)
                   v.desc = desc
