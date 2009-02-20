@@ -1,10 +1,14 @@
 
 assert(arg[1])
 
-dat = loadfile(arg[1])
-if not dat then io.stderr:write("  Did not load\n") return 1 end
+require("luarocks.require")
+require("pluto")
+require("gzio")
 
-rv, data = pcall(dat)
-if not rv then io.stderr:write("  Did not run\n") return 1 end
+local gzr = gzio.open(arg[1], "r")
+local stt = gzr:read("*a")
+local data = pluto.unpersist({}, stt)
+
+assert(data)
 
 io.stdout:write(data.QuestHelper_UID .. "\n" .. tostring(data.QuestHelper_SaveDate))
