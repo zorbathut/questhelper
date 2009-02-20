@@ -46,6 +46,7 @@ All other files are (c) Ben Wilhelm, all rights reserved. This includes, but is 
 
 core.lua
 collect.lua
+tooltip.lua
 collect_*.lua
 routing_*.lua
 manager_*.lua

@@ -310,6 +310,7 @@ end
 function QuestHelper:AppendObjectiveToTooltip(o)
   local theme = self:GetColourTheme()
   
+  QuestHelper: Assert(o.map_desc)
   for _, v in ipairs(o.map_desc) do
     self.tooltip:AddLine(v, unpack(theme.tooltip))
     self.tooltip:GetPrevLines():SetFont(self.font.serif, 14)

@@ -107,8 +107,11 @@ routing_route.lua
 routing_core.lua
 routing_controller.lua
 
+# New tooltip system. Depends on nothing, calls nothing besides WoW UI.
+tooltip.lua
+
 # Directors
-# Quest module. Depends on Database, Routing, Patterns, and Event Manager, interfaces with WoW UI.
+# Quest module. Depends on Database, Routing, Patterns, Tooltip, and Event Manager, interfaces with WoW UI.
 director_quest.lua
 
 # Map and minimap dodads. Old code. Depends on nothing, interfaces with WoW UI.
@@ -116,6 +119,7 @@ dodads.lua
 
 # New coordinator system. Depends on pretty much everything.
 core.lua
+
 
 upgrade.lua
 main.lua

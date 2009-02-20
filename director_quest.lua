@@ -26,7 +26,7 @@ local function copy_without_last(tab)
   return tt
 end
 
-local function AppendObjlinks(target, source, lines, seen)
+local function AppendObjlinks(target, source, tooltips, lines, seen)
   if not seen then seen = {} end
   
   QuestHelper: Assert(not seen[source])
@@ -40,9 +40,11 @@ local function AppendObjlinks(target, source, lines, seen)
       table.insert(target, {loc = v, path_desc = copy_without_last(lines)})
     end
   else
-    QuestHelper:TextOut(QuestHelper:StringizeRecursive(source, 2))
     for _, v in ipairs(source) do
       local dbgi = DB_GetItem(v.sourcetype, v.sourceid)
+      
+      tooltips[string.format("%s@@%s", v.sourcetype, v.sourceid)] = true
+      
       if v.sourcetype == "monster" then
         table.insert(lines, QHFormat("OBJECTIVE_SLAY", dbgi.name or QHText("OBJECTIVE_UNKNOWN_MONSTER")))
       elseif v.sourcetype == "item" then
@@ -50,7 +52,7 @@ local function AppendObjlinks(target, source, lines, seen)
       else
         table.insert(lines, string.format("unknown %s (%s/%s)", tostring(dbgi.name), tostring(v.sourcetype), tostring(v.sourceid)))
       end
-      AppendObjlinks(target, dbgi, lines, seen)
+      AppendObjlinks(target, dbgi, tooltips, lines, seen)
       table.remove(lines)
     end
   end
@@ -74,11 +76,17 @@ local function GetQuestMetaobjective(questid)
       local ttx = {}
       --QuestHelper:TextOut(string.format("critty %d %d", k, c.loc and #c.loc or -1))
       
-      AppendObjlinks(ttx, c, {})
-      for idx, v in pairs(ttx) do
+      ttx.tooltip = {}
+      
+      AppendObjlinks(ttx, c, ttx.tooltip, {})
+      for idx, v in ipairs(ttx) do
         v.desc = string.format("Criteria %d", k)
         v.why = ite
         v.cluster = ttx
+      end
+      
+      for k, v in pairs(ttx.tooltip) do
+        ttx.tooltip[k] = ttx -- we're gonna be handing out this table, so this isn't as dumb as it looks
       end
       
       table.insert(ite, ttx)
@@ -145,7 +153,7 @@ local function objective_parse(typ, txt, done)
   QuestHelper: Assert(target) -- This will fail repeatedly. Come on. We all know it.
   QuestHelper: Assert(have)
   QuestHelper: Assert(need) -- As will these.
-  
+
   return pt, target, have, need
 end
 
@@ -254,7 +262,7 @@ function UpdateQuests()
             for i = 1, GetNumQuestLeaderBoards(index) do
               if db[i] then
                 local desc, typ, done = GetQuestLogLeaderBoard(i, index)
-                local pt, pd, need, done = objective_parse(typ, desc, done)
+                local pt, pd, have, need = objective_parse(typ, desc, done)
                 local dline
                 if pt == "item" or pt == "object" then
                   dline = QHFormat("OBJECTIVE_REASON", QHText("ACQUIRE_VERB"), pd, title)
@@ -268,7 +276,7 @@ function UpdateQuests()
                   db[i].progress = {}
                 end
                 
-                db[i].progress[UnitName("player")] = {need, done, need / done}
+                db[i].progress[UnitName("player")] = {have, need, have / need}
                 
                 for k, v in ipairs(db[i]) do
                   v.tracker_desc = MakeQuestObjectiveTitle(desc, typ, done)
@@ -287,6 +295,7 @@ function UpdateQuests()
                 nactive[db[i]] = true
                 if not active[db[i]] then
                   QH_Route_ClusterAdd(db[i])
+                  if db[i].tooltip then QH_Tooltip_Add(db[i].tooltip) end
                   if turnin then QH_Route_ClusterRequires(turnin, db[i]) end
                 end
               end end
@@ -299,6 +308,7 @@ function UpdateQuests()
     
     for k, v in pairs(active) do
       if not nactive[k] then
+        if k.tooltip then QH_Tooltip_Remove(k.tooltip) end
         QH_Route_ClusterRemove(k)
       end
     end

@@ -209,6 +209,7 @@ function QuestHelper:Initialize()
       ["timeslice.lua"] = true,
       ["lang.lua"] = true,
       ["core.lua"] = true,
+      ["tooltip.lua"] = true,
 
       ["static.lua"] = true,
 

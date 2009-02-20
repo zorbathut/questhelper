@@ -1,6 +1,7 @@
 QuestHelper_File["objtips.lua"] = "Development Version"
 QuestHelper_Loadtime["objtips.lua"] = GetTime()
 
+--[[
 local real_GameTooltipOnShow = GameTooltip:GetScript("OnShow") or QuestHelper.nop
 
 local function addObjectiveObjTip(tooltip, objective, depth, already_touched)
@@ -70,3 +71,4 @@ GameTooltip:SetScript("OnShow", function(self, ...)
   
   return real_GameTooltipOnShow(self, ...)
 end)
+]]
