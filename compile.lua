@@ -17,29 +17,8 @@ require("persistence")
 require("compile_chain")
 require("compile_debug")
 require("bit")
-
-local LZW
-
-do
-  local world = {}
-  world.QuestHelper_File = {}
-  world.QuestHelper_Loadtime = {}
-  world.GetTime = function() return 0 end
-  world.QuestHelper = { Assert = function(...) assert(...) end }
-  world.string = string
-  world.table = table
-  world.bit = bit
-  world.strbyte = string.byte
-  world.QH_Timeslice_Yield = function() end
-  setfenv(loadfile("../questhelper/collect_merger.lua"), world)()
-  setfenv(loadfile("../questhelper/collect_bitstream.lua"), world)()
-  setfenv(loadfile("../questhelper/collect_lzw.lua"), world)()
-  local api = {}
-  world.QH_Collect_Merger_Init(nil, api)
-  world.QH_Collect_Bitstream_Init(nil, api)
-  world.QH_Collect_LZW_Init(nil, api)
-  LZW = api.Utility_LZW
-end
+require("pluto")
+require("gzio")
   
 
 ll, err = package.loadlib("/nfs/build/libcompile_core.so", "init")
@@ -332,7 +311,12 @@ Chain head
 local chainhead = ChainBlock_Create("parse", nil,
   function () return {
     Data = function (self, key, subkey, value, Output)
-      dat = loadfile(key)()
+      local gzx = gzio.open(key, "r")
+      local gzd = gzx:read("*a")
+      gzx:close()
+      gzx = nil
+      local dat = pluto.unpersist({}, gzd)
+      gzd = nil
       assert(dat)
       
       if do_errors then
@@ -351,8 +335,8 @@ local chainhead = ChainBlock_Create("parse", nil,
         local qhv, wowv, locale, faction = string.match(verchunk, "([0-9.]+) on ([0-9.]+)/([a-zA-Z]+)/([12])")
         if qhv and wowv and locale and faction
           --and not sortversion("0.80", qhv) -- hacky hacky
-        then 
-          if v.compressed then
+        then
+          --[[if v.compressed then
             local deco = "return " .. LZW.Decompress(v.compressed, 256, 8)
             print(#v.compressed, #deco)
             local tx = loadstring(deco)()
@@ -361,7 +345,7 @@ local chainhead = ChainBlock_Create("parse", nil,
             for tk, tv in pairs(tx) do
               v[tk] = tv
             end
-          end
+          end]]
           assert(not v.compressed)
           
           -- quests!
@@ -443,7 +427,7 @@ Object collation
 
 local object_slurp
 
-if do_compile then 
+if false and do_compile then 
   local object_locate = ChainBlock_Create("object_locate", {chainhead},
     function (key) return {
       accum = {name = {}, loc = {}},
@@ -1036,28 +1020,24 @@ if do_compile then
             typ = "get"
           end
           
+          qout.criteria[k] = {}
+          
+          if dbg_data then
+            qout.criteria[k].item = v.item
+            qout.criteria[k].monster = v.monster
+            qout.criteria[k].count = v.count
+            qout.criteria[k].type = v.type
+          end
+          
           if snaggy then
             assert(#snaggy > 0)
-            qout.criteria[k] = {}
-            
-            if dbg_data then
-              qout.criteria[k].item = v.item
-              qout.criteria[k].monster = v.monster
-              qout.criteria[k].count = v.count
-              qout.criteria[k].type = v.type
-            end
             
             for _, x in ipairs(snaggy) do
               table.insert(qout.criteria[k], {sourcetype = v.type, sourceid = x.d, type = typ})
             end
-          else
-            -- Fallback code if it can't figure out which monster or item it actually needs. Right now, it's the only code.
-            -- Also, we're going to have a much, much better method for accumulating and distilling positions eventually.
-            qout.criteria[k] = {}
-            qout.criteria[k].type = v.type
-            
-            if position_has(v) then qout.criteria[k].loc = position_finalize(v.loc) end
           end
+          
+          if position_has(v) then qout.criteria[k].loc = position_finalize(v.loc) end
         end
         
         --if position_has(self.accum.start) then qout.start = { loc = position_finalize(self.accum.start) } end  -- we don't actually care about the start position
@@ -1169,11 +1149,53 @@ if item_slurp then table.insert(sources, item_slurp) end
 if monster_slurp then table.insert(sources, monster_slurp) end
 if object_slurp then table.insert(sources, object_slurp) end
 
+local function do_loc_choice(file, item)
+  local has_linkloc = false
+  for k, v in ipairs(item) do
+    if file[v.sourcetype][v.sourceid] then
+      if do_loc_choice(file, file[v.sourcetype][v.sourceid]) then
+        has_linkloc = true
+      end
+    end
+  end
+  
+  if has_linkloc then
+    if dbg_data then
+      item.loc_unused = item.loc_unused or item.loc
+    end
+    
+    item.loc = nil
+  else
+    if dbg_data then
+      if #item > 0 then
+        item.link_unused = {}
+        while #item > 0 do table.insert(item.link_unused, table.remove(item, 1)) end
+      end
+    else
+      while #item > 0 do table.remove(item) end
+    end
+  end
+  
+  return item.loc or #item > 0
+end
+
+local function mark_chains(file, item)
+  for k, v in ipairs(item) do
+    print("link", v.sourcetype, v.sourceid)
+    if file[v.sourcetype][v.sourceid] then
+      file[v.sourcetype][v.sourceid].used = true
+      mark_chains(file, file[v.sourcetype][v.sourceid])
+    end
+  end
+end
+
 local fileout = ChainBlock_Create("fileout", sources,
   function (key) return {
     finalfile = {},
     
     Data = function(self, key, subkey, value, Output)
+      assert(key == "")
+      
       assert(value.data)
       assert(value.id)
       assert(value.key)
@@ -1185,6 +1207,41 @@ local fileout = ChainBlock_Create("fileout", sources,
     end,
     
     Finish = function(self, Output)
+      -- First we go through and check to see who's got actual locations, and cull either location or linkage
+      if self.finalfile.quest then for k, v in pairs(self.finalfile.quest) do
+        if v.criteria then
+          for _, crit in pairs(v.criteria) do
+            do_loc_choice(self.finalfile, crit)
+          end
+        end
+      end end
+      
+      -- Then we mark used/unused items
+      if self.finalfile.quest then for k, v in pairs(self.finalfile.quest) do
+        v.used = true
+        if v.criteria then
+          for _, crit in pairs(v.criteria) do
+            mark_chains(self.finalfile, crit)
+          end
+        end
+      end end
+      
+      -- Then we optionally cull and unmark
+      for t, d in pairs(self.finalfile) do
+        local repl = {}
+        for k, v in pairs(d) do
+          if v.used then
+            repl[k] = v
+          else
+            v.used = false
+          end
+        end
+        
+        if not dbg_data then
+          self.finalfile[t] = d
+        end
+      end
+      
       fil = io.open("final/static.lua", "w")
       fil:write([=[QuestHelper_File["static.lua"] = "Development Version"
 QuestHelper_Loadtime["static.lua"] = GetTime()
