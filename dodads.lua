@@ -310,9 +310,10 @@ end
 function QuestHelper:AppendObjectiveToTooltip(o)
   local theme = self:GetColourTheme()
   
-  --self.tooltip:AddLine(o:Reason(), unpack(theme.tooltip))
-  self.tooltip:AddLine(o.desc .. " for " .. o.why.desc, unpack(theme.tooltip))
-  self.tooltip:GetPrevLines():SetFont(self.font.serif, 14)
+  for _, v in ipairs(o.map_desc) do
+    self.tooltip:AddLine(v)
+    self.tooltip:GetPrevLines():SetFont(self.font.serif, 14)
+  end
   
   self:AppendObjectiveProgressToTooltip(o, self.tooltip, QuestHelper.font.sans)
   

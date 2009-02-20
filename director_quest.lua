@@ -1,8 +1,32 @@
 QuestHelper_File["director_quest.lua"] = "Development Version"
 QuestHelper_Loadtime["director_quest.lua"] = GetTime()
 
+--[[
 
-local function AppendObjlinks(target, source, seen)
+Little bit of explanation here.
+
+The db layer dumps things out in DB format. This isn't immediately usable for our routing engine. We convert this to an intermediate "metaobjective" format that the routing engine can use, as well as copying anything that needs to be copied. This also allows us to modify our metaobjective tables as we see fit, rather than doing nasty stuff to keep the original objectives intact.
+
+]]
+
+local function copy(tab)
+  local tt = {}
+  for _, v in ipairs(tab) do
+    table.insert(tt, v)
+  end
+  return tt
+end
+
+local function copy_without_last(tab)
+  local tt = {}
+  for _, v in ipairs(tab) do
+    table.insert(tt, v)
+  end
+  --table.remove(tt)
+  return tt
+end
+
+local function AppendObjlinks(target, source, lines, seen)
   if not seen then seen = {} end
   
   QuestHelper: Assert(not seen[source])
@@ -13,12 +37,14 @@ local function AppendObjlinks(target, source, seen)
   if source.loc then
     for m, v in ipairs(source.loc) do
       QuestHelper: Assert(#source == 0)
-      table.insert(target, {loc = v})
+      table.insert(target, {loc = v, path_desc = copy_without_last(lines)})
     end
   else
     QuestHelper:TextOut(QuestHelper:StringizeRecursive(source, 2))
     for _, v in ipairs(source) do
-      AppendObjlinks(target, DB_GetItem(v.sourcetype, v.sourceid))
+      table.insert(lines, string.format("%s/%d", v.sourcetype, v.sourceid))
+      AppendObjlinks(target, DB_GetItem(v.sourcetype, v.sourceid), lines, seen)
+      table.remove(lines)
     end
   end
   seen[source] = false
@@ -36,13 +62,12 @@ local function GetQuestMetaobjective(questid)
     
     ite = {} -- we don't want to mutate the existing quest data
     ite.desc = string.format("Quest %s", q.name or "(unknown)")  -- this gets changed later anyway
-    ite.based_on = q -- We're storing this for kind of complicated reasons. We're going to be linking directly to the original quest loc tables. If we didn't store this, it could theoretically be garbage-collected. Then, later, if someone tried accessing the quest directly, they'd end up with the quest . . . and a new set of loc tables. Storing this is solely to prevent the garbage collector from collecting the quest,ID pair until the quest_metaobjective,ID pair is gone.
     
     if q.criteria then for k, c in ipairs(q.criteria) do
       local ttx = {}
       --QuestHelper:TextOut(string.format("critty %d %d", k, c.loc and #c.loc or -1))
       
-      AppendObjlinks(ttx, c)
+      AppendObjlinks(ttx, c, {})
       for idx, v in pairs(ttx) do
         v.desc = string.format("Criteria %d", k)
         v.clusterpart = idx
@@ -167,25 +192,29 @@ local function Clicky(index)
   QuestLog_Update()
 end
 
+-- Here's the core update function
 function UpdateQuests()
-  if update then
+  if update then  -- Sometimes (usually) we don't actually update
   
     local index = 1
     
     local nactive = {}
     quest_list_used = {}
     
+    -- This begins the main update loop that loops through all of the quests
     while true do
       local title, level = GetQuestLogTitle(index)
       if not title then break end
       
       local qlink = GetQuestLink(index)
-      if qlink then
+      if qlink then -- If we don't have a quest link, it's not really a quest
         local id = GetQuestType(qlink)
-        if id then
-          local db = GetQuestMetaobjective(id)
+        if id then -- If we don't have a *valid* quest link, give up
+          local db = GetQuestMetaobjective(id) -- This generates the above-mentioned metaobjective, including doing the database lookup.
           
-          if db then
+          if db then  -- If we didn't get a database lookup, then we don't have a metaobjective either. Urgh. abort abort abort
+          
+            -- The section in here, in other words, is: we have a metaobjective (which may be a new one, or may not be), and we're trying to attach things to our routing engine. Now is where the real work begins! (six conditionals deep)
             local lindex = index
             db.desc = title
             db.tracker_desc = MakeQuestTitle(title, level)
@@ -195,17 +224,21 @@ function UpdateQuests()
             
             local turnin
             
+            -- This is our "quest turnin" objective, which is currently being handled separately for no particularly good reason.
             if db[lbcount + 1] and #db[lbcount + 1] > 0 then
               turnin = db[lbcount + 1]
               nactive[turnin] = true
               if not active[turnin] then
                 for k, v in ipairs(turnin) do
                   v.tracker_clicked = function () Clicky(lindex) end
+                  
+                  v.map_desc = {string.format("turnin quest=%s", title)}
                 end
                 QH_Route_ClusterAdd(db[lbcount + 1])
               end
             end
             
+            -- These are the individual criteria of the quest. Remember that each criteria can be represented by multiple routing objectives.
             for i = 1, GetNumQuestLeaderBoards(index) do
               local desc, typ, done = GetQuestLogLeaderBoard(i, index)
               if db[i] then
@@ -213,9 +246,13 @@ function UpdateQuests()
                   v.tracker_desc = MakeQuestObjectiveTitle(desc, typ, done)
                   v.desc = desc
                   v.tracker_clicked = function () Clicky(lindex) end
+                  
+                  v.map_desc = copy(v.path_desc)
+                  v.map_desc[1] = string.format("typ=%s  desc=%s  quest=%s", typ, desc, title)
                 end
               end
               
+              -- This is the snatch of code that actually adds it to routing.
               if not done then if db[i] and #db[i] > 0 then
                 nactive[db[i]] = true
                 if not active[db[i]] then
