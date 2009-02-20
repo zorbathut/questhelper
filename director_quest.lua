@@ -252,24 +252,33 @@ function UpdateQuests()
             
             -- These are the individual criteria of the quest. Remember that each criteria can be represented by multiple routing objectives.
             for i = 1, GetNumQuestLeaderBoards(index) do
-              local desc, typ, done = GetQuestLogLeaderBoard(i, index)
               if db[i] then
+                local desc, typ, done = GetQuestLogLeaderBoard(i, index)
+                local pt, pd, need, done = objective_parse(typ, desc, done)
+                local dline
+                if pt == "item" or pt == "object" then
+                  dline = QHFormat("OBJECTIVE_REASON", QHText("ACQUIRE_VERB"), pd, title)
+                elseif pt == "monster" then
+                  dline = QHFormat("OBJECTIVE_REASON", QHText("SLAY_VERB"), pd, title)
+                else
+                  dline = QHFormat("OBJECTIVE_REASON_FALLBACK", pd, title)
+                end
+                
+                if not db[i].progress then
+                  db[i].progress = {}
+                end
+                
+                db[i].progress[UnitName("player")] = {need, done, need / done}
+                
                 for k, v in ipairs(db[i]) do
                   v.tracker_desc = MakeQuestObjectiveTitle(desc, typ, done)
                   v.desc = desc
                   v.tracker_clicked = function () Clicky(lindex) end
                   
+                  v.progress = db[i].progress
+                  
                   v.map_desc = copy(v.path_desc)
-                  
-                  local pt, pd = objective_parse(typ, desc, done)
-                  
-                  if pt == "item" or pt == "object" then
-                    v.map_desc[1] = QHFormat("OBJECTIVE_REASON", QHText("ACQUIRE_VERB"), pd, title)
-                  elseif pt == "monster" then
-                    v.map_desc[1] = QHFormat("OBJECTIVE_REASON", QHText("SLAY_VERB"), pd, title)
-                  else
-                    v.map_desc[1] = QHFormat("OBJECTIVE_REASON_FALLBACK", pd, title)
-                  end
+                  v.map_desc[1] = dline
                 end
               end
               

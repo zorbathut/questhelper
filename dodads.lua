@@ -268,10 +268,10 @@ function QuestHelper:GetOverlapObjectives(obj)
   return list
 end
 
-local prog_sort_table = {}
-
 function QuestHelper:AppendObjectiveProgressToTooltip(o, tooltip, font, depth)
   if o.progress then
+    local prog_sort_table = {}
+  
     local theme = self:GetColourTheme()
     
     local indent = ("  "):rep(depth or 0)
@@ -311,7 +311,7 @@ function QuestHelper:AppendObjectiveToTooltip(o)
   local theme = self:GetColourTheme()
   
   for _, v in ipairs(o.map_desc) do
-    self.tooltip:AddLine(v)
+    self.tooltip:AddLine(v, unpack(theme.tooltip))
     self.tooltip:GetPrevLines():SetFont(self.font.serif, 14)
   end
   
