@@ -42,8 +42,15 @@ local function AppendObjlinks(target, source, lines, seen)
   else
     QuestHelper:TextOut(QuestHelper:StringizeRecursive(source, 2))
     for _, v in ipairs(source) do
-      table.insert(lines, string.format("%s/%d", v.sourcetype, v.sourceid))
-      AppendObjlinks(target, DB_GetItem(v.sourcetype, v.sourceid), lines, seen)
+      local dbgi = DB_GetItem(v.sourcetype, v.sourceid)
+      if v.sourcetype == "monster" then
+        table.insert(lines, QHFormat("OBJECTIVE_SLAY", dbgi.name or QHText("OBJECTIVE_UNKNOWN_MONSTER")))
+      elseif v.sourcetype == "item" then
+        table.insert(lines, QHFormat("OBJECTIVE_ACQUIRE", dbgi.name or QHText("OBJECTIVE_ITEM_UNKNOWN")))
+      else
+        table.insert(lines, string.format("unknown %s (%s/%s)", tostring(dbgi.name), tostring(v.sourcetype), tostring(v.sourceid)))
+      end
+      AppendObjlinks(target, dbgi, lines, seen)
       table.remove(lines)
     end
   end
@@ -70,7 +77,6 @@ local function GetQuestMetaobjective(questid)
       AppendObjlinks(ttx, c, {})
       for idx, v in pairs(ttx) do
         v.desc = string.format("Criteria %d", k)
-        v.clusterpart = idx
         v.why = ite
         v.cluster = ttx
       end
@@ -81,7 +87,7 @@ local function GetQuestMetaobjective(questid)
       local ttx = {}
       --QuestHelper:TextOut(string.format("finny %d", q.finish.loc and #q.finish.loc or -1))
       for m, v in ipairs(q.finish.loc) do
-        table.insert(ttx, {desc = "Turn in quest", clusterpart = m, why = ite, loc = v, tracker_hidden = true, cluster = ttx})
+        table.insert(ttx, {desc = "Turn in quest", why = ite, loc = v, tracker_hidden = true, cluster = ttx})
       end
       table.insert(ite, ttx)
     end
@@ -112,7 +118,7 @@ local active = {}
 -- It's possible that things end up garbage-collected and we end up with different tables than we expect. This is something that the entire system is kind of prone to. The solution's pretty easy - we just have to store them ourselves while we're using them.
 local active_db = {}
 
-local objective_parse = {
+local objective_parse_table = {
   item = function (txt) return QuestHelper:convertPattern(QUEST_OBJECTS_FOUND)(txt) end,
   object = function (txt) return QuestHelper:convertPattern(QUEST_OBJECTS_FOUND)(txt) end,  -- why does this even exist
   monster = function (txt) return QuestHelper:convertPattern(QUEST_MONSTERS_KILLED)(txt) end,
@@ -120,6 +126,28 @@ local objective_parse = {
   reputation = function (txt) return QuestHelper:convertPattern(QUEST_FACTION_NEEDED)(txt) end, -- :ughh:
   player = function (txt) return QuestHelper:convertPattern(QUEST_MONSTERS_KILLED)(txt) end, -- We're using monsters here in the hopes that it follows the same pattern. I'd rather not try to find the exact right version of "player" in the locale files, though PLAYER might be it.
 }
+
+local function objective_parse(typ, txt, done)
+  local pt, target, have, need = typ, objective_parse_table[typ](txt, done)
+  
+  if not target then
+    -- well, that didn't work
+    target, have, need = string.match(txt, "^%s*(.-)%s*:%s*(.-)%s*/%s*(.-)%s*$")
+    pt = "fallback"
+    --QuestHelper:TextOut(string.format("%s rebecomes %s/%s/%s", tostring(title), tostring(target), tostring(have), tostring(need)))
+  end
+  
+  if not target then
+    target, have, need = string.match(txt, "^%s*(.-)%s*$"), (done and 1 or 0), 1
+    --QuestHelper:TextOut(string.format("%s rerebecomes %s/%s/%s", tostring(title), tostring(target), tostring(have), tostring(need)))
+  end
+  
+  QuestHelper: Assert(target) -- This will fail repeatedly. Come on. We all know it.
+  QuestHelper: Assert(have)
+  QuestHelper: Assert(need) -- As will these.
+  
+  return pt, target, have, need
+end
 
 local function clamp(v)
   if v < 0 then return 0 elseif v > 255 then return 255 else return v end
@@ -155,23 +183,7 @@ local function MakeQuestTitle(title, level)
 end
 
 local function MakeQuestObjectiveTitle(title, typ, done)
-  local target, have, need = objective_parse[typ](title, done)
-  --QuestHelper:TextOut(string.format("%s becomes %s/%s/%s", tostring(title), tostring(target), tostring(have), tostring(need)))
-  
-  if not target then
-    -- well, that didn't work
-    target, have, need = string.match(title, "^%s*(.-)%s*:%s*(.-)%s*/%s*(.-)%s*$")
-    --QuestHelper:TextOut(string.format("%s rebecomes %s/%s/%s", tostring(title), tostring(target), tostring(have), tostring(need)))
-  end
-  
-  if not target then
-    target, have, need = string.match(title, "^%s*(.-)%s*$"), (done and 1 or 0), 1
-    --QuestHelper:TextOut(string.format("%s rerebecomes %s/%s/%s", tostring(title), tostring(target), tostring(have), tostring(need)))
-  end
-  
-  QuestHelper: Assert(target) -- This will fail repeatedly. Come on. We all know it.
-  QuestHelper: Assert(have)
-  QuestHelper: Assert(need) -- As will these.
+  local _, target, have, need = objective_parse(typ, title, done)
   
   local nhave, nneed = tonumber(have), tonumber(need)
   if nhave and nneed then
@@ -232,7 +244,7 @@ function UpdateQuests()
                 for k, v in ipairs(turnin) do
                   v.tracker_clicked = function () Clicky(lindex) end
                   
-                  v.map_desc = {string.format("turnin quest=%s", title)}
+                  v.map_desc = {QHFormat("OBJECTIVE_REASON_TURNIN", title)}
                 end
                 QH_Route_ClusterAdd(db[lbcount + 1])
               end
@@ -248,7 +260,16 @@ function UpdateQuests()
                   v.tracker_clicked = function () Clicky(lindex) end
                   
                   v.map_desc = copy(v.path_desc)
-                  v.map_desc[1] = string.format("typ=%s  desc=%s  quest=%s", typ, desc, title)
+                  
+                  local pt, pd = objective_parse(typ, desc, done)
+                  
+                  if pt == "item" or pt == "object" then
+                    v.map_desc[1] = QHFormat("OBJECTIVE_REASON", QHText("ACQUIRE_VERB"), pd, title)
+                  elseif pt == "monster" then
+                    v.map_desc[1] = QHFormat("OBJECTIVE_REASON", QHText("SLAY_VERB"), pd, title)
+                  else
+                    v.map_desc[1] = QHFormat("OBJECTIVE_REASON_FALLBACK", pd, title)
+                  end
                 end
               end
               

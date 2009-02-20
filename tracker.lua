@@ -291,7 +291,7 @@ local function addItem(objective, y, meta)
     item:Show()
   end
   
-  item.text:SetText((item.obj.clusterpart and string.format("{%d} ", item.obj.clusterpart) or "{#}") .. item.obj.tracker_desc)
+  item.text:SetText(item.obj.tracker_desc)
   
   local w, h = item.text:GetWidth(), item.text:GetHeight()
   item:SetWidth(w)

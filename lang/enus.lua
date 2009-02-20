@@ -110,6 +110,9 @@ QuestHelper_Translations.enUS =
   OBJECTIVE_SLAY = "Slay %h1.",
   OBJECTIVE_LOOT = "Loot %h1.",
   
+  OBJECTIVE_MONSTER_UNKNOWN = "unknown monster",
+  OBJECTIVE_ITEM_UNKNOWN = "unknown item",
+  
   ZONE_BORDER = "%1/%2 border",
   
   -- Stuff used in objective menus.
