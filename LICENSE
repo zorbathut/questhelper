@@ -1,0 +1,55 @@
+
+QuestHelper wouldn't exist if not for all the useful libraries and example code that exists. As a result, various parts of QuestHelper are licensed under a variety of licenses.
+
+Libraries:
+
+AstrolabeQH/* - LGPL v2.1, much thanks to Esamynn
+ChatThrottleLib/* - All rights reserved, by Mikk. I am assuming that embedding is OK, as the library is useless otherwise, but will remove the library if requested.
+LibAboutPanel/* - All rights reserved, by Ackis. I am assuming that embedding is OK, as the library is useless otherwise, but will remove the library if requested.
+
+QH files:
+
+error.lua - LGPL v3.0, heavily based on Swatter code from Norganna
+
+All of the following files are LGPL v3.0, based on the original 0.48 QuestHelper code:
+comm.lua
+custom.lua
+dodads.lua
+flightpath.lua
+graph.lua
+help.lua
+hidden.lua
+lang.lua
+main.lua
+mapbutton.lua
+menu.lua
+nag.lua
+objective.lua
+objtips.lua
+pathfinding.lua
+pattern.lua
+quest.lua
+QuestHelper.toc
+questlog.lua
+recycle.lua
+routing.lua
+teleport.lua
+textviewer.lua
+tomtom.lua
+tracker.lua
+upgrade.lua
+utility.lua
+lang/*
+Art/*
+
+All other files are (c) Ben Wilhelm, all rights reserved. This includes, but is not limited to:
+
+core.lua
+collect.lua
+collect_*.lua
+routing_*.lua
+manager_*.lua
+director_*.lua
+db_*.lua
+
+All of these files have very restricted interfaces, making them suitable for inclusion in an otherwise LGPL codebase. If you feel that the coupling between the closed-sourced and LGPL sections are too broad, please let me know what I can do to improve things.
