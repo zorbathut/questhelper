@@ -22,12 +22,14 @@ local function copy_without_last(tab)
   for _, v in ipairs(tab) do
     table.insert(tt, v)
   end
-  --table.remove(tt)
+  table.remove(tt)
   return tt
 end
 
-local function AppendObjlinks(target, source, tooltips, lines, seen)
+local function AppendObjlinks(target, source, tooltips, last_name, map_lines, tooltip_lines, seen)
   if not seen then seen = {} end
+  if not map_lines then map_lines = {} end
+  if not tooltip_lines then tooltip_lines = {} end
   
   QuestHelper: Assert(not seen[source])
   
@@ -37,23 +39,28 @@ local function AppendObjlinks(target, source, tooltips, lines, seen)
   if source.loc then
     for m, v in ipairs(source.loc) do
       QuestHelper: Assert(#source == 0)
-      table.insert(target, {loc = v, path_desc = copy_without_last(lines)})
+      table.insert(target, {loc = v, path_desc = copy(map_lines)})
     end
   else
     for _, v in ipairs(source) do
       local dbgi = DB_GetItem(v.sourcetype, v.sourceid)
       
-      tooltips[string.format("%s@@%s", v.sourcetype, v.sourceid)] = true
-      
       if v.sourcetype == "monster" then
-        table.insert(lines, QHFormat("OBJECTIVE_SLAY", dbgi.name or QHText("OBJECTIVE_UNKNOWN_MONSTER")))
+        table.insert(map_lines, QHFormat("OBJECTIVE_SLAY", dbgi.name or QHText("OBJECTIVE_UNKNOWN_MONSTER")))
+        table.insert(tooltip_lines, 1, QHFormat("TOOLTIP_SLAY", source.name or "nothing"))
       elseif v.sourcetype == "item" then
-        table.insert(lines, QHFormat("OBJECTIVE_ACQUIRE", dbgi.name or QHText("OBJECTIVE_ITEM_UNKNOWN")))
+        table.insert(map_lines, QHFormat("OBJECTIVE_ACQUIRE", dbgi.name or QHText("OBJECTIVE_ITEM_UNKNOWN")))
+        table.insert(tooltip_lines, 1, QHFormat("TOOLTIP_LOOT", source.name or "nothing"))
       else
-        table.insert(lines, string.format("unknown %s (%s/%s)", tostring(dbgi.name), tostring(v.sourcetype), tostring(v.sourceid)))
+        table.insert(map_lines, string.format("unknown %s (%s/%s)", tostring(dbgi.name), tostring(v.sourcetype), tostring(v.sourceid)))
+        table.insert(tooltip_lines, 1, string.format("unknown %s (%s/%s)", tostring(last_name), tostring(v.sourcetype), tostring(v.sourceid)))
       end
-      AppendObjlinks(target, dbgi, tooltips, lines, seen)
-      table.remove(lines)
+      
+      tooltips[string.format("%s@@%s", v.sourcetype, v.sourceid)] = copy_without_last(tooltip_lines)
+      
+      AppendObjlinks(target, dbgi, tooltips, source.name, map_lines, tooltip_lines, seen)
+      table.remove(tooltip_lines, 1)
+      table.remove(map_lines)
     end
   end
   seen[source] = false
@@ -78,7 +85,7 @@ local function GetQuestMetaobjective(questid)
       
       ttx.tooltip = {}
       
-      AppendObjlinks(ttx, c, ttx.tooltip, {})
+      AppendObjlinks(ttx, c, ttx.tooltip)
       for idx, v in ipairs(ttx) do
         v.desc = string.format("Criteria %d", k)
         v.why = ite
@@ -86,7 +93,7 @@ local function GetQuestMetaobjective(questid)
       end
       
       for k, v in pairs(ttx.tooltip) do
-        ttx.tooltip[k] = ttx -- we're gonna be handing out this table, so this isn't as dumb as it looks
+        ttx.tooltip[k] = {ttx.tooltip[k], ttx} -- we're gonna be handing out this table, so this isn't as dumb as it looks
       end
       
       table.insert(ite, ttx)
