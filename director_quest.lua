@@ -297,17 +297,17 @@ function UpdateQuests()
                   v.map_desc = copy(v.path_desc)
                   v.map_desc[1] = dline
                 end
-              end
-              
-              -- This is the snatch of code that actually adds it to routing.
-              if not done then if db[i] and #db[i] > 0 then
-                nactive[db[i]] = true
-                if not active[db[i]] then
-                  QH_Route_ClusterAdd(db[i])
-                  if db[i].tooltip then QH_Tooltip_Add(db[i].tooltip) end
-                  if turnin then QH_Route_ClusterRequires(turnin, db[i]) end
+                
+                -- This is the snatch of code that actually adds it to routing.
+                if not done and #db[i] > 0 the
+                  nactive[db[i]] = true
+                  if not active[db[i]] then
+                    QH_Route_ClusterAdd(db[i])
+                    if db[i].tooltip then QH_Tooltip_Add(db[i].tooltip) end
+                    if turnin then QH_Route_ClusterRequires(turnin, db[i]) end
+                  end
                 end
-              end end
+              end
             end
           end
         end
