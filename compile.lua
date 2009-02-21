@@ -8,6 +8,7 @@ io.write = function (...) orig_write(debug.getinfo(2,"n").name, ...) end
 
 local do_zone_map = false
 local do_errors = true
+local do_questtables = true
 local do_compile = true
 
 local dbg_data = true
@@ -349,28 +350,28 @@ local chainhead = ChainBlock_Create("parse", nil,
           assert(not v.compressed)
           
           -- quests!
-          if do_compile and v.quest then for qid, qdat in pairs(v.quest) do
+          if do_compile and do_questtables and v.quest then for qid, qdat in pairs(v.quest) do
             qdat.fileid = value.fileid
             qdat.locale = locale
             Output(string.format("%d", qid), qhv, qdat, "quest")
           end end
           
           -- items!
-          if do_compile and v.item then for iid, idat in pairs(v.item) do
+          if do_compile and do_questtables and v.item then for iid, idat in pairs(v.item) do
             idat.fileid = value.fileid
             idat.locale = locale
             Output(tostring(iid), qhv, idat, "item")
           end end
           
           -- monsters!
-          if do_compile and v.monster then for mid, mdat in pairs(v.monster) do
+          if do_compile and do_questtables and v.monster then for mid, mdat in pairs(v.monster) do
             mdat.fileid = value.fileid
             mdat.locale = locale
             Output(tostring(mid), qhv, mdat, "monster")
           end end
           
           -- objects!
-          if do_compile and v.object then for oid, odat in pairs(v.object) do
+          if do_compile and do_questtables and v.object then for oid, odat in pairs(v.object) do
             odat.fileid = value.fileid
             Output(string.format("%s@@%s", oid, locale), qhv, odat, "object")
           end end
@@ -721,7 +722,7 @@ Monster collation
 
 local monster_slurp
 
-if do_compile then 
+if do_compile and do_questtables then 
   monster_slurp = ChainBlock_Create("monster_slurp", {chainhead},
     function (key) return {
       accum = {name = {}, loc = {}},
@@ -786,7 +787,7 @@ Item collation
 local item_name_package
 local item_slurp
 
-if do_compile then
+if do_compile and do_questtables then
   local item_slurp_first = ChainBlock_Create("item_parse", {chainhead},
     function (key) return {
       accum = {name = {}},
@@ -919,7 +920,7 @@ Quest collation
 
 local quest_slurp
 
-if do_compile then
+if do_compile and do_questtables then
   local function find_important(dat, count)
     local mungedat = {}
     local tweight = 0
@@ -1137,6 +1138,33 @@ if do_zone_map then
     nil, "zone_stitch"
   )
 end
+
+--[[
+*****************************************************************
+Flight paths
+]]
+
+--[[
+
+let us talk about flight paths
+
+sit down
+
+have some tea
+
+very well, let us begin
+
+So, flight masters. First, accumulate each one of each faction/name/locale set. This includes both monsterid (pick most common) and vertex location (simple most-common.)
+
+Then we link together name/locale's of various factions, just so we can get names out and IDs.
+
+After that, we take our routes and determine IDs, with name-lookup for the first and last node, and vertex-lookup for all other nodes, with some really low error threshold. Pick the mean time for each route that has over N tests, then dump those.
+
+For now we'll assume that this will provide sufficiently accurate information.
+
+We'll do this, then start working on the clientside code.
+
+]]
 
 --[[
 *****************************************************************
