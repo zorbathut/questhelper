@@ -299,7 +299,7 @@ function UpdateQuests()
                 end
                 
                 -- This is the snatch of code that actually adds it to routing.
-                if not done and #db[i] > 0 the
+                if not done and #db[i] > 0 then
                   nactive[db[i]] = true
                   if not active[db[i]] then
                     QH_Route_ClusterAdd(db[i])
