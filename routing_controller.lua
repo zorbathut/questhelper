@@ -28,6 +28,7 @@ QH_Route_Core_DistanceClear = nil
 local pending = {}
 
 function QH_Route_NodeAdd(node)
+  QuestHelper: Assert(node.map_desc)
   table.insert(pending, function () Route_Core_NodeAdd(node) end)
 end
 
@@ -77,7 +78,7 @@ local function process()
   while true do
     local c, x, y = QuestHelper:RetrieveRawLocation()
     if c and x and y then
-      Route_Core_SetStart({desc = "Start", why = StartObjective, loc = NewLoc(c, x, y, "Start"), tracker_hidden = true})
+      Route_Core_SetStart({desc = "Start", why = StartObjective, loc = NewLoc(c, x, y, "Start"), tracker_hidden = true, ignore = true})
     end
     
     Route_Core_Process()

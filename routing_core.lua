@@ -59,7 +59,7 @@ local Dist
   local DependencyLinksReverse = {}  -- Every cluster that cluster X depends on
   local DependencyCounts = {}  -- How many different nodes cluster X depends on
 
-  local StartNode = {}
+  local StartNode = {ignore = true}
 
   local NodeLookup = {[StartNode] = 1}
   local NodeList = {[1] = StartNode}

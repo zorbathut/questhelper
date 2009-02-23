@@ -176,6 +176,7 @@ function QuestHelper:CreateWorldMapWalker()
       end]]
       
       for i, obj in ipairs(self.route) do
+        QuestHelper: Assert(obj.ignore or obj.map_desc)
         --QuestHelper:TextOut(string.format("%s", tostring(obj)))
         
         --[[
@@ -248,16 +249,18 @@ function QuestHelper:GetOverlapObjectives(obj)
   for i, o in ipairs(walker_loc.route) do
     --QuestHelper: Assert(o, string.format("nil dodads pos issue, o %s", tostring(o)))
     --QuestHelper: Assert(o.pos, string.format("nil dodads pos issue, pos %s", QuestHelper:StringizeTable(o)))
-    if o == obj then
-      table.insert(list, o)
-    else
-      local x, y = convertLocationToScreen(o.loc, c, z)
-      
-      if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
-        x, y = x*w, y*h
+    if not o.ignore then
+      if o == obj then
+        table.insert(list, o)
+      else
+        local x, y = convertLocationToScreen(o.loc, c, z)
         
-        if cx >= x-s and cy >= y-s and cx <= x+s and cy <= y+s then
-          table.insert(list, o)
+        if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
+          x, y = x*w, y*h
+          
+          if cx >= x-s and cy >= y-s and cx <= x+s and cy <= y+s then
+            table.insert(list, o)
+          end
         end
       end
     end
@@ -459,6 +462,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
     
     if self.old_count > 0 then
       local list = QuestHelper:GetOverlapObjectives(self.objective)
+      
       if #list ~= self.old_count then
         self:SetTooltip(list)
         self.old_count = #list
