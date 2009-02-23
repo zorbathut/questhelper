@@ -1,10 +1,24 @@
---[[-------------------------------------------------------------------------
-  James Whitehead II grants anyone the right to use this work for any purpose,
-  without any conditions, unless such conditions are required by law.
----------------------------------------------------------------------------]]
+--[[------------------------------------------------------------------
+--  $Id: DongleStub.lua 466 2007-06-23 19:17:46Z jnwhiteh $
+--
+--  DongleStub is a simple versioning stub that allows different
+--  major versions of a library to exist alongside each other, while
+--  providing a mechanism for library upgrades through minor version
+--  differences.
+--
+--  The implementation of DongleStub, including the source code, 
+--  documentation and related data, is placed into the public domain.
+--
+--  The original author is James N. Whitehead II
+--
+--  THIS SOFTWARE IS PROVIDED AS-IS WITHOUT WARRANTY OF ANY KIND, NOT
+--  EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY. THE AUTHOR OF THIS
+--  SOFTWARE, ASSUMES _NO_ RESPONSIBILITY FOR ANY CONSEQUENCE RESULTING
+--  FROM THE USE, MODIFICATION, OR REDISTRIBUTION OF THIS SOFTWARE.
+------------------------------------------------------------------]]--
 
 local major = "DongleStub"
-local minor = tonumber(string.match("$Revision: 313 $", "(%d+)") or 1)
+local minor = tonumber(string.match("$Revision: 466 $", "(%d+)") or 1)
 
 local g = getfenv(0)
 
@@ -19,24 +33,17 @@ if not g.DongleStub or g.DongleStub:IsNewerVersion(major, minor) then
 		end
 	})
 
-	function lib:IsNewerVersion(major, minor)
-		local versionData = self.versions and self.versions[major]
-
-		-- If DongleStub versions have differing major version names
-		-- such as DongleStub-Beta0 and DongleStub-1.0-RC2 then a second
-		-- instance will be loaded, with older logic.  This code attempts
-		-- to compensate for that by matching the major version against
-		-- "^DongleStub", and handling the version check correctly.
-
-		if major:match("^DongleStub") then
-			local oldmajor,oldminor = self:GetVersion()
-			if self.versions and self.versions[oldmajor] then
-				return minor > oldminor
-			else
-				return true
-			end
+	function lib:HasVersion(major)
+		if type(major) ~= "string" then
+			error("bad argument #2 to 'HasVersion' (string expected, got " .. type(major) .. ")", 2)
 		end
 
+		local instance = self.versions and self.versions[major]
+		return instance ~= nil
+	end
+
+	function lib:IsNewerVersion(major, minor)
+		local versionData = self.versions and self.versions[major]
 		if not versionData then return true end
 		local oldmajor,oldminor = versionData.instance:GetVersion()
 		return minor > oldminor
@@ -48,14 +55,22 @@ if not g.DongleStub or g.DongleStub:IsNewerVersion(major, minor) then
 	end
 
 	function lib:Register(newInstance, activate, deactivate)
-		assert(type(newInstance.GetVersion) == "function",
-			"Attempt to register a library with DongleStub that does not have a 'GetVersion' method.")
+		if type(newInstance) ~= "table" then
+			error("bad argument #2 to 'Register' (table expected, got " .. type(newInstance) .. ")", 2)
+		end
+
+		if type(newInstance.GetVersion) ~= "function" then
+			error("Attempt to register a library with DongleStub that does not have a 'GetVersion' method.", 2)
+		end
 
 		local major,minor = newInstance:GetVersion()
-		assert(type(major) == "string",
-			"Attempt to register a library with DongleStub that does not have a proper major version.")
-		assert(type(minor) == "number",
-			"Attempt to register a library with DongleStub that does not have a proper minor version.")
+		if type(major) ~= "string" then
+			error("Attempt to register a library with DongleStub that does not have a proper major version.", 2)
+		end
+
+		if type(minor) ~= "number" then
+			error("Attempt to register a library with DongleStub that does not have a proper minor version.", 2)
+		end
 
 		-- Generate a log of all library registrations
 		if not self.log then self.log = {} end
