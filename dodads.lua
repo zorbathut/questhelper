@@ -682,36 +682,38 @@ function QuestHelper:CreateMipmapDodad()
         end
       end]=]
       
-      QuestHelper.Astrolabe:PlaceIconOnMinimap(self, convertLocation(self.obj.loc))
-      
-      local edge = QuestHelper.Astrolabe:IsIconOnEdge(self)
-      
-      if edge then
-        self.arrow:Show()
-        self.dot:Hide()
-        self.bg:Hide()
-      else
-        self.arrow:Hide()
-        self.dot:Show()
-        self.bg:Show()
-      end
-      
-      if edge then
-        local angle = QuestHelper.Astrolabe:GetDirectionToIcon(self)
-        if GetCVar("rotateMinimap") == "1" then
-          angle = angle + MiniMapCompassRing:GetFacing()
-        end
+      if QuestHelper.Astrolabe:PlaceIconOnMinimap(self, convertLocation(self.obj.loc)) ~= -1 then
+        local edge = QuestHelper.Astrolabe:IsIconOnEdge(self)
         
-        self.arrow:SetFacing(angle)
-        self.arrow:SetPosition(ofs * (137 / 140) - radius * math.sin(angle),
-                               ofs               + radius * math.cos(angle), 0);
-        
-        if self.phase > 6.283185307179586476925 then
-          self.phase = self.phase-6.283185307179586476925+elapsed*3.5
+        if edge then
+          self.arrow:Show()
+          self.dot:Hide()
+          self.bg:Hide()
         else
-          self.phase = self.phase+elapsed*3.5
+          self.arrow:Hide()
+          self.dot:Show()
+          self.bg:Show()
         end
-        self.arrow:SetModelScale(0.600000023841879+0.1*math.sin(self.phase))
+        
+        if edge then
+          local angle = QuestHelper.Astrolabe:GetDirectionToIcon(self)
+          if GetCVar("rotateMinimap") == "1" then
+            angle = angle + MiniMapCompassRing:GetFacing()
+          end
+          
+          self.arrow:SetFacing(angle)
+          self.arrow:SetPosition(ofs * (137 / 140) - radius * math.sin(angle),
+                                 ofs               + radius * math.cos(angle), 0);
+          
+          if self.phase > 6.283185307179586476925 then
+            self.phase = self.phase-6.283185307179586476925+elapsed*3.5
+          else
+            self.phase = self.phase+elapsed*3.5
+          end
+          self.arrow:SetModelScale(0.600000023841879+0.1*math.sin(self.phase))
+        end
+      else
+        self:Hide()
       end
     else
       self:Hide()
