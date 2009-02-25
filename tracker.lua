@@ -47,6 +47,8 @@ function QuestHelper:ResetTrackerPosition(cmd)
     minbutton:SetPoint("RIGHT", nil, "RIGHT", -20, 230)
   end
   minbutton:moved()
+  QuestHelper_Pref.track_minimized = false
+  tracker:Show()
   self:TextOut("Quest tracker postion reset.")
 end
 
