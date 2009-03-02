@@ -1,4 +1,10 @@
 
+== Version 0.91 3/1/2009 ==
+
+* Full compatability with WoW 3.1 on the PTR. Let me know if it breaks again, I may not notice.
+* Fix a small bug that caused hardreset to stop working
+* Remove some error spam that was occuring with tooltips when QH didn't actually load properly
+
 == Version 0.90 2/25/2009 ==
 
 * Strip out more private server/test server/competition server data
