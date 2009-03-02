@@ -489,11 +489,6 @@ function QuestHelper:Initialize()
     end
   end
 
-  if QuestHelper_Version ~= version then
-    QuestHelper_Version = version
-    self:ChangeLog()
-  end
-
   self:SetScript("OnUpdate", self.OnUpdate)
 
   -- Seems to do its own garbage collection pass before fully loading, so I'll just rely on that
