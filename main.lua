@@ -1,6 +1,8 @@
 QuestHelper_File["main.lua"] = "Development Version"
 QuestHelper_Loadtime["main.lua"] = GetTime()
 
+local version_string = QuestHelper_File["main.lua"] -- we pretty much save this only so we can inform the user that they're using a beta version
+
 -- Just to make sure it's always 'seen' (there's nothing that can be seen, but still...), and therefore always updating.
 QuestHelper:SetFrameStrata("TOOLTIP")
 
@@ -838,7 +840,33 @@ function QuestHelper:OnUpdate()
   frams = frams + 1
   
   if not QuestHelper_Loadtime["onupdate"] then QuestHelper_Loadtime["onupdate"] = GetTime() end
+  
+  if frams == 300 then
+    QuestHelper:TextOut("showtext")
+    self:ShowText([[
+This is a |cffff8000pre-pre-pre-prealpha of QuestHelper|r. Yes. That's right. It is |cffff8000four stacked pre-alphas|r. Be warned: It may crash. It may lock up. It may give bad advice. It may spew errors. It shouldn't spam people, delete your hard-won epics, or make your computer catch on fire, but technically I'm giving no guarantees. |cffff8000If you want a polished, functioning product, close WoW, download the official QH release from curse.com, and use that.|r
 
+Known bugs include:
+
+  |cff40bbffVastly excessive memory usage (lots of stored debug data, no database compaction, etc)|r
+  
+  |cff40bbffAssumes enUS locale for many creature and item names|r
+  
+  |cff40bbffExtremely bad at generating new paths as the player moves around|r
+  
+  |cff40bbffNo support for objective priority or ignoring|r
+  
+  |cff40bbffNo support for quest filters of any sort|r
+  
+  |cff40bbffNo support for in-party quest synchronization|r
+
+All of these except the last one will be fixed before the official 1.0 release (the last one may wait for 1.1, but it will be fixed before I stop supporting the 0.x line.) They're not fixed now.
+
+If you encounter any issue besides the ones listed here, please please please report it, if you're reading this you know how to get in contact with me anyway.
+
+Thanks for testing!]], "QuestHelper " .. version_string, 500, 20, 10)
+  end
+  
   if frams == 250 then please_donate_enabled = false end -- TOOK TOO LONG >:(
   if please_donate_enabled and startup_time and startup_time + 1 < GetTime() then
     QuestHelper:TextOut(QHText("PLEASE_DONATE"))
