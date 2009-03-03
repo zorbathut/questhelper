@@ -1,4 +1,8 @@
 
+== Version 0.93 3/3/2009 ==
+
+* Fix the minimap issue for real. Argh.
+
 == Version 0.92 3/2/2009 ==
 
 * There was never a bug with rotating-minimaps causing the routing arrow to point at the wrong place. This release is merely being done for fun. Hey look! Wasn't that fun!
