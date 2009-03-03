@@ -436,7 +436,7 @@ local MinimapCompassTexture = MinimapCompassTexture;
 local MinimapCompassRing = MiniMapCompassRing;
 function Astrolabe:GetFacing()
   if MinimapCompassRing then  -- 3.1 hackery
-    return -MinimapCompassRing:GetFacing()
+    return MinimapCompassRing:GetFacing()
   else
     local x, y = MinimapCompassTexture:GetTexCoord()
     return atan2(y - 0.5, x - 0.5) - 3.14159 / 4 * 5
