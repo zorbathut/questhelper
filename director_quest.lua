@@ -26,7 +26,7 @@ local function copy_without_last(tab)
   return tt
 end
 
-local function AppendObjlinks(target, source, tooltips, last_name, map_lines, tooltip_lines, seen)
+local function AppendObjlinks(target, source, tooltips, icon, last_name, map_lines, tooltip_lines, seen)
   if not seen then seen = {} end
   if not map_lines then map_lines = {} end
   if not tooltip_lines then tooltip_lines = {} end
@@ -39,26 +39,30 @@ local function AppendObjlinks(target, source, tooltips, last_name, map_lines, to
   if source.loc then
     for m, v in ipairs(source.loc) do
       QuestHelper: Assert(#source == 0)
-      table.insert(target, {loc = v, path_desc = copy(map_lines)})
+      table.insert(target, {loc = v, path_desc = copy(map_lines), icon_id = icon or 6})
     end
   else
     for _, v in ipairs(source) do
       local dbgi = DB_GetItem(v.sourcetype, v.sourceid)
+      local licon
       
       if v.sourcetype == "monster" then
         table.insert(map_lines, QHFormat("OBJECTIVE_SLAY", dbgi.name or QHText("OBJECTIVE_UNKNOWN_MONSTER")))
         table.insert(tooltip_lines, 1, QHFormat("TOOLTIP_SLAY", source.name or "nothing"))
+        licon = 1
       elseif v.sourcetype == "item" then
         table.insert(map_lines, QHFormat("OBJECTIVE_ACQUIRE", dbgi.name or QHText("OBJECTIVE_ITEM_UNKNOWN")))
         table.insert(tooltip_lines, 1, QHFormat("TOOLTIP_LOOT", source.name or "nothing"))
+        licon = 2
       else
         table.insert(map_lines, string.format("unknown %s (%s/%s)", tostring(dbgi.name), tostring(v.sourcetype), tostring(v.sourceid)))
         table.insert(tooltip_lines, 1, string.format("unknown %s (%s/%s)", tostring(last_name), tostring(v.sourcetype), tostring(v.sourceid)))
+        licon = 3
       end
       
       tooltips[string.format("%s@@%s", v.sourcetype, v.sourceid)] = copy_without_last(tooltip_lines)
       
-      AppendObjlinks(target, dbgi, tooltips, source.name, map_lines, tooltip_lines, seen)
+      AppendObjlinks(target, dbgi, tooltips, icon or licon, source.name, map_lines, tooltip_lines, seen)
       table.remove(tooltip_lines, 1)
       table.remove(map_lines)
     end
@@ -102,7 +106,7 @@ local function GetQuestMetaobjective(questid)
       local ttx = {}
       --QuestHelper:TextOut(string.format("finny %d", q.finish.loc and #q.finish.loc or -1))
       for m, v in ipairs(q.finish.loc) do
-        table.insert(ttx, {desc = "Turn in quest", why = ite, loc = v, tracker_hidden = true, cluster = ttx})
+        table.insert(ttx, {desc = "Turn in quest", why = ite, loc = v, tracker_hidden = true, cluster = ttx, icon_id = 7})
       end
       table.insert(ite, ttx)
     end
