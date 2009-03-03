@@ -1278,6 +1278,7 @@ end
 function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
   local submenu = self:CreateMenu()
   
+  --[[
   for i = 1,5 do
     local name = QHText("PRIORITY"..i)
     local item = self:CreateMenuItem(submenu, name)
@@ -1315,7 +1316,9 @@ function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
     self:CreateMenuItem(menu, QHText("SHARING")):SetSubmenu(submenu)
   end
   
-  self:CreateMenuItem(menu, QHText("IGNORE")):SetFunction(self.IgnoreObjective, self, obj)
+  self:CreateMenuItem(menu, QHText("IGNORE")):SetFunction(self.IgnoreObjective, self, obj)]]
+  
+  self:CreateMenuItem(menu, "(No options available)")
 end
 
 function QuestHelper:IgnoreObjective(objective)

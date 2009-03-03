@@ -557,13 +557,13 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
         
         for i, o in ipairs(list) do
           local submenu = QuestHelper:CreateMenu()
-          item = QuestHelper:CreateMenuItem(menu, o:Reason(true))
+          item = QuestHelper:CreateMenuItem(menu, o.map_desc[1])
           item:SetSubmenu(submenu)
           item:AddTexture(QuestHelper:CreateIconTexture(item, o.icon_id), true)
           QuestHelper:AddObjectiveOptionsToMenu(o, submenu)
         end
       else
-        QuestHelper:CreateMenuTitle(menu, self.objective:Reason(true))
+        QuestHelper:CreateMenuTitle(menu, self.objective.map_desc[1])
         QuestHelper:AddObjectiveOptionsToMenu(self.objective, menu)
       end
       
