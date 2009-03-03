@@ -133,7 +133,7 @@ if csave.QuestHelper_Errors then
     errdat.modified = csave.QuestHelper_SaveDate
     errdat.uid = csave.QuestHelper_UID
     errdat.signature = "error"
-    errdat.error = csave.QuestHelper_Errors
+    errdat.errors = csave.QuestHelper_Errors
     dumpout(errdat)
   end
 end

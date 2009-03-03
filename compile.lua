@@ -7,8 +7,8 @@ io.write = function (...) orig_write(debug.getinfo(2,"n").name, ...) end
 ]]
 
 local do_zone_map = false
-local do_errors = true
-local do_questtables = true
+local do_errors = false
+local do_questtables = false
 local do_compile = true
 
 local dbg_data = true
@@ -197,9 +197,9 @@ local function list_accumulate(item, id, inp)
   end
 end
 
-local function list_most_common(tbl)
+local function list_most_common(tbl, mv)
   local mcv = nil
-  local mcvw = nil
+  local mcvw = mv
   for k, v in pairs(tbl) do
     if not mcvw or v > mcvw then mcv, mcvw = k, v end
   end
@@ -320,8 +320,8 @@ local chainhead = ChainBlock_Create("parse", nil,
       gzd = nil
       assert(dat)
       
-      if do_errors then
-        for k, v in pairs(dat.QuestHelper_Errors) do
+      if do_errors and dat.errors then
+        for k, v in pairs(dat.errors) do
           if k ~= "version" then
             for _, d in pairs(v) do
               d.key = k
@@ -332,90 +332,95 @@ local chainhead = ChainBlock_Create("parse", nil,
         end
       end
       
-      for verchunk, v in pairs(dat.QuestHelper_Collector) do
-        local qhv, wowv, locale, faction = string.match(verchunk, "([0-9.]+) on ([0-9.]+)/([a-zA-Z]+)/([12])")
-        if qhv and wowv and locale and faction
-          --and not sortversion("0.80", qhv) -- hacky hacky
-        then
-          --[[if v.compressed then
-            local deco = "return " .. LZW.Decompress(v.compressed, 256, 8)
-            print(#v.compressed, #deco)
-            local tx = loadstring(deco)()
-            assert(tx)
-            v.compressed = nil
-            for tk, tv in pairs(tx) do
-              v[tk] = tv
-            end
-          end]]
-          assert(not v.compressed)
+      local qhv, wowv, locale, faction = string.match(dat.signature, "([0-9.]+) on ([0-9.]+)/([a-zA-Z]+)/([12])")
+      local v = dat.data
+      if qhv and wowv and locale and faction
+        --and not sortversion("0.80", qhv) -- hacky hacky
+      then
+        --[[if v.compressed then
+          local deco = "return " .. LZW.Decompress(v.compressed, 256, 8)
+          print(#v.compressed, #deco)
+          local tx = loadstring(deco)()
+          assert(tx)
+          v.compressed = nil
+          for tk, tv in pairs(tx) do
+            v[tk] = tv
+          end
+        end]]
+        assert(not v.compressed)
+        
+        -- quests!
+        if do_compile and do_questtables and v.quest then for qid, qdat in pairs(v.quest) do
+          qdat.fileid = value.fileid
+          qdat.locale = locale
+          Output(string.format("%d", qid), qhv, qdat, "quest")
+        end end
+        
+        -- items!
+        if do_compile and do_questtables and v.item then for iid, idat in pairs(v.item) do
+          idat.fileid = value.fileid
+          idat.locale = locale
+          Output(tostring(iid), qhv, idat, "item")
+        end end
+        
+        -- monsters!
+        if do_compile and do_questtables and v.monster then for mid, mdat in pairs(v.monster) do
+          mdat.fileid = value.fileid
+          mdat.locale = locale
+          Output(tostring(mid), qhv, mdat, "monster")
+        end end
+        
+        -- objects!
+        if do_compile and do_questtables and v.object then for oid, odat in pairs(v.object) do
+          odat.fileid = value.fileid
+          Output(string.format("%s@@%s", oid, locale), qhv, odat, "object")
+        end end
+        
+        -- flight masters!
+        if do_compile and v.flight_master then for fmname, fmdat in pairs(v.flight_master) do
+          if type(fmdat.master) == "string" then continue end  -- I don't even know how this is possible
+          Output(string.format("%s@@%s@@%s", faction, fmname, locale), qhv, fmdat, "flight_master")
+        end end
+        
+        -- zones!
+        if locale == "enUS" and do_zone_map and v.zone then for zname, zdat in pairs(v.zone) do
+          local items = {}
           
-          -- quests!
-          if do_compile and do_questtables and v.quest then for qid, qdat in pairs(v.quest) do
-            qdat.fileid = value.fileid
-            qdat.locale = locale
-            Output(string.format("%d", qid), qhv, qdat, "quest")
-          end end
-          
-          -- items!
-          if do_compile and do_questtables and v.item then for iid, idat in pairs(v.item) do
-            idat.fileid = value.fileid
-            idat.locale = locale
-            Output(tostring(iid), qhv, idat, "item")
-          end end
-          
-          -- monsters!
-          if do_compile and do_questtables and v.monster then for mid, mdat in pairs(v.monster) do
-            mdat.fileid = value.fileid
-            mdat.locale = locale
-            Output(tostring(mid), qhv, mdat, "monster")
-          end end
-          
-          -- objects!
-          if do_compile and do_questtables and v.object then for oid, odat in pairs(v.object) do
-            odat.fileid = value.fileid
-            Output(string.format("%s@@%s", oid, locale), qhv, odat, "object")
-          end end
-          
-          -- zones!
-          if locale == "enUS" and do_zone_map and v.zone then for zname, zdat in pairs(v.zone) do
-            local items = {}
-            
-            for _, key in pairs({"border", "update"}) do
-              if items and zdat[key] then for idx, chunk in pairs(zdat[key]) do
-                if math.mod(#chunk, 11) ~= 0 then items = nil end
-                if not items then break end -- abort, abort
-                
-                assert(math.mod(#chunk, 11) == 0, tostring(#chunk))
-                for point = 1, #chunk, 11 do
-                  local pos = slice_loc(string.sub(chunk, point, point + 10))
-                  if pos then
-                    if not zonecolors[zname] then
-                      local r, g, b = math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255))
-                      zonecolors[zname] = r * 65536 + g * 256 + b
+          for _, key in pairs({"border", "update"}) do
+            if items and zdat[key] then for idx, chunk in pairs(zdat[key]) do
+              if math.mod(#chunk, 11) ~= 0 then items = nil end
+              if not items then break end -- abort, abort
+              
+              assert(math.mod(#chunk, 11) == 0, tostring(#chunk))
+              for point = 1, #chunk, 11 do
+                local pos = slice_loc(string.sub(chunk, point, point + 10))
+                if pos then
+                  if not zonecolors[zname] then
+                    local r, g, b = math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255))
+                    zonecolors[zname] = r * 65536 + g * 256 + b
+                  end
+                  pos.zonecolor = zonecolors[zname]
+                  if pos.c and pos.x and pos.y then  -- These might be invalid if there are nils embedded in the string. They might still be useful with only one or two nils, but I've got a bunch of data and don't really need more.
+                    if not valid_pos(pos) then
+                      items = nil
+                      break
                     end
-                    pos.zonecolor = zonecolors[zname]
-                    if pos.c and pos.x and pos.y then  -- These might be invalid if there are nils embedded in the string. They might still be useful with only one or two nils, but I've got a bunch of data and don't really need more.
-                      if not valid_pos(pos) then
-                        items = nil
-                        break
-                      end
-                      
-                      table.insert(items, pos)
-                    end
+                    
+                    table.insert(items, pos)
                   end
                 end
-              end end
-            end
-            
-            if items then for _, v in pairs(items) do
-              v.fileid = value.fileid
-              Output(string.format("%d@%04d@%04d", v.c, math.floor(v.y / zone_image_chunksize), math.floor(v.x / zone_image_chunksize)), nil, v, "zone") -- This is inverted - it's continent, y, x, for proper sorting.
-              Output(string.format("%d", v.c), nil, {fileid = value.fileid; math.floor(v.x / zone_image_chunksize), math.floor(v.y / zone_image_chunksize)}, "zone_bounds")
+              end
             end end
+          end
+          
+          if items then for _, v in pairs(items) do
+            v.fileid = value.fileid
+            Output(string.format("%d@%04d@%04d", v.c, math.floor(v.y / zone_image_chunksize), math.floor(v.x / zone_image_chunksize)), nil, v, "zone") -- This is inverted - it's continent, y, x, for proper sorting.
+            Output(string.format("%d", v.c), nil, {fileid = value.fileid; math.floor(v.x / zone_image_chunksize), math.floor(v.y / zone_image_chunksize)}, "zone_bounds")
           end end
-        else
-          --print("Dumped, locale " .. verchunk)
-        end
+        end end
+      else
+        --print("Dumped, locale " .. dat.signature)
       end
     end
   } end
@@ -1165,6 +1170,89 @@ For now we'll assume that this will provide sufficiently accurate information.
 We'll do this, then start working on the clientside code.
 
 ]]
+
+local flight_output
+
+if do_compile then
+  local flight_master_parse = ChainBlock_Create("flight_master_parse", {chainhead},
+    function (key) return {
+      mids = {},
+      locs = {},
+      
+      -- Here's our actual data
+      Data = function(self, key, subkey, value, Output)
+        list_accumulate(self, "mids", value.master)
+        list_accumulate(self, "locs", string.format("%s@@%s", value.x, value.y))
+      end,
+      
+      Finish = function(self, Output)
+        local faction, name, locale = key:match("(.*)@@(.*)@@(.*)")
+        assert(faction)
+        assert(name)
+        assert(locale)
+        local mid = list_most_common(self.mids)
+        local loc = list_most_common(self.locs)
+        
+        Output(string.format("%s@@%s", loc, faction), nil, {locale = locale, name = name, mid = mid})
+      end,
+    } end,
+    sortversion, "flight_master"
+  )
+  
+  local flight_master_accumulate = ChainBlock_Create("flight_master_accumulate", {flight_master_parse},
+    function (key) return {
+      
+      names = {},
+      
+      -- Here's our actual data
+      Data = function(self, key, subkey, value, Output)
+        if self.names[value.locale] then
+          dbgout(value)
+          print(key, value.locale, self.names[value.locale], value.name)
+        end
+        assert(not self.names[value.locale])
+        assert(not self.mid or not value.mid or self.mid == value.mid, key)
+        
+        self.names[value.locale] = value.name
+        self.mid = value.mid
+      end,
+      
+      Finish = function(self, Output)
+        local x, y, faction = key:match("(.*)@@(.*)@@(.*)")
+        Output("", nil, {x = x, y = y, faction = faction, mid = self.mid, names = self.names})
+      end,
+    } end
+  )
+  
+    local flight_master_test = ChainBlock_Create("flight_master_test", {flight_master_accumulate},
+    function (key) return {
+      
+      data = {},
+      
+      -- Here's our actual data
+      Data = function(self, key, subkey, value, Output)
+        table.insert(self.data, value)
+      end,
+      
+      Finish = function(self, Output)
+        local links = {}
+        for x = 1, #self.data do
+          for y = x + 1, #self.data do
+            local dx = data[x].x - data[y].x
+            local dy = data[x].y - data[y].y
+            table.insert(links, math.sqrt(dx * dx + dy * dy))
+          end
+        end
+        
+        table.sort(links)
+        
+        for x = 1, math.min(100, #links) do
+          print(links[x])
+        end
+      end,
+    } end
+  )
+end
 
 --[[
 *****************************************************************
