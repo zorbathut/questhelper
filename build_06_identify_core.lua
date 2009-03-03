@@ -11,4 +11,4 @@ local data = pluto.unpersist({}, stt)
 
 assert(data)
 
-io.stdout:write(data.QuestHelper_UID .. "\n" .. tostring(data.QuestHelper_SaveDate))
+io.stdout:write(data.uid .. "-" .. data.signature:gsub(" ", "-"):gsub("/", "$") .. "\n" .. tostring(data.modified))

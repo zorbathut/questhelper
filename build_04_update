@@ -25,18 +25,20 @@ print("Upgradefiles isolated: %d" % len(upgradefiles))
 
 touchfiles = sorted(set([tag for tag in collatefiles.keys()]) | set([tag for tag in upgradefiles.keys()]))
 
+utility.exe_bin("rm -rf upgradetemp")
+
 for tag in touchfiles:
   assert(tag in collatefiles)
   if not tag in upgradefiles:
     print("Upgrading %s" % tag)
     
-    ndat = utility.exe_bin("lua build_04_update_core.lua %s" % collatefiles[tag])
+    os.makedirs("upgradetemp")
     
-    os.makedirs("data/04/%s/%s" % (tag[0:2], tag))
-    if len(ndat) == 0:
-      continue
-      
-    hex = hashlib.md5(ndat).hexdigest()
+    utility.exe_bin("lua build_04_update_core.lua %s upgradetemp" % collatefiles[tag])
     
-    with open("data/04/%s/%s/%s" % (tag[0:2], tag, hex), "wb") as f:
-      f.write(ndat)
+    try:
+      os.makedirs("data/04/%s" % (tag[0:2]))
+    except OSError:
+      pass
+    
+    os.rename("upgradetemp", "data/04/%s/%s" % (tag[0:2], tag))

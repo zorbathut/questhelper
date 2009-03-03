@@ -1,9 +1,12 @@
 
 assert(arg[1])
+assert(arg[2])
 
 require("luarocks.require")
 require("pluto")
 require("gzio")
+require("bit")
+require("md5")
 
 -- we pretend to be WoW
 function GetTime() return 0 end
@@ -24,7 +27,8 @@ do
   world.QuestHelper = { Assert = function(...) assert(...) end }
   world.string = string
   world.table = table
-  world.bit = bit
+  world.bit = {mod = function(a, b) return a - math.floor(a / b) * b end, lshift = bit.lshift, rshift = bit.rshift, band = bit.band}
+  world.math = math
   world.strbyte = string.byte
   world.QH_Timeslice_Yield = function() end
   setfenv(loadfile("../questhelper/collect_merger.lua"), world)()
@@ -81,8 +85,55 @@ end
 
 -- At some point we'll need to toss the private server filtering in here.
 
-local serial = pluto.persist({}, csave)
+local function md5_clean(dat)
+  local binny = md5.sum(dat)
+  local rv = ""
+  for k = 1, #binny do
+    rv = rv .. string.format("%02x", string.byte(binny, k))
+  end
+  return rv
+end
 
-local gzout = gzio.open("/proc/self/fd/1", "w")
-gzout:write(serial)
-gzout:close()
+local function dumpout(compdat)
+  io.stderr:write(string.format("  Dumped signature %s\n", compdat.signature))
+  
+  local serial = pluto.persist({}, compdat)
+
+  local md5 = md5_clean(serial)
+  
+  local gzout = gzio.open(string.format("%s/%s", arg[2], md5), "w")
+  gzout:write(serial)
+  gzout:close()
+end
+
+for k, v in pairs(csave.QuestHelper_Collector) do
+  local compdat = {}
+  if v.modified then
+    compdat.modified = v.modified
+    v.modified = nil
+  else
+    compdat.modified = csave.QuestHelper_SaveDate - 6 * 30 * 24 * 60 * 60
+  end
+  
+  compdat.data = v
+  compdat.uid = csave.QuestHelper_UID
+  compdat.signature = k
+
+  dumpout(compdat)
+end
+
+if csave.QuestHelper_Errors then
+  local keep
+  for k, v in pairs(csave.QuestHelper_Errors) do
+    if type(v) == "table" and #v > 0 then keep = true end
+  end
+
+  if keep then
+    local errdat = {}
+    errdat.modified = csave.QuestHelper_SaveDate
+    errdat.uid = csave.QuestHelper_UID
+    errdat.signature = "error"
+    errdat.error = csave.QuestHelper_Errors
+    dumpout(errdat)
+  end
+end
