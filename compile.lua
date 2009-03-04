@@ -1,10 +1,16 @@
 #!/usr/bin/lua
---[[
-local orig_print = print
-local orig_write = io.write
-print = function (...) orig_print(debug.getinfo(2,"n").name, ...) end
-io.write = function (...) orig_write(debug.getinfo(2,"n").name, ...) end
-]]
+
+-- I don't know why print is giving me so much trouble, but it is, sooooo
+print = function (...)
+  local pad = ""
+  for _, v in ipairs({...}) do
+    io.stdout:write(pad)
+    local tst = tostring(v)
+    pad = (" "):rep(#tst - math.floor(#tst / 6) * 6 + 4)
+    io.stdout:write(tst)
+  end
+  io.stdout:write("\n")
+end
 
 local do_zone_map = false
 local do_errors = false
@@ -397,6 +403,11 @@ local chainhead = ChainBlock_Create("parse", nil,
         if do_compile and v.flight_master then for fmname, fmdat in pairs(v.flight_master) do
           if type(fmdat.master) == "string" then continue end  -- I don't even know how this is possible
           Output(string.format("%s@@%s@@%s", faction, fmname, locale), qhv, {dat = fmdat, wowv = wowv}, "flight_master")
+        end end
+        
+        -- flight times!
+        if do_compile and v.flight_times then for ftname, ftdat in pairs(v.flight_times) do
+          Output(string.format("%s@@%s@@%s", ftname, faction, locale), qhv, ftdat, "flight_times")
         end end
         
         -- zones!
@@ -1206,9 +1217,12 @@ if do_compile then
         
         list_accumulate(self, "mids", value.dat.master)
         list_accumulate(self, "locs", string.format("%s@@%s", value.dat.x, value.dat.y))
+        self.count = self.count + 1
       end,
       
       Finish = function(self, Output)
+        if self.count < 10 then return end
+        
         local faction, name, locale = key:match("(.*)@@(.*)@@(.*)")
         assert(faction)
         assert(name)
@@ -1230,7 +1244,6 @@ if do_compile then
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
         if self.names[value.locale] then
-          dbgout(value)
           print(key, value.locale, self.names[value.locale], value.name)
           
           print(self.names[value.locale].version, value.version, sortversion(self.names[value.locale].version, value.version), self.names[value.locale].name, value.name)
@@ -1252,52 +1265,56 @@ if do_compile then
       
       Finish = function(self, Output)
         local x, y, faction = key:match("(.*)@@(.*)@@(.*)")
-        Output(tostring(faction), nil, {x = x, y = y, faction = faction, mid = self.mid, names = self.names})
+        local namepack = {}
+        for k, v in pairs(self.names) do
+          namepack[k] = v.name
+        end
+        
+        Output(tostring(faction), nil, {x = x, y = y, faction = faction, mid = self.mid, names = namepack})
       end,
     } end
   )
   
-  --[[
-  local flight_master_test = ChainBlock_Create("flight_master_test", {flight_master_accumulate},
-    function (key) return {
-      
-      data = {},
-      
-      -- Here's our actual data
-      Data = function(self, key, subkey, value, Output)
-        table.insert(self.data, value)
-      end,
-      
-      Finish = function(self, Output)
-        local links = {}
-        for x = 1, #self.data do
-          for y = x + 1, #self.data do
-            local dx = self.data[x].x - self.data[y].x
-            local dy = self.data[x].y - self.data[y].y
-            local diff = math.sqrt(dx * dx + dy * dy)
-            if diff < 0.01 then
-              print("------")
-              print(diff)
-              dbgout(self.data[x])
-              dbgout(self.data[y])
+  if false then
+    local flight_master_test = ChainBlock_Create("flight_master_test", {flight_master_accumulate},
+      function (key) return {
+        
+        data = {},
+        
+        -- Here's our actual data
+        Data = function(self, key, subkey, value, Output)
+          table.insert(self.data, value)
+        end,
+        
+        Finish = function(self, Output)
+          local links = {}
+          for x = 1, #self.data do
+            for y = x + 1, #self.data do
+              local dx = self.data[x].x - self.data[y].x
+              local dy = self.data[x].y - self.data[y].y
+              local diff = math.sqrt(dx * dx + dy * dy)
+              if diff < 0.001 then
+                print("------")
+                print(diff)
+                dbgout(self.data[x])
+                dbgout(self.data[y])
+              end
+              table.insert(links, diff)
             end
-            table.insert(links, diff)
           end
-        end
-        
-        table.sort(links)
-        
-        for x = 1, math.min(100, #links) do
-          print(links[x])
-        end
-      end,
-    } end
-  )
-  ]]
+          
+          table.sort(links)
+          
+          for x = 1, math.min(100, #links) do
+            print(links[x])
+          end
+        end,
+      } end
+    )
+  end
   
   local flight_master_pack = ChainBlock_Create("flight_master_pack", {flight_master_accumulate},
     function (key) return {
-      
       pack = {},
       
       -- Here's our actual data
@@ -1306,12 +1323,122 @@ if do_compile then
       end,
       
       Finish = function(self, Output, Broadcast)
+        print("Broadcasting", key)
         Broadcast(key, self.pack)
       end,
     } end
   )
   
+  local function findname(lookup, dat, locale)
+    for k, v in ipairs(lookup) do
+      if v.names[locale] == dat then return k end
+    end
+  end
   
+  local flight_master_times = ChainBlock_Create("flight_master_times", {flight_master_pack, chainhead},
+    function (key) local src, dst, faction, locale = key:match("(.*)@@(.*)@@(.*)@@(.*)") assert(faction and src and dst and locale) return {
+    
+      accumu = {},
+      
+      Data = function(self, key, subkey, value, Output)
+        if self.fail then return end
+        
+        if not self.table then print(key, "failure") end
+        assert(self.table)
+        
+        if not self.src or not self.dst then
+          self.src = findname(self.table, src, locale)
+          self.dst = findname(self.table, dst, locale)
+          
+          --if not self.src then print("failed to find ", src) end
+          --if not self.dst then print("failed to find ", dst) end
+          if not self.src or not self.dst then self.fail = true return end
+        end
+        
+        assert(self.src)
+        assert(self.dst)
+        
+        for k, v in pairs(value) do
+          if type(v) == "number" and value[k .. "##count"] then
+            local path = {}
+            for node in k:gmatch("[^@]+") do
+              local x, y = node:match("(.*):(.*)")
+              x, y = tonumber(x), tonumber(y)
+              local closest, closestval = nil, 0.01
+              for k, v in ipairs(self.table) do
+                local dx, dy = v.x - x, v.y - y
+                dx, dy = dx * dx, dy * dy
+                local dist = math.sqrt(dx + dy)
+                if dist < closestval then
+                  closestval = dist
+                  closest = k
+                end
+              end
+              assert(closest)
+              table.insert(path, closest)
+            end
+            
+            local mtch
+            
+            for k, v in pairs(self.accumu) do
+              if #k ~= #path then continue end
+              local match = true
+              for i = 1, #k do
+                if k[i] ~= path[i] then match = false break end
+              end
+              
+              if not match then continue end
+              
+              mtch = v
+              break
+            end
+            
+            if not mtch then
+              mtch = {}
+              self.accumu[path] = mtch
+            end
+            
+            table.insert(mtch, v / value[k .. "##count"])
+          end
+        end
+      end,
+      
+      Receive = function(self, id, value)
+        if id == faction then self.table = value end
+      end,
+      
+      Finish = function(self, Output, Broadcast)
+        if self.fail then return end
+        
+        local dumpy = {}
+        for k, v in pairs(self.accumu) do
+          if #v == 0 then continue end
+          
+          table.sort(v)
+          
+          local chop = math.floor(#v / 5)
+          
+          local acu = 0
+          local ct = 0
+          for i = 1 + chop, #v - chop do
+            acu = acu + v[i]
+            ct = ct + 1
+          end
+          
+          acu = acu / ct
+          
+          print(#v, src, dst, faction, acu)
+          if #v > 10 then
+            print(src, dst, faction, acu)
+            dumpy[k] = acu
+          end
+        end
+        
+        Output("", nil, {src = self.src, dst = self.dst, faction = self.faction, links = dumpy})
+      end,
+    } end,
+    nil, "flight_times"
+  )
 end
 
 --[[
@@ -1539,7 +1666,7 @@ for k, v in pairs(filz) do
   chainhead:Insert("data/08/" .. v.fname, nil, {fileid = v.id})
 end
 
-print("Finishing")
+print("Finishing with " .. tostring(count - 1) .. " files")
 chainhead:Finish()
 
 check_semiass_failure()
