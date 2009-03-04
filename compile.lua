@@ -52,10 +52,27 @@ local zonecolors = {}
 Utility functions
 ]]
 
+local function version_parse(x)
+  if not x then return end
+  
+  local rv = {}
+  for t in x:gmatch("[%d]+") do
+    table.insert(rv, t)
+  end
+  return rv
+end
+
 local function sortversion(a, b)
-  local mtcha, mtchb = not string.match(a, "[%d.]*"), not string.match(b, "[%d.]*")
-  if mtcha == mtchb then return a > b end -- common case. Right now, version numbers are such that simple alphabetization sorts properly (although we want it to be sorted backwards.)
-  return mtchb -- mtchb is true if b is not a proper string. if b isn't a proper string, we want it after the rest, so we want a first.
+  local ap, bp = version_parse(a), version_parse(b)
+  if not ap and not bp then return false end
+  if not ap then return false end
+  if not bp then return true end
+  for x = 1, #ap do
+    if ap[x] ~= bp[x] then
+      return ap[x] > bp[x]
+    end
+  end
+  return false
 end
 
 local function tablesize(tab)
@@ -379,7 +396,7 @@ local chainhead = ChainBlock_Create("parse", nil,
         -- flight masters!
         if do_compile and v.flight_master then for fmname, fmdat in pairs(v.flight_master) do
           if type(fmdat.master) == "string" then continue end  -- I don't even know how this is possible
-          Output(string.format("%s@@%s@@%s", faction, fmname, locale), qhv, fmdat, "flight_master")
+          Output(string.format("%s@@%s@@%s", faction, fmname, locale), qhv, {dat = fmdat, wowv = wowv}, "flight_master")
         end end
         
         -- zones!
@@ -1178,11 +1195,17 @@ if do_compile then
     function (key) return {
       mids = {},
       locs = {},
+      newest_version = nil,
+      count = 0,
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
-        list_accumulate(self, "mids", value.master)
-        list_accumulate(self, "locs", string.format("%s@@%s", value.x, value.y))
+        if not sortversion(self.newest_version, value.wowv) then
+          self.newest_version = value.wowv
+        end
+        
+        list_accumulate(self, "mids", value.dat.master)
+        list_accumulate(self, "locs", string.format("%s@@%s", value.dat.x, value.dat.y))
       end,
       
       Finish = function(self, Output)
@@ -1193,7 +1216,7 @@ if do_compile then
         local mid = list_most_common(self.mids)
         local loc = list_most_common(self.locs)
         
-        Output(string.format("%s@@%s", loc, faction), nil, {locale = locale, name = name, mid = mid})
+        Output(string.format("%s@@%s", loc, faction), nil, {locale = locale, name = name, mid = mid, version = self.newest_version})
       end,
     } end,
     sortversion, "flight_master"
@@ -1209,22 +1232,33 @@ if do_compile then
         if self.names[value.locale] then
           dbgout(value)
           print(key, value.locale, self.names[value.locale], value.name)
+          
+          print(self.names[value.locale].version, value.version, sortversion(self.names[value.locale].version, value.version), self.names[value.locale].name, value.name)
+          assert(self.names[value.locale].version ~= value.version)
+          print(self.names[value.locale].version, value.version, sortversion(self.names[value.locale].version, value.version))
+          
+          if not sortversion(self.names[value.locale].version, value.version) then
+            self.names[value.locale] = nil  -- we just blow it away and rebuild it later
+          else
+            return
+          end
         end
         assert(not self.names[value.locale])
         assert(not self.mid or not value.mid or self.mid == value.mid, key)
         
-        self.names[value.locale] = value.name
+        self.names[value.locale] = {name = value.name, version = value.version}
         self.mid = value.mid
       end,
       
       Finish = function(self, Output)
         local x, y, faction = key:match("(.*)@@(.*)@@(.*)")
-        Output("", nil, {x = x, y = y, faction = faction, mid = self.mid, names = self.names})
+        Output(tostring(faction), nil, {x = x, y = y, faction = faction, mid = self.mid, names = self.names})
       end,
     } end
   )
   
-    local flight_master_test = ChainBlock_Create("flight_master_test", {flight_master_accumulate},
+  --[[
+  local flight_master_test = ChainBlock_Create("flight_master_test", {flight_master_accumulate},
     function (key) return {
       
       data = {},
@@ -1238,9 +1272,16 @@ if do_compile then
         local links = {}
         for x = 1, #self.data do
           for y = x + 1, #self.data do
-            local dx = data[x].x - data[y].x
-            local dy = data[x].y - data[y].y
-            table.insert(links, math.sqrt(dx * dx + dy * dy))
+            local dx = self.data[x].x - self.data[y].x
+            local dy = self.data[x].y - self.data[y].y
+            local diff = math.sqrt(dx * dx + dy * dy)
+            if diff < 0.01 then
+              print("------")
+              print(diff)
+              dbgout(self.data[x])
+              dbgout(self.data[y])
+            end
+            table.insert(links, diff)
           end
         end
         
@@ -1252,6 +1293,25 @@ if do_compile then
       end,
     } end
   )
+  ]]
+  
+  local flight_master_pack = ChainBlock_Create("flight_master_pack", {flight_master_accumulate},
+    function (key) return {
+      
+      pack = {},
+      
+      -- Here's our actual data
+      Data = function(self, key, subkey, value, Output)
+        table.insert(self.pack, value)
+      end,
+      
+      Finish = function(self, Output, Broadcast)
+        Broadcast(key, self.pack)
+      end,
+    } end
+  )
+  
+  
 end
 
 --[[
@@ -1463,7 +1523,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
-local e = 1000
+local e = 100
 
 flist = io.popen("ls data/08"):read("*a")
 local filz = {}
@@ -1475,7 +1535,7 @@ for f in string.gmatch(flist, "[^\n]+") do
 end
 
 for k, v in pairs(filz) do
-  print(string.format("%d/%d: %s", k, #filz, v.fname))
+  --print(string.format("%d/%d: %s", k, #filz, v.fname))
   chainhead:Insert("data/08/" .. v.fname, nil, {fileid = v.id})
 end
 
