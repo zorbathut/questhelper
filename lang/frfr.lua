@@ -144,7 +144,7 @@ QuestHelper_Translations.frFR =
   NAG_MULTIPLE_PLAYER_OBJ = "%1 objectifs de joueur",
   
   -- Stuff used by dodads.
-  PEER_PROGRESS = "%1 est en cours:",
+  PEER_PROGRESS = "Progression pour %1:",
   TRAVEL_ESTIMATE = "Temps de voyage estimé:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Visiter %h1 sur la route de:",
