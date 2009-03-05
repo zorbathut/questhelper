@@ -75,9 +75,10 @@ failures = [
   
   # DENIED
   "Microsoft Office Document",  # Yeah fuckin' right.
-  "OpenDocument Text",  # An error message in an ODT. Not worth it.
+  "OpenDocument Text",  # Not worth it.
   "HTML document text", # "Please find the file attached." No.
   "Lisp/Scheme program text", # For some reason it's interpreting some chunk of HTML as lisp/scheme. I have no fucking clue why. In any case, HTML isn't likely to be useful either.
+  "AppleDouble encoded Macintosh file", # what the fuck
   
   # Virus!
   "Microsoft ASF",

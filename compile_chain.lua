@@ -287,6 +287,8 @@ end
 
 
 function ChainBlock:Insert(key, subkey, value, identifier)
+  assert(key)
+  assert(type(key) == "string")
   if self.filter and self.filter ~= identifier then return end
   
   if mode ~= MODE_SOLO and slaveblock ~= self.id then

@@ -1650,20 +1650,26 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
-local e = 100
+--local e = 100
 
-flist = io.popen("ls data/08"):read("*a")
-local filz = {}
-for f in string.gmatch(flist, "[^\n]+") do
-  if not s or count >= s then table.insert(filz, {fname = f, id = count}) end
-  count = count + 1
-  
-  if e and count > e then break end
+local function readdir()
+  local pip = io.popen(("find data/08 -type l"))
+  local flist = pip:read("*a")
+  pip:close()
+  local filz = {}
+  for f in string.gmatch(flist, "[^\n]+") do
+    if not s or count >= s then table.insert(filz, {fname = f, id = count}) end
+    count = count + 1
+    if e and count > e then break end
+  end
+  return filz
 end
 
-for k, v in pairs(filz) do
+local filout = readdir("data/08")
+
+for k, v in pairs(filout) do
   --print(string.format("%d/%d: %s", k, #filz, v.fname))
-  chainhead:Insert("data/08/" .. v.fname, nil, {fileid = v.id})
+  chainhead:Insert(v.fname, nil, {fileid = v.id})
 end
 
 print("Finishing with " .. tostring(count - 1) .. " files")

@@ -30,7 +30,7 @@ print("Idfiles isolated: %d" % len(distillfiles))
 
 realfiles = {}
 for path, dirs, files in os.walk("data/08"):
-  realfiles.update({file:os.path.join(path, file) for file in files})
+  realfiles.update({(path.rsplit('/', 1)[1] + "_" + file):os.path.join(path, file) for file in files})
 print("Realfiles isolated: %d" % len(realfiles))
 
 
@@ -42,9 +42,8 @@ for tag in touchfiles:
     os.remove(realfiles[tag])
   if not tag in realfiles:
     print("Linking %s" % tag)
-    os.symlink("../../%s" % distillfiles[tag], "data/08/%s" % tag)
-    #if not os.path.exists("data/08/%s" % (tag[0:1])):
-      #os.makedirs("data/08/%s" % (tag[0:1]))
-    #os.symlink("../../../%s" % distillfiles[tag], "data/08/%s/%s" % (tag[0:1], tag))
+    if not os.path.exists("data/08/%s/%s" % (tag[0:1], tag[1:2])):
+      os.makedirs("data/08/%s/%s" % (tag[0:1], tag[1:2]))
+    os.symlink("../../../../%s" % distillfiles[tag], "data/08/%s/%s/%s" % (tag[0:1], tag[1:2], tag))
 
 
