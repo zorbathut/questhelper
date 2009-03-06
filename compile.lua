@@ -1199,7 +1199,8 @@ We'll do this, then start working on the clientside code.
 
 ]]
 
-local flight_output
+local flight_data_output
+local flight_table_output
 
 if do_compile then
   local flight_master_parse = ChainBlock_Create("flight_master_parse", {chainhead},
@@ -1337,8 +1338,6 @@ if do_compile then
   
   local flight_master_times = ChainBlock_Create("flight_master_times", {flight_master_pack, chainhead},
     function (key) local src, dst, faction, locale = key:match("(.*)@@(.*)@@(.*)@@(.*)") assert(faction and src and dst and locale) return {
-    
-      accumu = {},
       
       Data = function(self, key, subkey, value, Output)
         if self.fail then return end
@@ -1377,28 +1376,14 @@ if do_compile then
               assert(closest)
               table.insert(path, closest)
             end
+            table.insert(path, self.dst)
             
-            local mtch
-            
-            for k, v in pairs(self.accumu) do
-              if #k ~= #path then continue end
-              local match = true
-              for i = 1, #k do
-                if k[i] ~= path[i] then match = false break end
-              end
-              
-              if not match then continue end
-              
-              mtch = v
-              break
+            local tx = tostring(self.src)
+            for _, v in ipairs(path) do
+              tx = tx .. "@" .. tostring(v)
             end
             
-            if not mtch then
-              mtch = {}
-              self.accumu[path] = mtch
-            end
-            
-            table.insert(mtch, v / value[k .. "##count"])
+            Output(faction .. "/" .. tx, nil, v / value[k .. "##count"])
           end
         end
       end,
@@ -1406,38 +1391,76 @@ if do_compile then
       Receive = function(self, id, value)
         if id == faction then self.table = value end
       end,
-      
-      Finish = function(self, Output, Broadcast)
-        if self.fail then return end
-        
-        local dumpy = {}
-        for k, v in pairs(self.accumu) do
-          if #v == 0 then continue end
-          
-          table.sort(v)
-          
-          local chop = math.floor(#v / 5)
-          
-          local acu = 0
-          local ct = 0
-          for i = 1 + chop, #v - chop do
-            acu = acu + v[i]
-            ct = ct + 1
-          end
-          
-          acu = acu / ct
-          
-          print(#v, src, dst, faction, acu)
-          if #v > 10 then
-            print(src, dst, faction, acu)
-            dumpy[k] = acu
-          end
-        end
-        
-        Output("", nil, {src = self.src, dst = self.dst, faction = self.faction, links = dumpy})
-      end,
     } end,
     nil, "flight_times"
+  )
+  
+  local flight_master_assemble = ChainBlock_Create("flight_master_assemble", {flight_master_times},
+    function (key) return {
+      dat = {},
+      
+      -- Here's our actual data
+      Data = function(self, key, subkey, value, Output)
+        table.insert(self.dat, value)
+      end,
+      
+      Finish = function(self, Output, Broadcast)
+        table.sort(self.dat)
+        
+        local chop = math.floor(#self.dat / 5)
+        
+        local acu = 0
+        local ct = 0
+        for i = 1 + chop, #self.dat - chop do
+          acu = acu + self.dat[i]
+          ct = ct + 1
+        end
+        
+        acu = acu / ct
+        
+        if #self.dat > 10 then
+          Output(key:match("([%d]+/[%d]+)@.+"), nil, {path = key, distance = acu})
+        end
+      end,
+    } end
+  )
+  
+  flight_data_output = ChainBlock_Create("flight_data_output", {flight_master_assemble},
+    function (key) local faction, src = key:match("([%d]+)/([%d]+)") assert(faction and src) return {
+      chunky = {},
+      
+      -- Here's our actual data
+      Data = function(self, key, subkey, value, Output)
+        local f, s, m, e = value.path:match("([%d]+)/([%d]+)@(.+)@([%d]+)")
+        if not f then f, s, e = value.path:match("([%d]+)/([%d]+)@([%d]+)") end
+        assert(f and s and e)
+        assert((f .. "/" .. s) == key)
+        s = tonumber(s)
+        e = tonumber(e)
+        assert(s)
+        assert(e)
+        
+        if not self.chunky[e] then
+          self.chunky[e] = {}
+        end
+        
+        local dex = {distance = value.distance, path = {}}
+        if m then for x in m:gmatch("[%d]+") do
+          assert(tonumber(x))
+          table.insert(dex.path, tonumber(x))
+        end end
+        
+        table.insert(self.chunky[e], dex)
+      end,
+      
+      Finish = function(self, Output, Broadcast)
+        for _, v in pairs(self.chunky) do
+          table.sort(v, function(a, b) return a.distance < b.distance end)
+        end
+        
+        Output("", nil, {id = ("flightpaths/" .. faction), key = tonumber(src), data = self.chunky, faction = tonumber(faction)}, "output")
+      end,
+    } end
   )
 end
 
@@ -1451,6 +1474,8 @@ if quest_slurp then table.insert(sources, quest_slurp) end
 if item_slurp then table.insert(sources, item_slurp) end
 if monster_slurp then table.insert(sources, monster_slurp) end
 if object_slurp then table.insert(sources, object_slurp) end
+if flight_data_output then table.insert(sources, flight_data_output) end
+if flight_table_output then table.insert(sources, flight_table_output) end
 
 local function do_loc_choice(file, item)
   local has_linkloc = false
@@ -1650,10 +1675,10 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
---local e = 100
+local e = 1000
 
 local function readdir()
-  local pip = io.popen(("find data/08 -type l"))
+  local pip = io.popen(("find data/08 -type l | head -n %s | tail -n +%s"):format(e or 1000000000, s or 0))
   local flist = pip:read("*a")
   pip:close()
   local filz = {}

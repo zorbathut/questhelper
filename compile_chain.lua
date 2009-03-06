@@ -296,7 +296,7 @@ function ChainBlock:Insert(key, subkey, value, identifier)
     f:write(persist_dump(pluto.persist({}, {key = key, subkey = subkey, value = value})))
   else
     if not subkey then
-      if value.fileid then push_file_id(value.fileid) else push_file_id(-1) end
+      if type(value) == "table" and value.fileid then push_file_id(value.fileid) else push_file_id(-1) end
       self:GetItem(key):Data(key, subkey, value, self.process)
       pop_file_id()
     else
