@@ -16,8 +16,9 @@ local do_zone_map = false
 local do_errors = false
 local do_questtables = true
 local do_compile = true
+local do_flight = true
 
-local dbg_data = true
+local dbg_data = false
 
 require("luarocks.require")
 require("persistence")
@@ -322,7 +323,7 @@ local function standard_name_accum(accum, value)
   for k, v in pairs(value) do
     if type(k) == "string" then
       local q = string.match(k, "name_(.*)")
-      if q then name_accumulate(accum.name, q, value.locale) end
+      if q then name_accumulate(accum, q, value.locale) end
     end
   end
 end
@@ -763,7 +764,7 @@ if do_compile and do_questtables then
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
         if standard_pos_accum(self.accum, value, 2) then return end
-        if standard_name_accum(self.accum, value) then return end
+        if standard_name_accum(self.accum.name, value) then return end
         
         loot_accumulate(value, {type = "monster", id = tonumber(key)}, Output)
       end,
@@ -773,8 +774,7 @@ if do_compile and do_questtables then
         
         local qout = {}
         
-        -- we don't actually care about the level, so we don't bother to store it. Really, we only care about the name for debug purposes also, so we should probably get rid of it before release.
-        if dbg_data then qout.name = self.accum.name end
+        if dbg_data then qout.dbg_name = self.accum.name.enUS end
         if position_has(self.accum.loc) then qout.loc = position_finalize(self.accum.loc) end
         
         local has_stuff = false
@@ -782,9 +782,12 @@ if do_compile and do_questtables then
           has_stuff = true
           break
         end
+        assert(tonumber(key))
         if has_stuff then
-          assert(tonumber(key))
           Output("*/*", nil, {id="monster", key=tonumber(key), data=qout}, "output")
+        end
+        for k, v in pairs(self.accum.name) do
+          Output(("%s/*"):format(k), nil, {id="monster", key=tonumber(key), data={name=v}}, "output")
         end
       end,
     } end,
@@ -819,9 +822,10 @@ Item collation
 
 local item_name_package
 local item_slurp
+local item_parse
 
 if do_compile and do_questtables then
-  local item_slurp_first = ChainBlock_Create("item_parse", {chainhead},
+  item_parse = ChainBlock_Create("item_parse", {chainhead},
     function (key) return {
       accum = {name = {}},
       
@@ -838,23 +842,28 @@ if do_compile and do_questtables then
         local qout = {}
         
         -- we don't actually care about the level, so we don't bother to store it. Really, we only care about the name for debug purposes also, so we should probably get rid of it before release.
-        if dbg_data then qout.name = self.accum.name end
+        if dbg_data then qout.dbg_name = self.accum.name.enUS end
         
-        Output("", nil, {key = key, name = qout.name}, "name")
+        --[[Output("", nil, {key = key, name = qout.name}, "name")]]
         
         local has_stuff = false
         for k, v in pairs(qout) do
           has_stuff = true
           break
         end
+        
         if has_stuff then
           Output(key, nil, {type = "core", data = qout}, "item")
+        end
+        for k, v in pairs(self.accum.name) do
+          Output(("%s/*"):format(k), nil, {id="item", key=tonumber(key), data={name=v}}, "output")
         end
       end,
     } end,
     sortversion, "item"
   )
   
+  --[[
   item_name_package = ChainBlock_Create("item_name_package", {item_slurp_first},
     function (key) return {
       accum = {},
@@ -870,7 +879,7 @@ if do_compile and do_questtables then
       end,
     } end,
     nil, "name"
-  )
+  )]]
   
   -- Input to this module is kind of byzantine, so I'm documenting it here.
   -- {Key, Subkey, Value}
@@ -879,7 +888,7 @@ if do_compile and do_questtables then
   -- Means: "We've seen 104 skinnings of item #999 from monster #12345"
   local lootables = {}
   if monster_slurp then table.insert(lootables, monster_slurp) end
-  if item_slurp_first then table.insert(lootables, item_slurp_first) end
+  if item_parse then table.insert(lootables, item_parse) end
   
   local loot_merge = ChainBlock_Create("loot_merge", lootables,
     function (key) return {
@@ -917,7 +926,7 @@ if do_compile and do_questtables then
     nil, "loot"
   )
   
-  item_slurp = ChainBlock_Create("item_slurp", {item_slurp_first, loot_merge},
+  item_slurp = ChainBlock_Create("item_slurp", {item_parse, loot_merge},
     function (key) return {
       accum = {},
       
@@ -967,7 +976,7 @@ if do_compile and do_questtables then
     return weighted_concept_finalize(mungedat, 0.9, 10, count) -- this is not ideal, but it's functional
   end
 
-  quest_slurp = ChainBlock_Create("quest_slurp", {chainhead, item_name_package},
+  quest_slurp = ChainBlock_Create("quest_slurp", {chainhead --[[, item_name_package]]},
     function (key) return {
       accum = {name = {}, criteria = {}, level = {}, start = {}, finish = {}},
       
@@ -1027,9 +1036,10 @@ if do_compile and do_questtables then
         list_accumulate(self.accum, "level", value.level)
       end,
       
+      --[[
       Receive = function(self, id, data)
         self.namedb = data
-      end,
+      end,]]
       
       Finish = function(self, Output)
         self.accum.name = name_resolve(self.accum.name)
@@ -1078,17 +1088,20 @@ if do_compile and do_questtables then
         if position_has(self.accum.finish) then qout.finish = { loc = position_finalize(self.accum.finish) } end
         
         -- we don't actually care about the level, so we don't bother to store it. Really, we only care about the name for debug purposes also, so we should probably get rid of it before release.
-        if dbg_data then qout.name = self.accum.name end
+        if dbg_data then qout.dbg_name = self.accum.name.enUS end
         
         local has_stuff = false
         for k, v in pairs(qout) do
           has_stuff = true
           break
         end
+        assert(tonumber(key))
         if has_stuff then
-          assert(tonumber(key))
           --print("Quest output " .. tostring(key))
           Output("*/*", nil, {id="quest", key=tonumber(key), data=qout}, "output")
+        end
+        for k, v in pairs(self.accum.name) do
+          Output(("%s/*"):format(k), nil, {id="quest", key=tonumber(key), data={name=v}}, "output")
         end
       end,
     } end,
@@ -1202,7 +1215,7 @@ We'll do this, then start working on the clientside code.
 local flight_data_output
 local flight_table_output
 
-if do_compile then
+if do_compile and do_flight then
   local flight_master_parse = ChainBlock_Create("flight_master_parse", {chainhead},
     function (key) return {
       mids = {},
@@ -1342,7 +1355,7 @@ if do_compile then
       Data = function(self, key, subkey, value, Output)
         if self.fail then return end
         
-        if not self.table then print(key, "failure") end
+        if not self.table then print("Entire missing faction table!") return end
         assert(self.table)
         
         if not self.src or not self.dst then
@@ -1373,6 +1386,8 @@ if do_compile then
                   closest = k
                 end
               end
+              
+              if not closest then print("Can't find nearby flightpath") return end
               assert(closest)
               table.insert(path, closest)
             end
@@ -1472,6 +1487,7 @@ Final file generation
 local sources = {}
 if quest_slurp then table.insert(sources, quest_slurp) end
 if item_slurp then table.insert(sources, item_slurp) end
+if item_parse then table.insert(sources, item_parse) end
 if monster_slurp then table.insert(sources, monster_slurp) end
 if object_slurp then table.insert(sources, object_slurp) end
 if flight_data_output then table.insert(sources, flight_data_output) end
@@ -1509,7 +1525,6 @@ end
 
 local function mark_chains(file, item)
   for k, v in ipairs(item) do
-    print("link", v.sourcetype, v.sourceid)
     if file[v.sourcetype][v.sourceid] then
       file[v.sourcetype][v.sourceid].used = true
       mark_chains(file, file[v.sourcetype][v.sourceid])
@@ -1525,7 +1540,6 @@ local fileout = ChainBlock_Create("fileout", sources,
       assert(value.data)
       assert(value.id)
       assert(value.key)
-      if value.data.name then value.data.name = value.data.name.enUS end -- needs improvement
       
       if not self.finalfile[value.id] then self.finalfile[value.id] = {} end
       assert(not self.finalfile[value.id][value.key])
@@ -1563,9 +1577,9 @@ local fileout = ChainBlock_Create("fileout", sources,
           end
         end
         
-        if not dbg_data then
+        --[[if not dbg_data then
           self.finalfile[t] = d
-        end
+        end]] -- Disabled until we deal with composite culling
       end
       
       local fname = "static"
