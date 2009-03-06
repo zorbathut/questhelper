@@ -14,7 +14,7 @@ end
 
 local do_zone_map = false
 local do_errors = false
-local do_questtables = false
+local do_questtables = true
 local do_compile = true
 
 local dbg_data = true
@@ -784,7 +784,7 @@ if do_compile and do_questtables then
         end
         if has_stuff then
           assert(tonumber(key))
-          Output("", nil, {id="monster", key=tonumber(key), data=qout}, "output")
+          Output("*/*", nil, {id="monster", key=tonumber(key), data=qout}, "output")
         end
       end,
     } end,
@@ -938,7 +938,7 @@ if do_compile and do_questtables then
         
         if key ~= "gold" then -- okay technically the whole thing could have been ignored, but
           assert(tonumber(key))
-          Output("", nil, {id="item", key=tonumber(key), data=qout}, "output")
+          Output("*/*", nil, {id="item", key=tonumber(key), data=qout}, "output")
         end
       end,
     } end,
@@ -1088,7 +1088,7 @@ if do_compile and do_questtables then
         if has_stuff then
           assert(tonumber(key))
           --print("Quest output " .. tostring(key))
-          Output("", nil, {id="quest", key=tonumber(key), data=qout}, "output")
+          Output("*/*", nil, {id="quest", key=tonumber(key), data=qout}, "output")
         end
       end,
     } end,
@@ -1458,7 +1458,7 @@ if do_compile then
           table.sort(v, function(a, b) return a.distance < b.distance end)
         end
         
-        Output("", nil, {id = ("flightpaths/" .. faction), key = tonumber(src), data = self.chunky, faction = tonumber(faction)}, "output")
+        Output(string.format("*/%s", faction), nil, {id = "flightpaths", key = tonumber(src), data = self.chunky}, "output")
       end,
     } end
   )
@@ -1522,8 +1522,6 @@ local fileout = ChainBlock_Create("fileout", sources,
     finalfile = {},
     
     Data = function(self, key, subkey, value, Output)
-      assert(key == "")
-      
       assert(value.data)
       assert(value.id)
       assert(value.key)
@@ -1570,11 +1568,34 @@ local fileout = ChainBlock_Create("fileout", sources,
         end
       end
       
-      fil = io.open("final/static.lua", "w")
-      fil:write([=[QuestHelper_File["static.lua"] = "Development Version"
-QuestHelper_Loadtime["static.lua"] = GetTime()
+      local fname = "static"
+      
+      local locale, faction = key:match("(.*)/(.*)")
+      assert(locale and faction)
+      if locale == "*" then locale = nil end
+      if faction == "*" then faction = nil end
+      
+      if locale then
+        fname = fname .. "_" .. locale
+      end
+      if faction then
+        fname = fname .. "_" .. faction
+      end
+      
+      fil = io.open(("final/%s.lua"):format(fname), "w")
+      fil:write(([=[QuestHelper_File["%s.lua"] = "Development Version"
+QuestHelper_Loadtime["%s.lua"] = GetTime()
 
-]=])
+]=]):format(fname, fname))
+
+      if locale then
+        fil:write(([[if GetLocale() ~= "%s" then return end]]):format(locale), "\n")
+      end
+      if faction then
+        fil:write(([[if (UnitFactionGroup("player") == "Alliance" and 1 or 2) == %s then return end]]):format(faction), "\n")
+      end
+      if locale or faction then fil:write("\n") end
+      
       fil:write("QuestHelper_Static = ")
       persistence.store(fil, self.finalfile)
       
