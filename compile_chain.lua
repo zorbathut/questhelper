@@ -270,7 +270,7 @@ function ChainBlock_Create(id, linkfrom, factory, sortpred, filter)
   ninst.linkto = {}
   ninst.broadcasted = {}
   ninst.unfinished = 0
-  ninst.process = function (key, subkey, value, identifier) for _, v in pairs(ninst.linkto) do v:Insert(key, subkey, value, identifier) end end
+  ninst.process = function (key, subkey, value, identifier) assert(key and value and type(key) == "string") for _, v in pairs(ninst.linkto) do v:Insert(key, subkey, value, identifier) end end
   ninst.broadcast = function (id, value) for _, v in pairs(ninst.linkto) do v:Broadcast(id, value) end end
   if linkfrom then
     for k, v in pairs(linkfrom) do

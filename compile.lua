@@ -14,8 +14,9 @@ end
 
 local do_zone_map = false
 local do_errors = false
-local do_questtables = true
+
 local do_compile = true
+local do_questtables = false
 local do_flight = true
 
 local dbg_data = false
@@ -1214,6 +1215,7 @@ We'll do this, then start working on the clientside code.
 
 local flight_data_output
 local flight_table_output
+local flight_master_name_output
 
 if do_compile and do_flight then
   local flight_master_parse = ChainBlock_Create("flight_master_parse", {chainhead},
@@ -1339,6 +1341,8 @@ if do_compile and do_flight then
       Finish = function(self, Output, Broadcast)
         print("Broadcasting", key)
         Broadcast(key, self.pack)
+        
+        Output(key, nil, "", "name_output") -- just exists to make sure name_output does something
       end,
     } end
   )
@@ -1477,6 +1481,29 @@ if do_compile and do_flight then
       end,
     } end
   )
+  
+  flight_master_name_output = ChainBlock_Create("flight_master_name_output", {flight_master_pack},
+    function (key) return {
+      -- Here's our actual data
+      Data = function(self, key, subkey, value, Output)
+      end,
+      
+      Receive = function(self, id, value)
+        if id == key then self.table = value end
+      end,
+      
+      Finish = function(self, Output, Broadcast)
+        print("finnish")
+        for k, v in ipairs(self.table) do
+          for l, n in pairs(v.names) do
+            print("outp")
+            Output(string.format("%s/%s", l, key), nil, {id = "flightmasters", key = k, data = n}, "output")
+          end
+        end
+      end,
+    } end,
+    nil, "name_output"
+  )
 end
 
 --[[
@@ -1492,6 +1519,7 @@ if monster_slurp then table.insert(sources, monster_slurp) end
 if object_slurp then table.insert(sources, object_slurp) end
 if flight_data_output then table.insert(sources, flight_data_output) end
 if flight_table_output then table.insert(sources, flight_table_output) end
+if flight_master_name_output then table.insert(sources, flight_master_name_output) end
 
 local function do_loc_choice(file, item)
   local has_linkloc = false
