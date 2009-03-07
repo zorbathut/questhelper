@@ -95,7 +95,7 @@ QuestHelper_Translations.ptPT =
   
   -- Hidden objectives.
   HIDDEN_TITLE = "Objectivos Ocultos",
-  HIDDEN_NONE = "Não existem objectivos teus ocultos.",
+  HIDDEN_NONE = "Não existem objectivos ocultos de ti.",
   DEPENDS_ON_SINGLE = "Depende de '%1'.",
   DEPENDS_ON_COUNT = "Depende de %1 objectivos ocultos.",
   FILTERED_LEVEL = "Filtrado devido ao nível.",
