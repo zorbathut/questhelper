@@ -56,7 +56,31 @@ AstrolabeQH\Load.xml
 bst_ctl.lua
 ChatThrottleLib\ChatThrottleLib.xml
 
+# This is kind of a lot of files.
 static.lua
+static_1.lua
+static_2.lua
+static_deDE.lua
+static_deDE_1.lua
+static_deDE_2.lua
+static_enUS.lua
+static_enUS_1.lua
+static_enUS_2.lua
+static_esES.lua
+static_esES_1.lua
+static_esES_2.lua
+static_frFR.lua
+static_frFR_1.lua
+static_frFR_2.lua
+static_koKR.lua
+static_koKR_1.lua
+static_koKR_2.lua
+static_ruRU.lua
+static_ruRU_1.lua
+static_ruRU_2.lua
+static_zhTW.lua
+static_zhTW_1.lua
+static_zhTW_2.lua
 
 changes.lua
 

@@ -214,6 +214,29 @@ function QuestHelper:Initialize()
       ["tooltip.lua"] = true,
 
       ["static.lua"] = true,
+      ["static_1.lua"] = true,
+      ["static_2.lua"] = true,
+      ["static_deDE.lua"] = true,
+      ["static_deDE_1.lua"] = true,
+      ["static_deDE_2.lua"] = true,
+      ["static_enUS.lua"] = true,
+      ["static_enUS_1.lua"] = true,
+      ["static_enUS_2.lua"] = true,
+      ["static_esES.lua"] = true,
+      ["static_esES_1.lua"] = true,
+      ["static_esES_2.lua"] = true,
+      ["static_frFR.lua"] = true,
+      ["static_frFR_1.lua"] = true,
+      ["static_frFR_2.lua"] = true,
+      ["static_koKR.lua"] = true,
+      ["static_koKR_1.lua"] = true,
+      ["static_koKR_2.lua"] = true,
+      ["static_ruRU.lua"] = true,
+      ["static_ruRU_1.lua"] = true,
+      ["static_ruRU_2.lua"] = true,
+      ["static_zhTW.lua"] = true,
+      ["static_zhTW_1.lua"] = true,
+      ["static_zhTW_2.lua"] = true,
 
       ["collect.lua"] = true,
       ["collect_achievement.lua"] = true,
@@ -272,7 +295,7 @@ function QuestHelper:Initialize()
       local errmsg = "Missing QuestHelper file: "..file
       DEFAULT_CHAT_FRAME:AddMessage(errmsg)
       uninstallederr = uninstallederr .. "    " .. errmsg .. "\n"
-      file_problem = true
+      if not (version == "Development Version" and file:match("static.*") then file_problem = true end
     end
   end
 
@@ -846,17 +869,23 @@ function QuestHelper:OnUpdate()
     self:ShowText([[
 This is a |cffff8000pre-pre-pre-prealpha of QuestHelper|r. Yes. That's right. It is |cffff8000four stacked pre-alphas|r. Be warned: It may crash. It may lock up. It may give bad advice. It may spew errors. It shouldn't spam people, delete your hard-won epics, or make your computer catch on fire, but technically I'm giving no guarantees. |cffff8000If you want a polished, functioning product, close WoW, download the official QH release from curse.com, and use that.|r
 
-Known bugs include:
+Known bugs and issues include:
 
   |cff40bbffVastly excessive memory usage (lots of stored debug data, no database compaction, etc)|r
   
   |cff40bbffAssumes enUS locale for many creature and item names|r
   
+  |cff40bbffFlight paths only supported in enUS|r
+  
   |cff40bbffExtremely bad at generating new paths as the player moves around|r
+  
+  |cff40bbffExcessive debug output|r
   
   |cff40bbffNo support for objective priority or ignoring|r
   
   |cff40bbffNo support for quest filters of any sort|r
+  
+  |cff40bbffNo support for "/qh find"|r
   
   |cff40bbffNo support for in-party quest synchronization|r
 

@@ -1,6 +1,12 @@
 QuestHelper_File["db_get.lua"] = "Development Version"
 QuestHelper_Loadtime["db_get.lua"] = GetTime()
 
+-- yoink
+local QHDB_temp = QHDB
+QHDB = nil
+local QHDB = QHDB_temp
+QuestHelper: Assert(#QHDB == 4)
+
 local weak_v = { __mode = 'v' }
 
 local cache = {}
@@ -33,8 +39,15 @@ function DB_GetItem(group, id)
   
   QuestHelper:TextOut(string.format("%s %d", group, id))
   
-  if QuestHelper_Static[group] then
-    ite = QuestHelper_Static[group][id]
+  local ite
+  for _, db in ipairs(QHDB) do
+    if db[group] and db[group][ite] then
+      if not ite then ite = {} end
+      for k, v in pairs(db[group][ite]) do
+        QuestHelper: Assert(not ite[k])
+        ite[k] = v
+      end
+    end
   end
   
   if ite then

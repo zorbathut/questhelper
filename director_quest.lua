@@ -198,7 +198,7 @@ local function MakeQuestTitle(title, level)
   
   local isgray = (plevel - floor(grayd) >= level)
   
-  return string.format("%s[%d] %s", isgray and "|cffb0b0b0" or difficulty_color(((level - plevel) / grayd + 1) / 2), level, title)
+  return string.format("%s[%d] %s", isgray and "|cffb0b0b0" or difficulty_color(1 - ((level - plevel) / grayd + 1) / 2), level, title)
 end
 
 local function MakeQuestObjectiveTitle(title, typ, done)

@@ -187,7 +187,7 @@ seritem = function(item, add)
 end
 
 local function DoCompress(item, merger, comp)
-if debug_output then QuestHelper: TextOut("Item condensing") end
+  if debug_output then QuestHelper: TextOut("Item condensing") end
   local ts = GetTime()
   
   local target = {}
