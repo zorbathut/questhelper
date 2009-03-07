@@ -17,7 +17,7 @@ local do_errors = true
 
 local do_compile = true
 local do_questtables = true
-local do_flight = false
+local do_flight = true
 
 local dbg_data = false
 
@@ -228,6 +228,7 @@ local function position_finalize(accu)
   for c, ci in pairs(accu) do
     for _, v in ipairs(ci) do
       local rc, rz = list_most_common(v.cz):match("([%d]+)@([%d]+)")
+      rc, rz = tonumber(rc), tonumber(rz)
       table.insert(pozes, {c = c, x = v.x, y = v.y, w = v.w, rc = rc, rz = rz})
     end
   end
@@ -1499,8 +1500,9 @@ if do_compile and do_flight then
       Finish = function(self, Output, Broadcast)
         print("finnish")
         for k, v in ipairs(self.table) do
+          Output(string.format("*/%s", key), nil, {id = "flightmasters", key = k, data = {mid = v.mid}}, "output_direct")
           for l, n in pairs(v.names) do
-            Output(string.format("%s/%s", l, key), nil, {id = "flightmasters", key = k, data = n}, "output_direct")
+            Output(string.format("%s/%s", l, key), nil, {id = "flightmasters", key = k, data = {name = n}}, "output_direct")
           end
         end
       end,
