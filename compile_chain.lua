@@ -270,7 +270,14 @@ function ChainBlock_Create(id, linkfrom, factory, sortpred, filter)
   ninst.linkto = {}
   ninst.broadcasted = {}
   ninst.unfinished = 0
-  ninst.process = function (key, subkey, value, identifier) assert(key and value and type(key) == "string") for _, v in pairs(ninst.linkto) do v:Insert(key, subkey, value, identifier) end end
+  ninst.process = function (key, subkey, value, identifier)
+    assert(key and value and type(key) == "string")
+    local touched = false
+    for _, v in pairs(ninst.linkto) do
+      touched = v:Insert(key, subkey, value, identifier) or touched
+    end
+    assert(touched, identifier)
+  end
   ninst.broadcast = function (id, value) for _, v in pairs(ninst.linkto) do v:Broadcast(id, value) end end
   if linkfrom then
     for k, v in pairs(linkfrom) do
@@ -303,6 +310,8 @@ function ChainBlock:Insert(key, subkey, value, identifier)
       table.insert(self:GetData(key), {subkey = subkey, value = value})
     end
   end
+  
+  return true
 end
 
 

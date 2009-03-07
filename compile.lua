@@ -13,11 +13,11 @@ print = function (...)
 end
 
 local do_zone_map = false
-local do_errors = false
+local do_errors = true
 
 local do_compile = true
-local do_questtables = false
-local do_flight = true
+local do_questtables = true
+local do_flight = false
 
 local dbg_data = false
 
@@ -139,6 +139,35 @@ end
 
 --[[
 *****************************************************************
+List-accum functions
+]]
+
+local function list_accumulate(item, id, inp)
+  if not inp then return end
+  
+  if not item[id] then item[id] = {} end
+  local t = item[id]
+  
+  if type(inp) == "table" then
+    for k, v in pairs(inp) do
+      t[v] = (t[v] or 0) + 1
+    end
+  else
+    t[inp] = (t[inp] or 0) + 1
+  end
+end
+
+local function list_most_common(tbl, mv)
+  local mcv = nil
+  local mcvw = mv
+  for k, v in pairs(tbl) do
+    if not mcvw or v > mcvw then mcv, mcvw = k, v end
+  end
+  return mcv
+end
+
+--[[
+*****************************************************************
 Position accumulation
 ]]
 
@@ -177,8 +206,11 @@ local function position_accumulate(accu, tpos)
     closest.y = (closest.y * closest.w + tpos.y) / (closest.w + 1)
     closest.w = closest.w + 1
   else
-    table.insert(conti, {x = tpos.x, y = tpos.y, w = 1})
+    closest = {x = tpos.x, y = tpos.y, w = 1, cz = {}}
+    table.insert(conti, closest)
   end
+  
+  list_accumulate(closest, "cz", string.format("%d@%d", tpos.rc, tpos.rz))
 end
 
 local function position_has(accu)
@@ -195,40 +227,12 @@ local function position_finalize(accu)
   local tw = 0
   for c, ci in pairs(accu) do
     for _, v in ipairs(ci) do
-      table.insert(pozes, {c = c, x = v.x, y = v.y, w = v.w})
+      local rc, rz = list_most_common(v.cz):match("([%d]+)@([%d]+)")
+      table.insert(pozes, {c = c, x = v.x, y = v.y, w = v.w, rc = rc, rz = rz})
     end
   end
   
   return weighted_concept_finalize(pozes, 0.8, 10)
-end
-
---[[
-*****************************************************************
-List-accum functions
-]]
-
-local function list_accumulate(item, id, inp)
-  if not inp then return end
-  
-  if not item[id] then item[id] = {} end
-  local t = item[id]
-  
-  if type(inp) == "table" then
-    for k, v in pairs(inp) do
-      t[v] = (t[v] or 0) + 1
-    end
-  else
-    t[inp] = (t[inp] or 0) + 1
-  end
-end
-
-local function list_most_common(tbl, mv)
-  local mcv = nil
-  local mcvw = mv
-  for k, v in pairs(tbl) do
-    if not mcvw or v > mcvw then mcv, mcvw = k, v end
-  end
-  return mcv
 end
 
 --[[
@@ -396,19 +400,19 @@ local chainhead = ChainBlock_Create("parse", nil,
         end end
         
         -- objects!
-        if do_compile and do_questtables and v.object then for oid, odat in pairs(v.object) do
+        --[[if do_compile and do_questtables and v.object then for oid, odat in pairs(v.object) do
           odat.fileid = value.fileid
           Output(string.format("%s@@%s", oid, locale), qhv, odat, "object")
-        end end
+        end end]]
         
         -- flight masters!
-        if do_compile and v.flight_master then for fmname, fmdat in pairs(v.flight_master) do
+        if do_compile and do_flight and v.flight_master then for fmname, fmdat in pairs(v.flight_master) do
           if type(fmdat.master) == "string" then continue end  -- I don't even know how this is possible
           Output(string.format("%s@@%s@@%s", faction, fmname, locale), qhv, {dat = fmdat, wowv = wowv}, "flight_master")
         end end
         
         -- flight times!
-        if do_compile and v.flight_times then for ftname, ftdat in pairs(v.flight_times) do
+        if do_compile and do_flight and v.flight_times then for ftname, ftdat in pairs(v.flight_times) do
           Output(string.format("%s@@%s@@%s", ftname, faction, locale), qhv, ftdat, "flight_times")
         end end
         
@@ -1477,7 +1481,7 @@ if do_compile and do_flight then
           table.sort(v, function(a, b) return a.distance < b.distance end)
         end
         
-        Output(string.format("*/%s", faction), nil, {id = "flightpaths", key = tonumber(src), data = self.chunky}, "output")
+        Output(string.format("*/%s", faction), nil, {id = "flightpaths", key = tonumber(src), data = self.chunky}, "output_direct")
       end,
     } end
   )
@@ -1496,8 +1500,7 @@ if do_compile and do_flight then
         print("finnish")
         for k, v in ipairs(self.table) do
           for l, n in pairs(v.names) do
-            print("outp")
-            Output(string.format("%s/%s", l, key), nil, {id = "flightmasters", key = k, data = n}, "output")
+            Output(string.format("%s/%s", l, key), nil, {id = "flightmasters", key = k, data = n}, "output_direct")
           end
         end
       end,
@@ -1524,8 +1527,8 @@ if flight_master_name_output then table.insert(sources, flight_master_name_outpu
 local function do_loc_choice(file, item)
   local has_linkloc = false
   for k, v in ipairs(item) do
-    if file[v.sourcetype][v.sourceid] then
-      if do_loc_choice(file, file[v.sourcetype][v.sourceid]) then
+    if file[v.sourcetype] and file[v.sourcetype][v.sourceid] and file[v.sourcetype][v.sourceid]["*/*"] then
+      if do_loc_choice(file, file[v.sourcetype][v.sourceid]["*/*"]) then
         has_linkloc = true
       end
     end
@@ -1555,30 +1558,41 @@ local function mark_chains(file, item)
   for k, v in ipairs(item) do
     if file[v.sourcetype][v.sourceid] then
       file[v.sourcetype][v.sourceid].used = true
-      mark_chains(file, file[v.sourcetype][v.sourceid])
+      if file[v.sourcetype][v.sourceid]["*/*"] then mark_chains(file, file[v.sourcetype][v.sourceid]["*/*"]) end
     end
   end
 end
 
-local fileout = ChainBlock_Create("fileout", sources,
+local file_collater = ChainBlock_Create("file_collater", sources,
+  function (key) return {
+    Data = function(self, key, subkey, value, Output)
+      Output("", nil, {fragment = key, value = value})
+    end
+  } end,
+  nil, "output"
+)
+
+local file_cull = ChainBlock_Create("file_cull", {file_collater},
   function (key) return {
     finalfile = {},
     
     Data = function(self, key, subkey, value, Output)
-      assert(value.data)
-      assert(value.id)
-      assert(value.key)
+      assert(value.value.data)
+      assert(value.value.id)
+      assert(value.value.key)
+      assert(value.fragment)
       
-      if not self.finalfile[value.id] then self.finalfile[value.id] = {} end
-      assert(not self.finalfile[value.id][value.key])
-      self.finalfile[value.id][value.key] = value.data
+      if not self.finalfile[value.value.id] then self.finalfile[value.value.id] = {} end
+      if not self.finalfile[value.value.id][value.value.key] then self.finalfile[value.value.id][value.value.key] = {} end
+      assert(not self.finalfile[value.value.id][value.value.key][value.fragment])
+      self.finalfile[value.value.id][value.value.key][value.fragment] = value.value.data
     end,
     
     Finish = function(self, Output)
       -- First we go through and check to see who's got actual locations, and cull either location or linkage
       if self.finalfile.quest then for k, v in pairs(self.finalfile.quest) do
-        if v.criteria then
-          for _, crit in pairs(v.criteria) do
+        if v["*/*"] and v["*/*"].criteria then
+          for _, crit in pairs(v["*/*"].criteria) do
             do_loc_choice(self.finalfile, crit)
           end
         end
@@ -1587,8 +1601,8 @@ local fileout = ChainBlock_Create("fileout", sources,
       -- Then we mark used/unused items
       if self.finalfile.quest then for k, v in pairs(self.finalfile.quest) do
         v.used = true
-        if v.criteria then
-          for _, crit in pairs(v.criteria) do
+        if v["*/*"] and v["*/*"].criteria then
+          for _, crit in pairs(v["*/*"].criteria) do
             mark_chains(self.finalfile, crit)
           end
         end
@@ -1603,13 +1617,54 @@ local fileout = ChainBlock_Create("fileout", sources,
           else
             v.used = false
           end
+          
+          if dbg_data then
+            for _, tv in pairs(v) do
+              if type(tv) == "table" then tv.used = v.used end
+            end
+          end
+          
+          v.used = nil
         end
         
-        --[[if not dbg_data then
+        if not dbg_data then
           self.finalfile[t] = d
-        end]] -- Disabled until we deal with composite culling
+        end
       end
       
+      for t, d in pairs(self.finalfile) do
+        for k, d2 in pairs(d) do
+          for s, d3 in pairs(d2) do
+            assert(d3)
+            Output(s, nil, {id = t, key = k, data = d3}, "output_direct")
+          end
+        end
+      end
+    end
+  } end
+)
+
+local output_sources = {}
+for _, v in ipairs(sources) do
+  table.insert(output_sources, v)
+end
+table.insert(output_sources, file_cull)
+
+local fileout = ChainBlock_Create("fileout", output_sources,
+  function (key) return {
+    finalfile = {},
+    
+    Data = function(self, key, subkey, value, Output)
+      assert(value.data, string.format("%s, %s", tostring(value.id), tostring(value.key)))
+      assert(value.id)
+      assert(value.key)
+      
+      if not self.finalfile[value.id] then self.finalfile[value.id] = {} end
+      assert(not self.finalfile[value.id][value.key])
+      self.finalfile[value.id][value.key] = value.data
+    end,
+    
+    Finish = function(self, Output)
       local fname = "static"
       
       local locale, faction = key:match("(.*)/(.*)")
@@ -1630,21 +1685,25 @@ QuestHelper_Loadtime["%s.lua"] = GetTime()
 
 ]=]):format(fname, fname))
 
+      if not locale and not faction then
+        fil:write("QHDB = {}", "\n")
+      end
       if locale then
         fil:write(([[if GetLocale() ~= "%s" then return end]]):format(locale), "\n")
       end
       if faction then
         fil:write(([[if (UnitFactionGroup("player") == "Alliance" and 1 or 2) == %s then return end]]):format(faction), "\n")
       end
-      if locale or faction then fil:write("\n") end
+      fil:write("\n")
       
-      fil:write("QuestHelper_Static = ")
+      fil:write("loadstring([[table.insert(QHDB, ")
       persistence.store(fil, self.finalfile)
+      fil:write(")]])()")
       
       fil:close()
     end,
   } end,
-  nil, "output"
+  nil, "output_direct"
 )
 
 --[[

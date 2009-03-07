@@ -30,9 +30,8 @@ print("Idfiles isolated: %d" % len(distillfiles))
 
 realfiles = {}
 for path, dirs, files in os.walk("data/08"):
-  realfiles.update({(path.rsplit('/', 1)[1] + "_" + file):os.path.join(path, file) for file in files})
+  realfiles.update({(file):os.path.join(path, file) for file in files})
 print("Realfiles isolated: %d" % len(realfiles))
-
 
 touchfiles = sorted(set([tag for tag in distillfiles.keys()]) | set([tag for tag in realfiles.keys()]))
 
