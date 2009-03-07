@@ -52,5 +52,7 @@ routing_*.lua
 manager_*.lua
 director_*.lua
 db_*.lua
+static_*.lua
+graph_*.lua (not graph.lua itself, however)
 
-All of these files have very restricted interfaces, making them suitable for inclusion in an otherwise LGPL codebase. If you feel that the coupling between the closed-sourced and LGPL sections are too broad, please let me know what I can do to improve things.
+All of these files have very restricted interfaces, making them suitable for inclusion in an otherwise LGPL codebase. If you feel that the coupling between the closed-sourced and LGPL sections is too tight, please let me know what I can do to improve things.
