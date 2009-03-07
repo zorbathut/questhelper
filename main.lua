@@ -295,7 +295,7 @@ function QuestHelper:Initialize()
       local errmsg = "Missing QuestHelper file: "..file
       DEFAULT_CHAT_FRAME:AddMessage(errmsg)
       uninstallederr = uninstallederr .. "    " .. errmsg .. "\n"
-      if not (version == "Development Version" and file:match("static.*") then file_problem = true end
+      if not (expected_version == "Development Version" and file:match("static.*")) then file_problem = true end
     end
   end
 
