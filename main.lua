@@ -351,6 +351,7 @@ function QuestHelper:Initialize()
   QuestHelper_SaveDate = time()
 
   self.Astrolabe = DongleStub("Astrolabe-0.4-QuestHelper")
+  --load_graph_links()
   QuestHelper_BuildZoneLookup()
 
   if QuestHelper_Locale ~= GetLocale() then

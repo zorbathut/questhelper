@@ -184,7 +184,49 @@ local static_zone_transitions =
    {66, 73, 0.706, 0.315}, -- Crystalsong <--> Storm Peaks
    {66, 73, 0.839, 0.340}, -- Crystalsong <--> Storm Peaks
    {71, 73, 0.920, 0.767}, -- Icecrown <--> Storm Peaks
-  }
+}
+
+function load_graph_links()
+  local function convert_coordinate(coord)
+    QuestHelper: Assert(coord[1] and coord[2] and coord[3])
+    local c, x, y = QuestHelper.Astrolabe:GetAbsoluteContinentPosition(QuestHelper_ZoneLookup[coord[1]][1], QuestHelper_ZoneLookup[coord[1]][2], coord[2], coord[3])
+    return {x = x, y = y, p = coord[1]}
+  end
+
+  local function do_routes(routes)
+    for _, v in ipairs(routes) do
+      local src = convert_coordinate(v[1])
+      local dst = convert_coordinate(v[2])
+      QuestHelper: Assert(src and dst)
+      QH_Graph_Plane_Makelink("static_route", src, dst, v[3], v[4]) -- this couldn't possibly fail
+    end
+  end
+  
+  local faction_db
+  if UnitFactionGroup("player") == "Alliance" then
+    faction_db = static_alliance_routes
+  else
+    faction_db = static_horde_routes
+  end
+  
+  do_routes(faction_db)
+  do_routes(static_shared_routes)
+  
+  for _, v in ipairs(static_zone_transitions) do
+    local src = convert_coordinate({v[1], v[3], v[4]})
+    local dst = convert_coordinate({v[1], v[3], v[4]})
+    dst.p = v[2]
+    QH_Graph_Plane_Makelink("static_transition", src, dst, 0, false)
+  end
+  
+  do
+    local src = convert_coordinate(dark_portal_route[1])
+    local dst = convert_coordinate(dark_portal_route[2])
+    QH_Graph_Plane_Makelink("dark_portal", src, dst, 15)
+  end
+end
+
+-- pretty much everything after this is going to eventually end up eviscerated very, very soon
 
 local walkspeed_multiplier = 1/7 -- Every yard walked takes this many seconds.
 

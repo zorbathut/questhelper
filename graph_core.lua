@@ -160,7 +160,8 @@ function QH_Graph_Pathmultifind(st, nda, make_path)
   return out
 end
 
-function QH_Graph_Plane_Makelink(name, coord1, coord2, cost)
+function QH_Graph_Plane_Makelink(name, coord1, coord2, cost, asymmetrical)
+  QuestHelper: TextOut(string.format("Link '%s' made from %d/%f/%f to %d/%f/%f of cost %f, asymflag %s", name, coord1.p, coord1.x, coord1.y, coord2.p, coord2.x, coord2.y, cost, tostring(not not asymmetrical)))
   QuestHelper: Assert(name)
   QuestHelper: Assert(coord1)
   QuestHelper: Assert(coord2)
@@ -169,11 +170,11 @@ function QH_Graph_Plane_Makelink(name, coord1, coord2, cost)
   if not plane[coord1.p] then plane[coord1.p] = {} end
   if not plane[coord2.p] then plane[coord2.p] = {} end
   
-  local node1 = {x = coord1.x, y = coord1.y, p = coord1.p, link_cost = cost, name = name}
-  local node2 = {x = coord2.x, y = coord2.y, p = coord2.p, link_cost = cost, name = name}
+  local node1 = {x = coord1.x, y = coord1.y, p = coord1.p, name = name}
+  local node2 = {x = coord2.x, y = coord2.y, p = coord2.p, name = name}
   
-  node1.link = node2
-  node2.link = node1
+  node1.link, node1.link_cost = node2, cost
+  if not asymmetrical then node2.link, node2.link_cost = node1, cost end
   
   table.insert(plane[node1.p], node1)
   table.insert(plane[node2.p], node2)
