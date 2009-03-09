@@ -7,8 +7,8 @@ local function DoTooltip(self, tooltipi)
     ct = ct + 1
     
     local indent = 1
-    QuestHelper:TextOut(QuestHelper:StringizeTable(data))
-    QuestHelper:TextOut(QuestHelper:StringizeTable(lines))
+    --QuestHelper:TextOut(QuestHelper:StringizeTable(data))
+    --QuestHelper:TextOut(QuestHelper:StringizeTable(lines))
     for _, v in ipairs(lines) do
       self:AddLine(("  "):rep(indent) .. v, 1, 1, 1)
       indent = indent + 1
@@ -16,7 +16,7 @@ local function DoTooltip(self, tooltipi)
     self:AddLine(("  "):rep(indent) .. data.desc, 1, 1, 1)
     QuestHelper:AppendObjectiveProgressToTooltip(data, self, nil, indent + 1)
   end
-  QuestHelper:TextOut(string.format("Got %d items", ct))
+  --QuestHelper:TextOut(string.format("Got %d items", ct))
 end
 
 local ctts = {}
@@ -25,7 +25,7 @@ function QH_Tooltip_Add(tooltips)
   QuestHelper:TextOut(QuestHelper:StringizeTable(tooltips))
   for k, v in pairs(tooltips) do
     local typ, id = k:match("([^@]+)@@([^@]+)")
-    QuestHelper:TextOut(string.format("Adding for %s/%s", typ, id))
+    --QuestHelper:TextOut(string.format("Adding for %s/%s", typ, id))
     if not ctts[typ] then ctts[typ] = {} end
     if not ctts[typ][id] then ctts[typ][id] = {} end
     QuestHelper: Assert(not ctts[typ][id][v[2]])
