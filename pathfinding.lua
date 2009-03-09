@@ -190,7 +190,7 @@ function load_graph_links()
   local function convert_coordinate(coord)
     QuestHelper: Assert(coord[1] and coord[2] and coord[3])
     local c, x, y = QuestHelper.Astrolabe:GetAbsoluteContinentPosition(QuestHelper_ZoneLookup[coord[1]][1], QuestHelper_ZoneLookup[coord[1]][2], coord[2], coord[3])
-    return {x = x, y = y, p = coord[1]}
+    return {x = x, y = y, p = coord[1], c = c}
   end
 
   local function do_routes(routes)

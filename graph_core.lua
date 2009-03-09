@@ -205,7 +205,7 @@ end
 function QH_Graph_Plane_Makelink(name, coord1, coord2, cost, asymmetrical)
   QuestHelper: Assert(not active)
   
-  QuestHelper: TextOut(string.format("Link '%s' made from %d/%f/%f to %d/%f/%f of cost %f, asymflag %s", name, coord1.p, coord1.x, coord1.y, coord2.p, coord2.x, coord2.y, cost, tostring(not not asymmetrical)))
+  --QuestHelper: TextOut(string.format("Link '%s' made from %d/%f/%f to %d/%f/%f of cost %f, asymflag %s", name, coord1.p, coord1.x, coord1.y, coord2.p, coord2.x, coord2.y, cost, tostring(not not asymmetrical)))
   QuestHelper: Assert(name)
   QuestHelper: Assert(coord1)
   QuestHelper: Assert(coord2)

@@ -208,7 +208,7 @@ function QuestHelper_BuildZoneLookup()
         local altered_zone = "!!! QuestHelper_Zones entry needs update: [%s][%s] = %q -- was %s"
         
         if not index then
-          QuestHelper:TextOut(altered_index:format(base_name, next_index, c, z))
+          QuestHelper:TextOut(altered_index:format(tostring(base_name), tostring(next_index), tostring(c), tostring(z)))
           next_index = next_index + 1
         else
           if QuestHelper_Locale == "enUS" then

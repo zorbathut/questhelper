@@ -534,7 +534,7 @@ function QH_Tracker_Rescan()
     local current_mo
     local current_mo_cluster
     for k, v in ipairs(route) do
-      if not v.why.tracker_hidden then
+      if not v.route_intermediate and not v.why.tracker_hidden then
         if current_mo and v.why ~= current_mo then
           y = addMetaObjective(current_mo, current_mo_cluster, y)
           current_mo, current_mo_cluster = nil, nil

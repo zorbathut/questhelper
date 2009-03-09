@@ -55,7 +55,23 @@ function QH_Route_RegisterNotification(func)
 end
 
 Route_Core_Init(
-  function(path) for _, v in pairs(notification_funcs) do v(path) end end,
+  function(path)
+    local real_path = {}
+    for k, v in ipairs(path) do
+      table.insert(real_path, v)
+      if path[k + 1] then
+        local nrt = QH_Graph_Pathfind(path[k].loc, path[k + 1].loc, false, true)
+        QuestHelper: Assert(nrt)
+        if nrt.path then for _, wp in ipairs(nrt.path) do
+          table.insert(real_path, {x = wp.x, y = wp.y, c = wp.c, route_intermediate = true})
+        end end
+      end
+    end
+    
+    for _, v in pairs(notification_funcs) do
+      v(path)
+    end
+  end,
   function(loc1, loc2)
     QH_Timeslice_Yield()
     -- Distance function
@@ -73,8 +89,12 @@ Route_Core_Init(
       table.insert(lt, v.loc)
     end
     local rv = QH_Graph_Pathmultifind(loc1.loc, lt, reverse)
-    for _, v in ipairs(rv) do
-      QuestHelper: Assert(v)
+    for k, v in ipairs(lt) do
+      if not rv[k] then
+        QuestHelper:TextOut(QuestHelper:StringizeTable(loc1.loc))
+        QuestHelper:TextOut(QuestHelper:StringizeTable(lt[k]))
+      end
+      QuestHelper: Assert(rv[k])
     end
     return rv
   end
@@ -85,12 +105,15 @@ local StartObjective = {desc = "Start", tracker_hidden = true} -- this should ne
 local lapa = GetTime()
 local passcount = 0
 
+local lc, lx, ly, lrc, lrz
+
 local function process()
-  -- Order here is important. We don't want to update the location, then wait for a while as we add nodes. We also need the location updated before nodes are added. This way, it all works and we don't need anything outside the loop.
+  -- Order here is important. We don't want to update the location, then wait for a while as we add nodes. We also need the location updated before the first nodes are added. This way, it all works and we don't need anything outside the loop.
   while true do
-    local c, x, y, rc, rz = QuestHelper:RetrieveRawLocation()
-    if c and x and y then
+    local c, x, y, rc, rz = QuestHelper.collect_c, QuestHelper.collect_x, QuestHelper.collect_y, QuestHelper.c, QuestHelper.z  -- ugh we need a better solution to this, but with this weird "planes" hybrid there just isn't one right now
+    if c and x and y and (c ~= lc or x ~= lx or y ~= ly or rc ~= lrc or rz ~= lrz) then
       local t = GetTime()
+      lc, lx, ly, lrc, lrz = c, x, y, rc, rz
       Route_Core_SetStart({desc = "Start", why = StartObjective, loc = NewLoc(c, x, y, rc, rz), tracker_hidden = true, ignore = true})
       QuestHelper: TextOut(string.format("SS takes %f", GetTime() - t))
     end

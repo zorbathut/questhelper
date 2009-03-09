@@ -332,6 +332,10 @@ end
   function QH_Route_Core_SetStart(stt)
     -- We do some kind of ghastly things here.
     --TestShit()
+    if last_best and #last_best > 1 then
+      last_best.distance = last_best.distance - Distance[last_best[1]][last_best[2]]
+    end
+    
     NodeLookup[StartNode] = nil
     NodeList[1] = stt
     StartNode = stt
@@ -350,12 +354,19 @@ end
     local ct = 1
     for _, v in ipairs(ActiveNodes) do
       if v ~= 1 then
+        QuestHelper: Assert(forward[ct])
         Distance[1][v] = forward[ct]
         ct = ct + 1
         
         Distance[v][1] = 1000000 -- this should never be used anyway
       end
     end
+    
+    if last_best and #last_best > 1 then
+      print(last_best.distance, Distance[last_best[1]][last_best[2]], last_best[1], last_best[2])
+      last_best.distance = last_best.distance + Distance[last_best[1]][last_best[2]]
+    end
+    
     --TestShit()
     -- TODO: properly deallocate old startnode?
   end

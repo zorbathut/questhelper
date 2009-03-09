@@ -17,6 +17,11 @@ function NewLoc(c, x, y, rc, rz)
   tab.c = c
   tab.x = x
   tab.y = y
+  if not QuestHelper_IndexLookup[rc] or not QuestHelper_IndexLookup[rc][rz] then
+    QuestHelper:TextOut(string.format("lolwut %d %d", rc, rz))
+  end
+  QuestHelper: Assert(QuestHelper_IndexLookup[rc])
+  QuestHelper: Assert(QuestHelper_IndexLookup[rc][rz])
   tab.p = QuestHelper_IndexLookup[rc][rz]
   return tab
 end

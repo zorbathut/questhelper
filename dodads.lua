@@ -198,21 +198,25 @@ function QuestHelper:CreateWorldMapWalker()
         --QuestHelper:TextOut(string.format("%s/%s/%s to %s/%s", tostring(obj.c), tostring(obj.x), tostring(obj.y), tostring(t[1]), tostring(t[2])))
       end
       
-      local skip_item = 1 -- 1 to skip the player, 0 to not
-      for i = skip_item + 1, #self.route do
-        local dodad = self.map_dodads[i - skip_item]
-        if not dodad then
-          self.map_dodads[i - skip_item] = self.frame:CreateWorldMapDodad(self.route[i], i)
-        else
-          self.map_dodads[i - skip_item]:SetObjective(self.route[i], i)
+      local cur_dodad = 1
+      for i = 2, #self.route do -- 2 because we're skipping the player
+        if not self.route[i].route_intermediate then
+          local dodad = self.map_dodads[cur_dodad]
+          if not dodad then
+            self.map_dodads[cur_dodad] = self.frame:CreateWorldMapDodad(self.route[i], i)
+          else
+            self.map_dodads[cur_dodad]:SetObjective(self.route[i], i)
+          end
         end
+        
+        cur_dodad = cur_dodad + 1
       end
 
       for i = #self.route,self.used_map_dodads do
         self.map_dodads[i]:SetObjective(nil, 0)
       end
 
-      self.used_map_dodads = #self.route - skip_item
+      self.used_map_dodads = cur_dodad - 1
     end
   end
   
