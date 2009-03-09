@@ -83,23 +83,22 @@ local grid = 0
 local plane = {}
 
 function QH_Graph_Pathfind(st, nd, make_path)
-  QuestHelper: Assert(not make_path)
-  
   return QH_Graph_Pathmultifind(st, {nd}, make_path)[1]
 end
 
 function QH_Graph_Pathmultifind(st, nda, make_path)
-  QuestHelper: Assert(not make_path)
-
   local out = {}
   local remaining = 0 -- Right now this isn't actually updated
+  
+  local link = {}
   
   for k, v in ipairs(nda) do
     if st.p == v.p then
       out[k] = xydist(st, v)
     else
       if plane[v.p] then
-        table.insert(plane[v.p], {x = v.x, y = v.y, p = v.p, goal = k})
+        link[k] = {x = v.x, y = v.y, p = v.p, goal = k}
+        table.insert(plane[v.p], link[k])
         remaining = remaining + 1
       end
     end
@@ -113,6 +112,7 @@ function QH_Graph_Pathmultifind(st, nda, make_path)
         local dst = xydist(st, v)
         v.scan_id = grid
         v.scan_cost = dst
+        v.scan_from = nil
         heap_insert(dijheap, {c = dst, n = v})
       end
     end
@@ -120,26 +120,26 @@ function QH_Graph_Pathmultifind(st, nda, make_path)
   
   while remaining > 0 and #dijheap > 0 do
     local cdj = heap_extract(dijheap)
-    print(string.format("Extracted cost %f/%s pointing at %f/%f/%d", cdj.c, tostring(cdj.n.scan_cost), cdj.n.x, cdj.n.y, cdj.n.p))
+    --print(string.format("Extracted cost %f/%s pointing at %f/%f/%d", cdj.c, tostring(cdj.n.scan_cost), cdj.n.x, cdj.n.y, cdj.n.p))
     QuestHelper: Assert(cdj.n.link)
     if cdj.n.scan_cost == cdj.c then  -- if we've modified it since then, don't bother
       local linkto = cdj.n.link
       local basecost = cdj.c + cdj.n.link_cost
-      print("enter alpha")
       if linkto.scan_id ~= grid or linkto.scan_cost > basecost then
-        print("enter beta")
         for _, v in ipairs(plane[linkto.p]) do
           if v.goal then
             -- One way or another, we gotta calculate this.
             local goalcost = basecost + xydist(linkto, v)
             if not out[v.goal] or out[v.goal] > goalcost then
               out[v.goal] = goalcost
+              v.scan_from = cdj.n
             end
           elseif v.link and (v.scan_id ~= grid or v.scan_cost > basecost) then
             local goalcost = basecost + xydist(linkto, v)
-            if not v.scan_cost or v.scan_cost > goalcost then
+            if v.scan_id ~= grid or v.scan_cost > goalcost then
               v.scan_id = grid
               v.scan_cost = goalcost
+              v.scan_from = cdj.n
               heap_insert(dijheap, {c = goalcost, n = v})
             end
           end
@@ -156,6 +156,31 @@ function QH_Graph_Pathmultifind(st, nda, make_path)
   
   grid = grid + 1
   QuestHelper: Assert(grid < 1000000000) -- if this ever triggers I will be amazed
+  
+  if make_path then
+    print("mpath")
+    for k, v in pairs(out) do
+      print(out[k])
+      local rp = {d = v}
+      out[k] = rp
+      print(out[k])
+      
+      if link[k] then
+        QuestHelper: Assert(link[k].scan_from)
+        local tpath = {}
+        local cpx = link[k].scan_from
+        while cpx do
+          table.insert(tpath, cpx)
+          cpx = cpx.scan_from
+        end
+        
+        rp.path = {}
+        for i = #tpath, 1, -1 do
+          table.insert(rp.path, tpath[i])
+        end
+      end
+    end
+  end
   
   return out
 end
