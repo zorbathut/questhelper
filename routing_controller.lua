@@ -64,7 +64,7 @@ Route_Core_Init(
         QuestHelper: Assert(nrt)
         if nrt.path then for _, wp in ipairs(nrt.path) do
           QuestHelper: Assert(wp.c)
-          table.insert(real_path, {loc = {x = wp.x, y = wp.y, c = wp.c}, ignore = true})
+          table.insert(real_path, {loc = {x = wp.x, y = wp.y, c = wp.c}, ignore = true, map_desc = wp.map_desc})
         end end
       end
     end

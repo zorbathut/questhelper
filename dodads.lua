@@ -647,7 +647,6 @@ function QuestHelper:CreateMipmapDodad()
   
   icon.phase = 0
   icon.target = {0, 0, 0, 0}
-  icon.icon_id = 7
   
   icon.bg = QuestHelper:CreateIconTexture(icon, 16)
   icon.bg:SetDrawLayer("BACKGROUND")
@@ -657,7 +656,7 @@ function QuestHelper:CreateMipmapDodad()
     if self.obj then
       if not self.dot then
         if self.dot then QuestHelper:ReleaseTexture(self.dot) end
-        self.dot = QuestHelper:CreateIconTexture(self, self.icon_id)
+        self.dot = QuestHelper:CreateIconTexture(self, self.obj.icon_id or 8)
         self.dot:SetPoint("TOPLEFT", icon, "TOPLEFT", 2, -2)
         self.dot:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -2, 2)
       end

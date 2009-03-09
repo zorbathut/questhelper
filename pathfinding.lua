@@ -198,7 +198,9 @@ function load_graph_links()
     for _, v in ipairs(routes) do
       local src = convert_coordinate(v[1])
       local dst = convert_coordinate(v[2])
-      QuestHelper: Assert(src and dst)
+      QuestHelper: Assert(src.x and dst.x)
+      src.map_desc = {"Travel enroute"}
+      dst.map_desc = {"Travel enroute"}
       QH_Graph_Plane_Makelink("static_route", src, dst, v[3], v[4]) -- this couldn't possibly fail
     end
   end
@@ -217,12 +219,16 @@ function load_graph_links()
     local src = convert_coordinate({v[1], v[3], v[4]})
     local dst = convert_coordinate({v[1], v[3], v[4]})
     dst.p = v[2]
+    src.map_desc = {QHFormat("ZONE_BORDER", QuestHelper_NameLookup[v[1]], QuestHelper_NameLookup[v[2]])}
+    src.map_desc = {QHFormat("ZONE_BORDER", QuestHelper_NameLookup[v[2]], QuestHelper_NameLookup[v[1]])}
     QH_Graph_Plane_Makelink("static_transition", src, dst, 0, false)
   end
   
   do
     local src = convert_coordinate(dark_portal_route[1])
     local dst = convert_coordinate(dark_portal_route[2])
+    src.map_desc = {"Dark Portal"}
+    dst.map_desc = {"Dark Portal"}
     QH_Graph_Plane_Makelink("dark_portal", src, dst, 15)
   end
 end
