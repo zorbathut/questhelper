@@ -131,6 +131,7 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   end
   
   while remaining > 0 and #dijheap > 0 do
+    QH_Timeslice_Yield()
     local cdj = heap_extract(dijheap)
     --print(string.format("Extracted cost %f/%s pointing at %f/%f/%d", cdj.c, tostring(cdj.n.scan_cost), cdj.n.x, cdj.n.y, cdj.n.p))
     QuestHelper: Assert(cdj.n[link_id])

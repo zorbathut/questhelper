@@ -43,6 +43,7 @@ I think this works tomorrow.
 
 local Notifier
 local Dist
+local DistBatch
 
 -- Node storage and data structures
   local CurrentNodes = 1
@@ -73,12 +74,22 @@ function QH_Route_Core_NodeCount()
   return CurrentNodes
 end
 
+-- fuck floating-point
+local function almost(a, b)
+  if a == b then return true end
+  if type(a) ~= "number" or type(b) ~= "number" then return false end
+  if a == 0 or b == 0 then return false end
+  return math.abs(a / b - 1) < 0.0001
+end
+
 -- Initialization
-function QH_Route_Core_Init(PathNotifier, Distance)
+function QH_Route_Core_Init(PathNotifier, Distance, DistanceBatch)
   Notifier = PathNotifier
   Dist = Distance
+  DistBatch = DistanceBatch
   QuestHelper: Assert(Notifier)
   QuestHelper: Assert(Dist)
+  QuestHelper: Assert(DistBatch)
 end
 -- End initialization
 
@@ -320,18 +331,32 @@ end
   -- Set the start location
   function QH_Route_Core_SetStart(stt)
     -- We do some kind of ghastly things here.
+    --TestShit()
     NodeLookup[StartNode] = nil
     NodeList[1] = stt
     StartNode = stt
     NodeLookup[StartNode] = 1
     
+    local tlnod = {}
+    
     for _, v in ipairs(ActiveNodes) do
       if v ~= 1 then
-        Distance[1][v] = Dist(NodeList[1], NodeList[v])
-        Distance[v][1] = Dist(NodeList[v], NodeList[1])
+        table.insert(tlnod, NodeList[v])
       end
     end
     
+    local forward = DistBatch(NodeList[1], tlnod)
+    
+    local ct = 1
+    for _, v in ipairs(ActiveNodes) do
+      if v ~= 1 then
+        Distance[1][v] = forward[ct]
+        ct = ct + 1
+        
+        Distance[v][1] = 1000000 -- this should never be used anyway
+      end
+    end
+    --TestShit()
     -- TODO: properly deallocate old startnode?
   end
   
@@ -345,15 +370,24 @@ end
     --RTO("|cffFF8080AEN: " .. tostring(idx))
     NodeLookup[nod] = idx
     NodeList[idx] = nod
-    for x = 1, #ActiveNodes do
-      --RTO("ANIDX: " .. tostring(x))
-      --RTO("ANIDXT: " .. tostring(ActiveNodes[x]))
-      --RTO("ANIDXTNL: " .. tostring(NodeList[ActiveNodes[x]]))
-      Distance[ActiveNodes[x]][idx] = Dist(NodeList[ActiveNodes[x]], nod)
-      Distance[idx][ActiveNodes[x]] = Dist(nod, NodeList[ActiveNodes[x]])
+    
+    local tlnod = {}
+    for _, v in ipairs(ActiveNodes) do
+      table.insert(tlnod, NodeList[v])
       
-      Weight[ActiveNodes[x]][idx] = weight_ave
-      Weight[idx][ActiveNodes[x]] = weight_ave
+      Weight[v][idx] = weight_ave
+      Weight[idx][v] = weight_ave
+    end
+    
+    local forward = DistBatch(NodeList[idx], tlnod)
+    local backward = DistBatch(NodeList[idx], tlnod, true)
+    
+    for k, v in ipairs(ActiveNodes) do
+      --QuestHelper:TextOut(string.format("%f/%f and %f/%f",Dist(NodeList[idx], NodeList[v]), forward[k], Dist(NodeList[v], NodeList[idx]), backward[k]))
+      --QuestHelper:Assert(almost(Dist(NodeList[idx], NodeList[v]), forward[k]))
+      --QuestHelper:Assert(almost(Dist(NodeList[v], NodeList[idx]), backward[k]))
+      Distance[idx][v] = forward[k]
+      Distance[v][idx] = backward[k]
     end
     --TestShit()
     
@@ -480,7 +514,8 @@ end
 function QH_Route_Core_DistanceClear()
 end
 
---[=[function findin(tab, val)
+--[=[
+function findin(tab, val)
   local ct = 0
   for k, v in pairs(tab) do
     if v == val then ct = ct + 1 end
@@ -509,8 +544,8 @@ function TestShit()
   
   local fail = false
   for x = 1, #ActiveNodes do
-    for y = 1, #ActiveNodes do
-      if not (Dist(NodeList[ActiveNodes[x]], NodeList[ActiveNodes[y]]) == Distance[ActiveNodes[x]][ActiveNodes[y]]) then
+    for y = 2, #ActiveNodes do
+      if not (almost(Dist(NodeList[ActiveNodes[x]], NodeList[ActiveNodes[y]]), Distance[ActiveNodes[x]][ActiveNodes[y]])) then
         RTO(string.format("%d/%d (%d/%d) should be %f, is %f", x, y, ActiveNodes[x], ActiveNodes[y], Dist(NodeList[ActiveNodes[x]], NodeList[ActiveNodes[y]]),Distance[ActiveNodes[x]][ActiveNodes[y]]))
         fail = true
       end
@@ -537,21 +572,10 @@ function TestShit()
     end
   end
   
-  for k, v in pairs(ClusterLookup) do
-    QuestHelper: Assert(Cluster[v])
-    QuestHelper: Assert(findin(Cluster[v], k))
-    QuestHelper: Assert(DependencyCounts[v])
-  end
-  
-  for k, v in pairs(Cluster) do
-    for _, v2 in pairs(v) do
-      QuestHelper: Assert(ClusterLookup[v2] == k)
-    end
-  end
-  
   QuestHelper: Assert(not fail)
-end
+end]=]
 
+--[=[
 function HackeryDump()
   local st = "{"
   for k, v in pairs(ActiveNodes) do

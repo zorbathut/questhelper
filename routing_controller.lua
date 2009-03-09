@@ -66,6 +66,17 @@ Route_Core_Init(
       QuestHelper: Assert(v)
     end
     return v
+  end,
+  function(loc1, loctable, reverse)
+    local lt = {}
+    for _, v in ipairs(loctable) do
+      table.insert(lt, v.loc)
+    end
+    local rv = QH_Graph_Pathmultifind(loc1.loc, lt, reverse)
+    for _, v in ipairs(rv) do
+      QuestHelper: Assert(v)
+    end
+    return rv
   end
 )
 
