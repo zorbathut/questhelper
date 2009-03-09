@@ -351,8 +351,8 @@ function QuestHelper:Initialize()
   QuestHelper_SaveDate = time()
 
   self.Astrolabe = DongleStub("Astrolabe-0.4-QuestHelper")
-  --load_graph_links()
   QuestHelper_BuildZoneLookup()
+  load_graph_links()
 
   if QuestHelper_Locale ~= GetLocale() then
     self:TextOut(QHText("LOCALE_ERROR"))

@@ -9,7 +9,7 @@ QuestHelper_Loadtime["routing_loc.lua"] = GetTime()
 
 -- Also, we're gonna pull something similar as with Collect to wrap everything up and not pollute the global space. But for now we don't.
 
-function NewLoc(c, x, y)
+function NewLoc(c, x, y, rc, rz)
   QuestHelper: Assert(c)
   QuestHelper: Assert(x)
   QuestHelper: Assert(y)
@@ -17,9 +17,10 @@ function NewLoc(c, x, y)
   tab.c = c
   tab.x = x
   tab.y = y
+  tab.p = QuestHelper_IndexLookup[rc][rz]
   return tab
 end
 
 function IsLoc(c)
-  return c and c.c and c.x and c.y
+  return c and c.c and c.x and c.y and c.p
 end

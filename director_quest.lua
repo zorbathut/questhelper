@@ -39,7 +39,8 @@ local function AppendObjlinks(target, source, tooltips, icon, last_name, map_lin
   if source.loc then
     for m, v in ipairs(source.loc) do
       QuestHelper: Assert(#source == 0)
-      table.insert(target, {loc = v, path_desc = copy(map_lines), icon_id = icon or 6})
+      
+      table.insert(target, {loc = {x = v.x, y = v.y, c = v.c, p = QuestHelper_IndexLookup[v.rc][v.rz]}, path_desc = copy(map_lines), icon_id = icon or 6})
     end
   else
     for _, v in ipairs(source) do
@@ -106,7 +107,7 @@ local function GetQuestMetaobjective(questid)
       local ttx = {}
       --QuestHelper:TextOut(string.format("finny %d", q.finish.loc and #q.finish.loc or -1))
       for m, v in ipairs(q.finish.loc) do
-        table.insert(ttx, {desc = "Turn in quest", why = ite, loc = v, tracker_hidden = true, cluster = ttx, icon_id = 7})
+        table.insert(ttx, {desc = "Turn in quest", why = ite, loc = {x = v.x, y = v.y, c = v.c, p = QuestHelper_IndexLookup[v.rc][v.rz]}, tracker_hidden = true, cluster = ttx, icon_id = 7})
       end
       table.insert(ite, ttx)
     end

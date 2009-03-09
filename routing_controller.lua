@@ -57,14 +57,15 @@ end
 Route_Core_Init(
   function(path) for _, v in pairs(notification_funcs) do v(path) end end,
   function(loc1, loc2)
+    QH_Timeslice_Yield()
     -- Distance function
-    if loc1.loc.c == loc2.loc.c then
-      local dx = loc1.loc.x - loc2.loc.x
-      local dy = loc1.loc.y - loc2.loc.y
-      return math.sqrt(dx * dx + dy * dy)
-    else
-      return 100000 -- one milllllion time units
+    local v = QH_Graph_Pathfind(loc1.loc, loc2.loc)
+    if not v then
+      QuestHelper:TextOut(QuestHelper:StringizeTable(loc1.loc))
+      QuestHelper:TextOut(QuestHelper:StringizeTable(loc2.loc))
+      QuestHelper: Assert(v)
     end
+    return v
   end
 )
 
@@ -76,9 +77,11 @@ local passcount = 0
 local function process()
   -- Order here is important. We don't want to update the location, then wait for a while as we add nodes. We also need the location updated before nodes are added. This way, it all works and we don't need anything outside the loop.
   while true do
-    local c, x, y = QuestHelper:RetrieveRawLocation()
+    local c, x, y, rc, rz = QuestHelper:RetrieveRawLocation()
     if c and x and y then
-      Route_Core_SetStart({desc = "Start", why = StartObjective, loc = NewLoc(c, x, y, "Start"), tracker_hidden = true, ignore = true})
+      local t = GetTime()
+      Route_Core_SetStart({desc = "Start", why = StartObjective, loc = NewLoc(c, x, y, rc, rz), tracker_hidden = true, ignore = true})
+      QuestHelper: TextOut(string.format("SS takes %f", GetTime() - t))
     end
     
     Route_Core_Process()

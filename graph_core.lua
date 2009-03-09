@@ -82,21 +82,29 @@ local grid = 0
 -- Each node contains both its parent ID and its coordinates within that plane. It may contain a node it links to, along with cost.
 local plane = {}
 
-function QH_Graph_Pathfind(st, nd, make_path)
-  return QH_Graph_Pathmultifind(st, {nd}, make_path)[1]
+function QH_Graph_Pathfind(st, nd, reverse, make_path)
+  return QH_Graph_Pathmultifind(st, {nd}, reverse, make_path)[1]
 end
 
-function QH_Graph_Pathmultifind(st, nda, make_path)
+local active = false
+
+function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
+  QuestHelper: Assert(not active)
+  active = true -- The fun thing about coroutines is that this is actually safe.
   local out = {}
   local remaining = 0 -- Right now this isn't actually updated
   
   local link = {}
   
+  QuestHelper: Assert(st.x and st.y and st.p)
+  
   for k, v in ipairs(nda) do
+    QuestHelper: Assert(v.x and v.y and v.p)
     if st.p == v.p then
       out[k] = xydist(st, v)
     else
       if plane[v.p] then
+      --print("Destination plane insertion")
         link[k] = {x = v.x, y = v.y, p = v.p, goal = k}
         table.insert(plane[v.p], link[k])
         remaining = remaining + 1
@@ -104,10 +112,14 @@ function QH_Graph_Pathmultifind(st, nda, make_path)
     end
   end
   
+  local link_id = reverse and "rlink" or "link"
+  local link_cost_id = reverse and "rlink_cost" or "link_cost"
+  
   local dijheap = {}
   if plane[st.p] then
+    --print("ST plane insertion")
     for _, v in ipairs(plane[st.p]) do
-      if v.link then
+      if v[link_id] then
         QuestHelper: Assert(not v.goal)
         local dst = xydist(st, v)
         v.scan_id = grid
@@ -121,10 +133,10 @@ function QH_Graph_Pathmultifind(st, nda, make_path)
   while remaining > 0 and #dijheap > 0 do
     local cdj = heap_extract(dijheap)
     --print(string.format("Extracted cost %f/%s pointing at %f/%f/%d", cdj.c, tostring(cdj.n.scan_cost), cdj.n.x, cdj.n.y, cdj.n.p))
-    QuestHelper: Assert(cdj.n.link)
+    QuestHelper: Assert(cdj.n[link_id])
     if cdj.n.scan_cost == cdj.c then  -- if we've modified it since then, don't bother
-      local linkto = cdj.n.link
-      local basecost = cdj.c + cdj.n.link_cost
+      local linkto = cdj.n[link_id]
+      local basecost = cdj.c + cdj.n[link_cost_id]
       if linkto.scan_id ~= grid or linkto.scan_cost > basecost then
         for _, v in ipairs(plane[linkto.p]) do
           if v.goal then
@@ -134,7 +146,7 @@ function QH_Graph_Pathmultifind(st, nda, make_path)
               out[v.goal] = goalcost
               v.scan_from = cdj.n
             end
-          elseif v.link and (v.scan_id ~= grid or v.scan_cost > basecost) then
+          elseif v[link_id] and (v.scan_id ~= grid or v.scan_cost > basecost) then
             local goalcost = basecost + xydist(linkto, v)
             if v.scan_id ~= grid or v.scan_cost > goalcost then
               v.scan_id = grid
@@ -167,25 +179,31 @@ function QH_Graph_Pathmultifind(st, nda, make_path)
       
       if link[k] then
         QuestHelper: Assert(link[k].scan_from)
-        local tpath = {}
+        rp.path = {}
+        local tpath = reverse and rp.path or {}
         local cpx = link[k].scan_from
         while cpx do
           table.insert(tpath, cpx)
           cpx = cpx.scan_from
         end
         
-        rp.path = {}
-        for i = #tpath, 1, -1 do
-          table.insert(rp.path, tpath[i])
+        if not reverse then
+          rp.path = {}
+          for i = #tpath, 1, -1 do
+            table.insert(rp.path, tpath[i])
+          end
         end
       end
     end
   end
   
+  active = false
   return out
 end
 
 function QH_Graph_Plane_Makelink(name, coord1, coord2, cost, asymmetrical)
+  QuestHelper: Assert(not active)
+  
   QuestHelper: TextOut(string.format("Link '%s' made from %d/%f/%f to %d/%f/%f of cost %f, asymflag %s", name, coord1.p, coord1.x, coord1.y, coord2.p, coord2.x, coord2.y, cost, tostring(not not asymmetrical)))
   QuestHelper: Assert(name)
   QuestHelper: Assert(coord1)
@@ -198,8 +216,9 @@ function QH_Graph_Plane_Makelink(name, coord1, coord2, cost, asymmetrical)
   local node1 = {x = coord1.x, y = coord1.y, p = coord1.p, name = name}
   local node2 = {x = coord2.x, y = coord2.y, p = coord2.p, name = name}
   
-  node1.link, node1.link_cost = node2, cost
-  if not asymmetrical then node2.link, node2.link_cost = node1, cost end
+  node1.link, node1.link_cost, node2.rlink, node2.rlink_cost = node2, cost, node1, cost
+  
+  if not asymmetrical then node1.rlink, node1.rlink_cost, node2.link, node2.link_cost = node2, cost, node1, cost end
   
   table.insert(plane[node1.p], node1)
   table.insert(plane[node2.p], node2)
@@ -207,7 +226,3 @@ end
 
 function QH_Graph_Plane_Destroylinks(name)
 end
-
--- let's put up some unittests
-QuestHelper: Assert(QH_Graph_Pathfind({x = 10, y = 10, p = 0}, {x = 13, y = 14, p = 0}) == 5)
-QuestHelper: Assert(QH_Graph_Pathfind({x = 10, y = 10, p = 0}, {x = 13, y = 14, p = 1}) == nil)
