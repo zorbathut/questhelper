@@ -151,7 +151,7 @@ local static_zone_transitions =
    {29, 51, 0.252, 0}, -- Loch Modan <--> Wetlands
    
    -- These are just guesses, since I haven't actually been to these areas.
-   {58, 60, 0.783, 0.545}, -- Nagrand <--> Shattrath City
+   --{58, 60, 0.783, 0.545}, -- Nagrand <--> Shattrath City   -- this is aldor-only
    {60, 55, 0.782, 0.492}, -- Shattrath City <--> Terokkar Forest
    {54, 59, 0.842, 0.284}, -- Blade's Edge Mountains <--> Netherstorm
    {54, 57, 0.522, 0.996}, -- Blade's Edge Mountains <--> Zangarmarsh

@@ -184,7 +184,16 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
         local tpath = reverse and rp.path or {}
         local cpx = link[k].scan_from
         while cpx do
+          if reverse then
+            QuestHelper: Assert(cpx.rlink)
+            table.insert(tpath, cpx.rlink)
+          else
+          QuestHelper: Assert(cpx.link)
+            table.insert(tpath, cpx.link)
+          end
+          QuestHelper: Assert(cpx)
           table.insert(tpath, cpx)
+          
           cpx = cpx.scan_from
         end
         

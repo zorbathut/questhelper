@@ -363,7 +363,6 @@ end
     end
     
     if last_best and #last_best > 1 then
-      print(last_best.distance, Distance[last_best[1]][last_best[2]], last_best[1], last_best[2])
       last_best.distance = last_best.distance + Distance[last_best[1]][last_best[2]]
     end
     

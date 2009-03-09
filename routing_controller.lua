@@ -113,10 +113,10 @@ local function process()
   while true do
     local c, x, y, rc, rz = QuestHelper.collect_c, QuestHelper.collect_x, QuestHelper.collect_y, QuestHelper.c, QuestHelper.z  -- ugh we need a better solution to this, but with this weird "planes" hybrid there just isn't one right now
     if c and x and y and (c ~= lc or x ~= lx or y ~= ly or rc ~= lrc or rz ~= lrz) then
-      local t = GetTime()
+      --local t = GetTime()
       lc, lx, ly, lrc, lrz = c, x, y, rc, rz
       Route_Core_SetStart({desc = "Start", why = StartObjective, loc = NewLoc(c, x, y, rc, rz), tracker_hidden = true, ignore = true})
-      QuestHelper: TextOut(string.format("SS takes %f", GetTime() - t))
+      --QuestHelper: TextOut(string.format("SS takes %f", GetTime() - t))
     end
     
     Route_Core_Process()
