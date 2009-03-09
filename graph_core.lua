@@ -171,12 +171,12 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   QuestHelper: Assert(grid < 1000000000) -- if this ever triggers I will be amazed
   
   if make_path then
-    print("mpath")
+    --print("mpath")
     for k, v in pairs(out) do
-      print(out[k])
+      --print(out[k])
       local rp = {d = v}
       out[k] = rp
-      print(out[k])
+      --print(out[k])
       
       if link[k] then
         QuestHelper: Assert(link[k].scan_from)
@@ -214,8 +214,8 @@ function QH_Graph_Plane_Makelink(name, coord1, coord2, cost, asymmetrical)
   if not plane[coord1.p] then plane[coord1.p] = {} end
   if not plane[coord2.p] then plane[coord2.p] = {} end
   
-  local node1 = {x = coord1.x, y = coord1.y, p = coord1.p, name = name}
-  local node2 = {x = coord2.x, y = coord2.y, p = coord2.p, name = name}
+  local node1 = {x = coord1.x, y = coord1.y, p = coord1.p, c = coord1.c, name = name}
+  local node2 = {x = coord2.x, y = coord2.y, p = coord2.p, c = coord2.c, name = name}
   
   node1.link, node1.link_cost, node2.rlink, node2.rlink_cost = node2, cost, node1, cost
   

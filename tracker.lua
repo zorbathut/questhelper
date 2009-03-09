@@ -526,15 +526,17 @@ function QH_Tracker_Rescan()
   
   local metalookup = {}
   for k, v in ipairs(route) do
-    if not metalookup[v.why] then metalookup[v.why] = {} end
-    if not v.tracker_hidden then table.insert(metalookup[v.why], v) end
+    if not v.ignore then
+      if not metalookup[v.why] then metalookup[v.why] = {} end
+      if not v.tracker_hidden then table.insert(metalookup[v.why], v) end
+    end
   end
   
   do
     local current_mo
     local current_mo_cluster
     for k, v in ipairs(route) do
-      if not v.route_intermediate and not v.why.tracker_hidden then
+      if not v.ignore and not v.why.tracker_hidden then
         if current_mo and v.why ~= current_mo then
           y = addMetaObjective(current_mo, current_mo_cluster, y)
           current_mo, current_mo_cluster = nil, nil

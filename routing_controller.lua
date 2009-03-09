@@ -63,13 +63,14 @@ Route_Core_Init(
         local nrt = QH_Graph_Pathfind(path[k].loc, path[k + 1].loc, false, true)
         QuestHelper: Assert(nrt)
         if nrt.path then for _, wp in ipairs(nrt.path) do
-          table.insert(real_path, {x = wp.x, y = wp.y, c = wp.c, route_intermediate = true})
+          QuestHelper: Assert(wp.c)
+          table.insert(real_path, {loc = {x = wp.x, y = wp.y, c = wp.c}, ignore = true})
         end end
       end
     end
     
     for _, v in pairs(notification_funcs) do
-      v(path)
+      v(real_path)
     end
   end,
   function(loc1, loc2)

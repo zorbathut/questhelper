@@ -176,7 +176,6 @@ function QuestHelper:CreateWorldMapWalker()
       end]]
       
       for i, obj in ipairs(self.route) do
-        QuestHelper: Assert(obj.ignore or obj.map_desc)
         --QuestHelper:TextOut(string.format("%s", tostring(obj)))
         
         --[[
@@ -194,13 +193,16 @@ function QuestHelper:CreateWorldMapWalker()
           t[1], t[2] = convertLocationToScreen(obj.loc, c, z)
           
           table.insert(points, t)
+          
+          --if lotsup then print(obj.ignore, obj.loc.x, obj.loc.y, obj.loc.c) end
         end
         --QuestHelper:TextOut(string.format("%s/%s/%s to %s/%s", tostring(obj.c), tostring(obj.x), tostring(obj.y), tostring(t[1]), tostring(t[2])))
       end
+      --lotsup = false
       
       local cur_dodad = 1
       for i = 2, #self.route do -- 2 because we're skipping the player
-        if not self.route[i].route_intermediate then
+        if not self.route[i].ignore then
           local dodad = self.map_dodads[cur_dodad]
           if not dodad then
             self.map_dodads[cur_dodad] = self.frame:CreateWorldMapDodad(self.route[i], i)
@@ -212,7 +214,7 @@ function QuestHelper:CreateWorldMapWalker()
         cur_dodad = cur_dodad + 1
       end
 
-      for i = #self.route,self.used_map_dodads do
+      for i = cur_dodad,self.used_map_dodads do
         self.map_dodads[i]:SetObjective(nil, 0)
       end
 
