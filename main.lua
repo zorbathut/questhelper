@@ -271,7 +271,7 @@ function QuestHelper:Initialize()
       ["db_get.lua"] = true,
       
       ["graph_core.lua"] = true,
-      ["graph_controller.lua"] = true,
+      ["graph_flightpath.lua"] = true,
     }
     
   local uninstallederr = ""

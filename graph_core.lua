@@ -235,4 +235,15 @@ function QH_Graph_Plane_Makelink(name, coord1, coord2, cost, asymmetrical)
 end
 
 function QH_Graph_Plane_Destroylinks(name)
+  QuestHelper: Assert(not active)
+  
+  for k, v in pairs(plane) do
+    local repl = {}
+    for tk, tv in ipairs(v) do
+      if tv.name ~= name then
+        table.insert(repl, tv)
+      end
+    end
+    plane[k] = repl
+  end
 end

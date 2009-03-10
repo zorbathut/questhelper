@@ -64,3 +64,19 @@ function DB_GetItem(group, id)
   
   return ite
 end
+
+function DB_ListItems(group)
+  local tab = {}
+  for _, db in ipairs(QHDB) do
+    if db[group] then for k, _ in pairs(db[group]) do
+      tab[k] = true
+    end end
+  end
+  
+  local rv = {}
+  for k, _ in pairs(tab) do
+    table.insert(rv, k)
+  end
+  
+  return rv
+end

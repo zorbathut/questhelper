@@ -112,7 +112,7 @@ local function process()
   -- Order here is important. We don't want to update the location, then wait for a while as we add nodes. We also need the location updated before the first nodes are added. This way, it all works and we don't need anything outside the loop.
   while true do
     local c, x, y, rc, rz = QuestHelper.collect_c, QuestHelper.collect_x, QuestHelper.collect_y, QuestHelper.c, QuestHelper.z  -- ugh we need a better solution to this, but with this weird "planes" hybrid there just isn't one right now
-    if c and x and y and (c ~= lc or x ~= lx or y ~= ly or rc ~= lrc or rz ~= lrz) then
+    if c and x and y and rc and rz and (c ~= lc or x ~= lx or y ~= ly or rc ~= lrc or rz ~= lrz) then
       --local t = GetTime()
       lc, lx, ly, lrc, lrz = c, x, y, rc, rz
       Route_Core_SetStart({desc = "Start", why = StartObjective, loc = NewLoc(c, x, y, rc, rz), tracker_hidden = true, ignore = true})

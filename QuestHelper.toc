@@ -126,7 +126,7 @@ timeslice.lua
 
 # Graph module. Depends on nothing, calls no external functions.
 graph_core.lua
-graph_controller.lua
+graph_flightpath.lua
 
 # Routing module. Depends on Timeslice, calls almost no external functions (handles its own get-player-position stuff via RetrieveRawLocation, but that's it.)
 routing_debug.lua
