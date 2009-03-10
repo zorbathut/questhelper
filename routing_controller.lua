@@ -48,6 +48,10 @@ function QH_Route_ClusterRequires(a, b)
   table.insert(pending, function () Route_Core_ClusterRequires(a, b) end)
 end
 
+function QH_Route_DistanceClear()
+  table.insert(pending, function () Route_Core_DistanceClear() end)
+end
+
 local notification_funcs = {}
 
 function QH_Route_RegisterNotification(func)

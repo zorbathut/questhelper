@@ -522,6 +522,20 @@ end
 
 -- Wipe and re-cache all distances.
 function QH_Route_Core_DistanceClear()
+  local tlnod = {}
+  for _, v in ipairs(ActiveNodes) do
+    table.insert(tlnod, NodeList[v])
+  end
+
+  for _, idx in ipairs(ActiveNodes) do
+    local forward = DistBatch(NodeList[idx], tlnod)
+    
+    for k, v in ipairs(ActiveNodes) do
+      Distance[idx][v] = forward[k]
+    end
+  end
+  
+  last_best = nil   -- todo: just generate new distance info
 end
 
 --[=[

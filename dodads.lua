@@ -209,14 +209,13 @@ function QuestHelper:CreateWorldMapWalker()
           else
             self.map_dodads[cur_dodad]:SetObjective(self.route[i], i)
           end
+          cur_dodad = cur_dodad + 1
         end
-        
-        cur_dodad = cur_dodad + 1
       end
 
-      for i = cur_dodad,self.used_map_dodads do
+      if cur_dodad <= self.used_map_dodads then for i = cur_dodad,self.used_map_dodads do
         self.map_dodads[i]:SetObjective(nil, 0)
-      end
+      end end
 
       self.used_map_dodads = cur_dodad - 1
     end
