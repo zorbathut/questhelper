@@ -17,6 +17,9 @@ local function Finish(self, data)
   return self[1] or ""
 end
 
+QH_Merger_Add = Add
+QH_Merger_Finish = Finish
+
 function QH_Collect_Merger_Init(_, API)
   API.Utility_Merger = {Add = Add, Finish = Finish}
 end

@@ -125,10 +125,18 @@ function QH_Collector_Init()
   if not QHCData.realms then QHCData.realms = {} end
   QHCData.realms[GetRealmName()] = (QHCData.realms[GetRealmName()] or 0) + 1 -- I'm not entirely sure why I'm counting
   
+  if true then  -- this will be disabled in most public releases, or set to a very rare probabalistic thing
+    if not QHCData.routing_dump then QHCData.routing_dump = {} end
+    local nt = {}
+    table.insert(QHCData.routing_dump, nt)
+    QH_Collect_Routing_Dump = nt
+  end
+  
   -- So, why do we delay it?
   -- It's simple. People are gonna update to this version, and then they're going to look at the memory usage. Then they will panic because omg this version uses so much more memory, I bet that will somehow hurt my framerates in a way which is not adequately explained!
   -- So instead, we just wait half an hour before compressing. Compression will still get done, and I won't have to deal with panicked comments about how bloated QH has gotten.
   -- Want QH to work better? Just make that "30 * 60" bit into "0" instead.
+  -- addendum: yeah naturally I'm getting all sorts of panicked comments about how bloated qh has gotten, sigh
   API.Utility_Notifier(GetTime() + 30 * 60, function() CompressCollection(QHCData, API.Utility_Merger, API.Utility_LZW.Compress) end)
 end
 

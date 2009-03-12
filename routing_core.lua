@@ -70,6 +70,110 @@ local DistBatch
   weight_ave = 0.001
 -- End node storage and data structures
 
+--[[
+----------------------------------
+Here's that wacky storage system.
+----------------------------------]]
+
+local function unsigned2b(c)
+  QuestHelper: Assert(c < 65536)
+  
+  return strchar(bit.mod(c, 256), bit.rshift(c, 8))
+end
+
+-- L
+local loopcount = 0
+local function Storage_Loop()
+  loopcount = loopcount + 1
+end
+local function Storage_LoopFlush()
+  if loopcount > 0 then
+    QH_Merger_Add(QH_Collect_Routing_Dump, string.format("L%sL", unsigned2b(loopcount)))
+    loopcount = 0
+  end
+end
+
+-- -
+local function Storage_Distance_StoreFromIDToAll(id)
+  if not QH_Collect_Routing_Dump then return end
+  
+  QH_Merger_Add(QH_Collect_Routing_Dump, string.format("-%s", unsigned2b(id)))
+  for _, v in ipairs(ActiveNodes) do
+    QH_Merger_Add(QH_Collect_Routing_Dump, unsigned2b(Distance[id][v]))
+  end
+  QH_Merger_Add(QH_Collect_Routing_Dump, "-")
+end
+
+-- X
+local function Storage_Distance_StoreCrossID(id)
+  if not QH_Collect_Routing_Dump then return end
+  
+  QH_Merger_Add(QH_Collect_Routing_Dump, string.format("X%s", unsigned2b(id)))
+  for _, v in ipairs(ActiveNodes) do
+    QH_Merger_Add(QH_Collect_Routing_Dump, unsigned2b(Distance[id][v]))
+    if v ~= id then QH_Merger_Add(QH_Collect_Routing_Dump, unsigned2b(Distance[v][id])) end
+  end
+  QH_Merger_Add(QH_Collect_Routing_Dump, "X")
+end
+
+-- #
+local function Storage_Distance_StoreAll()
+  if not QH_Collect_Routing_Dump then return end
+  
+  QH_Merger_Add(QH_Collect_Routing_Dump, string.format("#"))
+  for _, v in ipairs(ActiveNodes) do
+    for _, w in ipairs(ActiveNodes) do
+      QH_Merger_Add(QH_Collect_Routing_Dump, unsigned2b(Distance[v][w]))
+    end
+  end
+  QH_Merger_Add(QH_Collect_Routing_Dump, "#")
+end
+
+-- A
+local function Storage_NodeAdded(id)
+  if not QH_Collect_Routing_Dump then return end
+  
+  QH_Merger_Add(QH_Collect_Routing_Dump, string.format("A%s", unsigned2b(id)))
+  Storage_Distance_StoreCrossID(id)
+  QH_Merger_Add(QH_Collect_Routing_Dump, "A")
+end
+
+-- R
+local function Storage_NodeRemoved(id)
+  if not QH_Collect_Routing_Dump then return end
+  
+  QH_Merger_Add(QH_Collect_Routing_Dump, string.format("R%sR", unsigned2b(id)))
+end
+
+-- C
+local function Storage_ClusterCreated(id)
+  if not QH_Collect_Routing_Dump then return end
+  
+  QH_Merger_Add(QH_Collect_Routing_Dump, string.format("C%s", unsigned2b(id)))
+  for _, v in ipairs(Cluster[id]) do
+    QH_Merger_Add(QH_Collect_Routing_Dump, unsigned2b(v))
+  end
+end
+
+-- D
+local function Storage_ClusterDestroyed(id)
+  if not QH_Collect_Routing_Dump then return end
+  
+  QH_Merger_Add(QH_Collect_Routing_Dump, string.format("D%sD", unsigned2b(id)))
+end
+
+-- >
+local function Storage_ClusterDependency(from, to)
+  if not QH_Collect_Routing_Dump then return end
+  
+  QH_Merger_Add(QH_Collect_Routing_Dump, string.format(">%s%s>", unsigned2b(from), unsigned2b(to)))
+end
+
+--[[
+----------------------------------
+and that's the end of wacky mcstorage
+----------------------------------]]
+
 function QH_Route_Core_NodeCount()
   return CurrentNodes
 end
@@ -243,6 +347,8 @@ end
 
 -- Core process function
 function QH_Route_Core_Process()
+  Storage_Loop()
+  
   local worst = 0
   
   local trouts = {}
@@ -366,6 +472,7 @@ end
       last_best.distance = last_best.distance + Distance[last_best[1]][last_best[2]]
     end
     
+    Storage_Distance_StoreFromIDToAll(1)
     --TestShit()
     -- TODO: properly deallocate old startnode?
   end
@@ -408,7 +515,8 @@ end
 
   -- Add a node to route to
   function QH_Route_Core_NodeAdd(nod)
-    QH_Route_Core_NodeAdd_Internal(nod) -- we're just stripping the return value, really
+    local idx = QH_Route_Core_NodeAdd_Internal(nod) -- we're just stripping the return value, really
+    Storage_NodeAdded(idx)
   end
 
   -- Remove a node with the given location
@@ -432,7 +540,8 @@ end
   end
   
   function QH_Route_Core_NodeRemove(nod)
-    QH_Route_Core_NodeRemove_Internal(nod)
+    local idx = QH_Route_Core_NodeRemove_Internal(nod)
+    Storage_NodeRemoved(idx)
   end
 -- End node allocation and deallocation
 
@@ -448,11 +557,14 @@ function QH_Route_Core_ClusterAdd(clust)
   
   for _, v in ipairs(clust) do
     local idx = QH_Route_Core_NodeAdd_Internal(v)
+    Storage_NodeAdded(idx)
     ClusterLookup[idx] = clustid
     table.insert(Cluster[clustid], idx)
   end
   
   DependencyCounts[clustid] = 0
+  
+  Storage_ClusterCreated(clustid)
 end
 
 function QH_Route_Core_ClusterRemove(clust)
@@ -497,6 +609,8 @@ function QH_Route_Core_ClusterRemove(clust)
   Cluster[clustid] = nil
   ClusterTableLookup[clust] = nil
   table.insert(ClusterDead, clustid)
+  
+  Storage_ClusterDestroyed(clustid)
 end
 
 -- Add a note that node 1 requires node 2.
@@ -518,6 +632,8 @@ function QH_Route_Core_ClusterRequires(a, b)
   table.insert(DependencyLinksReverse[bidx], aidx)
   
   last_best = nil
+  
+  Storage_ClusterDependency(aidx, bidx)
 end
 
 -- Wipe and re-cache all distances.
@@ -536,6 +652,8 @@ function QH_Route_Core_DistanceClear()
   end
   
   last_best = nil   -- todo: just generate new distance info
+  
+  Storage_Distance_StoreAll()
 end
 
 --[=[
