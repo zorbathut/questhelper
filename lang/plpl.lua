@@ -6,7 +6,7 @@ QuestHelper_Translations.plPL =
   LOCALE_NAME = "Polski",
   
   -- Messages used when starting.
-  LOCALE_ERROR = nil,
+  LOCALE_ERROR = "	 Locale zapisanych danych nie pasuje do Twojej lokalizacji WoW klienta. Aby korzystać QuestHelper musisz albo zmienić lokalizację wstecz, lub usuwać dane, wpisując %h (/qh purge).",
   ZONE_LAYOUT_ERROR = nil,
   DOWNGRADE_ERROR = "Twoje zapisane dane nie są zgodne z tą wersją QuestHelper'a. Użyj nowszej wersji albo usuń stare zmienne.",
   HOME_NOT_KNOWN = "Twoje pochodzenie nie jest znane. Kiedy będziesz miał czas, porozmawiaj z gospodarzem (Innkeeper) i ustaw miejsce docelowe.",
