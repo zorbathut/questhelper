@@ -60,7 +60,7 @@ local DistBatch
   local DependencyLinksReverse = {}  -- Every cluster that cluster X depends on
   local DependencyCounts = {}  -- How many different nodes cluster X depends on
 
-  local StartNode = {ignore = true}
+  local StartNode = {ignore = true, loc = {x = 37690, y = 19671, p = 25, c = 0}}  -- Ironforge mailbox :)
 
   local NodeLookup = {[StartNode] = 1}
   local NodeList = {[1] = StartNode}
@@ -637,7 +637,7 @@ function QH_Route_Core_ClusterRequires(a, b)
 end
 
 -- Wipe and re-cache all distances.
-function QH_Route_Core_DistanceClear()
+function QH_Route_Core_DistanceClear()  
   local tlnod = {}
   for _, v in ipairs(ActiveNodes) do
     table.insert(tlnod, NodeList[v])

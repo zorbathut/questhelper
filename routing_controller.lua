@@ -80,6 +80,8 @@ Route_Core_Init(
   function(loc1, loc2)
     QH_Timeslice_Yield()
     -- Distance function
+    QuestHelper: Assert(loc1.loc)
+    QuestHelper: Assert(loc2.loc)
     local v = QH_Graph_Pathfind(loc1.loc, loc2.loc)
     if not v then
       QuestHelper:TextOut(QuestHelper:StringizeTable(loc1.loc))
@@ -89,8 +91,11 @@ Route_Core_Init(
     return v
   end,
   function(loc1, loctable, reverse)
+    QH_Timeslice_Yield()
+    QuestHelper: Assert(loc1.loc)
     local lt = {}
     for _, v in ipairs(loctable) do
+      QuestHelper: Assert(v.loc)
       table.insert(lt, v.loc)
     end
     local rv = QH_Graph_Pathmultifind(loc1.loc, lt, reverse)
