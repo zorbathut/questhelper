@@ -532,6 +532,8 @@ function QuestHelper:Initialize()
     end
   end
   
+  QH_Route_FlightPathRecalc()
+  
   --[[
   QH_Timeslice_Add(function ()
     self:ResetPathing()

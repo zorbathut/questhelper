@@ -518,6 +518,7 @@ function QuestHelper:taxiMapOpened()
       QuestHelper_KnownFlightRoutes[name] = true
       altered = true
       self:TextOut("New flight master: " .. name)
+      QH_Route_FlightPathRecalc()
     end
     
     if GetNumRoutes(i) == 0 then -- Zero hops from this location, must be where we are.

@@ -1,7 +1,7 @@
 QuestHelper_File["graph_flightpath.lua"] = "Development Version"
 QuestHelper_Loadtime["graph_flightpath.lua"] = GetTime()
 
-function redo_flightpath()
+function QH_redo_flightpath()
   local flightids = DB_ListItems("flightmasters")
   local flightdb = {}
   
@@ -19,6 +19,8 @@ function redo_flightpath()
   
   local important = {}
   
+  QH_Timeslice_Yield()
+  
   for k, v in pairs(has) do
     local tdb = DB_GetItem("flightpaths", k)
     for dest, dat in pairs(tdb) do
@@ -32,9 +34,16 @@ function redo_flightpath()
           if passes then
             --QuestHelper:TextOut(string.format("Found link between %s and %s, cost %f", flightdb[k].name, flightdb[dest].name, route.distance))
             if not adjacency_time[k] then adjacency_time[k] = {} adjacency[k] = {} end
+            if not adjacency_time[dest] then adjacency_time[dest] = {} adjacency[dest] = {} end
             QuestHelper: Assert(not adjacency_time[k][dest])
             adjacency_time[k][dest] = route.distance
             adjacency[k][dest] = route.distance
+            
+            -- no such thing as strongly asymmetric routes
+            -- note that we're only hitting up adjacency here, because we don't have "time info"
+            if not adjacency[dest][k] then
+              adjacency[dest][k] = route.distance * 1.1
+            end
             
             important[k] = true
             important[dest] = true
@@ -44,6 +53,8 @@ function redo_flightpath()
       end
     end
   end
+  
+  QH_Timeslice_Yield()
   
   local imp_flat = {}
   local flightmasters = {}
@@ -64,6 +75,7 @@ function redo_flightpath()
   end
   
   for _, pivot in ipairs(imp_flat) do
+    QH_Timeslice_Yield()
     for _, i in ipairs(imp_flat) do
       for _, j in ipairs(imp_flat) do
         if adjacency[i][pivot] and adjacency[pivot][j] then
@@ -74,6 +86,8 @@ function redo_flightpath()
     end
   end
   
+  QH_Timeslice_Yield()
+  
   for src, t in pairs(adjacency) do
     for dest, cost in pairs(t) do
       if not adjacency_time[src][dest] then
@@ -82,10 +96,45 @@ function redo_flightpath()
     end
   end
   
+  QH_Timeslice_Yield()
+  
+  do
+    local clustaken = {}
+    
+    for src, t in pairs(adjacency) do
+      if not clustaken[src] then
+        local tcst = {}
+        local tcct = 0
+        local ctd = {}
+        table.insert(ctd, src)
+        
+        while #ctd > 0 do
+          local ite = table.remove(ctd)
+          QuestHelper: Assert(not clustaken[ite] or tcst[ite])
+          
+          if not tcst[ite] then
+            clustaken[ite] = true
+            tcst[ite] = true
+            for _, dst in pairs(imp_flat) do
+              if adjacency[ite][dst] and not tcst[dst] then
+                table.insert(ctd, dst)
+              end
+            end
+            
+            tcct = tcct + 1
+          end
+        end
+        
+        QuestHelper: TextOut(string.format("Starting with %d, cluster of %d", src, tcct))
+      end
+    end
+  end
+  
   QH_Graph_Plane_Destroylinks("flightpath")
   
   -- Right now we're converting this into the equivalent of running-speed, which means each second needs to be multiplied by 7 to get yard-equivalents
   for src, t in pairs(adjacency) do
+    QH_Timeslice_Yield()
     for dest, cost in pairs(t) do
       local fms = flightmasters[src]
       local fmd = flightmasters[dest]
