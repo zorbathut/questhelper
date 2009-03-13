@@ -1,6 +1,8 @@
 QuestHelper_File["routing_core.lua"] = "Development Version"
 QuestHelper_Loadtime["routing_core.lua"] = GetTime()
 
+local DebugOutput = (QuestHelper_File["routing_core.lua"] == "Development Version")
+
 --[[
 
 let's think about clustering
@@ -19,6 +21,9 @@ I think this works tomorrow.
 ]]
 
 local OptimizationHackery = true
+
+if OptimizationHackery then DebugOutput = false end -- :ughh:
+
 
 -- Ant colony optimization. Moving from X to Y has the quality (Distance[x,y]^alpha)*(Weight[x,y]^beta). Sum all available qualities, then choose weighted randomly.
 -- Weight adjustment: Weight[x,y] = Weight[x,y]*weightadj + sum(alltravels)(1/distance_of_travel)    (note: this is somewhat out of date)
@@ -80,6 +85,8 @@ Here's that wacky storage system.
 local function unsigned2b(c)
   QuestHelper: Assert(c < 65536)
   
+  QuestHelper: Assert(bit.mod(c, 256))
+  QuestHelper: Assert(bit.rshift(c, 8))
   local strix = strchar(bit.mod(c, 256), bit.rshift(c, 8))
   QuestHelper: Assert(#strix == 2)
   return strix
@@ -92,7 +99,7 @@ local function Storage_Loop()
 end
 local function Storage_LoopFlush()
   if loopcount > 0 then
-    QH_Merger_Add(QH_Collect_Routing_Dump, string.format("L%sL", unsigned2b(loopcount)))
+    QH_Merger_Add(QH_Collect_Routing_Dump, "L" .. unsigned2b(loopcount) .. "L")
     loopcount = 0
   end
 end
@@ -100,8 +107,9 @@ end
 -- -
 local function Storage_Distance_StoreFromIDToAll(id)
   if not QH_Collect_Routing_Dump then return end
+  Storage_LoopFlush()
   
-  QH_Merger_Add(QH_Collect_Routing_Dump, string.format("-%s", unsigned2b(id)))
+  QH_Merger_Add(QH_Collect_Routing_Dump, "-" .. unsigned2b(id))
   for _, v in ipairs(ActiveNodes) do
     QH_Merger_Add(QH_Collect_Routing_Dump, unsigned2b(Distance[id][v]))
   end
@@ -111,8 +119,9 @@ end
 -- X
 local function Storage_Distance_StoreCrossID(id)
   if not QH_Collect_Routing_Dump then return end
+  Storage_LoopFlush()
   
-  QH_Merger_Add(QH_Collect_Routing_Dump, string.format("X%s", unsigned2b(id)))
+  QH_Merger_Add(QH_Collect_Routing_Dump, "X")
   for _, v in ipairs(ActiveNodes) do
     QH_Merger_Add(QH_Collect_Routing_Dump, unsigned2b(Distance[id][v]))
     if v ~= id then QH_Merger_Add(QH_Collect_Routing_Dump, unsigned2b(Distance[v][id])) end
@@ -123,8 +132,9 @@ end
 -- #
 local function Storage_Distance_StoreAll()
   if not QH_Collect_Routing_Dump then return end
+  Storage_LoopFlush()
   
-  QH_Merger_Add(QH_Collect_Routing_Dump, string.format("#"))
+  QH_Merger_Add(QH_Collect_Routing_Dump, "#")
   for _, v in ipairs(ActiveNodes) do
     for _, w in ipairs(ActiveNodes) do
       QH_Merger_Add(QH_Collect_Routing_Dump, unsigned2b(Distance[v][w]))
@@ -136,8 +146,9 @@ end
 -- A
 local function Storage_NodeAdded(id)
   if not QH_Collect_Routing_Dump then return end
+  Storage_LoopFlush()
   
-  QH_Merger_Add(QH_Collect_Routing_Dump, string.format("A%s", unsigned2b(id)))
+  QH_Merger_Add(QH_Collect_Routing_Dump, "A" .. unsigned2b(id))
   Storage_Distance_StoreCrossID(id)
   QH_Merger_Add(QH_Collect_Routing_Dump, "A")
 end
@@ -145,15 +156,17 @@ end
 -- R
 local function Storage_NodeRemoved(id)
   if not QH_Collect_Routing_Dump then return end
+  Storage_LoopFlush()
   
-  QH_Merger_Add(QH_Collect_Routing_Dump, string.format("R%sR", unsigned2b(id)))
+  QH_Merger_Add(QH_Collect_Routing_Dump, "R" .. unsigned2b(id) .. "R")
 end
 
 -- C
 local function Storage_ClusterCreated(id)
   if not QH_Collect_Routing_Dump then return end
+  Storage_LoopFlush()
   
-  QH_Merger_Add(QH_Collect_Routing_Dump, string.format("C%s", unsigned2b(id)))
+  QH_Merger_Add(QH_Collect_Routing_Dump, "C" .. unsigned2b(id) .. unsigned2b(#Cluster[id]))
   for _, v in ipairs(Cluster[id]) do
     QH_Merger_Add(QH_Collect_Routing_Dump, unsigned2b(v))
   end
@@ -163,15 +176,17 @@ end
 -- D
 local function Storage_ClusterDestroyed(id)
   if not QH_Collect_Routing_Dump then return end
+  Storage_LoopFlush()
   
-  QH_Merger_Add(QH_Collect_Routing_Dump, string.format("D%sD", unsigned2b(id)))
+  QH_Merger_Add(QH_Collect_Routing_Dump, "D" .. unsigned2b(id) .. "D")
 end
 
 -- >
 local function Storage_ClusterDependency(from, to)
   if not QH_Collect_Routing_Dump then return end
+  Storage_LoopFlush()
   
-  QH_Merger_Add(QH_Collect_Routing_Dump, string.format(">%s%s>", unsigned2b(from), unsigned2b(to)))
+  QH_Merger_Add(QH_Collect_Routing_Dump, ">" .. unsigned2b(from) .. unsigned2b(to) .. ">")
 end
 
 --[[
@@ -179,15 +194,96 @@ end
 and here's the other end of the wacky storage system
 ----------------------------------]]
 
+-- we may need to play with these
+local QH_Route_Core_NodeAdd_Internal
+local QH_Route_Core_NodeRemove_Internal
+
 if OptimizationHackery then
   function Unstorage_SetDists(newdists)
     local tc = 1
-    assert(#newdists == CurrentNodes * CurrentNodes)
+    QuestHelper: Assert(#newdists == #ActiveNodes * #ActiveNodes)
     for _, v in ipairs(ActiveNodes) do
       for _, w in ipairs(ActiveNodes) do
         Distance[v][w] = newdists[tc]
         tc = tc + 1
       end
+    end
+    QuestHelper: Assert(tc - 1 == #newdists)
+  end
+  
+  function Unstorage_SetDistsX(pivot, newdists)
+    local tc = 1
+    QuestHelper: Assert(#newdists == #ActiveNodes * 2 - 1)
+    for _, v in ipairs(ActiveNodes) do
+      Distance[pivot][v] = newdists[tc]
+      tc = tc + 1
+      if v ~= pivot then
+        Distance[v][pivot] = newdists[tc]
+        tc = tc + 1
+      end
+    end
+    QuestHelper: Assert(tc - 1 == #newdists)
+  end
+  
+  function Unstorage_SetDistsLine(pivot, newdists)
+    local tc = 1
+    QuestHelper: Assert(#newdists == #ActiveNodes)
+    for _, v in ipairs(ActiveNodes) do
+      Distance[pivot][v] = newdists[tc]
+      tc = tc + 1
+    end
+    QuestHelper: Assert(tc - 1 == #newdists)
+  end
+  
+  function Unstorage_Add(nod)
+    QH_Route_Core_NodeAdd_Internal({}, nod)
+  end
+  
+  function Unstorage_Remove(nod)
+    QH_Route_Core_NodeRemove_Internal({}, nod)
+  end
+  
+  function Unstorage_ClusterAdd(nod, tab)
+    QH_Route_Core_ClusterAdd({}, nod)
+    for _, v in ipairs(tab) do
+      QuestHelper: Assert(NodeList[v])
+      ClusterLookup[v] = nod
+      table.insert(Cluster[nod], v)
+    end
+  end
+  
+  function Unstorage_Remove(nod)
+    QH_Route_Core_ClusterRemove({}, nod)
+  end
+  
+  function Unstorage_Link(a, b)
+    QH_Route_Core_ClusterRequires(a, b, true)
+  end
+  
+  function Unstorage_Nastyscan()
+    for _, v in ipairs(ActiveNodes) do
+      for _, w in ipairs(ActiveNodes) do
+        QuestHelper: Assert(Distance[v][w])
+        QuestHelper: Assert(Weight[v][w])
+      end
+    end
+  end
+  
+  function Unstorage_Magic(tab)
+    local touched = {}
+    
+    PheremonePreservation = tab.PheremonePreservation  QuestHelper: Assert(PheremonePreservation)   touched.PheremonePreservation = true
+    AntCount = tab.AntCount  QuestHelper: Assert(AntCount)   touched.AntCount = true
+    WeightFactor = tab.WeightFactor  QuestHelper: Assert(WeightFactor)   touched.WeightFactor = true
+    DistanceFactor = tab.DistanceFactor  QuestHelper: Assert(DistanceFactor)   touched.DistanceFactor = true
+    DistanceDeweight = tab.DistanceDeweight  QuestHelper: Assert(DistanceDeweight)   touched.DistanceDeweight = true
+    UniversalBonus = tab.UniversalBonus  QuestHelper: Assert(UniversalBonus)   touched.UniversalBonus = true
+    BestWorstAdjustment = tab.BestWorstAdjustment  QuestHelper: Assert(BestWorstAdjustment)   touched.BestWorstAdjustment = true
+    AsymmetryFactor = tab.AsymmetryFactor  QuestHelper: Assert(AsymmetryFactor)   touched.AsymmetryFactor = true
+    SymmetryFactor = tab.SymmetryFactor  QuestHelper: Assert(SymmetryFactor)   touched.SymmetryFactor = true
+    
+    for k, v in pairs(tab) do
+      QuestHelper: Assert(touched[k])
     end
   end
 end
@@ -199,7 +295,7 @@ here ends the butt of the wacky storage system. yeah, that's right. I said butt.
 
 
 function QH_Route_Core_NodeCount()
-  return CurrentNodes
+  return #ActiveNodes
 end
 
 -- fuck floating-point
@@ -237,6 +333,7 @@ local function GetWeight(x, y)
     RTO(string.format("%d/%d %d", x, y, CurrentNodes))
     QuestHelper: Assert(x <= CurrentNodes)
     QuestHelper: Assert(y <= CurrentNodes)
+    QuestHelper: Assert(false)
   end
   local bonus
   if Distance[x][y] == Distance[y][x] then
@@ -430,15 +527,9 @@ end
 -- End core loop
 
 -- Node allocation and deallocation
-  -- This is pretty bad overall. Going from 0 nodes to N nodes is an O(n^3) operation. Eugh. Todo: allocate more than one at a time?
-  local function AllocateExtraNode()
-    if #DeadNodes > 0 then
-      local nod = table.remove(DeadNodes)
-      table.insert(ActiveNodes, nod)
-      table.sort(ActiveNodes)
-      return nod
-    end
-    
+
+  -- this is only separate so we can use it for the crazy optimization hackery
+  local function Expand()
     for _, v in ipairs(Distance) do
       table.insert(v, 0)
     end
@@ -454,6 +545,20 @@ end
     end
     
     CurrentNodes = CurrentNodes + 1
+  end
+  
+  -- This is pretty bad overall. Going from 0 nodes to N nodes is an O(n^3) operation. Eugh. Todo: allocate more than one at a time?
+  local function AllocateExtraNode()
+    if #DeadNodes > 0 then
+      local nod = table.remove(DeadNodes)
+      table.insert(ActiveNodes, nod)
+      table.sort(ActiveNodes)
+      return nod
+    end
+    
+    -- We always allocate on the end, so we know this is safe.
+    Expand()
+    
     table.insert(DeadNodes, CurrentNodes)
     return AllocateExtraNode() -- ha ha
   end
@@ -501,13 +606,24 @@ end
     -- TODO: properly deallocate old startnode?
   end
   
-  local function QH_Route_Core_NodeAdd_Internal(nod)
+  QH_Route_Core_NodeAdd_Internal = function (nod, used_idx)
     --QuestHelper:TextOut(tostring(nod))
     --TestShit()
     QuestHelper: Assert(nod)
     QuestHelper: Assert(not NodeLookup[nod])
     
-    local idx = AllocateExtraNode()
+    local idx
+    if used_idx then
+      QuestHelper: Assert(OptimizationHackery)
+      QuestHelper: Assert(not NodeList[used_idx])
+      idx = used_idx
+      table.insert(ActiveNodes, used_idx)
+      table.sort(ActiveNodes)
+      if not Distance[idx] then Expand() QuestHelper: Assert(Distance[idx]) end
+    else
+      idx = AllocateExtraNode()
+    end
+    
     --RTO("|cffFF8080AEN: " .. tostring(idx))
     NodeLookup[nod] = idx
     NodeList[idx] = nod
@@ -544,12 +660,20 @@ end
   end
 
   -- Remove a node with the given location
-  local function QH_Route_Core_NodeRemove_Internal(nod)
+  QH_Route_Core_NodeRemove_Internal = function (nod, used_idx)
     --TestShit()
     QuestHelper: Assert(nod)
-    QuestHelper: Assert(NodeLookup[nod])
     
-    local idx = NodeLookup[nod]
+    local idx
+    if used_idx then
+      QuestHelper: Assert(OptimizationHackery)
+      QuestHelper: Assert(NodeList[used_idx])
+      idx = used_idx
+    else
+      QuestHelper: Assert(NodeLookup[nod])
+      idx = NodeLookup[nod]
+    end
+    
     --RTO("|cffFF8080RFN: " .. tostring(NodeLookup[nod]))
     NodeList[idx] = nil
     table.insert(DeadNodes, idx)
@@ -569,16 +693,24 @@ end
   end
 -- End node allocation and deallocation
 
-function QH_Route_Core_ClusterAdd(clust)
-  QuestHelper: Assert(#clust > 0)
-  local clustid = table.remove(ClusterDead)
-  if not clustid then clustid = #Cluster + 1 end
+function QH_Route_Core_ClusterAdd(clust, clustid_used)
+  local clustid
+  if clustid_used then
+    QuestHelper: Assert(OptimizationHackery)
+    QuestHelper: Assert(not Cluster[clustid_used])
+    clustid = clustid_used
+  else
+    QuestHelper: Assert(#clust > 0)
+    clustid = table.remove(ClusterDead)
+    if not clustid then clustid = #Cluster + 1 end
+  end
   
-  QuestHelper:TextOut(string.format("Adding cluster %d", clustid))
+  if DebugOutput then QuestHelper:TextOut(string.format("Adding cluster %d", clustid)) end
   
   Cluster[clustid] = {}
   ClusterTableLookup[clust] = clustid
   
+  -- if we're doing hackery, clust will just be an empty table and we'll retrofit stuff later
   for _, v in ipairs(clust) do
     local idx = QH_Route_Core_NodeAdd_Internal(v)
     Storage_NodeAdded(idx)
@@ -591,10 +723,17 @@ function QH_Route_Core_ClusterAdd(clust)
   Storage_ClusterCreated(clustid)
 end
 
-function QH_Route_Core_ClusterRemove(clust)
-  local clustid = ClusterTableLookup[clust]
+function QH_Route_Core_ClusterRemove(clust, clustid_used)
+  local clustid
+  if clustid_used then
+    QuestHelper: Assert(OptimizationHackery)
+    QuestHelper: Assert(Cluster[clustid_used])
+    clustid = clustid_used
+  else
+    clustid = ClusterTableLookup[clust]
+  end
   
-  QuestHelper:TextOut(string.format("Removing cluster %d", clustid))
+  if DebugOutput then QuestHelper:TextOut(string.format("Removing cluster %d", clustid)) end
   
   for _, v in ipairs(clust) do
     local idx = QH_Route_Core_NodeRemove_Internal(v)
@@ -607,7 +746,7 @@ function QH_Route_Core_ClusterRemove(clust)
     for k, v in pairs(DependencyLinks[clustid]) do
       for m, f in pairs(DependencyLinksReverse[v]) do
         if f == clustid then
-          QuestHelper:TextOut(string.format("Unlinking cluster %d needs %d", clustid, v))
+          if DebugOutput then QuestHelper:TextOut(string.format("Unlinking cluster %d needs %d", clustid, v)) end
           table.remove(DependencyLinksReverse[v], m)
           break
         end
@@ -620,7 +759,7 @@ function QH_Route_Core_ClusterRemove(clust)
     for k, v in pairs(DependencyLinksReverse[clustid]) do
       for m, f in pairs(DependencyLinks[v]) do
         if f == clustid then
-          QuestHelper:TextOut(string.format("Unlinking cluster %d needs %d", v, clustid))
+          if DebugOutput then QuestHelper:TextOut(string.format("Unlinking cluster %d needs %d", v, clustid)) end
           table.remove(DependencyLinks[v], m)
           DependencyCounts[v] = DependencyCounts[v] - 1
           break
@@ -638,14 +777,23 @@ function QH_Route_Core_ClusterRemove(clust)
 end
 
 -- Add a note that node 1 requires node 2.
-function QH_Route_Core_ClusterRequires(a, b)
-  local aidx = ClusterTableLookup[a]
-  local bidx = ClusterTableLookup[b]
+function QH_Route_Core_ClusterRequires(a, b, hackery)
+  local aidx
+  local bidx
+  if hackery then
+    QuestHelper: Assert(OptimizationHackery)
+    QuestHelper: Assert(Cluster[a])
+    QuestHelper: Assert(Cluster[b])
+    aidx, bidx = a, b
+  else
+    aidx = ClusterTableLookup[a]
+    bidx = ClusterTableLookup[b]
+  end
   QuestHelper: Assert(aidx)
   QuestHelper: Assert(bidx)
   QuestHelper: Assert(aidx ~= bidx)
   
-  QuestHelper:TextOut(string.format("Linking cluster %d needs %d", aidx, bidx))
+  if DebugOutput then QuestHelper:TextOut(string.format("Linking cluster %d needs %d", aidx, bidx)) end
   
   DependencyCounts[aidx] = DependencyCounts[aidx] + 1
   
@@ -750,7 +898,7 @@ function HackeryDump()
     end
   end
   st = st .. "}"
-  assert(false, st)
+  QuestHelper: Assert(false, st)
 end]=]
 
 -- weeeeee
