@@ -879,9 +879,13 @@ Known bugs and issues include:
 
   |cff40bbffVastly excessive memory usage (lots of stored debug data, no database compaction, etc)|r
   
-  |cff40bbffAssumes enUS locale for many creature and item names|r
+  |cff40bbffErrors generated on talking to flightmaster, taking flight path|r
   
-  |cff40bbffFlight paths only supported in enUS|r
+  |cff40bbffDoes not adjust waypoints properly when traveling around|r
+  
+  |cff40bbffUntested non-enUS locale support|r
+  
+  |cff40bbffFlying mounts not handled properly|r
   
   |cff40bbffExtremely bad at generating new paths as the player moves around|r
   
@@ -895,7 +899,7 @@ Known bugs and issues include:
   
   |cff40bbffNo support for in-party quest synchronization|r
 
-All of these except the last one will be fixed before the official 1.0 release (the last one may wait for 1.1, but it will be fixed before I stop supporting the 0.x line.) They're not fixed now.
+All of these except the last one should be fixed before the official 1.0 release (the last one may wait for 1.1, but it will be fixed before I stop supporting the 0.x line.) They're not fixed now.
 
 If you encounter any issue besides the ones listed here, please please please report it, if you're reading this you know how to get in contact with me anyway.
 
