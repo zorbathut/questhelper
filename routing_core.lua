@@ -18,6 +18,8 @@ I think this works tomorrow.
 
 ]]
 
+local OptimizationHackery = true
+
 -- Ant colony optimization. Moving from X to Y has the quality (Distance[x,y]^alpha)*(Weight[x,y]^beta). Sum all available qualities, then choose weighted randomly.
 -- Weight adjustment: Weight[x,y] = Weight[x,y]*weightadj + sum(alltravels)(1/distance_of_travel)    (note: this is somewhat out of date)
 
@@ -78,7 +80,9 @@ Here's that wacky storage system.
 local function unsigned2b(c)
   QuestHelper: Assert(c < 65536)
   
-  return strchar(bit.mod(c, 256), bit.rshift(c, 8))
+  local strix = strchar(bit.mod(c, 256), bit.rshift(c, 8))
+  QuestHelper: Assert(#strix == 2)
+  return strix
 end
 
 -- L
@@ -153,6 +157,7 @@ local function Storage_ClusterCreated(id)
   for _, v in ipairs(Cluster[id]) do
     QH_Merger_Add(QH_Collect_Routing_Dump, unsigned2b(v))
   end
+  QH_Merger_Add(QH_Collect_Routing_Dump, "C")
 end
 
 -- D
@@ -171,8 +176,27 @@ end
 
 --[[
 ----------------------------------
-and that's the end of wacky mcstorage
+and here's the other end of the wacky storage system
 ----------------------------------]]
+
+if OptimizationHackery then
+  function Unstorage_SetDists(newdists)
+    local tc = 1
+    assert(#newdists == CurrentNodes * CurrentNodes)
+    for _, v in ipairs(ActiveNodes) do
+      for _, w in ipairs(ActiveNodes) do
+        Distance[v][w] = newdists[tc]
+        tc = tc + 1
+      end
+    end
+  end
+end
+
+--[[
+----------------------------------
+here ends the butt of the wacky storage system. yeah, that's right. I said butt. Butt. Hee hee. Butt.
+----------------------------------]]
+
 
 function QH_Route_Core_NodeCount()
   return CurrentNodes
