@@ -23,7 +23,7 @@ function QH_redo_flightpath()
   
   for k, v in pairs(has) do
     local tdb = DB_GetItem("flightpaths", k)
-    for dest, dat in pairs(tdb) do
+    if tdb then for dest, dat in pairs(tdb) do
       if has[dest] then
         for _, route in ipairs(dat) do
           local passes = true
@@ -51,7 +51,7 @@ function QH_redo_flightpath()
           end
         end
       end
-    end
+    end end
   end
   
   QH_Timeslice_Yield()
