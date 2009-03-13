@@ -83,6 +83,9 @@ Here's that wacky storage system.
 ----------------------------------]]
 
 local function unsigned2b(c)
+  if not (c < 65536) then
+    print(c)
+  end
   QuestHelper: Assert(c < 65536)
   
   QuestHelper: Assert(bit.mod(c, 256))
@@ -228,11 +231,24 @@ if OptimizationHackery then
   function Unstorage_SetDistsLine(pivot, newdists)
     local tc = 1
     QuestHelper: Assert(#newdists == #ActiveNodes)
+    
+    if pivot == 1 then
+      if last_best and #last_best > 1 then
+        last_best.distance = last_best.distance - Distance[last_best[1]][last_best[2]]
+      end
+    end
+    
     for _, v in ipairs(ActiveNodes) do
       Distance[pivot][v] = newdists[tc]
       tc = tc + 1
     end
     QuestHelper: Assert(tc - 1 == #newdists)
+    
+    if pivot == 1 then
+      if last_best and #last_best > 1 then
+        last_best.distance = last_best.distance + Distance[last_best[1]][last_best[2]]
+      end
+    end
   end
   
   function Unstorage_Add(nod)
@@ -252,7 +268,7 @@ if OptimizationHackery then
     end
   end
   
-  function Unstorage_Remove(nod)
+  function Unstorage_ClusterRemove(nod)
     QH_Route_Core_ClusterRemove({}, nod)
   end
   
@@ -593,7 +609,7 @@ end
         Distance[1][v] = forward[ct]
         ct = ct + 1
         
-        Distance[v][1] = 1000000 -- this should never be used anyway
+        Distance[v][1] = 65500 -- this should never be used anyway
       end
     end
     
@@ -677,7 +693,9 @@ end
     --RTO("|cffFF8080RFN: " .. tostring(NodeLookup[nod]))
     NodeList[idx] = nil
     table.insert(DeadNodes, idx)
+    local oas = #ActiveNodes
     for k, v in pairs(ActiveNodes) do if v == idx then table.remove(ActiveNodes, k) break end end -- this is pretty awful
+    QuestHelper: Assert(#ActiveNodes < oas)
     NodeLookup[nod] = nil
     -- We don't have to modify the table itself, some sections are just "dead".
     --TestShit()
@@ -729,6 +747,11 @@ function QH_Route_Core_ClusterRemove(clust, clustid_used)
     QuestHelper: Assert(OptimizationHackery)
     QuestHelper: Assert(Cluster[clustid_used])
     clustid = clustid_used
+    
+    for _, v in ipairs(Cluster[clustid]) do
+      QH_Route_Core_NodeRemove_Internal({}, v)
+      ClusterLookup[v] = nil
+    end
   else
     clustid = ClusterTableLookup[clust]
   end
