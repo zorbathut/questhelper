@@ -83,6 +83,11 @@ Here's that wacky storage system.
 ----------------------------------]]
 
 local function unsigned2b(c)
+  if c > 65535 then -- ughh. again.
+    print(c)
+    c = 65535
+  end
+  
   if not (c < 65536) then
     print(c)
   end
