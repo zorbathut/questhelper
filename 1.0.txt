@@ -39,3 +39,14 @@ NodeRequires(loc1, loc2)
 
 -- Other things:
 * Some way to obsolete paths in various manners. "Hard" and "Soft" distances.
+
+
+
+Versions:
+
+RC: Public release candidate
+Beta: public beta
+Alpha: comments public alpha
+Prealpha: SA thread
+pre2alpha: #webcomics, anyone who asks, friends, det"ox
+pre3alpha: very limited people
