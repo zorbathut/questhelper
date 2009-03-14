@@ -29,7 +29,7 @@ end
 
 --[[
 function QuestHelper.OnUpdateHookRegistrar(func)
-  QuestHelper:Assert(func)
+  QuestHelper: Assert(func)
   table.insert(OnUpdateRegistrar, func)
 end
 ]]
