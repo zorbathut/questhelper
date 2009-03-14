@@ -6,19 +6,19 @@ QuestHelper_Translations.deDE =
   LOCALE_NAME = "Deutsch",
   
   -- Messages used when starting.
-  LOCALE_ERROR = "Die Sprache deiner gespeicherten Daten stimmt nicht mit der Sprache deines WoW-Clients überein.",
-  ZONE_LAYOUT_ERROR = "Das Addon wird nicht ausgeführt, um deine gespeicherten Daten nicht zu beschädigen. Warte auf einen Patch, der in der Lage ist, das neue Zonenlayout zu verarbeiten.",
-  DOWNGRADE_ERROR = "Deine gespeicherten Daten sind nicht kompatibel mit dieser Version von QuestHelper. Verwende eine neue Version oder lösche deine gespeicherten Variablen.",
+  LOCALE_ERROR = "Die Sprache Deiner gespeicherten Daten stimmt nicht mit der Sprache Deines WoW-Clients überein.",
+  ZONE_LAYOUT_ERROR = "Das Addon wird nicht ausgeführt, um Deine gespeicherten Daten nicht zu beschädigen. Warte auf einen Patch, der in der Lage ist, daß neue Zonenlayout zu verarbeiten.",
+  DOWNGRADE_ERROR = "Deine gespeicherten Daten sind nicht kompatibel mit dieser Version von QuestHelper. Verwende eine neue Version oder lösche Deine gespeicherten Variablen.",
   HOME_NOT_KNOWN = "Dein Zuhause ist nicht bekannt. Sprich bei der nächsten Gelegenheit mit einem Gastwirt, um es zurückzusetzen.",
   PRIVATE_SERVER = "QuestHelper unterstützt keine privaten Server.",
   PLEASE_RESTART = "Beim Starten von QuestHelper ist ein Fehler aufgetreten. Beende World of Warcraft vollständig und versuche es erneut.",
-  NOT_UNZIPPED_CORRECTLY = "QuestHelper wurde nicht ordnungsgemäß installiert. Wir empfehlen den Curse-Client oder 7zip für die Installation. Achte darauf, dass Unterverzeichnisse entpackt werden.",
-  PLEASE_DONATE = "%h(QuestHelper lebt nur von Spenden!) Jeder Beitrag ist willkommen. Ein paar Dollar im Monat stellen sicher, dass ich am Addon arbeite und es aktualisiere. Gib %h(/qh donate) ein, um weitere Informationen zu erhalten.",
-  HOW_TO_CONFIGURE = "Questhelper hat noch keine funktionierende Einstellungsseite. Du kannst es konfigurieren, indem du %h(/qh settings) eintippst. Mit %h(/qh help) rufst du die Hilfe auf.",
+  NOT_UNZIPPED_CORRECTLY = "QuestHelper wurde nicht ordnungsgemäß installiert. Wir empfehlen den Curse-Client oder 7zip für die Installation. Achte darauf, daß Unterverzeichnisse entpackt werden.",
+  PLEASE_DONATE = "%h(QuestHelper lebt nur von Spenden!) Jeder Beitrag ist willkommen. Ein paar Dollar im Monat stellen sicher, daß ich am Addon arbeite und es aktualisiere. Gib %h(/qh donate) ein, um weitere Informationen zu erhalten.",
+  HOW_TO_CONFIGURE = "Questhelper hat noch keine funktionierende Einstellungsseite. Du kannst es konfigurieren, indem du %h(/qh settings) eintippst. Mit %h(/qh help) rufst Du die Hilfe auf.",
   TIME_TO_UPDATE = "Möglicherweise ist eine %h(neue QuestHelper-Version) verfügbar. Neue Versionen umfassen gewöhnlich neue Funktionen, neue Questdatenbanken und Bugfixes. Du solltest ein Update durchführen!",
   
   -- Route related text.
-  ROUTES_CHANGED = "Die Flugstrecken für deinen Charakter wurden verändert.",
+  ROUTES_CHANGED = "Die Flugstrecken für Deinen Charakter wurden verändert.",
   HOME_CHANGED = "Dein Zuhause wurde geändert.",
   TALK_TO_FLIGHT_MASTER = "Sprich mit dem örtlichen Flugmeister.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Danke.",
@@ -42,7 +42,7 @@ QuestHelper_Translations.deDE =
   OBJECTIVE_REASON = "%1 %h2 für die Quest %h3.", -- %1 is a verb, %2 is a noun (item or monster)
   OBJECTIVE_REASON_FALLBACK = "%h1 für die Quest %h2.",
   OBJECTIVE_REASON_TURNIN = "Gib die Quest %h1 ab.",
-  OBJECTIVE_PURCHASE = "Erwerben von %h1.",
+  OBJECTIVE_PURCHASE = "Kaufen von %h1.",
   OBJECTIVE_TALK = "Sprich mit %h1.",
   OBJECTIVE_SLAY = "Töte %h1.",
   OBJECTIVE_LOOT = "Erbeute %h1.",
@@ -71,8 +71,8 @@ QuestHelper_Translations.deDE =
   CREATED_OBJ = "Erstellt: %1",
   REMOVED_OBJ = "Gelöscht: %1",
   USER_OBJ = "Benutzerziel: %h1",
-  UNKNOWN_OBJ = "QuestHelper weiß nicht, wo du für dieses Ziel hingehen solltest.",
-  INACCESSIBLE_OBJ = "QuestHelper konnte keinen sinnvollen Ort für %h1 finden. Wir haben deiner Aufgabenliste möglicherweise einen nicht zu findenden Ort hinzugefügt. Wenn du eine nützliche Version dieses Objekts findest, sende deine Daten ein! (%h(/qh submit))",
+  UNKNOWN_OBJ = "QuestHelper weiß nicht, wo Du für dieses Ziel hingehen solltest.",
+  INACCESSIBLE_OBJ = "QuestHelper konnte keinen sinnvollen Ort für %h1 finden. Wir haben Deiner Aufgabenliste möglicherweise einen nicht zu findenden Ort hinzugefügt. Wenn Du eine nützliche Version dieses Objekts findest, sende Deine Daten ein! (%h(/qh submit))",
   
   SEARCHING_STATE = "Suche: %1",
   SEARCHING_LOCAL = "Lokale %1",
@@ -95,13 +95,13 @@ QuestHelper_Translations.deDE =
   
   -- Hidden objectives.
   HIDDEN_TITLE = "Versteckte Ziele",
-  HIDDEN_NONE = "Für dich werden keine Ziele ausgeblendet.",
+  HIDDEN_NONE = "Für Dich werden keine Ziele ausgeblendet.",
   DEPENDS_ON_SINGLE = "Ist abhängig von '%1'.",
   DEPENDS_ON_COUNT = "Ist abhängig von %1 versteckten Zielen.",
   FILTERED_LEVEL = "Gefiltert wegen Level.",
   FILTERED_ZONE = "Gefiltert wegen Zone.",
   FILTERED_COMPLETE = "Gefiltert wegen Vollständigkeit.",
-  FILTERED_BLOCKED = "Gefiltert wegen einem unvollständigen vorherigen Ziel.",
+  FILTERED_BLOCKED = "Gefiltert wegen eines unvollständigen vorherigen Ziels.",
   FILTERED_UNWATCHED = "Gefiltert, weil nicht im Quest-Log beobachtet.",
   FILTERED_USER = "Du möchtest dieses Ziel ausblenden lassen.",
   FILTERED_UNKNOWN = "Es ist nicht bekannt, wie es abgeschlossen werden kann.",
@@ -117,10 +117,10 @@ QuestHelper_Translations.deDE =
   NAG_MULTIPLE_NEW = "Du hast %h(neue Informationen) zu %h1 und %h(aktualisierte Informationen) zu %h2.",
   NAG_SINGLE_NEW = "Du hast %h(neue Informationen) zu %h1.",
   NAG_ADDITIONAL = "Du hast zusätzliche Informationen zu %h1.",
-  NAG_POLLUTED = "In deiner Datenbank befinden sich Informationen von einem Testserver oder privaten Server. Sie wird beim Starten bereinigt.",
+  NAG_POLLUTED = "In Deiner Datenbank befinden sich Informationen von einem Testserver oder privaten Server. Sie wird beim Starten bereinigt.",
   
   NAG_NOT_NEW = "Du hast keine Informationen, die nicht bereits in der statischen Datenbank sind.",
-  NAG_NEW = "Du solltest in Betracht ziehen, deine Daten zu teilen, damit andere davon profitieren können.",
+  NAG_NEW = "Du solltest in Betracht ziehen Deine Daten zu teilen, damit andere davon profitieren können.",
   NAG_INSTRUCTIONS = "Gib %h(/qh submit) ein, um Anweisungen zum Einsenden von Daten zu erhalten.",
   
   NAG_SINGLE_FP = "einem Flugmeister",

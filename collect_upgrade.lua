@@ -81,9 +81,4 @@ function QH_Collector_UpgradeAll(Collector)
       QH_Collector_Upgrade(v)
     end
   end
-  
-  -- The whole "upgrade" concept really needs to be reinvented. So let's reinvent it. Each segment is now its own little world, and we don't really need a global version number at all.
-  for _, v in pairs(Collector) do
-    
-  end
 end

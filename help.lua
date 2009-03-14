@@ -185,12 +185,12 @@ end
 
 function QuestHelper:HardReset(code)
   if code == self.purge_code then
+    self:ResetTrackerPosition() -- do this before we kill off the prefs, since it touches a pref
     QuestHelper_Pref = nil
     QuestHelper_ErrorList = nil -- BIZAM
     QuestHelper_KnownFlightRoutes = nil
     QuestHelper_Home = nil
     QuestHelper_CharVersion = nil
-    self:ResetTrackerPosition()
     self:Purge(nil, true)
   else
     if not self.purge_code then self.purge_code = self:CreateUID(8) end

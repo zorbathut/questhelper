@@ -74,6 +74,7 @@ lang\nono.lua
 lang\plpl.lua
 lang\ptbr.lua
 lang\ptpt.lua
+lang\roro.lua
 lang\ruru.lua
 lang\svse.lua
 lang\trtr.lua

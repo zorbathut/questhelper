@@ -629,6 +629,13 @@ local QuestHelper_PrivateServerBlacklist_Exact = {
   "world translate",
   "Bobby", -- I have no idea if this is an actual private server NPC
   "Nejeib", -- same
+  "Shaman Set Vendor",
+  "Warrior Set Vendor",
+  "Priest Set Vendor",
+  "Warlock Set Vendor",
+  "Paladin Set Vendor",
+  "Hunter Set Vendor",
+  "Mage Set Vendor",  -- yeah yeah this isn't everyone whatever
 }
 
 local matchstring = nil

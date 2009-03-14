@@ -18,7 +18,7 @@ QuestHelper_Translations.plPL =
   TIME_TO_UPDATE = nil,
   
   -- Route related text.
-  ROUTES_CHANGED = nil,
+  ROUTES_CHANGED = "Zmieniono twoje trasy lotow.",
   HOME_CHANGED = "Twoje miejsce docelowe zostało zmienione.",
   TALK_TO_FLIGHT_MASTER = "Porozmawiaj z lokalnym Flight Masterem.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Dziekuje.",
@@ -43,7 +43,7 @@ QuestHelper_Translations.plPL =
   OBJECTIVE_REASON_FALLBACK = "%h1 do questa %h2.",
   OBJECTIVE_REASON_TURNIN = "Oddaj questa %h1.",
   OBJECTIVE_PURCHASE = "Kup od %h1",
-  OBJECTIVE_TALK = "Porozmawiaj z %h1",
+  OBJECTIVE_TALK = "Porozmawiaj z %h1.",
   OBJECTIVE_SLAY = "Zabij %h1",
   OBJECTIVE_LOOT = nil,
   
@@ -84,8 +84,8 @@ QuestHelper_Translations.plPL =
   
   -- Shared objectives.
   PEER_TURNIN = "Poczekaj na %h1 aby oddac %h2",
-  PEER_LOCATION = nil,
-  PEER_ITEM = "Pomoz %1 zdobyc %h2",
+  PEER_LOCATION = "Pomoz %h1 dotrzec do %h2.",
+  PEER_ITEM = "Pomoz %1 zdobyc %h2.",
   PEER_OTHER = "Pomóż %1 z %h2",
   
   PEER_NEWER = "%h1 używa nowszej wersji protokołu. Być może czas na uaktualnienie.",
@@ -126,9 +126,9 @@ QuestHelper_Translations.plPL =
   NAG_SINGLE_FP = "Flight Master",
   NAG_SINGLE_QUEST = "Quest",
   NAG_SINGLE_ROUTE = nil,
-  NAG_SINGLE_ITEM_OBJ = nil,
+  NAG_SINGLE_ITEM_OBJ = "cel - przedmiot",
   NAG_SINGLE_OBJECT_OBJ = nil,
-  NAG_SINGLE_MONSTER_OBJ = nil,
+  NAG_SINGLE_MONSTER_OBJ = "cel- potwor",
   NAG_SINGLE_EVENT_OBJ = nil,
   NAG_SINGLE_REPUTATION_OBJ = nil,
   NAG_SINGLE_PLAYER_OBJ = "Cel gracza",
