@@ -111,7 +111,7 @@ QuestHelper_Translations.koKR =
   FILTER_DONE = "완료",
   FILTER_ZONE = "지역",
   FILTER_LEVEL = "레벨",
-  FILTER_BLOCKED = nil,
+  FILTER_BLOCKED = "차단",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "%h1과 %h2의 정보 그리고, %h(%s3)지역의 정보를 갱신하였습니다.",
