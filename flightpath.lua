@@ -101,78 +101,6 @@ TakeTaxiNode = function(id)
   real_TakeTaxiNode(id)
 end
 
-function QuestHelper:processFlightData(data, interrupted)
-  local npc = self:getFlightInstructor(data.dest)
-  if not npc then
-    self:TextOut(QHText("TALK_TO_FLIGHT_MASTER"))
-    return false
-  end
-  
-  local npc_obj = self:GetObjective("monster", npc)
-  npc_obj:PrepareRouting(true)
-  
-  local pos = npc_obj:Position()
-  if not pos then
-    -- Don't know te location of the flight instructor.
-    self:TextOut(QHText("TALK_TO_FLIGHT_MASTER"))
-    npc_obj:DoneRouting()
-    return false
-  end
-  
-  local correct = true
-  
-  if pos[1].c ~= self.c then
-    correct = false
-  else
-    local x, y = self.Astrolabe:TranslateWorldMapPosition(self.c, self.z, self.x, self.y, self.c, 0)
-    x = x * self.continent_scales_x[self.c]
-    y = y * self.continent_scales_y[self.c]
-    local t = (x-pos[3])*(x-pos[3])+(y-pos[4])*(y-pos[4])
-    
-    --self:TextOut(string.format("(%f,%f) vs (%f,%f) is %f", x, y, pos[3], pos[4], t))
-    
-    if t > 5*5 then
-      correct = false
-    end
-  end
-  
-  npc_obj:DoneRouting()
-  
-  if not correct then
-    return true
-  end
-  
-  if data.start_time and data.end_time and data.end_time > data.start_time then
-    local routes = QuestHelper_FlightRoutes_Local[self.faction]
-    if not routes then
-      routes = {}
-      QuestHelper_FlightRoutes_Local[self.faction] = routes
-    end
-    
-    local origin = routes[data.origin]
-    if not origin then
-      origin = {}
-      routes[data.origin] = origin
-    end
-    
-    local dest = origin[data.dest]
-    if not dest then
-      dest = {}
-      origin[data.dest] = dest
-    end
-    
-    dest[data.hash] = data.end_time - data.start_time
-    
-    if interrupted then -- I'm assuming this doesn't depend on the hash, since I really doubt the routing system would let a player go through zone boundaries if it wasn't mandatory
-      dest.interrupt_count = (dest.interrupt_count or 0) + 1
-    else
-      dest.no_interrupt_count = (dest.no_interrupt_count or 0) + 1
-    end
-  end
-  
-  return true
-end
-
 function QuestHelper:getFlightInstructor(area)
   local fi_table = QuestHelper_FlightInstructors_Local[self.faction]
   if fi_table then
@@ -547,12 +475,6 @@ function QuestHelper:taxiMapOpened()
       altered = true
     end
     
-    if self.flight_data and self:processFlightData(self.flight_data) then
-      self:TextOut(QHText("TALK_TO_FLIGHT_MASTER_COMPLETE"))
-      self:ReleaseTable(self.flight_data)
-      self.flight_data = nil
-    end
-    
     for j = 1,NumTaxiNodes() do
       local node_count = GetNumRoutes(j)
       if node_count and i ~= j and node_count > 0 and node_count < 100 then
@@ -676,11 +598,6 @@ function QuestHelper:flightEnded(interrupted)
   local flight_data = self.flight_data
   if flight_data and not flight_data.end_time then
     flight_data.end_time = GetTime()
-    
-    if self:processFlightData(flight_data, interrupted) then
-      self:ReleaseTable(flight_data)
-      self.flight_data = nil
-    end
     
     self:UnsetTargetLocation()
     self:StopCustomSearch()
