@@ -389,7 +389,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
         self.bg = QuestHelper:CreateIconTexture(self, objective.icon_bg or 16)
       end
       
-      self.dot = QuestHelper:CreateIconTexture(self, objective.icon_id or 6)
+      self.dot = QuestHelper:CreateIconTexture(self, objective.icon_id or 8)
       
       self.bg:SetDrawLayer("BACKGROUND")
       self.bg:SetAllPoints()
