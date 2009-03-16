@@ -34,7 +34,7 @@ if OptimizationHackery then DebugOutput = false end -- :ughh:
 
     -- Weighting for the various factors
   local WeightFactor = 0.80
-  local DistanceFactor = -3.5
+  local DistanceFactor = -2.5
   local DistanceDeweight = 1.5 -- Add this to all distances to avoid sqrt(-1) deals
   
   -- Small amount to add to all weights to ensure it never hits, and to make sure things can still be chosen after a lot of iterations
@@ -523,7 +523,8 @@ function QH_Route_Core_Process()
   end
   
   for _, x in ipairs(trouts) do
-    local amount = 1 / ((x.distance - last_best.distance) / scale + BestWorstAdjustment)
+    --local amount = 1 / ((x.distance - last_best.distance) / scale + BestWorstAdjustment)
+    local amount = 1 / x.distance
     for y = 1, #x - 1 do
       --local idx = GetIndex(x[y], x[y + 1])
       Weight[x[y]][x[y + 1]] = Weight[x[y]][x[y + 1]] + amount
