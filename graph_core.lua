@@ -128,7 +128,7 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
         v.scan_id = grid
         v.scan_cost = dst
         v.scan_from = nil
-        heap_insert(dijheap, {c = dst, n = v})
+        heap_insert(dijheap, {c = dst + v[link_cost_id], cs = dst, n = v})
       end
     end
   end
@@ -144,7 +144,7 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
     else
     --print(string.format("Extracted cost %f/%s pointing at %f/%f/%d", cdj.c, tostring(cdj.n.scan_cost), cdj.n.x, cdj.n.y, cdj.n.p))
       QuestHelper: Assert(cdj.n[link_id])
-      if cdj.n.scan_cost == cdj.c then  -- if we've modified it since then, don't bother
+      if cdj.n.scan_cost == cdj.cs then  -- if we've modified it since then, don't bother
         local linkto = cdj.n[link_id]
         local basecost = cdj.c + cdj.n[link_cost_id]
         if linkto.scan_id ~= grid or linkto.scan_cost > basecost then
@@ -167,7 +167,7 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
                 v.scan_id = grid
                 v.scan_cost = goalcost
                 v.scan_from = cdj.n
-                heap_insert(dijheap, {c = goalcost, n = v})
+                heap_insert(dijheap, {c = goalcost + v[link_cost_id], cs = goalcost, n = v})
               end
             end
           end
