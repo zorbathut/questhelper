@@ -201,7 +201,10 @@ function load_graph_links()
       QuestHelper: Assert(src.x and dst.x)
       src.map_desc = {"Travel enroute"}
       dst.map_desc = {"Travel enroute"}
-      QH_Graph_Plane_Makelink("static_route", src, dst, v[3], v[4]) -- this couldn't possibly fail
+      
+      local rev_cost = v[3]
+      if v[4] then rev_cost = nil end
+      QH_Graph_Plane_Makelink("static_route", src, dst, v[3], rev_cost) -- this couldn't possibly fail
     end
   end
   
@@ -221,7 +224,7 @@ function load_graph_links()
     dst.p = v[2]
     src.map_desc = {QHFormat("ZONE_BORDER", QuestHelper_NameLookup[v[1]], QuestHelper_NameLookup[v[2]])}
     src.map_desc = {QHFormat("ZONE_BORDER", QuestHelper_NameLookup[v[2]], QuestHelper_NameLookup[v[1]])}
-    QH_Graph_Plane_Makelink("static_transition", src, dst, 0, false)
+    QH_Graph_Plane_Makelink("static_transition", src, dst, 0, 0)
   end
   
   do
@@ -229,7 +232,7 @@ function load_graph_links()
     local dst = convert_coordinate(dark_portal_route[2])
     src.map_desc = {"Dark Portal"}
     dst.map_desc = {"Dark Portal"}
-    QH_Graph_Plane_Makelink("dark_portal", src, dst, 15)
+    QH_Graph_Plane_Makelink("dark_portal", src, dst, 15, 15)
   end
 end
 

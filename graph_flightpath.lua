@@ -136,14 +136,16 @@ function QH_redo_flightpath()
   for src, t in pairs(adjacency) do
     QH_Timeslice_Yield()
     for dest, cost in pairs(t) do
-      local fms = flightmasters[src]
-      local fmd = flightmasters[dest]
-      if fms and fmd then
-        fms = fms.loc[1]
-        fmd = fmd.loc[1]
-        local snode = {x = fms.x, y = fms.y, c = fms.c, p = QuestHelper_IndexLookup[fms.rc][fms.rz], map_desc = {string.format("Flightpath to %s", flightdb[dest].name)}}
-        local dnode = {x = fmd.x, y = fmd.y, c = fmd.c, p = QuestHelper_IndexLookup[fmd.rc][fmd.rz], map_desc = {string.format("Flightpath to %s", flightdb[dest].name)}}
-        QH_Graph_Plane_Makelink("flightpath", snode, dnode, cost * 7, true)
+      if not (src > dest and adjacency[dest][src]) then
+        local fms = flightmasters[src]
+        local fmd = flightmasters[dest]
+        if fms and fmd then
+          fms = fms.loc[1]
+          fmd = fmd.loc[1]
+          local snode = {x = fms.x, y = fms.y, c = fms.c, p = QuestHelper_IndexLookup[fms.rc][fms.rz], map_desc = {string.format("Flightpath to %s", flightdb[dest].name)}}
+          local dnode = {x = fmd.x, y = fmd.y, c = fmd.c, p = QuestHelper_IndexLookup[fmd.rc][fmd.rz], map_desc = {string.format("Flightpath to %s", flightdb[dest].name)}}
+          QH_Graph_Plane_Makelink("flightpath", snode, dnode, cost * 7, adjacency[dest][src] * 7)
+        end
       end
     end
   end
