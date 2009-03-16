@@ -14,7 +14,6 @@ function QH_redo_flightpath()
     end
   end
   
-  local adjacency_time = {}
   local adjacency = {}
   
   local important = {}
@@ -33,16 +32,15 @@ function QH_redo_flightpath()
           
           if passes then
             --QuestHelper:TextOut(string.format("Found link between %s and %s, cost %f", flightdb[k].name, flightdb[dest].name, route.distance))
-            if not adjacency_time[k] then adjacency_time[k] = {} adjacency[k] = {} end
-            if not adjacency_time[dest] then adjacency_time[dest] = {} adjacency[dest] = {} end
-            QuestHelper: Assert(not adjacency_time[k][dest])
-            adjacency_time[k][dest] = route.distance
-            adjacency[k][dest] = route.distance
+            if not adjacency[k] then adjacency[k] = {} end
+            if not adjacency[dest] then adjacency[dest] = {} end
+            QuestHelper: Assert(not (adjacency[k][dest] and adjacency[k][dest].time))
+            adjacency[k][dest] = {time = route.distance, dist = route.distance, original = true}
             
             -- no such thing as strongly asymmetric routes
             -- note that we're only hitting up adjacency here, because we don't have "time info"
             if not adjacency[dest][k] then
-              adjacency[dest][k] = route.distance * 1.1
+              adjacency[dest][k] = {dist = route.distance * 1.1, original = true} -- It's original because, in theory, we may end up basing other links on this one. It's still not time-authoritative, though.
             end
             
             important[k] = true
@@ -71,7 +69,6 @@ function QH_redo_flightpath()
   
   for _, v in ipairs(imp_flat) do
     adjacency[v] = adjacency[v] or {}
-    adjacency_time[v] = adjacency_time[v] or {}
   end
   
   for _, pivot in ipairs(imp_flat) do
@@ -79,19 +76,13 @@ function QH_redo_flightpath()
     for _, i in ipairs(imp_flat) do
       for _, j in ipairs(imp_flat) do
         if adjacency[i][pivot] and adjacency[pivot][j] then
-          local cst = adjacency[i][pivot] + adjacency[pivot][j]
-          adjacency[i][j] = math.min(adjacency[i][j] or 1000000, cst)
+          local cst = adjacency[i][pivot].dist + adjacency[pivot][j].dist
+          if not adjacency[i][j] or adjacency[i][j].dist > cst then
+            if not adjacency[i][j] then adjacency[i][j] = {} end
+            adjacency[i][j].dist = cst
+            adjacency[i][j].original = nil
+          end
         end
-      end
-    end
-  end
-  
-  QH_Timeslice_Yield()
-  
-  for src, t in pairs(adjacency) do
-    for dest, cost in pairs(t) do
-      if not adjacency_time[src][dest] then
-        adjacency_time[src][dest] = cost
       end
     end
   end
@@ -135,8 +126,8 @@ function QH_redo_flightpath()
   -- Right now we're converting this into the equivalent of running-speed, which means each second needs to be multiplied by 7 to get yard-equivalents
   for src, t in pairs(adjacency) do
     QH_Timeslice_Yield()
-    for dest, cost in pairs(t) do
-      if not (src > dest and adjacency[dest][src]) then
+    for dest, dat in pairs(t) do
+      if dat.original and not (src > dest and adjacency[dest][src] and adjacency[dest][src].original) then
         local fms = flightmasters[src]
         local fmd = flightmasters[dest]
         if fms and fmd then
@@ -144,7 +135,9 @@ function QH_redo_flightpath()
           fmd = fmd.loc[1]
           local snode = {x = fms.x, y = fms.y, c = fms.c, p = QuestHelper_IndexLookup[fms.rc][fms.rz], map_desc = {string.format("Flightpath to %s", flightdb[dest].name)}}
           local dnode = {x = fmd.x, y = fmd.y, c = fmd.c, p = QuestHelper_IndexLookup[fmd.rc][fmd.rz], map_desc = {string.format("Flightpath to %s", flightdb[dest].name)}}
-          QH_Graph_Plane_Makelink("flightpath", snode, dnode, cost * 7, adjacency[dest][src] * 7)
+          
+          local ret = adjacency[dest][src] and adjacency[dest][src].original and adjacency[dest][src].dist * 7
+          QH_Graph_Plane_Makelink("flightpath", snode, dnode, dat.dist * 7, ret)
         end
       end
     end
