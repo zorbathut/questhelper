@@ -703,10 +703,12 @@ function QuestHelper:CreateMipmapDodad()
           self.arrow:SetPosition(ofs * (137 / 140) - radius * math.sin(angle),
                                  ofs               + radius * math.cos(angle), 0);
           
-          if self.phase > 6.283185307179586476925 then
-            self.phase = self.phase-6.283185307179586476925+elapsed*3.5
-          else
-            self.phase = self.phase+elapsed*3.5
+          if elapsed then
+            if self.phase > 6.283185307179586476925 then
+              self.phase = self.phase-6.283185307179586476925+elapsed*3.5
+            else
+              self.phase = self.phase+elapsed*3.5
+            end
           end
           self.arrow:SetModelScale(0.600000023841879+0.1*math.sin(self.phase))
         end
@@ -740,6 +742,8 @@ function QuestHelper:CreateMipmapDodad()
         self.dot:SetPoint("TOPLEFT", icon, "TOPLEFT", 2, -2)
         self.dot:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -2, 2)
       end
+      
+      self:OnUpdate()
     end
   end
   
