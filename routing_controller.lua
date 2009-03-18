@@ -104,7 +104,6 @@ local function ReplotPath()
       end end
     end
   end
-  QuestHelper:TextOut(string.format("Path cache: %d/%d hits", hits, hits + misses))
   
   for _, v in pairs(notification_funcs) do
     v(real_path)
@@ -164,8 +163,17 @@ local passcount = 0
 local lc, lx, ly, lrc, lrz
 
 local function process()
+
+  local last_cull = 0
+  
   -- Order here is important. We don't want to update the location, then wait for a while as we add nodes. We also need the location updated before the first nodes are added. This way, it all works and we don't need anything outside the loop.
   while true do
+    if last_cull + 120 < GetTime() then
+      last_cull = GetTime()
+      pathcache_inactive = pathcache_active
+      pathcache_active = {} -- eat it, garbage collector
+    end
+    
     local c, x, y, rc, rz = QuestHelper.collect_c, QuestHelper.collect_x, QuestHelper.collect_y, QuestHelper.c, QuestHelper.z  -- ugh we need a better solution to this, but with this weird "planes" hybrid there just isn't one right now
     if c and x and y and rc and rz and (c ~= lc or x ~= lx or y ~= ly or rc ~= lrc or rz ~= lrz) then
       --local t = GetTime()
