@@ -653,11 +653,6 @@ function QuestHelper:CreateMipmapDodad()
   
   function icon:OnUpdate(elapsed)
     if self.obj then
-      if not self.dot then
-        self.dot = QuestHelper:CreateIconTexture(self, self.obj.icon_id or 8)
-        self.dot:SetPoint("TOPLEFT", icon, "TOPLEFT", 2, -2)
-        self.dot:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -2, 2)
-      end
       
       --[=[if UnitIsDeadOrGhost("player") then
         QuestHelper:InvokeWaypointCallbacks()
@@ -739,6 +734,12 @@ function QuestHelper:CreateMipmapDodad()
       self.recalc_timeout = 0
       
       if self.dot then QuestHelper:ReleaseTexture(self.dot) self.dot = nil end
+      
+      if not self.dot then
+        self.dot = QuestHelper:CreateIconTexture(self, self.obj.icon_id or 8)
+        self.dot:SetPoint("TOPLEFT", icon, "TOPLEFT", 2, -2)
+        self.dot:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -2, 2)
+      end
     end
   end
   

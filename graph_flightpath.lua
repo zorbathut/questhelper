@@ -2,6 +2,8 @@ QuestHelper_File["graph_flightpath.lua"] = "Development Version"
 QuestHelper_Loadtime["graph_flightpath.lua"] = GetTime()
 
 function QH_redo_flightpath()
+  do return end
+  
   local flightids = DB_ListItems("flightmasters")
   local flightdb = {}
   

@@ -5,9 +5,12 @@ QuestHelper_Loadtime["routing_loc.lua"] = GetTime()
 -- .c is continent, either 0, 3, or -77
 -- .x is x-coordinate
 -- .y is y-coordinate
+-- .p is original-questhelper plane
 -- that's it.
 
 -- Also, we're gonna pull something similar as with Collect to wrap everything up and not pollute the global space. But for now we don't.
+
+-- LOCATIONS ARE IMMUTABLE, THEY NEVER CHANGE, THIS IS INCREDIBLY IMPORTANT
 
 function NewLoc(c, x, y, rc, rz)
   QuestHelper: Assert(c)

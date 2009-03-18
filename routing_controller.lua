@@ -27,6 +27,10 @@ QH_Route_Core_DistanceClear = nil
 
 local pending = {}
 
+-- Every minute or two, we dump the inactive and move active to inactive. Every time we touch something, we put it in active.
+local pathcache_active = {}
+local pathcache_inactive = {}
+
 function QH_Route_NodeAdd(node)
   QuestHelper: Assert(node.map_desc)
   table.insert(pending, function () Route_Core_NodeAdd(node) end)
@@ -49,7 +53,7 @@ function QH_Route_ClusterRequires(a, b)
 end
 
 function QH_Route_FlightPathRecalc()
-  table.insert(pending, function () QH_redo_flightpath() Route_Core_DistanceClear() end)
+  table.insert(pending, function () QH_redo_flightpath() pathcache_active = {} pathcache_inactive = {} Route_Core_DistanceClear() end)
 end
 
 local notification_funcs = {}
@@ -58,46 +62,97 @@ function QH_Route_RegisterNotification(func)
   table.insert(notification_funcs, func)
 end
 
--- Every minute or two, we dump the inactive and move active to inactive. Every time we touch something, we put it in active.
-local pathcache_active = {}
-local pathcache_inactive = {}
+local hits = 0
+local misses = 0
+
+local function GetCachedPath(loc1, loc2)
+  -- If it's in active, it's guaranteed to be in inactive.
+  if not pathcache_inactive[loc1] or not pathcache_inactive[loc1][loc2] then
+    -- Not in either, time to create
+    misses = misses + 1
+    local nrt = QH_Graph_Pathfind(loc1.loc, loc2.loc, false, true)
+    QuestHelper: Assert(nrt)
+    if not pathcache_active[loc1] then pathcache_active[loc1] = {} end
+    if not pathcache_inactive[loc1] then pathcache_inactive[loc1] = {} end
+    pathcache_active[loc1][loc2] = nrt
+    pathcache_inactive[loc1][loc2] = nrt
+    return nrt
+  else
+    hits = hits + 1
+    if not pathcache_active[loc1] then pathcache_active[loc1] = {} end
+    pathcache_active[loc1][loc2] = pathcache_inactive[loc1][loc2]
+    return pathcache_active[loc1][loc2]
+  end
+end
+
+local last_path = nil
+
+local function ReplotPath()
+  if not last_path then return end  -- siiigh
+  
+  local real_path = {}
+  hits = 0
+  misses = 0
+  for k, v in ipairs(last_path) do
+    table.insert(real_path, v)
+    if last_path[k + 1] then
+      local nrt = GetCachedPath(last_path[k], last_path[k + 1])
+      QuestHelper: Assert(nrt)
+      if nrt.path then for _, wp in ipairs(nrt.path) do
+        QuestHelper: Assert(wp.c)
+        table.insert(real_path, {loc = {x = wp.x, y = wp.y, c = wp.c}, ignore = true, map_desc = wp.map_desc})
+      end end
+    end
+  end
+  QuestHelper:TextOut(string.format("Path cache: %d/%d hits", hits, hits + misses))
+  
+  for _, v in pairs(notification_funcs) do
+    v(real_path)
+  end
+end
 
 Route_Core_Init(
   function(path)
-    local real_path = {}
-    for k, v in ipairs(path) do
-      table.insert(real_path, v)
-      if path[k + 1] then
-        local nrt = QH_Graph_Pathfind(path[k].loc, path[k + 1].loc, false, true)
-        QuestHelper: Assert(nrt)
-        if nrt.path then for _, wp in ipairs(nrt.path) do
-          QuestHelper: Assert(wp.c)
-          table.insert(real_path, {loc = {x = wp.x, y = wp.y, c = wp.c}, ignore = true, map_desc = wp.map_desc})
-        end end
-      end
-    end
-    
-    for _, v in pairs(notification_funcs) do
-      v(real_path)
-    end
+    last_path = path
+    ReplotPath()
   end,
   function(loc1, loctable, reverse)
     QH_Timeslice_Yield()
     QuestHelper: Assert(loc1.loc)
+    
+    if not pathcache_active[loc1] then pathcache_active[loc1] = {} end
+    if not pathcache_inactive[loc1] then pathcache_inactive[loc1] = {} end
+    
     local lt = {}
     for _, v in ipairs(loctable) do
       QuestHelper: Assert(v.loc)
       table.insert(lt, v.loc)
+      
+      if not pathcache_active[v] then pathcache_active[v] = {} end
+      if not pathcache_inactive[v] then pathcache_inactive[v] = {} end
     end
-    local rv = QH_Graph_Pathmultifind(loc1.loc, lt, reverse)
+    local rv = QH_Graph_Pathmultifind(loc1.loc, lt, reverse, true)
+    
+    local rvv = {}
     for k, v in ipairs(lt) do
       if not rv[k] then
         QuestHelper:TextOut(QuestHelper:StringizeTable(loc1.loc))
         QuestHelper:TextOut(QuestHelper:StringizeTable(lt[k]))
       end
       QuestHelper: Assert(rv[k])
+      QuestHelper: Assert(rv[k].d)
+      rvv[k] = rv[k].d
+      
+      -- We're only setting the inactive to give the garbage collector potentially a little more to clean up (i.e. the old path.)
+      if not reverse then
+        pathcache_active[loc1][loctable[k]] = rv[k]
+        pathcache_inactive[loc1][loctable[k]] = rv[k]
+      else
+        pathcache_active[loctable[k]][loc1] = rv[k]
+        pathcache_inactive[loctable[k]][loc1] = rv[k]
+      end
     end
-    return rv
+    return rvv
   end
 )
 
@@ -115,8 +170,12 @@ local function process()
     if c and x and y and rc and rz and (c ~= lc or x ~= lx or y ~= ly or rc ~= lrc or rz ~= lrz) then
       --local t = GetTime()
       lc, lx, ly, lrc, lrz = c, x, y, rc, rz
-      Route_Core_SetStart({desc = "Start", why = StartObjective, loc = NewLoc(c, x, y, rc, rz), tracker_hidden = true, ignore = true})
+      
+      local new_playerpos = {desc = "Start", why = StartObjective, loc = NewLoc(c, x, y, rc, rz), tracker_hidden = true, ignore = true}
+      Route_Core_SetStart(new_playerpos)
+      if last_path then last_path[1] = new_playerpos end
       --QuestHelper: TextOut(string.format("SS takes %f", GetTime() - t))
+      ReplotPath()
     end
     
     Route_Core_Process()
