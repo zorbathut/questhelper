@@ -329,8 +329,8 @@ function QHNagInit()
   
   if QuestHelper_Pref.nag_next_time < time() then
     if QuestHelper_Pref.nag_type == "OFF" then
-      -- we now begin nagging for 72 hours
-      QuestHelper_Pref.nag_next_time = time() + 3 * day
+      -- we now begin nagging for 48 hours
+      QuestHelper_Pref.nag_next_time = time() + 2 * day
       QuestHelper_Pref.nag_type = "ON"
     else
       -- we now stop nagging for 2-3 weeks
@@ -358,7 +358,7 @@ end
 
 function QHUpdateNagTick()
   if update_nag_yell_at and update_nag_yell_at < time() then
-    QuestHelper:TextOut(QHText("TIME_TO_UPDATE"))
+    --QuestHelper:TextOut(QHText("TIME_TO_UPDATE"))   -- We're just disabling this, I think.
     QuestHelper_Pref.update_nag_next_notify = time() + day * 6 + day * 2 * math.random()
     update_nag_yell_at = nil
   end
