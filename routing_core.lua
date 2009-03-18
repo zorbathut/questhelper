@@ -29,23 +29,16 @@ if OptimizationHackery then DebugOutput = false end -- :ughh:
 -- Weight adjustment: Weight[x,y] = Weight[x,y]*weightadj + sum(alltravels)(1/distance_of_travel)    (note: this is somewhat out of date)
 
 -- Configuration
-  local PheremonePreservation = 0.80 -- must be within 0 and 1 exclusive
+  local PheremonePreservation = 0.98 -- must be within 0 and 1 exclusive
   local AntCount = 20 -- number of ants to run before doing a pheremone pass
 
     -- Weighting for the various factors
-  local WeightFactor = 0.80
+  local WeightFactor = 0.61
   local DistanceFactor = -2.5
-  local DistanceDeweight = 1.5 -- Add this to all distances to avoid sqrt(-1) deals
+  local DistanceDeweight = 1.4 -- Add this to all distances to avoid sqrt(-1) deals
   
   -- Small amount to add to all weights to ensure it never hits, and to make sure things can still be chosen after a lot of iterations
-  local UniversalBonus = 0.25
-  
-  -- Weight added is 1/([0-1] + BestWorstAdjustment)
-  local BestWorstAdjustment = 0.015
-  
-  -- How much do we want to factor in the "reverse path" weights
-  local AsymmetryFactor = 0.32
-  local SymmetryFactor = 0.45
+  local UniversalBonus = 0.06
 -- End configuration
 
 local Notifier
@@ -299,9 +292,6 @@ if OptimizationHackery then
     DistanceFactor = tab.DistanceFactor  QuestHelper: Assert(DistanceFactor)   touched.DistanceFactor = true
     DistanceDeweight = tab.DistanceDeweight  QuestHelper: Assert(DistanceDeweight)   touched.DistanceDeweight = true
     UniversalBonus = tab.UniversalBonus  QuestHelper: Assert(UniversalBonus)   touched.UniversalBonus = true
-    BestWorstAdjustment = tab.BestWorstAdjustment  QuestHelper: Assert(BestWorstAdjustment)   touched.BestWorstAdjustment = true
-    AsymmetryFactor = tab.AsymmetryFactor  QuestHelper: Assert(AsymmetryFactor)   touched.AsymmetryFactor = true
-    SymmetryFactor = tab.SymmetryFactor  QuestHelper: Assert(SymmetryFactor)   touched.SymmetryFactor = true
     
     for k, v in pairs(tab) do
       QuestHelper: Assert(touched[k])
@@ -356,13 +346,7 @@ local function GetWeight(x, y)
     QuestHelper: Assert(y <= CurrentNodes)
     QuestHelper: Assert(false)
   end
-  local bonus
-  if Distance[x][y] == Distance[y][x] then
-    bonus = SymmetryFactor
-  else
-    bonus = AsymmetryFactor
-  end
-  local weight = math.pow(Weight[x][y] + Weight[y][x] * bonus, WeightFactor) * math.pow(Distance[x][y] + DistanceDeweight, DistanceFactor)
+  local weight = math.pow(Weight[x][y], WeightFactor) * math.pow(Distance[x][y] + DistanceDeweight, DistanceFactor)
   --print(Weight[idx], Weight[revidx], bonus, WeightFactor, Distance[idx], DistanceFactor)
   --ValidateNumber(weight)
   return weight
@@ -523,7 +507,6 @@ function QH_Route_Core_Process()
   end
   
   for _, x in ipairs(trouts) do
-    --local amount = 1 / ((x.distance - last_best.distance) / scale + BestWorstAdjustment)
     local amount = 1 / x.distance
     for y = 1, #x - 1 do
       --local idx = GetIndex(x[y], x[y + 1])
