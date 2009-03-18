@@ -125,7 +125,6 @@ function QH_redo_flightpath()
   
   QH_Graph_Plane_Destroylinks("flightpath")
   
-  -- Right now we're converting this into the equivalent of running-speed, which means each second needs to be multiplied by 7 to get yard-equivalents
   for src, t in pairs(adjacency) do
     QH_Timeslice_Yield()
     for dest, dat in pairs(t) do
@@ -138,8 +137,8 @@ function QH_redo_flightpath()
           local snode = {x = fms.x, y = fms.y, c = fms.c, p = QuestHelper_IndexLookup[fms.rc][fms.rz], map_desc = {string.format("Flightpath to %s", flightdb[dest].name)}}
           local dnode = {x = fmd.x, y = fmd.y, c = fmd.c, p = QuestHelper_IndexLookup[fmd.rc][fmd.rz], map_desc = {string.format("Flightpath to %s", flightdb[dest].name)}}
           
-          local ret = adjacency[dest][src] and adjacency[dest][src].original and adjacency[dest][src].dist * 7
-          QH_Graph_Plane_Makelink("flightpath", snode, dnode, dat.dist * 7, ret)
+          local ret = adjacency[dest][src] and adjacency[dest][src].original and adjacency[dest][src].dist
+          QH_Graph_Plane_Makelink("flightpath", snode, dnode, dat.dist, ret)
         end
       end
     end

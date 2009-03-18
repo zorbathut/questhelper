@@ -8,10 +8,16 @@ QuestHelper_Loadtime["graph_core.lua"] = GetTime()
 -- function QH_Graph_Plane_Makelink(name, coord1, coord2, cost)
 -- And then we need a way to get rid of links, so:
 
+-- how does flying work zorba
+-- how can we fly
+-- howwwwww
+
+-- Make a map from "phase" to "flyphase". Store all the links we're being told to make. When placing links, if the flyphase is flyable, we use the flyphase instead of the phase for placing. We don't place if it's an internal boundary (there's a few ways we can detect this, but let's just use the hacky one where we just look at the ID.) From there it's all pretty standard.
+
 local function xydist(st, nd)
   QuestHelper: Assert(st.p == nd.p)
   local dx, dy = st.x - nd.x, st.y - nd.y
-  return math.sqrt(dx * dx + dy * dy)
+  return math.sqrt(dx * dx + dy * dy) / 7 -- we're getting a result in seconds, not in yards
 end
 
 local function heap_left(x) return (2*x) end
