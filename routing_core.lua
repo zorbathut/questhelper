@@ -42,7 +42,6 @@ if OptimizationHackery then DebugOutput = false end -- :ughh:
 -- End configuration
 
 local Notifier
-local Dist
 local DistBatch
 
 -- Node storage and data structures
@@ -318,12 +317,10 @@ local function almost(a, b)
 end
 
 -- Initialization
-function QH_Route_Core_Init(PathNotifier, Distance, DistanceBatch)
+function QH_Route_Core_Init(PathNotifier, DistanceBatch)
   Notifier = PathNotifier
-  Dist = Distance
   DistBatch = DistanceBatch
   QuestHelper: Assert(Notifier)
-  QuestHelper: Assert(Dist)
   QuestHelper: Assert(DistBatch)
 end
 -- End initialization

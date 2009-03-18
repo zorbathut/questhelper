@@ -58,6 +58,10 @@ function QH_Route_RegisterNotification(func)
   table.insert(notification_funcs, func)
 end
 
+-- Every minute or two, we dump the inactive and move active to inactive. Every time we touch something, we put it in active.
+local pathcache_active = {}
+local pathcache_inactive = {}
+
 Route_Core_Init(
   function(path)
     local real_path = {}
@@ -76,19 +80,6 @@ Route_Core_Init(
     for _, v in pairs(notification_funcs) do
       v(real_path)
     end
-  end,
-  function(loc1, loc2)
-    QH_Timeslice_Yield()
-    -- Distance function
-    QuestHelper: Assert(loc1.loc)
-    QuestHelper: Assert(loc2.loc)
-    local v = QH_Graph_Pathfind(loc1.loc, loc2.loc)
-    if not v then
-      QuestHelper:TextOut(QuestHelper:StringizeTable(loc1.loc))
-      QuestHelper:TextOut(QuestHelper:StringizeTable(loc2.loc))
-      QuestHelper: Assert(v)
-    end
-    return v
   end,
   function(loc1, loctable, reverse)
     QH_Timeslice_Yield()
