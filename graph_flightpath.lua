@@ -2,7 +2,23 @@ QuestHelper_File["graph_flightpath.lua"] = "Development Version"
 QuestHelper_Loadtime["graph_flightpath.lua"] = GetTime()
 
 function QH_redo_flightpath()
-  do return end
+  
+  -- First, let's figure out if the player can fly.
+  -- The logic we're using: if he has 225 or 300, then he can fly in Outland. If he's got Cold Weather Flying and those levels, he can fly in Northrend.
+  do
+    local ridingLevel = (select(4,GetAchievementInfo(892)) and 300) or (select(4,GetAchievementInfo(890)) and 225) or (select(4,GetAchievementInfo(889)) and 150) or (select(4,GetAchievementInfo(891)) and 75) or 0 -- this is thanks to Maldivia, who is a fucking genius
+    local has_cwf = not not GetSpellInfo(GetSpellInfo(54197))
+    
+    print(ridingLevel, has_cwf)
+    
+    if ridingLevel >= 225 then
+      QH_Graph_Flyplaneset(3) -- Outland
+    end
+    
+    if ridingLevel >= 225 and has_cwf then
+      QH_Graph_Flyplaneset(4) -- Northrend
+    end
+  end
   
   local flightids = DB_ListItems("flightmasters")
   local flightdb = {}

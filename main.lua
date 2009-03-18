@@ -352,6 +352,7 @@ function QuestHelper:Initialize()
 
   self.Astrolabe = DongleStub("Astrolabe-0.4-QuestHelper")
   QuestHelper_BuildZoneLookup()
+  QH_Graph_Init()
   load_graph_links()
 
   if QuestHelper_Locale ~= GetLocale() then

@@ -14,12 +14,6 @@ QuestHelper_Loadtime["graph_core.lua"] = GetTime()
 
 -- Make a map from "phase" to "flyphase". Store all the links we're being told to make. When placing links, if the flyphase is flyable, we use the flyphase instead of the phase for placing. We don't place if it's an internal boundary (there's a few ways we can detect this, but let's just use the hacky one where we just look at the ID.) From there it's all pretty standard.
 
-local function xydist(st, nd)
-  QuestHelper: Assert(st.p == nd.p)
-  local dx, dy = st.x - nd.x, st.y - nd.y
-  return math.sqrt(dx * dx + dy * dy) / 7 -- we're getting a result in seconds, not in yards
-end
-
 local function heap_left(x) return (2*x) end
 local function heap_right(x) return (2*x + 1) end
 
@@ -88,6 +82,25 @@ local grid = 0
 -- Each node contains both its parent ID and its coordinates within that plane. It may contain a node it links to, along with cost.
 local plane = {}
 
+local plane_to_flyplane = {}
+local continent_to_flyplane = {}
+local flyplanes_enabled = {}
+
+-- canonical plane :D
+local function canoplane(plane)
+  if flyplanes_enabled[plane_to_flyplane[plane]] then return plane_to_flyplane[plane] else return plane end
+end
+
+local function xydist(st, nd)
+  QuestHelper: Assert(canoplane(st.p) == canoplane(nd.p))
+  local dx, dy = st.x - nd.x, st.y - nd.y
+  return math.sqrt(dx * dx + dy * dy) / 7 -- we're getting a result in seconds, not in yards
+end
+
+
+
+
+
 function QH_Graph_Pathfind(st, nd, reverse, make_path)
   return QH_Graph_Pathmultifind(st, {nd}, reverse, make_path)[1]
 end
@@ -108,13 +121,14 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   
   for k, v in ipairs(nda) do
     QuestHelper: Assert(v.x and v.y and v.p)
-    if st.p == v.p then
+    local cpvp = canoplane(v.p)
+    if canoplane(st.p) == cpvp then
       out[k] = xydist(st, v)
     else
-      if plane[v.p] then
+      if plane[cpvp] then
       --print("Destination plane insertion")
-        link[k] = {x = v.x, y = v.y, p = v.p, goal = k}
-        table.insert(plane[v.p], link[k])
+        link[k] = {x = v.x, y = v.y, p = cpvp, goal = k}
+        table.insert(plane[cpvp], link[k])
         undone[k] = true
         remaining = remaining + 1
       end
@@ -125,9 +139,9 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   local link_cost_id = reverse and "rlink_cost" or "link_cost"
   
   local dijheap = {}
-  if plane[st.p] then
+  if plane[canoplane(st.p)] then
     --print("ST plane insertion")
-    for _, v in ipairs(plane[st.p]) do
+    for _, v in ipairs(plane[canoplane(st.p)]) do
       if v[link_id] then
         QuestHelper: Assert(not v.goal)
         local dst = xydist(st, v)
@@ -186,8 +200,8 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   QuestHelper: Assert(remaining == 0)
   
   for k, v in ipairs(nda) do
-    if plane[v.p] and plane[v.p][#plane[v.p]].goal then   -- might not be the exact one, but we'll remove 'em all once we get there anyway :D
-      table.remove(plane[v.p])
+    if plane[canoplane(v.p)] and plane[canoplane(v.p)][#plane[canoplane(v.p)]].goal then   -- might not be the exact one, but we'll remove 'em all once we get there anyway :D
+      table.remove(plane[canoplane(v.p)])
     end
   end
   
@@ -235,6 +249,55 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   return out
 end
 
+function QH_Graph_Init()
+  for c, d in pairs(QuestHelper_IndexLookup) do
+    if type(c) == "number" then
+      QuestHelper: Assert(d[0])
+      continent_to_flyplane[c] = d[0]
+      for z, p in pairs(d) do
+        if type(z) == "number" then
+          QuestHelper:TextOut(string.format("%d/%d: %d", c, z, p))
+          plane_to_flyplane[p] = d[0]
+        end
+      end
+    end
+  end
+end
+
+local linkages = {}
+
+local function QH_Graph_Plane_ReallyMakeLink(item)
+  local name, coord1, coord2, cost, cost_reverse = unpack(item)
+  
+  QuestHelper: Assert(not active)
+  
+  --QuestHelper: TextOut(string.format("Link '%s' made from %d/%f/%f to %d/%f/%f of cost %f, asymflag %s", name, coord1.p, coord1.x, coord1.y, coord2.p, coord2.x, coord2.y, cost, tostring(not not asymmetrical)))
+  QuestHelper: Assert(name)
+  QuestHelper: Assert(coord1)
+  QuestHelper: Assert(coord2)
+  QuestHelper: Assert(cost)
+  
+  local node1 = {x = coord1.x, y = coord1.y, p = canoplane(coord1.p), c = coord1.c, map_desc = coord1.map_desc, name = name}
+  local node2 = {x = coord2.x, y = coord2.y, p = canoplane(coord2.p), c = coord2.c, map_desc = coord2.map_desc, name = name}
+  
+  if node1.p == node2.p then
+    -- if they're the same location, we don't want to include them
+    -- right now, "the same location" is being done really, really cheaply
+    -- hey look me! I'm kind of a bastard!
+    
+    if name == "static_transition" then return end -- ha ha, yep, that's how we find out, tooootally reliable
+  end
+  
+  if not plane[node1.p] then plane[node1.p] = {} end
+  if not plane[node2.p] then plane[node2.p] = {} end
+  
+  node1.link, node1.link_cost, node2.rlink, node2.rlink_cost = node2, cost, node1, cost
+  if cost_reverse then node1.rlink, node1.rlink_cost, node2.link, node2.link_cost = node2, cost_reverse, node1, cost_reverse end
+  
+  table.insert(plane[node1.p], node1)
+  table.insert(plane[node2.p], node2)
+end
+
 function QH_Graph_Plane_Makelink(name, coord1, coord2, cost, cost_reverse)
   QuestHelper: Assert(not active)
   
@@ -244,21 +307,14 @@ function QH_Graph_Plane_Makelink(name, coord1, coord2, cost, cost_reverse)
   QuestHelper: Assert(coord2)
   QuestHelper: Assert(cost)
   
-  if not plane[coord1.p] then plane[coord1.p] = {} end
-  if not plane[coord2.p] then plane[coord2.p] = {} end
+  local tlink = {name, coord1, coord2, cost, cost_reverse}
+  if not linkages[name] then linkages[name] = {} end
+  table.insert(linkages[name], tlink)
   
-  local node1 = {x = coord1.x, y = coord1.y, p = coord1.p, c = coord1.c, map_desc = coord1.map_desc, name = name}
-  local node2 = {x = coord2.x, y = coord2.y, p = coord2.p, c = coord2.c, map_desc = coord2.map_desc, name = name}
-  
-  node1.link, node1.link_cost, node2.rlink, node2.rlink_cost = node2, cost, node1, cost
-  
-  if cost_reverse then node1.rlink, node1.rlink_cost, node2.link, node2.link_cost = node2, cost_reverse, node1, cost_reverse end
-  
-  table.insert(plane[node1.p], node1)
-  table.insert(plane[node2.p], node2)
+  QH_Graph_Plane_ReallyMakeLink(tlink)
 end
 
-function QH_Graph_Plane_Destroylinks(name)
+local function QH_Graph_Plane_Destroylinkslocal(name)
   QuestHelper: Assert(not active)
   
   for k, v in pairs(plane) do
@@ -269,5 +325,28 @@ function QH_Graph_Plane_Destroylinks(name)
       end
     end
     plane[k] = repl
+  end
+end
+
+function QH_Graph_Plane_Destroylinks(name)
+  QuestHelper: Assert(not active)
+  
+  linkages[name] = nil
+  
+  QH_Graph_Plane_Destroylinkslocal(name)
+end
+
+function QH_Graph_Flyplaneset(fpset)
+  QuestHelper: Assert(not active)
+  
+  if not flyplanes_enabled[QuestHelper_IndexLookup[fpset][0]] then
+    flyplanes_enabled[QuestHelper_IndexLookup[fpset][0]] = true
+    for k, v in pairs(linkages) do
+      QH_Graph_Plane_Destroylinkslocal(k)
+      
+      for _, ite in pairs(v) do
+        QH_Graph_Plane_ReallyMakeLink(ite)
+      end
+    end
   end
 end
