@@ -176,7 +176,7 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
     end
   end
   
-  QuestHelper:TextOut(string.format("Earlyout with %d/%d remaining", #dijheap, remaining))
+  --QuestHelper:TextOut(string.format("Earlyout with %d/%d remaining", #dijheap, remaining))
   QuestHelper: Assert(remaining == 0)
   
   for k, v in ipairs(nda) do
@@ -263,23 +263,5 @@ function QH_Graph_Plane_Destroylinks(name)
       end
     end
     plane[k] = repl
-  end
-end
-
-
-function QH_Graph_Dumpstats()
-  for k, v in pairs(plane) do
-    local linkto = 0
-    local linkfrom = 0
-    for _, d in ipairs(v) do
-      if d.link then
-        linkto = linkto + 1
-      end
-      if d.rlink then
-        linkfrom = linkfrom + 1
-      end
-    end
-    
-    QuestHelper:TextOut(string.format("Plane %d, %d/%d out of %d", k, linkto, linkfrom, #v))
   end
 end
