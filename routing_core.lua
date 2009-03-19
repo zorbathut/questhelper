@@ -20,7 +20,7 @@ I think this works tomorrow.
 
 ]]
 
-local OptimizationHackery = true
+local OptimizationHackery = false
 
 if OptimizationHackery then DebugOutput = false end -- :ughh:
 
@@ -65,6 +65,8 @@ local DistBatch
   local NodeList = {[1] = StartNode}
   local Distance = {{0}}
   local Weight = {{0}}
+  
+  local DistanceWaiting = {} -- which node indices are waiting for distance data
   
   weight_ave = 0.001
 -- End node storage and data structures
@@ -468,9 +470,43 @@ local function BetterRoute(route)
   Notifier(rt)
 end
 
+local QH_Route_Core_DistanceClear_Local -- sigh
 -- Core process function
 function QH_Route_Core_Process()
   Storage_Loop()
+  
+  -- First we check to see if we need to add more distances, and if so, we do so
+  do
+    local refreshcount = 0
+    for k, v in pairs(DistanceWaiting) do
+      refreshcount = refreshcount + 1
+    end
+    
+    if refreshcount > 0 then
+      QuestHelper:TextOut(string.format("Refreshing %d", refreshcount))
+      if refreshcount >= #ActiveNodes / 2 then
+        -- Refresh everything!
+        QH_Route_Core_DistanceClear_Local()
+      else
+        local tlnod = {}
+        for _, v in ipairs(ActiveNodes) do
+          table.insert(tlnod, NodeList[v])
+        end
+        
+        for idx, _ in pairs(DistanceWaiting) do
+          -- Refresh a subset of things.
+          local forward = DistBatch(NodeList[idx], tlnod)
+          local backward = DistBatch(NodeList[idx], tlnod, true)
+          
+          for k, v in ipairs(ActiveNodes) do
+            Distance[idx][v] = forward[k]
+            Distance[v][idx] = backward[k]
+          end
+        end
+      end
+      DistanceWaiting = {}
+    end
+  end
   
   local worst = 0
   
@@ -630,25 +666,12 @@ end
     NodeLookup[nod] = idx
     NodeList[idx] = nod
     
-    local tlnod = {}
     for _, v in ipairs(ActiveNodes) do
-      table.insert(tlnod, NodeList[v])
-      
       Weight[v][idx] = weight_ave
       Weight[idx][v] = weight_ave
     end
     
-    local forward = DistBatch(NodeList[idx], tlnod)
-    local backward = DistBatch(NodeList[idx], tlnod, true)
-    
-    for k, v in ipairs(ActiveNodes) do
-      --QuestHelper:TextOut(string.format("%f/%f and %f/%f",Dist(NodeList[idx], NodeList[v]), forward[k], Dist(NodeList[v], NodeList[idx]), backward[k]))
-      --QuestHelper:Assert(almost(Dist(NodeList[idx], NodeList[v]), forward[k]))
-      --QuestHelper:Assert(almost(Dist(NodeList[v], NodeList[idx]), backward[k]))
-      Distance[idx][v] = forward[k]
-      Distance[v][idx] = backward[k]
-    end
-    --TestShit()
+    DistanceWaiting[idx] = true
     
     last_best = nil
     
@@ -685,6 +708,8 @@ end
     NodeLookup[nod] = nil
     -- We don't have to modify the table itself, some sections are just "dead".
     --TestShit()
+    
+    DistanceWaiting[idx] = nil -- just in case we haven't updated it in the intervening time
     
     last_best = nil
     
@@ -836,6 +861,7 @@ function QH_Route_Core_DistanceClear()
   
   Storage_Distance_StoreAll()
 end
+QH_Route_Core_DistanceClear_Local = QH_Route_Core_DistanceClear
 
 --[=[
 function findin(tab, val)

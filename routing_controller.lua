@@ -117,6 +117,7 @@ Route_Core_Init(
   end,
   function(loc1, loctable, reverse)
     QH_Timeslice_Yield()
+    QuestHelper: Assert(loc1)
     QuestHelper: Assert(loc1.loc)
     
     if not pathcache_active[loc1] then pathcache_active[loc1] = {} end
