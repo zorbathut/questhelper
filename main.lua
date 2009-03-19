@@ -876,17 +876,7 @@ Known bugs and issues include:
 
   |cff40bbffVastly excessive memory usage (lots of stored debug data, no database compaction, etc)|r
   
-  |cff40bbffErrors generated on talking to flightmaster, taking flight path (just ignore them)|r
-  
-  |cff40bbffDoes not adjust waypoints properly when traveling around|r
-  
   |cff40bbffUntested locale support|r
-  
-  |cff40bbffIncorrect minimap icons|r
-  
-  |cff40bbffFlying mounts not handled properly|r
-  
-  |cff40bbffExtremely bad at generating new paths as the player moves around|r
   
   |cff40bbffExcessive debug output|r
   
