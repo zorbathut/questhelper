@@ -1,6 +1,9 @@
 QuestHelper_File["graph_flightpath.lua"] = "Development Version"
 QuestHelper_Loadtime["graph_flightpath.lua"] = GetTime()
 
+-- Name to Name, gives {time, accurate}
+QH_Flight_Distances = {}
+
 function QH_redo_flightpath()
   
   -- First, let's figure out if the player can fly.
@@ -141,9 +144,21 @@ function QH_redo_flightpath()
   
   QH_Graph_Plane_Destroylinks("flightpath")
   
+  -- reset!
+  QH_Flight_Distances = {}
+  
   for src, t in pairs(adjacency) do
     QH_Timeslice_Yield()
     for dest, dat in pairs(t) do
+      do
+        local sname = flightdb[src].name
+        local dname = flightdb[dest].name
+        
+        if not QH_Flight_Distances[sname] then QH_Flight_Distances[sname] = {} end
+        QuestHelper: Assert(not QH_Flight_Distances[sname][dname])
+        QH_Flight_Distances[sname][dname] = {adjacency[src][dest].dist, not adjacency[src][dest].original}
+      end
+      
       if dat.original and not (src > dest and adjacency[dest][src] and adjacency[dest][src].original) then
         local fms = flightmasters[src]
         local fmd = flightmasters[dest]

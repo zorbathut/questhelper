@@ -46,6 +46,26 @@ local function getRoute(id)
   end
 end
 
+local function getSrcDest(id)
+  local snode
+  for i = 1, NumTaxiNodes() do
+    if GetNumRoutes(i) == 0 then
+      snode = TaxiNodeName(i)
+      break
+    end
+  end
+  local dnode = TaxiNodeName(id)
+  return snode, dnode
+end
+
+local function getEtaEstimate(snode, dnode)
+  local eta, estimate = nil, false
+  if QH_Flight_Distances[snode] and QH_Flight_Distances[snode][dnode] then
+    eta, estimate = unpack(QH_Flight_Distances[snode][dnode])
+  end
+  return eta, estimate
+end
+
 TaxiNodeOnButtonEnter = function(btn, ...)
   QuestHelper: Assert(btn)
   local rv = real_TaxiNodeOnButtonEnter(btn, ...)
@@ -53,15 +73,10 @@ TaxiNodeOnButtonEnter = function(btn, ...)
   if QuestHelper_Pref.flight_time then
     local index = btn:GetID()
     if TaxiNodeGetType(index) == "REACHABLE" then
-      local origin, dest, hash = getRoute(index)
-      local eta, estimate = nil, false
-      if origin then
-        eta = QuestHelper:computeLinkTime(origin, dest, hash, false)
-        if not eta then
-          eta = QuestHelper.flight_times[origin] and QuestHelper.flight_times[origin][dest]
-          estimate = true
-        end
-      end
+      
+      local snode, dnode = getSrcDest(index)
+      
+      local eta, estimate = getEtaEstimate(snode, dnode)
       
       if eta then -- Going to replace the tooltip.
         GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
@@ -81,18 +96,17 @@ TaxiNodeOnButtonEnter = function(btn, ...)
 end
 
 TakeTaxiNode = function(id)
-  local origin, dest, hash = getRoute(id)
+  local src, dest = getSrcDest(id)
   
-  if origin then
+  if src then
     local flight_data = QuestHelper.flight_data
     if not flight_data then
       flight_data = QuestHelper:CreateTable()
       QuestHelper.flight_data = flight_data
     end
     
-    flight_data.origin = origin
+    flight_data.src = src
     flight_data.dest = dest
-    flight_data.hash = hash
     flight_data.start_time = nil
     flight_data.end_time = nil
     flight_data.end_time_estimate = nil
@@ -566,10 +580,12 @@ end
 function QuestHelper:flightBegan()
   if self.flight_data and not self.flight_data.start_time then
     self.flight_data.start_time = GetTime()
-    local origin, dest = self.flight_data.origin, self.flight_data.dest
-    local eta = self:computeLinkTime(origin, dest, self.flight_data.hash,
-                                     self.flight_times[origin] and self.flight_times[origin][dest]) or 0
+    local src, dest = self.flight_data.src, self.flight_data.dest
     
+    
+    local eta, estimate = getEtaEstimate(src, dest)
+    
+    --[[
     local npc = self:getFlightInstructor(self.flight_data.dest) -- Will inform QuestHelper that we're going to be at this NPC in whenever.
     if npc then
       local npc_obj = self:GetObjective("monster", npc)
@@ -585,10 +601,10 @@ function QuestHelper:flightBegan()
         
       end
       npc_obj:DoneRouting()
-    end
+    end]]
     
     if QuestHelper_Pref.flight_time then
-      self.flight_data.end_time_estimate = time()+eta
+      self.flight_data.end_time_estimate = time() + eta
       self:PerformCustomSearch(flight_updater) -- Reusing the search status indicator to display ETA for flight.
     end
   end

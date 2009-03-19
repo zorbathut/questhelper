@@ -823,9 +823,10 @@ function QuestHelper:OnEvent(event)
     end
   end
 
+  --[[
   if event == "TAXIMAP_OPENED" then
     self:taxiMapOpened()
-  end
+  end]]
   
   if event == "PLAYER_CONTROL_GAINED" then
     interruptcount = interruptcount + 1
