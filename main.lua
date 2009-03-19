@@ -876,8 +876,6 @@ Known bugs and issues include:
 
   |cff40bbffVastly excessive memory usage (lots of stored debug data, no database compaction, etc)|r
   
-  |cff40bbffUntested locale support|r
-  
   |cff40bbffExcessive debug output|r
   
   |cff40bbffNo support for objective priority or ignoring|r
