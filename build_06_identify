@@ -39,6 +39,6 @@ for tag in touchfiles:
     
     if not os.path.exists("data/06/%s/%s" % (tag[0:2], tag)):
       os.makedirs("data/06/%s/%s" % (tag[0:2], tag))
-    os.symlink("../../../../%s" % collatefiles[tag], "data/06/%s/%s/%s_%s" % (tag[0:2], tag, id, ts))
+    os.link(collatefiles[tag], "data/06/%s/%s/%s_%s" % (tag[0:2], tag, id, ts))
 
 

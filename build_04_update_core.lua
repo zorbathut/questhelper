@@ -61,7 +61,10 @@ end
 -- now it gets complicated
 for _, v in pairs(csave.QuestHelper_Collector) do
   if v.compressed then
-    local deco = "return " .. LZW.Decompress(v.compressed, 256, 8)
+    local rv, dat = pcall(LZW.Decompress, v.compressed, 256, 8)
+    if not rv then print("    Error!") v.compressed = nil v.invalid = true continue end
+    
+    local deco = "return " .. dat
     local tx = loadstring(deco)()
     assert(tx)
     v.compressed = nil
@@ -107,6 +110,8 @@ local function dumpout(compdat)
 end
 
 for k, v in pairs(csave.QuestHelper_Collector) do
+  if v.invalid then continue end
+  
   local compdat = {}
   if v.modified then
     compdat.modified = v.modified

@@ -1,34 +1,214 @@
 #!/usr/bin/lua
 
+require("luarocks.require")
+require("pluto")
+require("gzio")
+local d, e = loadfile("../compile_chain.lua")
+print(e)
+if not d then d, e = loadfile("compile_chain.lua") end
+print(e)
+d()
+
+ChainBlock_Init("/nfs/build/optimize", "optimize_route.lua", function () 
+  os.execute("rm -rf intermed")
+  os.execute("mkdir intermed")
+
+  os.execute("rm -rf final")
+  os.execute("mkdir final") end, ...)
+
+local printworking = false
+
+local fil = gzio.open("dumpdata.gz", "r")
+local str = fil:read("*a")
+fil:close()
+local dats = pluto.unpersist({}, str)
+
+local function parse2uns(str, ofs)
+  local a, b = str:byte(ofs, ofs + 1)
+  return a + b * 256
+end
+
+local instpacks = {}
+
+for _, v in pairs(dats) do
+  local dts = v.data
+  
+  local instructions = {}
+
+  local clustsizes = {}
+
+  local nodes_right_now = 1
+  local loops = 0
+  local moves = 0
+  local cps = 1
+  while cps <= #dts do
+    local inst = dts:sub(cps, cps)
+    cps = cps + 1
+    
+    if inst == "#" then
+      local chunky = {}
+      for i = 1, nodes_right_now * nodes_right_now do
+        table.insert(chunky, parse2uns(dts, cps + i * 2 - 2))
+      end
+      cps = cps + 2 * nodes_right_now * nodes_right_now
+      
+      table.insert(instructions, function(env)
+          if printworking then print("working", inst) end
+          env.Unstorage_SetDists(chunky)
+        end
+      )
+    elseif inst == "A" then
+      local nod = parse2uns(dts, cps)
+      nodes_right_now = nodes_right_now + 1
+      cps = cps + 2
+      
+      assert(dts:sub(cps, cps) == "X")
+      cps = cps + 1
+      
+      local chunky = {}
+      for i = 1, nodes_right_now * 2 - 1 do
+        table.insert(chunky, parse2uns(dts, cps + i * 2 - 2))
+      end
+      cps = cps + 2 * (nodes_right_now * 2 - 1)
+      
+      assert(dts:sub(cps, cps) == "X")
+      cps = cps + 1
+      
+      table.insert(instructions, function(env)
+          if printworking then print("working", inst) end
+          env.Unstorage_Add(nod)
+          env.Unstorage_SetDistsX(nod, chunky)
+          env.Unstorage_Nastyscan()
+        end
+      )
+    elseif inst == "-" then
+      local nod = parse2uns(dts, cps)
+      cps = cps + 2
+      moves = moves + 1
+      
+      local chunky = {}
+      for i = 1, nodes_right_now do
+        table.insert(chunky, parse2uns(dts, cps + i * 2 - 2))
+      end
+      cps = cps + 2 * nodes_right_now
+      
+      table.insert(instructions, function(env)
+          if printworking then print("working", inst) end
+          env.Unstorage_SetDistsLine(nod, chunky)
+        end
+      )
+    elseif inst == "R" then
+      local nod = parse2uns(dts, cps)
+      cps = cps + 2
+      
+      table.insert(instructions, function(env)
+          if printworking then print("working", inst) end
+          env.Unstorage_Remove(nod)
+        end
+      )
+    elseif inst == "C" then
+      local nod = parse2uns(dts, cps)
+      cps = cps + 2
+      local ct = parse2uns(dts, cps)
+      cps = cps + 2
+      
+      clustsizes[nod] = ct
+      local chunky = {}
+      for i = 1, ct do
+        table.insert(chunky, parse2uns(dts, cps + i * 2 - 2))
+      end
+      cps = cps + 2 * ct
+      
+      table.insert(instructions, function(env)
+          if printworking then print("working", inst) end
+          env.Unstorage_ClusterAdd(nod, chunky)
+        end
+      )
+    elseif inst == "D" then
+      local nod = parse2uns(dts, cps)
+      cps = cps + 2
+      nodes_right_now = nodes_right_now - clustsizes[nod]
+      
+      table.insert(instructions, function(env)
+          if printworking then print("working", inst) end
+          env.Unstorage_ClusterRemove(nod)
+        end
+      )
+    elseif inst == ">" then
+      local a = parse2uns(dts, cps)
+      cps = cps + 2
+      local b = parse2uns(dts, cps)
+      cps = cps + 2
+      
+      table.insert(instructions, function(env)
+          if printworking then print("working", inst) end
+          env.Unstorage_Link(a, b)
+        end
+      )
+    elseif inst == "L" then
+      local ct = math.sqrt(parse2uns(dts, cps))
+      cps = cps + 2
+      
+      loops = loops + ct
+      
+      table.insert(instructions, function(env, lep)
+          if printworking then print("working", inst, ct) end
+          for i = 1, ct do
+            env.QH_Route_Core_Process()
+            lep.loopid = lep.loopid + 1
+          end
+        end
+      )
+    else
+      print("Invalid instruction", inst)
+      assert(false)
+    end
+    
+    --print(inst)
+    assert(dts:sub(cps, cps) == inst)
+    cps = cps + 1
+  end
+  
+  print(v.src, #dts, loops, moves, #instructions)
+  
+  if loops < 10 then continue end
+  
+  table.insert(instpacks, instructions)
+end
+
+
 params = {
-  PheremonePreservation = 0.78, -- must be within 0 and 1 exclusive
+  PheremoneDePreservation = 0.015,
+  PheremonePreservation = 0.985, -- must be within 0 and 1 exclusive
   AntCount = 20, -- number of ants to run before doing a pheremone pass
 
     -- Weighting for the various factors
-  WeightFactor = 0.794,
-  DistanceFactor = -3.2582,
-  DistanceDeweight = 1.658, -- Add this to all distances to avoid sqrt(-1) deals
+  WeightFactor = 0.8,
+  DistanceFactor = -1.666,
+  DistanceDeweight = 1.5, -- Add this to all distances to avoid sqrt(-1) deals
   
   -- Small amount to add to all weights to ensure it never hits, and to make sure things can still be chosen after a lot of iterations
-  UniversalBonus = 0.24,
+  UniversalBonus = 0.06,
   
   -- Weight added is 1/([0-1] + BestWorstAdjustment)
-  BestWorstAdjustment = 0.0159,
-  
-  -- How much do we want to factor in the "reverse path" weights
-  AsymmetryFactor = 0.319,
-  SymmetryFactor = 0.436,
+  BestWorstAdjustment = 5.5,
 }
-  
-fil = loadfile("routing_core.lua")
 
-local locs = {{c = 3, x = 6148.707357, y = 5091.281657}, {c = 3, x = 9324.505029, y = 6163.559766}, {c = 3, x = 9290.955946, y = 6120.975098}, {c = 3, x = 9243.106376, y = 6477.550084}, {c = 3, x = 10365.644857, y = 6503.041829}, {c = 3, x = 8147.979297, y = 5676.278516}, {c = 3, x = 8278.651440, y = 6115.253888}, {c = 3, x = 9701.470252, y = 5429.488469}, {c = 3, x = 10379.974494, y = 6634.162282}, {c = 3, x = 9189.003791, y = 6563.805779}, {c = 3, x = 8649.705715, y = 5726.509235}, {c = 3, x = 9473.352180, y = 8645.523079}, {c = 3, x = 9677.333618, y = 8414.165283}, {c = 3, x = 8760.858226, y = 7924.901148}, {c = 3, x = 9013.065085, y = 8814.483284}, {c = 3, x = 9674.244010, y = 8409.742839}, {c = 3, x = 9513.802786, y = 8060.689325}, {c = 3, x = 9058.408033, y = 8793.569718}, {c = 3, x = 7798.000890, y = 9571.495972}, {c = 3, x = 7794.069459, y = 9572.858443}, {c = 3, x = 7587.950966, y = 9559.507710}, {c = 3, x = 7675.680767, y = 9571.430476}, {c = 3, x = 7585.729297, y = 9566.052865}, {c = 3, x = 8683.762444, y = 9564.317903}, {c = 3, x = 7611.548187, y = 9546.419312}, {c = 3, x = 8411.285648, y = 7932.874888}, {c = 3, x = 7507.377181, y = 7453.321354}, {c = 3, x = 8484.006100, y = 8811.209176}, {c = 3, x = 8483.132253, y = 8810.124242}, {c = 3, x = 7933.429399, y = 8650.160156}, {c = 3, x = 8655.075141, y = 8791.576931}, {c = 3, x = 7373.858545, y = 8823.803223}, {c = 3, x = 9048.977614, y = 8745.243765}, {c = 3, x = 8891.459501, y = 9242.205308}, {c = 3, x = 8909.817727, y = 9332.126321}, {c = 3, x = 8969.741602, y = 9312.919287}, {c = 3, x = 8944.376648, y = 9426.356812}, {c = 3, x = 7932.564331, y = 8665.130664}, {c = 3, x = 8282.388607, y = 9574.142513}, {c = 3, x = 7591.332919, y = 9573.745872}, {c = 3, x = 4493.332031, y = 5555.407138}, {c = 3, x = 4506.751332, y = 5553.642756}, {c = 3, x = 6742.723929, y = 6096.852942}, {c = 3, x = 7493.965862, y = 6073.316797}, }
+fil, err = loadfile("routing_core.lua")
+
+
 
 local function MakeLoc(c, x, y, title)
   return {desc = title or "Test", why = meta, loc = {c = c, x = x, y = y}}
 end
 
-local function GetValue(params)
+local function GetValue(params, itix)
+  local ct = os.time()
+  local aculen = 0
+  
+  local inst = instpacks[itix]
+  
+
   local env = {}
   setfenv(fil, env)
   
@@ -46,79 +226,125 @@ local function GetValue(params)
   env.string = string
   env.table = table
   env.print = print
+  env.debug = debug -- :ughh:
   
   fil()
   
-  for k, v in pairs(params) do
-    env[k] = v
-  end
+  env.Unstorage_Magic(params)
   
-  local bestlen
-  local pass = 0
-  env.Public_Init(
-    function(path) --[[print(string.format("Path notified! New weight is %f at %d", path.distance, pass))]] bestlen = path.distance end,
-    function(loc1, loc2)
-      -- Distance function
-      if loc1.loc.c == loc2.loc.c then
-        local dx = loc1.loc.x - loc2.loc.x
-        local dy = loc1.loc.y - loc2.loc.y
-        return math.sqrt(dx * dx + dy * dy)
-      else
-        return 1000000 -- one milllllion time units
-      end
+  local lopid = {loopid = 0}
+  
+  local lastlen = 0
+  local lastloop = 0
+  env.QH_Route_Core_Init(
+    function(path)
+      aculen = aculen + lastlen * (lopid.loopid - lastloop)
+      lastlen = path.distance
+      lastloop = lopid.loopid
     end,
-    function() end
+    function() end,
+    function() return {} end
   )
   
-  env.Public_SetStart(MakeLoc(3, 7532, 7678))
-  
-  for k, v in pairs(locs) do
-    env.Public_NodeAdd(MakeLoc(v.c, v.x, v.y))
+  for _, v in ipairs(inst) do
+    v(env, lopid)
   end
   
-  --local v = os.time()
-  for k = 1, (1000 / params.AntCount) do
-    pass = k
-    env.ProcessOnePass()
-  end
-  --local d = os.time()
-  --print(d - v)
-  
-  return bestlen
+  print(aculen, os.time() - ct)
+  return aculen
 end
 
-local function GetSeriousValue(params)
+
+
+local chainhead = ChainBlock_Create("work", nil,
+  function () return {
+    Data = function (self, key, subkey, value, Output)
+      Output(tostring(value.fn), nil, {sig = value.sig, val = GetValue(value.params, value.item)})
+    end
+  } end
+)
+
+local dumper = ChainBlock_Create("dumper", {chainhead},
+  function (key) return {
+    acu = {},
+    
+    Data = function (self, key, subkey, value, Output)
+      self.acu[value.sig] = (self.acu[value.sig] or 0) + value.val
+    end,
+    Finish = function (self)
+      local st = pluto.persist({}, self.acu)
+      local dt = gzio.open(key, "w")
+      dt:write(st)
+      dt:close()
+    end
+  } end
+)
+
+if ChainBlock_Work() then return end
+
+
+
+--[[local function GetSeriousValue(params)
   local acu = 0
   local passes = 10
   for k = 1, passes do
     acu = acu + GetValue(params)
   end
   return acu / passes
-end
+end]]
 
+local iterations = 0
 local best_params = params
 while true do
-  local bsf = GetSeriousValue(best_params)
-  local bsf_p = best_params
-  print(string.format("Starting with value %f:", bsf))
-  for k, v in pairs(bsf_p) do
+  for k, v in pairs(best_params) do
     print(string.format("  %s: %f", k, v))
   end
-  best_params = bsf_p
   
-  for i = 0, 10 do
+  local these_params = {}
+  local fn = "data_" .. tostring(iterations) .. ".gz"
+  
+  for i = 1, 10 do
     local tparams = {}
-    for k, v in pairs(best_params) do
-      tparams[k] = v * (math.random() / 5 + 0.9)
+    if i == 1 then
+      tparams = best_params
+    else
+      for k, v in pairs(best_params) do
+        tparams[k] = v * (math.random() / 5 + 0.9)
+      end
     end
     
-    local tsf = GetSeriousValue(tparams)
+    tparams.AntCount = 20
+    tparams.PheremonePreservation = 1 - tparams.PheremoneDePreservation
     
-    if tsf < bsf then
-      bsf = tsf
-      bsf_p = tparams
+    for k = 1, #instpacks do
+      chainhead:Insert(string.format("%d", i), nil, {fn = fn, sig = i, params = tparams, item = k})
+    end
+    
+    table.insert(these_params, tparams)
+  end
+  
+  chainhead:Finish()
+  os.execute("rm -rf temp")
+  os.execute("mkdir temp")
+  
+  local fil = gzio.open(fn, "r")
+  local str = fil:read("*a")
+  fil:close()
+  local dats = pluto.unpersist({}, str)
+  print(#dats)
+  assert(#dats == 10)
+  
+  local bsv = dats[1]
+  local tbsv = 1
+  for i = 1, 10 do
+    print(dats[i])
+    if dats[i] < bsv then
+      bsv = dats[i]
+      tbsv = i
     end
   end
   
-  best_params = bsf_p
+  best_params = these_params[tbsv]
+  
+  iterations = iterations + 1
 end

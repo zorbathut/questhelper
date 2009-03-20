@@ -34,7 +34,7 @@ for tag in touchfiles:
     
     os.makedirs("upgradetemp")
     
-    utility.exe_bin("lua build_04_update_core.lua %s upgradetemp" % collatefiles[tag])
+    utility.exe_bin("luajit -O2 build_04_update_core.lua %s upgradetemp" % collatefiles[tag])
     
     try:
       os.makedirs("data/04/%s" % (tag[0:2]))

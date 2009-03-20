@@ -34,7 +34,7 @@ ll, err = package.loadlib("/nfs/build/libcompile_core.so", "init")
 if not ll then print(err) return end
 ll()
 
-ChainBlock_Init(function () 
+ChainBlock_Init("/nfs/build", "compile.lua", function () 
   os.execute("rm -rf intermed")
   os.execute("mkdir intermed")
 
@@ -1431,7 +1431,7 @@ if do_compile and do_flight then
       Finish = function(self, Output, Broadcast)
         table.sort(self.dat)
         
-        local chop = math.floor(#self.dat / 5)
+        local chop = math.floor(#self.dat / 3)
         
         local acu = 0
         local ct = 0
@@ -1500,7 +1500,7 @@ if do_compile and do_flight then
       Finish = function(self, Output, Broadcast)
         print("finnish")
         for k, v in ipairs(self.table) do
-          Output(string.format("*/%s", key), nil, {id = "flightmasters", key = k, data = {mid = v.mid}}, "output_direct")
+          Output(string.format("*/%s", key), nil, {id = "flightmasters", key = k, data = {mid = v.mid}}, "output")
           for l, n in pairs(v.names) do
             Output(string.format("%s/%s", l, key), nil, {id = "flightmasters", key = k, data = {name = n}}, "output_direct")
           end
@@ -1610,6 +1610,15 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
         end
       end end
       
+      if self.finalfile.flightmasters then for k, v in pairs(self.finalfile.flightmasters) do
+        for _, d in pairs(v) do
+          if d.mid then
+            mark_chains(self.finalfile, {{sourcetype = "monster", sourceid = d.mid}})
+          end
+        end
+        v.used = true
+      end end
+      
       -- Then we optionally cull and unmark
       for t, d in pairs(self.finalfile) do
         local repl = {}
@@ -1694,13 +1703,15 @@ QuestHelper_Loadtime["%s.lua"] = GetTime()
         fil:write(([[if GetLocale() ~= "%s" then return end]]):format(locale), "\n")
       end
       if faction then
-        fil:write(([[if (UnitFactionGroup("player") == "Alliance" and 1 or 2) == %s then return end]]):format(faction), "\n")
+        fil:write(([[if (UnitFactionGroup("player") == "Alliance" and 1 or 2) ~= %s then return end]]):format(faction), "\n")
       end
       fil:write("\n")
       
-      fil:write("loadstring([[table.insert(QHDB, ")
+      --fil:write("loadstring([[table.insert(QHDB, ")
+      fil:write("table.insert(QHDB, ")
       persistence.store(fil, self.finalfile)
-      fil:write(")]])()")
+      fil:write(")")
+      --fil:write(")]])()")
       
       fil:close()
     end,
@@ -1799,10 +1810,10 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
-local e = 1000
+local e = 100
 
 local function readdir()
-  local pip = io.popen(("find data/08 -type l | head -n %s | tail -n +%s"):format(e or 1000000000, s or 0))
+  local pip = io.popen(("find data/08 -type f | head -n %s | tail -n +%s"):format(e or 1000000000, s or 0))
   local flist = pip:read("*a")
   pip:close()
   local filz = {}

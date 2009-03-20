@@ -54,10 +54,12 @@ I'm pretty sure this works, but I'm running out of hard drive space.
 
 require("luarocks.require")
 require("md5")
-require("persistence")
 require("pluto")
 require("gzio")
 require("bit")
+
+if not push_file_id then push_file_id = function () end end
+if not pop_file_id then pop_file_id = function () end end
 
 local nextProgressTime = 0
 
@@ -122,9 +124,14 @@ local shard_ips = {}
 
 local block_lookup = {}
 
-function ChainBlock_Init(init_f)
+local fname
+local path
+
+function ChainBlock_Init(path_f, fname_f, init_f)
   if arg[1] == "master" then
     mode = MODE_MASTER
+    path = path_f
+    fname = fname_f
     init_f()
     
     os.execute("rm -rf temp_removing")
@@ -134,7 +141,12 @@ function ChainBlock_Init(init_f)
     shard = 0
     
     for k = 2, #arg do
-      table.insert(shard_ips, arg[k])
+      local ip, ct = arg[k]:match("(.+)x([0-9]+)")
+      assert(ip)
+      assert(ct)
+      for v = 1, ct do
+        table.insert(shard_ips, ip)
+      end
     end
     shard_count = #shard_ips
     
@@ -169,6 +181,7 @@ function ChainBlock_Work()
     local hnd = io.popen(string.format("ls %s", prefix))
     
     local tblock = block_lookup[slaveblock]
+    assert(tblock)
     local ckey = nil
     
     local lines = {}
@@ -245,7 +258,10 @@ local function md5_clean(dat)
 end
 
 local function shardy(dat, shards)
+  if tonumber(dat) then return math.mod(tonumber(dat), shards) + 1 end
+  
   local binny = md5.sum(dat)
+  assert(shards)
   local v = 0
   for k = 1, 4 do
     v = v * 256
@@ -346,7 +362,7 @@ function ChainBlock:Finish()
     
     local pypes = {}
     for k = 1, shard_count do
-      table.insert(pypes, io.popen(string.format("ssh %s \"cd /nfs/build && luajit -O2 compile.lua slave %s %d %d\"", shard_ips[k], self.id, k, shard_count), "w"))
+      table.insert(pypes, io.popen(string.format("ssh %s \"cd %s && nice luajit -O2 %s slave %s %d %d\"", shard_ips[k], path, fname, self.id, k, shard_count), "w"))
     end
     for k, v in pairs(pypes) do
       v:close()

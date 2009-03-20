@@ -35,6 +35,6 @@ for tag in touchfiles:
     print("Linking %s" % tag)
     if not os.path.exists("data/05/%s" % (tag[0:2])):
       os.makedirs("data/05/%s" % (tag[0:2]))
-    os.symlink("../../../%s" % datafiles[tag], "data/05/%s/%s" % (tag[0:2], tag))
+    os.link(datafiles[tag], "data/05/%s/%s" % (tag[0:2], tag))
 
 

@@ -38,6 +38,6 @@ for tag in touchfiles:
     id, ts = match.group(1), match.group(2)
     if not os.path.exists("data/07/%s/%s" % (id[0:2], id)):
       os.makedirs("data/07/%s/%s" % (id[0:2], id))
-    os.symlink("../../../../%s" % idfiles[tag], "data/07/%s/%s/%s" % (id[0:2], id, ts))
+    os.link(idfiles[tag], "data/07/%s/%s/%s" % (id[0:2], id, ts))
 
 

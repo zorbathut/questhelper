@@ -51,12 +51,13 @@ def doDecompress(tag, filename, formatstring):
 
 failures = [
   # Pictures!
-  "PNG image data",
+  "PNG image",
   "JPEG image data",
   "GIF image data",
   "PC bitmap data",
   "Targa image data", # I think we've got all the major ones now, right?
   "TIFF image data", # Come on. TIFF? Seriously? TIFF?
+  "PC bitmap",
   
   # Totally worthless
   "vCard visiting card",
@@ -64,6 +65,7 @@ failures = [
   "PGP signature",
   "PGP public key block",
   "MS Windows shortcut", # sigh
+  "graphviz graph text",
   "very short file (no magic)", # There certainly won't be anything useful in here.
   "empty", # Yeah.
   
@@ -82,6 +84,9 @@ failures = [
   
   # Virus!
   "Microsoft ASF",
+  
+  # At some point maybe this could be handled also
+  "Zip archive data, at least v2.0 to extract",
 ]
 
 texttypes = [
@@ -138,7 +143,7 @@ for tag in touchfiles:
             texty = True
       if texty and ftype.find("text") != -1 or ftype == "data":
         os.makedirs("data/02/%s/%s" % (tag[0:2], tag))
-        os.symlink("../../../../%s" % currentfiles[tag], "data/02/%s/%s/%s" % (tag[0:2], tag, tag))
+        os.link(currentfiles[tag], "data/02/%s/%s/%s" % (tag[0:2], tag, tag))
         handled = True
     
     assert(handled)
