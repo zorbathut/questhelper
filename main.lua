@@ -549,7 +549,7 @@ function QuestHelper:Initialize()
 end
 
 local startup_time
-local please_donate_enabled = true
+local please_donate_enabled = false
 local please_donate_initted = false
 
 function QuestHelper:OnEvent(event)

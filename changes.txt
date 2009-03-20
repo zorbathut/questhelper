@@ -1,4 +1,16 @@
 
+== Version 0.95 3/20/2009 ==
+
+* Disable donation request.
+
+Bad news, everyone. Questhelper's dead.
+
+Blizzard just posted their new UI Add-On Development Policy at http://www.worldofwarcraft.com/policy/ui.html. The important part is that I'm no longer allowed to ask for donations in-client. I know how much I got before I added the in-client reminder - it doesn't pay a significant fraction of the bills. And, as much as I like you guys, good intentions don't pay for my apartment.
+
+So that's it. I'm going to be finishing up and releasing v1.0, and I'll keep posting incremental database improvements every month or two. I do plan to keep QH functional, at least through the end of Wrath, and probably further. I've got one or two features in mind that I want to do for my own sake - a few achievements, mostly - but besides that (and the v1.0 release) that's pretty much all there's going to be.
+
+Sorry. Let Blizzard know if you don't like it. :)
+
 == Version 0.94 3/17/2009 ==
 
 * Update database.
