@@ -96,6 +96,7 @@ local function ReplotPath()
   
   local distance = 0
   for k, v in ipairs(last_path) do
+    QuestHelper: Assert(not v.condense_type) -- no
     v.distance = distance -- I'm not a huge fan of mutating things like this, but it is safe, and these nodes are technically designed to be modified during runtime anyway
     table.insert(real_path, v)
     if last_path[k + 1] then
@@ -103,10 +104,32 @@ local function ReplotPath()
       distance = distance + nrt.d
       QuestHelper: Assert(nrt)
       
+      -- The "condense" is kind of weird - we're actually condensing descriptions, but we condense to the *last* item. Urgh.
+      local condense_start = nil
+      local condense_type = nil
+      local condense_to = nil
+      
+      -- ugh this is just easier
+      local function condense_doit()
+        for i = condense_start, #real_path do
+          real_path[i].map_desc = condense_to
+        end
+        condense_start, condense_type, condense_to = nil, nil, nil
+      end
+      
       if nrt.path then for _, wp in ipairs(nrt.path) do
         QuestHelper: Assert(wp.c)
+        
+        if condense_type and condense_type ~= wp.condense_type then condense_doit() end
+        
         table.insert(real_path, {loc = {x = wp.x, y = wp.y, c = wp.c}, ignore = true, map_desc = wp.map_desc, map_desc_chain = last_path[k + 1]}) -- Technically, we'll end up with the distance to the next objective. I'm okay with this.
+        
+        if not condense_type and wp.condense_type then
+          condense_start, condense_type, condense_to = #real_path, wp.condense_type, wp.map_desc
+        end
       end end
+      
+      if condense_type then condense_doit() end -- in case we have stuff left over
     end
   end
   

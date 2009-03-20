@@ -874,7 +874,7 @@ This is a |cffff8000pre-pre-prealpha of QuestHelper|r. Yes. That's right. It is 
 
 Known bugs and issues include:
 
-  |cff40bbffVastly excessive memory usage (lots of stored debug data, no database compaction, etc)|r
+  |cff40bbffVastly excessive memory usage (lots of stored debug data, no database compaction, lots of dead code and dead data left over from 0.x, etc)|r
   
   |cff40bbffExcessive debug output|r
   
