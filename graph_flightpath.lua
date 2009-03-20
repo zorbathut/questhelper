@@ -165,8 +165,9 @@ function QH_redo_flightpath()
         if fms and fmd then
           fms = fms.loc[1]
           fmd = fmd.loc[1]
-          local snode = {x = fms.x, y = fms.y, c = fms.c, p = QuestHelper_IndexLookup[fms.rc][fms.rz], map_desc = {string.format("Flightpath to %s", flightdb[dest].name)}}
-          local dnode = {x = fmd.x, y = fmd.y, c = fmd.c, p = QuestHelper_IndexLookup[fmd.rc][fmd.rz], map_desc = {string.format("Flightpath to %s", flightdb[dest].name)}}
+          
+          local snode = {x = fms.x, y = fms.y, c = fms.c, p = QuestHelper_IndexLookup[fms.rc][fms.rz], map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("FLIGHT_POINT", flightdb[dest].name))}, condense_class = "flightpath"}
+          local dnode = {x = fmd.x, y = fmd.y, c = fmd.c, p = QuestHelper_IndexLookup[fmd.rc][fmd.rz], map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("FLIGHT_POINT", flightdb[src].name))}, condense_class = "flightpath"}
           
           local ret = adjacency[dest][src] and adjacency[dest][src].original and adjacency[dest][src].dist
           QH_Graph_Plane_Makelink("flightpath", snode, dnode, dat.dist, ret)

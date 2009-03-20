@@ -85,6 +85,7 @@ local plane = {}
 local plane_to_flyplane = {}
 local continent_to_flyplane = {}
 local flyplanes_enabled = {}
+local plane_multiplier = {}
 
 -- canonical plane :D
 local function canoplane(plane)
@@ -94,7 +95,7 @@ end
 local function xydist(st, nd)
   QuestHelper: Assert(canoplane(st.p) == canoplane(nd.p))
   local dx, dy = st.x - nd.x, st.y - nd.y
-  return math.sqrt(dx * dx + dy * dy) / 7 -- we're getting a result in seconds, not in yards
+  return math.sqrt(dx * dx + dy * dy) / (plane_multiplier[canoplane(nd.p)] or 7) -- we're getting a result in seconds, not in yards
 end
 
 
@@ -226,7 +227,7 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
             QuestHelper: Assert(cpx.rlink)
             table.insert(tpath, cpx.rlink)
           else
-          QuestHelper: Assert(cpx.link)
+            QuestHelper: Assert(cpx.link)
             table.insert(tpath, cpx.link)
           end
           QuestHelper: Assert(cpx)
@@ -277,8 +278,8 @@ local function QH_Graph_Plane_ReallyMakeLink(item)
   QuestHelper: Assert(coord2)
   QuestHelper: Assert(cost)
   
-  local node1 = {x = coord1.x, y = coord1.y, p = canoplane(coord1.p), c = coord1.c, map_desc = coord1.map_desc, name = name}
-  local node2 = {x = coord2.x, y = coord2.y, p = canoplane(coord2.p), c = coord2.c, map_desc = coord2.map_desc, name = name}
+  local node1 = {x = coord1.x, y = coord1.y, p = canoplane(coord1.p), c = coord1.c, map_desc = coord1.map_desc, condense_class = coord1.condense_class, name = name}
+  local node2 = {x = coord2.x, y = coord2.y, p = canoplane(coord2.p), c = coord2.c, map_desc = coord2.map_desc, condense_class = coord2.condense_class, name = name}
   
   if node1.p == node2.p then
     -- if they're the same location, we don't want to include them
@@ -348,5 +349,7 @@ function QH_Graph_Flyplaneset(fpset)
         QH_Graph_Plane_ReallyMakeLink(ite)
       end
     end
+    
+    plane_multiplier[QuestHelper_IndexLookup[fpset][0]] = 27 -- We're assuming epic flying mount.
   end
 end

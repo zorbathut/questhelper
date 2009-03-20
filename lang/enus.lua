@@ -214,6 +214,7 @@ QuestHelper_Translations.enUS =
   TRAVEL_ESTIMATE = "Estimated travel time:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Visit %h1 en route to:",
+  FLIGHT_POINT = "%1 flight point",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",

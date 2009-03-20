@@ -93,14 +93,19 @@ local function ReplotPath()
   local real_path = {}
   hits = 0
   misses = 0
+  
+  local distance = 0
   for k, v in ipairs(last_path) do
+    v.distance = distance -- I'm not a huge fan of mutating things like this, but it is safe, and these nodes are technically designed to be modified during runtime anyway
     table.insert(real_path, v)
     if last_path[k + 1] then
       local nrt = GetCachedPath(last_path[k], last_path[k + 1])
+      distance = distance + nrt.d
       QuestHelper: Assert(nrt)
+      
       if nrt.path then for _, wp in ipairs(nrt.path) do
         QuestHelper: Assert(wp.c)
-        table.insert(real_path, {loc = {x = wp.x, y = wp.y, c = wp.c}, ignore = true, map_desc = wp.map_desc})
+        table.insert(real_path, {loc = {x = wp.x, y = wp.y, c = wp.c}, ignore = true, map_desc = wp.map_desc, map_desc_chain = last_path[k + 1]}) -- Technically, we'll end up with the distance to the next objective. I'm okay with this.
       end end
     end
   end
