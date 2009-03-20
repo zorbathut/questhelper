@@ -199,8 +199,8 @@ function load_graph_links()
       local src = convert_coordinate(v[1])
       local dst = convert_coordinate(v[2])
       QuestHelper: Assert(src.x and dst.x)
-      src.map_desc = QHFormat("WAYPOINT_REASON", QuestHelper_NameLookup[v[2][1]])
-      dst.map_desc = QHFormat("WAYPOINT_REASON", QuestHelper_NameLookup[v[1][1]])
+      src.map_desc = {QHFormat("WAYPOINT_REASON", QuestHelper_NameLookup[v[2][1]])}
+      dst.map_desc = {QHFormat("WAYPOINT_REASON", QuestHelper_NameLookup[v[1][1]])}
       
       local rev_cost = v[3]
       if v[4] then rev_cost = nil end
