@@ -9,7 +9,9 @@ Blizzard just posted their new UI Add-On Development Policy at http://www.worldo
 
 So that's it. I'm going to be finishing up and releasing v1.0, and I'll keep posting incremental database improvements every month or two. I do plan to keep QH functional, at least through the end of Wrath, and probably further. I've got one or two features in mind that I want to do for my own sake - a few achievements, mostly - but besides that (and the v1.0 release) that's pretty much all there's going to be.
 
-Sorry. Let Blizzard know if you don't like it. :)
+I would like to say: thanks to everyone who donated in the past. I enjoyed working on this quite a bit, and I always enjoyed seeing another donation come in - not just because of the money, but because it meant that people wanted to use QH and wanted to keep it going.
+
+Let Blizzard know if you don't like it, and if I can get an exception, I'll start everything right back up again :)
 
 == Version 0.94 3/17/2009 ==
 
