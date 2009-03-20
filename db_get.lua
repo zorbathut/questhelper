@@ -46,7 +46,19 @@ function DB_GetItem(group, id)
     --print(db, db[group], db[group] and db[group][id], type(group), type(id))
     if db[group] and db[group][id] then
       if not ite then ite = {} end
-      for k, v in pairs(db[group][id]) do
+      
+      local srctab
+      
+      if type(db[group][id]) == "string" then
+        srctab = loadstring("return " .. db[group][id])()
+      elseif type(db[group][id]) == "table" then
+        srctab = db[group][id]
+      else
+        print(type(db[group][id]))
+        QuestHelper: Assert()
+      end
+      
+      for k, v in pairs(srctab) do
         QuestHelper: Assert(not ite[k])
         ite[k] = v
       end
