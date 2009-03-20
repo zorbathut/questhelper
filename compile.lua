@@ -19,6 +19,8 @@ local do_compile = true
 local do_questtables = true
 local do_flight = true
 
+local do_compress = true
+
 local dbg_data = false
 
 require("luarocks.require")
@@ -33,6 +35,127 @@ require("gzio")
 ll, err = package.loadlib("/nfs/build/libcompile_core.so", "init")
 if not ll then print(err) return end
 ll()
+
+
+-- we pretend to be WoW
+local LZW
+local Merger
+
+do
+  local world = {}
+  world.QuestHelper_File = {}
+  world.QuestHelper_Loadtime = {}
+  world.GetTime = function() return 0 end
+  world.QuestHelper = { Assert = function(...) assert(...) end }
+  world.string = string
+  world.table = table
+  world.bit = {mod = function(a, b) return a - math.floor(a / b) * b end, lshift = bit.lshift, rshift = bit.rshift, band = bit.band}
+  world.math = math
+  world.strbyte = string.byte
+  world.strchar = string.char
+  world.QH_Timeslice_Yield = function() end
+  setfenv(loadfile("../questhelper/collect_merger.lua"), world)()
+  setfenv(loadfile("../questhelper/collect_bitstream.lua"), world)()
+  setfenv(loadfile("../questhelper/collect_lzw.lua"), world)()
+  local api = {}
+  world.QH_Collect_Merger_Init(nil, api)
+  world.QH_Collect_Bitstream_Init(nil, api)
+  world.QH_Collect_LZW_Init(nil, api)
+  LZW = api.Utility_LZW
+  Merger = api.Utility_Merger
+  assert(Merger.Add)
+end
+
+
+-- LuaSrcDiet embedding
+local Diet
+
+do
+  local world = {arg = {}}
+  world.string = string
+  world.table = table
+  world.pcall = pcall
+  world.print = print
+  world.ipairs = ipairs
+  world.TEST = true
+  setfenv(loadfile("LuaSrcDiet.lua"), world)()
+  world.TEST = false
+  world.error = error
+  world.tonumber = tonumber
+  
+  local files = {input = {}, output = {}}
+  
+  local function readgeneral(target)
+    local rv = target[target.cline]
+    target.cline = target.cline + 1
+    return rv
+  end
+  
+  world.io = {
+    open = function(fname, typ)
+      if fname == "input" then
+        assert(typ == "rb")
+        return {
+          read = function(_, wut)
+            assert(wut == "*l")
+            return readgeneral(files.input)
+          end,
+          close = function() end
+        }
+      elseif fname == "output" then
+      
+        if typ == "wb" then
+          return {
+            write = function(_, wut, nilo)
+              assert(not nilo)
+              assert(not files.output_beta)
+              Merger.Add(files.output, wut)
+            end,
+            close = function() end
+          }
+        elseif typ == "rb" then
+          files.output_beta = {}
+          for k in Merger.Finish(files.output):gmatch("[^\n]*") do
+            table.insert(files.output_beta, k)
+          end
+          files.output_beta.cline = 1
+          
+          return {
+            read = function(_, wut)
+              assert(wut == "*l")
+              return readgeneral(files.output_beta)
+            end,
+            close = function() end
+          }
+        else
+          assert()
+        end
+        
+      end
+    end,
+    close = function() end,
+    stdout = io.stdout,
+  }
+  
+  Diet = function(inp)
+    world.arg = {"input", "-o", "output", "--quiet", "--maximum"}
+    files.input = {}
+    for k in inp:gmatch("[^\n]*") do
+      table.insert(files.input, k)
+    end
+    files.input.cline = 1
+    files.output = {}
+    files.output_beta = nil
+    world.main()
+    
+    return Merger.Finish(files.output)
+  end
+  
+  --assert(Diet("   q    = 15 ") == "q=15")
+  --assert(Diet("   jbx    = 15 ") == "jbx=15")
+  --return
+end
+
 
 ChainBlock_Init("/nfs/build", "compile.lua", function () 
   os.execute("rm -rf intermed")
@@ -948,7 +1071,6 @@ if do_compile and do_questtables then
         
         if self.accum.loot then for k, v in pairs(self.accum.loot) do
           qout[k] = v
-          qout.mergey = true
         end end
         
         if key ~= "gold" then -- okay technically the whole thing could have been ignored, but
@@ -1676,6 +1798,47 @@ local fileout = ChainBlock_Create("fileout", output_sources,
     end,
     
     Finish = function(self, Output)
+      -- First, compression.
+      if do_compress then
+        for k, d in pairs(self.finalfile) do
+          local dict = {}
+          
+          for sk, v in pairs(d) do
+            assert(type(sk) ~= "string" or not sk:match("__.*"))
+            assert(type(v) == "table")
+            local writo = {write = function (self, data) Merger.Add(self, data) end}
+            persistence.store(writo, v)
+            local dense = Diet(Merger.Finish(writo))
+            local dist = dense:match("{(.*)}")
+            assert(dist)
+            
+            for i = 1, #dist do
+              dict[dist:byte(i)] = true
+            end
+            
+            self.finalfile[k][sk] = dist
+          end
+          
+          local dicto = {}
+          for k, v in pairs(dict) do
+            table.insert(dicto, k)
+          end
+          
+          table.sort(dicto)
+          
+          local dictix = string.char(unpack(dicto))
+          
+          d.__dictionary = dictix
+          
+          for sk, v in pairs(d) do
+            if type(sk) ~= "string" or not sk:match("__.*") then
+              self.finalfile[k][sk] = LZW.Compress_Dicts(v, dictix)
+              assert(LZW.Decompress_Dicts(self.finalfile[k][sk], dictix) == v)
+            end
+          end
+        end
+      end
+      
       local fname = "static"
       
       local locale, faction = key:match("(.*)/(.*)")
@@ -1810,7 +1973,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
-local e = 100
+local e = 1000
 
 local function readdir()
   local pip = io.popen(("find data/08 -type f | head -n %s | tail -n +%s"):format(e or 1000000000, s or 0))
