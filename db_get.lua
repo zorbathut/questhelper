@@ -38,6 +38,8 @@ function DB_GetItem(group, id)
   local ite = DBC_Get(group, id)
   if ite then return ite end
   
+  if type(id) == "string" then QuestHelper: Assert(not id:match("__.*")) end
+  
   --QuestHelper:TextOut(string.format("%s %d", group, id))
   
   local ite
@@ -45,12 +47,12 @@ function DB_GetItem(group, id)
   for _, db in ipairs(QHDB) do
     --print(db, db[group], db[group] and db[group][id], type(group), type(id))
     if db[group] and db[group][id] then
-      if not ite then ite = {} end
+      if not ite then ite = QuestHelper:CreateTable("db") end
       
       local srctab
       
       if type(db[group][id]) == "string" then
-        srctab = loadstring("return " .. db[group][id])()
+        srctab = loadstring("return {" .. QH_LZW_Decompress_Dicts_Arghhacky(db[group][id], db[group].__dictionary) .. "}")()
       elseif type(db[group][id]) == "table" then
         srctab = db[group][id]
       else
@@ -81,7 +83,9 @@ function DB_ListItems(group)
   local tab = {}
   for _, db in ipairs(QHDB) do
     if db[group] then for k, _ in pairs(db[group]) do
-      tab[k] = true
+      if type(k) == "string" and not k:match("__.*") then
+        tab[k] = true
+      end
     end end
   end
   

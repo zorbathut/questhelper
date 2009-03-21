@@ -147,6 +147,21 @@ local function QH_LZW_Compress_Dicts(input, inputdict, outputdict)
   return comp
 end
 
+local function QH_LZW_Decompress_Dicts(compressed, inputdict, outputdict) -- this is kind of backwards - we assume that "outputdict" is the dictionary that "compressed" is encoded in
+  QuestHelper: Assert(not outputdict)
+  QuestHelper: Assert(inputdict)
+  
+  local decomp = QH_LZW_Decompress(compressed, #inputdict, 8)
+  
+  local ov = {}
+  for i = 1, #decomp do
+    Merger.Add(ov, inputdict:sub(decomp:byte(i) + 1, decomp:byte(i) + 1))
+  end
+  return Merger.Finish(ov)
+end
+
+QH_LZW_Decompress_Dicts_Arghhacky = QH_LZW_Decompress_Dicts -- need to rig up a better mechanism for this really
+
 function QH_Collect_LZW_Init(_, API)
   Merger = API.Utility_Merger
   QuestHelper: Assert(Merger)
@@ -154,7 +169,7 @@ function QH_Collect_LZW_Init(_, API)
   Bitstream = API.Utility_Bitstream
   QuestHelper: Assert(Bitstream)
   
-  API.Utility_LZW = {Compress = QH_LZW_Compress, Decompress = QH_LZW_Decompress, Compress_Dicts = QH_LZW_Compress_Dicts}
+  API.Utility_LZW = {Compress = QH_LZW_Compress, Decompress = QH_LZW_Decompress, Compress_Dicts = QH_LZW_Compress_Dicts, Decompress_Dicts = QH_LZW_Decompress_Dicts}
 end
 
 -- old debug code :)
