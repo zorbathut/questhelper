@@ -196,7 +196,7 @@ local function CompareStaticObjective(info, cat, name, data, verbose)
 end
 
 function QuestHelper:Nag(cmd)
-  return  -- BZZT
+  do return end -- BZZT
   
   local verbose, local_only = false, true
   
