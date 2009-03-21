@@ -146,7 +146,9 @@ do
     files.input.cline = 1
     files.output = {}
     files.output_beta = nil
-    world.main()
+    
+    local ok = pcall(world.main)
+    if not ok then return end
     
     return Merger.Finish(files.output)
   end
@@ -1808,7 +1810,10 @@ local fileout = ChainBlock_Create("fileout", output_sources,
             assert(type(v) == "table")
             local writo = {write = function (self, data) Merger.Add(self, data) end}
             persistence.store(writo, v)
+            if not loadstring("return " .. Merger.Finish(writo)) then print(Merger.Finish(writo)) end
+            assert(loadstring("return " .. Merger.Finish(writo)))
             local dense = Diet(Merger.Finish(writo))
+            if not dense then print("Couldn't condense") print(Merger.Finish(writo)) continue end  -- wellp
             local dist = dense:match("{(.*)}")
             assert(dist)
             
@@ -1831,7 +1836,8 @@ local fileout = ChainBlock_Create("fileout", output_sources,
           d.__dictionary = dictix
           
           for sk, v in pairs(d) do
-            if type(sk) ~= "string" or not sk:match("__.*") then
+            if (type(sk) ~= "string" or not sk:match("__.*")) and type(v) == "string" then
+              assert(type(v) == "string")
               self.finalfile[k][sk] = LZW.Compress_Dicts(v, dictix)
               assert(LZW.Decompress_Dicts(self.finalfile[k][sk], dictix) == v)
             end
@@ -1973,7 +1979,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
-local e = 1000
+--local e = 10000
 
 local function readdir()
   local pip = io.popen(("find data/08 -type f | head -n %s | tail -n +%s"):format(e or 1000000000, s or 0))
