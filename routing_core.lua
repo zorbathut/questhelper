@@ -356,9 +356,9 @@ local function RunAnt()
   route[1] = 1
   route.distance = 0
   
-  local dependencies = {}
+  local dependencies = QuestHelper:CreateTable("route_core_dependencies")
   
-  local needed = {}
+  local needed = QuestHelper:CreateTable("route_core_needed")
   local needed_count = -1 -- gets rid of 1 earlier
   local needed_ready_count = -1
   
@@ -390,7 +390,7 @@ local function RunAnt()
   
   local curloc = 1
   
-  local gwc = {}
+  local gwc = QuestHelper:CreateTable("route_core_gwc")
   
   QuestHelper: Assert(needed_ready_count > 0 or needed_count == 0)
   
@@ -458,6 +458,10 @@ local function RunAnt()
   end
   
   QuestHelper: Assert(needed_ready_count == 0)
+  
+  QuestHelper:ReleaseTable(dependencies)
+  QuestHelper:ReleaseTable(needed)
+  QuestHelper:ReleaseTable(gwc)
   return route
 end
 
@@ -510,13 +514,16 @@ function QH_Route_Core_Process()
   
   local worst = 0
   
-  local trouts = {}
+  local trouts = QuestHelper:CreateTable("routing_core_trouts")
+  local destroyable_trouts = QuestHelper:CreateTable("routing_core_trouts_b")
   for x = 1, AntCount do
     table.insert(trouts, RunAnt())
     --if last_best then RTO(string.format("Path generated: %s vs %s", PathToString(trouts[#trouts]), PathToString(last_best))) end
     if not last_best or last_best.distance > trouts[#trouts].distance then
       last_best = trouts[#trouts]
       BetterRoute(last_best)
+    else
+      table.insert(destroyable_trouts, trouts[#trouts])
     end
     
     worst = math.max(worst, trouts[#trouts].distance)
@@ -559,6 +566,12 @@ function QH_Route_Core_Process()
   end
   
   weight_ave = weitotal / weicount
+  
+  for k, v in pairs(destroyable_trouts) do
+    QuestHelper:ReleaseTable(v)
+  end
+  QuestHelper:ReleaseTable(trouts)
+  QuestHelper:ReleaseTable(destroyable_trouts)
   
   QH_Timeslice_Yield()  -- "heh"
 end
