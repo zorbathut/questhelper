@@ -50,3 +50,25 @@ Alpha: comments public alpha
 Prealpha: SA thread
 pre2alpha: #webcomics, anyone who asks, friends, det"ox
 pre3alpha: very limited people
+
+
+
+
+--------------------------------------------
+
+I'm writing this a few hours after the no-more-donation thing took effect.
+
+I may as well write stuff I planned here, just for record. It'd be good to get it out of my brain, since it's not doing any good in here anymore.
+
+* Pathfinding around obstacles. I've got some very nice maps of the entire world, with obstacles clearly marked.
+* Routing based on future, unclaimed quests. I'd need to figure out how quest chains work for this, of course, but I think that's doable - store a list of everything the user does quest-related. If a user turns in a quest and then picks up another set immediately, that's a sign that B may chain off A. Go from there.
+* Automatically find upgrades. I've been storing info on when people switch equipment, and what they switch to. I might be able to turn that into a guide for easy upgrades, and, of course, I can direct people to the appropriate quests easily.
+* Built-in Wowhead. Should be doable. Should be easy. Why hasn't anyone done it? ('Cause of the ads, I suppose.)
+* Built-in forums. You'd need a client for this one. But it would be cool.
+* Achievements, of course.
+* Automatically restock ammo and reagents.
+* Automatically send you to a vendor or mailbox to sell or mail things.
+* Track dailies that you need to do each day, and route you between them.
+* A spinning arrow! Of my own! That doesn't suck!
+* Highlighted zones where monsters/drops can be found, rather than just a set of glowspots
+* API for third-party extensions
