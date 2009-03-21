@@ -29,7 +29,7 @@ frame:SetScript("OnEvent", OnEvent)
 frame:Show()
 
 local function EventHookRegistrar(event, func)
-  QuestHelper:Assert(func)
+  --[[ QuestHelper:Assert(func) ]]
   if not EventRegistrar[event] then
     frame:RegisterEvent(event)
     EventRegistrar[event] = {}
@@ -38,7 +38,7 @@ local function EventHookRegistrar(event, func)
 end
 
 local function OnUpdateHookRegistrar(func)
-  QuestHelper:Assert(func)
+  --[[ QuestHelper:Assert(func) ]]
   table.insert(OnUpdateRegistrar, func)
 end
 
@@ -69,7 +69,7 @@ GameTooltip:SetScript("OnShow", function (self, ...)
 end)
 
 local function TooltipHookRegistrar(func)
-  QuestHelper:Assert(func)
+  --[[ QuestHelper:Assert(func) ]]
   table.insert(TooltipRegistrar, func)
 end
 
@@ -92,6 +92,7 @@ function QH_Collector_Init()
   QuestHelper_Collector_Version = QuestHelper_Collector_Version_Current
   
   local sig = string.format("%s on %s/%s/%d", GetAddOnMetadata("QuestHelper", "Version"), GetBuildInfo(), GetLocale(), QuestHelper:PlayerFaction())
+  local sig_altfaction = string.format("%s on %s/%s/%d", GetAddOnMetadata("QuestHelper", "Version"), GetBuildInfo(), GetLocale(), (QuestHelper:PlayerFaction() == 1) and 2 or 1)
   if not QuestHelper_Collector[sig] or QuestHelper_Collector[sig].compressed then QuestHelper_Collector[sig] = {version = QuestHelper_Collector_Version} end -- fuckin' bullshit, man
   local QHCData = QuestHelper_Collector[sig]
   QuestHelper: Assert(not QHCData.compressed)
@@ -137,7 +138,7 @@ function QH_Collector_Init()
   -- So instead, we just wait half an hour before compressing. Compression will still get done, and I won't have to deal with panicked comments about how bloated QH has gotten.
   -- Want QH to work better? Just make that "30 * 60" bit into "0" instead.
   -- addendum: yeah naturally I'm getting all sorts of panicked comments about how bloated qh has gotten, sigh
-  API.Utility_Notifier(GetTime() + 30 * 60, function() CompressCollection(QHCData, API.Utility_Merger, API.Utility_LZW.Compress) end)
+  API.Utility_Notifier(GetTime() + 30 * 60, function() CompressCollection(QHCData, QuestHelper_Collector[sig_altfaction], API.Utility_Merger, API.Utility_LZW.Compress) end)
 end
 
 function QH_Collector_OnUpdate()
@@ -224,12 +225,12 @@ local function DoCompress(item, merger, comp)
   if debug_output then QuestHelper: TextOut(string.format("Item compressed to %d bytes (previously %d), %f taken", #cmp, #tg, GetTime() - ts)) end
 end
 
-CompressCollection = function(active, merger, comp)
+CompressCollection = function(active, active2, merger, comp)
   for _, v in pairs(QuestHelper_Collector) do
-    if v ~= active and not v.compressed then
+    if v ~= active and v ~= active2 and not v.compressed then
       QH_Timeslice_Add(function ()
         DoCompress(v, merger, comp)
-        CompressCollection(active, merger, comp)
+        CompressCollection(active, active2, merger, comp)
       end, "compress")
       break
     end
