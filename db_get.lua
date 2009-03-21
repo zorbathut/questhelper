@@ -21,6 +21,8 @@ local function DBC_Put(group, id, item)
   if not cache[group] then cache[group] = setmetatable({}, weak_v) end
   QuestHelper: Assert(not cache[group][id])
   cache[group][id] = item
+  
+  DB_how_many_are_used()
 end
 
 local function mark(tab, tomark)

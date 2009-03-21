@@ -7,6 +7,8 @@ Little bit of explanation here.
 
 The db layer dumps things out in DB format. This isn't immediately usable for our routing engine. We convert this to an intermediate "metaobjective" format that the routing engine can use, as well as copying anything that needs to be copied. This also allows us to modify our metaobjective tables as we see fit, rather than doing nasty stuff to keep the original objectives intact.
 
+It's worth mentioning that, completely accidentally, everything it requests from the DB is deallocated rapidly - it doesn't keep any references to the original DB objects around. This is unintentional, but kind of neat. It's not worth preserving, but it doesn't really have to be "fixed" either.
+
 ]]
 
 local function copy(tab)
