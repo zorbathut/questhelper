@@ -85,7 +85,7 @@ function DB_ListItems(group)
   local tab = {}
   for _, db in ipairs(QHDB) do
     if db[group] then for k, _ in pairs(db[group]) do
-      if type(k) == "string" and not k:match("__.*") then
+      if type(k) ~= "string" or not k:match("__.*") then
         tab[k] = true
       end
     end end
