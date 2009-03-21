@@ -96,3 +96,13 @@ function DB_ListItems(group)
   
   return rv
 end
+
+function DB_how_many_are_used()
+  local count = 0
+  for k, v in pairs(cache) do
+    for k2, v2 in pairs(v) do
+      count = count + 1
+    end
+  end
+  print(count)
+end

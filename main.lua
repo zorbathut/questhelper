@@ -870,11 +870,11 @@ function QuestHelper:OnUpdate()
   if frams == 60 then
     QuestHelper:TextOut("showtext")
     self:ShowText([[
-This is a |cffff8000pre-pre-prealpha of QuestHelper|r. Yes. That's right. It is |cffff8000three stacked pre-alphas|r. Be warned: It may crash. It may lock up. It may give bad advice. It may spew errors. It shouldn't spam people, delete your hard-won epics, or make your computer catch on fire, but technically I'm giving no guarantees. |cffff8000If you want a polished, functioning product, close WoW, download the official QH release from curse.com, and use that.|r
+This is a |cffff8000pre-prealpha of QuestHelper|r. Yes. That's right. It is |cffff8000two stacked pre-alphas|r. Be warned: It may crash. It may lock up. It may give bad advice. It may spew errors. It shouldn't spam people, delete your hard-won epics, or make your computer catch on fire, but technically I'm giving no guarantees. |cffff8000If you want a polished, functioning product, close WoW, download the official QH release from curse.com, and use that.|r
 
 Known bugs and issues include:
-
-  |cff40bbffVastly excessive memory usage (lots of stored debug data, no database compaction, lots of dead code and dead data left over from 0.x, etc)|r
+  
+  |cff40bbffBad behavior with dungeon/raid objectives (you'll know it when you see it)|r
   
   |cff40bbffExcessive debug output|r
   
