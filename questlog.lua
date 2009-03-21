@@ -1,6 +1,8 @@
 QuestHelper_File["questlog.lua"] = "Development Version"
 QuestHelper_Loadtime["questlog.lua"] = GetTime()
 
+do return end -- pretty sure this is all dead
+
 --[[QuestHelper.debug_objectives =
  {
   ["Harbinger of Doom"] =

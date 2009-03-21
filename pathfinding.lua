@@ -237,6 +237,7 @@ function load_graph_links()
 end
 
 -- pretty much everything after this is going to eventually end up eviscerated very, very soon
+do return end -- like NOW
 
 local walkspeed_multiplier = 1/7 -- Every yard walked takes this many seconds.
 

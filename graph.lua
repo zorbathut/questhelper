@@ -1,6 +1,8 @@
 QuestHelper_File["graph.lua"] = "Development Version"
 QuestHelper_Loadtime["graph.lua"] = GetTime()
 
+do return end -- guhhhh
+
 local floor = math.floor
 
 local function Graph_Search(self, first, last)

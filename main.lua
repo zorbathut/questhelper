@@ -592,15 +592,16 @@ function QuestHelper:OnEvent(event)
 
   local tstart = GetTime()
   
+  --[[
   if event == "GOSSIP_SHOW" then
     local name, id = UnitName("npc"), self:GetUnitID("npc")
     if name and id then
       self:GetObjective("monster", name).o.id = id
       --self:TextOut("NPC: "..name.." = "..id)
     end
-  end
+  end]]
 
-  if event == "PLAYER_TARGET_CHANGED" then
+  --[[if event == "PLAYER_TARGET_CHANGED" then
     local name, id = UnitName("target"), self:GetUnitID("target")
     if name and id then
       self:GetObjective("monster", name).o.id = id
@@ -633,9 +634,9 @@ function QuestHelper:OnEvent(event)
         end
       end
     end
-  end
+  end]]
 
-  if event == "LOOT_OPENED" then
+  --[[if event == "LOOT_OPENED" then
     local target = UnitName("target")
     if target and UnitIsDead("target") and UnitCreatureType("target") ~= "Critter" and not UnitIsPlayer("target") and not UnitPlayerControlled("target") then
       local index, x, y = self:UnitPosition("target")
@@ -706,9 +707,9 @@ function QuestHelper:OnEvent(event)
         end
       end
     end
-  end
+  end]]
 
-  if event == "CHAT_MSG_SYSTEM" then
+  --[[if event == "CHAT_MSG_SYSTEM" then
     local home_name = self:convertPattern(ERR_DEATHBIND_SUCCESS_S)(arg1)
     if home_name then
       if self.i then
@@ -725,25 +726,25 @@ function QuestHelper:OnEvent(event)
         self.defered_graph_reset = true
       end
     end
-  end
+  end]]
 
-  if event == "CHAT_MSG_ADDON" then
+  --[[if event == "CHAT_MSG_ADDON" then
     if arg1 == "QHpr" and (arg3 == "PARTY" or arg3 == "WHISPER") and arg4 ~= UnitName("player") then
       self:HandleRemoteData(arg2, arg4)
     end
-  end
+  end]]
 
-  if event == "PARTY_MEMBERS_CHANGED" then
+  --[[if event == "PARTY_MEMBERS_CHANGED" then
     self:HandlePartyChange()
-  end
+  end]]
 
-  if event == "QUEST_LOG_UPDATE" or
+  --[[if event == "QUEST_LOG_UPDATE" or
      event == "PLAYER_LEVEL_UP" or
      event == "PARTY_MEMBERS_CHANGED" then
     self.defered_quest_scan = true
-  end
+  end]]
 
-  if event == "QUEST_DETAIL" then
+  --[[if event == "QUEST_DETAIL" then
     if not self.quest_giver then self.quest_giver = {} end
     local npc = UnitName("npc")
     if npc then
@@ -756,9 +757,9 @@ function QuestHelper:OnEvent(event)
         self.quest_giver[GetTitleText()] = npc
       end
     end
-  end
+  end]]
 
-  if event == "QUEST_COMPLETE" or event == "QUEST_PROGRESS" then
+  --[[if event == "QUEST_COMPLETE" or event == "QUEST_PROGRESS" then
     local quest = GetTitleText()
     if quest then
       local level, hash = self:GetQuestLevel(quest)
@@ -790,9 +791,9 @@ function QuestHelper:OnEvent(event)
         end
       end
     end
-  end
+  end]]
 
-  if event == "MERCHANT_SHOW" then
+  --[[if event == "MERCHANT_SHOW" then
     local npc_name = UnitName("npc")
     if npc_name then
       local npc_objective = self:GetObjective("monster", npc_name)
@@ -821,18 +822,18 @@ function QuestHelper:OnEvent(event)
         end
       end
     end
-  end
+  end]]
 
   --[[
   if event == "TAXIMAP_OPENED" then
     self:taxiMapOpened()
   end]]
   
-  if event == "PLAYER_CONTROL_GAINED" then
+  --[[if event == "PLAYER_CONTROL_GAINED" then
     interruptcount = interruptcount + 1
-  end
+  end]]
 
-  if event == "BAG_UPDATE" then
+  --[[if event == "BAG_UPDATE" then
     for slot = 1,GetContainerNumSlots(arg1) do
       local link = GetContainerItemLink(arg1, slot)
       if link then
@@ -842,7 +843,7 @@ function QuestHelper:OnEvent(event)
         end
       end
     end
-  end
+  end]]
   
   if event == "CHAT_MSG_CHANNEL_NOTICE" and please_donate_enabled and not please_donate_initted then
     please_donate_enabled = QHNagInit()
@@ -938,11 +939,11 @@ Thanks for testing!]], "QuestHelper " .. version_string, 500, 20, 10)
       --SetMapToCurrentZone() -- not sure why this existed
     end
 
-    delayed_action = delayed_action - 1
+    --[[delayed_action = delayed_action - 1
     if delayed_action <= 0 then
       delayed_action = 100
       self:HandlePartyChange()
-    end
+    end]]
 
     local nc, nz, nx, ny = self.Astrolabe:GetCurrentPlayerPosition()
     local tc, tx, ty
@@ -977,7 +978,7 @@ Thanks for testing!]], "QuestHelper " .. version_string, 500, 20, 10)
     
     self.collect_c, self.collect_x, self.collect_y, self.collect_rc, self.collect_rz = tc, tx, ty, nc, nz
 
-    local level = UnitLevel("player")
+    --[[local level = UnitLevel("player")
     if level >= 58 and self.player_level < 58 then
       self.defered_graph_reset = true
     end
@@ -989,7 +990,7 @@ Thanks for testing!]], "QuestHelper " .. version_string, 500, 20, 10)
     if self.defered_quest_scan and not self.graph_in_limbo then
       self.defered_quest_scan = false
       self:ScanQuestLog()
-    end
+    end]]
 
     QH_Timeslice_Toggle("routing", not not self.c)
     
