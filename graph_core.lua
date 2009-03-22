@@ -128,7 +128,10 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
     else
       if plane[cpvp] then
       --print("Destination plane insertion")
-        link[k] = {x = v.x, y = v.y, p = cpvp, goal = k}
+        -- ugh I hate this optimization
+        local dest = QuestHelper:CreateTable("graphcore destination")
+        dest.x, dest.y, dest.p, dest.goal = v.x, v.y, cpvp, k
+        link[k] = dest
         table.insert(plane[cpvp], link[k])
         undone[k] = true
         remaining = remaining + 1
@@ -139,7 +142,7 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   local link_id = reverse and "rlink" or "link"
   local link_cost_id = reverse and "rlink_cost" or "link_cost"
   
-  local dijheap = {}
+  local dijheap = QuestHelper:CreateTable("graphcore heap center")
   if plane[canoplane(st.p)] then
     --print("ST plane insertion")
     for _, v in ipairs(plane[canoplane(st.p)]) do
@@ -149,7 +152,10 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
         v.scan_id = grid
         v.scan_cost = dst
         v.scan_from = nil
-        heap_insert(dijheap, {c = dst + v[link_cost_id], cs = dst, n = v})
+        
+        local hep = QuestHelper:CreateTable("graphcore heap")
+        hep.c, hep.cs, hep.n = dst + v[link_cost_id], dst, v
+        heap_insert(dijheap, hep)
       end
     end
   end
@@ -180,7 +186,10 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
               if not out[v.goal] or out[v.goal] > goalcost then
                 out[v.goal] = goalcost
                 v.scan_from = cdj.n
-                heap_insert(dijheap, {c = goalcost, done = v.goal})
+                
+                local hep = QuestHelper:CreateTable("graphcore heap")
+                hep.c, hep.done = goalcost, v.goal
+                heap_insert(dijheap, hep)
               end
             elseif v[link_id] and (v.scan_id ~= grid or v.scan_cost > basecost) then
               local goalcost = basecost + xydist(linkto, v)
@@ -188,23 +197,27 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
                 v.scan_id = grid
                 v.scan_cost = goalcost
                 v.scan_from = cdj.n
-                heap_insert(dijheap, {c = goalcost + v[link_cost_id], cs = goalcost, n = v})
+                
+                local hep = QuestHelper:CreateTable("graphcore heap")
+                hep.c, hep.cs, hep.n = goalcost + v[link_cost_id], goalcost, v
+                heap_insert(dijheap, hep)
               end
             end
           end
         end
       end
     end
+    QuestHelper:ReleaseTable(cdj)
   end
+  
+  for _, v in ipairs(dijheap) do
+    QuestHelper:ReleaseTable(v)
+  end
+  QuestHelper:ReleaseTable(dijheap)
+  dijheap = nil
   
   --QuestHelper:TextOut(string.format("Earlyout with %d/%d remaining", #dijheap, remaining))
   QuestHelper: Assert(remaining == 0)
-  
-  for k, v in ipairs(nda) do
-    if plane[canoplane(v.p)] and plane[canoplane(v.p)][#plane[canoplane(v.p)]].goal then   -- might not be the exact one, but we'll remove 'em all once we get there anyway :D
-      table.remove(plane[canoplane(v.p)])
-    end
-  end
   
   grid = grid + 1
   QuestHelper: Assert(grid < 1000000000) -- if this ever triggers I will be amazed
@@ -219,8 +232,8 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
       
       if link[k] then
         QuestHelper: Assert(link[k].scan_from)
-        rp.path = {}
-        local tpath = reverse and rp.path or {}
+        rp.path = QuestHelper:CreateTable("graphcore path")
+        local tpath = reverse and rp.path or QuestHelper:CreateTable("graphcore path reversal")
         local cpx = link[k].scan_from
         while cpx do
           if reverse then
@@ -237,12 +250,19 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
         end
         
         if not reverse then
-          rp.path = {}
           for i = #tpath, 1, -1 do
             table.insert(rp.path, tpath[i])
           end
+          
+          QuestHelper:ReleaseTable(tpath)
         end
       end
+    end
+  end
+  
+  for k, v in ipairs(nda) do
+    if plane[canoplane(v.p)] and plane[canoplane(v.p)][#plane[canoplane(v.p)]].goal then   -- might not be the exact one, but we'll remove 'em all once we get there anyway :D
+      QuestHelper:ReleaseTable(table.remove(plane[canoplane(v.p)]))
     end
   end
   
