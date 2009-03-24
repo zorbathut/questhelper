@@ -192,7 +192,7 @@ QuestHelper_Translations.koKR =
   
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
   -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
-  TOOLTIP_WATCHED = nil,
+  TOOLTIP_WATCHED = "퀘스트헬퍼에 의해 감시됨",
   TOOLTIP_QUEST = "퀘스트 %h1.",
   TOOLTIP_PURCHASE = "%h1을(를) 구입하라.",
   TOOLTIP_SLAY = "%h1을 죽여라.",
