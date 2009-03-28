@@ -290,7 +290,11 @@ function UpdateQuests()
                   db[i].progress = {}
                 end
                 
-                db[i].progress[UnitName("player")] = {have, need, have / need}
+                if type(have) == "number" and type(need) == "number" then
+                  db[i].progress[UnitName("player")] = {have, need, have / need}
+                else
+                  db[i].progress[UnitName("player")] = {have, need, 0}  -- it's only used for the coloring anyway
+                end
                 
                 db[i].desc = QHFormat("TOOLTIP_QUEST", title)
                 
