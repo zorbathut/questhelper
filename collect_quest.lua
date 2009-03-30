@@ -82,6 +82,12 @@ local function ScanQuests() -- make it local once we've debugged it
         QHCQ[id].tag = tag
         QHCQ[id].groupcount = (groupcount or -1)
         QHCQ[id].daily = (not not daily)
+        
+        if GetQuestLogSpecialItemInfo then
+          local typ = GetQuestLogSpecialItemInfo(index)
+          if typ then typ = GetItemType(typ) end
+          QHCQ[id].special_item = typ or false
+        end
       end
       
       dbx[id] = {}
