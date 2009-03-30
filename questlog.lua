@@ -220,6 +220,7 @@ function QuestHelper:ScanQuestLog()
       end
       
       lq.index = index
+      quest.index = index -- guhhh
       lq.removed = false
       
       if GetNumQuestLeaderBoards(index) > 0 then

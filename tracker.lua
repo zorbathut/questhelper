@@ -210,7 +210,9 @@ local function itemclick(item, button)
   end
 end
 
-local function addItem(name, quest, obj, y, qname)
+local wfibfct = 0 -- We need to give all our watchbuttons unique IDs 'cause they use the global namespace to store stuff. I think this is a dubious idea.
+
+local function addItem(name, quest, obj, y, qname, qindex)
   local x = qname and 4 or 20
   local item = used_items[quest] and used_items[quest][obj]
   if not item then
@@ -259,6 +261,23 @@ local function addItem(name, quest, obj, y, qname)
     item.sx, item.sy, item.dx, item.dy = item.x, item.y, x, y
     item.t = 0
     item:SetScript("OnUpdate", itemupdate)
+  end
+  
+  if GetQuestLogSpecialItemInfo and qindex and GetQuestLogSpecialItemInfo(qindex) and not item.specitem then  -- 3.1 hackery
+    item.specitem = CreateFrame("BUTTON", "abcdefghi" .. tostring(wfibfct), item, "WatchFrameItemButtonTemplate")
+    wfibfct = wfibfct + 1
+    
+    item.specitem:SetScale(0.9)
+    item.specitem:ClearAllPoints()
+    item.specitem:SetPoint("TOPRIGHT", item, "TOPLEFT", 0, 0)
+    
+    item.specitem:SetID(obj.index)
+    
+    local _, tex, count = GetQuestLogSpecialItemInfo(obj.index)
+    SetItemButtonTexture(item.specitem, tex)
+    item.specitem.rangeTimer = -1 -- This makes the little dot go away. Why does it do that?
+    
+    item.specitem:Show()
   end
   
   return w+x+4, h
@@ -331,6 +350,12 @@ local function removeUnusedItem(quest, obj, item)
   item:SetScript("OnMouseDown", nil)
   item:EnableMouse(false)
   item:SetScript("OnUpdate", itemfadeout)
+  
+  if item.specitem then
+    QuestHelper:TextOut("SPECITEM LEAKING")
+    item.specitem:Hide()
+    item.specitem = nil
+  end
 end
 
 local resizing = false
@@ -383,7 +408,7 @@ local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
     level = tonumber(level) or 1
     
     count = count + 1
-    local w, h = addItem(qname(name, level), true, quest, -(y+gap), name)
+    local w, h = addItem(qname(name, level), true, quest, -(y+gap), name, quest.index)
     x = math.max(x, w)
     y = y + h + gap
     gap = 2
