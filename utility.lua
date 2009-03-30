@@ -52,7 +52,7 @@ end
 function QuestHelper:CreateUID(length)
   local result = ""
   local characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-  math.randomseed(math.random(0, 2147483647)+GetTime()*100000)
+  for k = 1, (math.floor(GetTime() % 1000) + 5) do math.random() end   -- it's sort of like seeding. only worse.
   local base = GetUnitName("player")..":"..GetRealmName()..":"..math.random(0, 2147483647)..":"..GetTime()..":"..time()
   
   for c = 1,(length or 32) do
