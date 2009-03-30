@@ -450,6 +450,7 @@ function QuestHelper:Initialize()
   end
 
   self.minimap_dodad = self:CreateMipmapDodad()
+  QuestHelper: Assert(self.minimap_dodad)
 
   if QuestHelper_Pref.map_button then
       QuestHelper:InitMapButton()
