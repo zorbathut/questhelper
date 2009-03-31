@@ -244,6 +244,7 @@ function QuestHelper:Initialize()
       ["collect_spec.lua"] = true,
       ["collect_upgrade.lua"] = true,
       ["collect_merchant.lua"] = true,
+      ["collect_warp.lua"] = true,
     }
     
   local uninstallederr = ""

@@ -139,6 +139,7 @@ collect_spec.lua
 collect_bitstream.lua
 collect_upgrade.lua
 collect_merchant.lua
+collect_warp.lua
 
 cartographer.lua
 tomtom.lua
