@@ -22,7 +22,6 @@ local function OnUpdate()
     else
       local dx, dy = lastloc_table[2] - tab[2], lastloc_table[3] - tab[3]
       dx, dy = dx * dx, dy * dy
-      if dx + dy > 1 then print(dx + dy) end
       if dx + dy > 25 * 25 then -- Blink is 20, so we need to do more than that.
         leapy = true
       end
