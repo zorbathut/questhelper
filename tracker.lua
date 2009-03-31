@@ -210,7 +210,8 @@ local function itemclick(item, button)
   end
 end
 
-local wfibfct = 0 -- We need to give all our watchbuttons unique IDs 'cause they use the global namespace to store stuff. I think this is a dubious idea.
+local specitem_max = 1
+local specitem_unused = {}
 
 local function addItem(name, quest, obj, y, qname, qindex)
   local x = qname and 4 or 20
@@ -264,8 +265,12 @@ local function addItem(name, quest, obj, y, qname, qindex)
   end
   
   if GetQuestLogSpecialItemInfo and qindex and GetQuestLogSpecialItemInfo(qindex) and not item.specitem then  -- 3.1 hackery
-    item.specitem = CreateFrame("BUTTON", "abcdefghi" .. tostring(wfibfct), item, "WatchFrameItemButtonTemplate")
-    wfibfct = wfibfct + 1
+    item.specitem = table.remove(specitem_unused)
+    if not item.specitem then
+      item.specitem = CreateFrame("BUTTON", "QH_SpecItem_" .. tostring(specitem_max), item, "WatchFrameItemButtonTemplate")
+      specitem_max = specitem_max + 1
+      QuestHelper: Assert(item.specitem)
+    end
     
     item.specitem:SetScale(0.9)
     item.specitem:ClearAllPoints()
@@ -352,8 +357,8 @@ local function removeUnusedItem(quest, obj, item)
   item:SetScript("OnUpdate", itemfadeout)
   
   if item.specitem then
-    QuestHelper:TextOut("SPECITEM LEAKING")
     item.specitem:Hide()
+    table.insert(specitem_unused, item.specitem)
     item.specitem = nil
   end
 end
