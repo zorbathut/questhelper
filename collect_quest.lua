@@ -39,12 +39,17 @@ function pin()
   QuestHelper:TextOut("^.*: (%d+)/(%d+)(" .. complete_suffix .. ")?$")
 end
 
-local function ScanQuests() -- make it local once we've debugged it
+-- qlookup[questname][objectivename] = {qid = qid, objid = objid}
+local qlookups = {}
+
+local function ScanQuests()
   
   local selected
   local index = 1
   
   local dbx = {}
+  
+  qlookups = {}
   
   while true do
     if not GetQuestLogTitle(index) then break end
@@ -54,6 +59,10 @@ local function ScanQuests() -- make it local once we've debugged it
       --QuestHelper:TextOut(qlink)
       --QuestHelper:TextOut(string.gsub(qlink, "|", "||"))
       local id, level = GetQuestType(qlink)
+      local title, _, tag, groupcount, _, _, _, daily = GetQuestLogTitle(index)
+      
+      QuestHelper: Assert(not qlookups[title])
+      qlookups[title] = {}
       
       --QuestHelper:TextOut(string.format("%s - %d %d", qlink, id, level))
       
@@ -76,8 +85,6 @@ local function ScanQuests() -- make it local once we've debugged it
           --QuestHelper:TextOut(string.format("%s, %s", desc, type))
         end
         
-        local title, _, tag, groupcount, _, _, _, daily = GetQuestLogTitle(index)
-        
         QHCQ[id].name = title
         QHCQ[id].tag = tag
         QHCQ[id].groupcount = (groupcount or -1)
@@ -97,6 +104,9 @@ local function ScanQuests() -- make it local once we've debugged it
       
       for i = 1, GetNumQuestLeaderBoards(index) do
         local desc, _, done = GetQuestLogLeaderBoard(i, index)
+        
+        QuestHelper: Assert(not qlookups[title][desc])
+        qlookups[title][desc] = {qid = id, obj = i}
         
         -- If we wanted to parse everything here, we'd do something very complicated.
         -- Fundamentally, we don't. We only care if numeric values change or if something goes from "not done" to "done".
@@ -190,6 +200,18 @@ AbandonQuest = function ()
 end
 
 local function UpdateQuests()
+
+  do  -- this should once and for all fix this issue
+    local foverride = true
+    for _, _ in pairs(deebey) do
+      foverride = false
+    end
+    if UnitLevel("player") == 1 then
+      foverride = false
+    end
+    if foverride then foverride = true end
+  end
+  
   if first then deebey = ScanQuests() first = false end
   if not changed then return end
   changed = false
@@ -281,6 +303,69 @@ local function UpdateQuests()
   --QuestHelper:TextOut(string.format("done in %f", GetTime() - tim))
 end
 
+local enable_quest_hints = GetBuildInfo():match("0%.1%..*") or (GetBuildInfo():match("3%..*") and not GetBuildInfo():match("3%.0%..*"))
+
+local function MouseoverUnit()
+  if not enable_quest_hints then return end
+  
+  if UnitExists("mouseover") and UnitIsVisible("mouseover") and not UnitIsPlayer("mouseover") and not UnitPlayerControlled("mouseover") then
+    local guid = UnitGUID("mouseover")
+    
+    if not IsMonsterGUID(guid) then return end
+    
+    guid = GetMonsterType(guid)
+    
+    local line = 1
+    local qs
+    local qe
+    
+    while _G["GameTooltipTextLeft" .. line] and _G["GameTooltipTextLeft" .. line]:IsShown() do
+      local r, g, b, a = _G["GameTooltipTextLeft" .. line]:GetTextColor()
+      r, g, b, a = math.floor(r * 255 + 0.5), math.floor(g * 255 + 0.5), math.floor(b * 255 + 0.5), math.floor(a * 255 + 0.5)
+      --print(r, g, b, a)
+      
+      if r == 255 and g == 210 and b == 0 and a == 255 then
+        if not qs then qs = line end
+      else
+        if qs and not qe then qe = line end
+      end
+      line = line + 1
+    end
+    
+    if qs and not qe then qe = line end
+    if qe then qe = qe - 1 end
+    
+    if qs and qe then
+      for _, v in pairs(qlookups) do
+        for _, tv in pairs(v) do
+          if not QHCQ[tv.qid][string.format("criteria_%d_monster_true", tv.obj)] then
+            QHCQ[tv.qid][string.format("criteria_%d_monster_true", tv.obj)] = {}
+            QHCQ[tv.qid][string.format("criteria_%d_monster_false", tv.obj)] = {}
+          end
+          
+          QHCQ[tv.qid][string.format("criteria_%d_monster_false", tv.obj)][guid] = (QHCQ[tv.qid][string.format("criteria_%d_monster_false", tv.obj)][guid] or 0) + 1
+        end
+      end
+      
+      local cquest = nil
+      
+      for i = qs, qe do
+        local lin = _G["GameTooltipTextLeft" .. i]:GetText()
+        
+        if cquest and cquest[lin] then
+          local titem = cquest[lin]
+          QHCQ[titem.qid][string.format("criteria_%d_monster_false", titem.obj)][guid] = (QHCQ[titem.qid][string.format("criteria_%d_monster_false", titem.obj)][guid] or 0) - 1
+          QHCQ[titem.qid][string.format("criteria_%d_monster_true", titem.obj)][guid] = (QHCQ[titem.qid][string.format("criteria_%d_monster_true", titem.obj)][guid] or 0) + 1
+        elseif qlookups[lin] then
+          cquest = qlookups[lin]
+        else
+          QuestHelper: Assert()
+        end
+      end
+    end
+  end
+end
+
 function QH_Collect_Quest_Init(QHCData, API)
   if not QHCData.quest then QHCData.quest = {} end
   QHCQ = QHCData.quest
@@ -305,6 +390,8 @@ function QH_Collect_Quest_Init(QHCData, API)
   
   API.Registrar_EventHook("CHAT_MSG_LOOT", Looted)
   API.Registrar_EventHook("COMBAT_LOG_EVENT_UNFILTERED", Combat)
+  
+  API.Registrar_EventHook("UPDATE_MOUSEOVER_UNIT", MouseoverUnit)
   
   -- Here's a pile of events that seem to trigger during startup that also don't seem like would trigger while questing.
   -- We'll lose a few quest updates from this, but that's OK.
