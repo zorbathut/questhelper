@@ -96,6 +96,7 @@ function QH_Collector_Init()
   QuestHelper_Collector_Version = QuestHelper_Collector_Version_Current
   
   local sig = string.format("%s on %s/%s/%d", GetAddOnMetadata("QuestHelper", "Version"), GetBuildInfo(), GetLocale(), QuestHelper:PlayerFaction())
+  local sig_altfaction = string.format("%s on %s/%s/%d", GetAddOnMetadata("QuestHelper", "Version"), GetBuildInfo(), GetLocale(), (QuestHelper:PlayerFaction() == 1) and 2 or 1)
   if not QuestHelper_Collector[sig] or QuestHelper_Collector[sig].compressed then QuestHelper_Collector[sig] = {version = QuestHelper_Collector_Version} end -- fuckin' bullshit, man
   local QHCData = QuestHelper_Collector[sig]
   QuestHelper: Assert(not QHCData.compressed)
@@ -134,7 +135,7 @@ function QH_Collector_Init()
   -- It's simple. People are gonna update to this version, and then they're going to look at the memory usage. Then they will panic because omg this version uses so much more memory, I bet that will somehow hurt my framerates in a way which is not adequately explained!
   -- So instead, we just wait half an hour before compressing. Compression will still get done, and I won't have to deal with panicked comments about how bloated QH has gotten.
   -- Want QH to work better? Just make that "30 * 60" bit into "0" instead.
-  API.Utility_Notifier(GetTime() + 30 * 60, function() CompressCollection(QHCData, API.Utility_Merger, API.Utility_LZW.Compress) end)
+  API.Utility_Notifier(GetTime() + 5, function() CompressCollection(QHCData, QuestHelper_Collector[sig_altfaction], API.Utility_Merger, API.Utility_LZW.Compress) end)
 end
 
 function QH_Collector_OnUpdate()
@@ -209,7 +210,20 @@ if debug_output then QuestHelper: TextOut("Item condensing") end
   if debug_output then QuestHelper: TextOut(string.format("Item condensed to %d bytes, %f taken so far", #tg, GetTime() - ts)) end
   mg = nil
   
-  local cmp = comp(tg, 256, 8)
+  local cmp = {}
+  local cmptot = 0
+  
+  local doublecheck = ""
+  for chunk = 1, #tg, 1048576 do
+    local fragment = tg:sub(chunk, chunk + 1048575)
+    doublecheck = doublecheck .. fragment
+    local ite = comp(fragment, 256, 8)
+    cmptot = cmptot + #ite
+    table.insert(cmp, ite)
+  end
+  QuestHelper: Assert(doublecheck == tg)
+  
+  if #cmp == 1 then cmp = cmp[1] end
   
   for k, v in pairs(target) do
     if not noncompressible[k] then
@@ -218,15 +232,15 @@ if debug_output then QuestHelper: TextOut("Item condensing") end
   end
   item.compressed = cmp
   
-  if debug_output then QuestHelper: TextOut(string.format("Item compressed to %d bytes (previously %d), %f taken", #cmp, #tg, GetTime() - ts)) end
+  if debug_output then QuestHelper: TextOut(string.format("Item compressed to %d bytes in %d shards (previously %d), %f taken", cmptot, type(cmp) == "table" and #cmp or 1, #tg, GetTime() - ts)) end
 end
 
-CompressCollection = function(active, merger, comp)
+CompressCollection = function(active, active2, merger, comp)
   for _, v in pairs(QuestHelper_Collector) do
-    if v ~= active and not v.compressed then
+    if v ~= active and v ~= active2 and not v.compressed then
       QH_Timeslice_Add(function ()
         DoCompress(v, merger, comp)
-        CompressCollection(active, merger, comp)
+        CompressCollection(active, active2, merger, comp)
       end, "compress")
       break
     end
