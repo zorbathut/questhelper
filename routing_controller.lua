@@ -31,31 +31,6 @@ local pending = {}
 local pathcache_active = {}
 local pathcache_inactive = {}
 
-function QH_Route_NodeAdd(node)
-  QuestHelper: Assert(node.map_desc)
-  table.insert(pending, function () Route_Core_NodeAdd(node) end)
-end
-
-function QH_Route_NodeRemove(node)
-  table.insert(pending, function () Route_Core_NodeRemove(node) end)
-end
-
-function QH_Route_ClusterAdd(node)
-  table.insert(pending, function () Route_Core_ClusterAdd(node) end)
-end
-
-function QH_Route_ClusterRemove(node)
-  table.insert(pending, function () Route_Core_ClusterRemove(node) end)
-end
-
-function QH_Route_ClusterRequires(a, b)
-  table.insert(pending, function () Route_Core_ClusterRequires(a, b) end)
-end
-
-function QH_Route_FlightPathRecalc()
-  table.insert(pending, function () QH_redo_flightpath() pathcache_active = {} pathcache_inactive = {} Route_Core_DistanceClear() end)
-end
-
 local notification_funcs = {}
 
 function QH_Route_RegisterNotification(func)
@@ -137,6 +112,33 @@ local function ReplotPath()
     v(real_path)
   end
 end
+
+
+function QH_Route_NodeAdd(node)
+  QuestHelper: Assert(node.map_desc)
+  table.insert(pending, function () Route_Core_NodeAdd(node) end)
+end
+
+function QH_Route_NodeRemove(node)
+  table.insert(pending, function () Route_Core_NodeRemove(node) end)
+end
+
+function QH_Route_ClusterAdd(node)
+  table.insert(pending, function () Route_Core_ClusterAdd(node) end)
+end
+
+function QH_Route_ClusterRemove(node)
+  table.insert(pending, function () Route_Core_ClusterRemove(node) end)
+end
+
+function QH_Route_ClusterRequires(a, b)
+  table.insert(pending, function () Route_Core_ClusterRequires(a, b) end)
+end
+
+function QH_Route_FlightPathRecalc()
+  table.insert(pending, function () QH_redo_flightpath() pathcache_active = {} pathcache_inactive = {} Route_Core_DistanceClear() ReplotPath() end)
+end
+
 
 Route_Core_Init(
   function(path)
