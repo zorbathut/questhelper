@@ -278,7 +278,7 @@ local function addItem(name, quest, obj, y, qname, qindex)
     
     item.specitem:SetID(obj.index)
     
-    local _, tex, count = GetQuestLogSpecialItemInfo(obj.index)
+    local _, tex = GetQuestLogSpecialItemInfo(obj.index)
     SetItemButtonTexture(item.specitem, tex)
     item.specitem.rangeTimer = -1 -- This makes the little dot go away. Why does it do that?
     
