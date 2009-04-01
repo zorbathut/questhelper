@@ -71,29 +71,31 @@ end
 
 local OrigScript = GameTooltip:GetScript("OnShow")      -- how many times have I hooked this function by now?
 GameTooltip:SetScript("OnShow", function (self, ...)
-
-  local inu, ilink = self:GetItem()
-  local un, ulink = self:GetUnit()
-  if ulink then ulink = UnitGUID(ulink) end
   
-  if ilink then
-    local ite = tostring(GetItemType(ilink))
+  if QuestHelper_Pref.tooltip then
+    local inu, ilink = self:GetItem()
+    local un, ulink = self:GetUnit()
+    if ulink then ulink = UnitGUID(ulink) end
     
-    if ctts["item"] and ctts["item"][ite] then
-      DoTooltip(self, ctts["item"][ite])
+    if ilink then
+      local ite = tostring(GetItemType(ilink))
+      
+      if ctts["item"] and ctts["item"][ite] then
+        DoTooltip(self, ctts["item"][ite])
+      end
+      
+      self:Show()
     end
     
-    self:Show()
-  end
-  
-  if ulink and IsMonsterGUID(ulink) then
-    local ite = tostring(GetMonsterType(ulink))
-    
-    if ctts["monster"] and ctts["monster"][ite] then
-      DoTooltip(self, ctts["monster"][ite])
+    if ulink and IsMonsterGUID(ulink) then
+      local ite = tostring(GetMonsterType(ulink))
+      
+      if ctts["monster"] and ctts["monster"][ite] then
+        DoTooltip(self, ctts["monster"][ite])
+      end
+      
+      self:Show()
     end
-    
-    self:Show()
   end
   
   if OrigScript then OrigScript(self, ...) end
