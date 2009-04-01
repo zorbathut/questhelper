@@ -52,17 +52,21 @@ GameTooltip.SetText = function (...)
   suppress = false
 end
 
+print("colinit")
 local OriginalScript = GameTooltip:GetScript("OnShow")
 GameTooltip:SetScript("OnShow", function (self, ...)
-  if suppress then return end
-  
-  if not self then self = GameTooltip end
-  
-  local tstart = GetTime()
-  for k, v in pairs(TooltipRegistrar) do
-    v(self, ...)
+  if not suppress then
+    if not self then self = GameTooltip end
+    
+    local tstart = GetTime()
+    for k, v in pairs(TooltipRegistrar) do
+      v(self, ...)
+    end
+    QH_Timeslice_Increment(GetTime() - tstart, "collect_tooltip")
   end
-  QH_Timeslice_Increment(GetTime() - tstart, "collect_tooltip") -- anything past here is not my fault
+  
+  -- anything past here is not my fault
+  
   if OriginalScript then
     return OriginalScript(self, ...)
   end

@@ -308,14 +308,25 @@ local enable_quest_hints = GetBuildInfo():match("0%.1%..*") or (GetBuildInfo():m
 local function MouseoverUnit()
   if not enable_quest_hints then return end
   
-  if UnitExists("mouseover") and UnitIsVisible("mouseover") and not UnitIsPlayer("mouseover") and not UnitPlayerControlled("mouseover") then
+  if GameTooltip:GetUnit() and UnitExists("mouseover") and UnitIsVisible("mouseover") and not UnitIsPlayer("mouseover") and not UnitPlayerControlled("mouseover") then
     local guid = UnitGUID("mouseover")
     
     if not IsMonsterGUID(guid) then return end
     
     guid = GetMonsterType(guid)
     
-    local line = 1
+    for _, v in pairs(qlookups) do
+      for _, tv in pairs(v) do
+        if not QHCQ[tv.qid][string.format("criteria_%d_monster_true", tv.obj)] then
+          QHCQ[tv.qid][string.format("criteria_%d_monster_true", tv.obj)] = {}
+          QHCQ[tv.qid][string.format("criteria_%d_monster_false", tv.obj)] = {}
+        end
+        
+        QHCQ[tv.qid][string.format("criteria_%d_monster_false", tv.obj)][guid] = (QHCQ[tv.qid][string.format("criteria_%d_monster_false", tv.obj)][guid] or 0) + 1
+      end
+    end
+    
+    local line = 2
     local qs
     local qe
     
@@ -336,17 +347,6 @@ local function MouseoverUnit()
     if qe then qe = qe - 1 end
     
     if qs and qe then
-      for _, v in pairs(qlookups) do
-        for _, tv in pairs(v) do
-          if not QHCQ[tv.qid][string.format("criteria_%d_monster_true", tv.obj)] then
-            QHCQ[tv.qid][string.format("criteria_%d_monster_true", tv.obj)] = {}
-            QHCQ[tv.qid][string.format("criteria_%d_monster_false", tv.obj)] = {}
-          end
-          
-          QHCQ[tv.qid][string.format("criteria_%d_monster_false", tv.obj)][guid] = (QHCQ[tv.qid][string.format("criteria_%d_monster_false", tv.obj)][guid] or 0) + 1
-        end
-      end
-      
       local cquest = nil
       
       for i = qs, qe do
@@ -391,7 +391,7 @@ function QH_Collect_Quest_Init(QHCData, API)
   API.Registrar_EventHook("CHAT_MSG_LOOT", Looted)
   API.Registrar_EventHook("COMBAT_LOG_EVENT_UNFILTERED", Combat)
   
-  API.Registrar_EventHook("UPDATE_MOUSEOVER_UNIT", MouseoverUnit)
+  API.Registrar_TooltipHook(MouseoverUnit)
   
   -- Here's a pile of events that seem to trigger during startup that also don't seem like would trigger while questing.
   -- We'll lose a few quest updates from this, but that's OK.
