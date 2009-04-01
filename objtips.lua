@@ -49,6 +49,17 @@ local function addObjectiveTip(tooltip, cat, obj)
   end
 end
 
+local function CopyOver(to, from)
+  to:SetFont(from:GetFont())
+  to:SetFontObject(from:GetFontObject())
+  to:SetText(from:GetText())
+  to:SetTextColor(from:GetTextColor())
+  to:SetSpacing(from:GetSpacing())
+  to:SetShadowOffset(from:GetShadowOffset())
+  to:SetShadowColor(from:GetShadowColor())
+  to:Show()
+end
+
 local function StripBlizzQHTooltipClone(ttp)
   if not UnitExists("mouseover") then return end
   
@@ -66,16 +77,8 @@ local function StripBlizzQHTooltipClone(ttp)
       changed = true
     else
       if line ~= wpos then
-        local to = _G["GameTooltipTextLeft" .. wpos]
-        local from = _G["GameTooltipTextLeft" .. line]
-        
-        to:SetFont(from:GetFont())
-        to:SetFontObject(from:GetFontObject())
-        to:SetText(from:GetText())
-        to:SetTextColor(from:GetTextColor())
-        to:SetSpacing(from:GetSpacing())
-        to:SetShadowOffset(from:GetShadowOffset())
-        to:SetShadowColor(from:GetShadowColor())
+        CopyOver(_G["GameTooltipTextLeft" .. wpos], _G["GameTooltipTextLeft" .. line])
+        CopyOver(_G["GameTooltipTextRight" .. wpos], _G["GameTooltipTextRight" .. line])
         
         changed = true
       end
@@ -90,10 +93,12 @@ local function StripBlizzQHTooltipClone(ttp)
     QuestHelper: Assert(ts > 1)
     
     local tt = _G["GameTooltipTextLeft" .. ts]
+    local ttr = _G["GameTooltipTextRight" .. ts]
     local ptt = _G["GameTooltipTextLeft" .. (ts - 1)]
     
     -- this . . . this is awful!
     tt:SetText(nil)
+    ttr:SetText(nil)
     tt:ClearAllPoints()
     tt:SetPoint("TOPLEFT", ptt, "BOTTOMLEFT", 0, 0)
     
