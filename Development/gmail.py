@@ -2,6 +2,9 @@
 
 #Note: We have a custom version of libgmail to fix a bug involving binary attachments (which obviously we have.)
 
+import warnings
+warnings.simplefilter("ignore",DeprecationWarning)
+
 import libgmail
 import md5
 import sys
@@ -20,7 +23,7 @@ tregex = re.compile("rawdata_([0-9a-f]{32,32})(.*)\.bz2")
 outp = commands.getoutput("s3cmd ls s3://questhelper_data/rawdata_")
 print "S3 listing snagged"
 for line in outp.split('\n'):
-  if line == "Bucket 'questhelper_data':":
+  if line == "Bucket 's3://questhelper_data':":
     continue
   serch = tregex.search(line)
   if not serch:

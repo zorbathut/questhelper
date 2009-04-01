@@ -2,7 +2,7 @@ QuestHelper_File["collect_zone.lua"] = "Development Version"
 QuestHelper_Loadtime["collect_zone.lua"] = GetTime()
 
 local debug_output = false
-if QuestHelper_File["collect_traveled.lua"] == "Development Version" then debug_output = true end
+if QuestHelper_File["collect_zone.lua"] == "Development Version" then debug_output = true end
 
 local QHCZ
 

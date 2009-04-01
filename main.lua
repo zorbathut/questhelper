@@ -259,6 +259,7 @@ function QuestHelper:Initialize()
       ["collect_spec.lua"] = true,
       ["collect_upgrade.lua"] = true,
       ["collect_merchant.lua"] = true,
+      ["collect_warp.lua"] = true,
       
       ["routing_debug.lua"] = true,
       ["routing_loc.lua"] = true,
@@ -582,7 +583,7 @@ function QuestHelper:Initialize()
 end
 
 local startup_time
-local please_donate_enabled = true
+local please_donate_enabled = false
 local please_donate_initted = false
 
 function QuestHelper:OnEvent(event)
@@ -978,7 +979,11 @@ Thanks for testing!]], "QuestHelper " .. version_string, 500, 20, 10)
       self.i = QuestHelper_IndexLookup[nc][nz]
     end
     
-    self.collect_c, self.collect_x, self.collect_y, self.collect_rc, self.collect_rz = tc, tx, ty, nc, nz
+    if tc then
+      self.collect_c, self.collect_x, self.collect_y, self.collect_rc, self.collect_rz, self.collect_delayed = tc, tx, ty, nc, nz, false
+    else
+      self.collect_delayed = true
+    end
 
     --[[local level = UnitLevel("player")
     if level >= 58 and self.player_level < 58 then
@@ -1009,7 +1014,7 @@ end
 -- Some or all of these may be nil. c,x,y should be enough for a location - c is the pure continent (currently either 0 or 3 for Azeroth or Outland, or -77 for the DK starting zone) and x,y are the coordinates within that continent.
 -- rc and rz are the continent and zone that Questhelper thinks it's within. For various reasons, this isn't perfect. TODO: Base it off the map zone name identifiers instead of the map itself?
 function QuestHelper:RetrieveRawLocation()
-  return self.collect_c, self.collect_x, self.collect_y, self.collect_rc, self.collect_rz 
+  return self.collect_c, self.collect_x, self.collect_y, self.collect_rc, self.collect_rz, self.collect_delayed
 end
 
 QuestHelper:RegisterEvent("VARIABLES_LOADED")

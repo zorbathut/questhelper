@@ -265,6 +265,9 @@ local function allocateItem()
   return item
 end
 
+local specitem_max = 1
+local specitem_unused = {}
+
 -- This is adding a *single item*. This won't be called by the main parsing loop, but it does need some serious hackery. Let's see now
 local function addItem(objective, y, meta)
   used_count[objective] = (used_count[objective] or 0) + 1
@@ -310,7 +313,29 @@ local function addItem(objective, y, meta)
     item:SetScript("OnUpdate", itemupdate)
   end
   
-  return w+x+4, y+h
+  if objective.tracker_special_item and not item.specitem then  -- 3.1 hackery
+    item.specitem = table.remove(specitem_unused)
+    if not item.specitem then
+      item.specitem = CreateFrame("BUTTON", "QH_SpecItem_" .. tostring(specitem_max), item, "WatchFrameItemButtonTemplate")
+      specitem_max = specitem_max + 1
+      QuestHelper: Assert(item.specitem)
+    end
+    
+    local index, tex = objective.tracker_special_item.index, objective.tracker_special_item.tex
+    
+    item.specitem:SetScale(0.9)
+    item.specitem:ClearAllPoints()
+    item.specitem:SetPoint("TOPRIGHT", item, "TOPLEFT", 0, 0)
+    
+    item.specitem:SetID(index)
+    
+    SetItemButtonTexture(item.specitem, tex)
+    item.specitem.rangeTimer = -1 -- This makes the little dot go away. Why does it do that?
+    
+    item.specitem:Show()
+  end
+  
+  return w+x+4, h
 end
 
 local function addMetaObjective(metaobj, items, y)
@@ -386,6 +411,12 @@ local function removeUnusedItem(item)
   item:SetScript("OnMouseDown", nil)
   item:EnableMouse(false)
   item:SetScript("OnUpdate", itemfadeout)
+  
+  if item.specitem then
+    item.specitem:Hide()
+    table.insert(specitem_unused, item.specitem)
+    item.specitem = nil
+  end
 end
 
 --[=[
@@ -418,7 +449,7 @@ local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
     level = tonumber(level) or 1
     
     count = count + 1
-    local w, h = addItem(qname(name, level), true, quest, -(y+gap), name)
+    local w, h = addItem(qname(name, level), true, quest, -(y+gap), name, quest.index)
     x = math.max(x, w)
     y = y + h + gap
     gap = 2

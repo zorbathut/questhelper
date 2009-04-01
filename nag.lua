@@ -350,7 +350,7 @@ local update_nag_yell_at = nil
 function QHUpdateNagInit()
   if not QuestHelper_Pref.update_nag_last_version or QuestHelper_Pref.update_nag_last_version ~= GetAddOnMetadata("QuestHelper", "Version") then
     QuestHelper_Pref.update_nag_last_version = GetAddOnMetadata("QuestHelper", "Version")
-    QuestHelper_Pref.update_nag_next_notify = time() + 14 * day
+    QuestHelper_Pref.update_nag_next_notify = time() + 24 * day
   end
   
   if QuestHelper_Pref.update_nag_next_notify < time() then
