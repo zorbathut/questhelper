@@ -53,9 +53,6 @@ function QuestHelper_ErrorCatcher.GetAddOns()
 			if (const) then version = const end
 
 			if type(version)=='table' then
-				if (nLog) then
-					nLog.AddMessage("!swatter", "Swatter.lua", N_INFO, "version is a table", name, table.concat(version,":"))
-				end
 				version = table.concat(version,":")
 			end
 
