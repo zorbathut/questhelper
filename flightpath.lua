@@ -81,7 +81,7 @@ TaxiNodeOnButtonEnter = function(btn, ...)
       if eta then -- Going to replace the tooltip.
         GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
         GameTooltip:ClearLines()
-        GameTooltip:AddLine(dest, "", 1.0, 1.0, 1.0)
+        GameTooltip:AddLine(TaxiNodeName(index), "", 1.0, 1.0, 1.0)
         GameTooltip:AddDoubleLine(QHText("TRAVEL_ESTIMATE"), (estimate and "|cffffffff≈|r " or "")..QHFormat("TRAVEL_ESTIMATE_VALUE", eta))
         local cost = TaxiNodeCost(index)
         if cost > 0 then
