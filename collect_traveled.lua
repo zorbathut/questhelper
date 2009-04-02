@@ -182,6 +182,8 @@ local function OnUpdate()
 end
 
 function QH_Collect_Traveled_Init(QHCData, API)
+-- We're actually just going to disable this for now.
+--[[
   Merger = API.Utility_Merger
   QuestHelper: Assert(Merger) -- I need to get rid of this stupid space hack someday
   
@@ -201,7 +203,7 @@ function QH_Collect_Traveled_Init(QHCData, API)
   end end
   
   GetRawLocation = API.Callback_RawLocation
-  API.Registrar_OnUpdateHook(OnUpdate)
+  API.Registrar_OnUpdateHook(OnUpdate)]]
 end
 
 --[[

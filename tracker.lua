@@ -329,6 +329,7 @@ local function addItem(objective, y, meta)
     
     item.specitem:SetID(index)
     
+    local _, tex = GetQuestLogSpecialItemInfo(obj.index)
     SetItemButtonTexture(item.specitem, tex)
     item.specitem.rangeTimer = -1 -- This makes the little dot go away. Why does it do that?
     

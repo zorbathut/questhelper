@@ -112,7 +112,6 @@ end
 function QuestHelper_ErrorPackage(depth)
   return {
     timestamp = date("%Y-%m-%d %H:%M:%S"),
-    stack = stack,
     local_version = QuestHelper_local_version,
     toc_version = QuestHelper_toc_version,
     game_version = GetBuildInfo(),

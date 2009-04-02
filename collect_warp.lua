@@ -15,12 +15,12 @@ local lastloc_table
 
 local function OnUpdate()
   local bolus, tab = GetLoc(), {RawLocation()}
-  if lastloc_table and lastloc_table[1] and tab[1] and not lastloc_table[6] and not tab[6] then
+  if lastloc_table and lastloc_table[2] and tab[2] and lastloc_table[3] and tab[3] and not lastloc_table[1] and not tab[1] then
     local leapy = false
-    if lastloc_table[1] ~= tab[1] then
+    if lastloc_table[2] ~= tab[2] or lastloc_table[3] ~= tab[3] then
       leapy = true
     else
-      local dx, dy = lastloc_table[2] - tab[2], lastloc_table[3] - tab[3]
+      local dx, dy = lastloc_table[4] - tab[4], lastloc_table[5] - tab[5]
       dx, dy = dx * dx, dy * dy
       if dx + dy > 25 * 25 then -- Blink is 20, so we need to do more than that.
         leapy = true
@@ -45,7 +45,7 @@ function QH_Collect_Warp_Init(QHCData, API)
   GetLoc = API.Callback_LocationBolusCurrent
   QuestHelper: Assert(GetLoc)
   
-  RawLocation = API.Callback_RawLocation
+  RawLocation = API.Callback_Location_Raw
   QuestHelper: Assert(RawLocation)
   
   Merger = API.Utility_Merger

@@ -81,7 +81,8 @@ local API = {
   Registrar_EventHook = EventHookRegistrar,
   Registrar_OnUpdateHook = OnUpdateHookRegistrar,
   Registrar_TooltipHook = TooltipHookRegistrar,
-  Callback_RawLocation = function () return QuestHelper:RetrieveRawLocation() end,
+  Callback_Location_Raw = function () return QuestHelper:Location_RawRetrieve() end,
+  Callback_Location_Absolute = function () return QuestHelper:Location_AbsoluteRetrieve() end,
 }
 
 local CompressCollection
@@ -141,9 +142,8 @@ function QH_Collector_Init()
   -- So, why do we delay it?
   -- It's simple. People are gonna update to this version, and then they're going to look at the memory usage. Then they will panic because omg this version uses so much more memory, I bet that will somehow hurt my framerates in a way which is not adequately explained!
   -- So instead, we just wait half an hour before compressing. Compression will still get done, and I won't have to deal with panicked comments about how bloated QH has gotten.
-  -- Want QH to work better? Just make that "30 * 60" bit into "0" instead.
   -- addendum: yeah naturally I'm getting all sorts of panicked comments about how bloated qh has gotten, sigh
-  API.Utility_Notifier(GetTime() + 30 * 60, function() CompressCollection(QHCData, QuestHelper_Collector[sig_altfaction], API.Utility_Merger, API.Utility_LZW.Compress) end)
+  API.Utility_Notifier(GetTime() + (debug_output and 0 or (30 * 60)), function() CompressCollection(QHCData, QuestHelper_Collector[sig_altfaction], API.Utility_Merger, API.Utility_LZW.Compress) end)
 end
 
 function QH_Collector_OnUpdate()
@@ -218,7 +218,20 @@ local function DoCompress(item, merger, comp)
   if debug_output then QuestHelper: TextOut(string.format("Item condensed to %d bytes, %f taken so far", #tg, GetTime() - ts)) end
   mg = nil
   
-  local cmp = comp(tg, 256, 8)
+  local cmp = {}
+  local cmptot = 0
+  
+  local doublecheck = ""
+  for chunk = 1, #tg, 1048576 do
+    local fragment = tg:sub(chunk, chunk + 1048575)
+    doublecheck = doublecheck .. fragment
+    local ite = comp(fragment, 256, 8)
+    cmptot = cmptot + #ite
+    table.insert(cmp, ite)
+  end
+  QuestHelper: Assert(doublecheck == tg)
+  
+  if #cmp == 1 then cmp = cmp[1] end
   
   for k, v in pairs(target) do
     if not noncompressible[k] then
@@ -227,7 +240,7 @@ local function DoCompress(item, merger, comp)
   end
   item.compressed = cmp
   
-  if debug_output then QuestHelper: TextOut(string.format("Item compressed to %d bytes (previously %d), %f taken", #cmp, #tg, GetTime() - ts)) end
+  if debug_output then QuestHelper: TextOut(string.format("Item compressed to %d bytes in %d shards (previously %d), %f taken", cmptot, type(cmp) == "table" and #cmp or 1, #tg, GetTime() - ts)) end
 end
 
 CompressCollection = function(active, active2, merger, comp)
