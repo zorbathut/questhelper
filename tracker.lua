@@ -336,7 +336,7 @@ local function addItem(objective, y, meta)
     item.specitem:Show()
   end
   
-  return w+x+4, h
+  return w+x+4, y+h
 end
 
 local function addMetaObjective(metaobj, items, y)
