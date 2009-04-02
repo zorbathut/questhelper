@@ -459,7 +459,7 @@ function QuestHelper:taxiMapOpened()
     if not QuestHelper_KnownFlightRoutes[name] then
       QuestHelper_KnownFlightRoutes[name] = true
       altered = true
-      self:TextOut("New flight master: " .. name)
+      --self:TextOut("New flight master: " .. name)
       QH_Route_FlightPathRecalc()
     end
     
@@ -499,7 +499,7 @@ function QuestHelper:taxiMapOpened()
           if not QuestHelper_KnownFlightRoutes[n2] then
             QuestHelper_KnownFlightRoutes[n2] = true
             altered = true
-            self:TextOut("New flight master implied: " .. n2)
+            --self:TextOut("New flight master implied: " .. n2)
           end
           
           --QuestHelper:TextOut(string.format("taxi %d: %d is %s/%s", j, k, n1, n2))
@@ -533,7 +533,7 @@ function QuestHelper:taxiMapOpened()
           if not hash1[0] then
             if not (sroutes and sroutes[n1] and sroutes[n1][n2] and sroutes[n1][n2][0]) then
               -- hadn't been considering this link in pathing.
-              self:TextOut(string.format("Found new link between %s and %s", n1, n2))
+              --self:TextOut(string.format("Found new link between %s and %s", n1, n2))
               altered = true
             end
             hash1[0] = true
@@ -542,7 +542,7 @@ function QuestHelper:taxiMapOpened()
           if not hash2[0] then
             if not (sroutes and sroutes[n2] and sroutes[n2][n1] and sroutes[n2][n1][0]) then
               -- hadn't been considering this link in pathing.
-              self:TextOut(string.format("Found new link between %s and %s", n2, n1))
+              --self:TextOut(string.format("Found new link between %s and %s", n2, n1))
               altered = true
             end
             hash2[0] = true
