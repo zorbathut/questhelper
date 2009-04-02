@@ -205,7 +205,7 @@ local function process()
       pathcache_active = {} -- eat it, garbage collector
     end
     
-    local c, x, y, rc, rz = QuestHelper.collect_c, QuestHelper.collect_x, QuestHelper.collect_y, QuestHelper.c, QuestHelper.z  -- ugh we need a better solution to this, but with this weird "planes" hybrid there just isn't one right now
+    local c, x, y, rc, rz = QuestHelper.collect_ac, QuestHelper.collect_ax, QuestHelper.collect_ay, QuestHelper.collect_rc, QuestHelper.collect_rz  -- ugh we need a better solution to this, but with this weird "planes" hybrid there just isn't one right now
     if c and x and y and rc and rz and (c ~= lc or x ~= lx or y ~= ly or rc ~= lrc or rz ~= lrz) then
       --local t = GetTime()
       lc, lx, ly, lrc, lrz = c, x, y, rc, rz
