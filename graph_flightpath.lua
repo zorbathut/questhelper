@@ -12,8 +12,6 @@ function QH_redo_flightpath()
     local ridingLevel = (select(4,GetAchievementInfo(892)) and 300) or (select(4,GetAchievementInfo(890)) and 225) or (select(4,GetAchievementInfo(889)) and 150) or (select(4,GetAchievementInfo(891)) and 75) or 0 -- this is thanks to Maldivia, who is a fucking genius
     local has_cwf = not not GetSpellInfo(GetSpellInfo(54197))
     
-    print(ridingLevel, has_cwf)
-    
     if ridingLevel >= 225 then
       QH_Graph_Flyplaneset(3) -- Outland
     end
@@ -151,6 +149,18 @@ function QH_redo_flightpath()
     QH_Timeslice_Yield()
     for dest, dat in pairs(t) do
       do
+        local fms = flightmasters[src]
+        local fmd = flightmasters[dest]
+        if fms and fmd then
+          fms = fms.loc[1]
+          fmd = fmd.loc[1]
+          
+          QuestHelper: Assert(fms.c and (fms.c == fmd.c))
+          QuestHelper: Assert(fms.rc and (fms.rc == fmd.rc))
+        end
+      end
+      
+      do
         local sname = flightdb[src].name
         local dname = flightdb[dest].name
         
@@ -165,6 +175,9 @@ function QH_redo_flightpath()
         if fms and fmd then
           fms = fms.loc[1]
           fmd = fmd.loc[1]
+          
+          QuestHelper: Assert(fms.c and (fms.c == fmd.c))
+          QuestHelper: Assert(fms.rc and (fms.rc == fmd.rc))
           
           local snode = {x = fms.x, y = fms.y, c = fms.c, p = QuestHelper_IndexLookup[fms.rc][fms.rz], map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("FLIGHT_POINT", flightdb[dest].name))}, condense_class = "flightpath"}
           local dnode = {x = fmd.x, y = fmd.y, c = fmd.c, p = QuestHelper_IndexLookup[fmd.rc][fmd.rz], map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("FLIGHT_POINT", flightdb[src].name))}, condense_class = "flightpath"}
