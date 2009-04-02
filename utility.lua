@@ -256,8 +256,11 @@ end
 function QuestHelper:LocationString(i, x, y)
   return ("[|cffffffff%s|r:|cffffffff%d,%.3f,%.3f|r]"):format(QuestHelper_NameLookup[i] or "nil", i or -7777, x or -7777, y or -7777)
 end
-function QuestHelper:LocationStringRaw(c, x, y, rc, rz, delayed)
-  return ("[|cffffffff%s/%s,%s,%s,%s,%s|r]"):format(delayed and "D" or "c", tostring(c), x and string.format("%.3f", x) or tostring(x), y and string.format("%.3f", y) or tostring(y), tostring(rc), tostring(rz))
+function QuestHelper:Location_RawString(delayed, c, z, x, y)
+  return ("[|cffffffff%s/%s,%s,%s,%s|r]"):format(delayed and "D" or "c", c and string.format("%d", c) or tostring(c), z and string.format("%d", z) or tostring(z), x and string.format("%.3f", x) or tostring(x), y and string.format("%.3f", y) or tostring(y))
+end
+function QuestHelper:Location_AbsoluteString(delayed, c, x, y)
+  return ("[|cffffffff%s/%s,%s,%s|r]"):format(delayed and "D" or "c", c and string.format("%d", c) or tostring(c), x and string.format("%.3f", x) or tostring(x), y and string.format("%.3f", y) or tostring(y))
 end
 
 function QuestHelper:Distance(i1, x1, y1, i2, x2, y2)

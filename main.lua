@@ -919,8 +919,10 @@ function QuestHelper:OnUpdate()
       self.i = QuestHelper_IndexLookup[nc][nz]
     end
     
-    if tc then
-      self.collect_c, self.collect_x, self.collect_y, self.collect_rc, self.collect_rz, self.collect_delayed = tc, tx, ty, nc, nz, false
+    if nc and nz and nx and ny and tc and tx and ty then
+      self.collect_rc, self.collect_rz, self.collect_rx, self.collect_ry = nc, nz, nx, ny
+      self.collect_ac, self.collect_ax, self.collect_ay = tc, tx, ty
+      self.collect_delayed = false
     else
       self.collect_delayed = true
     end
@@ -953,8 +955,11 @@ end
 
 -- Some or all of these may be nil. c,x,y should be enough for a location - c is the pure continent (currently either 0 or 3 for Azeroth or Outland) and x,y are the coordinates within that continent.
 -- rc and rz are the continent and zone that Questhelper thinks it's within. For various reasons, this isn't perfect. TODO: Base it off the map zone name identifiers instead of the map itself?
-function QuestHelper:RetrieveRawLocation()
-  return self.collect_c, self.collect_x, self.collect_y, self.collect_rc, self.collect_rz, self.collect_delayed
+function QuestHelper:Location_RawRetrieve()
+  return self.collect_delayed, self.collect_rc, self.collect_rz, self.collect_rx, self.collect_ry
+end
+function QuestHelper:Location_AbsoluteRetrieve()
+  return self.collect_delayed, self.collect_ac, self.collect_ax, self.collect_ay
 end
 
 QuestHelper:RegisterEvent("VARIABLES_LOADED")

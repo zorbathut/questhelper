@@ -81,7 +81,8 @@ local API = {
   Registrar_EventHook = EventHookRegistrar,
   Registrar_OnUpdateHook = OnUpdateHookRegistrar,
   Registrar_TooltipHook = TooltipHookRegistrar,
-  Callback_RawLocation = function () return QuestHelper:RetrieveRawLocation() end,
+  Callback_Location_Raw = function () return QuestHelper:Location_RawRetrieve() end,
+  Callback_Location_Absolute = function () return QuestHelper:Location_AbsoluteRetrieve() end,
 }
 
 local CompressCollection
@@ -134,8 +135,7 @@ function QH_Collector_Init()
   -- So, why do we delay it?
   -- It's simple. People are gonna update to this version, and then they're going to look at the memory usage. Then they will panic because omg this version uses so much more memory, I bet that will somehow hurt my framerates in a way which is not adequately explained!
   -- So instead, we just wait half an hour before compressing. Compression will still get done, and I won't have to deal with panicked comments about how bloated QH has gotten.
-  -- Want QH to work better? Just make that "30 * 60" bit into "0" instead.
-  API.Utility_Notifier(GetTime() + 5, function() CompressCollection(QHCData, QuestHelper_Collector[sig_altfaction], API.Utility_Merger, API.Utility_LZW.Compress) end)
+  API.Utility_Notifier(GetTime() + (debug_output and 0 or (30 * 60)), function() CompressCollection(QHCData, QuestHelper_Collector[sig_altfaction], API.Utility_Merger, API.Utility_LZW.Compress) end)
 end
 
 function QH_Collector_OnUpdate()

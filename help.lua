@@ -720,7 +720,7 @@ commands =
      
     {"POS",
       "Prints the player's current position. Exists mainly for my own personal convenience.",
-      {}, function (qh) qh:TextOut(qh:LocationString(qh.i, qh.x, qh.y) .. "   " .. qh:LocationStringRaw(qh:RetrieveRawLocation())) end, QuestHelper},
+      {}, function (qh) qh:TextOut(qh:LocationString(qh.i, qh.x, qh.y) .. "   " .. qh:Location_RawString(qh:Location_RawRetrieve()) .. "  " .. qh:Location_AbsoluteString(qh:Location_AbsoluteRetrieve())) end, QuestHelper},
       
     {"COMM",
      "Toggles showing of the communication between QuestHelper users. Exists mainly for my own personal convenience.",
