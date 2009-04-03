@@ -52,7 +52,6 @@ GameTooltip.SetText = function (...)
   suppress = false
 end
 
-print("colinit")
 local OriginalScript = GameTooltip:GetScript("OnShow")
 GameTooltip:SetScript("OnShow", function (self, ...)
   if not suppress then
