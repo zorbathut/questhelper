@@ -20,6 +20,18 @@ I think this works tomorrow.
 
 ]]
 
+--[[
+
+hey hey ignoring is complicated so let's discuss that!
+
+Problem: One item can be ignored by multiple modules. Further problem: One item can be "de-ignored" explicitly by the player. Further further problem: either clusters or items can be ignored.
+
+Current solution: We provide "ignore" and "unignore" functions that take a cluster and an identifier. Ignoring only stacks if the identifier is unique. If X depends on Y, and Y is ignored, then X is implicitly ignored.
+
+Later, we'll provide something similar on items (or just dump items entirely? it's not like they're used for anything)
+
+]]
+
 local OptimizationHackery = false
 
 if OptimizationHackery then DebugOutput = false end -- :ughh:
@@ -55,8 +67,11 @@ local DistBatch
   local ClusterTableLookup = {} -- Goes from the actual cluster table to the cluster ID
   local ClusterDead = {} -- List of dead clusters that can be reclaimed
   
+  local ClusterIgnored = {} -- key-to-table-of-reasons-ignored
+  local ClusterIgnoredCount = {}
+  
   local DependencyLinks = {}  -- Every cluster that cluster X depends on
-  local DependencyLinksReverse = {}  -- Every cluster that cluster X depends on
+  local DependencyLinksReverse = {}  -- Every cluster that is depended on by cluster X
   local DependencyCounts = {}  -- How many different nodes cluster X depends on
 
   local StartNode = {ignore = true, loc = {x = 37690, y = 19671, p = 25, c = 0}}  -- Ironforge mailbox :)
@@ -367,23 +382,25 @@ local function RunAnt()
   end
   
   for _, v in ipairs(ActiveNodes) do
-    local need = false
-    
-    if ClusterLookup[v] then
-      QuestHelper: Assert(dependencies[ClusterLookup[v]])
-      if dependencies[ClusterLookup[v]] == 0 then
+    if not ClusterLookup[v] or ClusterIgnoredCount[ClusterLookup[v]] == 0 then -- if it's ignored, then we just plain don't do anything
+      local need = false
+      
+      if ClusterLookup[v] then
+        QuestHelper: Assert(dependencies[ClusterLookup[v]])
+        if dependencies[ClusterLookup[v]] == 0 then
+          need = true
+        end
+      else
         need = true
       end
-    else
-      need = true
+      
+      if need then
+        needed[v] = true
+        needed_ready_count = needed_ready_count + 1
+      end
+      
+      needed_count = needed_count + 1
     end
-    
-    if need then
-      needed[v] = true
-      needed_ready_count = needed_ready_count + 1
-    end
-    
-    needed_count = needed_count + 1
   end
   
   needed[1] = nil
@@ -439,7 +456,7 @@ local function RunAnt()
       -- Dependency links.
       if DependencyLinksReverse[clust] then for _, v in ipairs(DependencyLinksReverse[clust]) do
         dependencies[v] = dependencies[v] - 1
-        if dependencies[v] == 0 then
+        if dependencies[v] == 0 and ClusterIgnoredCount[v] == 0 then
           for _, v in pairs(Cluster[v]) do
             needed[v] = true
             needed_ready_count = needed_ready_count + 1
@@ -576,6 +593,55 @@ function QH_Route_Core_Process()
   QH_Timeslice_Yield()  -- "heh"
 end
 -- End core loop
+
+-- Ignore/unignore
+  local function RecursiveIgnoreCount(clustid, accum)
+    if accum == 0 then return end
+    print(clustid, accum)
+    if ClusterIgnoredCount[clustid] == 0 then last_best = nil end
+    ClusterIgnoredCount[clustid] = ClusterIgnoredCount[clustid] + accum
+    if ClusterIgnoredCount[clustid] == 0 then last_best = nil end
+    
+    if DependencyLinksReverse[clustid] then
+      for _, v in pairs(DependencyLinksReverse[clustid]) do
+        RecursiveIgnoreCount(v, accum)
+      end
+    end
+  end
+  
+  function QH_Route_Core_IgnoreCluster(clust, reason)
+    print(clust, reason)
+    local clustid = ClusterTableLookup[clust]
+    if not clustid then
+      QuestHelper:TextOut("Attempted to ignore a cluster that no longer exists")
+      return
+    end
+    
+    QuestHelper: Assert(clustid)
+    
+    if not ClusterIgnored[clustid][reason] then
+      ClusterIgnored[clustid][reason] = true
+      RecursiveIgnoreCount(clustid, 1)
+    end
+  end
+  
+  function QH_Route_Core_UnignoreCluster(clust, reason)
+    local clustid = ClusterTableLookup[clust]
+    if not clustid then
+      QuestHelper:TextOut("Attempted to unignore a cluster that no longer exists")
+      return
+    end
+    
+    QuestHelper: Assert(clustid)
+    
+    if ClusterIgnored[clustid][reason] then
+      ClusterIgnored[clustid][reason] = nil
+      RecursiveIgnoreCount(clustid, -1)
+    end
+  end
+  
+  local QH_Route_Core_UnignoreCluster = QH_Route_Core_UnignoreCluster -- we're just saving this so it doesn't get splattered
+-- End ignore/unignore
 
 -- Node allocation and deallocation
 
@@ -752,6 +818,9 @@ function QH_Route_Core_ClusterAdd(clust, clustid_used)
   Cluster[clustid] = {}
   ClusterTableLookup[clust] = clustid
   
+  ClusterIgnored[clustid] = {}
+  ClusterIgnoredCount[clustid] = 0
+  
   -- if we're doing hackery, clust will just be an empty table and we'll retrofit stuff later
   for _, v in ipairs(clust) do
     local idx = QH_Route_Core_NodeAdd_Internal(v)
@@ -778,6 +847,22 @@ function QH_Route_Core_ClusterRemove(clust, clustid_used)
     end
   else
     clustid = ClusterTableLookup[clust]
+  end
+  
+  do
+    local abort
+    repeat
+      abort = true
+      for k, v in pairs(ClusterIgnored[clustid]) do
+        abort = false
+        QH_Route_Core_UnignoreCluster(clust, v)
+        break
+      end
+    until not abort
+    
+    -- Imagine a->b->c. a is ignored, and b is deleted. This decouples a from c (todo: should it?) but we need to reduce c's ignore count appropriately so it's unignored.
+    RecursiveIgnoreCount(clustid, -ClusterIgnoredCount[clustid])
+    QuestHelper: Assert(ClusterIgnoredCount[clustid] == 0)
   end
   
   if DebugOutput then QuestHelper:TextOut(string.format("Removing cluster %d", clustid)) end
@@ -819,6 +904,9 @@ function QH_Route_Core_ClusterRemove(clust, clustid_used)
   Cluster[clustid] = nil
   ClusterTableLookup[clust] = nil
   table.insert(ClusterDead, clustid)
+  
+  ClusterIgnored[clustid] = nil
+  ClusterIgnoredCount[clustid] = nil
   
   Storage_ClusterDestroyed(clustid)
 end

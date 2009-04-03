@@ -15,6 +15,9 @@ local Route_Core_ClusterRemove = QH_Route_Core_ClusterRemove
 local Route_Core_ClusterRequires = QH_Route_Core_ClusterRequires
 local Route_Core_DistanceClear = QH_Route_Core_DistanceClear
 
+local Route_Core_IgnoreCluster = QH_Route_Core_IgnoreCluster
+local Route_Core_UnignoreCluster = QH_Route_Core_UnignoreCluster
+
 QH_Route_Core_Process = nil
 QH_Route_Core_Init = nil
 QH_Route_Core_NodeAdd = nil
@@ -23,7 +26,8 @@ QH_Route_Core_SetStart = nil
 QH_Route_Core_NodeObsoletes = nil
 QH_Route_Core_NodeRequires = nil
 QH_Route_Core_DistanceClear = nil
-
+QH_Route_Core_IgnoreCluster = nil
+QH_Route_Core_UnignoreCluster = nil
 
 local pending = {}
 
@@ -133,6 +137,15 @@ end
 
 function QH_Route_ClusterRequires(a, b)
   table.insert(pending, function () Route_Core_ClusterRequires(a, b) end)
+end
+
+function QH_Route_IgnoreCluster(clust, reason)
+  print(clust, reason)
+  table.insert(pending, function () Route_Core_IgnoreCluster(clust, reason) end)
+end
+
+function QH_Route_UnignoreCluster(clust, reason)
+  table.insert(pending, function () Route_Core_UnignoreCluster(clust, reason) end)
 end
 
 function QH_Route_FlightPathRecalc()

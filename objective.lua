@@ -1314,11 +1314,13 @@ function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
     item:SetFunction(obj.Unshare, obj)
     
     self:CreateMenuItem(menu, QHText("SHARING")):SetSubmenu(submenu)
+  end]]
+  
+  --self:CreateMenuItem(menu, "(No options available)")
+  
+  if obj.cluster then
+    self:CreateMenuItem(menu, QHText("IGNORE")):SetFunction(QH_Route_IgnoreCluster, obj.cluster, "user_ignore")
   end
-  
-  self:CreateMenuItem(menu, QHText("IGNORE")):SetFunction(self.IgnoreObjective, self, obj)]]
-  
-  self:CreateMenuItem(menu, "(No options available)")
 end
 
 function QuestHelper:IgnoreObjective(objective)
