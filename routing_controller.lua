@@ -15,6 +15,8 @@ local Route_Core_ClusterRemove = QH_Route_Core_ClusterRemove
 local Route_Core_ClusterRequires = QH_Route_Core_ClusterRequires
 local Route_Core_DistanceClear = QH_Route_Core_DistanceClear
 
+local Route_Core_IgnoreNode = QH_Route_Core_IgnoreNode
+local Route_Core_UnignoreNode = QH_Route_Core_UnignoreNode
 local Route_Core_IgnoreCluster = QH_Route_Core_IgnoreCluster
 local Route_Core_UnignoreCluster = QH_Route_Core_UnignoreCluster
 
@@ -26,6 +28,8 @@ QH_Route_Core_SetStart = nil
 QH_Route_Core_NodeObsoletes = nil
 QH_Route_Core_NodeRequires = nil
 QH_Route_Core_DistanceClear = nil
+QH_Route_Core_IgnoreNode = nil
+QH_Route_Core_UnignoreNode = nil
 QH_Route_Core_IgnoreCluster = nil
 QH_Route_Core_UnignoreCluster = nil
 
@@ -127,12 +131,20 @@ function QH_Route_NodeRemove(node)
   table.insert(pending, function () Route_Core_NodeRemove(node) end)
 end
 
-function QH_Route_ClusterAdd(node)
-  table.insert(pending, function () Route_Core_ClusterAdd(node) end)
+function QH_Route_IgnoreNode(node, reason)
+  table.insert(pending, function () Route_Core_IgnoreNode(node, reason) end)
 end
 
-function QH_Route_ClusterRemove(node)
-  table.insert(pending, function () Route_Core_ClusterRemove(node) end)
+function QH_Route_UnignoreNode(node, reason)
+  table.insert(pending, function () Route_Core_UnignoreNode(node, reason) end)
+end
+
+function QH_Route_ClusterAdd(clust)
+  table.insert(pending, function () Route_Core_ClusterAdd(clust) end)
+end
+
+function QH_Route_ClusterRemove(clust)
+  table.insert(pending, function () Route_Core_ClusterRemove(clust) end)
 end
 
 function QH_Route_ClusterRequires(a, b)
@@ -140,7 +152,6 @@ function QH_Route_ClusterRequires(a, b)
 end
 
 function QH_Route_IgnoreCluster(clust, reason)
-  print(clust, reason)
   table.insert(pending, function () Route_Core_IgnoreCluster(clust, reason) end)
 end
 
