@@ -656,12 +656,15 @@ function QuestHelper:CreateMipmapDodad()
   function icon:OnUpdate(elapsed)
     if self.obj then
       
-      --[=[if UnitIsDeadOrGhost("player") then
+      if UnitIsDeadOrGhost("player") then
         QuestHelper:InvokeWaypointCallbacks()
       else
-        local reason = (t[5] and (QHFormat("WAYPOINT_REASON", t[5]).."\n"..self.objective:Reason(true)))
-                       or self.objective:Reason(true)
+        local c, z = QuestHelper.collect_rc or 0, QuestHelper.collect_rz or 0
+        local x, y = convertLocationToScreen(self.obj.loc, c, z)
+        --QuestHelper:TextOut(string.format("internal: %f %f %f %f or %f %f %f", c, z, x, y, self.obj.loc.c, self.obj.loc.x, self.obj.loc.y))
+        QuestHelper:InvokeWaypointCallbacks(c, z, x, y, self.obj.map_desc[1])
         
+        --[=[
         if QuestHelper.c == t[1] then
           -- Translate the position to the zone the player is standing in.
           local c, z = QuestHelper.c, QuestHelper.z
@@ -679,8 +682,8 @@ function QuestHelper:CreateMipmapDodad()
           end
           local c, z = QuestHelper_IndexLookup[index]
           QuestHelper:InvokeWaypointCallbacks(c, z, x, y, reason)
-        end
-      end]=]
+        end]=]
+      end
       
       if QuestHelper.Astrolabe:PlaceIconOnMinimap(self, convertLocation(self.obj.loc)) ~= -1 then
         local edge = QuestHelper.Astrolabe:IsIconOnEdge(self)
