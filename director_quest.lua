@@ -238,7 +238,7 @@ function QH_UpdateQuests()
     
     -- This begins the main update loop that loops through all of the quests
     while true do
-      local title, level = GetQuestLogTitle(index)
+      local title, level, variety, groupsize, _, _, complete = GetQuestLogTitle(index)
       if not title then break end
       
       local qlink = GetQuestLink(index)
@@ -273,7 +273,6 @@ function QH_UpdateQuests()
               end
             end
             
-            local prereqs_done = true
             -- These are the individual criteria of the quest. Remember that each criteria can be represented by multiple routing objectives.
             for i = 1, GetNumQuestLeaderBoards(index) do
               if db[i] then
@@ -297,8 +296,6 @@ function QH_UpdateQuests()
                 else
                   db[i].progress[UnitName("player")] = {have, need, 0}  -- it's only used for the coloring anyway
                 end
-                
-                if not done then prereqs_done = false end
                 
                 db[i].desc = QHFormat("TOOLTIP_QUEST", title)
                 
@@ -326,8 +323,10 @@ function QH_UpdateQuests()
             end
             
             db.type_quest.level = level
-            db.type_quest.done = prereqs_done
+            db.type_quest.done = (complete == 1)
             db.type_quest.index = index
+            db.type_quest.variety = variety
+            db.type_quest.groupsize = groupsize
           end
         end
       end

@@ -419,6 +419,7 @@ function QuestHelper:Initialize()
   self:RegisterEvent("BAG_UPDATE")
   self:RegisterEvent("GOSSIP_SHOW")
   self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE")
+  self:RegisterEvent("UNIT_LEVEL")
 
   self:SetLocaleFonts()
 
@@ -740,7 +741,10 @@ function QuestHelper:OnEvent(event)
     end
   end]]
 
-  if event == "PARTY_MEMBERS_CHANGED" then
+  if event == "PARTY_MEMBERS_CHANGED" or
+    event == "UNIT_LEVEL" or
+    event == "RAID_ROSTER_UPDATE" then
+    QH_Filter_Group_Sync()
     QH_Route_Filter_Rescan("filter_quest_level")
   end
   
@@ -982,7 +986,7 @@ Thanks for testing!]], "QuestHelper " .. version_string, 500, 20, 10)
       local upd_zone = false
       if self.i ~= QuestHelper_IndexLookup[nc][nz] then upd_zone = true end
       self.i = QuestHelper_IndexLookup[nc][nz]
-      QH_Route_Filter_Rescan("filter_zone")
+      if upd_zone then QH_Route_Filter_Rescan("filter_zone") end
     end
     
     if nc and nz and nx and ny and tc and tx and ty then
