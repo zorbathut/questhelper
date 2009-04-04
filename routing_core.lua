@@ -1,7 +1,7 @@
 QuestHelper_File["routing_core.lua"] = "Development Version"
 QuestHelper_Loadtime["routing_core.lua"] = GetTime()
 
-local DebugOutput = (QuestHelper_File["routing_core.lua"] == "Development Version")
+local debug_output = (QuestHelper_File["routing_core.lua"] == "Development Version")
 
 --[[
 
@@ -34,7 +34,7 @@ Later, we'll provide something similar on items (or just dump items entirely? it
 
 local OptimizationHackery = false
 
-if OptimizationHackery then DebugOutput = false end -- :ughh:
+if OptimizationHackery then debug_output = false end -- :ughh:
 
 
 -- Ant colony optimization. Moving from X to Y has the quality (Distance[x,y]^alpha)*(Weight[x,y]^beta). Sum all available qualities, then choose weighted randomly.
@@ -523,7 +523,7 @@ function QH_Route_Core_Process()
     end
     
     if refreshcount > 0 then
-      QuestHelper:TextOut(string.format("Refreshing %d", refreshcount))
+      if debug_output then QuestHelper:TextOut(string.format("Refreshing %d", refreshcount)) end
       if refreshcount >= #ActiveNodes / 2 then
         -- Refresh everything!
         QH_Route_Core_DistanceClear_Local()
@@ -617,6 +617,7 @@ end
   local function RecursiveIgnoreCount(clustid, accum)
     if accum == 0 then return end
     --print(clustid, accum)
+    
     if ClusterIgnoredCount[clustid] == 0 then last_best = nil end
     ClusterIgnoredCount[clustid] = ClusterIgnoredCount[clustid] + accum
     if ClusterIgnoredCount[clustid] == 0 then last_best = nil end
@@ -639,7 +640,6 @@ end
   
   local function Internal_UnignoreCluster(clustid, reason)
     QuestHelper: Assert(clustid)
-    
     if ClusterIgnored[clustid][reason] then
       ClusterIgnored[clustid][reason] = nil
       RecursiveIgnoreCount(clustid, -1)
@@ -662,7 +662,6 @@ end
       QuestHelper:TextOut("Attempted to unignore a cluster that no longer exists")
       return
     end
-    
     Internal_UnignoreCluster(clustid, reason)
   end
     
@@ -696,7 +695,7 @@ end
   function QH_Route_Core_UnignoreNode(node, reason)
     local nid = NodeLookup[node]
     if not nid then
-      QuestHelper:TextOut("Attempted to unignore a cluster that no longer exists")
+      QuestHelper:TextOut("Attempted to unignore a node that no longer exists")
       return
     end
     
@@ -899,7 +898,7 @@ function QH_Route_Core_ClusterAdd(clust, clustid_used)
     if not clustid then clustid = #Cluster + 1 end
   end
   
-  if DebugOutput then QuestHelper:TextOut(string.format("Adding cluster %d", clustid)) end
+  if debug_output then QuestHelper:TextOut(string.format("Adding cluster %d", clustid)) end
   
   Cluster[clustid] = {}
   ClusterTableLookup[clust] = clustid
@@ -935,24 +934,26 @@ function QH_Route_Core_ClusterRemove(clust, clustid_used)
   else
     clustid = ClusterTableLookup[clust]
   end
-  
+
   do
+    local ct = 0
     local abort
     repeat
+      QuestHelper: Assert(ct < 100)
       abort = true
       for k, v in pairs(ClusterIgnored[clustid]) do
         abort = false
-        QH_Route_Core_UnignoreCluster(clust, v)
+        Internal_UnignoreCluster(clustid, k)
+        ct = ct + 1
         break
       end
-    until not abort
-    
+    until abort
     -- Imagine a->b->c. a is ignored, and b is deleted. This decouples a from c (todo: should it?) but we need to reduce c's ignore count appropriately so it's unignored.
     RecursiveIgnoreCount(clustid, -ClusterIgnoredCount[clustid])
     QuestHelper: Assert(ClusterIgnoredCount[clustid] == 0)
   end
-  
-  if DebugOutput then QuestHelper:TextOut(string.format("Removing cluster %d", clustid)) end
+
+  if debug_output then QuestHelper:TextOut(string.format("Removing cluster %d", clustid)) end
   
   for _, v in ipairs(clust) do
     local idx = QH_Route_Core_NodeRemove_Internal(v)
@@ -965,7 +966,7 @@ function QH_Route_Core_ClusterRemove(clust, clustid_used)
     for k, v in pairs(DependencyLinks[clustid]) do
       for m, f in pairs(DependencyLinksReverse[v]) do
         if f == clustid then
-          if DebugOutput then QuestHelper:TextOut(string.format("Unlinking cluster %d needs %d", clustid, v)) end
+          if debug_output then QuestHelper:TextOut(string.format("Unlinking cluster %d needs %d", clustid, v)) end
           table.remove(DependencyLinksReverse[v], m)
           break
         end
@@ -978,7 +979,7 @@ function QH_Route_Core_ClusterRemove(clust, clustid_used)
     for k, v in pairs(DependencyLinksReverse[clustid]) do
       for m, f in pairs(DependencyLinks[v]) do
         if f == clustid then
-          if DebugOutput then QuestHelper:TextOut(string.format("Unlinking cluster %d needs %d", v, clustid)) end
+          if debug_output then QuestHelper:TextOut(string.format("Unlinking cluster %d needs %d", v, clustid)) end
           table.remove(DependencyLinks[v], m)
           DependencyCounts[v] = DependencyCounts[v] - 1
           break
@@ -1016,7 +1017,7 @@ function QH_Route_Core_ClusterRequires(a, b, hackery)
   QuestHelper: Assert(bidx)
   QuestHelper: Assert(aidx ~= bidx)
   
-  if DebugOutput then QuestHelper:TextOut(string.format("Linking cluster %d needs %d", aidx, bidx)) end
+  if debug_output then QuestHelper:TextOut(string.format("Linking cluster %d needs %d", aidx, bidx)) end
   
   DependencyCounts[aidx] = DependencyCounts[aidx] + 1
   

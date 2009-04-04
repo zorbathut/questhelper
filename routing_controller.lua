@@ -156,7 +156,6 @@ local function ScanCluster(clust)
 end
 
 function QH_Route_Filter_Rescan(name)
-  print(debugstack(0, 20, 20))
   QuestHelper: Assert(filters[name])
   table.insert(pending, function ()
     Route_Core_TraverseNodes(function (...)
