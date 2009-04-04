@@ -329,6 +329,14 @@ function QH_Route_Core_NodeCount()
   return #ActiveNodes
 end
 
+function QH_Route_Core_TraverseNodes(func)
+  for _, v in ipairs(ActiveNodes) do
+    if v ~= 1 then
+      func(NodeList[v])
+    end
+  end
+end
+
 -- fuck floating-point
 local function almost(a, b)
   if a == b then return true end

@@ -730,14 +730,15 @@ function QuestHelper:CreateMipmapDodad()
     self:SetWidth(20*QuestHelper_Pref.scale)
     
     if obj ~= self.obj then
+      self.obj = obj
       if obj and not QuestHelper_Pref.hide then
         self:Show()
       else
         QuestHelper:InvokeWaypointCallbacks()
         self:Hide()
+        return
       end
       
-      self.obj = obj
       self.recalc_timeout = 0
       
       if self.dot then QuestHelper:ReleaseTexture(self.dot) self.dot = nil end

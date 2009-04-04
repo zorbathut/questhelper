@@ -254,7 +254,7 @@ function QuestHelper:LevelOffset(offset)
     
     if QuestHelper_Pref.level ~= level then
       QuestHelper_Pref.level = level
-      self.defered_quest_scan = true
+      QH_Route_Filter_Rescan("filter_quest_level")
     end
   elseif offset == "" then
     if QuestHelper_Pref.level <= 0 then
@@ -280,18 +280,23 @@ function QuestHelper:Filter(input)
   if input == "ZONE" then
     QuestHelper_Pref.filter_zone = not QuestHelper_Pref.filter_zone
     self:TextOut("Filter "..self:HighlightText("zone").." set to "..self:HighlightText(QuestHelper_Pref.filter_zone and "active" or "inactive")..".")
+    QH_Route_Filter_Rescan("filter_zone")
   elseif input == "DONE" then
     QuestHelper_Pref.filter_done = not QuestHelper_Pref.filter_done
     self:TextOut("Filter "..self:HighlightText("done").." set to "..self:HighlightText(QuestHelper_Pref.filter_done and "active" or "inactive")..".")
+    QH_Route_Filter_Rescan("filter_quest_done")
   elseif input == "LEVEL" then
     QuestHelper_Pref.filter_level = not QuestHelper_Pref.filter_level
     self:TextOut("Filter "..self:HighlightText("level").." set to "..self:HighlightText(QuestHelper_Pref.filter_level and "active" or "inactive")..".")
+    QH_Route_Filter_Rescan("filter_quest_level")
   elseif input == "BLOCKED" or input == "BLOCK" then
     QuestHelper_Pref.filter_blocked = not QuestHelper_Pref.filter_blocked
     self:TextOut("Filter "..self:HighlightText("blocked").." set to "..self:HighlightText(QuestHelper_Pref.filter_blocked and "active" or "inactive")..".")
+    QH_Route_Filter_Rescan("filter_blocked")
   elseif input == "WATCHED" or input == "WATCH" then
     QuestHelper_Pref.filter_watched = not QuestHelper_Pref.filter_watched
     self:TextOut("Filter "..self:HighlightText("watched").." set to "..self:HighlightText(QuestHelper_Pref.filter_watched and "active" or "inactive")..".")
+    QH_Route_Filter_Rescan("filter_quest_watched")
   elseif input == "" then
     self:TextOut("Filter "..self:HighlightText("zone")..": "..self:HighlightText(QuestHelper_Pref.filter_zone and "active" or "inactive"))
     self:TextOut("Filter "..self:HighlightText("level")..": "..self:HighlightText(QuestHelper_Pref.filter_level and "active" or "inactive"))

@@ -261,6 +261,9 @@ function QuestHelper:Initialize()
       ["collect_merchant.lua"] = true,
       ["collect_warp.lua"] = true,
       
+      ["filter_core.lua"] = true,
+      ["filter_base.lua"] = true,
+      
       ["routing_debug.lua"] = true,
       ["routing_loc.lua"] = true,
       ["routing_route.lua"] = true,
@@ -737,15 +740,15 @@ function QuestHelper:OnEvent(event)
     end
   end]]
 
-  --[[if event == "PARTY_MEMBERS_CHANGED" then
-    self:HandlePartyChange()
-  end]]
-
-  --[[if event == "QUEST_LOG_UPDATE" or
-     event == "PLAYER_LEVEL_UP" or
-     event == "PARTY_MEMBERS_CHANGED" then
-    self.defered_quest_scan = true
-  end]]
+  if event == "PARTY_MEMBERS_CHANGED" then
+    QH_Route_Filter_Rescan("filter_quest_level")
+  end
+  
+  if event == "PLAYER_LEVEL_UP" then
+    self.player_level = arg1
+    QH_Route_Filter_Rescan("filter_quest_level")
+  end
+  
 
   --[[if event == "QUEST_DETAIL" then
     if not self.quest_giver then self.quest_giver = {} end
@@ -976,7 +979,10 @@ Thanks for testing!]], "QuestHelper " .. version_string, 500, 20, 10)
 
     if nc and nz > 0 then
       self.c, self.z, self.x, self.y = nc, nz, nx, ny
+      local upd_zone = false
+      if self.i ~= QuestHelper_IndexLookup[nc][nz] then upd_zone = true end
       self.i = QuestHelper_IndexLookup[nc][nz]
+      QH_Route_Filter_Rescan("filter_zone")
     end
     
     if nc and nz and nx and ny and tc and tx and ty then
@@ -986,20 +992,6 @@ Thanks for testing!]], "QuestHelper " .. version_string, 500, 20, 10)
     else
       self.collect_delayed = true
     end
-
-    --[[local level = UnitLevel("player")
-    if level >= 58 and self.player_level < 58 then
-      self.defered_graph_reset = true
-    end
-    if level ~= self.player_level then
-      self.defered_quest_scan = true
-    end
-    self.player_level = level
-    
-    if self.defered_quest_scan and not self.graph_in_limbo then
-      self.defered_quest_scan = false
-      self:ScanQuestLog()
-    end]]
 
     QH_Timeslice_Toggle("routing", not not self.c)
     

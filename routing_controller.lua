@@ -20,6 +20,8 @@ local Route_Core_UnignoreNode = QH_Route_Core_UnignoreNode
 local Route_Core_IgnoreCluster = QH_Route_Core_IgnoreCluster
 local Route_Core_UnignoreCluster = QH_Route_Core_UnignoreCluster
 
+local Route_Core_TraverseNodes = QH_Route_Core_TraverseNodes
+
 QH_Route_Core_Process = nil
 QH_Route_Core_Init = nil
 QH_Route_Core_NodeAdd = nil
@@ -32,6 +34,7 @@ QH_Route_Core_IgnoreNode = nil
 QH_Route_Core_UnignoreNode = nil
 QH_Route_Core_IgnoreCluster = nil
 QH_Route_Core_UnignoreCluster = nil
+QH_Route_Core_TraverseNodes = nil
 
 local pending = {}
 
@@ -121,10 +124,47 @@ local function ReplotPath()
   end
 end
 
+local filters = {}
+
+function QH_Route_RegisterFilter(filter, name)
+  QuestHelper: Assert(not filters[name])
+  QuestHelper: Assert(filter)
+  filters[name] = filter
+end
+
+-- we deal very badly with changing the requirement links after things are set up, so right now we're just relying on the fact that everything is unchanging afterwards
+-- this is one reason the API is not considered stable :P
+local function ScanNode(node)
+  table.insert(pending, function ()
+    for k, v in pairs(filters) do
+      if v.Process(node) then
+        Route_Core_UnignoreNode(node, k)
+      else
+        Route_Core_IgnoreNode(node, k)
+      end
+    end
+  end)
+end
+
+local function ScanCluster(clust)
+  table.insert(pending, function ()
+    for _, v in ipairs(clust) do
+      ScanNode(v)
+    end
+  end)
+end
+
+function QH_Route_Filter_Rescan(name)
+  QuestHelper: Assert(filters[name])
+  table.insert(pending, function ()
+    Route_Core_TraverseNodes(function (node)
+      ScanNode(node)  -- yeah, so we're really rescanning every node, aren't we
+    end)
+  end)
+end
 
 function QH_Route_NodeAdd(node)
-  QuestHelper: Assert(node.map_desc)
-  table.insert(pending, function () Route_Core_NodeAdd(node) end)
+  table.insert(pending, function () Route_Core_NodeAdd(node) ScanNode(node) end)
 end
 
 function QH_Route_NodeRemove(node)
@@ -140,7 +180,7 @@ function QH_Route_UnignoreNode(node, reason)
 end
 
 function QH_Route_ClusterAdd(clust)
-  table.insert(pending, function () Route_Core_ClusterAdd(clust) end)
+  table.insert(pending, function () Route_Core_ClusterAdd(clust) ScanCluster(clust) end)
 end
 
 function QH_Route_ClusterRemove(clust)

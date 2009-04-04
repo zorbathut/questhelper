@@ -83,7 +83,7 @@ local function GetQuestMetaobjective(questid)
     
     if not q then return end
     
-    ite = {} -- we don't want to mutate the existing quest data
+    ite = {type_quest = {}} -- we don't want to mutate the existing quest data
     ite.desc = string.format("Quest %s", q.name or "(unknown)")  -- this gets changed later anyway
     
     if q.criteria then for k, c in ipairs(q.criteria) do
@@ -97,6 +97,7 @@ local function GetQuestMetaobjective(questid)
         v.desc = string.format("Criteria %d", k)
         v.why = ite
         v.cluster = ttx
+        v.type_quest = ite.type_quest
       end
       
       for k, v in pairs(ttx.tooltip) do
@@ -109,7 +110,7 @@ local function GetQuestMetaobjective(questid)
       local ttx = {}
       --QuestHelper:TextOut(string.format("finny %d", q.finish.loc and #q.finish.loc or -1))
       for m, v in ipairs(q.finish.loc) do
-        table.insert(ttx, {desc = "Turn in quest", why = ite, loc = {x = v.x, y = v.y, c = v.c, p = QuestHelper_IndexLookup[v.rc][v.rz]}, tracker_hidden = true, cluster = ttx, icon_id = 7})
+        table.insert(ttx, {desc = "Turn in quest", why = ite, loc = {x = v.x, y = v.y, c = v.c, p = QuestHelper_IndexLookup[v.rc][v.rz]}, tracker_hidden = true, cluster = ttx, icon_id = 7, type_quest = ite.type_quest})
       end
       table.insert(ite, ttx)
     end
@@ -227,7 +228,7 @@ local function Clicky(index)
 end
 
 -- Here's the core update function
-function UpdateQuests()
+function QH_UpdateQuests()
   if update then  -- Sometimes (usually) we don't actually update
   
     local index = 1
@@ -272,6 +273,7 @@ function UpdateQuests()
               end
             end
             
+            local prereqs_done = true
             -- These are the individual criteria of the quest. Remember that each criteria can be represented by multiple routing objectives.
             for i = 1, GetNumQuestLeaderBoards(index) do
               if db[i] then
@@ -295,6 +297,8 @@ function UpdateQuests()
                 else
                   db[i].progress[UnitName("player")] = {have, need, 0}  -- it's only used for the coloring anyway
                 end
+                
+                if not done then prereqs_done = false end
                 
                 db[i].desc = QHFormat("TOOLTIP_QUEST", title)
                 
@@ -320,6 +324,10 @@ function UpdateQuests()
                 end
               end
             end
+            
+            db.type_quest.level = level
+            db.type_quest.watched = IsQuestWatched(index)
+            db.type_quest.done = prereqs_done
           end
         end
       end
@@ -340,4 +348,4 @@ function UpdateQuests()
 end
 
 QuestHelper.EventHookRegistrar("UNIT_QUEST_LOG_CHANGED", UpdateTrigger)
-QuestHelper.EventHookRegistrar("QUEST_LOG_UPDATE", UpdateQuests)
+QuestHelper.EventHookRegistrar("QUEST_LOG_UPDATE", QH_UpdateQuests)

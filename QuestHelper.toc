@@ -129,12 +129,16 @@ timeslice.lua
 graph_core.lua
 graph_flightpath.lua
 
-# Routing module. Depends on Timeslice, calls almost no external functions (handles its own get-player-position stuff via RetrieveRawLocation, but that's it.)
+# Routing module. Depends on Timeslice and Filters, calls almost no external functions (handles its own get-player-position stuff via RetrieveRawLocation, but that's it.)
 routing_debug.lua
 routing_loc.lua
 routing_route.lua
 routing_core.lua
 routing_controller.lua
+
+# Filters. Pays attention to QH_pref but not a lot more.
+filter_core.lua
+filter_base.lua
 
 # New tooltip system. Depends on nothing, calls nothing besides WoW UI.
 tooltip.lua
