@@ -332,7 +332,10 @@ end
 function QH_Route_Core_TraverseNodes(func)
   for _, v in ipairs(ActiveNodes) do
     if v ~= 1 then
-      func(NodeList[v])
+      local blocked = false
+      if ClusterLookup[v] and DependencyLinks[ClusterLookup[v]] and #DependencyLinks[ClusterLookup[v]] > 0 then blocked = true end
+      --print("nlx", NodeList[v], blocked)
+      func(NodeList[v], blocked)
     end
   end
 end
@@ -613,7 +616,7 @@ end
 -- Ignore/unignore
   local function RecursiveIgnoreCount(clustid, accum)
     if accum == 0 then return end
-    print(clustid, accum)
+    --print(clustid, accum)
     if ClusterIgnoredCount[clustid] == 0 then last_best = nil end
     ClusterIgnoredCount[clustid] = ClusterIgnoredCount[clustid] + accum
     if ClusterIgnoredCount[clustid] == 0 then last_best = nil end

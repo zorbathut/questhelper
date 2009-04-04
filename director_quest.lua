@@ -326,8 +326,8 @@ function QH_UpdateQuests()
             end
             
             db.type_quest.level = level
-            db.type_quest.watched = IsQuestWatched(index)
             db.type_quest.done = prereqs_done
+            db.type_quest.index = index
           end
         end
       end

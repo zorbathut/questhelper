@@ -134,10 +134,11 @@ end
 
 -- we deal very badly with changing the requirement links after things are set up, so right now we're just relying on the fact that everything is unchanging afterwards
 -- this is one reason the API is not considered stable :P
-local function ScanNode(node)
+local function ScanNode(node, ...)
+  local stupid_lua = {...}
   table.insert(pending, function ()
     for k, v in pairs(filters) do
-      if v.Process(node) then
+      if v.Process(node, unpack(stupid_lua)) then
         Route_Core_UnignoreNode(node, k)
       else
         Route_Core_IgnoreNode(node, k)
@@ -157,8 +158,8 @@ end
 function QH_Route_Filter_Rescan(name)
   QuestHelper: Assert(filters[name])
   table.insert(pending, function ()
-    Route_Core_TraverseNodes(function (node)
-      ScanNode(node)  -- yeah, so we're really rescanning every node, aren't we
+    Route_Core_TraverseNodes(function (...)
+      ScanNode(...)  -- yeah, so we're really rescanning every node, aren't we
     end)
   end)
 end

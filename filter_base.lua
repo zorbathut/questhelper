@@ -22,8 +22,22 @@ local filter_quest_watched = QH_MakeFilter(function(obj)
   if not QuestHelper_Pref.filter_watched then return true end
   
   if not obj.type_quest then return true end
-  return obj.type_quest.watched
+  
+  return IsQuestWatched(obj.type_quest.index)
 end)
+
+local aqw_orig = AddQuestWatch -- yoink
+AddQuestWatch = function(...)
+  QH_Route_Filter_Rescan("filter_quest_watched")
+  return aqw_orig(...)
+end
+
+local rqw_orig = RemoveQuestWatch -- yoink
+RemoveQuestWatch = function(...)
+  QH_Route_Filter_Rescan("filter_quest_watched")
+  return rqw_orig(...)
+end
+
 
 local filter_zone = QH_MakeFilter(function(obj)
   if not QuestHelper_Pref.filter_zone then return true end
@@ -33,6 +47,11 @@ end)
 
 local filter_blocked = QH_MakeFilter(function(obj, blocked)
   if not QuestHelper_Pref.filter_blocked then return true end
+  
+  --[[
+  if obj.type_quest then
+    print(obj.type_quest, blocked)
+  end]]
   
   return not blocked
 end)
