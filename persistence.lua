@@ -62,6 +62,7 @@ persistence =
         
         local order = {}
         for k, v in pairs(item) do
+          if type(k) ~= "number" or k < 1 or k > #item then isflat = false end
           table.insert(order, k)
         end
         

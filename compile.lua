@@ -352,7 +352,7 @@ local function position_finalize(accu)
   local tw = 0
   for c, ci in pairs(accu) do
     for _, v in ipairs(ci) do
-      local rc, rz = list_most_common(v.cz):match("([%d]+)@([%d]+)")
+      local rc, rz = list_most_common(v.cz):match("(-?[%d]+)@(-?[%d]+)")
       rc, rz = tonumber(rc), tonumber(rz)
       table.insert(pozes, {c = c, x = v.x, y = v.y, w = v.w, rc = rc, rz = rz})
     end
@@ -1832,7 +1832,7 @@ local fileout = ChainBlock_Create("fileout", output_sources,
           table.sort(dicto)
           
           local dictix = string.char(unpack(dicto))
-          
+          assert(dictix)
           d.__dictionary = dictix
           
           for sk, v in pairs(d) do
@@ -1979,7 +1979,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
---local e = 10000
+local e = 1000
 
 local function readdir()
   local pip = io.popen(("find data/08 -type f | head -n %s | tail -n +%s"):format(e or 1000000000, s or 0))
