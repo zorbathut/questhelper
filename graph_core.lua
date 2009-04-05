@@ -226,14 +226,15 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
     --print("mpath")
     for k, v in pairs(out) do
       --print(out[k])
-      local rp = {d = v}
+      local rp = QuestHelper:CreateTable("graphcore return")
+      rp.d = v
+      
       out[k] = rp
       --print(out[k])
       
       if link[k] then
         QuestHelper: Assert(link[k].scan_from)
-        rp.path = QuestHelper:CreateTable("graphcore path")
-        local tpath = reverse and rp.path or QuestHelper:CreateTable("graphcore path reversal")
+        local tpath = reverse and rp or QuestHelper:CreateTable("graphcore path reversal")
         local cpx = link[k].scan_from
         while cpx do
           if reverse then
@@ -251,9 +252,10 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
         
         if not reverse then
           for i = #tpath, 1, -1 do
-            table.insert(rp.path, tpath[i])
+            table.insert(rp, tpath[i])
           end
           
+          QuestHelper: Assert(tpath ~= rp)
           QuestHelper:ReleaseTable(tpath)
         end
       end

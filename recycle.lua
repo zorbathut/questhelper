@@ -47,22 +47,26 @@ function QuestHelper:ReleaseTable(tbl)
   self.recycle_tabletyping[tbl] = nil
 end
 
-function QuestHelper:DumpTableTypeFrequencies()
+function QuestHelper:DumpTableTypeFrequencies(silent)
   local freq = {}
   for k, v in pairs(self.recycle_tabletyping) do
     freq[v] = (freq[v] or 0) + 1
   end
   
-  local flist = {}
-  for k, v in pairs(freq) do
-    table.insert(flist, {count=v, name=k})
+  if not silent then
+    local flist = {}
+    for k, v in pairs(freq) do
+      table.insert(flist, {count=v, name=k})
+    end
+    
+    table.sort(flist, function(a, b) return a.count < b.count end)
+    
+    for k, v in pairs(flist) do
+      self:TextOut(v.count .. ": " .. v.name)
+    end
   end
   
-  table.sort(flist, function(a, b) return a.count < b.count end)
-  
-  for k, v in pairs(flist) do
-    self:TextOut(v.count .. ": " .. v.name)
-  end
+  return freq
 end
 
 function QuestHelper:CreateFrame(parent)

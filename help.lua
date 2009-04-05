@@ -388,6 +388,11 @@ function QuestHelper:Top(cmd)
     end
   end
   
+  local pre_ttf
+  if cmd and string.find(cmd, "collected") then
+    pre_ttf = self:DumpTableTypeFrequencies(true)
+  end
+  
   if cmd and string.find(cmd, "recycle") then
     self:DumpTableTypeFrequencies()
     self:TextOut(RecycleStatusString("Using %s lua tables.", self.used_tables, self.free_tables, self.recycle_tabletyping))
@@ -408,8 +413,6 @@ function QuestHelper:Top(cmd)
     QH_Timeslice_DumpPerf()
   end
   
-  UpdateAddOnMemoryUsage()
-  
   local uncd = 0
   for k, v in pairs(QuestHelper_Collector) do
     if not v.compressed then uncd = uncd + 1 end
@@ -420,7 +423,35 @@ function QuestHelper:Top(cmd)
     uncs = string.format(" (%d uncompressed IDs)", uncd)
   end
   
-  self:TextOut(string.format("QuestHelper is using %dkb of RAM (%s/%s/%s/%s)%s", GetAddOnMemoryUsage("QuestHelper"), QuestHelper_local_version, QuestHelper_toc_version, GetBuildInfo(), GetLocale(), uncs))
+  UpdateAddOnMemoryUsage()
+  local pre_gc = GetAddOnMemoryUsage("QuestHelper")
+  
+  collectgarbage("collect")
+  
+  UpdateAddOnMemoryUsage()
+  local post_gc = GetAddOnMemoryUsage("QuestHelper")
+  
+  if cmd and string.find(cmd, "collected") then
+    local post_ttf = self:DumpTableTypeFrequencies(true)
+    
+    local union = {}
+    for k, v in pairs(pre_ttf) do union[k] = (pre_ttf[k] or 0) - (post_ttf[k] or 0) end
+    for k, v in pairs(post_ttf) do union[k] = (pre_ttf[k] or 0) - (post_ttf[k] or 0) end
+    
+    local sorted = {}
+    for k, v in pairs(union) do
+      table.insert(sorted, {k = k, d = v})
+    end
+    
+    table.sort(sorted, function(a, b) return a.d < b.d end)
+    for _, v in pairs(sorted) do
+      if v.d > 0 then
+        QuestHelper:TextOut(string.format("%d: %s", v.d, v.k))
+      end
+    end
+  end
+  
+  self:TextOut(string.format("QuestHelper is using %dkb (pre-collect %dkb) of RAM (%s/%s/%s/%s)%s", post_gc, pre_gc, QuestHelper_local_version, QuestHelper_toc_version, GetBuildInfo(), GetLocale(), uncs))
 end
 
 function QuestHelper:ToggleMapButton()

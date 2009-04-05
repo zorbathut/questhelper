@@ -46,9 +46,40 @@ QH_Route_Core_Ignored_Cluster = nil
 
 local pending = {}
 
+local weak_key = {__mode="k"}
+
 -- Every minute or two, we dump the inactive and move active to inactive. Every time we touch something, we put it in active.
-local pathcache_active = {}
-local pathcache_inactive = {}
+local pathcache_active = setmetatable({}, weak_key)
+local pathcache_inactive = setmetatable({}, weak_key)
+
+local function pcs(tpcs)
+  local ct = 0
+  for _, v in pairs(tpcs) do
+    for _, t in pairs(v) do
+      ct = ct + 1
+    end
+  end
+  return ct
+end
+
+--[[
+function QH_PrintPathcacheSize()
+  QuestHelper:TextOut(string.format("Active pathcache: %d", pcs(pathcache_active)))
+  QuestHelper:TextOut(string.format("Inactive pathcache: %d", pcs(pathcache_inactive)))
+end
+function QH_ClearPathcache()
+  print("START")
+  collectgarbage("collect")
+  QuestHelper:Top()
+  QH_PrintPathcacheSize()
+  pathcache_active = setmetatable({}, weak_key)
+  pathcache_inactive = setmetatable({}, weak_key)
+  collectgarbage("collect")
+  print("CLEARED")
+  QuestHelper:Top()
+  QH_PrintPathcacheSize()
+  print("END")
+end]]
 
 local notification_funcs = {}
 
@@ -66,14 +97,14 @@ local function GetCachedPath(loc1, loc2)
     misses = misses + 1
     local nrt = QH_Graph_Pathfind(loc1.loc, loc2.loc, false, true)
     QuestHelper: Assert(nrt)
-    if not pathcache_active[loc1] then pathcache_active[loc1] = {} end
-    if not pathcache_inactive[loc1] then pathcache_inactive[loc1] = {} end
+    if not pathcache_active[loc1] then pathcache_active[loc1] = setmetatable({}, weak_key) end
+    if not pathcache_inactive[loc1] then pathcache_inactive[loc1] = setmetatable({}, weak_key) end
     pathcache_active[loc1][loc2] = nrt
     pathcache_inactive[loc1][loc2] = nrt
     return nrt
   else
     hits = hits + 1
-    if not pathcache_active[loc1] then pathcache_active[loc1] = {} end
+    if not pathcache_active[loc1] then pathcache_active[loc1] = setmetatable({}, weak_key) end
     pathcache_active[loc1][loc2] = pathcache_inactive[loc1][loc2]
     return pathcache_active[loc1][loc2]
   end
@@ -111,7 +142,7 @@ local function ReplotPath()
         condense_start, condense_type, condense_to = nil, nil, nil
       end
       
-      if nrt.path then for _, wp in ipairs(nrt.path) do
+      if #nrt > 0 then for _, wp in ipairs(nrt) do
         QuestHelper: Assert(wp.c)
         
         if condense_type and condense_type ~= wp.condense_type then condense_doit() end
@@ -284,6 +315,8 @@ local passcount = 0
 
 local lc, lx, ly, lrc, lrz
 
+local last_playerpos = nil
+
 local function process()
 
   local last_cull = 0
@@ -306,6 +339,17 @@ local function process()
       if last_path then last_path[1] = new_playerpos end
       --QuestHelper: TextOut(string.format("SS takes %f", GetTime() - t))
       ReplotPath()
+      
+      if last_playerpos then
+        -- if it's in active, then it must be in inactive as well, so we do our actual deallocation in inactive only
+        pathcache_active[last_playerpos] = nil
+        for k, v in pairs(pathcache_active) do v[last_playerpos] = nil end
+        
+        if pathcache_inactive[last_playerpos] then for k, v in pairs(pathcache_inactive[last_playerpos]) do QuestHelper:ReleaseTable(v) end pathcache_inactive[last_playerpos] = nil end
+        for k, v in pairs(pathcache_inactive) do if v[last_playerpos] then QuestHelper:ReleaseTable(v[last_playerpos]) v[last_playerpos] = nil end end
+      end
+      
+      last_playerpos = new_playerpos
     end
     
     Route_Core_Process()
