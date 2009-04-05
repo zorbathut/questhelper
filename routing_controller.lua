@@ -146,10 +146,10 @@ local function ScanNode(node, ...)
   local stupid_lua = {...}
   table.insert(pending, function ()
     for k, v in pairs(filters) do
-      if v.Process(node, unpack(stupid_lua)) then
-        Route_Core_UnignoreNode(node, v)
-      else
+      if v:Process(node, unpack(stupid_lua)) then
         Route_Core_IgnoreNode(node, v)
+      else
+        Route_Core_UnignoreNode(node, v)
       end
     end
   end)
@@ -164,7 +164,7 @@ local function ScanCluster(clust)
 end
 
 function QH_Route_Filter_Rescan(name)
-  QuestHelper: Assert(filters[name])
+  QuestHelper: Assert(not name or filters[name])
   table.insert(pending, function ()
     Route_Core_TraverseNodes(function (...)
       ScanNode(...)  -- yeah, so we're really rescanning every node, aren't we. laaaazy
