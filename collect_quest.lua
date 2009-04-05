@@ -105,7 +105,7 @@ local function ScanQuests()
       for i = 1, GetNumQuestLeaderBoards(index) do
         local desc, _, done = GetQuestLogLeaderBoard(i, index)
         
-        QuestHelper: Assert(not qlookups[title][desc])
+        QuestHelper: Assert(not qlookups[title][desc], title .. " " .. desc)
         qlookups[title][desc] = {qid = id, obj = i}
         
         -- If we wanted to parse everything here, we'd do something very complicated.

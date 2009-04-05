@@ -13,7 +13,6 @@
 ## SavedVariablesPerCharacter: QuestHelper_KnownFlightRoutes QuestHelper_Home QuestHelper_CharVersion QuestHelper_Flight_Updates
 ## X-Website: http://www.quest-helper.com/
 ## X-Embeds: AstrolabeQH, ChatThrottleLib
-## X-Donate: http://www.quest-helper.com/donate
 
 # That is a pile of saved variables. Let me try to explain them better.
 # 
