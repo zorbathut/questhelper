@@ -1,7 +1,6 @@
 QuestHelper_File["routing_hidden.lua"] = "Development Version"
 QuestHelper_Loadtime["routing_hidden.lua"] = GetTime()
 
-
 local NodeChainIgnored = {
   name = "routing_core_internal_node_ignored",
   no_exception = true,

@@ -1275,6 +1275,15 @@ function QuestHelper:ObjectiveObjectDependsOn(objective, needs)
   end
 end
 
+local UserIgnored = {
+  name = "user_manual_ignored",
+  no_disable = true,
+  friendly_reason = QHText("FILTERED_USER"),
+  AddException = function(self, node)
+    QH_Route_UnignoreNode(node, self) -- there isn't really state with this one
+  end
+}
+
 function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
   local submenu = self:CreateMenu()
   
@@ -1319,10 +1328,10 @@ function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
   --self:CreateMenuItem(menu, "(No options available)")
   
   if obj.cluster then
-    self:CreateMenuItem(menu, QHText("IGNORE")):SetFunction(QH_Route_IgnoreCluster, obj.cluster, "user_ignore")
+    self:CreateMenuItem(menu, QHText("IGNORE")):SetFunction(QH_Route_IgnoreCluster, obj.cluster, UserIgnored)
   end
   
-  self:CreateMenuItem(menu, QHText("IGNORE") .. " Item"):SetFunction(QH_Route_IgnoreNode, obj, "user_ignore")
+  self:CreateMenuItem(menu, QHText("IGNORE") .. " Item"):SetFunction(QH_Route_IgnoreNode, obj, UserIgnored)
 end
 
 function QuestHelper:IgnoreObjective(objective)
