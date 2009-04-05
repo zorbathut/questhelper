@@ -49,8 +49,8 @@ local pending = {}
 local weak_key = {__mode="k"}
 
 -- Every minute or two, we dump the inactive and move active to inactive. Every time we touch something, we put it in active.
-local pathcache_active = setmetatable({}, weak_key)
-local pathcache_inactive = setmetatable({}, weak_key)
+local pathcache_active = setmetatable(QuestHelper:CreateTable("controller cache"), weak_key)
+local pathcache_inactive = setmetatable(QuestHelper:CreateTable("controller cache"), weak_key)
 
 local function pcs(tpcs)
   local ct = 0
@@ -97,14 +97,14 @@ local function GetCachedPath(loc1, loc2)
     misses = misses + 1
     local nrt = QH_Graph_Pathfind(loc1.loc, loc2.loc, false, true)
     QuestHelper: Assert(nrt)
-    if not pathcache_active[loc1] then pathcache_active[loc1] = setmetatable({}, weak_key) end
-    if not pathcache_inactive[loc1] then pathcache_inactive[loc1] = setmetatable({}, weak_key) end
+    if not pathcache_active[loc1] then pathcache_active[loc1] = setmetatable(QuestHelper:CreateTable("controller cache"), weak_key) end
+    if not pathcache_inactive[loc1] then pathcache_inactive[loc1] = setmetatable(QuestHelper:CreateTable("controller cache"), weak_key) end
     pathcache_active[loc1][loc2] = nrt
     pathcache_inactive[loc1][loc2] = nrt
     return nrt
   else
     hits = hits + 1
-    if not pathcache_active[loc1] then pathcache_active[loc1] = setmetatable({}, weak_key) end
+    if not pathcache_active[loc1] then pathcache_active[loc1] = setmetatable(QuestHelper:CreateTable("controller cache"), weak_key) end
     pathcache_active[loc1][loc2] = pathcache_inactive[loc1][loc2]
     return pathcache_active[loc1][loc2]
   end
@@ -115,7 +115,7 @@ local last_path = nil
 local function ReplotPath()
   if not last_path then return end  -- siiigh
   
-  local real_path = {}
+  local real_path = QuestHelper:CreateTable("path")
   hits = 0
   misses = 0
   
@@ -147,7 +147,15 @@ local function ReplotPath()
         
         if condense_type and condense_type ~= wp.condense_type then condense_doit() end
         
-        table.insert(real_path, {loc = {x = wp.x, y = wp.y, c = wp.c}, ignore = true, map_desc = wp.map_desc, map_desc_chain = last_path[k + 1]}) -- Technically, we'll end up with the distance to the next objective. I'm okay with this.
+        local pathnode = QuestHelper:CreateTable("pathnode")
+        pathnode.loc = QuestHelper:CreateTable("pathnode.loc")
+        pathnode.loc.x = wp.x
+        pathnode.loc.y = wp.y
+        pathnode.loc.c = wp.c
+        pathnode.ignore = true
+        pathnode.map_desc = wp.map_desc
+        pathnode.map_desc_chain = last_path[k + 1]
+        table.insert(real_path, pathnode) -- Technically, we'll end up with the distance to the next objective. I'm okay with this.
         
         if not condense_type and wp.condense_type then
           condense_start, condense_type, condense_to = #real_path, wp.condense_type, wp.map_desc

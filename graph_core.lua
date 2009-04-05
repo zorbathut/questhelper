@@ -111,12 +111,12 @@ local active = false
 function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   QuestHelper: Assert(not active)
   active = true -- The fun thing about coroutines is that this is actually safe.
-  local out = {}
+  local out = QuestHelper:CreateTable("graphcore output")
   
-  local undone = {}
+  local undone = QuestHelper:CreateTable("graphcore undone")
   local remaining = 0
   
-  local link = {}
+  local link = QuestHelper:CreateTable("graphcore link")
   
   QuestHelper: Assert(st.x and st.y and st.p)
   
@@ -267,6 +267,9 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
       QuestHelper:ReleaseTable(table.remove(plane[canoplane(v.p)]))
     end
   end
+  
+  QuestHelper:ReleaseTable(link)
+  QuestHelper:ReleaseTable(undone)
   
   active = false
   return out
