@@ -134,10 +134,10 @@ end
 
 local filters = {}
 
-function QH_Route_RegisterFilter(filter, name)
-  QuestHelper: Assert(not filters[name])
+function QH_Route_RegisterFilter(filter)
+  QuestHelper: Assert(not filters[filter.name])
   QuestHelper: Assert(filter)
-  filters[name] = filter
+  filters[filter.name] = filter
 end
 
 -- we deal very badly with changing the requirement links after things are set up, so right now we're just relying on the fact that everything is unchanging afterwards
@@ -147,9 +147,9 @@ local function ScanNode(node, ...)
   table.insert(pending, function ()
     for k, v in pairs(filters) do
       if v.Process(node, unpack(stupid_lua)) then
-        Route_Core_UnignoreNode(node, k)
+        Route_Core_UnignoreNode(node, v)
       else
-        Route_Core_IgnoreNode(node, k)
+        Route_Core_IgnoreNode(node, v)
       end
     end
   end)
@@ -167,7 +167,7 @@ function QH_Route_Filter_Rescan(name)
   QuestHelper: Assert(filters[name])
   table.insert(pending, function ()
     Route_Core_TraverseNodes(function (...)
-      ScanNode(...)  -- yeah, so we're really rescanning every node, aren't we
+      ScanNode(...)  -- yeah, so we're really rescanning every node, aren't we. laaaazy
     end)
   end)
 end

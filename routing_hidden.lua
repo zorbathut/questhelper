@@ -75,8 +75,16 @@ function QH_Hidden_Menu()
     local ignored_menu = QuestHelper:CreateMenu()
     ignored:SetSubmenu(ignored_menu)
     
+    QuestHelper:CreateMenuItem(ignored_menu, QHText("HIDDEN_SHOW"))
+    
     for _, ign in ipairs(v.ignores) do
-      QuestHelper:CreateMenuItem(ignored_menu, (ign.partial and "partial" or "complete") .. "  " .. ign.reason)
+      local thisitem = QuestHelper:CreateMenuItem(ignored_menu, ign.reason.friendly_reason)
+      
+      local deign_menu = QuestHelper:CreateMenu()
+      thisitem:SetSubmenu(deign_menu)
+      
+      QuestHelper:CreateMenuItem(deign_menu, QHText("HIDDEN_EXCEPTION"))
+      QuestHelper:CreateMenuItem(deign_menu, QHFormat("DISABLE_FILTER", ign.reason.friendly_name))
     end
   end
   
