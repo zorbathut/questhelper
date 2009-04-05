@@ -1,6 +1,9 @@
 QuestHelper_File["tracker.lua"] = "Development Version"
 QuestHelper_Loadtime["tracker.lua"] = GetTime()
 
+local debug_output = false
+if QuestHelper_File["tracker.lua"] == "Development Version" then debug_output = true end
+
 --[[ NOTES TO SELF
 
 So here's what we want to do.
@@ -339,13 +342,13 @@ local function addItem(objective, y, meta)
   return w+x+4, y+h
 end
 
-local function addMetaObjective(metaobj, items, y)
+local function addMetaObjective(metaobj, items, y, depth)
   local x
   x, y = addItem(metaobj, y, true)
   for _, v in ipairs(items) do
     x, y = addItem(v, y, false)
   end
-  return y
+  return y, depth + #items + 1
 end
 
 --[[  -- these will be plugged in later one way or another
@@ -543,14 +546,14 @@ function QH_Tracker_Rescan()
   
   local mo_done = {}
   
-  local y = 0
+  local y, depth = 0, 0
   
   local had_pinned = false
   
   for k, v in pairs(pinned) do
     if not mo_done[k] then
       QuestHelper:TextOut("amo")
-      y = addMetaObjective(k, k, y) -- It's like KY. Only better, and faintly racist.
+      y, depth = addMetaObjective(k, k, y, depth) -- It's like KY. Only better, and faintly racist.
       mo_done[k] = true
       had_pinned = true
     end
@@ -570,15 +573,16 @@ function QH_Tracker_Rescan()
     local current_mo
     local current_mo_cluster
     for k, v in ipairs(route) do
+      if depth > QuestHelper_Pref.track_size and not debug_output then break end
       if not v.ignore and not v.why.tracker_hidden then
         if current_mo and v.why ~= current_mo then
-          y = addMetaObjective(current_mo, current_mo_cluster, y)
+          y, depth = addMetaObjective(current_mo, current_mo_cluster, y, depth)
           current_mo, current_mo_cluster = nil, nil
         end
         
         if not v.why.tracker_split then
           if not mo_done[v.why] then
-            y = addMetaObjective(v.why, metalookup[v.why], y)
+            y, depth = addMetaObjective(v.why, metalookup[v.why], y, depth)
             mo_done[v.why] = true
           end
         else
@@ -590,8 +594,8 @@ function QH_Tracker_Rescan()
         end
       end
     end
-    if current_mo then
-      y = addMetaObjective(current_mo, current_mo_cluster, y)
+    if current_mo and not (depth > QuestHelper_Pref.track_size and not debug_output) then
+      y, depth = addMetaObjective(current_mo, current_mo_cluster, y, depth)
     end
   end
   
