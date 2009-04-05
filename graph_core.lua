@@ -111,7 +111,7 @@ local active = false
 function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   QuestHelper: Assert(not active)
   active = true -- The fun thing about coroutines is that this is actually safe.
-  local out = QuestHelper:CreateTable("graphcore output")
+  local out = QuestHelper:CreateTable("graphcore output")  -- THIS HAD BETTER BE RELEASABLE OR IT WILL BE BAD
   
   local undone = QuestHelper:CreateTable("graphcore undone")
   local remaining = 0
@@ -272,7 +272,7 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   QuestHelper:ReleaseTable(undone)
   
   active = false
-  return out
+  return out  -- THIS HAD BETTER BE RELEASABLE OR IT WILL BE BAD
 end
 
 function QH_Graph_Init()

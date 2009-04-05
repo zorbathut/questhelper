@@ -554,7 +554,7 @@ function QH_Route_Core_Process()
         -- Refresh everything!
         QH_Route_Core_DistanceClear_Local()
       else
-        local tlnod = {}
+        local tlnod = QuestHelper:CreateTable("routecore distance tlnod")
         for _, v in ipairs(ActiveNodes) do
           table.insert(tlnod, NodeList[v])
         end
@@ -568,24 +568,31 @@ function QH_Route_Core_Process()
             Distance[idx][v] = forward[k]
             Distance[v][idx] = backward[k]
           end
+          
+          QuestHelper:ReleaseTable(forward)
+          QuestHelper:ReleaseTable(backward)
         end
+        QuestHelper:ReleaseTable(tlnod)
       end
-      DistanceWaiting = {}
+      QuestHelper:ReleaseTable(DistanceWaiting)
+      DistanceWaiting = QuestHelper:CreateTable("routecore distance waiting")
     end
   end
   
   local worst = 0
   
+  local best_is_local = false
+  
   local trouts = QuestHelper:CreateTable("routing_core_trouts")
-  local destroyable_trouts = QuestHelper:CreateTable("routing_core_trouts_b")
   for x = 1, AntCount do
     table.insert(trouts, RunAnt())
     --if last_best then RTO(string.format("Path generated: %s vs %s", PathToString(trouts[#trouts]), PathToString(last_best))) end
     if not last_best or last_best.distance > trouts[#trouts].distance then
+      if last_best and not best_is_local then QuestHelper:ReleaseTable(last_best) end
+      
+      best_is_local = true
       last_best = trouts[#trouts]
       BetterRoute(last_best)
-    else
-      table.insert(destroyable_trouts, trouts[#trouts])
     end
     
     worst = math.max(worst, trouts[#trouts].distance)
@@ -629,11 +636,12 @@ function QH_Route_Core_Process()
   
   weight_ave = weitotal / weicount
   
-  for k, v in pairs(destroyable_trouts) do
-    QuestHelper:ReleaseTable(v)
+  for k, v in pairs(trouts) do
+    if v ~= last_best then
+      QuestHelper:ReleaseTable(v)
+    end
   end
   QuestHelper:ReleaseTable(trouts)
-  QuestHelper:ReleaseTable(destroyable_trouts)
   
   QH_Timeslice_Yield()  -- "heh"
 end
@@ -801,7 +809,7 @@ end
     StartNode = stt
     NodeLookup[StartNode] = 1
     
-    local tlnod = {}
+    local tlnod = QuestHelper:CreateTable("routecore setstart tlnod")
     
     for _, v in ipairs(ActiveNodes) do
       if v ~= 1 then
@@ -825,6 +833,9 @@ end
     if last_best and #last_best > 1 then
       last_best.distance = last_best.distance + Distance[last_best[1]][last_best[2]]
     end
+    
+    QuestHelper:ReleaseTable(forward)
+    QuestHelper:ReleaseTable(tlnod)
     
     Storage_Distance_StoreFromIDToAll(1)
     --TestShit()

@@ -35,8 +35,8 @@ function QuestHelper:CreateTable(tag)
 end
 
 function QuestHelper:ReleaseTable(tbl)
-  assert(type(tbl) == "table")
-  assert(not self.free_tables[tbl])
+  QuestHelper: Assert(type(tbl) == "table")
+  QuestHelper: Assert(not self.free_tables[tbl])
   
   for key in pairs(tbl) do
     tbl[key] = nil

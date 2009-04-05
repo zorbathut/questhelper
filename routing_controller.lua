@@ -283,7 +283,7 @@ Route_Core_Init(
     if not pathcache_active[loc1] then pathcache_active[loc1] = {} end
     if not pathcache_inactive[loc1] then pathcache_inactive[loc1] = {} end
     
-    local lt = {}
+    local lt = QuestHelper:CreateTable("route controller path shunt loctable")
     for _, v in ipairs(loctable) do
       QuestHelper: Assert(v.loc)
       table.insert(lt, v.loc)
@@ -293,7 +293,7 @@ Route_Core_Init(
     end
     local rv = QH_Graph_Pathmultifind(loc1.loc, lt, reverse, true)
     
-    local rvv = {}
+    local rvv = QuestHelper:CreateTable("route controller path shunt returnvalue")
     for k, v in ipairs(lt) do
       if not rv[k] then
         QuestHelper:TextOut(QuestHelper:StringizeTable(loc1.loc))
@@ -312,6 +312,9 @@ Route_Core_Init(
         pathcache_inactive[loctable[k]][loc1] = rv[k]
       end
     end
+    
+    QuestHelper:ReleaseTable(lt)
+    QuestHelper:ReleaseTable(rv)  -- this had better be releasable
     return rvv
   end
 )
