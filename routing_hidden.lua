@@ -2,6 +2,13 @@ QuestHelper_File["routing_hidden.lua"] = "Development Version"
 QuestHelper_Loadtime["routing_hidden.lua"] = GetTime()
 
 
+local NodeChainIgnored = {
+  name = "routing_core_internal_node_ignored",
+  no_exception = true,
+  no_disable = true,
+  friendly_reason = QHText("DEPENDS_ON"),
+}
+
 function QH_Hidden_Menu()
   local menu = QuestHelper:CreateMenu()
   QuestHelper:CreateMenuTitle(menu, QHText("HIDDEN_TITLE"))
@@ -33,7 +40,8 @@ function QH_Hidden_Menu()
       
       if not ignore_reasons[clust[1]] then
         if QH_Route_Ignored_Cluster(clust) then
-          ignore_reasons[clust[1]] = {{items = clust}} -- no known reason, but still non-zero reasons
+          print("added fakereason")
+          ignore_reasons[clust[1]] = {{reason = NodeChainIgnored, partial = false, items = clust}} -- hmm what
         end
       end
     end
@@ -75,32 +83,50 @@ function QH_Hidden_Menu()
     local ignored_menu = QuestHelper:CreateMenu()
     ignored:SetSubmenu(ignored_menu)
     
-    local show = QuestHelper:CreateMenuItem(ignored_menu, QHText("HIDDEN_SHOW"))
-    show:SetFunction(function ()
-      for _, ign in ipairs(v.ignores) do
-        for _, v in ipairs(ign.items) do
-          ign.reason:AddException(v)
-        end
+        
+    local no_exception = false
+    for _, ign in ipairs(v.ignores) do
+      if ign.reason.no_exception then
+        no_exception = true
       end
-      QH_Route_Filter_Rescan() -- DO IT ALL
-    end)
+    end
+    
+    if not no_exception then
+      local show = QuestHelper:CreateMenuItem(ignored_menu, QHText("HIDDEN_SHOW"))
+      show:SetFunction(function ()
+        for _, ign in ipairs(v.ignores) do
+          for _, v in ipairs(ign.items) do
+            ign.reason:AddException(v)
+          end
+        end
+        QH_Route_Filter_Rescan() -- DO IT ALL
+      end)
+    else
+      local show = QuestHelper:CreateMenuItem(ignored_menu, QHText("HIDDEN_SHOW_NO"))
+    end
     
     for _, ign in ipairs(v.ignores) do
       local thisitem = QuestHelper:CreateMenuItem(ignored_menu, ign.reason.friendly_reason)
       
-      local deign_menu = QuestHelper:CreateMenu()
-      thisitem:SetSubmenu(deign_menu)
-      
-      local exception = QuestHelper:CreateMenuItem(deign_menu, QHText("HIDDEN_EXCEPTION"))
-      exception:SetFunction(function ()
-        for _, v in ipairs(ign.items) do
-          ign.reason:AddException(v)
+      if not ign.reason.no_exception or not ign.reason.no_disable then
+        local deign_menu = QuestHelper:CreateMenu()
+        thisitem:SetSubmenu(deign_menu)
+        
+        if not ign.reason.no_exception then
+          local exception = QuestHelper:CreateMenuItem(deign_menu, QHText("HIDDEN_EXCEPTION"))
+          exception:SetFunction(function ()
+            for _, v in ipairs(ign.items) do
+              ign.reason:AddException(v)
+            end
+            QH_Route_Filter_Rescan(ign.reason.name)
+          end)
         end
-        QH_Route_Filter_Rescan(ign.reason.name)
-      end)
-      
-      local disable = QuestHelper:CreateMenuItem(deign_menu, QHFormat("DISABLE_FILTER", ign.reason.friendly_name))
-      disable:SetFunction(function () ign.reason:Disable() QH_Route_Filter_Rescan(ign.reason.name) end)
+        
+        if not ign.reason.no_disable then
+          local disable = QuestHelper:CreateMenuItem(deign_menu, QHFormat("DISABLE_FILTER", ign.reason.friendly_name))
+          disable:SetFunction(function () ign.reason:Disable() QH_Route_Filter_Rescan(ign.reason.name) end)
+        end
+      end
     end
   end
   

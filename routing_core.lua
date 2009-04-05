@@ -348,7 +348,7 @@ end
 
 function QH_Route_Core_IgnoredReasons_Cluster(clust, func)
   for k, _ in pairs(ClusterIgnored[ClusterTableLookup[clust]]) do
-    if type(k) ~= "string" or not k:match("internal_.*") then
+    if type(k) == "table" then
       func(k)
     end
   end
@@ -356,7 +356,7 @@ end
 
 function QH_Route_Core_IgnoredReasons_Node(node, func)
   for k, _ in pairs(NodeIgnored[NodeLookup[node]]) do
-    if type(k) ~= "string" or not k:match("internal_.*") then
+    if type(k) == "table" then
       func(k)
     end
   end
@@ -673,7 +673,7 @@ end
   end
   
   function QH_Route_Core_IgnoreCluster(clust, reason)
-    QuestHelper: Assert(type(reason) ~= "string" or not reason:match("internal_.*"))
+    QuestHelper: Assert(type(reason) == "table")
     local clustid = ClusterTableLookup[clust]
     if not clustid then
       QuestHelper:TextOut("Attempted to ignore a cluster that no longer exists")
@@ -684,7 +684,7 @@ end
   end
   
   function QH_Route_Core_UnignoreCluster(clust, reason)
-    QuestHelper: Assert(type(reason) ~= "string" or not reason:match("internal_.*"))
+    QuestHelper: Assert(type(reason) == "table")
     local clustid = ClusterTableLookup[clust]
     if not clustid then
       QuestHelper:TextOut("Attempted to unignore a cluster that no longer exists")
@@ -694,7 +694,7 @@ end
   end
     
   function QH_Route_Core_IgnoreNode(node, reason)
-    QuestHelper: Assert(type(reason) ~= "string" or not reason:match("internal_.*"))
+    QuestHelper: Assert(type(reason) == "table")
     local nid = NodeLookup[node]
     if not nid then
       QuestHelper:TextOut("Attempted to ignore a node that no longer exists")
@@ -722,7 +722,7 @@ end
   end
   
   function QH_Route_Core_UnignoreNode(node, reason)
-    QuestHelper: Assert(type(reason) ~= "string" or not reason:match("internal_.*"))
+    QuestHelper: Assert(type(reason) == "table")
     local nid = NodeLookup[node]
     if not nid then
       QuestHelper:TextOut("Attempted to unignore a node that no longer exists")

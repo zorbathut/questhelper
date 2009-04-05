@@ -164,6 +164,7 @@ QuestHelper_Translations.enUS =
   HIDDEN_NONE = "There are no objectives hidden from you",
   DEPENDS_ON_SINGLE = "Depends on '%1'",
   DEPENDS_ON_COUNT = "Depends on %1 hidden objectives",
+  DEPENDS_ON = "Depends on filtered objectives",
   FILTERED_LEVEL = "Filtered due to level",
   FILTERED_ZONE = "Filtered due to zone",
   FILTERED_COMPLETE = "Filtered due to completeness",
@@ -173,6 +174,7 @@ QuestHelper_Translations.enUS =
   FILTERED_UNKNOWN = "Don't know how to complete",
   
   HIDDEN_SHOW = "Show",
+  HIDDEN_SHOW_NO = "Not showable",
   HIDDEN_EXCEPTION = "Add exception",
   DISABLE_FILTER = "Disable filter: %1",
   FILTER_DONE = "done",
