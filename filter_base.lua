@@ -122,11 +122,6 @@ end)
 local filter_blocked = QH_MakeFilter(function(obj, blocked)
   if not QuestHelper_Pref.filter_blocked then return true end
   
-  --[[
-  if obj.type_quest then
-    print(obj.type_quest, blocked)
-  end]]
-  
   return not blocked
 end)
 

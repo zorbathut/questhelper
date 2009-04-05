@@ -340,6 +340,32 @@ function QH_Route_Core_TraverseNodes(func)
   end
 end
 
+function QH_Route_Core_TraverseClusters(func)
+  for k, v in pairs(ClusterTableLookup) do
+    func(k)
+  end
+end
+
+function QH_Route_Core_IgnoredReasons_Cluster(clust, func)
+  for k, _ in pairs(ClusterIgnored[ClusterTableLookup[clust]]) do
+    if type(k) ~= "string" or not k:match("internal_.*") then
+      func(k)
+    end
+  end
+end
+
+function QH_Route_Core_IgnoredReasons_Node(node, func)
+  for k, _ in pairs(NodeIgnored[NodeLookup[node]]) do
+    if type(k) ~= "string" or not k:match("internal_.*") then
+      func(k)
+    end
+  end
+end
+
+function QH_Route_Core_Ignored_Cluster(clust)
+  return ClusterIgnoredCount[ClusterTableLookup[clust]] ~= 0
+end
+
 -- fuck floating-point
 local function almost(a, b)
   if a == b then return true end
@@ -647,6 +673,7 @@ end
   end
   
   function QH_Route_Core_IgnoreCluster(clust, reason)
+    QuestHelper: Assert(type(reason) ~= "string" or not reason:match("internal_.*"))
     local clustid = ClusterTableLookup[clust]
     if not clustid then
       QuestHelper:TextOut("Attempted to ignore a cluster that no longer exists")
@@ -657,6 +684,7 @@ end
   end
   
   function QH_Route_Core_UnignoreCluster(clust, reason)
+    QuestHelper: Assert(type(reason) ~= "string" or not reason:match("internal_.*"))
     local clustid = ClusterTableLookup[clust]
     if not clustid then
       QuestHelper:TextOut("Attempted to unignore a cluster that no longer exists")
@@ -666,6 +694,7 @@ end
   end
     
   function QH_Route_Core_IgnoreNode(node, reason)
+    QuestHelper: Assert(type(reason) ~= "string" or not reason:match("internal_.*"))
     local nid = NodeLookup[node]
     if not nid then
       QuestHelper:TextOut("Attempted to ignore a node that no longer exists")
@@ -693,6 +722,7 @@ end
   end
   
   function QH_Route_Core_UnignoreNode(node, reason)
+    QuestHelper: Assert(type(reason) ~= "string" or not reason:match("internal_.*"))
     local nid = NodeLookup[node]
     if not nid then
       QuestHelper:TextOut("Attempted to unignore a node that no longer exists")

@@ -542,7 +542,7 @@ commands =
   { "Common commands", {
     {"HIDDEN",
      "Compiles a list of objectives that QuestHelper is hiding from you. Depending on the reason, you can also unhide the objective.",
-     {}, QuestHelper.ShowHidden, QuestHelper},
+     {}, QH_Hidden_Menu},
     
     {"HIDE",
      "Hides QuestHelper's modifications to the minimap and world map, and pauses routing calculations.",
@@ -707,9 +707,9 @@ commands =
      "Displays a summary of changes recently made to QuestHelper.",
      {}, QuestHelper.ChangeLog, QuestHelper},
     
-    {"DONATE",
+    --[[{"DONATE",
      "Displays some instructions and a link for donating.",
-     {}, QuestHelper.Donate, QuestHelper},
+     {}, QuestHelper.Donate, QuestHelper},]]
   }},
 }
 

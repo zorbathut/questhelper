@@ -110,6 +110,9 @@ local function GetQuestMetaobjective(questid)
       local ttx = {}
       --QuestHelper:TextOut(string.format("finny %d", q.finish.loc and #q.finish.loc or -1))
       for m, v in ipairs(q.finish.loc) do
+        print(v.rc, v.rz)
+        print(QuestHelper_IndexLookup[v.rc])
+        print(QuestHelper_IndexLookup[v.rc][v.rz])
         table.insert(ttx, {desc = "Turn in quest", why = ite, loc = {x = v.x, y = v.y, c = v.c, p = QuestHelper_IndexLookup[v.rc][v.rz]}, tracker_hidden = true, cluster = ttx, icon_id = 7, type_quest = ite.type_quest})
       end
       table.insert(ite, ttx)
@@ -327,6 +330,7 @@ function QH_UpdateQuests()
             db.type_quest.index = index
             db.type_quest.variety = variety
             db.type_quest.groupsize = groupsize
+            db.type_quest.title = title
           end
         end
       end

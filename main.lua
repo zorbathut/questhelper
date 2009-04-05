@@ -269,6 +269,7 @@ function QuestHelper:Initialize()
       ["routing_route.lua"] = true,
       ["routing_core.lua"] = true,
       ["routing_controller.lua"] = true,
+      ["routing_hidden.lua"] = true,
       
       ["director_quest.lua"] = true,
       

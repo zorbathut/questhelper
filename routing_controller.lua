@@ -21,6 +21,10 @@ local Route_Core_IgnoreCluster = QH_Route_Core_IgnoreCluster
 local Route_Core_UnignoreCluster = QH_Route_Core_UnignoreCluster
 
 local Route_Core_TraverseNodes = QH_Route_Core_TraverseNodes
+local Route_Core_TraverseClusters = QH_Route_Core_TraverseClusters
+local Route_Core_IgnoredReasons_Cluster = QH_Route_Core_IgnoredReasons_Cluster
+local Route_Core_IgnoredReasons_Node = QH_Route_Core_IgnoredReasons_Node
+local Route_Core_Ignored_Cluster = QH_Route_Core_Ignored_Cluster
 
 QH_Route_Core_Process = nil
 QH_Route_Core_Init = nil
@@ -35,6 +39,10 @@ QH_Route_Core_UnignoreNode = nil
 QH_Route_Core_IgnoreCluster = nil
 QH_Route_Core_UnignoreCluster = nil
 QH_Route_Core_TraverseNodes = nil
+QH_Route_Core_TraverseClusters = nil
+QH_Route_Core_IgnoredReasons_Cluster = nil
+QH_Route_Core_IgnoredReasons_Node = nil
+QH_Route_Core_Ignored_Cluster = nil
 
 local pending = {}
 
@@ -203,6 +211,24 @@ end
 function QH_Route_FlightPathRecalc()
   table.insert(pending, function () QH_redo_flightpath() pathcache_active = {} pathcache_inactive = {} Route_Core_DistanceClear() ReplotPath() end)
 end
+
+-- Right now we just defer to the existing ones
+function QH_Route_TraverseNodes(func)
+  return Route_Core_TraverseNodes(func)
+end
+function QH_Route_TraverseClusters(func)
+  return Route_Core_TraverseClusters(func)
+end
+function QH_Route_IgnoredReasons_Cluster(clust, func)
+  return Route_Core_IgnoredReasons_Cluster(clust, func)
+end
+function QH_Route_IgnoredReasons_Node(node, func)
+  return Route_Core_IgnoredReasons_Node(node, func)
+end
+function QH_Route_Ignored_Cluster(clust)
+  return Route_Core_Ignored_Cluster(clust)
+end
+
 
 
 Route_Core_Init(

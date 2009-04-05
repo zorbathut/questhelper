@@ -13,7 +13,6 @@
 ## SavedVariablesPerCharacter: QuestHelper_KnownFlightRoutes QuestHelper_Home QuestHelper_CharVersion QuestHelper_Flight_Updates
 ## X-Website: http://www.quest-helper.com/
 ## X-Embeds: AstrolabeQH, ChatThrottleLib
-## X-Donate: http://www.quest-helper.com/donate
 
 # That is a pile of saved variables. Let me try to explain them better.
 # 
@@ -135,6 +134,8 @@ routing_loc.lua
 routing_route.lua
 routing_core.lua
 routing_controller.lua
+# this segment uses the menu system as well
+routing_hidden.lua
 
 # Filters. Pays attention to QH_pref but not a lot more.
 filter_core.lua
