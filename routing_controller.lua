@@ -112,6 +112,7 @@ end
 
 local last_path = nil
 
+local cleanup_path = nil
 local function ReplotPath()
   if not last_path then return end  -- siiigh
   
@@ -155,6 +156,7 @@ local function ReplotPath()
         pathnode.ignore = true
         pathnode.map_desc = wp.map_desc
         pathnode.map_desc_chain = last_path[k + 1]
+        pathnode.local_allocated = true
         table.insert(real_path, pathnode) -- Technically, we'll end up with the distance to the next objective. I'm okay with this.
         
         if not condense_type and wp.condense_type then
@@ -169,6 +171,21 @@ local function ReplotPath()
   for _, v in pairs(notification_funcs) do
     v(real_path)
   end
+  
+  -- I hate having to do this, I feel like I'm just begging for horrifying bugs
+  if cleanup_path then
+    for k, v in ipairs(cleanup_path) do
+      if v.local_allocated then
+        QuestHelper:ReleaseTable(v.loc)
+        QuestHelper:ReleaseTable(v)
+      end
+    end
+    
+    QuestHelper:ReleaseTable(cleanup_path)
+    cleanup_path = nil
+  end
+  
+  cleanup_path = real_path
 end
 
 local filters = {}
@@ -345,7 +362,12 @@ local function process()
       --local t = GetTime()
       lc, lx, ly, lrc, lrz = c, x, y, rc, rz
       
-      local new_playerpos = {desc = "Start", why = StartObjective, loc = NewLoc(c, x, y, rc, rz), tracker_hidden = true, ignore = true}
+      local new_playerpos = QuestHelper:CreateTable("playerpos")
+      new_playerpos.desc = "Start"
+      new_playerpos.why = StartObjective
+      new_playerpos.loc = NewLoc(c, x, y, rc, rz)
+      new_playerpos.tracker_hidden = true
+      new_playerpos.ignore = true
       Route_Core_SetStart(new_playerpos)
       if last_path then last_path[1] = new_playerpos end
       --QuestHelper: TextOut(string.format("SS takes %f", GetTime() - t))

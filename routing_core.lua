@@ -804,6 +804,9 @@ end
       last_best.distance = last_best.distance - Distance[last_best[1]][last_best[2]]
     end
     
+    QuestHelper:ReleaseTable(StartNode.loc)
+    QuestHelper:ReleaseTable(StartNode)
+    
     NodeLookup[StartNode] = nil
     NodeList[1] = stt
     StartNode = stt
