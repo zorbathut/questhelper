@@ -882,23 +882,23 @@ function QuestHelper:OnUpdate()
   if frams == 60 then
     QuestHelper:TextOut("showtext")
     self:ShowText([[
-This is a |cffff8000pre-prealpha of QuestHelper|r. Yes. That's right. It is |cffff8000two stacked pre-alphas|r. Be warned: It may crash. It may lock up. It may give bad advice. It may spew errors. It shouldn't spam people, delete your hard-won epics, or make your computer catch on fire, but technically I'm giving no guarantees. |cffff8000If you want a polished, functioning product, close WoW, download the official QH release from curse.com, and use that.|r
+This is a |cffff8000prealpha of QuestHelper|r. Be warned: It may crash. It may lock up. It may give bad advice. It may spew errors. It shouldn't spam people, delete your hard-won epics, or make your computer catch on fire, but technically I'm giving no guarantees. |cffff8000If you want a polished, functioning product, close WoW, download the official QH release from curse.com, and use that.|r
 
 Known bugs and issues include:
   
-  |cff40bbffBad behavior with dungeon/raid objectives (you'll know it when you see it)|r
-  
   |cff40bbffExcessive debug output|r
   
-  |cff40bbffNo support for objective priority or ignoring|r
+  |cff40bbffNo support for objective priority|r
   
-  |cff40bbffNo support for quest filters of any sort|r
+  |cff40bbffNo support for "/qh hide"|r
   
+  |cff40bbffBad behavior with dungeon/raid objectives (you'll know it when you see it)|r
+
   |cff40bbffNo support for "/qh find"|r
-  
+    
   |cff40bbffNo support for in-party quest synchronization|r
 
-All of these except the last one should be fixed before the official 1.0 release (the last one may wait for 1.1, but it will be fixed before I stop supporting the 0.x line.) They're not fixed now.
+All of these except the last three should be fixed before the official 1.0 release (the last one may wait for 1.1, but it will be fixed before I stop supporting the 0.x line - the others should be fixed sometime between 1.0 and 1.1.) They're not fixed now.
 
 If you encounter any issue besides the ones listed here, please please please report it, if you're reading this you know how to get in contact with me anyway.
 
