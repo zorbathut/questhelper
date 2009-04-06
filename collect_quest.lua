@@ -39,7 +39,7 @@ function pin()
   QuestHelper:TextOut("^.*: (%d+)/(%d+)(" .. complete_suffix .. ")?$")
 end
 
--- qlookup[questname][objectivename] = {qid = qid, objid = objid}
+-- qlookup[questname][objectivename] = {{qid = qid, objid = objid}}
 local qlookups = {}
 
 local function ScanQuests()
@@ -105,8 +105,8 @@ local function ScanQuests()
       for i = 1, GetNumQuestLeaderBoards(index) do
         local desc, _, done = GetQuestLogLeaderBoard(i, index)
         
-        QuestHelper: Assert(not qlookups[title][desc])
-        qlookups[title][desc] = {qid = id, obj = i}
+        if not qlookups[title][desc] then qlookups[title][desc] = {} end
+        table.insert(qlookups[title][desc], {qid = id, obj = i})
         
         -- If we wanted to parse everything here, we'd do something very complicated.
         -- Fundamentally, we don't. We only care if numeric values change or if something goes from "not done" to "done".
@@ -315,51 +315,57 @@ local function MouseoverUnit()
     
     guid = GetMonsterType(guid)
     
-    for _, v in pairs(qlookups) do
-      for _, tv in pairs(v) do
-        if not QHCQ[tv.qid][string.format("criteria_%d_monster_true", tv.obj)] then
-          QHCQ[tv.qid][string.format("criteria_%d_monster_true", tv.obj)] = {}
-          QHCQ[tv.qid][string.format("criteria_%d_monster_false", tv.obj)] = {}
+    if GetQuestLogSpecialItemInfo then
+      for _, v in pairs(qlookups) do
+        for _, block in pairs(v) do
+          for _, tv in ipairs(block) do
+            if not QHCQ[tv.qid][string.format("criteria_%d_monster_true", tv.obj)] then
+              QHCQ[tv.qid][string.format("criteria_%d_monster_true", tv.obj)] = {}
+              QHCQ[tv.qid][string.format("criteria_%d_monster_false", tv.obj)] = {}
+            end
+            
+            QHCQ[tv.qid][string.format("criteria_%d_monster_false", tv.obj)][guid] = (QHCQ[tv.qid][string.format("criteria_%d_monster_false", tv.obj)][guid] or 0) + 1
+          end
         end
-        
-        QHCQ[tv.qid][string.format("criteria_%d_monster_false", tv.obj)][guid] = (QHCQ[tv.qid][string.format("criteria_%d_monster_false", tv.obj)][guid] or 0) + 1
       end
-    end
     
-    local line = 2
-    local qs
-    local qe
-    
-    while _G["GameTooltipTextLeft" .. line] and _G["GameTooltipTextLeft" .. line]:IsShown() do
-      local r, g, b, a = _G["GameTooltipTextLeft" .. line]:GetTextColor()
-      r, g, b, a = math.floor(r * 255 + 0.5), math.floor(g * 255 + 0.5), math.floor(b * 255 + 0.5), math.floor(a * 255 + 0.5)
-      --print(r, g, b, a)
+      local line = 2
+      local qs
+      local qe
       
-      if r == 255 and g == 210 and b == 0 and a == 255 then
-        if not qs then qs = line end
-      else
-        if qs and not qe then qe = line end
-      end
-      line = line + 1
-    end
-    
-    if qs and not qe then qe = line end
-    if qe then qe = qe - 1 end
-    
-    if qs and qe then
-      local cquest = nil
-      
-      for i = qs, qe do
-        local lin = _G["GameTooltipTextLeft" .. i]:GetText()
+      while _G["GameTooltipTextLeft" .. line] and _G["GameTooltipTextLeft" .. line]:IsShown() do
+        local r, g, b, a = _G["GameTooltipTextLeft" .. line]:GetTextColor()
+        r, g, b, a = math.floor(r * 255 + 0.5), math.floor(g * 255 + 0.5), math.floor(b * 255 + 0.5), math.floor(a * 255 + 0.5)
+        --print(r, g, b, a)
         
-        if cquest and cquest[lin] then
-          local titem = cquest[lin]
-          QHCQ[titem.qid][string.format("criteria_%d_monster_false", titem.obj)][guid] = (QHCQ[titem.qid][string.format("criteria_%d_monster_false", titem.obj)][guid] or 0) - 1
-          QHCQ[titem.qid][string.format("criteria_%d_monster_true", titem.obj)][guid] = (QHCQ[titem.qid][string.format("criteria_%d_monster_true", titem.obj)][guid] or 0) + 1
-        elseif qlookups[lin] then
-          cquest = qlookups[lin]
+        if r == 255 and g == 210 and b == 0 and a == 255 then
+          if not qs then qs = line end
         else
-          QuestHelper: Assert()
+          if qs and not qe then qe = line end
+        end
+        line = line + 1
+      end
+      
+      if qs and not qe then qe = line end
+      if qe then qe = qe - 1 end
+      
+      if qs and qe then
+        local cquest = nil
+        
+        for i = qs, qe do
+          local lin = _G["GameTooltipTextLeft" .. i]:GetText()
+          
+          if cquest and cquest[lin] then
+            local titem_block = cquest[lin]
+            for _, titem in pairs(titem_block) do
+              QHCQ[titem.qid][string.format("criteria_%d_monster_false", titem.obj)][guid] = (QHCQ[titem.qid][string.format("criteria_%d_monster_false", titem.obj)][guid] or 0) - 1
+              QHCQ[titem.qid][string.format("criteria_%d_monster_true", titem.obj)][guid] = (QHCQ[titem.qid][string.format("criteria_%d_monster_true", titem.obj)][guid] or 0) + 1
+            end
+          elseif qlookups[lin] then
+            cquest = qlookups[lin]
+          else
+            QuestHelper: Assert()
+          end
         end
       end
     end

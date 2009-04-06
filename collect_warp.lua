@@ -29,6 +29,7 @@ local function OnUpdate()
     
     if leapy then
       Merger.Add(QHCW, lastloc_bolus .. bolus)
+      if debug_output then QuestHelper:TextOut("Warpy!") end
     end
   end
   

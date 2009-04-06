@@ -1,4 +1,19 @@
 
+== Version 0.96 4/2/2009 ==
+
+* Support for special quest items in 3.1
+* Support for reading from and suppressing Blizzard's 3.1 "questhelper clone" tooltips
+
+First: I want to thank everyone who has donated. I've been getting a lot of donations from people saying that they sympathize, saying that Blizzard's actions suck, I've even gotten a few that explicitly said "don't consider this a requirement to keep working on Questhelper, consider this a thanks for all the work you've put in already."
+
+You guys rock. While I don't respond to every message, I do read every one. Thank you.
+
+Second: I'm still plugging away at 1.0. I'm hoping to get a beta release out before WoW 3.1 is released. There will be a few missing features, but I plan to eventually re-implement everything besides possibly "/qh find", which would either take a lot of memory or be painfully slow. (I guess I could choose the latter, if people want it a lot.)
+
+Third: Does anyone know a reasonably-skilled artist who'd be interested in breaking into games? I'm looking for someone to do non-tilebased 2d art. Don't know if I can pay or not, but I do plan to release stuff frequently, and at least it'd get your name out there. Email me or leave a comment if you're interested.
+
+Yeah that's right, if I can't make a living off this I can at least use it as a blurb space for my other projects :D
+
 == Version 0.95 3/20/2009 ==
 
 * Disable donation request.
