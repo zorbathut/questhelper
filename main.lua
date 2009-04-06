@@ -888,6 +888,8 @@ Known bugs and issues include:
   
   |cff40bbffExcessive debug output|r
   
+  |cff40bbffModerate memory usage issues, resulting in 5-10mb more memory usage than intended|r
+  
   |cff40bbffNo support for objective priority|r
   
   |cff40bbffNo support for "/qh hide"|r
