@@ -4,7 +4,11 @@ QuestHelper_Loadtime["recycle.lua"] = GetTime()
 QuestHelper.used_tables = 0
 QuestHelper.free_tables = {}
 
-local unused_meta = {__index=error, __newindex=error}
+local function crashy(tab, name)
+  QuestHelper: Assert(false, "Tried to access " .. name .. " from released table")
+end
+
+local unused_meta = {__index=crashy, __newindex=crashy}
 
 QuestHelper.used_textures = 0
 QuestHelper.free_textures = {}

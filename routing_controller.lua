@@ -111,8 +111,8 @@ local function GetCachedPath(loc1, loc2)
 end
 
 local last_path = nil
-
 local cleanup_path = nil
+
 local function ReplotPath()
   if not last_path then return end  -- siiigh
   
@@ -362,12 +362,7 @@ local function process()
       --local t = GetTime()
       lc, lx, ly, lrc, lrz = c, x, y, rc, rz
       
-      local new_playerpos = QuestHelper:CreateTable("playerpos")
-      new_playerpos.desc = "Start"
-      new_playerpos.why = StartObjective
-      new_playerpos.loc = NewLoc(c, x, y, rc, rz)
-      new_playerpos.tracker_hidden = true
-      new_playerpos.ignore = true
+      local new_playerpos = {desc = "Start", why = StartObjective, loc = NewLoc(c, x, y, rc, rz), tracker_hidden = true, ignore = true}
       Route_Core_SetStart(new_playerpos)
       if last_path then last_path[1] = new_playerpos end
       --QuestHelper: TextOut(string.format("SS takes %f", GetTime() - t))
