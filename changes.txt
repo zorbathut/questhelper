@@ -1,4 +1,13 @@
 
+== Version 0.98 4/7/2009 ==
+
+* Try another fix for the collect_quest.lua crash
+* Make it a little more careful about stripping yellow text out of tooltips
+
+Quick explanation of what's going on: The reason we're running into some new bugs right now is in preparation for 3.1. 3.1 involves a little extra code to deal properly with its built-in tooltips, and while the tooltips don't exist yet, I do have some of the code already rigged up to watch for them. Obviously there's a few bugs in that code, but I'd rather have the bugs showing up now - when you can downgrade to a previous version without issue - than later, when you can't.
+
+Fingers crossed that this polishes everything off.
+
 == Version 0.97 4/5/2009 ==
 
 * Fix a bug with uncached quests on logon and with quests that have multiple identical objectives
