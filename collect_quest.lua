@@ -61,8 +61,7 @@ local function ScanQuests()
       local id, level = GetQuestType(qlink)
       local title, _, tag, groupcount, _, _, _, daily = GetQuestLogTitle(index)
       
-      QuestHelper: Assert(not qlookups[title])
-      qlookups[title] = {}
+      if not qlookups[title] then qlookups[title] = {} end  -- gronk
       
       --QuestHelper:TextOut(string.format("%s - %d %d", qlink, id, level))
       
@@ -304,8 +303,10 @@ local function UpdateQuests()
 end
 
 local enable_quest_hints = GetBuildInfo():match("0%.1%..*") or (GetBuildInfo():match("3%..*") and not GetBuildInfo():match("3%.0%..*"))
+QH_filter_hints = false
 
 local function MouseoverUnit()
+  QH_filter_hints = false
   if not enable_quest_hints then return end
   
   if GameTooltip:GetUnit() and UnitExists("mouseover") and UnitIsVisible("mouseover") and not UnitIsPlayer("mouseover") and not UnitPlayerControlled("mouseover") then
@@ -352,6 +353,8 @@ local function MouseoverUnit()
       if qs and qe then
         local cquest = nil
         
+        QH_filter_hints = true
+        
         for i = qs, qe do
           local lin = _G["GameTooltipTextLeft" .. i]:GetText()
           
@@ -364,7 +367,8 @@ local function MouseoverUnit()
           elseif qlookups[lin] then
             cquest = qlookups[lin]
           else
-            QuestHelper: Assert()
+            QH_filter_hints = false
+            --QuestHelper: Assert()
           end
         end
       end
