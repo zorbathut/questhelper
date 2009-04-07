@@ -29,7 +29,7 @@ frame:SetScript("OnEvent", OnEvent)
 frame:Show()
 
 local function EventHookRegistrar(event, func)
-  --[[ QuestHelper:Assert(func) ]]
+  QuestHelper: Assert(func)
   if not EventRegistrar[event] then
     frame:RegisterEvent(event)
     EventRegistrar[event] = {}
@@ -38,7 +38,7 @@ local function EventHookRegistrar(event, func)
 end
 
 local function OnUpdateHookRegistrar(func)
-  --[[ QuestHelper:Assert(func) ]]
+  QuestHelper: Assert(func)
   table.insert(OnUpdateRegistrar, func)
 end
 
