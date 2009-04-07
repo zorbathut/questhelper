@@ -8,9 +8,9 @@ QuestHelper_Translations.csCZ =
   -- Messages used when starting.
   LOCALE_ERROR = nil,
   ZONE_LAYOUT_ERROR = nil,
-  DOWNGRADE_ERROR = "Vaše uložená data nejsou kompatibilní s aktualí verzí QuestHelperu. Použijte novou verzi nebo smažte vaše uložená data.",
+  DOWNGRADE_ERROR = "Vaše uložená data nejsou kompatibilní s aktualní verzí QuestHelperu. Použijte novou verzi nebo smažte vaše uložená data.",
   HOME_NOT_KNOWN = nil,
-  PRIVATE_SERVER = nil,
+  PRIVATE_SERVER = "QuestHelper nepodporuje soukromé servery.",
   PLEASE_RESTART = nil,
   NOT_UNZIPPED_CORRECTLY = nil,
   PLEASE_DONATE = nil,
@@ -21,12 +21,12 @@ QuestHelper_Translations.csCZ =
   ROUTES_CHANGED = nil,
   HOME_CHANGED = "Váš domov byl aktualizován.",
   TALK_TO_FLIGHT_MASTER = nil,
-  TALK_TO_FLIGHT_MASTER_COMPLETE = nil,
+  TALK_TO_FLIGHT_MASTER_COMPLETE = "Díky.",
   WILL_RESET_PATH = nil,
   UPDATING_ROUTE = "Aktualizuji plán cesty.",
   
   -- Special tracker text
-  QH_LOADING = nil,
+  QH_LOADING = "QuestHelper se načítá..(%1%%)...",
   QUESTS_HIDDEN_1 = nil,
   QUESTS_HIDDEN_2 = nil,
   
@@ -43,11 +43,11 @@ QuestHelper_Translations.csCZ =
   OBJECTIVE_REASON_FALLBACK = nil,
   OBJECTIVE_REASON_TURNIN = nil,
   OBJECTIVE_PURCHASE = "koupit od %h1",
-  OBJECTIVE_TALK = nil,
+  OBJECTIVE_TALK = "Promluv s %h1.",
   OBJECTIVE_SLAY = nil,
   OBJECTIVE_LOOT = nil,
   
-  ZONE_BORDER = nil,
+  ZONE_BORDER = "%1/%2 hranice",
   
   -- Stuff used in objective menus.
   PRIORITY = "Priorita",
@@ -57,8 +57,8 @@ QuestHelper_Translations.csCZ =
   PRIORITY4 = "Malá",
   PRIORITY5 = "Nejmenší",
   SHARING = "Sdílení",
-  SHARING_ENABLE = nil,
-  SHARING_DISABLE = nil,
+  SHARING_ENABLE = "Povol sdílení",
+  SHARING_DISABLE = "Zakaž sdílení",
   IGNORE = "Ignorovat",
   
   IGNORED_PRIORITY_TITLE = nil,
@@ -66,21 +66,21 @@ QuestHelper_Translations.csCZ =
   IGNORED_PRIORITY_IGNORE = nil,
   
   -- Custom objectives.
-  RESULTS_TITLE = nil,
+  RESULTS_TITLE = "Výsledky hledání",
   NO_RESULTS = nil,
   CREATED_OBJ = "Vytvořeno: %1",
-  REMOVED_OBJ = nil,
+  REMOVED_OBJ = "Smazáno: %1",
   USER_OBJ = "Uživatelské cíle:",
   UNKNOWN_OBJ = nil,
   INACCESSIBLE_OBJ = nil,
   
   SEARCHING_STATE = "Vyhledávání: %1",
-  SEARCHING_LOCAL = nil,
-  SEARCHING_STATIC = nil,
-  SEARCHING_ITEMS = nil,
-  SEARCHING_NPCS = nil,
-  SEARCHING_ZONES = nil,
-  SEARCHING_DONE = "Dokončeno!",
+  SEARCHING_LOCAL = "Místní",
+  SEARCHING_STATIC = "Stastika %1",
+  SEARCHING_ITEMS = "Předměty",
+  SEARCHING_NPCS = "NPCs",
+  SEARCHING_ZONES = "Zóny",
+  SEARCHING_DONE = "Hotovo!",
   
   -- Shared objectives.
   PEER_TURNIN = nil,
@@ -89,7 +89,7 @@ QuestHelper_Translations.csCZ =
   PEER_OTHER = "Pomoct %1 s %h2",
   
   PEER_NEWER = nil,
-  PEER_OLDER = nil,
+  PEER_OLDER = "%h1 používá starší verzi ptokolu.",
   
   UNKNOWN_MESSAGE = nil,
   
@@ -106,9 +106,9 @@ QuestHelper_Translations.csCZ =
   FILTERED_USER = nil,
   FILTERED_UNKNOWN = "Nevím co je potřeba k dokončení.",
   
-  HIDDEN_SHOW = nil,
+  HIDDEN_SHOW = "zobraz",
   DISABLE_FILTER = "Filter vypnut: %1",
-  FILTER_DONE = "dokončeno",
+  FILTER_DONE = "hotovo",
   FILTER_ZONE = nil,
   FILTER_LEVEL = "level",
   FILTER_BLOCKED = nil,
@@ -124,8 +124,8 @@ QuestHelper_Translations.csCZ =
   NAG_INSTRUCTIONS = "Napište %h(/qh submit) pro instrukce k potvrzování dat.",
   
   NAG_SINGLE_FP = nil,
-  NAG_SINGLE_QUEST = nil,
-  NAG_SINGLE_ROUTE = nil,
+  NAG_SINGLE_QUEST = "Úkol",
+  NAG_SINGLE_ROUTE = "Trasa letu",
   NAG_SINGLE_ITEM_OBJ = nil,
   NAG_SINGLE_OBJECT_OBJ = nil,
   NAG_SINGLE_MONSTER_OBJ = nil,
@@ -150,7 +150,7 @@ QuestHelper_Translations.csCZ =
   WAYPOINT_REASON = nil,
 
   -- QuestHelper Map Button
-  QH_BUTTON_TEXT = nil,
+  QH_BUTTON_TEXT = "QuestHelper",
   QH_BUTTON_TOOLTIP1 = nil,
   QH_BUTTON_TOOLTIP2 = nil,
   QH_BUTTON_SHOW = "Zobrazit",
@@ -159,7 +159,7 @@ QuestHelper_Translations.csCZ =
   MENU_CLOSE = "Zavřít nabídku.",
   MENU_SETTINGS = "Nastavení",
   MENU_ENABLE = "Zapnout",
-  MENU_DISABLE = "Vypnout",
+  MENU_DISABLE = "Zakázat",
   MENU_OBJECTIVE_TIPS = nil,
   MENU_TRACKER_OPTIONS = nil,
   MENU_QUEST_TRACKER = nil,
@@ -179,15 +179,15 @@ QuestHelper_Translations.csCZ =
   MENU_LEVEL_FILTER = nil,
   MENU_LEVEL_OFFSET = nil,
   MENU_ICON_SCALE = nil,
-  MENU_FILTERS = nil,
+  MENU_FILTERS = "Filtry",
   MENU_PERFORMANCE = nil,
-  MENU_LOCALE = nil,
+  MENU_LOCALE = "Místní",
   MENU_PARTY = "Party",
   MENU_PARTY_SHARE = nil,
   MENU_PARTY_SOLO = nil,
   MENU_HELP = "Nápověda",
-  MENU_HELP_SLASH = nil,
-  MENU_HELP_CHANGES = nil,
+  MENU_HELP_SLASH = "/ příkazy",
+  MENU_HELP_CHANGES = "Změny",
   MENU_HELP_SUBMIT = nil,
   
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.

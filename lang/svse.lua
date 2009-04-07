@@ -23,11 +23,11 @@ QuestHelper_Translations.svSE =
   TALK_TO_FLIGHT_MASTER = "Var vänlig prata med den lokala flygmästaren.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Tack.",
   WILL_RESET_PATH = "Kommer återställa vägvisnings-information",
-  UPDATING_ROUTE = "Uppdaterar rutt.",
+  UPDATING_ROUTE = "Uppdaterar väg.",
   
   -- Special tracker text
   QH_LOADING = "QuestHelper laddas (%1%%)...",
-  QUESTS_HIDDEN_1 = "Eventuella gömda uppdrag",
+  QUESTS_HIDDEN_1 = "Uppdrg är kanske gömda",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" för att visa)",
   
   -- Locale switcher.
@@ -125,7 +125,7 @@ QuestHelper_Translations.svSE =
   
   NAG_SINGLE_FP = "en flygmästare",
   NAG_SINGLE_QUEST = "ett uppdrag",
-  NAG_SINGLE_ROUTE = "en flyg-rutt",
+  NAG_SINGLE_ROUTE = "en flyg väg",
   NAG_SINGLE_ITEM_OBJ = "ett sak-uppdrag",
   NAG_SINGLE_OBJECT_OBJ = "ett objekts-uppdrag",
   NAG_SINGLE_MONSTER_OBJ = "ett monster-uppdrag",
@@ -152,7 +152,7 @@ QuestHelper_Translations.svSE =
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
   QH_BUTTON_TOOLTIP1 = "Vänster-klicka: %1 rutt-information",
-  QH_BUTTON_TOOLTIP2 = "Höger klicka: Visa Inställningar",
+  QH_BUTTON_TOOLTIP2 = "Höger klicka: Visa Inställnings meny",
   QH_BUTTON_SHOW = "Visa",
   QH_BUTTON_HIDE = "Dölj",
 
