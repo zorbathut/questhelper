@@ -69,6 +69,56 @@ local function GetItemType(link, vague)
   ))
 end
 
+local function StripBlizzQHTooltipClone(ttp)
+  if not UnitExists("mouseover") then return end
+  
+  local line = 2
+  local wpos = line
+  
+  local changed = false
+  
+  while _G["GameTooltipTextLeft" .. line] and _G["GameTooltipTextLeft" .. line]:IsShown() do
+    local r, g, b, a = _G["GameTooltipTextLeft" .. line]:GetTextColor()
+    r, g, b, a = math.floor(r * 255 + 0.5), math.floor(g * 255 + 0.5), math.floor(b * 255 + 0.5), math.floor(a * 255 + 0.5)
+    
+    if r == 255 and g == 210 and b == 0 and a == 255 then
+      --_G["GameTooltipTextLeft" .. line]:SetText("hellos")
+      changed = true
+    else
+      if line ~= wpos then
+        CopyOver(_G["GameTooltipTextLeft" .. wpos], _G["GameTooltipTextLeft" .. line])
+        CopyOver(_G["GameTooltipTextRight" .. wpos], _G["GameTooltipTextRight" .. line])
+        
+        changed = true
+      end
+      
+      wpos = wpos + 1
+    end
+    
+    line = line + 1
+  end
+  
+  if line ~= wpos then for ts = wpos, line - 1 do
+    QuestHelper: Assert(ts > 1)
+    
+    local tt = _G["GameTooltipTextLeft" .. ts]
+    local ttr = _G["GameTooltipTextRight" .. ts]
+    local ptt = _G["GameTooltipTextLeft" .. (ts - 1)]
+    
+    -- this . . . this is awful!
+    tt:SetText(nil)
+    ttr:SetText(nil)
+    tt:ClearAllPoints()
+    tt:SetPoint("TOPLEFT", ptt, "BOTTOMLEFT", 0, 0)
+    
+    changed = true
+  end end
+  
+  if changed then
+    ttp:Show()
+  end
+end
+
 local OrigScript = GameTooltip:GetScript("OnShow")      -- how many times have I hooked this function by now?
 GameTooltip:SetScript("OnShow", function (self, ...)
   
@@ -88,6 +138,10 @@ GameTooltip:SetScript("OnShow", function (self, ...)
     end
     
     if ulink and IsMonsterGUID(ulink) then
+      if QH_filter_hints then
+        StripBlizzQHTooltipClone(self)
+      end
+      
       local ite = tostring(GetMonsterType(ulink))
       
       if ctts["monster"] and ctts["monster"][ite] then
