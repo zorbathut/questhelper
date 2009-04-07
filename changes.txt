@@ -1,4 +1,8 @@
 
+== Version 0.97 4/5/2009 ==
+
+* Fix a bug with uncached quests on logon and with quests that have multiple identical objectives
+
 == Version 0.96 4/2/2009 ==
 
 * Support for special quest items in 3.1
