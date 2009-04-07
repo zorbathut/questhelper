@@ -72,7 +72,7 @@ GameTooltip:SetScript("OnShow", function (self, ...)
 end)
 
 local function TooltipHookRegistrar(func)
-  --[[ QuestHelper:Assert(func) ]]
+  QuestHelper: Assert(func)
   table.insert(TooltipRegistrar, func)
 end
 
