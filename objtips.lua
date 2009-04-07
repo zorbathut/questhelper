@@ -117,7 +117,9 @@ GameTooltip:SetScript("OnShow", function(self, ...)
     self = GameTooltip
   end
   
-  StripBlizzQHTooltipClone(self)
+  if QH_filter_hints then
+    StripBlizzQHTooltipClone(self)
+  end
   
   if QuestHelper and QuestHelper_Pref.tooltip then
     -- Apparantly, sometimes InventoryOnPar invokes our tooltip function with something that doesn't have GetItem method.
