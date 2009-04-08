@@ -662,7 +662,16 @@ function QuestHelper:CreateMipmapDodad()
         local c, z = QuestHelper.collect_rc or 0, QuestHelper.collect_rz or 0
         local x, y = convertLocationToScreen(self.obj.loc, c, z)
         --QuestHelper:TextOut(string.format("internal: %f %f %f %f or %f %f %f", c, z, x, y, self.obj.loc.c, self.obj.loc.x, self.obj.loc.y))
-        QuestHelper:InvokeWaypointCallbacks(c, z, x, y, self.obj.map_desc[1])
+        
+        local textdesc
+        if self.obj.map_desc_chain then
+          -- the first line will just be an "enroute" line
+          textdesc = self.obj.map_desc[1] .. "\n" .. self.obj.map_desc_chain.map_desc[1]
+        else
+          textdesc = self.obj.map_desc[1]
+        end
+        
+        QuestHelper:InvokeWaypointCallbacks(c, z, x, y, textdesc)
         
         --[=[
         if QuestHelper.c == t[1] then
