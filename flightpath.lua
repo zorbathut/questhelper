@@ -603,7 +603,7 @@ function QuestHelper:flightBegan()
       npc_obj:DoneRouting()
     end]]
     
-    if QuestHelper_Pref.flight_time then
+    if eta and QuestHelper_Pref.flight_time then
       self.flight_data.end_time_estimate = time() + eta
       self:PerformCustomSearch(flight_updater) -- Reusing the search status indicator to display ETA for flight.
     end
