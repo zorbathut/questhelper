@@ -19,7 +19,7 @@ local do_compile = true
 local do_questtables = true
 local do_flight = true
 
-local do_compress = true
+local do_compress = false
 
 local dbg_data = false
 
@@ -1652,11 +1652,19 @@ if flight_master_name_output then table.insert(sources, flight_master_name_outpu
 
 local function do_loc_choice(file, item)
   local has_linkloc = false
-  for k, v in ipairs(item) do
-    if file[v.sourcetype] and file[v.sourcetype][v.sourceid] and file[v.sourcetype][v.sourceid]["*/*"] then
-      if do_loc_choice(file, file[v.sourcetype][v.sourceid]["*/*"]) then
+  
+  do
+    local loc_obliterate = {}
+    for k, v in ipairs(item) do
+      if file[v.sourcetype] and file[v.sourcetype][v.sourceid] and file[v.sourcetype][v.sourceid]["*/*"] and do_loc_choice(file, file[v.sourcetype][v.sourceid]["*/*"]) then
         has_linkloc = true
+      else
+        table.insert(loc_obliterate, k)
       end
+    end
+    
+    for i = #loc_obliterate, 1, -1 do
+      table.remove(item, loc_obliterate[i])
     end
   end
   
@@ -1979,7 +1987,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
-local e = 1000
+--local e = 1000
 
 local function readdir()
   local pip = io.popen(("find data/08 -type f | head -n %s | tail -n +%s"):format(e or 1000000000, s or 0))
