@@ -98,6 +98,9 @@ function QuestHelper:CreateWorldMapWalker()
   walker.map_dodads = {}
   walker.used_map_dodads = 0
   
+  QuestHelper: Assert(self == QuestHelper)
+  QuestHelper: Assert(self.Astrolabe)
+  
   function walker:OnUpdate(elapsed)
     local out = 0
     
@@ -154,6 +157,10 @@ function QuestHelper:CreateWorldMapWalker()
   
   function walker:RouteChanged(route)
     if route then self.route = route end -- we cache it so we can refer to it later when the world map changes
+    
+    local dbgstr = string.format("%s %s %s %s", tostring(self), tostring(self.frame), tostring(QuestHelper), tostring(QuestHelper and QuestHelper.Astrolabe))
+    QuestHelper: Assert(self.frame == QuestHelper, dbgstr)
+    QuestHelper: Assert(QuestHelper.Astrolabe, dbgstr)
     
     if self.frame.Astrolabe.WorldMapVisible then
       local points = self.points

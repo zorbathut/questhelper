@@ -354,9 +354,6 @@ function QuestHelper:Initialize()
     QuestHelper_UID = self:CreateUID()
   end
   QuestHelper_SaveDate = time()
-
-  self.Astrolabe = DongleStub("Astrolabe-0.4-QuestHelper")
-  QuestHelper: Assert(self.Astrolabe)
   
   QuestHelper_BuildZoneLookup()
   QH_Graph_Init()
