@@ -36,7 +36,6 @@ function QH_Filter_Group_Sync()
     count = 1
   end
   
-  print(avg_level, count, avg_level + count)
   avg_level = avg_level / count
 end
 
