@@ -39,7 +39,6 @@ function QH_Hidden_Menu()
       
       if not ignore_reasons[clust[1]] then
         if QH_Route_Ignored_Cluster(clust) then
-          print("added fakereason")
           ignore_reasons[clust[1]] = {{reason = NodeChainIgnored, partial = false, items = clust}} -- hmm what
         end
       end
