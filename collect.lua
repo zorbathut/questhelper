@@ -52,24 +52,30 @@ GameTooltip.SetText = function (...)
   suppress = false
 end
 
-local OriginalScript = GameTooltip:GetScript("OnShow")
-GameTooltip:SetScript("OnShow", function (self, ...)
-  if not suppress then
-    if not self then self = GameTooltip end
-    
-    local tstart = GetTime()
-    for k, v in pairs(TooltipRegistrar) do
-      v(self, ...)
-    end
-    QH_Timeslice_Increment(GetTime() - tstart, "collect_tooltip")
+local function CollectTooltippery(self)
+  if not self then self = GameTooltip end
+  
+  local tstart = GetTime()
+  for k, v in pairs(TooltipRegistrar) do
+    v(self)
   end
+  QH_Timeslice_Increment(GetTime() - tstart, "collect_tooltip")
   
   -- anything past here is not my fault
-  
-  if OriginalScript then
-    return OriginalScript(self, ...)
-  end
+end
+
+local ottsu = GameTooltip:GetScript("OnTooltipSetUnit")
+GameTooltip:SetScript("OnTooltipSetUnit", function (self, ...)
+  CollectTooltippery(self)
+  if ottsu then return ottsu(self, ...) end
 end)
+
+local ottsi = GameTooltip:GetScript("OnTooltipSetItem")
+GameTooltip:SetScript("OnTooltipSetItem", function (self, ...)
+  CollectTooltippery(self)
+  if ottsi then return ottsi(self, ...) end
+end)
+
 
 local function TooltipHookRegistrar(func)
   QuestHelper: Assert(func)

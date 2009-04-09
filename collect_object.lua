@@ -17,7 +17,7 @@ local minetypes = {
   skin = UNIT_SKINNABLE_LEATHER,
 }
 
-local function Tooltipy(self, ...)
+local function Tooltipy(self)
   -- objects are a bitch since they have no unique ID or any standard way to detect them (that I know of).
   -- So we kind of guess at it.
   if self:GetAnchorType() == "ANCHOR_NONE" then

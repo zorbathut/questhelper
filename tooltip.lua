@@ -119,9 +119,7 @@ local function StripBlizzQHTooltipClone(ttp)
   end
 end
 
-local OrigScript = GameTooltip:GetScript("OnShow")      -- how many times have I hooked this function by now?
-GameTooltip:SetScript("OnShow", function (self, ...)
-  
+function CreateTooltip(self)
   if QuestHelper_Pref.tooltip then
     local inu, ilink = self:GetItem()
     local un, ulink = self:GetUnit()
@@ -151,6 +149,16 @@ GameTooltip:SetScript("OnShow", function (self, ...)
       self:Show()
     end
   end
-  
-  if OrigScript then OrigScript(self, ...) end
+end
+
+local ottsu = GameTooltip:GetScript("OnTooltipSetUnit")
+GameTooltip:SetScript("OnTooltipSetUnit", function (self, ...)
+  CreateTooltip(self)
+  if ottsu then return ottsu(self, ...) end
+end)
+
+local ottsi = GameTooltip:GetScript("OnTooltipSetItem")
+GameTooltip:SetScript("OnTooltipSetItem", function (self, ...)
+  CreateTooltip(self)
+  if ottsi then return ottsi(self, ...) end
 end)
