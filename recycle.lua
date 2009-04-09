@@ -69,7 +69,7 @@ function QuestHelper:ReleaseTable(tbl)
   self.used_tables = self.used_tables - 1
   self.recycle_tabletyping[tbl] = nil
   
-  if release_cycle < 100 then -- this is actually enough. you'd be horrified how much table churn there is in this thing
+  if QH_RegisterTable or release_cycle < 100 then -- this is actually enough. you'd be horrified how much table churn there is in this thing
     self.free_tables[setmetatable(tbl, unused_meta)] = true
     release_cycle = release_cycle + 1
   else

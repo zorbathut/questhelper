@@ -26,7 +26,9 @@ function QH_CTprint(sum)
   table.sort(typ, function(a, b) return a.v < b.v end)
   
   for _, v in pairs(typ) do
-    print(v.v, v.k)
+    if v.v > 0 then
+      print(v.v, v.k)
+    end
   end
 end
 function QH_CTacu()
@@ -47,6 +49,9 @@ function QH_CheckTables()
   for k, v in pairs(before) do sum[k] = (before[k] or 0) - (after[k] or 0) end
   for k, v in pairs(after) do sum[k] = (before[k] or 0) - (after[k] or 0) end
   QH_CTprint(sum)
+end
+function QH_PrintTables()
+  QH_CTprint(QH_CTacu())
 end
 
 ]]
