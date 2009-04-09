@@ -48,9 +48,13 @@ local pending = {}
 
 local weak_key = {__mode="k"}
 
+local function new_pathcache_table()
+  return setmetatable(QuestHelper:CreateTable("controller cache"), weak_key)
+end
+
 -- Every minute or two, we dump the inactive and move active to inactive. Every time we touch something, we put it in active.
-local pathcache_active = setmetatable(QuestHelper:CreateTable("controller cache"), weak_key)
-local pathcache_inactive = setmetatable(QuestHelper:CreateTable("controller cache"), weak_key)
+local pathcache_active = new_pathcache_table()
+local pathcache_inactive = new_pathcache_table()
 
 local function pcs(tpcs)
   local ct = 0
@@ -70,8 +74,8 @@ function QH_ClearPathcache()
   print("START")
   QuestHelper:Top()
   QH_PrintPathcacheSize()
-  pathcache_active = setmetatable({}, weak_key)
-  pathcache_inactive = setmetatable({}, weak_key)
+  pathcache_active = new_pathcache_table()
+  pathcache_inactive = new_pathcache_table()
   print("CLEARED")
   QuestHelper:Top()
   QH_PrintPathcacheSize()
@@ -94,14 +98,14 @@ local function GetCachedPath(loc1, loc2)
     misses = misses + 1
     local nrt = QH_Graph_Pathfind(loc1.loc, loc2.loc, false, true)
     QuestHelper: Assert(nrt)
-    if not pathcache_active[loc1] then pathcache_active[loc1] = setmetatable(QuestHelper:CreateTable("controller cache"), weak_key) end
-    if not pathcache_inactive[loc1] then pathcache_inactive[loc1] = setmetatable(QuestHelper:CreateTable("controller cache"), weak_key) end
+    if not pathcache_active[loc1] then pathcache_active[loc1] = new_pathcache_table() end
+    if not pathcache_inactive[loc1] then pathcache_inactive[loc1] = new_pathcache_table() end
     pathcache_active[loc1][loc2] = nrt
     pathcache_inactive[loc1][loc2] = nrt
     return nrt
   else
     hits = hits + 1
-    if not pathcache_active[loc1] then pathcache_active[loc1] = setmetatable(QuestHelper:CreateTable("controller cache"), weak_key) end
+    if not pathcache_active[loc1] then pathcache_active[loc1] = new_pathcache_table() end
     pathcache_active[loc1][loc2] = pathcache_inactive[loc1][loc2]
     return pathcache_active[loc1][loc2]
   end
@@ -262,7 +266,7 @@ function QH_Route_UnignoreCluster(clust, reason)
 end
 
 function QH_Route_FlightPathRecalc()
-  table.insert(pending, function () QH_redo_flightpath() pathcache_active = {} pathcache_inactive = {} Route_Core_DistanceClear() ReplotPath() end)
+  table.insert(pending, function () QH_redo_flightpath() pathcache_active = new_pathcache_table() pathcache_inactive = new_pathcache_table() Route_Core_DistanceClear() ReplotPath() end)
 end
 
 -- Right now we just defer to the existing ones
@@ -294,16 +298,16 @@ Route_Core_Init(
     QuestHelper: Assert(loc1)
     QuestHelper: Assert(loc1.loc)
     
-    if not pathcache_active[loc1] then pathcache_active[loc1] = {} end
-    if not pathcache_inactive[loc1] then pathcache_inactive[loc1] = {} end
+    if not pathcache_active[loc1] then pathcache_active[loc1] = new_pathcache_table() end
+    if not pathcache_inactive[loc1] then pathcache_inactive[loc1] = new_pathcache_table() end
     
     local lt = QuestHelper:CreateTable("route controller path shunt loctable")
     for _, v in ipairs(loctable) do
       QuestHelper: Assert(v.loc)
       table.insert(lt, v.loc)
       
-      if not pathcache_active[v] then pathcache_active[v] = {} end
-      if not pathcache_inactive[v] then pathcache_inactive[v] = {} end
+      if not pathcache_active[v] then pathcache_active[v] = new_pathcache_table() end
+      if not pathcache_inactive[v] then pathcache_inactive[v] = new_pathcache_table() end
     end
     local rv = QH_Graph_Pathmultifind(loc1.loc, lt, reverse, true)
     
@@ -351,7 +355,7 @@ local function process()
     if last_cull + 120 < GetTime() then
       last_cull = GetTime()
       pathcache_inactive = pathcache_active
-      pathcache_active = {} -- eat it, garbage collector
+      pathcache_active = new_pathcache_table() -- eat it, garbage collector
     end
     
     local c, x, y, rc, rz = QuestHelper.collect_ac, QuestHelper.collect_ax, QuestHelper.collect_ay, QuestHelper.c, QuestHelper.z  -- ugh we need a better solution to this, but with this weird "planes" hybrid there just isn't one right now
@@ -367,10 +371,10 @@ local function process()
       
       if last_playerpos then
         -- if it's in active, then it must be in inactive as well, so we do our actual deallocation in inactive only
-        pathcache_active[last_playerpos] = nil
+        if pathcache_active[last_playerpos] then QuestHelper:ReleaseTable(pathcache_active[last_playerpos]) pathcache_active[last_playerpos] = nil end
         for k, v in pairs(pathcache_active) do v[last_playerpos] = nil end
         
-        if pathcache_inactive[last_playerpos] then for k, v in pairs(pathcache_inactive[last_playerpos]) do QuestHelper:ReleaseTable(v) end pathcache_inactive[last_playerpos] = nil end
+        if pathcache_inactive[last_playerpos] then for k, v in pairs(pathcache_inactive[last_playerpos]) do QuestHelper:ReleaseTable(v) end QuestHelper:ReleaseTable(pathcache_inactive[last_playerpos]) pathcache_inactive[last_playerpos] = nil end
         for k, v in pairs(pathcache_inactive) do if v[last_playerpos] then QuestHelper:ReleaseTable(v[last_playerpos]) v[last_playerpos] = nil end end
       end
       
