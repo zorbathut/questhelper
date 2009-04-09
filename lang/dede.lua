@@ -7,14 +7,14 @@ QuestHelper_Translations.deDE =
   
   -- Messages used when starting.
   LOCALE_ERROR = "Die Sprache Deiner gespeicherten Daten stimmt nicht mit der Sprache Deines WoW-Clients überein.",
-  ZONE_LAYOUT_ERROR = "Das Addon wird nicht ausgeführt, um Deine gespeicherten Daten nicht zu beschädigen. Warte auf einen Patch, der in der Lage ist, daß neue Zonenlayout zu verarbeiten.",
+  ZONE_LAYOUT_ERROR = "Das Addon wird nicht ausgeführt, um Deine gespeicherten Daten nicht zu beschädigen. Warte auf einen Patch, der in der Lage ist, das neue Zonenlayout zu verarbeiten.",
   DOWNGRADE_ERROR = "Deine gespeicherten Daten sind nicht kompatibel mit dieser Version von QuestHelper. Verwende eine neue Version oder lösche Deine gespeicherten Variablen.",
   HOME_NOT_KNOWN = "Dein Zuhause ist nicht bekannt. Sprich bei der nächsten Gelegenheit mit einem Gastwirt, um es zurückzusetzen.",
   PRIVATE_SERVER = "QuestHelper unterstützt keine privaten Server.",
   PLEASE_RESTART = "Beim Starten von QuestHelper ist ein Fehler aufgetreten. Beende World of Warcraft vollständig und versuche es erneut.",
-  NOT_UNZIPPED_CORRECTLY = "QuestHelper wurde nicht ordnungsgemäß installiert. Wir empfehlen den Curse-Client oder 7zip für die Installation. Achte darauf, daß Unterverzeichnisse entpackt werden.",
-  PLEASE_DONATE = "%h(QuestHelper lebt nur von Spenden!) Jeder Beitrag ist willkommen. Ein paar Dollar im Monat stellen sicher, daß ich am Addon arbeite und es aktualisiere. Gib %h(/qh donate) ein, um weitere Informationen zu erhalten.",
-  HOW_TO_CONFIGURE = "Questhelper hat noch keine funktionierende Einstellungsseite. Du kannst es konfigurieren, indem du %h(/qh settings) eintippst. Mit %h(/qh help) rufst Du die Hilfe auf.",
+  NOT_UNZIPPED_CORRECTLY = "QuestHelper wurde nicht ordnungsgemäß installiert. Wir empfehlen den Curse-Client oder 7zip für die Installation. Achte darauf, dass Unterverzeichnisse entpackt werden.",
+  PLEASE_DONATE = "%h(QuestHelper lebt nur von Spenden!) Jeder Beitrag ist willkommen. Ein paar Dollar im Monat stellen sicher, dass ich am Addon arbeite und es aktualisiere. Gib %h(/qh donate) ein, um weitere Informationen zu erhalten.",
+  HOW_TO_CONFIGURE = "QuestHelper hat noch keine funktionierende Einstellungsseite. Du kannst es konfigurieren, indem du %h(/qh settings) eintippst. Mit %h(/qh help) rufst Du die Hilfe auf.",
   TIME_TO_UPDATE = "Möglicherweise ist eine %h(neue QuestHelper-Version) verfügbar. Neue Versionen umfassen gewöhnlich neue Funktionen, neue Questdatenbanken und Bugfixes. Du solltest ein Update durchführen!",
   
   -- Route related text.
@@ -116,11 +116,11 @@ QuestHelper_Translations.deDE =
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Du hast %h(neue Informationen) zu %h1 und %h(aktualisierte Informationen) zu %h2.",
   NAG_SINGLE_NEW = "Du hast %h(neue Informationen) zu %h1.",
-  NAG_ADDITIONAL = "Du hast zusätzliche Informationen zu %h1.",
+  NAG_ADDITIONAL = "Du hast %h(zusätzliche Informationen) zu %h1.",
   NAG_POLLUTED = "In Deiner Datenbank befinden sich Informationen von einem Testserver oder privaten Server. Sie wird beim Starten bereinigt.",
   
   NAG_NOT_NEW = "Du hast keine Informationen, die nicht bereits in der statischen Datenbank sind.",
-  NAG_NEW = "Du solltest in Betracht ziehen Deine Daten zu teilen, damit andere davon profitieren können.",
+  NAG_NEW = "Du solltest in Betracht ziehen, Deine Daten zu teilen, damit andere davon profitieren können.",
   NAG_INSTRUCTIONS = "Gib %h(/qh submit) ein, um Anweisungen zum Einsenden von Daten zu erhalten.",
   
   NAG_SINGLE_FP = "einem Flugmeister",

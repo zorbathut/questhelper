@@ -13,8 +13,8 @@ QuestHelper_Translations.esMX =
   PRIVATE_SERVER = "QuestHelper no funciona en Servidores Privados",
   PLEASE_RESTART = "Hubo un error iniciando QuestHelper. Por favor salga completamente del World of Warcraft e intente nuevamente.",
   NOT_UNZIPPED_CORRECTLY = nil,
-  PLEASE_DONATE = "%h (¡QuestHelper actualmente sobrevive de sus donaciones!) Cualquier contibución suya es apreciada, y solo unos pocos dólares al mes aseguran que yo lo mantendré actualizado y en funcionamiento. Teclee %h(/qh donate) para mas información.",
-  HOW_TO_CONFIGURE = nil,
+  PLEASE_DONATE = "%h(¡QuestHelper actualmente sobrevive de sus donaciones!) Cualquier contibución suya es apreciada, y solo unos pocos dólares al mes aseguran que yo lo mantendré actualizado y en funcionamiento. Teclee %h(/qh donate) para mas información.",
+  HOW_TO_CONFIGURE = "Como configurar.",
   TIME_TO_UPDATE = nil,
   
   -- Route related text.

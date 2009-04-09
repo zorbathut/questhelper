@@ -6,8 +6,8 @@ QuestHelper_Translations.plPL =
   LOCALE_NAME = "Polski",
   
   -- Messages used when starting.
-  LOCALE_ERROR = nil,
-  ZONE_LAYOUT_ERROR = nil,
+  LOCALE_ERROR = "  Locale zapisanych danych nie pasuje do Twojej lokalizacji WoW klienta. Aby korzystać QuestHelper musisz albo zmienić lokalizację wstecz, lub usuwać dane, wpisując %h (/qh purge).",
+  ZONE_LAYOUT_ERROR = "Odmawiam uruchomienia, gdyż boje się uszkodzenia twoich zapisanych danych. Proszę, poczekaj na patcha który będzie w stanie obsłużyć nowy layout zone'a.",
   DOWNGRADE_ERROR = "Twoje zapisane dane nie są zgodne z tą wersją QuestHelper'a. Użyj nowszej wersji albo usuń stare zmienne.",
   HOME_NOT_KNOWN = "Twoje pochodzenie nie jest znane. Kiedy będziesz miał czas, porozmawiaj z gospodarzem (Innkeeper) i ustaw miejsce docelowe.",
   PRIVATE_SERVER = "QuestHelper nie obsluguje prywatnych serwerow.",
@@ -15,14 +15,14 @@ QuestHelper_Translations.plPL =
   NOT_UNZIPPED_CORRECTLY = "QuestHelper został nieprawidłowo zainstalowany. Do instalacji zalecamy stosowanie klienta Curse lub 7zip. Upewnij się, że podkatalogi są wyodrębnione.",
   PLEASE_DONATE = "%h(QuestHelper przetrwa tylko dzieki twoim dotacjom!) Każdy twój wkład jest doceniany, a zaledwie kilka dolarów miesięcznie zapewni, że będę na bieżąco aktualizował i pracował nad AddOnem. Wposz %h(/qh donate) aby uzyskać więcej informacji.",
   HOW_TO_CONFIGURE = "QuestHelper nie ma jeszcze gotowej strony ustawień, ale może być skonfigurowany poprzez komendę %h(/qh ustawienia). Pomoc jest udzielana poprzez %h(/qh pomoc).",
-  TIME_TO_UPDATE = nil,
+  TIME_TO_UPDATE = "Mogła wyjść nowa wersja QuestHelpera. Nowa wersja zazwyczaj zawiera nowe opcje, nową questową bazę danych, oraz naprawę bugów. Proszę, updatuj!",
   
   -- Route related text.
   ROUTES_CHANGED = "Zmieniono twoje trasy lotow.",
   HOME_CHANGED = "Twoje miejsce docelowe zostało zmienione.",
   TALK_TO_FLIGHT_MASTER = "Porozmawiaj z lokalnym Flight Masterem.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Dziekuje.",
-  WILL_RESET_PATH = nil,
+  WILL_RESET_PATH = "Resetuję informacje o trasie.",
   UPDATING_ROUTE = "Odswiezanie trasy",
   
   -- Special tracker text
@@ -45,9 +45,9 @@ QuestHelper_Translations.plPL =
   OBJECTIVE_PURCHASE = "Kup od %h1",
   OBJECTIVE_TALK = "Porozmawiaj z %h1.",
   OBJECTIVE_SLAY = "Zabij %h1",
-  OBJECTIVE_LOOT = nil,
+  OBJECTIVE_LOOT = "Wylootuj %h1",
   
-  ZONE_BORDER = nil,
+  ZONE_BORDER = "Granica %1/%2",
   
   -- Stuff used in objective menus.
   PRIORITY = "Priorytet",
@@ -67,7 +67,7 @@ QuestHelper_Translations.plPL =
   
   -- Custom objectives.
   RESULTS_TITLE = "Wyniki wyszukiwania",
-  NO_RESULTS = nil,
+  NO_RESULTS = "Nie znaleziono!",
   CREATED_OBJ = "Utworzono: %1",
   REMOVED_OBJ = "Usunieto: %1",
   USER_OBJ = "Cel użytkownika: %h1",
@@ -91,7 +91,7 @@ QuestHelper_Translations.plPL =
   PEER_NEWER = "%h1 używa nowszej wersji protokołu. Być może czas na uaktualnienie.",
   PEER_OLDER = "%h1 używa starszej wersji protokołu.",
   
-  UNKNOWN_MESSAGE = nil,
+  UNKNOWN_MESSAGE = "Nieznany typ wiadomości '%1' od '%2'",
   
   -- Hidden objectives.
   HIDDEN_TITLE = "Ukryte Zadania",
@@ -117,41 +117,41 @@ QuestHelper_Translations.plPL =
   NAG_MULTIPLE_NEW = "Masz %h(nowa informacje) w %h1, i %h(zaktualizowana informacje) w %h2.",
   NAG_SINGLE_NEW = "Masz %h(nowa informacje) w %h1.",
   NAG_ADDITIONAL = "Masz %h(dodatkowych informacji) na %h1.",
-  NAG_POLLUTED = nil,
+  NAG_POLLUTED = "Twoja baza danych została zanieczyszczona przez informacje z testowego bądź prywatnego serwera, dlatego też będzie wyczyszczona przy starcie.",
   
-  NAG_NOT_NEW = nil,
-  NAG_NEW = nil,
-  NAG_INSTRUCTIONS = nil,
+  NAG_NOT_NEW = "Nie masz żadnych informacji, które nie są już w statycznej bazie danych.",
+  NAG_NEW = "Możesz wziąść pod uwagę podzielenie się twoimi danymi by i inni mogli czerpać z nich korzyści.",
+  NAG_INSTRUCTIONS = "Napisz %h(/qh submit) dla instrukcji dotyczących wysyłania danych.",
   
   NAG_SINGLE_FP = "Flight Master",
   NAG_SINGLE_QUEST = "Quest",
-  NAG_SINGLE_ROUTE = nil,
-  NAG_SINGLE_ITEM_OBJ = "cel - przedmiot",
-  NAG_SINGLE_OBJECT_OBJ = nil,
-  NAG_SINGLE_MONSTER_OBJ = "cel- potwor",
-  NAG_SINGLE_EVENT_OBJ = nil,
-  NAG_SINGLE_REPUTATION_OBJ = nil,
+  NAG_SINGLE_ROUTE = "trasa lotu",
+  NAG_SINGLE_ITEM_OBJ = "Cel przedmiotu",
+  NAG_SINGLE_OBJECT_OBJ = "Cel objektu",
+  NAG_SINGLE_MONSTER_OBJ = "Cel potworów",
+  NAG_SINGLE_EVENT_OBJ = "Cel wydarzenia",
+  NAG_SINGLE_REPUTATION_OBJ = "Cel reputacji",
   NAG_SINGLE_PLAYER_OBJ = "Cel gracza",
   
   NAG_MULTIPLE_FP = "%1 Flight Masterzy",
   NAG_MULTIPLE_QUEST = "%1 Questy",
   NAG_MULTIPLE_ROUTE = "%1 trasy lotu",
-  NAG_MULTIPLE_ITEM_OBJ = nil,
-  NAG_MULTIPLE_OBJECT_OBJ = nil,
-  NAG_MULTIPLE_MONSTER_OBJ = nil,
-  NAG_MULTIPLE_EVENT_OBJ = nil,
-  NAG_MULTIPLE_REPUTATION_OBJ = nil,
+  NAG_MULTIPLE_ITEM_OBJ = "% Cele przedmiotu",
+  NAG_MULTIPLE_OBJECT_OBJ = "%1 Cele objektu",
+  NAG_MULTIPLE_MONSTER_OBJ = "%1 Cele potworów",
+  NAG_MULTIPLE_EVENT_OBJ = "%1 Cele wydarzenia",
+  NAG_MULTIPLE_REPUTATION_OBJ = "% Cele reputacji",
   NAG_MULTIPLE_PLAYER_OBJ = "%1 Cele gracza",
   
   -- Stuff used by dodads.
-  PEER_PROGRESS = nil,
+  PEER_PROGRESS = "postęp %1 :",
   TRAVEL_ESTIMATE = "Pozostaly czas podrozy:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
-  WAYPOINT_REASON = nil,
+  WAYPOINT_REASON = "Udaj sie do %1 w drodze do:",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
-  QH_BUTTON_TOOLTIP1 = nil,
+  QH_BUTTON_TOOLTIP1 = "LKlik: Informacje o trasie %1",
   QH_BUTTON_TOOLTIP2 = "PKlik: Pokaż menu ustawień.",
   QH_BUTTON_SHOW = "Pokaz",
   QH_BUTTON_HIDE = "Ukryj",
@@ -170,7 +170,7 @@ QuestHelper_Translations.plPL =
   MENU_TRACKER_RESET = "Zresetuj pozycje",
   MENU_FLIGHT_TIMER = "%1 Czas lotu",
   MENU_ANT_TRAILS = "%1 \"Szlak Mrówek\"",
-  MENU_WAYPOINT_ARROW = nil,
+  MENU_WAYPOINT_ARROW = "%1 Wskaźnik celu",
   MENU_MAP_BUTTON = "%1 Przycisk Mapy",
   MENU_ZONE_FILTER = "% filtr strefy",
   MENU_DONE_FILTER = "%1 Zrobione filtry",
@@ -180,7 +180,7 @@ QuestHelper_Translations.plPL =
   MENU_LEVEL_OFFSET = "Przesuniecie filtru poziomu",
   MENU_ICON_SCALE = "Skala Ikon",
   MENU_FILTERS = "Filtry",
-  MENU_PERFORMANCE = nil,
+  MENU_PERFORMANCE = "Obciążenie Skali Trasy",
   MENU_LOCALE = "Lokalizacja",
   MENU_PARTY = "Party",
   MENU_PARTY_SHARE = "%1 Udostepnianie celu",
@@ -196,6 +196,6 @@ QuestHelper_Translations.plPL =
   TOOLTIP_QUEST = "Do Questa %h1",
   TOOLTIP_PURCHASE = "Kup %h1",
   TOOLTIP_SLAY = "Zabij do %h1",
-  TOOLTIP_LOOT = nil
+  TOOLTIP_LOOT = "Wylootuj dla %h1"
  }
 

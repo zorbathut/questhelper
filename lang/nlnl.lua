@@ -9,26 +9,26 @@ QuestHelper_Translations.nlNL =
   LOCALE_ERROR = "Sorry, de vertaling van je opgeslagen data komt niet overeen met de taal van je WoW client. Om QuestHelper te gebruiken herstel je de vertaling of verwijder je de data door het volgende te typen: %h(/qh purge).",
   ZONE_LAYOUT_ERROR = "Ik kan niet opstarten, omdat ik bang ben anders je opgeslagen data kapot te maken. Wacht alsjeblieft op een patch die wel deze zone layout aankan.",
   DOWNGRADE_ERROR = "Je opgeslagen data is niet bruikbaar met deze versie van QuestHelper. Gebruik een nieuwere versie of verwijder je 'saved variables' data.",
-  HOME_NOT_KNOWN = "Je thuis is niet bekend. Praat met een innkeeper om deze in te stellen.",
+  HOME_NOT_KNOWN = "Je thuis locatie is niet bekend. Praat met een innkeeper om deze in te stellen.",
   PRIVATE_SERVER = "Private servers worden niet door QuestHelper ondersteund.",
   PLEASE_RESTART = "Er is een error gevonden tijdens het opstarten van World of Warcraft, exit dit programma helemaal en probeer het opnieuw.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper is niet goed geinstalleerd. we raden aan om de curse cleint of 7zip te installeren. Controleer of de sub-mappen uit zijn gepakt.",
-  PLEASE_DONATE = "%h(QuestHelper currently survives on your donations!) Alles wat je kunt missen is welkom, en een paar euro per maand zorgen ervoor dat ik het kan updaten en werkend kan houden. Type %h(/qh donate) voor meer informatie.",
-  HOW_TO_CONFIGURE = "Questelper heeft nog geen werkende settings pagina, maar dit kan geconfigureerd worden door %h(/qh settings) te typen. Hulp is beschikbaar met %h(/qh help).",
-  TIME_TO_UPDATE = nil,
+  PLEASE_DONATE = "%h(QuestHelper overleefd op jullie donaties!) Alles wat je kunt missen is welkom, en een paar euro per maand zorgen ervoor dat ik het kan updaten en werkend kan houden. Type %h(/qh donate) voor meer informatie.",
+  HOW_TO_CONFIGURE = "QuestHelper heeft nog geen werkende instellings pagina, maar dit kan geconfigureerd worden door %h(/qh settings) te typen. Hulp is beschikbaar met %h(/qh help).",
+  TIME_TO_UPDATE = "Er kan een %h(nieuwe QuestHelper versie) beschikbaar zijn. Nieuwere versies hebben meestal nieuwe toevoegingen, nieuwe Questdatabases en bugfixes. Update aub!",
   
   -- Route related text.
   ROUTES_CHANGED = "De vliegroutes voor je karakter zijn veranderd.",
-  HOME_CHANGED = "Je thuis is veranderd.",
+  HOME_CHANGED = "Je thuis locatie is veranderd.",
   TALK_TO_FLIGHT_MASTER = "Praat met de lokale Flightmaster.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Bedankt.",
   WILL_RESET_PATH = "Routes worden opnieuw ingesteld.",
   UPDATING_ROUTE = "Route wordt ververst.",
   
   -- Special tracker text
-  QH_LOADING = nil,
-  QUESTS_HIDDEN_1 = nil,
-  QUESTS_HIDDEN_2 = nil,
+  QH_LOADING = "QuestHelper is aan het laden (%1%%)...",
+  QUESTS_HIDDEN_1 = "Questen kunnen verborgen zijn",
+  QUESTS_HIDDEN_2 = "(\"/qh hidden\" om verborgen Questen te zien)",
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Beschikbare Vertalingen:",

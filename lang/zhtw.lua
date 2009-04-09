@@ -72,7 +72,7 @@ QuestHelper_Translations.zhTW =
   REMOVED_OBJ = "移除： %1",
   USER_OBJ = "玩家目的: %h1",
   UNKNOWN_OBJ = "我不知道您應該前往哪個目的.",
-  INACCESSIBLE_OBJ = nil,
+  INACCESSIBLE_OBJ = "QuestHelper無法針對 %h1 有用的地點，已經在您的任務目標列表中註明無法找到‧如果您找到相關正確資料請上傳分享! (%h(/qh submit))",
   
   SEARCHING_STATE = "搜尋中： %1",
   SEARCHING_LOCAL = "地區 %1",
@@ -141,7 +141,7 @@ QuestHelper_Translations.zhTW =
   NAG_MULTIPLE_MONSTER_OBJ = "%1 怪物目標",
   NAG_MULTIPLE_EVENT_OBJ = "%1 事件目標",
   NAG_MULTIPLE_REPUTATION_OBJ = "%1 聲望目標",
-  NAG_MULTIPLE_PLAYER_OBJ = nil,
+  NAG_MULTIPLE_PLAYER_OBJ = "玩家目標",
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1 目前的進度",
@@ -175,7 +175,7 @@ QuestHelper_Translations.zhTW =
   MENU_ZONE_FILTER = "%1 任務區域過濾",
   MENU_DONE_FILTER = "%1 任務區域過濾",
   MENU_BLOCKED_FILTER = "%1 封鎖過濾",
-  MENU_WATCHED_FILTER = nil,
+  MENU_WATCHED_FILTER = "過濾中",
   MENU_LEVEL_FILTER = "%1 任務等級的過濾",
   MENU_LEVEL_OFFSET = "關閉等級過濾",
   MENU_ICON_SCALE = "圖示比例",
