@@ -22,6 +22,7 @@ QuestHelper_Loadtime["mapbutton.lua"] = GetTime()
 -------------------------------------------------------------------------------------
 -- Display a Settings menu.  Used from the map button's right-click, and from /qh settings.
 function QuestHelper:DoSettingsMenu()
+    do return end -- BZZZT
     local menu = QuestHelper:CreateMenu()
     self:CreateMenuTitle(menu, QHText("MENU_SETTINGS"))
     
