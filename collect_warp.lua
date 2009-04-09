@@ -21,7 +21,7 @@ local function valid(d, rc, rz, rx, ry)
 end
 
 local function OnUpdate()
-  local bolus = GetLoc(), {RawLocation()}
+  local bolus = GetLoc()
   local now_delayed, now_rc, now_rz, now_rx, now_ry = RawLocation()
   local now_valid = valid(RawLocation())
   

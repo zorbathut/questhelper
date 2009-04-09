@@ -3,9 +3,16 @@
 -- Crazy profiling madness
 -- sed -i s/{/QH_RegisterTable{/g `ls | grep lua | grep -v static`
 
+-- This is grimness so we can just apply the filter indiscriminately
+
+local QHRT
+QH_RegisterTable = function(...) return QHRT(...) end
+
+local QH_RegisterTable = function(...) return ... end
+
 QHT_Types = setmetatable({}, {__mode="k"})
 
-function QH_RegisterTable(tab, tag)
+QHRT = function(tab, tag)
   assert(not QHT_Types[tab])
   QHT_Types[tab] = tag or string.gsub(debugstack(2, 1, 1), "\n.*", "")
   return tab
