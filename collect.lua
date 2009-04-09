@@ -4,7 +4,7 @@ QuestHelper_Loadtime["collect.lua"] = GetTime()
 local debug_output = false
 if QuestHelper_File["collect.lua"] == "Development Version" then debug_output = true end
 
-local QuestHelper_Collector_Version_Current = 6
+local QuestHelper_Collector_Version_Current = 7
 
 QuestHelper_Collector = {}
 QuestHelper_Collector_Version = QuestHelper_Collector_Version_Current
@@ -130,6 +130,19 @@ function QH_Collector_Init()
   
   if not QHCData.realms then QHCData.realms = {} end
   QHCData.realms[GetRealmName()] = (QHCData.realms[GetRealmName()] or 0) + 1 -- I'm not entirely sure why I'm counting
+  
+  do  -- Clean some stuff up!
+    local obliterate = {}
+    for k, v in pairs(QuestHelper_Collector) do
+      if not v.modified or v.modified + 30 * 24 * 60 * 60 < GetTime() then
+        table.insert(obliterate, k)
+      end
+    end
+    
+    for _, v in ipairs(obliterate) do
+      QuestHelper_Collector[k] = nil
+    end
+  end
   
   -- So, why do we delay it?
   -- It's simple. People are gonna update to this version, and then they're going to look at the memory usage. Then they will panic because omg this version uses so much more memory, I bet that will somehow hurt my framerates in a way which is not adequately explained!
