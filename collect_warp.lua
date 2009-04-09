@@ -11,30 +11,46 @@ local Merger
 local RawLocation
 
 local lastloc_bolus
-local lastloc_table
+local last_delayed, last_rc, last_rz, last_rx, last_ry
+local last_valid
+
+local last_warp = 0
+
+local function valid(d, rc, rz, rx, ry)
+  return not d and rc and rz and rx and ry
+end
 
 local function OnUpdate()
-  local bolus, tab = GetLoc(), {RawLocation()}
-  if lastloc_table and lastloc_table[2] and tab[2] and lastloc_table[3] and tab[3] and not lastloc_table[1] and not tab[1] then
+  local bolus = GetLoc(), {RawLocation()}
+  local now_delayed, now_rc, now_rz, now_rx, now_ry = RawLocation()
+  local now_valid = valid(RawLocation())
+  
+  if last_valid and now_valid then
     local leapy = false
-    if lastloc_table[2] ~= tab[2] or lastloc_table[3] ~= tab[3] then
+    if last_rc ~= now_rc or last_rz ~= now_rz then
       leapy = true
     else
-      local dx, dy = lastloc_table[4] - tab[4], lastloc_table[5] - tab[5]
+      local dx, dy = last_rx - now_rx, last_ry - now_ry
       dx, dy = dx * dx, dy * dy
-      if dx + dy > 25 * 25 then -- Blink is 20, so we need to do more than that.
+      if dx + dy > 0.01 * 0.01 then
         leapy = true
       end
     end
     
     if leapy then
-      Merger.Add(QHCW, lastloc_bolus .. bolus)
       if debug_output then QuestHelper:TextOut("Warpy!") end
+    end
+    
+    if last_warp + 10 < GetTime() and leapy then
+      if debug_output then QuestHelper:TextOut("REAL Warpy!") end
+      Merger.Add(QHCW, lastloc_bolus .. bolus)
+      last_warp = GetTime()
     end
   end
   
   lastloc_bolus = bolus
-  lastloc_table = tab
+  
+  last_delayed, last_rc, last_rz, last_rx, last_ry, last_valid = now_delayed, now_rc, now_rz, now_rx, now_ry, now_valid
 end
 
 function QH_Collect_Warp_Init(QHCData, API)

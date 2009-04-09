@@ -67,6 +67,14 @@ function QH_Collector_Upgrade(chunk)
     
     chunk.version = 6
   end
+  
+  if chunk.version == 6 then
+    -- I just screwed this up really
+    -- Note that a few versions back (I'll have to check which) the standard bolus format changed. Since I can't actually *fix* it, I'm just ignoring it, but there's an implicit format change in there. I'll catch it and deal with it in the processing system.
+    chunk.warp = nil
+    
+    chunk.version = 7
+  end
 end
 
 function QH_Collector_UpgradeAll(Collector)

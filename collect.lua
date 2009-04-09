@@ -4,7 +4,7 @@ QuestHelper_Loadtime["collect.lua"] = GetTime()
 local debug_output = false
 if QuestHelper_File["collect.lua"] == "Development Version" then debug_output = true end
 
-local QuestHelper_Collector_Version_Current = 6
+local QuestHelper_Collector_Version_Current = 7
 
 QuestHelper_Collector = {}
 QuestHelper_Collector_Version = QuestHelper_Collector_Version_Current
@@ -131,11 +131,24 @@ function QH_Collector_Init()
   if not QHCData.realms then QHCData.realms = {} end
   QHCData.realms[GetRealmName()] = (QHCData.realms[GetRealmName()] or 0) + 1 -- I'm not entirely sure why I'm counting
   
-  if true then  -- this will be disabled in most public releases, or set to a very rare probabalistic thing
+  if false then  -- this will be disabled in most public releases, or set to a very rare probabalistic thing
     if not QHCData.routing_dump then QHCData.routing_dump = {} end
     local nt = {}
     table.insert(QHCData.routing_dump, nt)
     QH_Collect_Routing_Dump = nt
+  end
+  
+  do  -- Clean some stuff up!
+    local obliterate = {}
+    for k, v in pairs(QuestHelper_Collector) do
+      if not v.modified or v.modified + 30 * 24 * 60 * 60 < GetTime() then
+        table.insert(obliterate, k)
+      end
+    end
+    
+    for _, v in ipairs(obliterate) do
+      QuestHelper_Collector[k] = nil
+    end
   end
   
   -- So, why do we delay it?
