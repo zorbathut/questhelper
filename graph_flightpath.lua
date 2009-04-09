@@ -12,12 +12,19 @@ function QH_redo_flightpath()
     local ridingLevel = (select(4,GetAchievementInfo(892)) and 300) or (select(4,GetAchievementInfo(890)) and 225) or (select(4,GetAchievementInfo(889)) and 150) or (select(4,GetAchievementInfo(891)) and 75) or 0 -- this is thanks to Maldivia, who is a fucking genius
     local has_cwf = not not GetSpellInfo(GetSpellInfo(54197))
     
+    local speed
+    if ridingLevel == 225 then
+      speed = 11
+    elseif ridingLevel == 300 then
+      speed = 27
+    end
+    
     if ridingLevel >= 225 then
-      QH_Graph_Flyplaneset(3) -- Outland
+      QH_Graph_Flyplaneset(3, speed) -- Outland
     end
     
     if ridingLevel >= 225 and has_cwf then
-      QH_Graph_Flyplaneset(4) -- Northrend
+      QH_Graph_Flyplaneset(4, speed) -- Northrend
     end
   end
   

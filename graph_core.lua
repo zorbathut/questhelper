@@ -362,7 +362,7 @@ function QH_Graph_Plane_Destroylinks(name)
   QH_Graph_Plane_Destroylinkslocal(name)
 end
 
-function QH_Graph_Flyplaneset(fpset)
+function QH_Graph_Flyplaneset(fpset, speed)
   QuestHelper: Assert(not active)
   
   if not flyplanes_enabled[QuestHelper_IndexLookup[fpset][0]] then
@@ -375,6 +375,6 @@ function QH_Graph_Flyplaneset(fpset)
       end
     end
     
-    plane_multiplier[QuestHelper_IndexLookup[fpset][0]] = 27 -- We're assuming epic flying mount.
+    plane_multiplier[QuestHelper_IndexLookup[fpset][0]] = speed
   end
 end
