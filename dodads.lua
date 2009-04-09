@@ -663,7 +663,8 @@ function QuestHelper:CreateMipmapDodad()
   function icon:OnUpdate(elapsed)
     if self.obj then
       
-      if UnitIsDeadOrGhost("player") then
+      -- Deal with waypoint callbacks
+      if QuestHelper_Pref.hide or UnitIsDeadOrGhost("player") then
         QuestHelper:InvokeWaypointCallbacks()
       else
         local c, z = QuestHelper.collect_rc or 0, QuestHelper.collect_rz or 0
@@ -701,7 +702,7 @@ function QuestHelper:CreateMipmapDodad()
         end]=]
       end
       
-      if QuestHelper.Astrolabe:PlaceIconOnMinimap(self, convertLocation(self.obj.loc)) ~= -1 then
+      if not QuestHelper_Pref.hide and QuestHelper.Astrolabe:PlaceIconOnMinimap(self, convertLocation(self.obj.loc)) ~= -1 then
         local edge = QuestHelper.Astrolabe:IsIconOnEdge(self)
         
         if edge then

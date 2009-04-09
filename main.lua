@@ -886,9 +886,7 @@ Known bugs and issues include:
   |cff40bbffExcessive debug output|r
   
   |cff40bbffNo support for objective priority|r
-  
-  |cff40bbffNo support for "/qh hide"|r
-  
+   
   |cff40bbffBad behavior with dungeon/raid objectives (you'll know it when you see it)|r
 
   |cff40bbffNo support for "/qh find"|r

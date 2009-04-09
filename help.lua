@@ -65,9 +65,6 @@ function QuestHelper:SetLocale(loc)
 end
 
 function QuestHelper:ToggleHide()
---[=[ -- disabled for now
-  local current_objective = self.minimap_dodad.objective
-  
   QuestHelper_Pref.hide = not QuestHelper_Pref.hide
   
   -- Desaturate the button texture if QuestHelper is disabled.
@@ -82,8 +79,6 @@ function QuestHelper:ToggleHide()
     end
     
     self.map_overlay:Hide()
-    self.minimap_dodad:SetObjective(nil)
-    self.minimap_dodad.objective = current_objective
     self:TextOut("QuestHelper is now |cffff0000hidden|r.")
   else
     if QuestHelper_Pref.track then
@@ -91,15 +86,10 @@ function QuestHelper:ToggleHide()
     end
     
     self.map_overlay:Show()
-    self.minimap_dodad.objective = nil
-    self.minimap_dodad:SetObjective(current_objective)
     self:TextOut("QuestHelper is now |cff00ff00shown|r.")
-    -- WoW Will lockup inside ForceRouteUpdate, and so the UPDATING_ROUTE message won't appear until afterwards, making
-    -- this message kind of redundant.
-    -- self:TextOut(QHText("UPDATING_ROUTE"))
+
     QH_Timeslice_Bonus(20)        -- Let the corutine do some overtime...
   end
-]=]
 end
 
 function QuestHelper:ToggleShare()
