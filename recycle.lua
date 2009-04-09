@@ -18,32 +18,32 @@ It's ugly. I'm not arguing that. But it really, really helps.
 ]]
 
 QuestHelper.used_tables = 0
-QuestHelper.free_tables = QH_RegisterTable{}
+QuestHelper.free_tables = {}
 
 local function crashy(tab, name)
   QuestHelper: Assert(false, "Tried to access " .. name .. " from released table")
 end
 
-local unused_meta = QH_RegisterTable{__index=crashy, __newindex=crashy}
+local unused_meta = {__index=crashy, __newindex=crashy}
 
 QuestHelper.used_textures = 0
-QuestHelper.free_textures = QH_RegisterTable{}
+QuestHelper.free_textures = {}
 
 QuestHelper.used_text = 0
-QuestHelper.free_text = QH_RegisterTable{}
+QuestHelper.free_text = {}
 
 QuestHelper.used_frames = 0
-QuestHelper.free_frames = QH_RegisterTable{}
+QuestHelper.free_frames = {}
 
 -- This little table rigs up a basic typing system to assist with debugging. It has weak-reference keys so it shouldn't ever lead to leaks of any kind.
-QuestHelper.recycle_tabletyping = setmetatable(QH_RegisterTable{}, QH_RegisterTable{__mode="k"})
+QuestHelper.recycle_tabletyping = setmetatable({}, {__mode="k"})
 
 function QuestHelper:CreateTable(tag)
   local tbl = next(self.free_tables)
   self.used_tables = self.used_tables + 1
   
   if not tbl then
-    tbl = QH_RegisterTable({}, tag)
+    tbl = ({}, tag)
   else
     self.free_tables[tbl] = nil
     setmetatable(tbl, nil)
@@ -68,15 +68,15 @@ function QuestHelper:ReleaseTable(tbl)
 end
 
 function QuestHelper:DumpTableTypeFrequencies(silent)
-  local freq = QH_RegisterTable{}
+  local freq = {}
   for k, v in pairs(self.recycle_tabletyping) do
     freq[v] = (freq[v] or 0) + 1
   end
   
   if not silent then
-    local flist = QH_RegisterTable{}
+    local flist = {}
     for k, v in pairs(freq) do
-      table.insert(flist, QH_RegisterTable{count=v, name=k})
+      table.insert(flist, {count=v, name=k})
     end
     
     table.sort(flist, function(a, b) return a.count < b.count end)
@@ -107,7 +107,7 @@ function QuestHelper:CreateFrame(parent)
 end
 
 local frameScripts =
- QH_RegisterTable{
+ {
   "OnChar",
   "OnClick",
   "OnDoubleClick",
@@ -279,8 +279,8 @@ function QuestHelper:ReleaseTexture(tex)
   table.insert(self.free_textures, tex)
 end
 
-QuestHelper.recycle_active_cached_tables = QH_RegisterTable{}
-QuestHelper.recycle_decache_queue = QH_RegisterTable{}
+QuestHelper.recycle_active_cached_tables = {}
+QuestHelper.recycle_decache_queue = {}
 
 function QuestHelper:CacheRegister(obj)
   if not self.recycle_active_cached_tables[obj] then
