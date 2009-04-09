@@ -62,24 +62,21 @@ local function pcs(tpcs)
   return ct
 end
 
---[[
 function QH_PrintPathcacheSize()
   QuestHelper:TextOut(string.format("Active pathcache: %d", pcs(pathcache_active)))
   QuestHelper:TextOut(string.format("Inactive pathcache: %d", pcs(pathcache_inactive)))
 end
 function QH_ClearPathcache()
   print("START")
-  collectgarbage("collect")
   QuestHelper:Top()
   QH_PrintPathcacheSize()
   pathcache_active = setmetatable({}, weak_key)
   pathcache_inactive = setmetatable({}, weak_key)
-  collectgarbage("collect")
   print("CLEARED")
   QuestHelper:Top()
   QH_PrintPathcacheSize()
   print("END")
-end]]
+end
 
 local notification_funcs = {}
 
