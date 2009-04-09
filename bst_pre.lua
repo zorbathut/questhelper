@@ -1,4 +1,4 @@
---[[
+--[====[
 
 -- Crazy profiling madness
 -- sed -i s/{/QH_RegisterTable{/g `ls | grep lua | grep -v static`
@@ -54,7 +54,7 @@ function QH_PrintTables()
   QH_CTprint(QH_CTacu())
 end
 
-]]
+]====]
 
 QuestHelper_File = {}
 QuestHelper_Loadtime = {}
