@@ -43,14 +43,17 @@ function QuestHelper:CreateTable(tag)
   self.used_tables = self.used_tables + 1
   
   if not tbl then
-    tbl = ({}, tag)
+    tbl = {}
   else
     self.free_tables[tbl] = nil
     setmetatable(tbl, nil)
   end
   
-  --self.recycle_tabletyping[tbl] = tag or "untyped"
-  self.recycle_tabletyping[tbl] = tag or string.gsub(debugstack(2, 1, 1), "\n.*", "")
+  tag = tag or string.gsub(debugstack(2, 1, 1), "\n.*", "")
+  
+  if QH_RegisterTable then QH_RegisterTable(tbl, true, tag) end
+  self.recycle_tabletyping[tbl] = tag
+  
   return tbl
 end
 

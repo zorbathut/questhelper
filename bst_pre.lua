@@ -12,8 +12,8 @@ local QH_RegisterTable = function(...) return ... end
 
 QHT_Types = setmetatable({}, {__mode="k"})
 
-QHRT = function(tab, tag)
-  assert(not QHT_Types[tab])
+QHRT = function(tab, override, tag)
+  if not override then assert(not QHT_Types[tab]) end
   QHT_Types[tab] = tag or string.gsub(debugstack(2, 1, 1), "\n.*", "")
   return tab
 end
