@@ -346,6 +346,13 @@ local lc, lx, ly, lrc, lrz
 
 local last_playerpos = nil
 
+local function ReleaseShard(ki, shard)
+  for k, tv in pairs(shard) do
+    if not pathcache_active[ki] or not pathcache_active[ki][k] then QuestHelper:ReleaseTable(tv) end
+  end
+  QuestHelper:ReleaseTable(shard)
+end
+
 local function process()
 
   local last_cull = 0
@@ -354,8 +361,14 @@ local function process()
   while true do
     if last_cull + 120 < GetTime() then
       last_cull = GetTime()
+      
+      for k, v in pairs(pathcache_inactive) do
+        ReleaseShard(k, v)
+      end
+      QuestHelper:ReleaseTable(pathcache_inactive)
+      
       pathcache_inactive = pathcache_active
-      pathcache_active = new_pathcache_table() -- eat it, garbage collector
+      pathcache_active = new_pathcache_table()
     end
     
     local c, x, y, rc, rz = QuestHelper.collect_ac, QuestHelper.collect_ax, QuestHelper.collect_ay, QuestHelper.c, QuestHelper.z  -- ugh we need a better solution to this, but with this weird "planes" hybrid there just isn't one right now
@@ -374,7 +387,7 @@ local function process()
         if pathcache_active[last_playerpos] then QuestHelper:ReleaseTable(pathcache_active[last_playerpos]) pathcache_active[last_playerpos] = nil end
         for k, v in pairs(pathcache_active) do v[last_playerpos] = nil end
         
-        if pathcache_inactive[last_playerpos] then for k, v in pairs(pathcache_inactive[last_playerpos]) do QuestHelper:ReleaseTable(v) end QuestHelper:ReleaseTable(pathcache_inactive[last_playerpos]) pathcache_inactive[last_playerpos] = nil end
+        if pathcache_inactive[last_playerpos] then ReleaseShard(last_playerpos, pathcache_inactive[last_playerpos]) pathcache_inactive[last_playerpos] = nil end
         for k, v in pairs(pathcache_inactive) do if v[last_playerpos] then QuestHelper:ReleaseTable(v[last_playerpos]) v[last_playerpos] = nil end end
       end
       

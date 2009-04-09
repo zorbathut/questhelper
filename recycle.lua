@@ -57,6 +57,7 @@ function QuestHelper:CreateTable(tag)
   return tbl
 end
 
+local release_cycle = 0
 function QuestHelper:ReleaseTable(tbl)
   QuestHelper: Assert(type(tbl) == "table")
   QuestHelper: Assert(not self.free_tables[tbl])
@@ -66,8 +67,15 @@ function QuestHelper:ReleaseTable(tbl)
   end
   
   self.used_tables = self.used_tables - 1
-  self.free_tables[setmetatable(tbl, unused_meta)] = true
   self.recycle_tabletyping[tbl] = nil
+  
+  if release_cycle < 100 then -- this is actually enough. you'd be horrified how much table churn there is in this thing
+    self.free_tables[setmetatable(tbl, unused_meta)] = true
+    release_cycle = release_cycle + 1
+  else
+    self.recycle_tabletyping[tbl] = "((released))"
+    release_cycle = 0
+  end
 end
 
 function QuestHelper:DumpTableTypeFrequencies(silent)
