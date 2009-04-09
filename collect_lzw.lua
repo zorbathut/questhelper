@@ -4,11 +4,19 @@ QuestHelper_Loadtime["collect_lzw.lua"] = GetTime()
 local Merger
 local Bitstream
 
+local function cleanup(tab)
+  for _, v in pairs(tab) do
+    QuestHelper:ReleaseTable(v)
+  end
+  QuestHelper:ReleaseTable(tab)
+end
+
 local function QH_LZW_Decompress(input, tokens, outbits)
-  local d = {}
+  local d = QuestHelper:CreateTable("lzw")
   local i
   for i = 0, tokens-1 do
-    d[i] = {[0] = string.char(i)}
+    d[i] = QuestHelper:CreateTable("lzw")
+    d[i][0] = string.char(i)
   end
   
   local dsize = tokens + 1  -- we use the "tokens" value as an EOF marker
@@ -24,7 +32,7 @@ local function QH_LZW_Decompress(input, tokens, outbits)
   local idlect = 0
   
   local tok = i:depend(bits)
-  if tok == tokens then return "" end -- Okay. There's nothing. We get it.
+  if tok == tokens then cleanup(d) return "" end -- Okay. There's nothing. We get it.
   
   Merger.Add(rv, d[bit.mod(tok, tokens)][math.floor(tok / tokens)])
   local w = d[bit.mod(tok, tokens)][math.floor(tok / tokens)]
@@ -59,6 +67,8 @@ local function QH_LZW_Decompress(input, tokens, outbits)
     
     w = entry
   end
+  
+  cleanup(d)
   
   return Merger.Finish(rv)
 end
