@@ -274,7 +274,7 @@ local specitem_unused = {}
 -- This is adding a *single item*. This won't be called by the main parsing loop, but it does need some serious hackery. Let's see now
 local function addItem(objective, y, meta)
   used_count[objective] = (used_count[objective] or 0) + 1
-  if not used_items[objective] then used_items[objective] = {} end
+  if not used_items[objective] then used_items[objective] = QuestHelper:CreateTable("additem used_items") end
   local item = used_items[objective][used_count[objective]]
   
   local x = meta and 4 or 20
@@ -541,10 +541,11 @@ local hidden_vquest2 = { cat = "quest", obj = "7778/    " .. QHText("QUESTS_HIDD
 local route = {}
 local pinned = {}
 
+-- This is actually called surprisingly often.
 function QH_Tracker_Rescan()
-  used_count = {} -- reset this
+  used_count = QuestHelper:CreateTable("tracker rescan used_count")
   
-  local mo_done = {}
+  local mo_done = QuestHelper:CreateTable("tracker rescan mo_done")
   
   local y, depth = 0, 0
   
@@ -561,10 +562,10 @@ function QH_Tracker_Rescan()
   
   if had_pinned then y = y + 10 end
   
-  local metalookup = {}
+  local metalookup = QuestHelper:CreateTable("tracker rescan metalookup")
   for k, v in ipairs(route) do
     if not v.ignore then
-      if not metalookup[v.why] then metalookup[v.why] = {} end
+      if not metalookup[v.why] then metalookup[v.why] = QuestHelper:CreateTable("tracker rescan metalookup item") end
       if not v.tracker_hidden then table.insert(metalookup[v.why], v) end
     end
   end
@@ -601,16 +602,35 @@ function QH_Tracker_Rescan()
   
   for k, v in pairs(used_items) do
     if not used_count[k] or used_count[k] < #v then
-      local ttp = {}
+      local ttp = QuestHelper:CreateTable("used_items ttp")
       for m = 1, (used_count[k] or 0) do
         table.insert(ttp, v[m])
       end
       for m = (used_count[k] or 0) + 1, #v do
         removeUnusedItem(v[m])
       end
-      used_items[k] = ttp
+      
+      if used_items[k] then
+        QuestHelper:ReleaseTable(used_items[k])
+      end
+      
+      if #ttp > 0 then
+        used_items[k] = ttp
+      else
+        used_items[k] = nil
+        QuestHelper:ReleaseTable(ttp)
+      end
     end
   end
+  
+  QuestHelper:ReleaseTable(mo_done)
+  for k, v in pairs(metalookup) do
+    QuestHelper:ReleaseTable(v)
+  end
+  QuestHelper:ReleaseTable(metalookup)
+  
+  QuestHelper:ReleaseTable(used_count)
+  used_count = nil
   
   --[[
   
