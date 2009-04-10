@@ -619,12 +619,13 @@ function QuestHelper:CreateMipmapDodad()
   icon:Hide()
   icon.recalc_timeout = 0
   
-  icon.arrow = CreateFrame("Model", nil, icon)
-  icon.arrow:SetHeight(140.8)
-  icon.arrow:SetWidth(140.8)
-  icon.arrow:SetPoint("CENTER", Minimap, "CENTER", 0, 0)
-  icon.arrow:SetModel("Interface\\Minimap\\Rotating-MinimapArrow.mdx")
+  icon.arrow = icon:CreateTexture("BACKGROUND")
+  icon.arrow:SetHeight(40)
+  icon.arrow:SetWidth(40)
+  icon.arrow:SetPoint("CENTER", 0, 0)
+  icon.arrow:SetTexture("Interface\\AddOns\\QuestHelper\\MinimapArrow")
   icon.arrow:Hide()
+  wackytest = icon.arrow
   
   icon.phase = 0
   icon.target = {0, 0, 0, 0}
@@ -758,17 +759,20 @@ function QuestHelper:CreateMipmapDodad()
         if GetCVar("rotateMinimap") == "1" then
           angle = angle + QuestHelper.Astrolabe:GetFacing()
         end
-        
-        self.arrow:SetFacing(angle)
-        self.arrow:SetPosition(ofs * (137 / 140) - radius * math.sin(angle),
-                               ofs               + radius * math.cos(angle), 0);
+  
+        --self.arrow:SetPosition(ofs * (137 / 140) - radius * math.sin(angle),
+                               --ofs               + radius * math.cos(angle), 0);
         
         if self.phase > 6.283185307179586476925 then
           self.phase = self.phase-6.283185307179586476925+elapsed*3.5
         else
           self.phase = self.phase+elapsed*3.5
         end
-        self.arrow:SetModelScale(0.600000023841879+0.1*math.sin(self.phase))
+        
+        local scale = 1.0 + 0.1 * math.sin(self.phase)
+        
+        local sin,cos = scale * math.sin(angle + 3.14159 * 0.75) * math.sqrt(0.5), scale * math.cos(angle + 3.14159 * 0.75) * math.sqrt(0.5)
+        self.arrow:SetTexCoord(0.5-sin, 0.5+cos, 0.5+cos, 0.5+sin, 0.5-cos, 0.5-sin, 0.5+sin, 0.5-cos)
       end
     else
       self:Hide()
