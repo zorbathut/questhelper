@@ -80,6 +80,60 @@ QuestHelper_Zones =
     [11]="Zul'Drak"},
     
   [-77]={[0]="ScarletEnclave_Continent", [1]="ScarletEnclave"},
+  
+  [-80]={[0]="UtgardeKeep1_Continent", [1]="UtgardeKeep1"},
+  [-81]={[0]="UtgardeKeep2_Continent", [1]="UtgardeKeep2"},
+  [-82]={[0]="UtgardeKeep3_Continent", [1]="UtgardeKeep3"},
+  
+  [-83]={[0]="TheNexus_Continent", [1]="TheNexus"},
+  
+  [-84]={[0]="AzjolNerub1_Continent", [1]="AzjolNerub1"},
+  [-85]={[0]="AzjolNerub2_Continent", [1]="AzjolNerub2"},
+  [-86]={[0]="AzjolNerub3_Continent", [1]="AzjolNerub3"},
+  
+  [-87]={[0]="Ahnkahet_Continent", [1]="Ahnkahet"},
+  
+  [-88]={[0]="DrakTharonKeep1_Continent", [1]="DrakTharonKeep1"},
+  [-89]={[0]="DrakTharonKeep2_Continent", [1]="DrakTharonKeep2"},
+  
+  [-90]={[0]="VioletHold_Continent", [1]="VioletHold"},
+  
+  [-91]={[0]="Gundrak_Continent", [1]="Gundrak"},
+  
+  [-92]={[0]="Ulduar77_Continent", [1]="Ulduar77"},
+  
+  [-93]={[0]="HallsofLightning1_Continent", [1]="HallsofLightning1"},
+  [-94]={[0]="HallsofLightning2_Continent", [1]="HallsofLightning2"},
+  
+  [-95]={[0]="Nexus801_Continent", [1]="Nexus801"},
+  [-96]={[0]="Nexus802_Continent", [1]="Nexus802"},
+  [-97]={[0]="Nexus803_Continent", [1]="Nexus803"},
+  [-98]={[0]="Nexus804_Continent", [1]="Nexus804"},
+  
+  [-99]={[0]="CoTStratholme1_Continent", [1]="CoTStratholme1"},
+  [-100]={[0]="CoTStratholme2_Continent", [1]="CoTStratholme2"},
+  
+  [-101]={[0]="UtgardePinnacle1_Continent", [1]="UtgardePinnacle1"},
+  [-102]={[0]="UtgardePinnacle2_Continent", [1]="UtgardePinnacle2"},
+  
+  [-103]={[0]="VaultofArchavon_Continent", [1]="VaultofArchavon"},
+  
+  [-104]={[0]="Naxxramas1_Continent", [1]="Naxxramas1"},
+  [-105]={[0]="Naxxramas2_Continent", [1]="Naxxramas2"},
+  [-106]={[0]="Naxxramas3_Continent", [1]="Naxxramas3"},
+  [-107]={[0]="Naxxramas4_Continent", [1]="Naxxramas4"},
+  [-108]={[0]="Naxxramas5_Continent", [1]="Naxxramas5"},
+  [-109]={[0]="Naxxramas6_Continent", [1]="Naxxramas6"},
+  
+  [-110]={[0]="TheObsidianSanctum_Continent", [1]="TheObsidianSanctum"},
+  
+  [-111]={[0]="TheEyeOfEternity_Continent", [1]="TheEyeOfEternity"},
+  
+  [-112]={[0]="Ulduar_Continent", [1]="Ulduar"},
+  [-113]={[0]="Ulduar1_Continent", [1]="Ulduar1"},
+  [-114]={[0]="Ulduar2_Continent", [1]="Ulduar2"},
+  [-115]={[0]="Ulduar3_Continent", [1]="Ulduar3"},
+  [-116]={[0]="Ulduar4_Continent", [1]="Ulduar4"},
 }
 
 
@@ -164,8 +218,63 @@ QuestHelper_IndexLookup =
   ["LakeWintergrasp"] = {74, 4, 10},
   ["ZulDrak"] = {75, 4, 11},
   
-  ["ScarletEnclave_Continent"] = {77, -77, 0},
-  ["ScarletEnclave"] = {78, -77, 1},
+  ["ScarletEnclave_Continent"] = {77, -77, 0}, ["ScarletEnclave"] = {78, -77, 1},
+  
+  ["UtgardeKeep1_Continent"] = {79, -80, 0}, ["UtgardeKeep1"] = {80, -80, 1},
+  ["UtgardeKeep2_Continent"] = {81, -81, 0}, ["UtgardeKeep2"] = {82, -81, 1},
+  ["UtgardeKeep3_Continent"] = {83, -82, 0}, ["UtgardeKeep3"] = {84, -82, 1},
+  
+  ["TheNexus_Continent"] = {85, -83, 0}, ["TheNexus"] = {86, -83, 1},
+  
+  ["AzjolNerub1_Continent"] = {87, -84, 0}, ["AzjolNerub1"] = {88, -84, 1},
+  ["AzjolNerub2_Continent"] = {89, -85, 0}, ["AzjolNerub2"] = {90, -85, 1},
+  ["AzjolNerub3_Continent"] = {91, -86, 0}, ["AzjolNerub3"] = {92, -86, 1},
+  
+  ["Ahnkahet_Continent"] = {93, -87, 0}, ["Ahnkahet"] = {94, -87, 1},
+  
+  ["DrakTharonKeep1_Continent"] = {95, -88, 0}, ["DrakTharonKeep1"] = {96, -88, 1},
+  ["DrakTharonKeep2_Continent"] = {97, -89, 0}, ["DrakTharonKeep2"] = {98, -89, 1},
+  
+  ["VioletHold_Continent"] = {99, -90, 0}, ["VioletHold"] = {100, -90, 1},
+  
+  ["Gundrak_Continent"] = {101, -91, 0}, ["Gundrak"] = {102, -91, 1},
+  
+  ["Ulduar77_Continent"] = {103, -92, 0}, ["Ulduar77"] = {104, -92, 1},
+  
+  ["HallsofLightning1_Continent"] = {105, -93, 0}, ["HallsofLightning1"] = {106, -93, 1},
+  ["HallsofLightning2_Continent"] = {107, -94, 0}, ["HallsofLightning2"] = {108, -94, 1},
+  
+  ["Nexus801_Continent"] = {109, -95, 0}, ["Nexus801"] = {110 , -95, 1},
+  ["Nexus802_Continent"] = {111, -96, 0}, ["Nexus802"] = {112, -96, 1},
+  ["Nexus803_Continent"] = {113, -97, 0}, ["Nexus803"] = {114, -97, 1},
+  ["Nexus804_Continent"] = {115, -98, 0}, ["Nexus804"] = {116, -98, 1},
+  
+  ["CoTStratholme1_Continent"] = {117, -99, 0}, ["CoTStratholme1"] = {118, -99, 1},
+  ["CoTStratholme2_Continent"] = {119, -100, 0}, ["CoTStratholme2"] = {120, -100, 1},
+  
+  ["UtgardePinnacle1_Continent"] = {121, -101, 0}, ["UtgardePinnacle1"] = {122, -101, 1},
+  ["UtgardePinnacle2_Continent"] = {123, -102, 0}, ["UtgardePinnacle2"] = {124, -102, 1},
+  
+  ["VaultofArchavon_Continent"] = {125, -103, 0}, ["VaultofArchavon"] = {126, -103, 1},
+  
+  ["Naxxramas1_Continent"] = {127, -104, 0}, ["Naxxramas1"] = {128, -104, 1},
+  ["Naxxramas2_Continent"] = {129, -105, 0}, ["Naxxramas2"] = {130, -105, 1},
+  ["Naxxramas3_Continent"] = {131, -106, 0}, ["Naxxramas3"] = {132, -106, 1},
+  ["Naxxramas4_Continent"] = {133, -107, 0}, ["Naxxramas4"] = {134, -107, 1},
+  ["Naxxramas5_Continent"] = {135, -108, 0}, ["Naxxramas5"] = {136, -108, 1},
+  ["Naxxramas6_Continent"] = {137, -109, 0}, ["Naxxramas6"] = {138, -109, 1},
+  
+  ["TheObsidianSanctum_Continent"] = {139, -110, 0}, ["TheObsidianSanctum"] = {140, -110, 1},
+  
+  ["TheEyeOfEternity_Continent"] = {141, -111, 0}, ["TheEyeOfEternity"] = {142, -111, 1},
+  
+  ["Ulduar_Continent"] = {143, -112, 0}, ["Ulduar"] = {144, -112, 1},
+  ["Ulduar1_Continent"] = {145, -113, 0}, ["Ulduar1"] = {146, -113, 1},
+  ["Ulduar2_Continent"] = {147, -114, 0}, ["Ulduar2"] = {148, -114, 1},
+  ["Ulduar3_Continent"] = {149, -115, 0}, ["Ulduar3"] = {150, -115, 1},
+  ["Ulduar4_Continent"] = {151, -116, 0}, ["Ulduar4"] = {152, -116, 1},
+  
+  -- yes virginia 152 is currently the end
 }
 
 QuestHelper_RestrictedZones = { -- Everything defaults to "nil"
