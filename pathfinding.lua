@@ -78,6 +78,29 @@ local static_shared_routes =
    {{66, 0.157, 0.425}, {67, 0.559, 0.468}, 5, true}, -- Violent Stand --> Dalaran (slightly different coordinates, may be important once solid walls are in)
    
    {{34, 0.817, 0.461}, {78, 0.492, 0.312}, 86400}, -- EPL Ebon Hold <--> Scarlet Enclave Ebon Hold. Exists solely to fix some pathing crashes. 24-hour boat ride :D
+   
+   {{67, 0.256, 0.515}, {8, 0.659, 0.498}, 5, true}, -- Dalaran --> CoT
+   
+   -- Wrath instance entrances
+   {{80, 0.693, 0.730}, {70, 0.573, 0.467}, 5}, -- UK
+   {{86, 0.362, 0.880}, {65, 0.275, 0.260}, 5}, -- Nexus
+   {{92, 0.094, 0.933}, {68, 0.260, 0.508}, 5}, -- AN
+   {{94, 0.900, 0.791}, {68, 0.285, 0.517}, 5}, -- AK
+   {{96, 0.294, 0.810}, {75, 0.286, 0.869}, 5}, -- Draktharon
+   {{100, 0.469, 0.780}, {67, 0.679, 0.694}, 5}, -- VH
+   {{102, 0.590, 0.309}, {75, 0.764, 0.214}, 5}, -- Gundrak NW
+   {{102, 0.344, 0.312}, {75, 0.810, 0.286}, 5}, -- Gundrak SE
+   {{104, 0.344, 0.362}, {73, 0.397, 0.269}, 5}, -- HoS
+   {{106, 0.020, 0.538}, {73, 0.453, 0.216}, 5}, -- HoL
+   {{110, 0.613, 0.476}, {65, 0.275, 0.266}, 5}, -- Oculus
+   {{120, 0.875, 0.712}, {8, 0.614, 0.626}, 5}, -- CoT
+   {{124, 0.445, 0.161}, {70, 0.573, 0.467}, 5}, -- UP
+   {{126, 0.500, 0.500}, {74, 0.500, 0.115}, 5}, -- VoA, zone-in link is incorrect
+   {{128, 0.500, 0.500}, {68, 0.873, 0.510}, 5}, -- Naxx, zone-in link is incorrect (but might be close)
+   {{140, 0.635, 0.501}, {68, 0.600, 0.566}, 5}, -- Sarth
+   {{142, 0.500, 0.500}, {65, 0.275, 0.267}, 5}, -- Malygos, zone-in link is incorrect (not that it matters with malygos)
+   {{144, 0.500, 0.500}, {73, 0.416, 0.179}, 5}, -- Ulduar, zone-in link is incorrect
+   
   }
 
 -- Darkportal is handled specially, depending on whether or not you're level 58+ or not.

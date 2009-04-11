@@ -239,7 +239,7 @@ QuestHelper_IndexLookup =
   
   ["Gundrak_Continent"] = {101, -91, 0}, ["Gundrak"] = {102, -91, 1},
   
-  ["Ulduar77_Continent"] = {103, -92, 0}, ["Ulduar77"] = {104, -92, 1},
+  ["Ulduar77_Continent"] = {103, -92, 0}, ["Ulduar77"] = {104, -92, 1}, -- HoS
   
   ["HallsofLightning1_Continent"] = {105, -93, 0}, ["HallsofLightning1"] = {106, -93, 1},
   ["HallsofLightning2_Continent"] = {107, -94, 0}, ["HallsofLightning2"] = {108, -94, 1},
