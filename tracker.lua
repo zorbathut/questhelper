@@ -546,18 +546,26 @@ function QH_Tracker_Rescan()
   used_count = QuestHelper:CreateTable("tracker rescan used_count")
   
   local mo_done = QuestHelper:CreateTable("tracker rescan mo_done")
+  local obj_done = QuestHelper:CreateTable("tracker rescan obj_done")
   
   local y, depth = 0, 0
   
   local had_pinned = false
   
-  for k, v in pairs(pinned) do
-    if not mo_done[k] then
-      QuestHelper:TextOut("amo")
-      y, depth = addMetaObjective(k, k, y, depth) -- It's like KY. Only better, and faintly racist.
-      mo_done[k] = true
-      had_pinned = true
+  do
+    local objs = QuestHelper:CreateTable("tracker objs")
+    for k, v in pairs(pinned) do
+      if not objs[k.why] then objs[k.why] = QuestHelper:CreateTable("tracker objs sub") end
+      if not k.ignore and not k.tracker_hidden then table.insert(objs[k.why], k) end
+      obj_done[k.cluster] = true 
     end
+    
+    for k, v in pairs(objs) do
+      y, depth = addMetaObjective(k, v, y, depth) -- It's like KY. Only better, and faintly racist.
+      had_pinned = true
+      QuestHelper:ReleaseTable(v)
+    end
+    QuestHelper:ReleaseTable(objs)
   end
   
   if had_pinned then y = y + 10 end
@@ -575,9 +583,10 @@ function QH_Tracker_Rescan()
     local current_mo_cluster
     for k, v in ipairs(route) do
       if depth > QuestHelper_Pref.track_size and not debug_output then break end
-      if not v.ignore and not v.why.tracker_hidden then
+      if not v.ignore and not v.why.tracker_hidden and not obj_done[v.cluster] then
         if current_mo and v.why ~= current_mo then
           y, depth = addMetaObjective(current_mo, current_mo_cluster, y, depth)
+          QuestHelper:ReleaseTable(current_mo_cluster)
           current_mo, current_mo_cluster = nil, nil
         end
         
@@ -589,14 +598,19 @@ function QH_Tracker_Rescan()
         else
           if not current_mo then
             current_mo = v.why
-            current_mo_cluster = {}
+            current_mo_cluster = QuestHelper:CreateTable("tracker current cluster")
           end
           if not v.tracker_hidden then table.insert(current_mo_cluster, v) end
         end
+        
+        obj_done[v] = true
       end
     end
     if current_mo and not (depth > QuestHelper_Pref.track_size and not debug_output) then
       y, depth = addMetaObjective(current_mo, current_mo_cluster, y, depth)
+    end
+    if current_mo_cluster then
+      QuestHelper:ReleaseTable(current_mo_cluster)
     end
   end
   
@@ -624,6 +638,7 @@ function QH_Tracker_Rescan()
   end
   
   QuestHelper:ReleaseTable(mo_done)
+  QuestHelper:ReleaseTable(obj_done)
   for k, v in pairs(metalookup) do
     QuestHelper:ReleaseTable(v)
   end
@@ -792,16 +807,26 @@ function QH_Tracker_UpdateRoute(new_route)
 end
 
 function QH_Tracker_Pin(metaobjective)
-  QuestHelper:TextOut("hey hey")
-  pinned[metaobjective] = true
-  QH_Tracker_Rescan()
+  if not pinned[metaobjective] then
+    pinned[metaobjective] = true
+    QH_Tracker_Rescan()
+  end
 end
 
 function QH_Tracker_Unpin(metaobjective)
-  pinned[metaobjective] = nil -- nil, not false, so it'll be garbage-collected appropriately
-  QH_Tracker_Rescan()
+  if pinned[metaobjective] then
+    pinned[metaobjective] = nil -- nil, not false, so it'll be garbage-collected appropriately
+    QH_Tracker_Rescan()
+  end
 end
 
+function QH_Tracker_SetPin(metaobjective, flag)
+  if flag then
+    QH_Tracker_Pin(metaobjective)
+  else
+    QH_Tracker_Unpin(metaobjective)
+  end
+end
 
 
 local resizing = false

@@ -14,6 +14,10 @@
 ## X-Website: http://www.quest-helper.com/
 ## X-Embeds: AstrolabeQH, ChatThrottleLib
 
+# Explanation of optional deps:
+# Cartographer and Tomtom are there so I can link with their arrows properly.
+# Swatter really likes intercepting all error messages and not letting them through. Since I want to intercept my own messages, I go after Swatter so I can insert my hook earlier on.
+
 # That is a pile of saved variables. Let me try to explain them better.
 # 
 # Old data gathering:
@@ -110,6 +114,9 @@ static_zhTW.lua
 static_zhTW_1.lua
 static_zhTW_2.lua
 
+# oh shut up
+collect_notifier.lua
+
 # Memory management, depends on nothing, calls nothing. I don't mention when things depend on this - it's not as extensively used as it used to be, but it's still under basic-utilities.
 recycle.lua
 
@@ -193,7 +200,6 @@ collect_patterns.lua
 collect_flight.lua
 collect_util.lua
 collect_quest.lua
-collect_notifier.lua
 collect_equip.lua
 collect_spec.lua
 collect_bitstream.lua

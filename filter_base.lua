@@ -97,17 +97,19 @@ local filter_quest_watched = QH_MakeFilter("filter_quest_watched", function(obj)
   return not IsQuestWatched(obj.type_quest.index)
 end, {friendly_reason = QHText("FILTERED_UNWATCHED"), friendly_name = "watched"})
 
-local aqw_orig = AddQuestWatch -- yoink
-AddQuestWatch = function(...)
-  QH_Route_Filter_Rescan("filter_quest_watched")
-  return aqw_orig(...)
-end
-
-local rqw_orig = RemoveQuestWatch -- yoink
-RemoveQuestWatch = function(...)
-  QH_Route_Filter_Rescan("filter_quest_watched")
-  return rqw_orig(...)
-end
+-- Delay because of beql which is a bitch.
+QH_AddNotifier(GetTime() + 5, function ()
+  local aqw_orig = AddQuestWatch -- yoink
+  AddQuestWatch = function(...)
+    QH_Route_Filter_Rescan("filter_quest_watched")
+    return aqw_orig(...)
+  end
+  local rqw_orig = RemoveQuestWatch -- yoink
+  RemoveQuestWatch = function(...)
+    QH_Route_Filter_Rescan("filter_quest_watched")
+    return rqw_orig(...)
+  end
+end)
 
 
 local filter_zone = QH_MakeFilter("filter_zone", function(obj)

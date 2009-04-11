@@ -231,9 +231,8 @@ local function Clicky(index)
 end
 
 -- Here's the core update function
-function QH_UpdateQuests()
-  if update then  -- Sometimes (usually) we don't actually update
-  
+function QH_UpdateQuests(force)
+  if update or force then  -- Sometimes (usually) we don't actually update
     local index = 1
     
     local nactive = {}
@@ -258,6 +257,7 @@ function QH_UpdateQuests()
             db.tracker_desc = MakeQuestTitle(title, level)
             db.tracker_clicked = function () Clicky(lindex) end
             
+            local watched = IsQuestWatched(index)
             local lbcount = GetNumQuestLeaderBoards(index)
             
             local turnin
@@ -274,6 +274,7 @@ function QH_UpdateQuests()
                 end
                 QH_Route_ClusterAdd(db[lbcount + 1])
               end
+              QH_Tracker_SetPin(db[lbcount + 1][1], watched)
             end
             
             -- These are the individual criteria of the quest. Remember that each criteria can be represented by multiple routing objectives.
@@ -321,6 +322,7 @@ function QH_UpdateQuests()
                     if db[i].tooltip then QH_Tooltip_Add(db[i].tooltip) end
                     if turnin then QH_Route_ClusterRequires(turnin, db[i]) end
                   end
+                  QH_Tracker_SetPin(db[i][1], watched)
                 end
               end
             end
@@ -340,6 +342,7 @@ function QH_UpdateQuests()
     for k, v in pairs(active) do
       if not nactive[k] then
         if k.tooltip then QH_Tooltip_Remove(k.tooltip) end
+        QH_Tracker_Unpin(k[1])
         QH_Route_ClusterRemove(k)
       end
     end
@@ -352,3 +355,17 @@ end
 
 QuestHelper.EventHookRegistrar("UNIT_QUEST_LOG_CHANGED", UpdateTrigger)
 QuestHelper.EventHookRegistrar("QUEST_LOG_UPDATE", QH_UpdateQuests)
+
+-- We don't return anything here, but I don't think that's actually an issue - those functions don't return anything anyway. Someday I'll regret writing this. Delay because of beql which is a bitch.
+QH_AddNotifier(GetTime() + 5, function ()
+  local aqw_orig = AddQuestWatch
+  AddQuestWatch = function(...)
+    aqw_orig(...)
+    QH_UpdateQuests(true)
+  end
+  local rqw_orig = RemoveQuestWatch
+  RemoveQuestWatch = function(...)
+    rqw_orig(...)
+    QH_UpdateQuests(true)
+  end
+end)

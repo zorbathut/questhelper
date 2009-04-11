@@ -22,3 +22,6 @@ function QH_Collect_Notifier_Init(_, API)
   
   API.Registrar_OnUpdateHook(OnUpdate)
 end
+
+-- grrrr
+QH_AddNotifier = AddItem
