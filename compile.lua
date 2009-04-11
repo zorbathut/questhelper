@@ -306,7 +306,7 @@ local function valid_pos(ite)
   if not ite then return end
   if not ite.c or not ite.x or not ite.y or not ite.rc or not ite.rz then return end
   if ite.c ~= 0 and ite.c ~= 3 and ite.c ~= -77 then return end
-  if ite.rz == 0 then return end  -- this should get rid of locations showing up in "northrend" or whatever
+  if ite.rz <= 0 then return end  -- this should get rid of locations showing up in "northrend" or whatever
   return true
 end
 
