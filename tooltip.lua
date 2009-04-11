@@ -25,7 +25,7 @@ function QH_Tooltip_Add(tooltips)
   QuestHelper:TextOut(QuestHelper:StringizeTable(tooltips))
   for k, v in pairs(tooltips) do
     local typ, id = k:match("([^@]+)@@([^@]+)")
-    --QuestHelper:TextOut(string.format("Adding for %s/%s", typ, id))
+    QuestHelper: Assert(typ and id, k)
     if not ctts[typ] then ctts[typ] = {} end
     if not ctts[typ][id] then ctts[typ][id] = {} end
     QuestHelper: Assert(not ctts[typ][id][v[2]])
@@ -35,6 +35,7 @@ end
 function QH_Tooltip_Remove(tooltips)
   for k, v in pairs(tooltips) do
     local typ, id = k:match("([^@]+)@@([^@]+)")
+    QuestHelper: Assert(typ and id, k)
     QuestHelper: Assert(ctts[typ][id][v[2]])
     ctts[typ][id][v[2]] = nil
     
