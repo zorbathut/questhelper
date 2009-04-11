@@ -77,45 +77,73 @@ end
 local quest_list = {}
 local quest_list_used = {}
 
-local function GetQuestMetaobjective(questid)
+local function GetQuestMetaobjective(questid, lbcount)
   if not quest_list[questid] then
     local q = DB_GetItem("quest", questid)
     
     if not q then return end
     
+    if not lbcount then
+      QuestHelper: TextOut("Missing lbcount, guessing wildly")
+      if q and q.criteria then
+        lbcount = 0
+        for k, v in ipairs(q.criteria) do
+          lbcount = math.max(lbcount, k)
+        end
+      else
+        lbcount = 0 -- heh
+      end
+    end
+    
+    -- just doublechecking here
+    if q and q.criteria then for k, v in pairs(q.criteria) do
+      QuestHelper: Assert(type(k) ~= "number" or k <= lbcount, tostring(questid))
+    end end
+    
     ite = {type_quest = {}} -- we don't want to mutate the existing quest data
     ite.desc = string.format("Quest %s", q.name or "(unknown)")  -- this gets changed later anyway
     
-    if q.criteria then for k, c in ipairs(q.criteria) do
+    for i = 1, lbcount do
       local ttx = {}
       --QuestHelper:TextOut(string.format("critty %d %d", k, c.loc and #c.loc or -1))
       
       ttx.tooltip = {}
       
-      AppendObjlinks(ttx, c, ttx.tooltip)
+      if q and q.criteria and q.criteria[i] then AppendObjlinks(ttx, q.criteria[i], ttx.tooltip) end
+      
+      if #ttx == 0 then
+        table.insert(ttx, {loc = {x = 5000, y = 5000, c = 0, p = 2}, icon_id = 7, type_quest_unknown = true, map_desc = {"Unknown"}})  -- this is Ashenvale, for no particularly good reason
+      end
+      
       for idx, v in ipairs(ttx) do
-        v.desc = string.format("Criteria %d", k)
+        v.desc = string.format("Criteria %d", i)
         v.why = ite
         v.cluster = ttx
         v.type_quest = ite.type_quest
       end
       
       for k, v in pairs(ttx.tooltip) do
-        ttx.tooltip[k] = {ttx.tooltip[k], ttx} -- we're gonna be handing out this table, so this isn't as dumb as it looks
+        ttx.tooltip[k] = {ttx.tooltip[k], ttx} -- we're gonna be handing out this table to other modules, so this isn't as dumb as it looks
       end
       
-      table.insert(ite, ttx)
-    end end
-    if q.finish then
+      ite[i] = ttx
+    end
+    
+    do
       local ttx = {}
       --QuestHelper:TextOut(string.format("finny %d", q.finish.loc and #q.finish.loc or -1))
-      for m, v in ipairs(q.finish.loc) do
+      if q and q.finish then for m, v in ipairs(q.finish.loc) do
         --print(v.rc, v.rz)
         --print(QuestHelper_IndexLookup[v.rc])
         --print(QuestHelper_IndexLookup[v.rc][v.rz])
         table.insert(ttx, {desc = "Turn in quest", why = ite, loc = {x = v.x, y = v.y, c = v.c, p = QuestHelper_IndexLookup[v.rc][v.rz]}, tracker_hidden = true, cluster = ttx, icon_id = 7, type_quest = ite.type_quest})
+      end end
+      
+      if #ttx == 0 then
+        table.insert(ttx, {desc = "Turn in quest", why = ite, loc = {x = 5000, y = 5000, c = 0, p = 2}, tracker_hidden = true, cluster = ttx, icon_id = 7, type_quest = ite.type_quest, type_quest_unknown = true})  -- this is Ashenvale, for no particularly good reason
       end
-      table.insert(ite, ttx)
+      
+      ite.finish = ttx
     end
     
     quest_list[questid] = ite
@@ -230,6 +258,13 @@ local function Clicky(index)
   QuestLog_Update()
 end
 
+local dontknow  = {
+  name = "director_quest_unknown_objective",
+  no_exception = true,
+  no_disable = true,
+  friendly_reason = QHText("UNKNOWN_OBJ"),
+}
+
 -- Here's the core update function
 function QH_UpdateQuests(force)
   if update or force then  -- Sometimes (usually) we don't actually update
@@ -237,6 +272,8 @@ function QH_UpdateQuests(force)
     
     local nactive = {}
     quest_list_used = {}
+    
+    local unknown = {}
     
     -- This begins the main update loop that loops through all of the quests
     while true do
@@ -247,7 +284,7 @@ function QH_UpdateQuests(force)
       if qlink then -- If we don't have a quest link, it's not really a quest
         local id = GetQuestType(qlink)
         if id then -- If we don't have a *valid* quest link, give up
-          local db = GetQuestMetaobjective(id) -- This generates the above-mentioned metaobjective, including doing the database lookup.
+          local db = GetQuestMetaobjective(id, lbcount) -- This generates the above-mentioned metaobjective, including doing the database lookup.
           
           if db then  -- If we didn't get a database lookup, then we don't have a metaobjective either. Urgh. abort abort abort
           
@@ -263,8 +300,8 @@ function QH_UpdateQuests(force)
             local turnin
             
             -- This is our "quest turnin" objective, which is currently being handled separately for no particularly good reason.
-            if db[lbcount + 1] and #db[lbcount + 1] > 0 then
-              turnin = db[lbcount + 1]
+            if db.finish and #db.finish > 0 then
+              turnin = db.finish
               nactive[turnin] = true
               if not active[turnin] then
                 for k, v in ipairs(turnin) do
@@ -272,13 +309,14 @@ function QH_UpdateQuests(force)
                   
                   v.map_desc = {QHFormat("OBJECTIVE_REASON_TURNIN", title)}
                 end
-                QH_Route_ClusterAdd(db[lbcount + 1])
+                QH_Route_ClusterAdd(db.finish)
               end
-              QH_Tracker_SetPin(db[lbcount + 1][1], watched)
+              QH_Tracker_SetPin(db.finish[1], watched)
+              if db.finish[1].type_quest_unknown then table.insert(unknown, db.finish) end
             end
             
             -- These are the individual criteria of the quest. Remember that each criteria can be represented by multiple routing objectives.
-            for i = 1, GetNumQuestLeaderBoards(index) do
+            for i = 1, lbcount do
               if db[i] then
                 local desc, typ, done = GetQuestLogLeaderBoard(i, index)
                 local pt, pd, have, need = objective_parse(typ, desc, done)
@@ -310,8 +348,12 @@ function QH_UpdateQuests(force)
                   
                   v.progress = db[i].progress
                   
-                  v.map_desc = copy(v.path_desc)
-                  v.map_desc[1] = dline
+                  if v.path_desc then
+                    v.map_desc = copy(v.path_desc)
+                    v.map_desc[1] = dline
+                  else
+                    v.map_desc = {dline}
+                  end
                 end
                 
                 -- This is the snatch of code that actually adds it to routing.
@@ -323,6 +365,7 @@ function QH_UpdateQuests(force)
                     if turnin then QH_Route_ClusterRequires(turnin, db[i]) end
                   end
                   QH_Tracker_SetPin(db[i][1], watched)
+                  if db[i][1].type_quest_unknown then table.insert(unknown, db[i]) end
                 end
               end
             end
@@ -337,6 +380,10 @@ function QH_UpdateQuests(force)
         end
       end
       index = index + 1
+    end
+    
+    for _, v in ipairs(unknown) do
+      QH_Route_IgnoreCluster(v, dontknow)
     end
     
     for k, v in pairs(active) do
