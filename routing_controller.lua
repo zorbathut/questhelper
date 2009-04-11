@@ -319,7 +319,7 @@ Route_Core_Init(
         QuestHelper:TextOut(QuestHelper:StringizeTable(loc1.loc))
         QuestHelper:TextOut(QuestHelper:StringizeTable(lt[k]))
       end
-      QuestHelper: Assert(rv[k])
+      QuestHelper: Assert(rv[k], string.format("%d to %d", loc1.loc.p, loctable[k].loc.p))
       QuestHelper: Assert(rv[k].d)
       rvv[k] = rv[k].d
       
