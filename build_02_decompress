@@ -32,7 +32,7 @@ def doDecompress(tag, filename, formatstring):
   stdout, stderr, rv = utility.exe_rv(formatstring.format(file = filename, destination = "tempdir"))
   print(stdout)
   print(stderr)
-  assert(rv == 0 or stderr.find("unsupported compression method 98") != -1 or stderr.find("You need to start extraction from a previous volume") != -1)
+  assert(rv == 0 or stderr.find("unsupported compression method 98") != -1 or stderr.find("You need to start extraction from a previous volume") != -1 or stderr.find("Cannot find volume") != -1)
   srcdir = "data/02/%s/%s" % (tag[0:2], tag)
   try:
     os.makedirs(srcdir)
