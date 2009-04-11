@@ -789,12 +789,10 @@ function QuestHelper:CreateMipmapDodad()
       
       if edge then
         local angle = QuestHelper.Astrolabe:GetDirectionToIcon(self)
+        
         if GetCVar("rotateMinimap") == "1" then
           angle = angle + QuestHelper.Astrolabe:GetFacing()
         end
-  
-        --self.arrow:SetPosition(ofs * (137 / 140) - radius * math.sin(angle),
-                               --ofs               + radius * math.cos(angle), 0);
         
         if self.phase > 6.283185307179586476925 then
           self.phase = self.phase-6.283185307179586476925+elapsed*3.5
@@ -805,7 +803,7 @@ function QuestHelper:CreateMipmapDodad()
         local scale = 1.0 + 0.1 * math.sin(self.phase)
         
         local x, y = scale * math.sin(angle + 3.14159 * 0.75) * math.sqrt(0.5), scale * math.cos(angle + 3.14159 * 0.75) * math.sqrt(0.5)
-        self.arrow:SetTexCoord(0.5 - x, 0.5 + y, 0.5 + x, 0.5 + y, 0.5 - x, 0.5 - y, 0.5 + x, 0.5 - y)
+        self.arrow:SetTexCoord(0.5 - x, 0.5 + y, 0.5 + y, 0.5 + x, 0.5 - y, 0.5 - x, 0.5 + x, 0.5 - y)
       end
     else
       self:Hide()
