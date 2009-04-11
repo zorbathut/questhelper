@@ -155,7 +155,7 @@ function Astrolabe:GetCurrentVirtualMapCZ()
     if VirtualContinentIndexes[mapname] then
       C = VirtualContinentIndexes[mapname]
       Z = 1
-    elseif VirtualContinentIndexes[mapname .. GetCurrentMapDungeonLevel()] then
+    elseif mapname and VirtualContinentIndexes[mapname .. GetCurrentMapDungeonLevel()] then
       C = VirtualContinentIndexes[mapname .. GetCurrentMapDungeonLevel()]
       Z = 1
     elseif mapname == "CoTStratholme" and GetCurrentMapDungeonLevel() == 0 then
