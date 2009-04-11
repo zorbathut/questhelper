@@ -45,7 +45,7 @@ QuestHelper_Translations.trTR =
   OBJECTIVE_PURCHASE = "%h1 satin al.",
   OBJECTIVE_TALK = "%h1 ile konus.",
   OBJECTIVE_SLAY = "%h1 öldür.",
-  OBJECTIVE_LOOT = "%h1 loot et.",
+  OBJECTIVE_LOOT = "%h1 topla",
   
   ZONE_BORDER = "%1/%2 siniri",
   
@@ -123,8 +123,8 @@ QuestHelper_Translations.trTR =
   NAG_NEW = "Diger oyuncularin da faydalanabilmesi için bilgilerinizi paylasabilirsiniz.",
   NAG_INSTRUCTIONS = "Veri gönderiminin nasıl yapılacağını öğrenmek için %h yazınız",
   
-  NAG_SINGLE_FP = "bir Taksici.",
-  NAG_SINGLE_QUEST = "bir quest",
+  NAG_SINGLE_FP = "uçuş kaptanı",
+  NAG_SINGLE_QUEST = "Görev",
   NAG_SINGLE_ROUTE = "bir uçuş rotası",
   NAG_SINGLE_ITEM_OBJ = "bir eşya görevi",
   NAG_SINGLE_OBJECT_OBJ = nil,
@@ -133,7 +133,7 @@ QuestHelper_Translations.trTR =
   NAG_SINGLE_REPUTATION_OBJ = "bir reputation görevi",
   NAG_SINGLE_PLAYER_OBJ = nil,
   
-  NAG_MULTIPLE_FP = "%1 Taksiler.",
+  NAG_MULTIPLE_FP = "%1 uçuş kaptanları",
   NAG_MULTIPLE_QUEST = "%1 Görevler",
   NAG_MULTIPLE_ROUTE = "%1 Uçuş Rotaları",
   NAG_MULTIPLE_ITEM_OBJ = "%1 Esya Görevleri.",
@@ -166,9 +166,9 @@ QuestHelper_Translations.trTR =
   MENU_TRACKER_LEVEL = "%1 Quest Aşamaları.",
   MENU_TRACKER_QCOLOUR = "%1 Quest Zorluk Renkleri",
   MENU_TRACKER_OCOLOUR = "%1 Görev Gidişat Renkleri.",
-  MENU_TRACKER_SCALE = "Takipçi Ölçeği.",
+  MENU_TRACKER_SCALE = "Takipçi boyutu",
   MENU_TRACKER_RESET = "Pozisyonu Sıfırla",
-  MENU_FLIGHT_TIMER = "%1 Uçuş süre tutucusu.",
+  MENU_FLIGHT_TIMER = "%1 Uçuş süresi",
   MENU_ANT_TRAILS = "Karinca Yolu",
   MENU_WAYPOINT_ARROW = "%1 Aranokta Oku.",
   MENU_MAP_BUTTON = "%1 Harita Butonlari",

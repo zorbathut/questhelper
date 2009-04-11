@@ -13,7 +13,7 @@ QuestHelper_Translations.noNO =
   PRIVATE_SERVER = "QuestHelper støtter ikke private servere.",
   PLEASE_RESTART = "QuestHelper feilet ved oppstart. Vennligst lukk World of Warcraft helt og prøv igjen.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper ble installert feil. Vi anbefaler enten Curse Client eller 7zip for installasjon. Sjekk at undermapper er pakket ut.",
-  PLEASE_DONATE = nil,
+  PLEASE_DONATE = "%h (Questhelper overlever på dine donasjoner!) Alt du kan bidra med blir satt stor pris på, og bare ett par dollar i måneden vil være med og sikre att jeg forsetter og jobbe med oppdateringer. Skriv %h (/qh donate) for mer informasjon.",
   HOW_TO_CONFIGURE = "QuestHelper har ikke noen fungerende innstillinger, men kan konfigureres ved å skrive %h(/qh settings). Hjelp er tilgjengelig med %h(/qh help).",
   TIME_TO_UPDATE = "Det kan være en %h(ny QuestHelper versjon) tilgjengelig. Nye versjoner inkludere som regel nye tillegg, nye quest databaser, og feilrettinger. Vennligst oppdater!",
   

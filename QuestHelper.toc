@@ -68,6 +68,7 @@ static.lua
 changes.lua
 
 lang.lua
+lang\cscz.lua
 lang\dadk.lua
 lang\dede.lua
 lang\elel.lua
