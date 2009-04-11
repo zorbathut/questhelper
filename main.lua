@@ -923,8 +923,14 @@ function QuestHelper:OnUpdate()
       self.collect_rc, self.collect_rz, self.collect_rx, self.collect_ry = nc, nz, nx, ny
       self.collect_ac, self.collect_ax, self.collect_ay = tc, tx, ty
       self.collect_delayed = false
+      
+      local ibi = self.InBrokenInstance
+      if nc < -77 then self.InBrokenInstance = true else self.InBrokenInstance = false end
+      
+      if ibi and not self.InBrokenInstance then self.minimap_dodad:OnUpdate(0) end -- poke
     else
       self.collect_delayed = true
+      self.InBrokenInstance = true
     end
 
     local level = UnitLevel("player")

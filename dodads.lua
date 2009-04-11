@@ -658,7 +658,6 @@ function QuestHelper:CreateMipmapDodad()
   icon.arrow:SetPoint("CENTER", 0, 0)
   icon.arrow:SetTexture("Interface\\AddOns\\QuestHelper\\MinimapArrow")
   icon.arrow:Hide()
-  wackytest = icon.arrow
   
   icon.phase = 0
   icon.target = {0, 0, 0, 0}
@@ -679,7 +678,7 @@ function QuestHelper:CreateMipmapDodad()
   end
   
   function icon:OnUpdate(elapsed)
-    if self.objective then
+    if self.objective and not QuestHelper.InBrokenInstance then
       if not self.objective.pos then
         self.objective = self:NextObjective()
         if not self.objective then
