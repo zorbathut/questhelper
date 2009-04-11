@@ -644,16 +644,49 @@ function QuestHelper:InvokeWaypointCallbacks(c, z, x, y, desc)
   end
 end
 
+--[[ Small parts of the arrow rendering code are thanks to Tomtom, with the following license:
+
+-------------------------------------------------------------------------
+  Copyright (c) 2006-2007, James N. Whitehead II
+  All rights reserved.
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are
+  met:
+
+      * Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+      * Redistributions in binary form must reproduce the above
+        copyright notice, this list of conditions and the following
+        disclaimer in the documentation and/or other materials provided
+        with the distribution.
+      * The name or alias of the copyright holder may not be used to endorse 
+        or promote products derived from this software without specific prior
+        written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---------------------------------------------------------------------------]]
+
 function QuestHelper:CreateMipmapDodad()
   local icon = CreateFrame("Button", nil, Minimap)
   icon:Hide()
   icon.recalc_timeout = 0
   
-  icon.arrow = CreateFrame("Model", nil, icon)
-  icon.arrow:SetHeight(140.8)
-  icon.arrow:SetWidth(140.8)
-  icon.arrow:SetPoint("CENTER", Minimap, "CENTER", 0, 0)
-  icon.arrow:SetModel("Interface\\Minimap\\Rotating-MinimapArrow.mdx")
+  icon.arrow = icon:CreateTexture("BACKGROUND")
+  icon.arrow:SetHeight(40)
+  icon.arrow:SetWidth(40)
+  icon.arrow:SetPoint("CENTER", 0, 0)
+  icon.arrow:SetTexture("Interface\\AddOns\\QuestHelper\\MinimapArrow")
   icon.arrow:Hide()
   
   icon.phase = 0
@@ -664,7 +697,8 @@ function QuestHelper:CreateMipmapDodad()
   icon.bg:SetAllPoints()
   
   function icon:OnUpdate(elapsed)
-    if self.obj then
+    if self.obj and not QuestHelper.InBrokenInstance then
+      self:Show() -- really only triggers if the non-broken-instance code is being poked
       
       -- Deal with waypoint callbacks
       if QuestHelper_Pref.hide or UnitIsDeadOrGhost("player") then
@@ -724,10 +758,6 @@ function QuestHelper:CreateMipmapDodad()
             angle = angle + MiniMapCompassRing:GetFacing()
           end
           
-          self.arrow:SetFacing(angle)
-          self.arrow:SetPosition(ofs * (137 / 140) - radius * math.sin(angle),
-                                 ofs               + radius * math.cos(angle), 0);
-          
           if elapsed then
             if self.phase > 6.283185307179586476925 then
               self.phase = self.phase-6.283185307179586476925+elapsed*3.5
@@ -735,7 +765,11 @@ function QuestHelper:CreateMipmapDodad()
               self.phase = self.phase+elapsed*3.5
             end
           end
-          self.arrow:SetModelScale(0.600000023841879+0.1*math.sin(self.phase))
+          
+          local scale = 1.0 + 0.1 * math.sin(self.phase)
+        
+          local x, y = scale * math.sin(angle + 3.14159 * 0.75) * math.sqrt(0.5), scale * math.cos(angle + 3.14159 * 0.75) * math.sqrt(0.5)
+          self.arrow:SetTexCoord(0.5 - x, 0.5 + y, 0.5 + y, 0.5 + x, 0.5 - y, 0.5 - x, 0.5 + x, 0.5 - y)
         end
       else
         self:Hide()

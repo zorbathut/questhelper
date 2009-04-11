@@ -155,6 +155,13 @@ function Astrolabe:GetCurrentVirtualMapCZ()
     if VirtualContinentIndexes[mapname] then
       C = VirtualContinentIndexes[mapname]
       Z = 1
+    elseif VirtualContinentIndexes[mapname .. GetCurrentMapDungeonLevel()] then
+      C = VirtualContinentIndexes[mapname .. GetCurrentMapDungeonLevel()]
+      Z = 1
+    elseif mapname == "CoTStratholme" and GetCurrentMapDungeonLevel() == 0 then
+      -- why do you gotta make me angry, baby
+      C = VirtualContinentIndexes["CoTStratholme2"]
+      Z = 1
     end
   end
   return C, Z
@@ -1624,24 +1631,137 @@ if true then
 		},
 	}
   
-  local dv = 2125 -- pay no attention to the man behind the curtain
-  WorldMapSize[-77] = {
-		parentContinent = -77,
-		height = dv,
-		width = dv*1.5,
-		zoneData = {
-			ScarletEnclave = {
-				height = dv,
-				width = dv*1.5,
-				xOffset = 0,
-				yOffset = 0,
-			},
-		},
-	}
+  local function VContinent(index, name, size)
+    assert(1, not WorldMapSize[index], "denied")
+    
+    WorldMapSize[index] = {
+      parentContinent = index,
+      height = size,
+      width = size*1.5,
+      zoneData = { },
+    }
+    WorldMapSize[index].zoneData[name] = {
+      height = size,
+      width = size*1.5,
+      xOffset = 0,
+      yOffset = 0,
+    }
+  end
+  
+  VContinent(-77, "ScarletEnclave", 2125)
+  
+  
+  VContinent(-80, "UtgardeKeep1", 100) -- temporary value
+  VContinent(-81, "UtgardeKeep2", 100) -- temporary value
+  VContinent(-82, "UtgardeKeep3", 100) -- temporary value
+  
+  VContinent(-83, "TheNexus", 100) -- temporary value
+  
+  VContinent(-84, "AzjolNerub1", 100) -- temporary value
+  VContinent(-85, "AzjolNerub2", 100) -- temporary value
+  VContinent(-86, "AzjolNerub3", 100) -- temporary value
+  
+  VContinent(-87, "Ahnkahet", 100) -- temporary value
+  
+  VContinent(-88, "DrakTharonKeep1", 100) -- temporary value
+  VContinent(-89, "DrakTharonKeep2", 100) -- temporary value
+  
+  VContinent(-90, "VioletHold", 100) -- temporary value
+  
+  VContinent(-91, "Gundrak", 100) -- temporary value
+  
+  VContinent(-92, "Ulduar77", 100) -- temporary value -- Halls of Stone
+  
+  VContinent(-93, "HallsofLightning1", 100) -- temporary value
+  VContinent(-94, "HallsofLightning2", 100) -- temporary value
+  
+  VContinent(-95, "Nexus801", 100) -- temporary value -- Oculus
+  VContinent(-96, "Nexus802", 100) -- temporary value
+  VContinent(-97, "Nexus803", 100) -- temporary value
+  VContinent(-98, "Nexus804", 100) -- temporary value
+  
+  VContinent(-99, "CoTStratholme1", 100) -- temporary value
+  VContinent(-100, "CoTStratholme2", 100) -- temporary value
+  
+  VContinent(-101, "UtgardePinnacle1", 100) -- temporary value  -- hey they spelled it right
+  VContinent(-102, "UtgardePinnacle2", 100) -- temporary value
+  
+  VContinent(-103, "VaultofArchavon", 100) -- temporary value -- Weirdly, Emalon is actually within the "Vault of Archavon"
+  
+  VContinent(-104, "Naxxramas1", 100) -- temporary value
+  VContinent(-105, "Naxxramas2", 100) -- temporary value
+  VContinent(-106, "Naxxramas3", 100) -- temporary value
+  VContinent(-107, "Naxxramas4", 100) -- temporary value
+  VContinent(-108, "Naxxramas5", 100) -- temporary value
+  VContinent(-109, "Naxxramas6", 100) -- temporary value
+  
+  VContinent(-110, "TheObsidianSanctum", 100) -- temporary value
+  
+  VContinent(-111, "TheEyeOfEternity", 100) -- temporary value
+  
+  VContinent(-112, "Ulduar", 100) -- temporary value
+  VContinent(-113, "Ulduar1", 100) -- temporary value
+  VContinent(-114, "Ulduar2", 100) -- temporary value
+  VContinent(-115, "Ulduar3", 100) -- temporary value
+  VContinent(-116, "Ulduar4", 100) -- temporary value
 end
 
 VirtualContinentIndexes = { -- Don't change values here, since programs might want to store them
   ["ScarletEnclave"] = -77,
+  
+  ["UtgardeKeep1"] = -80,
+  ["UtgardeKeep2"] = -81,
+  ["UtgardeKeep3"] = -82,
+  
+  ["TheNexus"] = -83,
+  
+  ["AzjolNerub1"] = -84,
+  ["AzjolNerub2"] = -85,
+  ["AzjolNerub3"] = -86,
+  
+  ["Ahnkahet"] = -87,
+  
+  ["DrakTharonKeep1"] = -88,
+  ["DrakTharonKeep2"] = -89,
+  
+  ["VioletHold"] = -90,
+  
+  ["Gundrak"] = -91,
+  
+  ["Ulduar77"] = -92, -- Halls of Stone
+  
+  ["HallsofLightning1"] = -93,
+  ["HallsofLightning2"] = -94,
+  
+  ["Nexus801"] = -95, -- Oculus
+  ["Nexus802"] = -96,
+  ["Nexus803"] = -97,
+  ["Nexus804"] = -98,
+  
+  ["CoTStratholme1"] = -99,
+  ["CoTStratholme2"] = -100,
+  
+  ["UtgardePinnacle1"] = -101,  -- hey they spelled it right
+  ["UtgardePinnacle2"] = -102,
+  
+  ["VaultofArchavon"] = -103, -- Weirdly, Emalon is actually within the "Vault of Archavon"
+  
+  ["Naxxramas1"] = -104,
+  ["Naxxramas2"] = -105,
+  ["Naxxramas3"] = -106,
+  ["Naxxramas4"] = -107,
+  ["Naxxramas5"] = -108,
+  ["Naxxramas6"] = -109,
+  
+  ["TheObsidianSanctum"] = -110,
+  
+  ["TheEyeOfEternity"] = -111,
+  
+  ["Ulduar"] = -112,
+  ["Ulduar1"] = -113,
+  ["Ulduar2"] = -114,
+  ["Ulduar3"] = -115,
+  ["Ulduar4"] = -116,
 }
 
 DongleStub:Register(Astrolabe, activate)
