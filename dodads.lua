@@ -628,6 +628,9 @@ end
 
 function QuestHelper:InvokeWaypointCallbacks(c, z, x, y, desc)
   if c ~= last_c or z ~= last_z or x ~= last_x or y ~= last_y or desc ~= last_desc then
+    if c then
+      QuestHelper: Assert(z and x and y and desc)
+    end
     last_c, last_z, last_x, last_y, last_desc = c, z, x, y, desc
     for cb in pairs(callbacks) do
       local len = cb.len

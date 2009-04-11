@@ -10,7 +10,7 @@ local function tomtom_wp_update(c, z, x, y, desc)
     tomtom_uid = nil
   end
   
-  if not QuestHelper_Pref.hide and c and c >= 0 then
+  if not QuestHelper_Pref.hide and c and c >= 0 and z and x and y then  -- so there
     tomtom_uid = TomTom:AddZWaypoint(c, z, x*100, y*100, desc, false, false, false)
   end
 end
