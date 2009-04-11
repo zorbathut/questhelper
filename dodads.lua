@@ -4,17 +4,14 @@ QuestHelper_Loadtime["dodads.lua"] = GetTime()
 local ofs = 0.000723339 * (GetScreenHeight()/GetScreenWidth() + 1/3) * 70.4;
 local radius = ofs / 1.166666666666667;
 
--- These conversions are nasty, and this entire section needs a serious cleanup.
 local function convertLocation(p)
-  local c, x, y = QuestHelper.Astrolabe:FromAbsoluteContinentPosition(p.c, p.x, p.y)
+  local c, x, y = p[1].c, p[3], p[4]
+  x, y = x/QuestHelper.continent_scales_x[c], y/QuestHelper.continent_scales_y[c]
   return c, 0, x, y
 end
 
 local function convertLocationToScreen(p, c, z)
-  local pc, _, px, py = convertLocation(p)
-  local ox, oy = QuestHelper.Astrolabe:TranslateWorldMapPosition(pc, 0, px, py, c, z)
-  --QuestHelper:TextOut(string.format("%f/%f/%f to %f/%f/%f to %f/%f %f/%f", p.c, p.x, p.y, pc, px, py, c, z, ox, oy))
-  return ox, oy
+  return QuestHelper.Astrolabe:TranslateWorldMapPosition(p[1].c, 0, p[3]/QuestHelper.continent_scales_x[p[1].c], p[4]/QuestHelper.continent_scales_y[p[1].c], c, z)
 end
 
 local function convertNodeToScreen(n, c, z)
@@ -80,11 +77,17 @@ local function ClampLine(x1, y1, x2, y2)
   end
 end
 
-local walker_loc
+local function pushPath(list, path, c, z)
+  if path then
+    pushPath(list, path.p, c, z)
+    local t = QuestHelper:CreateTable()
+    t[1], t[2] = QuestHelper.Astrolabe:TranslateWorldMapPosition(path.c, 0, path.x/QuestHelper.continent_scales_x[path.c], path.y/QuestHelper.continent_scales_y[path.c], c, z)
+    table.insert(list, t)
+  end
+end
 
 function QuestHelper:CreateWorldMapWalker()
   local walker = CreateFrame("Button", nil, QuestHelper.map_overlay)
-  walker_loc = walker
   walker:SetWidth(0)
   walker:SetHeight(0)
   walker:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", 0, 0)
@@ -97,9 +100,6 @@ function QuestHelper:CreateWorldMapWalker()
   walker.frame = self
   walker.map_dodads = {}
   walker.used_map_dodads = 0
-  
-  QuestHelper: Assert(self == QuestHelper)
-  QuestHelper: Assert(self.Astrolabe)
   
   function walker:OnUpdate(elapsed)
     local out = 0
@@ -114,8 +114,7 @@ function QuestHelper:CreateWorldMapWalker()
       
       local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
       
-      local last_x, last_y = self.frame.Astrolabe:TranslateWorldMapPosition(self.frame.c, self.frame.z, self.frame.x, self.frame.y, c, z)
-      local remainder = self.phase
+      local last_x, last_y = self.frame.Astrolabe:TranslateWorldMapPosition(self.frame.c, self.frame.z, self.frame.x, self.frame.y, c, z) local remainder = self.phase
       
       for i, pos in ipairs(points) do
         local new_x, new_y = unpack(pos)
@@ -155,78 +154,67 @@ function QuestHelper:CreateWorldMapWalker()
     end
   end
   
-  function walker:RouteChanged(route)
-    if route then self.route = route end -- we cache it so we can refer to it later when the world map changes
-    
-    local dbgstr = string.format("%s %s %s %s", tostring(self), tostring(self.frame), tostring(QuestHelper), tostring(QuestHelper and QuestHelper.Astrolabe))
-    QuestHelper: Assert(self.frame == QuestHelper, dbgstr)
-    QuestHelper: Assert(QuestHelper.Astrolabe, dbgstr)
-    
+  function walker:RouteChanged()
     if self.frame.Astrolabe.WorldMapVisible then
+      for i, obj in pairs(self.frame.route) do
+        if not obj.pos then
+          -- No. Just no.
+          --QuestHelper:AppendNotificationError("10-10-2008 pathfinding/dodads nil coroutine race condition bug")
+          return   -- return "failure :("
+        end
+      end
+      
       local points = self.points
       local cur = self.frame.pos
       
       while #points > 0 do self.frame:ReleaseTable(table.remove(points)) end
       
+      local travel_time = 0.0
+      
       local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
       
-      -- I'm not quite sure what the point of this is.
-      --[[
       if self.frame.target then
         travel_time = math.max(0, self.frame.target_time-time())
         cur = self.frame.target
         local t = self.frame:CreateTable()
         t[1], t[2] = convertLocationToScreen(cur, c, z)
         table.insert(points, t)
-      end]]
-      
-      for i, obj in ipairs(self.route) do
-        --QuestHelper:TextOut(string.format("%s", tostring(obj)))
-        
-        --[[
-        local t = QuestHelper:CreateTable()
-        t[1], t[2] = convertLocationToScreen(obj.loc, c, z)
-        
-        table.insert(list, t)]]
-        
-        -- We're ignoring travel time for now.
-        --[[
-        travel_time = travel_time + 60
-        obj.travel_time = travel_time]]
-        if i > 1 then -- skip the start location
-          local t = self.frame:CreateTable()
-          t[1], t[2] = convertLocationToScreen(obj.loc, c, z)
-          
-          table.insert(points, t)
-          
-          --if lotsup then print(obj.ignore, obj.loc.x, obj.loc.y, obj.loc.c) end
-        end
-        --QuestHelper:TextOut(string.format("%s/%s/%s to %s/%s", tostring(obj.c), tostring(obj.x), tostring(obj.y), tostring(t[1]), tostring(t[2])))
       end
-      --lotsup = false
       
-      local cur_dodad = 1
-      for i = 2, #self.route do -- 2 because we're skipping the player
-        if not self.route[i].ignore then
-          local dodad = self.map_dodads[cur_dodad]
-          if not dodad then
-            self.map_dodads[cur_dodad] = self.frame:CreateWorldMapDodad(self.route[i], i)
-          else
-            self.map_dodads[cur_dodad]:SetObjective(self.route[i], i)
-          end
-          cur_dodad = cur_dodad + 1
+      for i, obj in pairs(self.frame.route) do
+        local path, d = self.frame:ComputeRoute(cur, obj.pos)
+        
+        pushPath(points, path, c, z)
+        
+        travel_time = travel_time + d
+        obj.travel_time = travel_time
+        
+        cur = obj.pos
+        
+        local t = self.frame:CreateTable()
+        t[1], t[2] = convertLocationToScreen(cur, c, z)
+        
+        table.insert(points, t)
+      end
+      
+      for i = 1, #self.frame.route do
+        local dodad = self.map_dodads[i]
+        if not dodad then
+          self.map_dodads[i] = self.frame:CreateWorldMapDodad(self.frame.route[i], i)
+        else
+          self.map_dodads[i]:SetObjective(self.frame.route[i], i)
         end
       end
 
-      if cur_dodad <= self.used_map_dodads then for i = cur_dodad,self.used_map_dodads do
+      for i = #self.frame.route+1,self.used_map_dodads do
         self.map_dodads[i]:SetObjective(nil, 0)
-      end end
+      end
 
-      self.used_map_dodads = cur_dodad - 1
+      self.used_map_dodads = #self.frame.route
     end
   end
   
-  walker:SetScript("OnEvent", function () walker:RouteChanged() end)  -- we do this just to strip the parameters out
+  walker:SetScript("OnEvent", walker.RouteChanged)
   walker:RegisterEvent("WORLD_MAP_UPDATE")
   
   walker:SetScript("OnUpdate", walker.OnUpdate)
@@ -256,35 +244,35 @@ function QuestHelper:GetOverlapObjectives(obj)
   
   local s = 10*QuestHelper_Pref.scale
   
-  for i, o in ipairs(walker_loc.route) do
+  for i, o in ipairs(self.route) do
     --QuestHelper: Assert(o, string.format("nil dodads pos issue, o %s", tostring(o)))
     --QuestHelper: Assert(o.pos, string.format("nil dodads pos issue, pos %s", QuestHelper:StringizeTable(o)))
-    if not o.ignore then
-      if o == obj then
-        table.insert(list, o)
-      else
-        local x, y = convertLocationToScreen(o.loc, c, z)
+    if o == obj then
+      table.insert(list, o)
+    elseif o.pos then -- as near as I can tell, there's some curious coroutine contention going on here, and it's possible that things don't have a position even though they're in the route. If they don't have a position, we don't need to add them to a list - this function is (I think) only called for the tooltips. Therefore, either it no longer exists on the main map, or it's about to vanish from the main map. Go go gadget someone-else's-problem-field!
+      local x, y = o.pos[3], o.pos[4]
+      x, y = x / self.continent_scales_x[o.pos[1].c], y / self.continent_scales_y[o.pos[1].c]
+      x, y = self.Astrolabe:TranslateWorldMapPosition(o.pos[1].c, 0, x, y, c, z)
+      
+      if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
+        x, y = x*w, y*h
         
-        if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
-          x, y = x*w, y*h
-          
-          if cx >= x-s and cy >= y-s and cx <= x+s and cy <= y+s then
-            table.insert(list, o)
-          end
+        if cx >= x-s and cy >= y-s and cx <= x+s and cy <= y+s then
+          table.insert(list, o)
         end
       end
     end
   end
   
-  table.sort(list, function(a, b) return (a.distance or 0) < (b.distance or 0) end)
+  table.sort(list, function(a, b) return (a.travel_time or 0) < (b.travel_time or 0) end)
   
   return list
 end
 
+local prog_sort_table = {}
+
 function QuestHelper:AppendObjectiveProgressToTooltip(o, tooltip, font, depth)
   if o.progress then
-    local prog_sort_table = {}
-  
     local theme = self:GetColourTheme()
     
     local indent = ("  "):rep(depth or 0)
@@ -323,25 +311,15 @@ end
 function QuestHelper:AppendObjectiveToTooltip(o)
   local theme = self:GetColourTheme()
   
-  QuestHelper: Assert(o.map_desc)
-  for _, v in ipairs(o.map_desc) do
-    self.tooltip:AddLine(v, unpack(theme.tooltip))
-    self.tooltip:GetPrevLines():SetFont(self.font.serif, 14)
-  end
+  self.tooltip:AddLine(o:Reason(), unpack(theme.tooltip))
+  self.tooltip:GetPrevLines():SetFont(self.font.serif, 14)
   
-  if o.map_desc_chain then
-    self:AppendObjectiveToTooltip(o.map_desc_chain)
-  else
-    self:AppendObjectiveProgressToTooltip(o, self.tooltip, QuestHelper.font.sans)
-    
-    self.tooltip:AddDoubleLine(QHText("TRAVEL_ESTIMATE"), QHFormat("TRAVEL_ESTIMATE_VALUE", o.distance or 0), unpack(theme.tooltip))
-    self.tooltip:GetPrevLines():SetFont(self.font.sans, 11)
-    select(2, self.tooltip:GetPrevLines()):SetFont(self.font.sans, 11)
-  end
+  self:AppendObjectiveProgressToTooltip(o, self.tooltip, QuestHelper.font.sans)
+  
+  self.tooltip:AddDoubleLine(QHText("TRAVEL_ESTIMATE"), QHFormat("TRAVEL_ESTIMATE_VALUE", o.travel_time or 0), unpack(theme.tooltip))
+  self.tooltip:GetPrevLines():SetFont(self.font.sans, 11)
+  select(2, self.tooltip:GetPrevLines()):SetFont(self.font.sans, 11)
 end
-
-globx = 0.5
-globy = 0.5
 
 function QuestHelper:CreateWorldMapDodad(objective, index)
   local icon = CreateFrame("Button", nil, QuestHelper.map_overlay)
@@ -395,18 +373,17 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
         self.bg = QuestHelper:CreateIconTexture(self, 16)
       else
         -- otherwise give it the background selected by the objective
-        self.bg = QuestHelper:CreateIconTexture(self, objective.icon_bg or 16)
+        self.bg = QuestHelper:CreateIconTexture(self, objective.icon_bg)
       end
       
-      self.dot = QuestHelper:CreateIconTexture(self, objective.icon_id or 8)
+      self.dot = QuestHelper:CreateIconTexture(self, objective.icon_id)
       
       self.bg:SetDrawLayer("BACKGROUND")
       self.bg:SetAllPoints()
       self.dot:SetPoint("TOPLEFT", self, "TOPLEFT", 3*QuestHelper_Pref.scale, -3*QuestHelper_Pref.scale)
       self.dot:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -3*QuestHelper_Pref.scale, 3*QuestHelper_Pref.scale)
       
-      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(objective.loc))
-      --QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, 0, 0, globx, globy)
+      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(objective.pos))
     else
       self.objective = nil
       self:Hide()
@@ -416,46 +393,43 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   function icon:SetGlow(list)
     local w, h = QuestHelper.map_overlay:GetWidth(), QuestHelper.map_overlay:GetHeight()
     local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+    local _, x_size, y_size = QuestHelper.Astrolabe:ComputeDistance(c, z, 0.25, 0.25, c, z, 0.75, 0.75)
     
-    local nodes = {}
-    
-    for _, v in ipairs(list) do 
-      if v.cluster then
-        for _, i in ipairs(v.cluster) do
-          nodes[i] = true
-        end
-      else
-        nodes[v] = true
-      end
-    end
-    
+    x_size = math.max(25, 200 / x_size * w)
+    y_size = math.max(25, 200 / y_size * h)
     
     local out = 1
-    for obj, _ in pairs(nodes) do
-      local x, y = convertLocationToScreen(obj.loc, c, z)
-      if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
-        if not self.glow_list then
-          self.glow_list = QuestHelper:CreateTable()
-        end
-        
-        tex = self.glow_list[out]
-        if not tex then
-          tex = QuestHelper:CreateGlowTexture(self)
-          table.insert(self.glow_list, tex)
-        end
-        out = out + 1
-        
-        tex:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", x*w, -y*h)
-        tex:SetVertexColor(1,1,1,0)
-        tex:SetWidth(h / 4) -- we want it to be a circle
-        tex:SetHeight(h / 4)
-        tex:Show()
-        tex.max_alpha = 1
+    for _, objective in ipairs(list) do 
+      if objective.p then for _, list in pairs(objective.p) do
+        for _, p in ipairs(list) do
+          local x, y = p[3], p[4]
+          x, y = x / QuestHelper.continent_scales_x[p[1].c], y / QuestHelper.continent_scales_y[p[1].c]
+          x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(p[1].c, 0, x, y, c, z)
+          if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
+            if not self.glow_list then
+              self.glow_list = QuestHelper:CreateTable()
+            end
+            
+            tex = self.glow_list[out]
+            if not tex then
+              tex = QuestHelper:CreateGlowTexture(self)
+              table.insert(self.glow_list, tex)
+            end
+            out = out + 1
+            
+            tex:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", x*w, -y*h)
+            tex:SetVertexColor(1,1,1,0)
+            tex:SetWidth(x_size)
+            tex:SetHeight(y_size)
+            tex:Show()
+            tex.max_alpha = 1/p[5]
+          end
+        end end
       end
     end
     
     if self.glow_list then
-      while #self.glow_list >= out do
+      for i = out,#self.glow_list do
         QuestHelper:ReleaseTexture(table.remove(self.glow_list))
       end
       
@@ -476,7 +450,6 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
     
     if self.old_count > 0 then
       local list = QuestHelper:GetOverlapObjectives(self.objective)
-      
       if #list ~= self.old_count then
         self:SetTooltip(list)
         self.old_count = #list
@@ -552,8 +525,8 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   end
   
   function icon:OnEvent(event)
-    if self.objective then
-      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(self.objective.loc))
+    if self.objective and self.objective.pos then
+      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(self.objective.pos))
     else
       self.objective = nil
       self:Hide()
@@ -571,13 +544,13 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
         
         for i, o in ipairs(list) do
           local submenu = QuestHelper:CreateMenu()
-          item = QuestHelper:CreateMenuItem(menu, o.map_desc[1])
+          item = QuestHelper:CreateMenuItem(menu, o:Reason(true))
           item:SetSubmenu(submenu)
           item:AddTexture(QuestHelper:CreateIconTexture(item, o.icon_id), true)
           QuestHelper:AddObjectiveOptionsToMenu(o, submenu)
         end
       else
-        QuestHelper:CreateMenuTitle(menu, self.objective.map_desc[1])
+        QuestHelper:CreateMenuTitle(menu, self.objective:Reason(true))
         QuestHelper:AddObjectiveOptionsToMenu(self.objective, menu)
       end
       
@@ -646,141 +619,203 @@ function QuestHelper:CreateMipmapDodad()
   icon:Hide()
   icon.recalc_timeout = 0
   
-  icon.arrow = CreateFrame("Model", nil, icon)
-  icon.arrow:SetHeight(140.8)
-  icon.arrow:SetWidth(140.8)
-  icon.arrow:SetPoint("CENTER", Minimap, "CENTER", 0, 0)
-  icon.arrow:SetModel("Interface\\Minimap\\Rotating-MinimapArrow.mdx")
+  icon.arrow = icon:CreateTexture("BACKGROUND")
+  icon.arrow:SetHeight(40)
+  icon.arrow:SetWidth(40)
+  icon.arrow:SetPoint("CENTER", 0, 0)
+  icon.arrow:SetTexture("Interface\\AddOns\\QuestHelper\\MinimapArrow-Green")
   icon.arrow:Hide()
   
   icon.phase = 0
   icon.target = {0, 0, 0, 0}
+  icon.icon_id = 7
   
   icon.bg = QuestHelper:CreateIconTexture(icon, 16)
   icon.bg:SetDrawLayer("BACKGROUND")
   icon.bg:SetAllPoints()
   
+  function icon:NextObjective()
+    for i, o in ipairs(QuestHelper.route) do
+      if not QuestHelper.to_remove[o] and o.pos and not o.filter_blocked then
+        return o
+      end
+    end
+    
+    return nil
+  end
+  
   function icon:OnUpdate(elapsed)
-    if self.obj then
-      
-      -- Deal with waypoint callbacks
-      if QuestHelper_Pref.hide or UnitIsDeadOrGhost("player") then
-        QuestHelper:InvokeWaypointCallbacks()
-      else
-        local c, z = QuestHelper.collect_rc or 0, QuestHelper.collect_rz or 0
-        local x, y = convertLocationToScreen(self.obj.loc, c, z)
-        --QuestHelper:TextOut(string.format("internal: %f %f %f %f or %f %f %f", c, z, x, y, self.obj.loc.c, self.obj.loc.x, self.obj.loc.y))
-        
-        local textdesc
-        if self.obj.map_desc_chain then
-          -- the first line will just be an "enroute" line
-          textdesc = self.obj.map_desc[1] .. "\n" .. self.obj.map_desc_chain.map_desc[1]
-        else
-          textdesc = self.obj.map_desc[1]
+    print("onupd")
+    if self.objective then
+      print("lol")
+      if not self.objective.pos then
+        self.objective = self:NextObjective()
+        if not self.objective then
+          self:Hide()
+          print("weh")
+          return
         end
-        
-        QuestHelper:InvokeWaypointCallbacks(c, z, x, y, textdesc)
-        
-        --[=[
-        if QuestHelper.c == t[1] then
-          -- Translate the position to the zone the player is standing in.
-          local c, z = QuestHelper.c, QuestHelper.z
-          local x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], c, z)
-          QuestHelper:InvokeWaypointCallbacks(c, z, x, y, reason)
-        else
-          -- Try to find the nearest zone on the continent the objective is in.
-          local index, distsqr, x, y
-          for z, i in pairs(QuestHelper_IndexLookup[t[1]]) do
-            local _x, _y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], t[1], z)
-            local d = (_x-0.5)*(_x-0.5)+(_y-0.5)*(_y-0.5)
-            if not index or d < distsqr then
-              index, distsqr, x, y = i, d, _x, _y
-            end
-          end
-          local c, z = QuestHelper_IndexLookup[index]
-          QuestHelper:InvokeWaypointCallbacks(c, z, x, y, reason)
-        end]=]
       end
       
-      if not QuestHelper_Pref.hide and QuestHelper.Astrolabe:PlaceIconOnMinimap(self, convertLocation(self.obj.loc)) ~= -1 then
-        local edge = QuestHelper.Astrolabe:IsIconOnEdge(self)
+      self:Show()
+      
+      print("hello")
+      print(self.recalc_timeout <= 0, QuestHelper.graph_in_limbo, QuestHelper.Routing.map_walker)
+      if self.recalc_timeout <= 0 and not QuestHelper.graph_in_limbo and QuestHelper.Routing.map_walker then
+        print("wut")
+        self.recalc_timeout = 50
         
-        if edge then
-          self.arrow:Show()
-          self.dot:Hide()
-          self.bg:Hide()
+        self.objective = self:NextObjective()
+        
+        if not self.objective then
+          self:Hide()
+          return
+        end
+        
+        local path, travel_time
+        
+        if QuestHelper.target then
+          
+          -- Okay, this is another "fix the symptom without fixing the cause" hack. Not good, but a lot of this is going away anyway.
+          local has_path = true
+          for i in ipairs(QuestHelper.target[1]) do if not QuestHelper.target[2][i] then has_path = false end end
+          if has_path then
+            path, travel_time = QuestHelper:ComputeRoute(QuestHelper.target, self.objective.pos)
+            travel_time = travel_time + math.max(0, QuestHelper.target_time-time())
+          else
+            --QuestHelper:TextOut("yes here is the nil bug")
+          end
         else
-          self.arrow:Hide()
-          self.dot:Show()
-          self.bg:Show()
+          path, travel_time = QuestHelper:ComputeRoute(QuestHelper.pos, self.objective.pos)
         end
         
-        if edge then
-          local angle = QuestHelper.Astrolabe:GetDirectionToIcon(self)
-          if GetCVar("rotateMinimap") == "1" then
-            angle = angle + MiniMapCompassRing:GetFacing()
+        local t = self.target
+        local id = self.objective.icon_id
+        t[1], t[2], t[3], t[4] = convertLocation(self.objective.pos)
+        t[5] = nil
+        
+        self.objective.travel_time = travel_time
+        
+        while path do
+          if path.g > 10.0 then
+            id = 8
+            t[1] = path.c
+            t[2] = 0
+            t[3] = path.x / QuestHelper.continent_scales_x[path.c]
+            t[4] = path.y / QuestHelper.continent_scales_y[path.c]
+            t[5] = path.name or "waypoint"
           end
-          
-          self.arrow:SetFacing(angle)
-          self.arrow:SetPosition(ofs * (137 / 140) - radius * math.sin(angle),
-                                 ofs               + radius * math.cos(angle), 0);
-          
-          if elapsed then
-            if self.phase > 6.283185307179586476925 then
-              self.phase = self.phase-6.283185307179586476925+elapsed*3.5
-            else
-              self.phase = self.phase+elapsed*3.5
-            end
-          end
-          self.arrow:SetModelScale(0.600000023841879+0.1*math.sin(self.phase))
+          path = path.p
         end
+        
+        if not self.dot or id ~= self.icon_id then
+          self.icon_id = id
+          if self.dot then QuestHelper:ReleaseTexture(self.dot) end
+          self.dot = QuestHelper:CreateIconTexture(self, self.icon_id)
+          self.dot:SetPoint("TOPLEFT", icon, "TOPLEFT", 2, -2)
+          self.dot:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -2, 2)
+        end
+        
+        if UnitIsDeadOrGhost("player") then
+          QuestHelper:InvokeWaypointCallbacks()
+        else
+          local reason = (t[5] and (QHFormat("WAYPOINT_REASON", t[5]).."\n"..self.objective:Reason(true)))
+                         or self.objective:Reason(true)
+          
+          if QuestHelper.c == t[1] then
+            -- Translate the position to the zone the player is standing in.
+            local c, z = QuestHelper.c, QuestHelper.z
+            local x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], c, z)
+            QuestHelper:InvokeWaypointCallbacks(c, z, x, y, reason)
+          else
+            -- Try to find the nearest zone on the continent the objective is in.
+            local index, distsqr, x, y
+            for z, i in pairs(QuestHelper_IndexLookup[t[1]]) do
+              local _x, _y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], t[1], z)
+              local d = (_x-0.5)*(_x-0.5)+(_y-0.5)*(_y-0.5)
+              if not index or d < distsqr then
+                index, distsqr, x, y = i, d, _x, _y
+              end
+            end
+            local c, z = QuestHelper_IndexLookup[index]
+            QuestHelper:InvokeWaypointCallbacks(c, z, x, y, reason)
+          end
+        end
+        
+        QuestHelper.Astrolabe:PlaceIconOnMinimap(self, unpack(self.target))
       else
-        self:Hide()
+        self.recalc_timeout = self.recalc_timeout - 1
+      end
+      
+      local edge = QuestHelper.Astrolabe:IsIconOnEdge(self)
+      
+      if edge then
+        self.arrow:Show()
+        self.dot:Hide()
+        self.bg:Hide()
+      else
+        self.arrow:Hide()
+        self.dot:Show()
+        self.bg:Show()
+      end
+      
+      print(edge)
+      if edge then
+        local angle = QuestHelper.Astrolabe:GetDirectionToIcon(self)
+        if GetCVar("rotateMinimap") == "1" then
+          angle = angle + QuestHelper.Astrolabe:GetFacing()
+        end
+        
+        print("werkinating")
+        local sin,cos = math.sin(angle) * math.sqrt(0.5), math.cos(angle) * math.sqrt(0.5)
+				self.arrow:SetTexCoord(0.5-sin, 0.5+cos, 0.5+cos, 0.5+sin, 0.5-cos, 0.5-sin, 0.5+sin, 0.5-cos)
+        self.arrow:SetScale(100)
+        
+        self.arrow:SetFacing(angle)
+        self.arrow:SetPosition(ofs * (137 / 140) - radius * math.sin(angle),
+                               ofs               + radius * math.cos(angle), 0);
+        
+        if self.phase > 6.283185307179586476925 then
+          self.phase = self.phase-6.283185307179586476925+elapsed*3.5
+        else
+          self.phase = self.phase+elapsed*3.5
+        end
+        --self.arrow:SetModelScale(0.600000023841879+0.1*math.sin(self.phase))
       end
     else
       self:Hide()
     end
   end
   
-  function icon:SetObjective(obj)
+  function icon:SetObjective(objective)
     self:SetHeight(20*QuestHelper_Pref.scale)
     self:SetWidth(20*QuestHelper_Pref.scale)
     
-    if obj ~= self.obj then
-      self.obj = obj
-      if obj and not QuestHelper_Pref.hide then
+    print("guh", objective)
+    if objective ~= self.objective then
+      if objective and not QuestHelper_Pref.hide then
         self:Show()
       else
         QuestHelper:InvokeWaypointCallbacks()
         self:Hide()
-        return
       end
       
+      self.objective = objective
       self.recalc_timeout = 0
-      
-      if self.dot then QuestHelper:ReleaseTexture(self.dot) self.dot = nil end
-      
-      if not self.dot then
-        self.dot = QuestHelper:CreateIconTexture(self, self.obj.icon_id or 8)
-        self.dot:SetPoint("TOPLEFT", icon, "TOPLEFT", 2, -2)
-        self.dot:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -2, 2)
-      end
-      
-      self:OnUpdate()
     end
   end
   
   function icon:OnEnter()
-    if self.obj then
+    if self.objective then
       QuestHelper.tooltip:SetOwner(self, "ANCHOR_CURSOR")
       QuestHelper.tooltip:ClearLines()
       
-      --[[if self.target[5] then
+      if self.target[5] then
         QuestHelper.tooltip:AddLine(QHFormat("WAYPOINT_REASON", self.target[5]), unpack(QuestHelper:GetColourTheme().tooltip))
         QuestHelper.tooltip:GetPrevLines():SetFont(QuestHelper.font.serif, 14)
-      end]]
+      end
       
-      QuestHelper:AppendObjectiveToTooltip(self.obj)
+      QuestHelper:AppendObjectiveToTooltip(self.objective)
       QuestHelper.tooltip:Show()
     end
   end
@@ -793,13 +828,13 @@ function QuestHelper:CreateMipmapDodad()
     if self.objective then
       local menu = QuestHelper:CreateMenu()
       QuestHelper:CreateMenuTitle(menu, self.objective:Reason(true))
-      QuestHelper:AddObjectiveOptionsToMenu(self.obj, menu)
+      QuestHelper:AddObjectiveOptionsToMenu(self.objective, menu)
       menu:ShowAtCursor()
     end
   end
   
   function icon:OnEvent()
-    if self.obj then
+    if self.objective and self.objective.pos then
       self:Show()
     else
       self:Hide()
