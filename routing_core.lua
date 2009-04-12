@@ -411,6 +411,7 @@ local function GetWeight(x, y)
   return weight
 end
 
+-- Yeah, this function, right here? This is QH's brain. This is the only thing in all of Questhelper that actually generates routes. THIS IS IT.
 local function RunAnt()
   local route = NewRoute()
   route[1] = 1
@@ -419,79 +420,94 @@ local function RunAnt()
   local dependencies = QuestHelper:CreateTable("route_core_dependencies")
   
   local needed = QuestHelper:CreateTable("route_core_needed")
-  local needed_count = -1 -- gets rid of 1 earlier
-  local needed_ready_count = -1
+  local needed_count = 0
+  local needed_ready_count = 0
   
   for k, v in pairs(DependencyCounts) do
     dependencies[k] = v
+    QuestHelper: Assert(dependencies[k] >= 0)
   end
-  
-  for _, v in ipairs(ActiveNodes) do
-    if NodeIgnoredCount[v] == 0 and (not ClusterLookup[v] or ClusterIgnoredCount[ClusterLookup[v]] == 0) then -- if it's ignored, then we just plain don't do anything
-      local need = false
-      
-      if ClusterLookup[v] then
-        QuestHelper: Assert(dependencies[ClusterLookup[v]])
-        if dependencies[ClusterLookup[v]] == 0 then
-          need = true
-        end
-      else
-        need = true
-      end
-      
-      if need then
-        needed[v] = true
-        needed_ready_count = needed_ready_count + 1
-      end
-      
-      needed_count = needed_count + 1
-    end
-  end
-  
-  needed[1] = nil
   
   local curloc = 1
   
   local gwc = QuestHelper:CreateTable("route_core_gwc")
   
-  QuestHelper: Assert(needed_ready_count > 0 or needed_count == 0)
+  --TestShit()
   
-  while needed_count > 0 do
-    QuestHelper: Assert(needed_ready_count > 0)
-    
-    local accumulated_weight = 0
-    local tweight = 0
-    for k, _ in pairs(needed) do
-      local tw = GetWeight(curloc, k)
-      gwc[k] = tw
-      accumulated_weight = accumulated_weight + tw
+  for k, v in ipairs(Priorities) do
+    if Priorities[k + 1] then
+      QuestHelper: Assert(Priorities[k] < Priorities[k + 1])
     end
+  end
   
-    tweight = accumulated_weight
-    accumulated_weight = accumulated_weight * math.random()
+  for _, current_pri in ipairs(Priorities) do
     
-    local nod = nil
-    for k, _ in pairs(needed) do
-      accumulated_weight = accumulated_weight - gwc[k]
-      if accumulated_weight < 0 then
-        nod = k
-        break
+    -- Here is we add the new batch of nodes
+    for _, v in ipairs(ActiveNodes) do
+      if v ~= 1 then -- if it's ignored, then we just plain don't do anything
+        local clustid = ClusterLookup[v]
+        QuestHelper: Assert(clustid)
+        
+        if ClusterPriority[clustid] < current_pri then
+          QuestHelper: Assert(dependencies[clustid] == -1 or NodeIgnoredCount[v] > 0 or ClusterIgnoredCount[clustid] >= 0)
+        elseif ClusterPriority[clustid] == current_pri then
+          if NodeIgnoredCount[v] == 0 and ClusterIgnoredCount[clustid] == 0 then
+            local need = false
+            
+            QuestHelper: Assert(dependencies[clustid])
+            if dependencies[clustid] == 0 then
+              needed[v] = true
+              needed_ready_count = needed_ready_count + 1
+            end
+            
+            needed_count = needed_count + 1
+          end
+        else
+          QuestHelper: Assert(dependencies[clustid] ~= -1, clustid)
+        end
       end
     end
     
-    if not nod then
-      RTO(string.format("no nod :( %f/%f", accumulated_weight, tweight))
-      for k, _ in pairs(needed) do
-        nod = k
-        break
-      end
+    if not (needed_ready_count > 0 or needed_count == 0) then
+      QuestHelper: Assert(needed_ready_count > 0 or needed_count == 0, string.format("%d %d", needed_ready_count, needed_count))  -- I should really rig this to output stuff of this sort more easily
     end
     
-    -- Now we've chosen stuff. Bookkeeping.
-    if ClusterLookup[nod] then
-      local clust = ClusterLookup[nod]
+    while needed_count > 0 do
+      QuestHelper: Assert(needed_ready_count > 0)
       
-      -- Obliterate other cluster items.
+      local accumulated_weight = 0
+      local tweight = 0
+      for k, _ in pairs(needed) do
+        local tw = GetWeight(curloc, k)
+        gwc[k] = tw
+        accumulated_weight = accumulated_weight + tw
+      end
+    
+      tweight = accumulated_weight
+      accumulated_weight = accumulated_weight * math.random()
+      
+      local nod = nil
+      for k, _ in pairs(needed) do
+        accumulated_weight = accumulated_weight - gwc[k]
+        if accumulated_weight < 0 then
+          nod = k
+          break
+        end
+      end
+      
+      if not nod then
+        RTO(string.format("no nod :( %f/%f", accumulated_weight, tweight))
+        for k, _ in pairs(needed) do
+          nod = k
+          break
+        end
+      end
+      
+      -- Now we've chosen stuff. Bookkeeping.
+      local clust = ClusterLookup[nod]
+      QuestHelper: Assert(clust)
+      
+      -- Obliterate other cluster items. Guaranteed to be at the same priority level.
       for _, v in pairs(Cluster[clust]) do
         if NodeIgnoredCount[v] == 0 then
           needed[v] = nil
@@ -503,7 +519,8 @@ local function RunAnt()
       -- Dependency links.
       if DependencyLinksReverse[clust] then for _, v in ipairs(DependencyLinksReverse[clust]) do
         dependencies[v] = dependencies[v] - 1
-        if dependencies[v] == 0 and ClusterIgnoredCount[v] == 0 then
+        QuestHelper: Assert(dependencies[v] >= 0)
+        if dependencies[v] == 0 and ClusterIgnoredCount[v] == 0 and ClusterPriority[v] == current_pri then
           for _, v in pairs(Cluster[v]) do
             if NodeIgnoredCount[v] == 0 then
               needed[v] = true
@@ -512,22 +529,25 @@ local function RunAnt()
           end
         end
       end end
-    else
-      needed[nod] = nil
-      needed_count = needed_count - 1
-      needed_ready_count = needed_ready_count - 1
+      
+      QuestHelper: Assert(dependencies[clust] == 0)
+      QuestHelper: Assert(ClusterPriority[clust] == current_pri)
+      dependencies[clust] = -1
+      
+      --print(needed_count, needed_ready_count)
+      
+      route.distance = route.distance + Distance[curloc][nod]
+      table.insert(route, nod)
+      curloc = nod
     end
     
-    route.distance = route.distance + Distance[curloc][nod]
-    table.insert(route, nod)
-    curloc = nod
+    QuestHelper: Assert(needed_ready_count == 0 and needed_count == 0)
   end
-  
-  QuestHelper: Assert(needed_ready_count == 0)
-  
+
+  QuestHelper:ReleaseTable(gwc)  
   QuestHelper:ReleaseTable(dependencies)
   QuestHelper:ReleaseTable(needed)
-  QuestHelper:ReleaseTable(gwc)
+  
   return route
 end
 
@@ -1046,6 +1066,7 @@ function QH_Route_Core_ClusterRemove(clust, clustid_used)
       if v == pri then
         Priorities[k] = Priorities[#Priorities]
         table.remove(Priorities)
+        table.sort(Priorities)
         break
       end
     end
@@ -1091,11 +1112,13 @@ function QH_Route_Core_GetClusterPriority(clust)
   return ClusterPriority[ClusterTableLookup[clust]]
 end
 
-function QH_Route_Core_SetClusterPriority(clust, new_pri)
-  local clustid = ClusterTableLookup[clust]
-  if ClusterPriority[clustid] == new_pri then return end -- this is more important than it looks, since it's the only thing keeping this from recursing infinitely
+local function QH_Route_Core_SetClusterPriority_Internal(clustid, new_pri)
+  QuestHelper: Assert(clustid)
+  if ClusterPriority[clustid] == new_pri then return end
+  --QuestHelper:TextOut(string.format("Setting %d to %d", clustid, new_pri))
   
   local pri = ClusterPriority[clustid]
+  QuestHelper: Assert(pri)
   PriorityCount[pri] = PriorityCount[pri] - 1
   if PriorityCount[pri] == 0 then
     PriorityCount[pri] = nil
@@ -1104,6 +1127,7 @@ function QH_Route_Core_SetClusterPriority(clust, new_pri)
       if v == pri then
         Priorities[k] = Priorities[#Priorities]
         table.remove(Priorities)
+        table.sort(Priorities)
         break
       end
     end
@@ -1111,13 +1135,29 @@ function QH_Route_Core_SetClusterPriority(clust, new_pri)
   
   ClusterPriority[clustid] = new_pri
   if not PriorityCount[new_pri] then table.insert(Priorities, new_pri) table.sort(Priorities) end
-  PriorityCount[new_pri] = (PriorityCount[new_pri] or new_pri) + 1
+  PriorityCount[new_pri] = (PriorityCount[new_pri] or 0) + 1
   
   last_best = nil
   
-  -- TODO: shunt up and down as well
+  -- NOTE: These are recursive functions. It is vitally important that these not be called if nothing is changing, and it is vitally important that we change the local node first, otherwise we'll get infinite recursion and explosions. Or even EXPLOISIONS.
+  
+  -- Clusters that this one depends on. Must happen first (i.e. have a smaller or equal priority)
+  if DependencyLinks[clustid] then for _, v in ipairs(DependencyLinks[clustid]) do
+    if ClusterPriority[v] > new_pri then QH_Route_Core_SetClusterPriority_Internal(v, new_pri) end
+  end end
+  
+  -- Clusters that depend on this one. Must happen last (i.e. have a greater or equal priority)
+  if DependencyLinksReverse[clustid] then for _, v in ipairs(DependencyLinksReverse[clustid]) do
+    if ClusterPriority[v] < new_pri then QH_Route_Core_SetClusterPriority_Internal(v, new_pri) end
+  end end
 end
 
+function QH_Route_Core_SetClusterPriority(clust, new_pri)
+  QuestHelper: Assert(clust)
+  local clustid = ClusterTableLookup[clust]
+  
+  QH_Route_Core_SetClusterPriority_Internal(clustid, new_pri)
+end
 
 -- Wipe and re-cache all distances.
 function QH_Route_Core_DistanceClear()  
@@ -1140,7 +1180,7 @@ function QH_Route_Core_DistanceClear()
 end
 QH_Route_Core_DistanceClear_Local = QH_Route_Core_DistanceClear
 
---[=[
+--[==[
 function findin(tab, val)
   local ct = 0
   for k, v in pairs(tab) do
@@ -1168,6 +1208,7 @@ function TestShit()
   RTO("Lookup table done")
   ]]
   
+  --[=[
   local fail = false
   for x = 1, #ActiveNodes do
     for y = 2, #ActiveNodes do
@@ -1176,7 +1217,7 @@ function TestShit()
         fail = true
       end
     end
-  end
+  end]=]
   
   for k, v in pairs(DependencyLinks) do
     QuestHelper: Assert(#v == DependencyCounts[k])
@@ -1199,8 +1240,8 @@ function TestShit()
   end
   
   QuestHelper: Assert(not fail)
-end]=]
-
+end
+]==]
 --[=[
 function HackeryDump()
   local st = "{"
