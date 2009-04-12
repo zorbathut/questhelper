@@ -882,10 +882,6 @@ function QuestHelper:OnUpdate()
 This is a |cffff8000prealpha of QuestHelper|r. Be warned: It may crash. It may lock up. It may give bad advice. It may spew errors. It shouldn't spam people, delete your hard-won epics, or make your computer catch on fire, but technically I'm giving no guarantees. |cffff8000If you want a polished, functioning product, close WoW, download the official QH release from curse.com, and use that.|r
 
 Known bugs and issues include:
-  
-  |cff40bbffExcessive debug output|r
-  
-  |cff40bbffNo support for objective priority|r
    
   |cff40bbffBad behavior with dungeon/raid objectives (you'll know it when you see it)|r
 
@@ -893,7 +889,7 @@ Known bugs and issues include:
     
   |cff40bbffNo support for in-party quest synchronization|r
 
-All of these except the last three should be fixed before the official 1.0 release (the last one may wait for 1.1, but it will be fixed before I stop supporting the 0.x line - the others should be fixed sometime between 1.0 and 1.1.) They're not fixed now.
+These may not be fixed before the official 1.0 release - I'm hoping to get them all finished up in time for 1.1.
 
 If you encounter any issue besides the ones listed here, please please please report it, if you're reading this you know how to get in contact with me anyway.
 
