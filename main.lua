@@ -993,7 +993,7 @@ Thanks for testing!]], "QuestHelper " .. version_string, 500, 20, 10)
       local ibi = self.InBrokenInstance
       if nc < -77 then self.InBrokenInstance = true else self.InBrokenInstance = false end
       
-      if ibi and not self.InBrokenInstance then self.minimap_dodad:OnUpdate(0) end -- poke
+      if ibi and not self.InBrokenInstance then self.minimap_marker:OnUpdate(0) end -- poke
     else
       self.collect_delayed = true
       self.InBrokenInstance = true
