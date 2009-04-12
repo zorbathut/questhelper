@@ -126,6 +126,7 @@ QuestHelper_Translations.enUS =
   SHARING_ENABLE = "Share",
   SHARING_DISABLE = "Don't Share",
   IGNORE = "Ignore",
+  IGNORE_LOCATION = "Ignore this location",
   
   IGNORED_PRIORITY_TITLE = "The selected priority would be ignored.",
   IGNORED_PRIORITY_FIX = "Apply same priority to the blocking objectives.",

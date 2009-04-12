@@ -1287,28 +1287,26 @@ local UserIgnored = {
 function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
   local submenu = self:CreateMenu()
   
-  --[[
-  for i = 1,5 do
+  local pri = QH_Route_GetClusterPriority(obj.cluster) + 3
+  for i = 1, 5 do
     local name = QHText("PRIORITY"..i)
     local item = self:CreateMenuItem(submenu, name)
     local tex
     
-    if obj.priority == i then
+    if pri == i then
       tex = self:CreateIconTexture(item, 10)
-    elseif obj.real_priority == i then
-      tex = self:CreateIconTexture(item, 8)
     else
       tex = self:CreateIconTexture(item, 12)
       tex:SetVertexColor(1, 1, 1, 0)
     end
     
     item:AddTexture(tex, true)
-    item:SetFunction(self.SetObjectivePriorityPrompt, self, obj, i)
+    item:SetFunction(QH_Route_SetClusterPriority, obj.cluster, i - 3)
   end
   
   self:CreateMenuItem(menu, QHText("PRIORITY")):SetSubmenu(submenu)
   
-  if self.sharing then
+  --[[if self.sharing then
     submenu = self:CreateMenu()
     local item = self:CreateMenuItem(submenu, QHText("SHARING_ENABLE"))
     local tex = self:CreateIconTexture(item, 10)
@@ -1331,7 +1329,7 @@ function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
     self:CreateMenuItem(menu, QHText("IGNORE")):SetFunction(QH_Route_IgnoreCluster, obj.cluster, UserIgnored)
   end
   
-  self:CreateMenuItem(menu, QHText("IGNORE") .. " Item"):SetFunction(QH_Route_IgnoreNode, obj, UserIgnored)
+  self:CreateMenuItem(menu, QHText("IGNORE_LOCATION")):SetFunction(QH_Route_IgnoreNode, obj, UserIgnored)
 end
 
 function QuestHelper:IgnoreObjective(objective)

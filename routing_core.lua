@@ -74,6 +74,10 @@ local DistBatch
   local ClusterIgnoredCount = {}
   local ClusterIgnoredNodeActive = {}
   
+  local ClusterPriority = {}
+  local Priorities = {}
+  local PriorityCount = {}
+  
   local DependencyLinks = {}  -- Every cluster that cluster X depends on
   local DependencyLinksReverse = {}  -- Every cluster that is depended on by cluster X
   local DependencyCounts = {}  -- How many different nodes cluster X depends on
@@ -881,12 +885,6 @@ end
     return idx
   end
 
-  -- Add a node to route to
-  function QH_Route_Core_NodeAdd(nod)
-    local idx = QH_Route_Core_NodeAdd_Internal(nod) -- we're just stripping the return value, really
-    Storage_NodeAdded(idx)
-  end
-
   -- Remove a node with the given location
   QH_Route_Core_NodeRemove_Internal = function (nod, used_idx)
     --TestShit()
@@ -922,11 +920,6 @@ end
     
     return idx
   end
-  
-  function QH_Route_Core_NodeRemove(nod)
-    local idx = QH_Route_Core_NodeRemove_Internal(nod)
-    Storage_NodeRemoved(idx)
-  end
 -- End node allocation and deallocation
 
 function QH_Route_Core_ClusterAdd(clust, clustid_used)
@@ -949,6 +942,10 @@ function QH_Route_Core_ClusterAdd(clust, clustid_used)
   ClusterIgnored[clustid] = {}
   ClusterIgnoredCount[clustid] = 0
   ClusterIgnoredNodeActive[clustid] = #clust
+  
+  ClusterPriority[clustid] = 0
+  if not PriorityCount[0] then table.insert(Priorities, 0) table.sort(Priorities) end
+  PriorityCount[0] = (PriorityCount[0] or 0) + 1
   
   -- if we're doing hackery, clust will just be an empty table and we'll retrofit stuff later
   for _, v in ipairs(clust) do
@@ -1040,6 +1037,21 @@ function QH_Route_Core_ClusterRemove(clust, clustid_used)
   ClusterIgnoredCount[clustid] = nil
   ClusterIgnoredNodeActive[clustid] = nil
   
+  local pri = ClusterPriority[clustid]
+  PriorityCount[pri] = PriorityCount[pri] - 1
+  if PriorityCount[pri] == 0 then
+    PriorityCount[pri] = nil
+    
+    for k, v in ipairs(Priorities) do
+      if v == pri then
+        Priorities[k] = Priorities[#Priorities]
+        table.remove(Priorities)
+        break
+      end
+    end
+  end
+  ClusterPriority[clustid] = nil
+  
   Storage_ClusterDestroyed(clustid)
 end
 
@@ -1074,6 +1086,38 @@ function QH_Route_Core_ClusterRequires(a, b, hackery)
   
   Storage_ClusterDependency(aidx, bidx)
 end
+
+function QH_Route_Core_GetClusterPriority(clust)
+  return ClusterPriority[ClusterTableLookup[clust]]
+end
+
+function QH_Route_Core_SetClusterPriority(clust, new_pri)
+  local clustid = ClusterTableLookup[clust]
+  if ClusterPriority[clustid] == new_pri then return end -- this is more important than it looks, since it's the only thing keeping this from recursing infinitely
+  
+  local pri = ClusterPriority[clustid]
+  PriorityCount[pri] = PriorityCount[pri] - 1
+  if PriorityCount[pri] == 0 then
+    PriorityCount[pri] = nil
+    
+    for k, v in ipairs(Priorities) do
+      if v == pri then
+        Priorities[k] = Priorities[#Priorities]
+        table.remove(Priorities)
+        break
+      end
+    end
+  end
+  
+  ClusterPriority[clustid] = new_pri
+  if not PriorityCount[new_pri] then table.insert(Priorities, new_pri) table.sort(Priorities) end
+  PriorityCount[new_pri] = (PriorityCount[new_pri] or new_pri) + 1
+  
+  last_best = nil
+  
+  -- TODO: shunt up and down as well
+end
+
 
 -- Wipe and re-cache all distances.
 function QH_Route_Core_DistanceClear()  

@@ -8,8 +8,6 @@ local Route_Core_Process = QH_Route_Core_Process
 local Route_Core_NodeCount = QH_Route_Core_NodeCount
 
 local Route_Core_Init = QH_Route_Core_Init
-local Route_Core_NodeAdd = QH_Route_Core_NodeAdd
-local Route_Core_NodeRemove = QH_Route_Core_NodeRemove
 local Route_Core_SetStart = QH_Route_Core_SetStart
 
 local Route_Core_ClusterAdd = QH_Route_Core_ClusterAdd
@@ -22,6 +20,9 @@ local Route_Core_UnignoreNode = QH_Route_Core_UnignoreNode
 local Route_Core_IgnoreCluster = QH_Route_Core_IgnoreCluster
 local Route_Core_UnignoreCluster = QH_Route_Core_UnignoreCluster
 
+local Route_Core_GetClusterPriority = QH_Route_Core_GetClusterPriority
+local Route_Core_SetClusterPriority = QH_Route_Core_SetClusterPriority
+
 local Route_Core_TraverseNodes = QH_Route_Core_TraverseNodes
 local Route_Core_TraverseClusters = QH_Route_Core_TraverseClusters
 local Route_Core_IgnoredReasons_Cluster = QH_Route_Core_IgnoredReasons_Cluster
@@ -30,8 +31,6 @@ local Route_Core_Ignored_Cluster = QH_Route_Core_Ignored_Cluster
 
 QH_Route_Core_Process = nil
 QH_Route_Core_Init = nil
-QH_Route_Core_NodeAdd = nil
-QH_Route_Core_NodeRemove = nil
 QH_Route_Core_SetStart = nil
 QH_Route_Core_NodeObsoletes = nil
 QH_Route_Core_NodeRequires = nil
@@ -40,6 +39,8 @@ QH_Route_Core_IgnoreNode = nil
 QH_Route_Core_UnignoreNode = nil
 QH_Route_Core_IgnoreCluster = nil
 QH_Route_Core_UnignoreCluster = nil
+QH_Route_Core_GetClusterPriority = nil
+QH_Route_Core_SetClusterPriority = nil
 QH_Route_Core_TraverseNodes = nil
 QH_Route_Core_TraverseClusters = nil
 QH_Route_Core_IgnoredReasons_Cluster = nil
@@ -231,14 +232,6 @@ function QH_Route_Filter_Rescan(name)
   end)
 end
 
-function QH_Route_NodeAdd(node)
-  table.insert(pending, function () Route_Core_NodeAdd(node) ScanNode(node) end)
-end
-
-function QH_Route_NodeRemove(node)
-  table.insert(pending, function () Route_Core_NodeRemove(node) end)
-end
-
 function QH_Route_IgnoreNode(node, reason)
   table.insert(pending, function () Route_Core_IgnoreNode(node, reason) end)
 end
@@ -267,6 +260,14 @@ function QH_Route_UnignoreCluster(clust, reason)
   table.insert(pending, function () Route_Core_UnignoreCluster(clust, reason) end)
 end
 
+function QH_Route_UnignoreCluster(clust, pri)
+  table.insert(pending, function () Route_Core_UnignoreCluster(clust, reason) end)
+end
+
+function QH_Route_SetClusterPriority(clust, pri)
+  table.insert(pending, function () Route_Core_SetClusterPriority(clust, pri) end)
+end
+
 function QH_Route_FlightPathRecalc()
   table.insert(pending, function () QH_redo_flightpath() pathcache_active = new_pathcache_table() pathcache_inactive = new_pathcache_table() Route_Core_DistanceClear() ReplotPath() end)
 end
@@ -286,6 +287,9 @@ function QH_Route_IgnoredReasons_Node(node, func)
 end
 function QH_Route_Ignored_Cluster(clust)
   return Route_Core_Ignored_Cluster(clust)
+end
+function QH_Route_GetClusterPriority(clust)
+  return Route_Core_GetClusterPriority(clust)
 end
 
 

@@ -284,6 +284,7 @@ function QH_UpdateQuests(force)
       if qlink then -- If we don't have a quest link, it's not really a quest
         local id = GetQuestType(qlink)
         if id then -- If we don't have a *valid* quest link, give up
+          local lbcount = GetNumQuestLeaderBoards(index)
           local db = GetQuestMetaobjective(id, lbcount) -- This generates the above-mentioned metaobjective, including doing the database lookup.
           
           if db then  -- If we didn't get a database lookup, then we don't have a metaobjective either. Urgh. abort abort abort
@@ -295,7 +296,6 @@ function QH_UpdateQuests(force)
             db.tracker_clicked = function () Clicky(lindex) end
             
             local watched = IsQuestWatched(index)
-            local lbcount = GetNumQuestLeaderBoards(index)
             
             local turnin
             
