@@ -116,13 +116,17 @@ local function QH_LZW_Compress(input, tokens, outbits)
       w = c
     end
   end
-  if w ~= "" then r:append(d[w:sub(1, 1)][w:sub(2)], bits) end
   
-  dsize = dsize + 1   -- Our decompressor doesn't realize we're ending here, so it will have added a table entry for that last token. Sigh.
-  if dsize > nextbits then
-    bits = bits + 1
-    nextbits = nextbits * 2
+  if w ~= "" then
+    r:append(d[w:sub(1, 1)][w:sub(2)], bits) end
+  
+    dsize = dsize + 1   -- Our decompressor doesn't realize we're ending here, so it will have added a table entry for that last token. Sigh.
+    if dsize > nextbits then
+      bits = bits + 1
+      nextbits = nextbits * 2
+    end
   end
+  
   r:append(tokens, bits)
   
   local rst = r:finish()
