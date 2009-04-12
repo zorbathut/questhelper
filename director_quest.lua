@@ -376,6 +376,7 @@ function QH_UpdateQuests(force)
             db.type_quest.variety = variety
             db.type_quest.groupsize = groupsize
             db.type_quest.title = title
+            db.type_quest.objectives = lbcount
           end
         end
       end
