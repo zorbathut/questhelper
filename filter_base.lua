@@ -66,7 +66,7 @@ local filter_quest_level = QH_MakeFilter("filter_quest_level", function(obj)
   
   local qtx
   if obj.type_quest.variety == GROUP then
-    if obj.type_quest.groupsize then
+    if obj.type_quest.groupsize > 0 then
       qtx = VirtualLevel(obj.type_quest.level, obj.type_quest.groupsize, false)
     else
       qtx = VirtualLevel(obj.type_quest.level, 5, false)  -- meh
