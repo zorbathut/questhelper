@@ -273,15 +273,17 @@ local specitem_unused = {}
 
 -- This is adding a *single item*. This won't be called by the main parsing loop, but it does need some serious hackery. Let's see now
 local function addItem(objective, y, meta)
-  used_count[objective] = (used_count[objective] or 0) + 1
-  if not used_items[objective] then used_items[objective] = QuestHelper:CreateTable("additem used_items") end
-  local item = used_items[objective][used_count[objective]]
+  local obj_key = objective
+  if obj_key.cluster then obj_key = obj_key.cluster end
+  used_count[obj_key] = (used_count[obj_key] or 0) + 1
+  if not used_items[obj_key] then used_items[obj_key] = QuestHelper:CreateTable("additem used_items") end
+  local item = used_items[obj_key][used_count[obj_key]]
   
   local x = meta and 4 or 20
   
   if not item then
-    used_items[objective][used_count[objective]] = allocateItem()
-    item = used_items[objective][used_count[objective]]
+    used_items[obj_key][used_count[obj_key]] = allocateItem()
+    item = used_items[obj_key][used_count[obj_key]]
     
     if meta then
       item.text:SetFont(QuestHelper.font.serif, 12)
