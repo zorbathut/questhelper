@@ -684,7 +684,8 @@ end
     QuestHelper: Assert(type(reason) == "table")
     local clustid = ClusterTableLookup[clust]
     if not clustid then
-      QuestHelper:TextOut("Attempted to ignore a cluster that no longer exists")
+      -- This can just happen due to the lag introduced by the controller, so, whatever
+      --QuestHelper:TextOut("Attempted to ignore a cluster that no longer exists")
       return
     end
     
@@ -695,7 +696,8 @@ end
     QuestHelper: Assert(type(reason) == "table")
     local clustid = ClusterTableLookup[clust]
     if not clustid then
-      QuestHelper:TextOut("Attempted to unignore a cluster that no longer exists")
+      -- This can just happen due to the lag introduced by the controller, so, whatever
+      --QuestHelper:TextOut("Attempted to unignore a cluster that no longer exists")
       return
     end
     Internal_UnignoreCluster(clustid, reason)
