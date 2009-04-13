@@ -1,4 +1,10 @@
 
+== Version 0.99 4/13/2009 ==
+
+* Add preliminary support for 3.1 dungeon maps
+* Replace the minimap arrow for 3.1 compatibility (let me know if it breaks, it's written completely differently now although it should behave identically)
+* Update translations
+
 == Version 0.98 4/7/2009 ==
 
 * Try another fix for the collect_quest.lua crash
