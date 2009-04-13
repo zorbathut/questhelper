@@ -638,6 +638,8 @@ if archive_zip or archive_7z then
     FileUtil.copyDirectoryRecursively("../"..dir, "QuestHelper/"..dir)
   end
   
+  FileUtil.copyFile("../MinimapArrow.tga", "QuestHelper")
+  
   if archive_zip then
     local archive = "../QuestHelper-"..version_string..".zip"
     print("Creating "..archive)
