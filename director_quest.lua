@@ -301,12 +301,14 @@ function QH_UpdateQuests(force)
             local watched = IsQuestWatched(index)
             
             local turnin
+            local turnin_new
             
             -- This is our "quest turnin" objective, which is currently being handled separately for no particularly good reason.
             if db.finish and #db.finish > 0 then
               turnin = db.finish
               nactive[turnin] = true
               if not active[turnin] then
+                turnin_new = true
                 for k, v in ipairs(turnin) do
                   v.tracker_clicked = function () Clicky(lindex) end
                   
@@ -380,6 +382,19 @@ function QH_UpdateQuests(force)
             db.type_quest.groupsize = groupsize
             db.type_quest.title = title
             db.type_quest.objectives = lbcount
+            
+            if turnin_new then
+              local timidx = 1
+              while true do
+                local timer = GetQuestIndexForTimer(timidx)
+                if not timer then break end
+                if timer == index then
+                  QH_Route_SetClusterPriority(turnin, -1)
+                  break
+                end
+                timidx = timidx + 1
+              end
+            end
           end
         end
       end
