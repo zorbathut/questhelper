@@ -271,6 +271,7 @@ end
 function QH_Route_FlightPathRecalc()
   table.insert(pending, function () QH_redo_flightpath() pathcache_active = new_pathcache_table() pathcache_inactive = new_pathcache_table() Route_Core_DistanceClear() ReplotPath() end)
 end
+QH_Route_FlightPathRecalc() -- heh heh
 
 -- Right now we just defer to the existing ones
 function QH_Route_TraverseNodes(func)
@@ -363,6 +364,7 @@ local function process()
 
   local last_cull = 0
   
+  local first = true
   -- Order here is important. We don't want to update the location, then wait for a while as we add nodes. We also need the location updated before the first nodes are added. This way, it all works and we don't need anything outside the loop.
   while true do
     if last_cull + 120 < GetTime() then
@@ -400,7 +402,11 @@ local function process()
       last_playerpos = new_playerpos
     end
     
-    Route_Core_Process()
+    if not first then
+      Route_Core_Process()
+      QH_Timeslice_Doneinit()
+    end
+    first = false
     
     passcount = passcount + 1
     if lapa + 60 < GetTime() then

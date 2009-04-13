@@ -1,6 +1,8 @@
 QuestHelper_File["timeslice.lua"] = "Development Version"
 QuestHelper_Loadtime["timeslice.lua"] = GetTime()
 
+local debug_output = (QuestHelper_File["timeslice.lua"] == "Development Version")
+
 -- Any non-local item here is part of an available public interface.
 
 local coroutine_running = false
@@ -72,6 +74,14 @@ end
 
 local started = false
 
+function QH_Timeslice_Doneinit()
+  if not started and debug_output then
+    QuestHelper:TextOut("Done with initialization step")
+  end
+  
+  started = true
+end
+
 function QH_Timeslice_Work()
   -- There's probably a better way to do this, but. Eh. Lua.
   coro = nil
@@ -125,8 +135,6 @@ function QH_Timeslice_Work()
       if coroutine_verbose then QuestHelper:TextOut(string.format("timeslice: %s complete", coro.name)) end
       coroutine_list[key] = nil
     end
-    
-    if coro.name == "routing" then started = true end
   else
     if coroutine_verbose then QuestHelper:TextOut(string.format("timeslice: no available tasks")) end
   end
