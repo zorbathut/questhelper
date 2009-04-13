@@ -199,6 +199,9 @@ local function objective_parse(typ, txt, done)
   QuestHelper: Assert(target) -- This will fail repeatedly. Come on. We all know it.
   QuestHelper: Assert(have)
   QuestHelper: Assert(need) -- As will these.
+  
+  if tonumber(have) then have = tonumber(have) end
+  if tonumber(need) then need = tonumber(need) end
 
   return pt, target, have, need
 end
