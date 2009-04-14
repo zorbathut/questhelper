@@ -185,7 +185,6 @@ objtips.lua
 textviewer.lua
 help.lua
 
-collect.lua
 collect_achievement.lua
 collect_lzw.lua
 collect_traveled.lua
@@ -206,6 +205,7 @@ collect_bitstream.lua
 collect_upgrade.lua
 collect_merchant.lua
 collect_warp.lua
+collect.lua
 
 cartographer.lua
 tomtom.lua

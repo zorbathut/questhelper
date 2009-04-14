@@ -90,6 +90,17 @@ local API = {
   Callback_Location_Absolute = function () return QuestHelper:Location_AbsoluteRetrieve() end,
 }
 
+-- We do these early, because some things that aren't in collect may rely on these. Yes I realize that avoiding this was one of my main goals in the separate collect system, shut up go away I hate you (in all seriousness: crunch mode + lazy = some nasty bits.)
+-- TODO: Make a common collect/mainmodule system, then rely on that better.
+QH_Collect_Util_Init(nil, API)  -- Some may actually add their own functions to the API, and should go first. There's no real formalized order, I just know which depend on others, and it's heavily asserted so it will break if it goes in the wrong order.
+QH_Collect_Merger_Init(nil, API)
+QH_Collect_Bitstream_Init(nil, API)
+QH_Collect_Location_Init(nil, API)
+QH_Collect_Patterns_Init(nil, API)
+QH_Collect_Notifier_Init(nil, API)
+QH_Collect_Spec_Init(nil, API)
+QH_Collect_LZW_Init(nil, API)
+
 local CompressCollection
 
 function QH_Collector_Init()
@@ -108,17 +119,6 @@ function QH_Collector_Init()
   QuestHelper: Assert(not QHCData.compressed)
   QuestHelper: Assert(QHCData.version == QuestHelper_Collector_Version_Current)
   QHCData.modified = time()
-  
-  QH_Collect_Util_Init(nil, API)  -- Some may actually add their own functions to the API, and should go first. There's no real formalized order, I just know which depend on others, and it's heavily asserted so it will break if it goes in the wrong order.
-  QH_Collect_Merger_Init(nil, API)
-  QH_Collect_Bitstream_Init(nil, API)
-  
-  QH_Collect_Location_Init(nil, API)
-  QH_Collect_Patterns_Init(nil, API)
-  QH_Collect_Notifier_Init(nil, API)
-  QH_Collect_Spec_Init(nil, API)
-  
-  QH_Collect_LZW_Init(nil, API)
   
   QH_Collect_Achievement_Init(QHCData, API)
   QH_Collect_Traveled_Init(QHCData, API)
