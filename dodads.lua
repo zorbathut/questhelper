@@ -157,6 +157,7 @@ function QuestHelper:CreateWorldMapWalker()
   
   function walker:RouteChanged(route)
     if route then self.route = route end -- we cache it so we can refer to it later when the world map changes
+    if not self.route then return end
     
     local dbgstr = string.format("%s %s %s %s", tostring(self), tostring(self.frame), tostring(QuestHelper), tostring(QuestHelper and QuestHelper.Astrolabe))
     QuestHelper: Assert(self.frame == QuestHelper, dbgstr)
@@ -628,18 +629,17 @@ end
 
 function QuestHelper:InvokeWaypointCallbacks(c, z, x, y, desc)
   if c ~= last_c or z ~= last_z or x ~= last_x or y ~= last_y or desc ~= last_desc then
-    if c then
-      QuestHelper: Assert(z and x and y and desc)
-    end
     last_c, last_z, last_x, last_y, last_desc = c, z, x, y, desc
-    for cb in pairs(callbacks) do
-      local len = cb.len
-      cb[len+1] = c
-      cb[len+2] = z
-      cb[len+3] = x
-      cb[len+4] = y
-      cb[len+5] = desc
-      cb.func(unpack(cb, 1, len+5))
+    if c and z and x and y and z then
+      for cb in pairs(callbacks) do
+        local len = cb.len
+        cb[len+1] = c
+        cb[len+2] = z
+        cb[len+3] = x
+        cb[len+4] = y
+        cb[len+5] = desc
+        cb.func(unpack(cb, 1, len+5))
+      end
     end
   end
 end
