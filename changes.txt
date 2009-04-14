@@ -1,4 +1,8 @@
 
+== Version 0.100 4/14/2009 ==
+
+* Bump TOC so it works in 3.1 without having to check the "out of date addons" box
+
 == Version 0.99 4/13/2009 ==
 
 * Add preliminary support for 3.1 dungeon maps
