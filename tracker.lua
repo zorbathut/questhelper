@@ -264,25 +264,32 @@ local function addItem(name, quest, obj, y, qname, qindex)
     item:SetScript("OnUpdate", itemupdate)
   end
   
-  if GetQuestLogSpecialItemInfo and qindex and GetQuestLogSpecialItemInfo(qindex) and not item.specitem then  -- 3.1 hackery
-    item.specitem = table.remove(specitem_unused)
-    if not item.specitem then
-      item.specitem = CreateFrame("BUTTON", "QH_SpecItem_" .. tostring(specitem_max), item, "WatchFrameItemButtonTemplate")
-      specitem_max = specitem_max + 1
-      QuestHelper: Assert(item.specitem)
+  if qindex then  -- 3.1 hackery
+    local noitem = not GetQuestLogSpecialItemInfo(qindex)
+    if noitem and item.specitem then
+      item.specitem:Hide()
+      table.insert(specitem_unused, item.specitem)
+      item.specitem = nil
+    elseif not noitem and not item.specitem then
+      item.specitem = table.remove(specitem_unused)
+      if not item.specitem then
+        item.specitem = CreateFrame("BUTTON", "QH_SpecItem_" .. tostring(specitem_max), item, "WatchFrameItemButtonTemplate")
+        specitem_max = specitem_max + 1
+        QuestHelper: Assert(item.specitem)
+      end
+      
+      item.specitem:SetScale(0.9)
+      item.specitem:ClearAllPoints()
+      item.specitem:SetPoint("TOPRIGHT", item, "TOPLEFT", 0, 0)
+      
+      item.specitem:SetID(obj.index)
+      
+      local _, tex = GetQuestLogSpecialItemInfo(obj.index)
+      SetItemButtonTexture(item.specitem, tex)
+      item.specitem.rangeTimer = -1 -- This makes the little dot go away. Why does it do that?
+      
+      item.specitem:Show()
     end
-    
-    item.specitem:SetScale(0.9)
-    item.specitem:ClearAllPoints()
-    item.specitem:SetPoint("TOPRIGHT", item, "TOPLEFT", 0, 0)
-    
-    item.specitem:SetID(obj.index)
-    
-    local _, tex = GetQuestLogSpecialItemInfo(obj.index)
-    SetItemButtonTexture(item.specitem, tex)
-    item.specitem.rangeTimer = -1 -- This makes the little dot go away. Why does it do that?
-    
-    item.specitem:Show()
   end
   
   return w+x+4, h
