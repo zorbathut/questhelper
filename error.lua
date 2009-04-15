@@ -155,6 +155,7 @@ function QuestHelper_ErrorCatcher.OnError(o_msg, o_frame, o_stack, o_etype, ...)
       )
     )
     and not string.match(o_msg, "WTF\\Account\\.*")  -- Sometimes the WTF file gets corrupted. This isn't our fault, since we weren't involved in writing it, and there's also nothing we can do about it - in fact we can't even retrieve the remnants of the old file. We may as well just ignore it. I suppose we could pop up a little dialog saying "clear some space on your hard drive, dufus" but, meh.
+    and not string.match(o_msg, "QuestHelper\\AstrolabeQH\\DongleStub") -- We're catching errors caused by other people mucking up their dongles. Ughh.
     then
       QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack)
   end
