@@ -70,6 +70,17 @@ local function GetItemType(link, vague)
   ))
 end
 
+local function CopyOver(to, from)
+  to:SetFont(from:GetFont())
+  to:SetFontObject(from:GetFontObject())
+  to:SetText(from:GetText())
+  to:SetTextColor(from:GetTextColor())
+  to:SetSpacing(from:GetSpacing())
+  to:SetShadowOffset(from:GetShadowOffset())
+  to:SetShadowColor(from:GetShadowColor())
+  to:Show()
+end
+
 local function StripBlizzQHTooltipClone(ttp)
   if not UnitExists("mouseover") then return end
   
