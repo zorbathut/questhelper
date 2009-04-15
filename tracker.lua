@@ -266,11 +266,15 @@ local function addItem(name, quest, obj, y, qname, qindex)
   
   if qindex then  -- 3.1 hackery
     local noitem = not GetQuestLogSpecialItemInfo(qindex)
-    if noitem and item.specitem then
+    
+    -- we're just going to recycle this each time
+    if item.specitem then
       item.specitem:Hide()
       table.insert(specitem_unused, item.specitem)
       item.specitem = nil
-    elseif not noitem and not item.specitem then
+    end
+    
+    if not noitem then
       item.specitem = table.remove(specitem_unused)
       if not item.specitem then
         item.specitem = CreateFrame("BUTTON", "QH_SpecItem_" .. tostring(specitem_max), item, "WatchFrameItemButtonTemplate")
