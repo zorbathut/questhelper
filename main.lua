@@ -1,6 +1,8 @@
 QuestHelper_File["main.lua"] = "Development Version"
 QuestHelper_Loadtime["main.lua"] = GetTime()
 
+local QuestHelper_Version = QuestHelper_File["main.lua"]
+
 QuestHelper = CreateFrame("Frame", "QuestHelper", nil)
 
 -- Just to make sure it's always 'seen' (there's nothing that can be seen, but still...), and therefore always updating.
