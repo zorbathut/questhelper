@@ -1,4 +1,16 @@
 
+== Version 0.102 4/15/2009 ==
+
+* Take 2 on suppressing that donglestub error
+* Fix the textviewer for /qh changes and /qh help and the like
+* Improve the behavior of the quest-special-item display so it actually, you know, displays the right item
+
+== Version 0.101 4/14/2009 ==
+
+* Fixed an issue causing the tracker to show up in the middle of the screen by default
+* Suppressed an error caused by QH's overzealous error detection
+* Of course there would be last-minute bugs, what else were you expecting
+
 == Version 0.100 4/14/2009 ==
 
 * Bump TOC so it works in 3.1 without having to check the "out of date addons" box
