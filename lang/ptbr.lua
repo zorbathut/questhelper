@@ -22,7 +22,7 @@ QuestHelper_Translations.ptBR =
   HOME_CHANGED = "Sua casa mudou.",
   TALK_TO_FLIGHT_MASTER = "Por favor fale com o mestre de vôo local.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Obrigado.",
-  WILL_RESET_PATH = "Irá resetar a informação do caminho",
+  WILL_RESET_PATH = "Irá resetar a informação do caminho.",
   UPDATING_ROUTE = "Atualizando rotas.",
   
   -- Special tracker text
