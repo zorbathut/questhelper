@@ -61,16 +61,17 @@ function QuestHelper:ShowText(text, title, width, border, divide)
     viewer:SetBackdropBorderColor(1, 1, 1, 0.7)
     
     viewer.scrollframe = CreateFrame("ScrollFrame", "QuestHelperTextViewer_ScrollFrame" .. suffix, viewer, "UIPanelScrollFrameTemplate")
+    
     viewer.scrollframe:SetPoint("LEFT", viewer, "LEFT", border, 0)
     viewer.scrollframe:SetPoint("TOP", viewer.title, "BOTTOM", 0, -divide)
 
     viewer.scrollbar = _G["QuestHelperTextViewer_ScrollFrame" .. suffix .. "ScrollBar"]
+    --QuestHelperTextViewer_ScrollFrameThumbTexture = self:CreateIconTexture(viewer.scrollbar, 26)  -- Use the snazzy blue thumb
     viewer.scrollbar:SetBackdrop({                      -- Note: These settings are coppied from UIPanelScrollBarTemplateLightBorder in UIPanelTemplates.xml
       edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
       edgeSize = 12,
       tileSize = 16,
       insets = { left = 0, right = 0, top = 5, bottom = 5 }})
-    viewer.scrollbar:SetThumbTexture(self:CreateIconTexture(viewer.scrollbar, 26))  -- Use the snazzy blue thumb
 
     viewer.closebutton = CreateFrame("Button", "QuestHelperTextViewer_CloseButton" .. suffix, viewer, "UIPanelCloseButton")
     viewer.closebutton:SetPoint("TOPRIGHT", viewer)

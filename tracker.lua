@@ -318,7 +318,14 @@ local function addItem(objective, y, meta)
     item:SetScript("OnUpdate", itemupdate)
   end
   
-  if objective.tracker_special_item and not item.specitem then  -- 3.1 hackery
+  if item.specitem then
+    item.specitem:Hide()
+    table.insert(specitem_unused, item.specitem)
+    item.specitem = nil
+  end
+  
+  -- hacky - progress only shows up if we're not on a metaobjective. wheee
+  if objective.type_quest and not objective.progress and GetQuestLogSpecialItemInfo(objective.type_quest.index) then
     item.specitem = table.remove(specitem_unused)
     if not item.specitem then
       item.specitem = CreateFrame("BUTTON", "QH_SpecItem_" .. tostring(specitem_max), item, "WatchFrameItemButtonTemplate")
@@ -326,15 +333,12 @@ local function addItem(objective, y, meta)
       QuestHelper: Assert(item.specitem)
     end
     
-    local index, tex = objective.tracker_special_item.index, objective.tracker_special_item.tex
-    
     item.specitem:SetScale(0.9)
     item.specitem:ClearAllPoints()
     item.specitem:SetPoint("TOPRIGHT", item, "TOPLEFT", 0, 0)
     
-    item.specitem:SetID(index)
-    
-    local _, tex = GetQuestLogSpecialItemInfo(obj.index)
+    local _, tex = GetQuestLogSpecialItemInfo(objective.type_quest.index)
+    item.specitem:SetID(objective.type_quest.index)
     SetItemButtonTexture(item.specitem, tex)
     item.specitem.rangeTimer = -1 -- This makes the little dot go away. Why does it do that?
     

@@ -504,7 +504,7 @@ function QuestHelper:Initialize()
 
   local version = GetAddOnMetadata("QuestHelper", "Version") or "Unknown"
 
-  local major, minor = (QuestHelper_Version or ""):match("^(%d+)%.(%d+)")
+  local major, minor = (version_string or ""):match("^(%d+)%.(%d+)")
   major, minor = tonumber(major), tonumber(minor)
 
   -- For versions before 0.82, we're changing the default level offset to 3.

@@ -1,6 +1,8 @@
 QuestHelper_File["help.lua"] = "Development Version"
 QuestHelper_Loadtime["help.lua"] = GetTime()
 
+local QuestHelper_Version = QuestHelper_File["help.lua"]
+
 function QuestHelper:scaleString(val)
   return self:HighlightText(math.floor(val*100+0.5).."%")
 end
