@@ -300,6 +300,15 @@ function QH_UpdateQuests(force)
             
             local watched = IsQuestWatched(index)
             
+            db.type_quest.level = level
+            db.type_quest.done = (complete == 1)
+            db.type_quest.index = index
+            db.type_quest.variety = variety
+            db.type_quest.groupsize = groupsize
+            db.type_quest.title = title
+            db.type_quest.objectives = lbcount
+            QuestHelper: Assert(db.type_quest.index) -- why is this failing?
+            
             local turnin
             local turnin_new
             
@@ -374,15 +383,6 @@ function QH_UpdateQuests(force)
                 end
               end
             end
-            
-            db.type_quest.level = level
-            db.type_quest.done = (complete == 1)
-            db.type_quest.index = index
-            db.type_quest.variety = variety
-            db.type_quest.groupsize = groupsize
-            db.type_quest.title = title
-            db.type_quest.objectives = lbcount
-            QuestHelper: Assert(db.type_quest.index) -- why is this failing?
             
             if turnin_new then
               local timidx = 1
