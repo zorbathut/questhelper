@@ -264,15 +264,15 @@ local function addItem(name, quest, obj, y, qname, qindex)
     item:SetScript("OnUpdate", itemupdate)
   end
   
-  if qindex then  -- 3.1 hackery
-    local noitem = not GetQuestLogSpecialItemInfo(qindex)
-    
     -- we're just going to recycle this each time
-    if item.specitem then
-      item.specitem:Hide()
-      table.insert(specitem_unused, item.specitem)
-      item.specitem = nil
-    end
+  if item.specitem then
+    item.specitem:Hide()
+    table.insert(specitem_unused, item.specitem)
+    item.specitem = nil
+  end
+  
+  if qindex and GetQuestLogTitle(qindex) and name:find((GetQuestLogTitle(qindex))) then  -- 3.1 hackery
+    local noitem = not GetQuestLogSpecialItemInfo(qindex)
     
     if not noitem then
       item.specitem = table.remove(specitem_unused)
