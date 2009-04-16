@@ -12,10 +12,10 @@ QuestHelper_Translations.esMX =
   HOME_NOT_KNOWN = "Se desconoce la posición de su hogar. Cuando pueda, por favos, hable con su posadero para restaurarla.",
   PRIVATE_SERVER = "QuestHelper no funciona en Servidores Privados",
   PLEASE_RESTART = "Hubo un error iniciando QuestHelper. Por favor salga completamente del World of Warcraft e intente nuevamente.",
-  NOT_UNZIPPED_CORRECTLY = nil,
+  NOT_UNZIPPED_CORRECTLY = "Quest Helper se ha instalado incorrectamente. Recomendamos usar o el Curse Client o Zip.7 para instalarlo.  Asegurese que los subdirectorios son extraidos",
   PLEASE_DONATE = "%h(¡QuestHelper actualmente sobrevive de sus donaciones!) Cualquier contibución suya es apreciada, y solo unos pocos dólares al mes aseguran que yo lo mantendré actualizado y en funcionamiento. Teclee %h(/qh donate) para mas información.",
   HOW_TO_CONFIGURE = "Como configurar.",
-  TIME_TO_UPDATE = nil,
+  TIME_TO_UPDATE = "Hay una nueva version Quest Helper %v disponible. Nuevas versiones incluyen normalmente nuevas funciones,nueva base de datos de misiones, y fija errores. Actualicese !!",
   
   -- Route related text.
   ROUTES_CHANGED = "Las rutas de vuelo de su personaje han sido modificadas.",
@@ -26,8 +26,8 @@ QuestHelper_Translations.esMX =
   UPDATING_ROUTE = "Actualizando ruta.",
   
   -- Special tracker text
-  QH_LOADING = nil,
-  QUESTS_HIDDEN_1 = nil,
+  QH_LOADING = "Cargando Quest Helper (%1%%)...",
+  QUESTS_HIDDEN_1 = " ",
   QUESTS_HIDDEN_2 = nil,
   
   -- Locale switcher.
