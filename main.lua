@@ -291,21 +291,21 @@ function QuestHelper:Initialize()
 
   if file_problem then
     message(QHText("PLEASE_RESTART"))
-    QuestHelper_ErrorCatcher_ExplicitError("not-installed-properly" .. "\n" .. uninstallederr)
+    QuestHelper_ErrorCatcher_ExplicitError(true, "not-installed-properly" .. "\n" .. uninstallederr)
     QuestHelper = nil     -- Just in case anybody else is checking for us, we're not home
     return
   end
   
   if not GetCategoryList or not GetQuestLogSpecialItemInfo then
     message(QHText("PRIVATE_SERVER"))
-    QuestHelper_ErrorCatcher_ExplicitError("error id cakbep ten T")
+    QuestHelper_ErrorCatcher_ExplicitError(true, "error id cakbep ten T")
     QuestHelper = nil
     return
   end
   
   if not DongleStub then
     message(QHText("NOT_UNZIPPED_CORRECTLY"))
-    QuestHelper_ErrorCatcher_ExplicitError("not-unzipped-properly")
+    QuestHelper_ErrorCatcher_ExplicitError(true, "not-unzipped-properly")
     QuestHelper = nil     -- Just in case anybody else is checking for us, we're not home
     return
   end

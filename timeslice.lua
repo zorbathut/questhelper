@@ -115,7 +115,7 @@ function QH_Timeslice_Work()
     
     if not state then
       if coroutine_verbose then QuestHelper:TextOut(string.format("timeslice: %s errored", coro.name)) end
-      QuestHelper_ErrorCatcher_ExplicitError(err, "", string.format("(Coroutine error in %s)\n", coro.name))
+      QuestHelper_ErrorCatcher_ExplicitError(true, err, "", string.format("(Coroutine error in %s)\n", coro.name))
     end
     
     QuestHelper: Assert(coro.coro)

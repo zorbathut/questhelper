@@ -121,7 +121,7 @@ function QuestHelper_ErrorPackage(depth)
   }
 end
 
-function QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack, ...)
+function QuestHelper_ErrorCatcher_ExplicitError(loud, o_msg, o_frame, o_stack, ...)
   msg = o_msg or ""
 
   -- We toss it into StartupErrors, and then if we're running properly, we'll merge it into the main DB.
@@ -130,6 +130,7 @@ function QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack, ...)
   terror.message = msg
   terror.addons = QuestHelper_ErrorCatcher.GetAddOns()
   terror.stack = o_stack or terror.stack
+  terror.silent = silent
   
   QuestHelper_ErrorCatcher_RegisterError("crash", terror)
   
@@ -137,13 +138,25 @@ function QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack, ...)
   
   QuestHelper_ErrorCatcher.CondenseErrors()
   
-  if not yelled_at_user then
+  if loud and not yelled_at_user then
     message("QuestHelper has broken. You may have to restart WoW. Type \"/qh error\" for a detailed error message.")
     yelled_at_user = true
   end
 end
 
 function QuestHelper_ErrorCatcher.OnError(o_msg, o_frame, o_stack, o_etype, ...)
+  local errorize = false
+  local loud = false
+  if string.find(o_msg, "QuestHelper") and not string.find(o_msg, "Cannot find a library with name") then loud = true end
+  for lin in string.gmatch(debugstack(2, 20, 20), "([^\n]*)") do
+    if string.find(lin, "QuestHelper") and not string.find(lin, "QuestHelper\\AstrolabeQH\\DongleStub.lua") then errorize = true end
+  end
+  print(loud, errorize)
+  if loud then errorize = true end
+  
+  if errorize then QuestHelper_ErrorCatcher_ExplicitError(loud, o_msg, o_frame, o_stack) end
+  
+  --[[
   if o_msg and
     (
       (
@@ -158,7 +171,7 @@ function QuestHelper_ErrorCatcher.OnError(o_msg, o_frame, o_stack, o_etype, ...)
     and not (string.find(o_msg, "Cannot find a library with name") and string.find(debugstack(2, 20, 20), "QuestHelper\\AstrolabeQH\\DongleStub.lua")) -- We're catching errors caused by other people mucking up their dongles. Ughh.
     then
       QuestHelper_ErrorCatcher_ExplicitError(o_msg, o_frame, o_stack)
-  end
+  end]]
   
   return origHandler(o_msg, o_frame, o_stack, o_etype, unpack(arg or {}))  -- pass it on
 end
@@ -195,7 +208,7 @@ end
 
 function QHE_Gui.ErrorTextinate()
   if first_error then
-    QHE_Gui.Error.curError = string.format("msg: %s\ntoc: %s\nv: %s\ngame: %s\nlocale: %s\ntimestamp: %s\nmutation: %s\n\n%s\naddons:\n%s", first_error.message, first_error.toc_version, first_error.local_version, first_error.game_version, first_error.locale, first_error.timestamp, tostring(first_error.mutation_passes_exceeded), first_error.stack, first_error.addons)
+    QHE_Gui.Error.curError = string.format("msg: %s\ntoc: %s\nv: %s\ngame: %s\nlocale: %s\ntimestamp: %s\nmutation: %s\nsilent: %s\n\n%s\naddons:\n%s", first_error.message, first_error.toc_version, first_error.local_version, first_error.game_version, first_error.locale, first_error.timestamp, tostring(first_error.mutation_passes_exceeded), tostring(first_error.silent), first_error.stack, first_error.addons)
   else
     QHE_Gui.Error.curError = "None"
   end
