@@ -151,7 +151,7 @@ function QuestHelper_ErrorCatcher.OnError(o_msg, o_frame, o_stack, o_etype, ...)
   for lin in string.gmatch(debugstack(2, 20, 20), "([^\n]*)") do
     if string.find(lin, "QuestHelper") and not string.find(lin, "QuestHelper\\AstrolabeQH\\DongleStub.lua") then errorize = true end
   end
-  print(loud, errorize)
+  
   if loud then errorize = true end
   
   if errorize then QuestHelper_ErrorCatcher_ExplicitError(loud, o_msg, o_frame, o_stack) end

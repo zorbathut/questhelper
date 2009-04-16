@@ -318,6 +318,7 @@ local function addItem(objective, y, meta)
     item:SetScript("OnUpdate", itemupdate)
   end
   
+    -- we're just going to recycle this each time
   if item.specitem then
     item.specitem:Hide()
     table.insert(specitem_unused, item.specitem)
