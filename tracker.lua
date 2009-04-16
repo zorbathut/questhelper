@@ -330,24 +330,36 @@ local function addItem(objective, y, meta)
   end
   
   -- hacky - progress only shows up if we're not on a metaobjective. wheee
-  if objective.type_quest and not objective.progress and GetQuestLogSpecialItemInfo(objective.type_quest.index) then
-    item.specitem = table.remove(specitem_unused)
-    if not item.specitem then
-      item.specitem = CreateFrame("BUTTON", "QH_SpecItem_" .. tostring(specitem_max), item, "WatchFrameItemButtonTemplate")
-      specitem_max = specitem_max + 1
-      QuestHelper: Assert(item.specitem)
+  if objective.type_quest then
+    local _, _, _, _, _, _, complete = GetQuestLogTitle(objective.type_quest.index)
+    if complete == nil and not objective.progress and GetQuestLogSpecialItemInfo(objective.type_quest.index) then
+      item.specitem = table.remove(specitem_unused)
+      if not item.specitem then
+        item.specitem = CreateFrame("BUTTON", "QH_SpecItem_" .. tostring(specitem_max), item, "WatchFrameItemButtonTemplate")
+        QuestHelper: Assert(item.specitem)
+        
+        local rangey = _G["QH_SpecItem_" .. tostring(specitem_max) .. "HotKey"]
+        QuestHelper: Assert(rangey)
+        local fn, fh, ff = rangey:GetFont()
+        rangey:SetFont("Fonts\\ARIALN.TTF", fh, ff)
+        rangey:SetText(RANGE_INDICATOR)
+        rangey:ClearAllPoints()
+        rangey:SetPoint("BOTTOMRIGHT", item.specitem, "BOTTOMRIGHT", 0, 2)
+        
+        specitem_max = specitem_max + 1
+      end
+      
+      item.specitem:SetScale(0.9)
+      item.specitem:ClearAllPoints()
+      item.specitem:SetPoint("TOPRIGHT", item, "TOPLEFT", 0, 0)
+      
+      local _, tex = GetQuestLogSpecialItemInfo(objective.type_quest.index)
+      item.specitem:SetID(objective.type_quest.index)
+      SetItemButtonTexture(item.specitem, tex)
+      item.specitem.rangeTimer = -1 -- This makes the little dot go away. Why does it do that?
+      
+      item.specitem:Show()
     end
-    
-    item.specitem:SetScale(0.9)
-    item.specitem:ClearAllPoints()
-    item.specitem:SetPoint("TOPRIGHT", item, "TOPLEFT", 0, 0)
-    
-    local _, tex = GetQuestLogSpecialItemInfo(objective.type_quest.index)
-    item.specitem:SetID(objective.type_quest.index)
-    SetItemButtonTexture(item.specitem, tex)
-    item.specitem.rangeTimer = -1 -- This makes the little dot go away. Why does it do that?
-    
-    item.specitem:Show()
   end
   
   return w+x+4, y+h
@@ -938,12 +950,19 @@ end
 
 function tracker:HideDefaultTracker()
   -- The easy part: hide the original tracker
-  if QuestWatchFrame then  -- 3.1 hackery
-    QuestWatchFrame:Hide()
-  else
-    WatchFrame_RemoveObjectiveHandler(WatchFrame_DisplayTrackedQuests)
-    WatchFrame_ClearDisplay()
-    WatchFrame_Update()
+  WatchFrame_RemoveObjectiveHandler(WatchFrame_DisplayTrackedQuests)
+  WatchFrame_ClearDisplay()
+  WatchFrame_Update()
+  
+  -- The harder part: hide all those little buttons
+  do
+    local index = 1
+    while true do
+      local orig = _G["WatchFrameItem" .. tostring(index)]
+      print("WatchFrameItem" .. tostring(index), orig)
+      if orig then orig:Hide() else break end
+      index = index + 1
+    end
   end
 
   -- The harder part: check if a known backdrop is present (but we don't already know about it).
