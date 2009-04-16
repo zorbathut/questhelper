@@ -324,6 +324,10 @@ local function addItem(objective, y, meta)
     item.specitem = nil
   end
   
+  if objective.type_quest then
+    QuestHelper: Assert(objective.type_quest.index)
+  end
+  
   -- hacky - progress only shows up if we're not on a metaobjective. wheee
   if objective.type_quest and not objective.progress and GetQuestLogSpecialItemInfo(objective.type_quest.index) then
     item.specitem = table.remove(specitem_unused)

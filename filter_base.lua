@@ -49,6 +49,7 @@ end
 ]]
 
 local function VirtualLevel(avg_level, count, dungeonflag)
+  QuestHelper: Assert(avg_level)
   if dungeonflag == nil and count == 5 then dungeonflag = true end -- "nil" is kind of "default"
   if count > 5 then dungeonflag = true end
   

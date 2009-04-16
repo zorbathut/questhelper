@@ -382,6 +382,7 @@ function QH_UpdateQuests(force)
             db.type_quest.groupsize = groupsize
             db.type_quest.title = title
             db.type_quest.objectives = lbcount
+            QuestHelper: Assert(db.type_quest.index) -- why is this failing?
             
             if turnin_new then
               local timidx = 1

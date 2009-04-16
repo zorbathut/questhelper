@@ -217,6 +217,13 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   dijheap = nil
   
   --QuestHelper:TextOut(string.format("Earlyout with %d/%d remaining", #dijheap, remaining))
+  if remaining > 0 then
+    for k, v in ipairs(nda) do
+      if not out[k] then
+        QuestHelper: Assert(false, string.format("Couldn't find path to %d/%f/%f", nda[k].p, nda[k].x, nda[k].y))
+      end
+    end
+  end
   QuestHelper: Assert(remaining == 0)
   
   grid = grid + 1

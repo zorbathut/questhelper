@@ -872,7 +872,10 @@ end
     --QuestHelper:TextOut(tostring(nod))
     --TestShit()
     QuestHelper: Assert(nod)
-    QuestHelper: Assert(not NodeLookup[nod])
+    if NodeLookup[nod] then
+      -- ughhh
+      QuestHelper: Assert(not NodeLookup[nod], QuestHelper:StringizeTable(nod))
+    end
     
     local idx
     if used_idx then
