@@ -271,28 +271,50 @@ local function addItem(name, quest, obj, y, qname, qindex)
     item.specitem = nil
   end
   
-  if qindex and GetQuestLogTitle(qindex) and name:find((GetQuestLogTitle(qindex))) then  -- 3.1 hackery
-    local noitem = not GetQuestLogSpecialItemInfo(qindex)
+  if qindex then
+    -- ughhh just want this to work
+    qindex = 1
+    while true do
+      if GetQuestLogTitle(qindex) == qname then break end
+      if GetQuestLogTitle(qindex) == nil then qindex = nil break end
+      qindex = qindex + 1
+    end
     
-    if not noitem then
-      item.specitem = table.remove(specitem_unused)
-      if not item.specitem then
-        item.specitem = CreateFrame("BUTTON", "QH_SpecItem_" .. tostring(specitem_max), item, "WatchFrameItemButtonTemplate")
-        specitem_max = specitem_max + 1
-        QuestHelper: Assert(item.specitem)
+    if qindex then
+      local _, _, _, _, _, _, complete = GetQuestLogTitle(qindex)
+      if complete == nil and GetQuestLogTitle(qindex) and GetQuestLogTitle(qindex) == qname then
+        local noitem = not GetQuestLogSpecialItemInfo(qindex)
+        
+        if not noitem then
+          item.specitem = table.remove(specitem_unused)
+          if not item.specitem then
+            item.specitem = CreateFrame("BUTTON", "QH_SpecItem_" .. tostring(specitem_max), item, "WatchFrameItemButtonTemplate")
+            QuestHelper: Assert(item.specitem)
+            
+            local rangey = _G["QH_SpecItem_" .. tostring(specitem_max) .. "HotKey"]
+            QuestHelper: Assert(rangey)
+            local fn, fh, ff = rangey:GetFont()
+            rangey:SetFont("Fonts\\ARIALN.TTF", fh, ff)
+            rangey:SetText(RANGE_INDICATOR)
+            rangey:ClearAllPoints()
+            rangey:SetPoint("BOTTOMRIGHT", item.specitem, "BOTTOMRIGHT", 0, 2)
+            
+            specitem_max = specitem_max + 1
+          end
+          
+          item.specitem:SetScale(0.9)
+          item.specitem:ClearAllPoints()
+          item.specitem:SetPoint("TOPRIGHT", item, "TOPLEFT", 0, 0)
+          
+          item.specitem:SetID(obj.index)
+          
+          local _, tex = GetQuestLogSpecialItemInfo(obj.index)
+          SetItemButtonTexture(item.specitem, tex)
+          item.specitem.rangeTimer = -1 -- This makes the little dot go away. Why does it do that?
+          
+          item.specitem:Show()
+        end
       end
-      
-      item.specitem:SetScale(0.9)
-      item.specitem:ClearAllPoints()
-      item.specitem:SetPoint("TOPRIGHT", item, "TOPLEFT", 0, 0)
-      
-      item.specitem:SetID(obj.index)
-      
-      local _, tex = GetQuestLogSpecialItemInfo(obj.index)
-      SetItemButtonTexture(item.specitem, tex)
-      item.specitem.rangeTimer = -1 -- This makes the little dot go away. Why does it do that?
-      
-      item.specitem:Show()
     end
   end
   
@@ -749,12 +771,19 @@ end
 
 function tracker:HideDefaultTracker()
   -- The easy part: hide the original tracker
-  if QuestWatchFrame then  -- 3.1 hackery
-    QuestWatchFrame:Hide()
-  else
-    WatchFrame_RemoveObjectiveHandler(WatchFrame_DisplayTrackedQuests)
-    WatchFrame_ClearDisplay()
-    WatchFrame_Update()
+  WatchFrame_RemoveObjectiveHandler(WatchFrame_DisplayTrackedQuests)
+  WatchFrame_ClearDisplay()
+  WatchFrame_Update()
+  
+  -- The harder part: hide all those little buttons
+  do
+    local index = 1
+    while true do
+      local orig = _G["WatchFrameItem" .. tostring(index)]
+      print("WatchFrameItem" .. tostring(index), orig)
+      if orig then orig:Hide() else break end
+      index = index + 1
+    end
   end
 
   -- The harder part: check if a known backdrop is present (but we don't already know about it).
