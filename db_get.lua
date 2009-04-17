@@ -34,7 +34,7 @@ local function mark(tab, tomark)
   tab.__owner = tomark
 end
 
-function DB_GetItem(group, id)
+function DB_GetItem(group, id, silent)
   QuestHelper: Assert(group, string.format("%s %s", tostring(group), tostring(id)))
   QuestHelper: Assert(id, string.format("%s %s", tostring(group), tostring(id)))
   local ite = DBC_Get(group, id)
@@ -75,7 +75,9 @@ function DB_GetItem(group, id)
     
     DBC_Put(group, id, ite)
   else
-    QuestHelper:TextOut(string.format("Tried to get %s/%s, failed", tostring(group), tostring(id)))
+    if not silent then
+      QuestHelper:TextOut(string.format("Tried to get %s/%s, failed", tostring(group), tostring(id)))
+    end
   end
   
   return ite

@@ -82,7 +82,7 @@ local quest_list_used = {}
 
 local function GetQuestMetaobjective(questid, lbcount)
   if not quest_list[questid] then
-    local q = DB_GetItem("quest", questid)
+    local q = DB_GetItem("quest", questid, true)
     
     if not q then return end
     
