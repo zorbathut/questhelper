@@ -731,7 +731,8 @@ end
     QuestHelper: Assert(type(reason) == "table")
     local nid = NodeLookup[node]
     if not nid then
-      QuestHelper:TextOut("Attempted to ignore a node that no longer exists")
+      -- This can just happen due to the lag introduced by the controller, so, whatever 
+      --QuestHelper:TextOut("Attempted to ignore a node that no longer exists")
       return
     end
     
@@ -759,7 +760,8 @@ end
     QuestHelper: Assert(type(reason) == "table")
     local nid = NodeLookup[node]
     if not nid then
-      QuestHelper:TextOut("Attempted to unignore a node that no longer exists")
+      -- This can just happen due to the lag introduced by the controller, so, whatever
+      --QuestHelper:TextOut("Attempted to unignore a node that no longer exists")
       return
     end
     

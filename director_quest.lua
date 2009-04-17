@@ -42,6 +42,9 @@ local function AppendObjlinks(target, source, tooltips, icon, last_name, map_lin
     for m, v in ipairs(source.loc) do
       QuestHelper: Assert(#source == 0)
       
+      QuestHelper: Assert(target)
+      QuestHelper: Assert(QuestHelper_IndexLookup)
+      QuestHelper: Assert(QuestHelper_IndexLookup[v.rc], v.rc)
       table.insert(target, {loc = {x = v.x, y = v.y, c = v.c, p = QuestHelper_IndexLookup[v.rc][v.rz]}, path_desc = copy(map_lines), icon_id = icon or 6})
     end
   else
