@@ -19,7 +19,7 @@ local do_compile = true
 local do_questtables = true
 local do_flight = true
 
-local do_compress = false
+local do_compress = true
 
 local dbg_data = false
 
@@ -46,13 +46,16 @@ do
   world.QuestHelper_File = {}
   world.QuestHelper_Loadtime = {}
   world.GetTime = function() return 0 end
-  world.QuestHelper = { Assert = function(...) assert(...) end }
+  world.QuestHelper = { Assert = assert, CreateTable = function() return {} end, ReleaseTable = function() end }
   world.string = string
   world.table = table
+  world.assert = assert
   world.bit = {mod = function(a, b) return a - math.floor(a / b) * b end, lshift = bit.lshift, rshift = bit.rshift, band = bit.band}
   world.math = math
   world.strbyte = string.byte
   world.strchar = string.char
+  world.pairs = pairs
+  world.print = function(...) print(...) end
   world.QH_Timeslice_Yield = function() end
   setfenv(loadfile("../questhelper/collect_merger.lua"), world)()
   setfenv(loadfile("../questhelper/collect_bitstream.lua"), world)()
@@ -1153,6 +1156,8 @@ if do_compile and do_questtables then
             end
           end
           
+          cid.appearances = (cid.appearances or 0) + 1
+          
           list_accumulate(cid, "type", dat.type)
         end
         
@@ -1175,6 +1180,24 @@ if do_compile and do_questtables then
       Finish = function(self, Output)
         self.accum.name = name_resolve(self.accum.name)
         self.accum.level = list_most_common(self.accum.level)
+        
+        -- First we see if we need to chop out some criteria
+        do
+          local appearances = 0
+          for k, v in pairs(self.accum.criteria) do
+            appearances = math.max(appearances, v.appearances)
+          end
+          appearances = appearances * 0.9
+          local strips = {}
+          for k, v in pairs(self.accum.criteria) do
+            if v.appearances < appearances then
+              table.insert(strips, k)
+            end
+          end
+          for _, v in pairs(strips) do
+            self.accum.criteria[v] = nil
+          end
+        end
         
         local qout = {}
         for k, v in pairs(self.accum.criteria) do
@@ -1202,6 +1225,7 @@ if do_compile and do_questtables then
             qout.criteria[k].monster = v.monster
             qout.criteria[k].count = v.count
             qout.criteria[k].type = v.type
+            qout.criteria[k].appearances = v.appearances
           end
           
           if snaggy then
@@ -1988,7 +2012,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
---local e = 1000
+--local e = 100
 
 local function readdir()
   local pip = io.popen(("find data/08 -type f | head -n %s | tail -n +%s"):format(e or 1000000000, s or 0))
