@@ -1,4 +1,9 @@
 
+== Version 0.103 4/16/2009 ==
+
+* Fix up the errors more permanently with a fundamentally better system
+* Give up on trying to be clever, brute-force the quest item thing
+
 == Version 0.102 4/15/2009 ==
 
 * Take 2 on suppressing that donglestub error
