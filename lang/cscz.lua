@@ -3,7 +3,7 @@
 QuestHelper_Translations.csCZ =
  {
   -- Displayed by locale chooser.
-  LOCALE_NAME = nil,
+  LOCALE_NAME = "Česky",
   
   -- Messages used when starting.
   LOCALE_ERROR = nil,
@@ -41,10 +41,10 @@ QuestHelper_Translations.csCZ =
   
   OBJECTIVE_REASON = nil, -- %1 is a verb, %2 is a noun (item or monster)
   OBJECTIVE_REASON_FALLBACK = nil,
-  OBJECTIVE_REASON_TURNIN = nil,
+  OBJECTIVE_REASON_TURNIN = "Zastav se u %h1.",
   OBJECTIVE_PURCHASE = "koupit od %h1",
   OBJECTIVE_TALK = "Promluv s %h1.",
-  OBJECTIVE_SLAY = nil,
+  OBJECTIVE_SLAY = "Zabij %h1. ",
   OBJECTIVE_LOOT = nil,
   
   ZONE_BORDER = "%1/%2 hranice",
@@ -111,7 +111,7 @@ QuestHelper_Translations.csCZ =
   FILTER_DONE = "hotovo",
   FILTER_ZONE = nil,
   FILTER_LEVEL = "level",
-  FILTER_BLOCKED = nil,
+  FILTER_BLOCKED = "blokováno",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = nil,
@@ -146,13 +146,13 @@ QuestHelper_Translations.csCZ =
   -- Stuff used by dodads.
   PEER_PROGRESS = nil,
   TRAVEL_ESTIMATE = "Zbývající čas cesty:",
-  TRAVEL_ESTIMATE_VALUE = nil,
+  TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = nil,
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
-  QH_BUTTON_TOOLTIP1 = nil,
-  QH_BUTTON_TOOLTIP2 = nil,
+  QH_BUTTON_TOOLTIP1 = "Levý klik: %1 informace o cestě.",
+  QH_BUTTON_TOOLTIP2 = "Pravý klik: Zobrazit nastavení.",
   QH_BUTTON_SHOW = "Zobrazit",
   QH_BUTTON_HIDE = "Skrýt",
 
@@ -178,7 +178,7 @@ QuestHelper_Translations.csCZ =
   MENU_WATCHED_FILTER = nil,
   MENU_LEVEL_FILTER = nil,
   MENU_LEVEL_OFFSET = nil,
-  MENU_ICON_SCALE = nil,
+  MENU_ICON_SCALE = "Velikost ikony",
   MENU_FILTERS = "Filtry",
   MENU_PERFORMANCE = nil,
   MENU_LOCALE = "Místní",
@@ -188,7 +188,7 @@ QuestHelper_Translations.csCZ =
   MENU_HELP = "Nápověda",
   MENU_HELP_SLASH = "/ příkazy",
   MENU_HELP_CHANGES = "Změny",
-  MENU_HELP_SUBMIT = nil,
+  MENU_HELP_SUBMIT = "Odesílám data",
   
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
   -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
