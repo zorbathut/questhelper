@@ -1651,22 +1651,22 @@ if true then
   VContinent(-81, "UtgardeKeep2", 100) -- temporary value
   VContinent(-82, "UtgardeKeep3", 100) -- temporary value
   
-  VContinent(-83, "TheNexus", 100) -- temporary value
+  VContinent(-83, "TheNexus", 734.2)
   
   VContinent(-84, "AzjolNerub1", 100) -- temporary value
   VContinent(-85, "AzjolNerub2", 100) -- temporary value
   VContinent(-86, "AzjolNerub3", 100) -- temporary value
   
-  VContinent(-87, "Ahnkahet", 100) -- temporary value
+  VContinent(-87, "Ahnkahet", 648.3)
   
   VContinent(-88, "DrakTharonKeep1", 100) -- temporary value
   VContinent(-89, "DrakTharonKeep2", 100) -- temporary value
   
-  VContinent(-90, "VioletHold", 100) -- temporary value
+  VContinent(-90, "VioletHold", 170.83)
   
-  VContinent(-91, "Gundrak", 100) -- temporary value
+  VContinent(-91, "Gundrak", 603.35)
   
-  VContinent(-92, "Ulduar77", 100) -- temporary value -- Halls of Stone
+  VContinent(-92, "Ulduar77", 613.5) -- Halls of Stone
   
   VContinent(-93, "HallsofLightning1", 100) -- temporary value
   VContinent(-94, "HallsofLightning2", 100) -- temporary value
@@ -1676,24 +1676,24 @@ if true then
   VContinent(-97, "Nexus803", 100) -- temporary value
   VContinent(-98, "Nexus804", 100) -- temporary value
   
-  VContinent(-99, "CoTStratholme1", 100) -- temporary value
-  VContinent(-100, "CoTStratholme2", 100) -- temporary value
+  VContinent(-99, "CoTStratholme1", 750.2)
+  VContinent(-100, "CoTStratholme2", 1216.66)
   
   VContinent(-101, "UtgardePinnacle1", 100) -- temporary value  -- hey they spelled it right
   VContinent(-102, "UtgardePinnacle2", 100) -- temporary value
   
   VContinent(-103, "VaultofArchavon", 100) -- temporary value -- Weirdly, Emalon is actually within the "Vault of Archavon"
   
-  VContinent(-104, "Naxxramas1", 100) -- temporary value
-  VContinent(-105, "Naxxramas2", 100) -- temporary value
-  VContinent(-106, "Naxxramas3", 100) -- temporary value
-  VContinent(-107, "Naxxramas4", 100) -- temporary value
-  VContinent(-108, "Naxxramas5", 100) -- temporary value
-  VContinent(-109, "Naxxramas6", 100) -- temporary value
+  VContinent(-104, "Naxxramas1", 1237.5) -- construct quarter
+  VContinent(-105, "Naxxramas2", 1237.5) -- arachnid quarter
+  VContinent(-106, "Naxxramas3", 1237.5) -- military quarter
+  VContinent(-107, "Naxxramas4", 1237.5) -- plague quarter
+  VContinent(-108, "Naxxramas5", 1379.9) -- overview
+  VContinent(-109, "Naxxramas6", 437.3) -- lair
   
-  VContinent(-110, "TheObsidianSanctum", 100) -- temporary value
+  VContinent(-110, "TheObsidianSanctum", 775.1)
   
-  VContinent(-111, "TheEyeOfEternity", 100) -- temporary value
+  VContinent(-111, "TheEyeOfEternity", 286.7)
   
   VContinent(-112, "Ulduar", 100) -- temporary value
   VContinent(-113, "Ulduar1", 100) -- temporary value
