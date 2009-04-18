@@ -147,6 +147,7 @@ OnUpdate = function(self, elapsed)
 	local cell
 
 	-- Showing the arrival arrow?
+  --[[
 	if dist and dist <= 10 then
 		if not showDownArrow then
 			arrow:SetHeight(70)
@@ -176,7 +177,7 @@ OnUpdate = function(self, elapsed)
 			arrow:SetWidth(42)
 			arrow:SetTexture("Interface\\AddOns\\TomTom\\Images\\Arrow")
 			showDownArrow = false
-		end
+		end]]
 
 		local angle = atan2(dy, dx) / 360 * (math.pi * 2) - math.pi / 2 -- degrees. seriously what
     if angle < 0 then angle = angle + math.pi * 2 end
@@ -200,7 +201,7 @@ OnUpdate = function(self, elapsed)
 		local xend = ((column + 1) * 56) / 512
 		local yend = ((row + 1) * 42) / 512
 		arrow:SetTexCoord(xstart,xend,ystart,yend)
-	end
+	--end
 
 	-- Calculate the TTA every second  (%01d:%02d)
 
