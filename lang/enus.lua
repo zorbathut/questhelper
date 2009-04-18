@@ -259,7 +259,10 @@ QuestHelper_Translations.enUS =
   TOOLTIP_QUEST = "For Quest %h1.",
   TOOLTIP_PURCHASE = "Purchase %h1.",
   TOOLTIP_SLAY = "Slay for %h1.",
-  TOOLTIP_LOOT = "Loot for %h1."
+  TOOLTIP_LOOT = "Loot for %h1.",
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = "%h1 yards",
  }
 
 QuestHelper_TranslationFunctions.enUS =

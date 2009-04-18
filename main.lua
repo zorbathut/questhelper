@@ -213,6 +213,7 @@ function QuestHelper:Initialize()
       ["error.lua"] = true,
       ["timeslice.lua"] = true,
       ["lang.lua"] = true,
+      ["arrow.lua"] = true,
 
       ["static.lua"] = true,
       ["static_deDE.lua"] = true,
