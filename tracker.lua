@@ -780,7 +780,6 @@ function tracker:HideDefaultTracker()
     local index = 1
     while true do
       local orig = _G["WatchFrameItem" .. tostring(index)]
-      print("WatchFrameItem" .. tostring(index), orig)
       if orig then orig:Hide() else break end
       index = index + 1
     end
