@@ -22,7 +22,6 @@ end
 local ctts = {}
 
 function QH_Tooltip_Add(tooltips)
-  QuestHelper:TextOut(QuestHelper:StringizeTable(tooltips))
   for k, v in pairs(tooltips) do
     local typ, id = k:match("([^@]+)@@([^@]+)")
     QuestHelper: Assert(typ and id, k)
