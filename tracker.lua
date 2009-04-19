@@ -302,6 +302,8 @@ local function addItem(name, quest, obj, y, qname, qindex)
             specitem_max = specitem_max + 1
           end
           
+          item.specitem:SetParent(item)
+          
           item.specitem:SetScale(0.9)
           item.specitem:ClearAllPoints()
           item.specitem:SetPoint("TOPRIGHT", item, "TOPLEFT", 0, 0)
