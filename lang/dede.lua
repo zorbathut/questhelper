@@ -6,19 +6,19 @@ QuestHelper_Translations.deDE =
   LOCALE_NAME = "Deutsch",
   
   -- Messages used when starting.
-  LOCALE_ERROR = "Die Sprache deiner gespeicherten Daten stimmt nicht mit der Sprache deines WoW-Clients überein. Um QuestHelper zu verwenden musst du die Sprache entweder umstellen, oder die Daten durch %h(/qh purge) löschen.",
-  ZONE_LAYOUT_ERROR = "Das Addon wird nicht ausgeführt, um Deine gespeicherten Daten nicht zu beschädigen. Warte auf einen Patch, der in der Lage ist, das neue Zonenlayout zu verarbeiten.",
-  DOWNGRADE_ERROR = "Deine gespeicherten Daten sind nicht kompatibel mit dieser Version von QuestHelper. Verwende eine neue Version oder lösche deine gespeicherten Variablen.",
+  LOCALE_ERROR = "Die Sprache deiner gespeicherten Daten stimmt nicht mit der Sprache deines WoW-Clients überein. Du musst die Sprache umstellen oder die Daten mit %h(/qh purge) löschen, um QuestHelper zu verwenden.",
+  ZONE_LAYOUT_ERROR = "Das Addon wird nicht ausgeführt, um deine gespeicherten Daten nicht zu beschädigen. Warte auf einen Patch, der in der Lage ist, das neue Zonenlayout zu verarbeiten.",
+  DOWNGRADE_ERROR = "Deine gespeicherten Daten sind nicht mit dieser Version von QuestHelper kompatibel. Verwende eine neue Version oder lösche deine gespeicherten Variablen.",
   HOME_NOT_KNOWN = "Dein Zuhause ist nicht bekannt. Sprich bei der nächsten Gelegenheit mit einem Gastwirt, um es zurückzusetzen.",
   PRIVATE_SERVER = "QuestHelper unterstützt keine privaten Server.",
   PLEASE_RESTART = "Beim Starten von QuestHelper ist ein Fehler aufgetreten. Beende World of Warcraft vollständig und versuche es erneut.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper wurde nicht ordnungsgemäß installiert. Wir empfehlen den Curse-Client oder 7zip für die Installation. Achte darauf, dass Unterverzeichnisse entpackt werden.",
   PLEASE_DONATE = "%h(QuestHelper lebt nur von Spenden!) Jeder Beitrag ist willkommen. Ein paar Dollar im Monat stellen sicher, dass ich am Addon arbeite und es aktualisiere. Gib %h(/qh donate) ein, um weitere Informationen zu erhalten.",
-  HOW_TO_CONFIGURE = "QuestHelper hat noch keine funktionierende Einstellungsseite. Du kannst es konfigurieren, indem du %h(/qh settings) eintippst. Mit %h(/qh help) rufst du die Hilfe auf.",
+  HOW_TO_CONFIGURE = "QuestHelper hat noch keine funktionierende Einstellungsseite. Du kannst es konfigurieren, indem du %h(/qh settings) eingibst. Mit %h(/qh help) rufst du die Hilfe auf.",
   TIME_TO_UPDATE = "Möglicherweise ist eine %h(neue QuestHelper-Version) verfügbar. Neue Versionen umfassen gewöhnlich neue Funktionen, neue Questdatenbanken und Bugfixes. Du solltest ein Update durchführen!",
   
   -- Route related text.
-  ROUTES_CHANGED = "Die Flugstrecken für Deinen Charakter wurden verändert.",
+  ROUTES_CHANGED = "Die Flugstrecken für deinen Charakter wurden verändert.",
   HOME_CHANGED = "Dein Zuhause wurde geändert.",
   TALK_TO_FLIGHT_MASTER = "Sprich mit dem örtlichen Flugmeister.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Danke.",
@@ -62,7 +62,7 @@ QuestHelper_Translations.deDE =
   IGNORE = "Ignorieren",
   
   IGNORED_PRIORITY_TITLE = "Die ausgewählte Priorität würde ignoriert werden.",
-  IGNORED_PRIORITY_FIX = "Zielen, die dieses blockieren, dieselbe Priorität zuweisen.",
+  IGNORED_PRIORITY_FIX = "Den blockierenden Zielen dieselbe Priorität zuweisen.",
   IGNORED_PRIORITY_IGNORE = "Ich werde die Prioritäten selbst festlegen.",
   
   -- Custom objectives.
@@ -71,7 +71,7 @@ QuestHelper_Translations.deDE =
   CREATED_OBJ = "Erstellt: %1",
   REMOVED_OBJ = "Gelöscht: %1",
   USER_OBJ = "Benutzerziel: %h1",
-  UNKNOWN_OBJ = "QuestHelper weiß nicht, wo Du für dieses Ziel hingehen solltest.",
+  UNKNOWN_OBJ = "QuestHelper weiß nicht, wo du für dieses Ziel hingehen solltest.",
   INACCESSIBLE_OBJ = "QuestHelper konnte keinen sinnvollen Ort für %h1 finden. Wir haben deiner Aufgabenliste einen möglicherweise nicht zu findenden Ort hinzugefügt. Wenn du eine nützliche Version dieses Objekts findest, sende deine Daten bitte ein!",
   
   SEARCHING_STATE = "Suche: %1",
@@ -95,15 +95,15 @@ QuestHelper_Translations.deDE =
   
   -- Hidden objectives.
   HIDDEN_TITLE = "Versteckte Ziele",
-  HIDDEN_NONE = "Es wurden keine Ziele ausgeblendet.",
+  HIDDEN_NONE = "Es sind keine Ziele ausgeblendet.",
   DEPENDS_ON_SINGLE = "Ist abhängig von '%1'.",
   DEPENDS_ON_COUNT = "Ist abhängig von %1 versteckten Zielen.",
   FILTERED_LEVEL = "Wegen der Stufe gefiltert.",
   FILTERED_ZONE = "Wegen des Gebiets gefiltert.",
-  FILTERED_COMPLETE = "Erledigt, daher gefiltert.",
-  FILTERED_BLOCKED = "Wegen nicht abgeschlossener Vorstufe gefiltert.",
-  FILTERED_UNWATCHED = "Wird nicht im Questlog verfolgt und wurde deshalb gefiltert.",
-  FILTERED_USER = "Du möchtest dieses Ziel ausblenden lassen.",
+  FILTERED_COMPLETE = "Gefiltert, weil abgeschlossen.",
+  FILTERED_BLOCKED = "Wegen nicht abgeschlossenem vorherigen Ziel gefiltert.",
+  FILTERED_UNWATCHED = "Wird nicht im Quest-Log verfolgt und wurde deshalb gefiltert.",
+  FILTERED_USER = "Du hast dieses Ziel ausgeblendet.",
   FILTERED_UNKNOWN = "Der Lösungsweg ist unbekannt.",
   
   HIDDEN_SHOW = "Anzeigen",
@@ -117,10 +117,10 @@ QuestHelper_Translations.deDE =
   NAG_MULTIPLE_NEW = "Du hast %h(neue Informationen) zu %h1 und %h(aktualisierte Informationen) zu %h2.",
   NAG_SINGLE_NEW = "Du hast %h(neue Informationen) zu %h1.",
   NAG_ADDITIONAL = "Du hast %h(zusätzliche Informationen) zu %h1.",
-  NAG_POLLUTED = "In Deiner Datenbank befinden sich Informationen von einem Testserver oder privaten Server. Sie wird beim Starten bereinigt.",
+  NAG_POLLUTED = "In deiner Datenbank befinden sich Informationen von einem Testserver oder privaten Server. Sie wird beim Starten bereinigt.",
   
   NAG_NOT_NEW = "Du hast keine Informationen, die nicht bereits in der statischen Datenbank sind.",
-  NAG_NEW = "Du solltest in Betracht ziehen, Deine Daten zu teilen, damit andere davon profitieren können.",
+  NAG_NEW = "Du solltest in Betracht ziehen, deine Daten zu teilen, damit andere davon profitieren können.",
   NAG_INSTRUCTIONS = "Gib %h(/qh submit) ein, um Anweisungen zum Einsenden von Daten zu erhalten.",
   
   NAG_SINGLE_FP = "einem Flugmeister",
@@ -177,7 +177,7 @@ QuestHelper_Translations.deDE =
   MENU_BLOCKED_FILTER = "Blockiert-Filter %1",
   MENU_WATCHED_FILTER = "Beobachtet-Filter %1",
   MENU_LEVEL_FILTER = "%1 Level Filter",
-  MENU_LEVEL_OFFSET = "Reichweite für den Stufenfilter",
+  MENU_LEVEL_OFFSET = "Bereich für den Stufenfilter",
   MENU_ICON_SCALE = "Symbolgröße",
   MENU_FILTERS = "Filter",
   MENU_PERFORMANCE = "Verfügbare Leistung für die Streckenberechnung",
