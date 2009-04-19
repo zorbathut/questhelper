@@ -299,7 +299,7 @@ function QuestHelper:Initialize()
     return
   end
   
-  if not GetCategoryList or not GetQuestLogSpecialItemInfo then
+  if not GetCategoryList or not GetQuestLogSpecialItemInfo or not WatchFrame_RemoveObjectiveHandler then
     message(QHText("PRIVATE_SERVER"))
     QuestHelper_ErrorCatcher_ExplicitError(true, "error id cakbep ten T")
     QuestHelper = nil
