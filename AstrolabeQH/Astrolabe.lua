@@ -332,6 +332,11 @@ function Astrolabe:GetAbsoluteContinentPosition( C, Z, xPos, yPos )
   if C == -1 then -- We're in a battleground that doesn't have a virtual continent, we're just kind of fucked.
     return
   end
+  
+  if type(WorldMapSize[C].parentContinent) ~= "number" then -- Continent that doesn't actually exist
+    return
+  end
+  
   local x, y = Astrolabe:TranslateWorldMapPosition(C, Z, xPos, yPos, WorldMapSize[C].parentContinent, 0)
   if not x or not y then return end
   local zoneData = WorldMapSize[WorldMapSize[C].parentContinent]
