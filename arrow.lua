@@ -60,12 +60,13 @@ local function ColorGradient(perc, ...)
 	end
 end
 
-local wayframe = CreateFrame("Button", nil, UIParent)
+local wayframe = CreateFrame("Button", "QHArrowFrame", UIParent)
 wayframe:SetHeight(42)
 wayframe:SetWidth(56)
 wayframe:SetPoint("CENTER", 0, 0)
 wayframe:EnableMouse(true)
 wayframe:SetMovable(true)
+wayframe:SetUserPlaced(true)
 wayframe:Hide()
 
 wif = wayframe
@@ -93,7 +94,7 @@ local function OnDragStop(self, button)
 end
 
 local function OnEvent(self, event, ...)
-	if event == "ZONE_CHANGED_NEW_AREA" and true then -- TODO TWEAKERY
+	if event == "ZONE_CHANGED_NEW_AREA" and QuestHelper_Pref.arrow then -- TODO TWEAKERY
 		self:Show()
     OnUpdate(self, nil)
 	end
@@ -116,7 +117,7 @@ local function wpupdate(c, z, x, y, desc)
   active_point.c, active_point.z, active_point.x, active_point.y = c, z, x, y
   wayframe.title:SetText(desc)
   wayframe:Show()
-  OnUpdate(self, nil)
+  OnUpdate(wayframe, nil)
 end
 
 QuestHelper:AddWaypointCallback(wpupdate)
@@ -131,6 +132,8 @@ local speed = 0
 local speed_count = 0
 
 OnUpdate = function(self, elapsed)
+  QuestHelper: Assert(self)
+  
 	if not active_point.c or QuestHelper.collect_rc ~= active_point.c or QuestHelper.collect_delayed or QuestHelper.InBrokenInstance then
 		self:Hide()
 		return
@@ -179,18 +182,20 @@ OnUpdate = function(self, elapsed)
 			showDownArrow = false
 		end]]
 
-		local angle = atan2(dy, dx) / 360 * (math.pi * 2) - math.pi / 2 -- degrees. seriously what
-    if angle < 0 then angle = angle + math.pi * 2 end
+		local angle = atan2(-dx, -dy) / 360 * (math.pi * 2) -- degrees. seriously what
+    --if angle < 0 then angle = angle + math.pi * 2 end
 		local player = GetPlayerFacing()
 		angle = angle - player
 
 		local perc = math.abs((math.pi - math.abs(angle)) / math.pi)
+    if perc > 1 then perc = 2 - perc end -- siiigh
 
 		local gr,gg,gb = 0, 1, 0
 		local mr,mg,mb = 1, 1, 0
 		local br,bg,bb = 1, 0, 0
 		local r,g,b = ColorGradient(perc, br, bg, bb, mr, mg, mb, gr, gg, gb)		
 		arrow:SetVertexColor(r,g,b)
+
 
 		cell = floor(angle / (math.pi * 2) * 108 + 0.5) % 108
 		local column = cell % 9
