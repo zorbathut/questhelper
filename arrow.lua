@@ -84,7 +84,7 @@ wayframe.tta:SetPoint("TOP", wayframe.status, "BOTTOM", 0, 0)
 local OnUpdate
 
 local function OnDragStart(self, button)
-	if not locky then  -- TODO TWEAKERY
+	if not QuestHelper_Pref.arrow_locked then  -- TODO TWEAKERY
 		self:StartMoving()
 	end
 end
@@ -249,3 +249,33 @@ OnUpdate = function(self, elapsed)
 end
 
 wayframe:SetScript("OnUpdate", OnUpdate)
+
+
+local function spacer()
+  local htex = QuestHelper:CreateIconTexture(item, 10)
+  htex:SetVertexColor(1, 1, 1, 0)
+  return htex
+end
+
+local function WayFrame_OnClick(self, button)
+  local menu = QuestHelper:CreateMenu()
+  
+  QuestHelper:CreateMenuTitle(menu, "QuestHelper Arrow")
+  
+  local hide = QuestHelper:CreateMenuItem(menu, "Hide")
+  hide:SetFunction(function () QuestHelper:ToggleArrow() end)
+  --hide:AddTexture(spacer(), true)
+  --hide:AddTexture(spacer(), false)
+  
+  local lock = QuestHelper:CreateMenuItem(menu, "Lock")
+  local ltex = QuestHelper:CreateIconTexture(item, 10)
+  lock:SetFunction(function () QuestHelper_Pref.arrow_locked = not QuestHelper_Pref.arrow_locked end)
+  lock:AddTexture(ltex, true)
+  lock:AddTexture(spacer(), false)
+  ltex:SetVertexColor(1, 1, 1, QuestHelper_Pref.arrow_locked and 1 or 0)
+  
+  menu:ShowAtCursor()
+end
+
+wayframe:RegisterForClicks("RightButtonUp")
+wayframe:SetScript("OnClick", WayFrame_OnClick)

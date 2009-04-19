@@ -42,6 +42,7 @@ QuestHelper_DefaultPref =
   cart_wp_new = false,
   tomtom_wp_new = false,
   arrow = true,
+  arrow_locked = false,
   flight_time = true,
   locale = GetLocale(), -- This variable is used for display purposes, and has nothing to do with the collected data.
   perf_scale = 1,       -- How much background processing can the current machine handle?  Higher means more load, lower means better performance.
