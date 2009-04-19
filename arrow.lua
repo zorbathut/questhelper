@@ -113,6 +113,10 @@ wayframe.arrow:SetAllPoints()
 local active_point, arrive_distance, showDownArrow, point_title
 active_point = {}
 
+function QH_Arrow_Show()
+  wayframe:Show()
+end
+
 local function wpupdate(c, z, x, y, desc)
   active_point.c, active_point.z, active_point.x, active_point.y = c, z, x, y
   wayframe.title:SetText(desc)
@@ -134,7 +138,7 @@ local speed_count = 0
 OnUpdate = function(self, elapsed)
   QuestHelper: Assert(self)
   
-	if not active_point.c or QuestHelper.collect_rc ~= active_point.c or QuestHelper.collect_delayed or QuestHelper.InBrokenInstance then
+	if not active_point.c or QuestHelper.collect_rc ~= active_point.c or QuestHelper.collect_delayed or QuestHelper.InBrokenInstance or not QuestHelper_Pref.arrow then
 		self:Hide()
 		return
 	end

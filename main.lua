@@ -461,11 +461,11 @@ function QuestHelper:Initialize()
       QuestHelper:InitMapButton()
   end
   
-  if QuestHelper_Pref.cart_wp then
+  if QuestHelper_Pref.cart_wp_new then
     init_cartographer_later = true
   end
 
-  if QuestHelper_Pref.tomtom_wp then
+  if QuestHelper_Pref.tomtom_wp_new then
     self:EnableTomTom()
   end
 
