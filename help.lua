@@ -333,7 +333,9 @@ function QuestHelper:Filter(input)
   end
 end
 
-function QuestHelper:ToggleArrow()
+function QuestHelper:ToggleArrow(text)
+  if text == "reset" then QH_Arrow_Reset() return end
+  
   QuestHelper_Pref.arrow = not QuestHelper_Pref.arrow
   if QuestHelper_Pref.arrow then
     QH_Arrow_Show()

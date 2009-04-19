@@ -74,12 +74,18 @@ wif = wayframe
 -- Frame used to control the scaling of the title and friends
 local titleframe = CreateFrame("Frame", nil, wayframe)
 
-wayframe.title = titleframe:CreateFontString("OVERLAY", nil, "GameFontHighlightSmall")
+wayframe.title = titleframe:CreateFontString("OVERLAY", nil, "GameFontNormalSmall")
 wayframe.status = titleframe:CreateFontString("OVERLAY", nil, "GameFontNormalSmall")
 wayframe.tta = titleframe:CreateFontString("OVERLAY", nil, "GameFontNormalSmall")
 wayframe.title:SetPoint("TOP", wayframe, "BOTTOM", 0, 0)
 wayframe.status:SetPoint("TOP", wayframe.title, "BOTTOM", 0, 0)
 wayframe.tta:SetPoint("TOP", wayframe.status, "BOTTOM", 0, 0)
+
+do
+  local r, g, b, a = wayframe.status:GetTextColor()
+  r, g, b = r - 0.2, g - 0.2, b - 0.2
+  wayframe.status:SetTextColor(r, g, b, a)
+end
 
 local OnUpdate
 
@@ -115,6 +121,12 @@ active_point = {}
 
 function QH_Arrow_Show()
   wayframe:Show()
+end
+
+function QH_Arrow_Reset()
+  wayframe:ClearAllPoints()
+  wayframe:SetPoint("CENTER", 0, 0)
+  QuestHelper_Pref.arrow_locked = false -- they're probably going to want to move it
 end
 
 local function wpupdate(c, z, x, y, desc)
