@@ -40,13 +40,13 @@ function QuestHelper:DoSettingsMenu()
     
     -- Cartographer Waypoints
     if Cartographer_Waypoints then
-      self:CreateMenuItem(menu, QHFormat("MENU_WAYPOINT_ARROW", QuestHelper_Pref.cart_wp and QHText("MENU_DISABLE") or QHText("MENU_ENABLE"))..(TomTom and " (Cartographer Waypoints)" or ""))
+      self:CreateMenuItem(menu, QHFormat("MENU_WAYPOINT_ARROW", QuestHelper_Pref.cart_wp_new and QHText("MENU_DISABLE") or QHText("MENU_ENABLE"))..(TomTom and " (Cartographer Waypoints)" or ""))
                     :SetFunction(self.ToggleCartWP, self)
     end
     
     -- TomTom
     if TomTom then
-      self:CreateMenuItem(menu, QHFormat("MENU_WAYPOINT_ARROW", QuestHelper_Pref.tomtom_wp and QHText("MENU_DISABLE") or QHText("MENU_ENABLE"))..(Cartographer_Waypoints and " (TomTom)" or ""))
+      self:CreateMenuItem(menu, QHFormat("MENU_WAYPOINT_ARROW", QuestHelper_Pref.tomtom_wp_new and QHText("MENU_DISABLE") or QHText("MENU_ENABLE"))..(Cartographer_Waypoints and " (TomTom)" or ""))
                     :SetFunction(self.ToggleTomTomWP, self)
     end
     
@@ -208,7 +208,8 @@ end
 -------------------------------------------------------------------------------------
 -- Set up the Map Button
 function QuestHelper:InitMapButton()
-
+  do return end -- disabled until I figure out where to put it
+  
   if not self.MapButton then
     -- Create the button
     local button = CreateFrame("Button", "QuestHelperWorldMapButton", WorldMapFrame, "UIPanelButtonTemplate")
