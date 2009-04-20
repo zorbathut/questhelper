@@ -49,12 +49,20 @@ function DB_GetItem(group, id, silent)
   for _, db in ipairs(QHDB) do
     --print(db, db[group], db[group] and db[group][id], type(group), type(id))
     if db[group] and db[group][id] then
+      print(group, id)
       if not ite then ite = QuestHelper:CreateTable("db") end
+      
+      local redictix = db[group].__dictionary
+      if not redictix:find("\"") then redictix = redictix .. "\"" end
+      if not redictix:find(",") then redictix = redictix .. "," end
+      if not redictix:find("\\") then redictix = redictix .. "\\" end
+      local tokens = loadstring("return {" .. QH_LZW_Decompress_Dicts_Arghhacky(db[group].__tokens, redictix) .. "}")()
+      QuestHelper: Assert(tokens)
       
       local srctab
       
       if type(db[group][id]) == "string" then
-        srctab = loadstring("return {" .. QH_LZW_Decompress_Dicts_Arghhacky(db[group][id], db[group].__dictionary) .. "}")()
+        srctab = loadstring("return {" .. QH_LZW_Decompress_Dicts_Arghhacky(db[group][id], db[group].__dictionary, nil, tokens) .. "}")()
       elseif type(db[group][id]) == "table" then
         srctab = db[group][id]
       else

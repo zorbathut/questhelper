@@ -100,7 +100,7 @@ local function GetQuestMetaobjective(questid, lbcount)
     
     -- just doublechecking here
     if q and q.criteria then for k, v in pairs(q.criteria) do
-      QuestHelper: Assert(type(k) ~= "number" or k <= lbcount, tostring(questid))
+      QuestHelper: Assert(type(k) ~= "number" or k <= lbcount, string.format("%s %s", lbcount, k))
     end end
     
     ite = {type_quest = {}} -- we don't want to mutate the existing quest data
@@ -135,7 +135,7 @@ local function GetQuestMetaobjective(questid, lbcount)
     do
       local ttx = {}
       --QuestHelper:TextOut(string.format("finny %d", q.finish.loc and #q.finish.loc or -1))
-      if q and q.finish then for m, v in ipairs(q.finish.loc) do
+      if q and q.finish and q.finish.loc then for m, v in ipairs(q.finish.loc) do
         --print(v.rc, v.rz)
         --print(QuestHelper_IndexLookup[v.rc])
         --print(QuestHelper_IndexLookup[v.rc][v.rz])

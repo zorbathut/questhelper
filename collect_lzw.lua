@@ -11,7 +11,7 @@ local function cleanup(tab)
   QuestHelper:ReleaseTable(tab)
 end
 
-local function QH_LZW_Decompress(input, tokens, outbits)
+local function QH_LZW_Decompress(input, tokens, outbits, inputstatic)
   local d = QuestHelper:CreateTable("lzw")
   local i
   for i = 0, tokens-1 do
@@ -20,6 +20,24 @@ local function QH_LZW_Decompress(input, tokens, outbits)
   end
   
   local dsize = tokens + 1  -- we use the "tokens" value as an EOF marker
+  
+  if inputstatic then
+    local used = QuestHelper:CreateTable("lzw")
+    for _, v in ipairs(inputstatic) do
+      for i = #v, 2, -1 do
+        local subi = v:sub(1, i)
+        if not used[subi] then
+          used[subi] = true
+          
+          d[bit.mod(dsize, tokens)][math.floor(dsize / tokens)] = subi
+          dsize = dsize + 1
+        else
+          break
+        end
+      end
+    end
+    QuestHelper:ReleaseTable(used)
+  end
   
   local bits = 1
   local nextbits = 2
@@ -73,7 +91,7 @@ local function QH_LZW_Decompress(input, tokens, outbits)
   return Merger.Finish(rv)
 end
 
-local function QH_LZW_Compress(input, tokens, outbits)
+local function QH_LZW_Compress(input, tokens, outbits, inputstatic)
   -- shared init code
   local d = {}
   local i
@@ -82,6 +100,21 @@ local function QH_LZW_Compress(input, tokens, outbits)
   end
   
   local dsize = tokens + 1  -- we use the "tokens" value as an EOF marker
+  
+  if inputstatic then
+    for _, v in ipairs(inputstatic) do
+      local da = d[v:sub(1, 1)]
+      for i = #v, 2, -1 do
+        local b = v:sub(2, i)
+        if not da[b] then
+          da[b] = dsize
+          dsize = dsize + 1
+        else
+          break
+        end
+      end
+    end
+  end
   
   local bits = 1
   local nextbits = 2
@@ -130,26 +163,50 @@ local function QH_LZW_Compress(input, tokens, outbits)
   r:append(tokens, bits)
   
   local rst = r:finish()
-  QuestHelper: Assert(QH_LZW_Decompress(rst, tokens, outbits) == input) -- yay
+  QuestHelper: Assert(QH_LZW_Decompress(rst, tokens, outbits, inputstatic) == input) -- yay
   
   return rst
 end
 
-local function QH_LZW_Compress_Dicts(input, inputdict, outputdict)
-  local inproc = input
-  if inputdict then
-    local idc = {}
-    for i = 1, #inputdict do idc[inputdict:sub(i, i)] = strchar(i - 1) end
-    local im = {}
-    for i = 1, #input do Merger.Add(im, idc[input:sub(i, i)]) end
-    inproc = Merger.Finish(im)
+local function mdict(inputdict)
+  local idc = QuestHelper:CreateTable("lzw mdict")
+  for i = 1, #inputdict do idc[inputdict:sub(i, i)] = strchar(i - 1) end
+  return idc
+end
+
+local function dictize(idcl, stt)
+  local im = QuestHelper:CreateTable("lzw dictize")
+  for i = 1, #stt do
+    local subl = idcl[stt:sub(i, i)]
+    QuestHelper: Assert(subl)
+    Merger.Add(im, subl)
   end
+  local result = Merger.Finish(im)
+  QuestHelper:ReleaseTable(im)
+  return result
+end
+
+local function QH_LZW_Prepare(inputdict, inputstatic)
+  QuestHelper: Assert(inputdict and inputstatic)
+  
+  local idc = mdict(inputdict)
+  
+  local inpstat = {}
+  for _, v in ipairs(inputstatic) do
+    table.insert(inpstat, dictize(idc, v))
+  end
+  
+  return idc, #inputdict, inpstat
+end
+
+local function QH_LZW_Compress_Dicts_Prepared(input, idprepped, idpreppedsize, outputdict, isprepped)
+  input = dictize(idprepped, input)
   
   local bits, dsize = 1, 2
   if not outputdict then bits = 8 else while dsize < #outputdict do bits = bits + 1 ; dsize = dsize * 2 end end
   QuestHelper: Assert(not outputdict or #outputdict == dsize)
   
-  local comp = QH_LZW_Compress(inproc, inputdict and #inputdict or 256, bits)
+  local comp = QH_LZW_Compress(input, idpreppedsize, bits, isprepped)
   
   if outputdict then
     local origcomp = comp
@@ -161,11 +218,70 @@ local function QH_LZW_Compress_Dicts(input, inputdict, outputdict)
   return comp
 end
 
-local function QH_LZW_Decompress_Dicts(compressed, inputdict, outputdict) -- this is kind of backwards - we assume that "outputdict" is the dictionary that "compressed" is encoded in
+local function QH_LZW_Compress_Dicts(input, inputdict, outputdict, inputstatic)
+  local inproc = input
+  local inpstat = inputstatic
+  if inputdict then
+    local idc = mdict(inputdict)
+    
+    inproc = dictize(idc, input)
+    
+    if inputstatic then
+      inpstat = {}
+      for _, v in ipairs(inputstatic) do
+        table.insert(inpstat, dictize(idc, v))
+      end
+    end
+    
+    QuestHelper:ReleaseTable(idc)
+  end
+  
+  local bits, dsize = 1, 2
+  if not outputdict then bits = 8 else while dsize < #outputdict do bits = bits + 1 ; dsize = dsize * 2 end end
+  QuestHelper: Assert(not outputdict or #outputdict == dsize)
+  
+  local comp = QH_LZW_Compress(inproc, inputdict and #inputdict or 256, bits, inpstat)
+  
+  if outputdict then
+    local origcomp = comp
+    local im = {}
+    for i = 1, #origcomp do Merger.Add(im, outputdict:sub(strbyte(origcomp:sub(i, i)) + 1)) end
+    comp = Merger.Finish(im)
+  end
+  
+  return comp
+end
+
+local function QH_LZW_Decompress_Dicts_Prepared(compressed, inputdict, outputdict, ispreppred) -- this is kind of backwards - we assume that "outputdict" is the dictionary that "compressed" is encoded in
   QuestHelper: Assert(not outputdict)
   QuestHelper: Assert(inputdict)
   
-  local decomp = QH_LZW_Decompress(compressed, #inputdict, 8)
+  local decomp = QH_LZW_Decompress(compressed, #inputdict, 8, ispreppred)
+  
+  local ov = {}
+  for i = 1, #decomp do
+    Merger.Add(ov, inputdict:sub(decomp:byte(i) + 1, decomp:byte(i) + 1))
+  end
+  return Merger.Finish(ov)
+end
+
+local function QH_LZW_Decompress_Dicts(compressed, inputdict, outputdict, inputstatic) -- this is kind of backwards - we assume that "outputdict" is the dictionary that "compressed" is encoded in
+  QuestHelper: Assert(not outputdict)
+  QuestHelper: Assert(inputdict)
+  
+  local inpstat = inputstatic
+  if inputdict and inputstatic then
+    local idc = mdict(inputdict)
+  
+    inpstat = {}
+    for _, v in ipairs(inputstatic) do
+      table.insert(inpstat, dictize(idc, v))
+    end
+    
+    QuestHelper:ReleaseTable(idc)
+  end
+  
+  local decomp = QH_LZW_Decompress(compressed, #inputdict, 8, inpstat)
   
   local ov = {}
   for i = 1, #decomp do
@@ -183,7 +299,7 @@ function QH_Collect_LZW_Init(_, API)
   Bitstream = API.Utility_Bitstream
   QuestHelper: Assert(Bitstream)
   
-  API.Utility_LZW = {Compress = QH_LZW_Compress, Decompress = QH_LZW_Decompress, Compress_Dicts = QH_LZW_Compress_Dicts, Decompress_Dicts = QH_LZW_Decompress_Dicts}
+  API.Utility_LZW = {Compress = QH_LZW_Compress, Decompress = QH_LZW_Decompress, Compress_Dicts = QH_LZW_Compress_Dicts, Decompress_Dicts = QH_LZW_Decompress_Dicts, Prepare = QH_LZW_Prepare, Compress_Dicts_Prepared = QH_LZW_Compress_Dicts_Prepared, Decompress_Dicts_Prepared = QH_LZW_Decompress_Dicts_Prepared}
 end
 
 -- old debug code :)
