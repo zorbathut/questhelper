@@ -470,7 +470,6 @@ local function position_finalize(sacu, mostest)
   for c, ci in pairs(accu) do
     if type(c) == "string" then continue end
     for _, v in ipairs(ci) do
-      if v.w < 5 then continue end
       local rc, rz = list_most_common(v.cz):match("(-?[%d]+)@(-?[%d]+)")
       rc, rz = tonumber(rc), tonumber(rz)
       table.insert(pozes, {c = c, x = math.floor(v.x + 0.5), y = math.floor(v.y + 0.5), w = v.w, rc = rc, rz = rz--[[, pri = highest, pri_hi = hi, pri_lo = lo]]})
