@@ -196,6 +196,16 @@ QuestHelper_Translations.noNO =
   TOOLTIP_QUEST = "For Quest %h1.",
   TOOLTIP_PURCHASE = "Kjøp %h1.",
   TOOLTIP_SLAY = "Drep for %h1.",
-  TOOLTIP_LOOT = "Bytte for %h1."
+  TOOLTIP_LOOT = "Bytte for %h1.",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = nil,
+  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_TOMTOM = nil,
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = nil,
  }
 

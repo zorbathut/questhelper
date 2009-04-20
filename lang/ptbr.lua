@@ -196,6 +196,16 @@ QuestHelper_Translations.ptBR =
   TOOLTIP_QUEST = "Para Quest %h1.",
   TOOLTIP_PURCHASE = "Compre %h1.",
   TOOLTIP_SLAY = "Mate para %h1.",
-  TOOLTIP_LOOT = "Loot para %h1."
+  TOOLTIP_LOOT = "Loot para %h1.",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = nil,
+  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_TOMTOM = nil,
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = nil,
  }
 

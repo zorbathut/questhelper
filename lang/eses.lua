@@ -196,6 +196,16 @@ QuestHelper_Translations.esES =
   TOOLTIP_QUEST = "Para Misión %h1.",
   TOOLTIP_PURCHASE = "Comprar %h1.",
   TOOLTIP_SLAY = "Matar para %h1.",
-  TOOLTIP_LOOT = "Botín para %h1."
+  TOOLTIP_LOOT = "Botín para %h1.",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = "Usara %h1 para mostrar objetivos.",
+  SETTINGS_ARROWLINK_OFF = "No usara %h1 para mostrar objetivos.",
+  SETTINGS_ARROWLINK_ARROW = "Flecha de QuestHelper",
+  SETTINGS_ARROWLINK_CART = "Puntos de ruta de Cartographer",
+  SETTINGS_ARROWLINK_TOMTOM = "TomTom",
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = "%h1 Metros",
  }
 

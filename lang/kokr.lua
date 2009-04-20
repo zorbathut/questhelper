@@ -196,6 +196,16 @@ QuestHelper_Translations.koKR =
   TOOLTIP_QUEST = "퀘스트 %h1.",
   TOOLTIP_PURCHASE = "%h1을(를) 구입하라.",
   TOOLTIP_SLAY = "%h1을 죽여라.",
-  TOOLTIP_LOOT = "%h1을(를) 찾아라."
+  TOOLTIP_LOOT = "%h1을(를) 찾아라.",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = nil,
+  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_TOMTOM = nil,
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = nil,
  }
 

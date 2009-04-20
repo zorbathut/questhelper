@@ -196,6 +196,16 @@ QuestHelper_Translations.ruRU =
   TOOLTIP_QUEST = "Для задания %h1.",
   TOOLTIP_PURCHASE = "Купите %h1.",
   TOOLTIP_SLAY = "Убейте, чтобы получить %h1.",
-  TOOLTIP_LOOT = "Соберите добычу, чтобы получить %h1."
+  TOOLTIP_LOOT = "Соберите добычу, чтобы получить %h1.",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = nil,
+  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_TOMTOM = nil,
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = nil,
  }
 

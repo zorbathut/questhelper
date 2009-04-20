@@ -196,6 +196,16 @@ QuestHelper_Translations.trTR =
   TOOLTIP_QUEST = "Quest %h1 için.",
   TOOLTIP_PURCHASE = "%h1 için satın al.",
   TOOLTIP_SLAY = "%h1 için öldür.",
-  TOOLTIP_LOOT = "%h1 için yağmala."
+  TOOLTIP_LOOT = "%h1 için yağmala.",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = nil,
+  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_TOMTOM = nil,
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = nil,
  }
 

@@ -196,6 +196,16 @@ QuestHelper_Translations.deDE =
   TOOLTIP_QUEST = "Für die Quest %h1.",
   TOOLTIP_PURCHASE = "Kaufe %h1.",
   TOOLTIP_SLAY = "Töte für %h1.",
-  TOOLTIP_LOOT = "Erbeute für %h1."
+  TOOLTIP_LOOT = "Erbeute für %h1.",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = nil,
+  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_TOMTOM = nil,
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = nil,
  }
 

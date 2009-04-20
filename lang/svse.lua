@@ -196,6 +196,16 @@ QuestHelper_Translations.svSE =
   TOOLTIP_QUEST = "För uppdraget %h1.",
   TOOLTIP_PURCHASE = "Köp %h1.",
   TOOLTIP_SLAY = "Döda för %h1.",
-  TOOLTIP_LOOT = "Plocka för %h1."
+  TOOLTIP_LOOT = "Plocka för %h1.",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = nil,
+  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_TOMTOM = nil,
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = nil,
  }
 
