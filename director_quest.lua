@@ -84,8 +84,6 @@ local function GetQuestMetaobjective(questid, lbcount)
   if not quest_list[questid] then
     local q = DB_GetItem("quest", questid, true)
     
-    if not q then return end
-    
     if not lbcount then
       QuestHelper: TextOut("Missing lbcount, guessing wildly")
       if q and q.criteria then
@@ -104,7 +102,7 @@ local function GetQuestMetaobjective(questid, lbcount)
     end end
     
     ite = {type_quest = {}} -- we don't want to mutate the existing quest data
-    ite.desc = string.format("Quest %s", q.name or "(unknown)")  -- this gets changed later anyway
+    ite.desc = string.format("Quest %s", q and q.name or "(unknown)")  -- this gets changed later anyway
     
     for i = 1, lbcount do
       local ttx = {}
