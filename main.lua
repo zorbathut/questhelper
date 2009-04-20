@@ -397,6 +397,7 @@ function QuestHelper:Initialize()
   QuestHelper_SeenRealms[GetRealmName()] = true -- some attempt at tracking private servers
   
   QH_Collector_Init()
+  DB_Init()
   
   self.player_level = UnitLevel("player")
 

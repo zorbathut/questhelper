@@ -5,6 +5,7 @@ QuestHelper_Loadtime["graph_flightpath.lua"] = GetTime()
 QH_Flight_Distances = {}
 
 function QH_redo_flightpath()
+  QuestHelper: Assert(DB_Ready())
   
   -- First, let's figure out if the player can fly.
   -- The logic we're using: if he has 225 or 300, then he can fly in Outland. If he's got Cold Weather Flying and those levels, he can fly in Northrend.
@@ -86,9 +87,9 @@ function QH_redo_flightpath()
     table.insert(imp_flat, k)
     if flightdb[k].mid then
       flightmasters[k] = DB_GetItem("monster", flightdb[k].mid)
-      if not flightmasters[k].loc then QuestHelper:TextOut(string.format("Missing flightmaster location for node %d/%s", k, tostring(flightdb[k].name)))  flightmasters[k] = nil end
+      if not flightmasters[k].loc then --[[QuestHelper:TextOut(string.format("Missing flightmaster location for node %d/%s", k, tostring(flightdb[k].name)))]]  flightmasters[k] = nil end
     else
-      QuestHelper:TextOut(string.format("Missing flightmaster for node %d/%s", k, tostring(flightdb[k].name)))
+      --QuestHelper:TextOut(string.format("Missing flightmaster for node %d/%s", k, tostring(flightdb[k].name)))
     end
   end
   table.sort(imp_flat)
@@ -142,7 +143,7 @@ function QH_redo_flightpath()
           end
         end
         
-        QuestHelper: TextOut(string.format("Starting with %d, cluster of %d", src, tcct))
+        --QuestHelper: TextOut(string.format("Starting with %d, cluster of %d", src, tcct))
       end
     end
   end

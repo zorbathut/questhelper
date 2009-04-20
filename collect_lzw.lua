@@ -290,7 +290,9 @@ local function QH_LZW_Decompress_Dicts(compressed, inputdict, outputdict, inputs
   return Merger.Finish(ov)
 end
 
+QH_LZW_Prepare_Arghhacky = QH_LZW_Prepare -- need to rig up a better mechanism for this really
 QH_LZW_Decompress_Dicts_Arghhacky = QH_LZW_Decompress_Dicts -- need to rig up a better mechanism for this really
+QH_LZW_Decompress_Dicts_Prepared_Arghhacky = QH_LZW_Decompress_Dicts_Prepared -- need to rig up a better mechanism for this really
 
 function QH_Collect_LZW_Init(_, API)
   Merger = API.Utility_Merger

@@ -147,7 +147,7 @@ end
 function QuestHelper_ErrorCatcher.OnError(o_msg, o_frame, o_stack, o_etype, ...)
   local errorize = false
   local loud = false
-  if string.find(o_msg, "QuestHelper") and not string.find(o_msg, "Cannot find a library with name") then loud = true end
+  if o_msg and string.find(o_msg, "QuestHelper") and not string.find(o_msg, "Cannot find a library with name") then loud = true end
   for lin in string.gmatch(debugstack(2, 20, 20), "([^\n]*)") do
     if string.find(lin, "QuestHelper") and not string.find(lin, "QuestHelper\\AstrolabeQH\\DongleStub.lua") then errorize = true end
   end

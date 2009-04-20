@@ -34,7 +34,39 @@ local function mark(tab, tomark)
   tab.__owner = tomark
 end
 
+local initted = false
+function DB_Init()
+  QuestHelper: Assert(not initted)
+  for _, db in ipairs(QHDB) do
+    for _, v in pairs(db) do
+      --print("db", not not v.__dictionary, not not v.__tokens)
+      if v.__dictionary and v.__tokens then
+        local redictix = v.__dictionary
+        if not redictix:find("\"") then redictix = redictix .. "\"" end
+        if not redictix:find(",") then redictix = redictix .. "," end
+        if not redictix:find("\\") then redictix = redictix .. "\\" end
+        local tokens = loadstring("return {" .. QH_LZW_Decompress_Dicts_Arghhacky(v.__tokens, redictix) .. "}")()
+        QuestHelper: Assert(tokens)
+        
+        local _, _, prep = QH_LZW_Prepare_Arghhacky(v.__dictionary, tokens)
+        QuestHelper: Assert(prep)
+        
+        QuestHelper: Assert(type(prep) == "table")
+        
+        v.__tokens = prep
+      end
+    end
+  end
+  initted = true
+end
+
+function DB_Ready()
+  return initted
+end
+
 function DB_GetItem(group, id, silent)
+  QuestHelper: Assert(initted)
+
   QuestHelper: Assert(group, string.format("%s %s", tostring(group), tostring(id)))
   QuestHelper: Assert(id, string.format("%s %s", tostring(group), tostring(id)))
   local ite = DBC_Get(group, id)
@@ -49,24 +81,16 @@ function DB_GetItem(group, id, silent)
   for _, db in ipairs(QHDB) do
     --print(db, db[group], db[group] and db[group][id], type(group), type(id))
     if db[group] and db[group][id] then
-      print(group, id)
       if not ite then ite = QuestHelper:CreateTable("db") end
-      
-      local redictix = db[group].__dictionary
-      if not redictix:find("\"") then redictix = redictix .. "\"" end
-      if not redictix:find(",") then redictix = redictix .. "," end
-      if not redictix:find("\\") then redictix = redictix .. "\\" end
-      local tokens = loadstring("return {" .. QH_LZW_Decompress_Dicts_Arghhacky(db[group].__tokens, redictix) .. "}")()
-      QuestHelper: Assert(tokens)
       
       local srctab
       
       if type(db[group][id]) == "string" then
-        srctab = loadstring("return {" .. QH_LZW_Decompress_Dicts_Arghhacky(db[group][id], db[group].__dictionary, nil, tokens) .. "}")()
+        QuestHelper: Assert(db[group].__tokens == nil or type(db[group].__tokens) == "table")
+        srctab = loadstring("return {" .. QH_LZW_Decompress_Dicts_Prepared_Arghhacky(db[group][id], db[group].__dictionary, nil, db[group].__tokens) .. "}")()
       elseif type(db[group][id]) == "table" then
         srctab = db[group][id]
       else
-        print(type(db[group][id]))
         QuestHelper: Assert()
       end
       

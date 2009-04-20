@@ -273,6 +273,8 @@ local dontknow  = {
 
 -- Here's the core update function
 function QH_UpdateQuests(force)
+  if not DB_Ready() then return end
+
   if update or force then  -- Sometimes (usually) we don't actually update
     local index = 1
     
