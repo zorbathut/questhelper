@@ -47,16 +47,26 @@ template<typename T> void pushit(lua_State *L, const string &vid, optional<T> &v
 }
 
 struct Loc {
+  optional<int> priority;
+  
+  optional<bool> relative;
+  
   optional<int> c;
-  optional<float> x;
-  optional<float> y;
   optional<int> rc;
   optional<int> rz;
+  optional<double> x;
+  optional<double> y;
   
   void push(lua_State *L) {
     if(c || x || y || rc || rz) {
       lua_newtable(L);
       
+      pushit(L, "priority", priority);
+      if(relative && *relative) {
+        lua_pushstring(L, "relative");
+        lua_pushboolean(L, true);
+        lua_settable(L, -3);
+      }
       pushit(L, "c", c);
       pushit(L, "x", x);
       pushit(L, "y", y);
@@ -68,27 +78,52 @@ struct Loc {
   }
 };
 
-Loc getLoc(const char *pt) {
-  signed char c = pt[0];
-  signed int x = *(int*)&(pt[1]);  // go go gadget alignment error
-  signed int y = *(int*)&(pt[5]);
-  signed char rc = pt[9];
-  signed char rz = pt[10];
-  
-  Loc rv;
-  if(c != -128) rv.c = c;
-  if(x != -2147483648) rv.x = x / 1000.0;
-  if(y != -2147483648) rv.y = y / 1000.0;
-  if(rc != -128) rv.rc = rc;
-  if(rz != -128) rv.rz = rz;
-  
-  return rv;
+Loc getLoc(const char *pt, int loc_v) {
+  if(loc_v == 0) {
+    signed char c = pt[0];
+    signed int x = *(int*)&(pt[1]);  // go go gadget alignment error
+    signed int y = *(int*)&(pt[5]);
+    signed char rc = pt[9];
+    signed char rz = pt[10];
+    
+    Loc rv;
+    rv.priority = 3;
+    rv.relative = false;
+    if(c != -128) rv.c = c;
+    if(x != -2147483648) rv.x = x / 1000.0;
+    if(y != -2147483648) rv.y = y / 1000.0;
+    if(rc != -128) rv.rc = rc;
+    if(rz != -128) rv.rz = rz;
+    
+    return rv;
+  } else if(loc_v == 1) {
+    signed char delay = pt[0];
+    signed char rc = pt[1];
+    signed char rz = pt[2];
+    signed int x = *(int*)&(pt[3]);  // go go gadget alignment error
+    signed int y = *(int*)&(pt[7]);
+    
+    Loc rv;
+    if(delay)
+      rv.priority = 2;
+    else
+      rv.priority = 1;
+    rv.relative = true;
+    if(x != -2147483648) rv.x = x / (double)(1 << 24);
+    if(y != -2147483648) rv.y = y / (double)(1 << 24);
+    if(rc != -128) rv.rc = rc;
+    if(rz != -128) rv.rz = rz;
+    
+    return rv;
+  } else {
+    CHECK(0);
+  }
 };
 
-void slice_loc(lua_State *L, const std::string &dat) {
+void slice_loc(lua_State *L, const std::string &dat, int loc_v) {
   CHECK(dat.size() == 11);
   
-  getLoc(dat.c_str()).push(L);
+  getLoc(dat.c_str(), loc_v).push(L);
 }
 
 // we don't bother with the end because it's null-terminated
@@ -116,7 +151,7 @@ void tableize(lua_State *L, const vector<int> &vek) {
   }
 }
 
-void split_quest_startend(lua_State *L, const std::string &dat) {
+void split_quest_startend(lua_State *L, const std::string &dat, int loc_v) {
   const char *st = dat.c_str();
   const char *ed = st + dat.size();
   
@@ -140,7 +175,7 @@ void split_quest_startend(lua_State *L, const std::string &dat) {
     }
     CHECK(st <= ed);
     
-    Loc luc = getLoc(stl);
+    Loc luc = getLoc(stl, loc_v);
     
     lua_newtable(L);
     lua_pushstring(L, "monsters");
@@ -153,7 +188,7 @@ void split_quest_startend(lua_State *L, const std::string &dat) {
   }
 }
 
-void split_quest_satisfied(lua_State *L, const std::string &dat) {
+void split_quest_satisfied(lua_State *L, const std::string &dat, int loc_v) {
   const char *st = dat.c_str();
   const char *ed = st + dat.size();
   
@@ -184,7 +219,7 @@ void split_quest_satisfied(lua_State *L, const std::string &dat) {
     }
     CHECK(*st == 'l');
     
-    Loc luc = getLoc(stl);
+    Loc luc = getLoc(stl, loc_v);
     
     st++;
     

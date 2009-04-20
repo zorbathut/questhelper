@@ -3,9 +3,9 @@
 -- I don't know why print is giving me so much trouble, but it is, sooooo
 print = function (...)
   local pad = ""
-  for _, v in ipairs({...}) do
+  for i = 1, select("#", ...) do
     io.stdout:write(pad)
-    local tst = tostring(v)
+    local tst = tostring(select(i, ...))
     pad = (" "):rep(#tst - math.floor(#tst / 6) * 6 + 4)
     io.stdout:write(tst)
   end
@@ -46,7 +46,7 @@ do
   world.QuestHelper_File = {}
   world.QuestHelper_Loadtime = {}
   world.GetTime = function() return 0 end
-  world.QuestHelper = { Assert = assert, CreateTable = function() return {} end, ReleaseTable = function() end }
+  world.QuestHelper = { Assert = function (self, ...) assert(...) end, CreateTable = function() return {} end, ReleaseTable = function() end }
   world.string = string
   world.table = table
   world.assert = assert
@@ -55,6 +55,7 @@ do
   world.strbyte = string.byte
   world.strchar = string.char
   world.pairs = pairs
+  world.ipairs = ipairs
   world.print = function(...) print(...) end
   world.QH_Timeslice_Yield = function() end
   setfenv(loadfile("../questhelper/collect_merger.lua"), world)()
@@ -69,6 +70,65 @@ do
   assert(Merger.Add)
 end
 
+
+local Astrolabe
+
+do
+  local world = {}
+  local cropy = {
+    "string",
+    "tonumber",
+    "print",
+    "setmetatable",
+    "type",
+    "table",
+    "tostring",
+    "error",
+    "math",
+    "coroutine",
+    "pairs",
+    "ipairs",
+    "select",
+  }
+  for _, v in ipairs(cropy) do
+    world[v] = _G[v]
+  end
+  world.getfenv = function (x) assert(x == 0 or not x) return world end
+  
+  world.MinimapCompassTexture = {GetTexCoord = function() return 0, 1 end}
+  world.CreateFrame = function () return {Hide = function () end, SetParent = function () end, UnregisterAllEvents = function () end, RegisterEvent = function () end, SetScript = function () end} end
+  world.GetMapContinents = function () return "Kalimdor", "Eastern Kingdoms", "Outland", "Northrend" end
+  world.GetMapZones = function (z)
+    local db = {
+      {"Ashenvale", "Azshara", "Azuremyst Isle", "Bloodmyst Isle", "Darkshore", "Darnassus", "Desolace", "Durotar", "Dustwallow Marsh", "Felwood", "Feralas", "Moonglade", "Mulgore", "Orgrimmar", "Silithus", "Stonetalon Mountains", "Tanaris", "Teldrassil", "The Barrens", "The Exodar", "Thousand Needles", "Thunder Bluff", "Un'Goro Crater", "Winterspring"},
+      {"Alterac Mountains", "Arathi Highlands", "Badlands", "Blasted Lands", "Burning Steppes", "Deadwind Pass", "Dun Morogh", "Duskwood", "Eastern Plaguelands", "Elwynn Forest", "Eversong Woods", "Ghostlands", "Hillsbrad Foothills", "Ironforge", "Isle of Quel'Danas", "Loch Modan", "Redridge Mountains", "Searing Gorge", "Silvermoon City", "Silverpine Forest", "Stormwind City", "Stranglethorn Vale", "Swamp of Sorrows", "The Hinterlands", "Tirisfal Glades", "Undercity", "Western Plaguelands", "Westfall", "Wetlands"},
+      {"Blade's Edge Mountains", "Hellfire Peninsula", "Nagrand", "Netherstorm", "Shadowmoon Valley", "Shattrath City", "Terokkar Forest", "Zangarmarsh"},
+      {"Borean Tundra", "Crystalsong Forest", "Dalaran", "Dragonblight", "Grizzly Hills", "Howling Fjord", "Icecrown", "Sholazar Basin", "The Storm Peaks", "Wintergrasp", "Zul'Drak"},
+    }
+    return unpack(db[z])
+  end
+  
+  local tc, tz
+  world.SetMapZoom = function (c, z) tc, tz = c, z end
+  world.GetMapInfo = function ()
+    local db = {
+      {"Ashenvale", "Aszhara", "AzuremystIsle", "BloodmystIsle", "Darkshore", "Darnassis", "Desolace", "Durotar", "Dustwallow", "Felwood", "Feralas", "Moonglade", "Mulgore", "Ogrimmar", "Silithus", "StonetalonMountains", "Tanaris", "Teldrassil", "Barrens", "TheExodar", "ThousandNeedles", "ThunderBluff", "UngoroCrater", "Winterspring"},
+      {"Alterac", "Arathi", "Badlands", "BlastedLands", "BurningSteppes", "DeadwindPass", "DunMorogh", "Duskwood", "EasternPlaguelands", "Elwynn", "EversongWoods", "Ghostlands", "Hilsbrad", "Ironforge", "Sunwell", "LochModan", "Redridge", "SearingGorge", "SilvermoonCity", "Silverpine", "Stormwind", "Stranglethorn", "SwampOfSorrows", "Hinterlands", "Tirisfal", "Undercity", "WesternPlaguelands", "Westfall", "Wetlands"},
+      {"BladesEdgeMountains", "Hellfire", "Nagrand", "Netherstorm", "ShadowmoonValley", "ShattrathCity", "TerokkarForest", "Zangarmarsh"},
+      {"BoreanTundra", "CrystalsongForest", "Dalaran", "Dragonblight", "GrizzlyHills", "HowlingFjord", "IcecrownGlacier", "SholazarBasin", "TheStormPeaks", "LakeWintergrasp", "ZulDrak"},
+    }
+    
+    return db[tc][tz]
+  end
+  world.IsLoggedIn = function () end
+  
+  setfenv(loadfile("../questhelper/AstrolabeQH/DongleStub.lua"), world)()
+  setfenv(loadfile("../questhelper/AstrolabeQH/AstrolabeMapMonitor.lua"), world)()
+  setfenv(loadfile("../questhelper/AstrolabeQH/Astrolabe.lua"), world)()
+  
+  Astrolabe = world.DongleStub("Astrolabe-0.4-QuestHelper")
+  assert(Astrolabe)
+end
 
 -- LuaSrcDiet embedding
 local Diet
@@ -193,7 +253,7 @@ local function version_parse(x)
   
   local rv = {}
   for t in x:gmatch("[%d]+") do
-    table.insert(rv, t)
+    table.insert(rv, tonumber(t))
   end
   return rv
 end
@@ -217,6 +277,38 @@ local function tablesize(tab)
     ct = ct + 1
   end
   return ct
+end
+
+local function loc_version(ver)
+  local major = ver:match("([0-9])%..*")
+  if major == "0" then
+    return sortversion("0.96", ver) and 0 or 1
+  elseif major == "1" then
+    return sortversion("1.0.2", ver) and 0 or 1
+  else
+    assert()
+  end
+end
+
+local function convert_loc(loc)
+  if not loc then return end
+  
+  if loc.relative then
+    loc.c, loc.x, loc.y = Astrolabe:GetAbsoluteContinentPosition(loc.rc, loc.rz, loc.x, loc.y)
+    loc.relative = false
+  end
+  
+  return loc
+end
+
+local function convert_multiple_loc(locs)
+  if not locs then return end
+  
+  for _, v in ipairs(locs) do
+    if v.loc then
+      convert_loc(v.loc)
+    end
+  end
 end
 
 --[[
@@ -308,13 +400,19 @@ end
 local function valid_pos(ite)
   if not ite then return end
   if not ite.c or not ite.x or not ite.y or not ite.rc or not ite.rz then return end
-  if ite.c ~= 0 and ite.c ~= 3 and ite.c ~= -77 then return end
+  if ite.c ~= 0 and ite.c ~= 3 and ite.c > -77 then return end
   if ite.rz <= 0 then return end  -- this should get rid of locations showing up in "northrend" or whatever
   return true
 end
 
 local function position_accumulate(accu, tpos)
   if not valid_pos(tpos) then return end
+  
+  assert(tpos.priority)
+  
+  if not accu[tpos.priority] then accu[tpos.priority] = {} end
+  accu = accu[tpos.priority]  -- this is a bit grim
+  
   if not accu[tpos.c] then
     accu[tpos.c] = {}
   end
@@ -339,6 +437,8 @@ local function position_accumulate(accu, tpos)
     table.insert(conti, closest)
   end
   
+  accu.weight = (accu.weight or 0) + 1
+  
   list_accumulate(closest, "cz", string.format("%d@%d", tpos.rc, tpos.rz))
 end
 
@@ -349,18 +449,35 @@ local function position_has(accu)
   return false
 end
 
-local function position_finalize(accu)
-  if not position_has(accu) then return end
+local function position_finalize(sacu, mostest)
+  if not position_has(sacu) then return end
+  
+  --[[local hi = sacu[1] and sacu[1].weight or 0
+  local lo = sacu[2] and sacu[2].weight or 0]]
+  
+  local highest = 0
+  for k, v in pairs(sacu) do
+    if mostest and k > mostest then continue end
+    highest = math.max(highest, k)
+  end
+  assert(highest > 0 or mostest)
+  if highest == 0 then return end
+  
+  local accu = sacu[highest]  -- highest priority! :D
   
   local pozes = {}
   local tw = 0
   for c, ci in pairs(accu) do
+    if type(c) == "string" then continue end
     for _, v in ipairs(ci) do
+      if v.w < 5 then continue end
       local rc, rz = list_most_common(v.cz):match("(-?[%d]+)@(-?[%d]+)")
       rc, rz = tonumber(rc), tonumber(rz)
-      table.insert(pozes, {c = c, x = v.x, y = v.y, w = v.w, rc = rc, rz = rz})
+      table.insert(pozes, {c = c, x = math.floor(v.x + 0.5), y = math.floor(v.y + 0.5), w = v.w, rc = rc, rz = rz--[[, pri = highest, pri_hi = hi, pri_lo = lo]]})
     end
   end
+  
+  if #pozes == 0 then return position_finalize(sacu, highest - 1) end
   
   return weighted_concept_finalize(pozes, 0.8, 10)
 end
@@ -438,7 +555,7 @@ end
 Standard data accumulation functions
 ]]
 
-local function standard_pos_accum(accum, value, fluff)
+local function standard_pos_accum(accum, value, lv, fluff)
   if not fluff then fluff = 0 end
   for _, v in ipairs(value) do
     if math.mod(#v, 11 + fluff) ~= 0 then
@@ -448,7 +565,7 @@ local function standard_pos_accum(accum, value, fluff)
   
   for _, v in ipairs(value) do
     for off = 1, #v, 11 + fluff do
-      local tite = slice_loc(v:sub(off, off + 10))
+      local tite = convert_loc(slice_loc(v:sub(off, off + 10), lv))
       if tite then position_accumulate(accum.loc, tite) end
     end
   end
@@ -549,6 +666,7 @@ local chainhead = ChainBlock_Create("parse", nil,
         -- zones!
         if locale == "enUS" and do_zone_map and v.zone then for zname, zdat in pairs(v.zone) do
           local items = {}
+          local lv = loc_version(qhv)
           
           for _, key in pairs({"border", "update"}) do
             if items and zdat[key] then for idx, chunk in pairs(zdat[key]) do
@@ -557,7 +675,7 @@ local chainhead = ChainBlock_Create("parse", nil,
               
               assert(math.mod(#chunk, 11) == 0, tostring(#chunk))
               for point = 1, #chunk, 11 do
-                local pos = slice_loc(string.sub(chunk, point, point + 10))
+                local pos = convert_loc(slice_loc(string.sub(chunk, point, point + 10), lv))
                 if pos then
                   if not zonecolors[zname] then
                     local r, g, b = math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255))
@@ -608,7 +726,7 @@ if false and do_compile then
       Data = function(self, key, subkey, value, Output)
         local name, locale = key:match("(.*)@@(.*)")
         
-        if standard_pos_accum(self.accum, value) then return end
+        if standard_pos_accum(self.accum, value, loc_version(subkey)) then return end
         
         while #value > 0 do table.remove(value) end
         
@@ -853,7 +971,7 @@ if false and do_compile then
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
-        if standard_pos_accum(self.accum, value) then return end
+        if standard_pos_accum(self.accum, value, loc_version(subkey)) then return end
         name_accumulate(self.accum.name, key, value.locale)
         
         while #value > 0 do table.remove(value) end
@@ -898,7 +1016,7 @@ if do_compile and do_questtables then
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
-        if standard_pos_accum(self.accum, value, 2) then return end
+        if standard_pos_accum(self.accum, value, loc_version(subkey), 2) then return end
         if standard_name_accum(self.accum.name, value) then return end
         
         loot_accumulate(value, {type = "monster", id = tonumber(key)}, Output)
@@ -1116,10 +1234,16 @@ if do_compile and do_questtables then
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
+        local lv = loc_version(subkey)
+        
         -- Split apart the start/end info. This includes locations and possibly the monster that was targeted.
-        if value.start then value.start = split_quest_startend(value.start) end
+        if value.start then
+          value.start = split_quest_startend(value.start, lv)
+          convert_multiple_loc(value.start)
+        end
         if value["end"] then   --sigh
-          value.finish = split_quest_startend(value["end"])
+          value.finish = split_quest_startend(value["end"], lv)
+          convert_multiple_loc(value.finish)
           value["end"] = nil
         end
         
@@ -1131,7 +1255,8 @@ if do_compile and do_questtables then
             assert(item)
             
             if token == "satisfied" then
-              value[k] = split_quest_satisfied(value[k])
+              value[k] = split_quest_satisfied(value[k], lv)
+              convert_multiple_loc(value[k])
             end
             
             if not value.criteria[tonumber(item)] then value.criteria[tonumber(item)] = {} end
@@ -1818,7 +1943,62 @@ for _, v in ipairs(sources) do
 end
 table.insert(output_sources, file_cull)
 
-local fileout = ChainBlock_Create("fileout", output_sources,
+local function LZW_precompute_table(inputs, tokens)
+  -- shared init code
+  local d = {}
+  local i
+  for i = 1, #tokens do
+    d[tokens:sub(i, i)] = 0
+  end
+  
+  for _, input in ipairs(inputs) do
+    local w = ""
+    for ci = 1, #input do
+      local c = input:sub(ci, ci)
+      local wcp = w .. c
+      if d[wcp] then
+        w = wcp
+        d[wcp] = d[wcp] + 1
+      else
+        d[wcp] = 1
+        w = c
+      end
+    end
+  end
+  
+  local freq = {}
+  for k, v in pairs(d) do
+    if #k > 1 then
+      table.insert(freq, {v, k})
+    end
+  end
+  table.sort(freq, function(a, b) return a[1] < b[1] end)
+  
+  return freq
+end
+
+local function pdump(v)
+  assert(type(v) == "table")
+  local writo = {write = function (self, data) Merger.Add(self, data) end}
+  persistence.store(writo, v)
+  if not loadstring("return " .. Merger.Finish(writo)) then print(Merger.Finish(writo)) assert(false) end
+  assert(loadstring("return " .. Merger.Finish(writo)))
+  local dense = Diet(Merger.Finish(writo))
+  if not dense then print("Couldn't condense") print(Merger.Finish(writo)) return end  -- wellp
+  local dist = dense:match("{(.*)}")
+  assert(dist)
+  return dist
+end
+
+
+local compress_split = ChainBlock_Create("compress_split", output_sources,
+  function (key) return {
+    Data = function(self, key, subkey, value, Output)
+      Output(key .. "/" .. value.id, subkey, value)
+    end,
+  } end, nil, "output_direct")
+  
+local compress = ChainBlock_Create("compress", {compress_split},
   function (key) return {
     finalfile = {},
     
@@ -1827,63 +2007,204 @@ local fileout = ChainBlock_Create("fileout", output_sources,
       assert(value.id)
       assert(value.key)
       
-      if not self.finalfile[value.id] then self.finalfile[value.id] = {} end
-      assert(not self.finalfile[value.id][value.key])
-      self.finalfile[value.id][value.key] = value.data
+      assert(not self.finalfile[value.key])
+      self.finalfile[value.key] = value.data
     end,
     
     Finish = function(self, Output)
+      
+      local fname = "static"
+      
+      local locale, faction, segment = key:match("(.*)/(.*)/(.*)")
+      local orig_locale, orig_faction, orig_segment = locale, faction, segment
+      assert(locale and faction)
+      if locale == "*" then locale = nil end
+      if faction == "*" then faction = nil end      
+      
+      if locale then
+        fname = fname .. "_" .. locale
+      end
+      if faction then
+        fname = fname .. "_" .. faction
+      end
+      
       -- First, compression.
       if do_compress then
-        for k, d in pairs(self.finalfile) do
-          local dict = {}
+        local d = self.finalfile
+        local k = segment
+        
+        local dict = {}
+        
+        for sk, v in pairs(d) do
+          assert(type(sk) ~= "string" or not sk:match("__.*"))
+          assert(type(v) == "table")
           
-          for sk, v in pairs(d) do
-            assert(type(sk) ~= "string" or not sk:match("__.*"))
-            assert(type(v) == "table")
-            local writo = {write = function (self, data) Merger.Add(self, data) end}
-            persistence.store(writo, v)
-            if not loadstring("return " .. Merger.Finish(writo)) then print(Merger.Finish(writo)) end
-            assert(loadstring("return " .. Merger.Finish(writo)))
-            local dense = Diet(Merger.Finish(writo))
-            if not dense then print("Couldn't condense") print(Merger.Finish(writo)) continue end  -- wellp
-            local dist = dense:match("{(.*)}")
-            assert(dist)
-            
-            for i = 1, #dist do
-              dict[dist:byte(i)] = true
-            end
-            
-            self.finalfile[k][sk] = dist
+          dist = pdump(v)
+          if not dist then continue end
+          
+          for i = 1, #dist do
+            dict[dist:byte(i)] = true
           end
           
-          local dicto = {}
-          for k, v in pairs(dict) do
-            table.insert(dicto, k)
-          end
-          
-          table.sort(dicto)
-          
-          local dictix = string.char(unpack(dicto))
-          assert(dictix)
-          d.__dictionary = dictix
-          
-          for sk, v in pairs(d) do
-            if (type(sk) ~= "string" or not sk:match("__.*")) and type(v) == "string" then
-              assert(type(v) == "string")
-              self.finalfile[k][sk] = LZW.Compress_Dicts(v, dictix)
-              assert(LZW.Decompress_Dicts(self.finalfile[k][sk], dictix) == v)
+          self.finalfile[sk] = dist
+        end
+        
+        local dicto = {}
+        for k, v in pairs(dict) do
+          table.insert(dicto, k)
+        end
+        
+        table.sort(dicto)
+        
+        local dictix = string.char(unpack(dicto))
+        assert(dictix)
+        d.__dictionary = dictix
+        
+        -- Now we build the precomputed LZW table
+        do
+          -- hackery steakery
+          if locale == nil or locale == "enUS" or true then
+            local inps = {}
+            for _, v in pairs(d) do
+              table.insert(inps, v)
             end
+            local preco = LZW_precompute_table(inps, dictix)
+            
+            local total = 0
+            for _, v in ipairs(preco) do
+              total = total + v[1] / #v[2]
+            end
+            
+            for _, v in ipairs(preco) do
+              if v[1] > total / 100 then
+                --print(locale, faction, v[1], v[2])
+              end
+            end
+            
+            --local ofile = ("final/%s_%s.stats"):format(fname, k)
+            --fil = io.open(ofile, "w")
+            
+            --for i = 1, 51, 10 do
+              --local thresh = total / 100 / i
+              local thresh = total / 100 / 40 -- this seems about the right threshold
+              
+              local tix = {}
+              for _, v in ipairs(preco) do
+                if v[1] > thresh then
+                  table.insert(tix, v[2])
+                end
+              end
+              table.sort(tix, function(a, b) return #a > #b end)
+              
+              local fundatoks = {}
+              local usedtoks = {}
+              for _, v in ipairs(tix) do
+                if usedtoks[v] then continue end
+                
+                for i = 1, #v do
+                  local sub = v:sub(1, i)
+                  usedtoks[sub] = true
+                end
+                table.insert(fundatoks, v)
+              end
+              
+              if segment ~= "flightmasters" or true then  -- the new decompression is quite a bit slower, and flightmasters are decompressed in large bulk on logon
+                local redictix = dictix
+                if not redictix:find("\"") then redictix = redictix .. "\"" end
+                if not redictix:find(",") then redictix = redictix .. "," end
+                if not redictix:find("\\") then redictix = redictix .. "\\" end
+                local ftd = pdump(fundatoks)
+                self.finalfile.__tokens = LZW.Compress_Dicts(ftd, redictix)
+                if LZW.Decompress_Dicts(self.finalfile.__tokens, redictix) ~= ftd then
+                  print(ftd)
+                  print(LZW.Decompress_Dicts(self.finalfile.__tokens, redictix))
+                  print(dictix)
+                  print(redictix)
+                end
+                assert(LZW.Decompress_Dicts(self.finalfile.__tokens, redictix) == ftd)
+                
+                local prep_id, prep_id_size, prep_is = LZW.Prepare(dictix, fundatoks)
+                
+                --local dictsize = #self.finalfile.__tokens
+                --local datsize = 0
+                
+                for sk, v in pairs(d) do
+                  if (type(sk) ~= "string" or not sk:match("__.*")) and type(v) == "string" then
+                    assert(type(v) == "string")
+                    local compy = LZW.Compress_Dicts_Prepared(v, prep_id, prep_id_size, nil, prep_is)
+                    --assert(LZW.Decompress_Dicts(compy, dictix, nil, fundatoks) == v)
+                    --datsize = datsize + #compy
+                    
+                    self.finalfile[sk] = compy
+                    assert(LZW.Decompress_Dicts_Prepared(self.finalfile[sk], dictix, nil, prep_is) == v)
+                  end
+                end
+              else
+                for sk, v in pairs(d) do
+                  if (type(sk) ~= "string" or not sk:match("__.*")) and type(v) == "string" then
+                    assert(type(v) == "string")
+                    self.finalfile[sk] = LZW.Compress_Dicts(v, dictix)
+                    assert(LZW.Decompress_Dicts(self.finalfile[sk], dictix) == v)
+                  end
+                end
+              end
+              
+              --fil:write(string.format("%d\t%d\t%d\t%d\n", i, dictsize + datsize, dictsize, datsize))
+              
+              --print(locale, faction, k, i, #fundatoks, dictsize, datsize, dictsize + datsize)
+            --end
+            
+            --fil:close()
+            
+            
+            --[=[fil = io.open(ofile .. ".gnuplot", "w")
+            fil:write("set term png\n")
+            fil:write(string.format("set output \"%s.png\"\n", ofile))
+            fil:write(string.format([[
+                plot \
+                  "%s" using 1:2 with lines title 'Total', \
+                  "%s" using 1:3 with lines title 'Dict', \
+                  "%s" using 1:4 with lines title 'Dat']], ofile, ofile, ofile))
+            fil:write("\n")
+            fil:close()
+            
+            os.execute(string.format("gnuplot %s.gnuplot", ofile))]=]
           end
         end
+        
+        --[[for sk, v in pairs(d) do
+          if (type(sk) ~= "string" or not sk:match("__.*")) and type(v) == "string" then
+            assert(type(v) == "string")
+            self.finalfile[sk] = LZW.Compress_Dicts(v, dictix)
+            assert(LZW.Decompress_Dicts(self.finalfile[sk], dictix) == v)
+          end
+        end]]
       end
+      
+      Output(string.format("%s/%s", orig_locale, orig_faction), nil, {id = orig_segment, data = self.finalfile})
+    end,
+  } end)
+
+local fileout = ChainBlock_Create("fileout", {compress},
+  function (key) return {
+    finalfile = {},
+    
+    Data = function(self, key, subkey, value, Output)
+      assert(value.data, string.format("%s, %s", tostring(value.id), tostring(value.key)))
+      assert(value.id)
+      
+      assert(not self.finalfile[value.id])
+      self.finalfile[value.id] = value.data
+    end,
+    
+    Finish = function(self, Output)
       
       local fname = "static"
       
       local locale, faction = key:match("(.*)/(.*)")
       assert(locale and faction)
       if locale == "*" then locale = nil end
-      if faction == "*" then faction = nil end
+      if faction == "*" then faction = nil end      
       
       if locale then
         fname = fname .. "_" .. locale
@@ -1917,8 +2238,7 @@ QuestHelper_Loadtime["%s.lua"] = GetTime()
       
       fil:close()
     end,
-  } end,
-  nil, "output_direct"
+  } end
 )
 
 --[[
@@ -2012,7 +2332,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
---local e = 100
+--local e = 1000
 
 local function readdir()
   local pip = io.popen(("find data/08 -type f | head -n %s | tail -n +%s"):format(e or 1000000000, s or 0))
