@@ -289,7 +289,7 @@ function QH_Graph_Init()
       continent_to_flyplane[c] = d[0]
       for z, p in pairs(d) do
         if type(z) == "number" then
-          QuestHelper:TextOut(string.format("%d/%d: %d", c, z, p))
+          --QuestHelper:TextOut(string.format("%d/%d: %d", c, z, p))
           plane_to_flyplane[p] = d[0]
         end
       end
