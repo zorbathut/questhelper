@@ -49,35 +49,37 @@ function QH_redo_flightpath()
   
   for k, v in pairs(has) do
     local tdb = DB_GetItem("flightpaths", k, true, true)
-    if tdb then for dest, dat in pairs(tdb) do
-      if has[dest] then
-        for _, route in ipairs(dat) do
-          local passes = true
-          if route.path then for _, intermed in ipairs(route.path) do
-            if not has[intermed] then passes = false break end
-          end end
-          
-          if passes then
-            --QuestHelper:TextOut(string.format("Found link between %s and %s, cost %f", flightdb[k].name, flightdb[dest].name, route.distance))
-            if not adjacency[k] then adjacency[k] = {} end
-            if not adjacency[dest] then adjacency[dest] = {} end
-            QuestHelper: Assert(not (adjacency[k][dest] and adjacency[k][dest].time))
-            adjacency[k][dest] = {time = route.distance, dist = route.distance, original = true}
+    if tdb then
+      for dest, dat in pairs(tdb) do
+        if has[dest] then
+          for _, route in ipairs(dat) do
+            local passes = true
+            if route.path then for _, intermed in ipairs(route.path) do
+              if not has[intermed] then passes = false break end
+            end end
             
-            -- no such thing as strongly asymmetric routes
-            -- note that we're only hitting up adjacency here, because we don't have "time info"
-            if not adjacency[dest][k] then
-              adjacency[dest][k] = {dist = route.distance * 1.1, original = true} -- It's original because, in theory, we may end up basing other links on this one. It's still not time-authoritative, though.
+            if passes then
+              --QuestHelper:TextOut(string.format("Found link between %s and %s, cost %f", flightdb[k].name, flightdb[dest].name, route.distance))
+              if not adjacency[k] then adjacency[k] = {} end
+              if not adjacency[dest] then adjacency[dest] = {} end
+              QuestHelper: Assert(not (adjacency[k][dest] and adjacency[k][dest].time))
+              adjacency[k][dest] = {time = route.distance, dist = route.distance, original = true}
+              
+              -- no such thing as strongly asymmetric routes
+              -- note that we're only hitting up adjacency here, because we don't have "time info"
+              if not adjacency[dest][k] then
+                adjacency[dest][k] = {dist = route.distance * 1.1, original = true} -- It's original because, in theory, we may end up basing other links on this one. It's still not time-authoritative, though.
+              end
+              
+              important[k] = true
+              important[dest] = true
+              break
             end
-            
-            important[k] = true
-            important[dest] = true
-            break
           end
         end
       end
-    end end
-    DB_ReleaseItem(tdb)
+      DB_ReleaseItem(tdb)
+    end
   end
   
   QH_Timeslice_Yield()

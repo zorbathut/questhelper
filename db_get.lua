@@ -139,6 +139,7 @@ local function incinerate(ite, crunchy)
 end
 
 function DB_ReleaseItem(ite)
+  QuestHelper: Assert(ite)
   frequencies[ite] = frequencies[ite] - 1
   
   if frequencies[ite] == 0 then
