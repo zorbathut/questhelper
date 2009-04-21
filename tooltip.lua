@@ -87,50 +87,39 @@ local function StripBlizzQHTooltipClone(ttp)
   local wpos = line
   
   local changed = false
+  local removed = 0
   
   while _G["GameTooltipTextLeft" .. line] and _G["GameTooltipTextLeft" .. line]:IsShown() do
     local r, g, b, a = _G["GameTooltipTextLeft" .. line]:GetTextColor()
     r, g, b, a = math.floor(r * 255 + 0.5), math.floor(g * 255 + 0.5), math.floor(b * 255 + 0.5), math.floor(a * 255 + 0.5)
     
+    if qh_tooltip_print_a_lot then print(r, g, b, a) end
+    
     if r == 255 and g == 210 and b == 0 and a == 255 then
       --_G["GameTooltipTextLeft" .. line]:SetText("hellos")
+      _G["GameTooltipTextLeft" .. line]:SetText(nil)
+      _G["GameTooltipTextLeft" .. line]:SetHeight(0)
+      _G["GameTooltipTextLeft" .. line]:ClearAllPoints()
+      _G["GameTooltipTextLeft" .. line]:SetPoint("TOPLEFT", _G["GameTooltipTextLeft" .. (line - 1)], "BOTTOMLEFT", 0, 1)
+      GameTooltip:Show()
       changed = true
-    else
-      if line ~= wpos then
-        CopyOver(_G["GameTooltipTextLeft" .. wpos], _G["GameTooltipTextLeft" .. line])
-        CopyOver(_G["GameTooltipTextRight" .. wpos], _G["GameTooltipTextRight" .. line])
-        
-        changed = true
-      end
-      
-      wpos = wpos + 1
+      removed = removed + 1
     end
     
     line = line + 1
   end
-  
-  if line ~= wpos then for ts = wpos, line - 1 do
-    QuestHelper: Assert(ts > 1)
     
-    local tt = _G["GameTooltipTextLeft" .. ts]
-    local ttr = _G["GameTooltipTextRight" .. ts]
-    local ptt = _G["GameTooltipTextLeft" .. (ts - 1)]
-    
-    -- this . . . this is awful!
-    tt:SetText(nil)
-    ttr:SetText(nil)
-    tt:ClearAllPoints()
-    tt:SetPoint("TOPLEFT", ptt, "BOTTOMLEFT", 0, 0)
-    
-    changed = true
-  end end
-  
   if changed then
     ttp:Show()
   end
+  
+  return removed
 end
 
+local glob_strip = 0
 function CreateTooltip(self)
+  glob_strip = 0
+  
   if QuestHelper_Pref.tooltip then
     local inu, ilink = self:GetItem()
     local un, ulink = self:GetUnit()
@@ -148,7 +137,7 @@ function CreateTooltip(self)
     
     if ulink and IsMonsterGUID(ulink) then
       if QH_filter_hints then
-        StripBlizzQHTooltipClone(self)
+        glob_strip = StripBlizzQHTooltipClone(self)
       end
       
       local ite = tostring(GetMonsterType(ulink))
@@ -165,11 +154,20 @@ end
 local ottsu = GameTooltip:GetScript("OnTooltipSetUnit")
 GameTooltip:SetScript("OnTooltipSetUnit", function (self, ...)
   CreateTooltip(self)
-  if ottsu then return ottsu(self, ...) end
+  if ottsu then ottsu(self, ...) end
 end)
 
 local ottsi = GameTooltip:GetScript("OnTooltipSetItem")
 GameTooltip:SetScript("OnTooltipSetItem", function (self, ...)
   CreateTooltip(self)
   if ottsi then return ottsi(self, ...) end
+end)
+
+local ttsx = GameTooltip:GetScript("OnUpdate")
+GameTooltip:SetScript("OnUpdate", function (self, ...)
+  if ttsx then ttsx(self, ...) end
+  if self:GetUnit() then
+    self:Show()
+    self:SetHeight(self:GetHeight() - glob_strip * 3) -- maaaaaagic
+  end
 end)
