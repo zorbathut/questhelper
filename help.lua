@@ -367,7 +367,7 @@ end
 
 function QuestHelper:Top(cmd)
   if cmd and string.find(cmd, "all") then
-    cmd = cmd .. " collected recycle clear"
+    cmd = cmd .. " collected recycle clear boot usage"
   end
 
   if cmd and string.find(cmd, "boot") then
