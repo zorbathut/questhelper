@@ -78,6 +78,12 @@ function QuestHelper:ReleaseTable(tbl)
   end
 end
 
+function QuestHelper:RecycleClear()
+  local ct = QuestHelper:TableSize(QuestHelper.free_tables)
+  QuestHelper.free_tables = {}
+  return ct
+end
+
 function QuestHelper:DumpTableTypeFrequencies(silent)
   local freq = {}
   for k, v in pairs(self.recycle_tabletyping) do

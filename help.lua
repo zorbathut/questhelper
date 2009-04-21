@@ -366,6 +366,9 @@ local function RecycleStatusString(fmt, usedcount, freetable, usedtable)
 end
 
 function QuestHelper:Top(cmd)
+  if cmd and string.find(cmd, "all") then
+    cmd = cmd .. " collected recycle clear"
+  end
 
   if cmd and string.find(cmd, "boot") then
     local bootv = {}
@@ -393,8 +396,10 @@ function QuestHelper:Top(cmd)
   end
   
   local pre_ttf
+  local pre_db
   if cmd and string.find(cmd, "collected") then
     pre_ttf = self:DumpTableTypeFrequencies(true)
+    pre_db = DB_DumpItems()
   end
   
   if cmd and string.find(cmd, "recycle") then
@@ -453,9 +458,32 @@ function QuestHelper:Top(cmd)
         QuestHelper:TextOut(string.format("%d: %s", v.d, v.k))
       end
     end
+    
+    local post_db = DB_DumpItems()
+    
+    local st = {}
+    for k, v in pairs(pre_db) do
+      if not post_db[k] then
+        table.insert(st, k)
+      end
+    end
+    table.sort(st)
+    
+    for _, v in ipairs(st) do
+      QuestHelper:TextOut("DB: " .. v)
+    end
   end
   
   self:TextOut(string.format("QuestHelper is using %dkb (pre-collect %dkb) of RAM (%s/%s/%s/%s)%s", post_gc, pre_gc, QuestHelper_local_version, QuestHelper_toc_version, GetBuildInfo(), GetLocale(), uncs))
+  
+  if cmd and string.find(cmd, "clear") then
+    local cleared = QuestHelper:RecycleClear()
+    
+    collectgarbage("collect")
+    local new_post_gc = GetAddOnMemoryUsage("QuestHelper")
+    UpdateAddOnMemoryUsage()
+    self:TextOut(string.format("QuestHelper is using %dkb/%dkb/%dkb (%d cleared) of RAM (%s/%s/%s/%s)%s", pre_gc, post_gc, new_post_gc, cleared, QuestHelper_local_version, QuestHelper_toc_version, GetBuildInfo(), GetLocale(), uncs))
+  end
 end
 
 function QuestHelper:ToggleMapButton()

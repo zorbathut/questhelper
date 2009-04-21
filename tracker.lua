@@ -583,11 +583,20 @@ function QH_Tracker_Rescan()
       obj_done[k.cluster] = true 
     end
     
+    local sort_objs = QuestHelper:CreateTable("tracker sobjs")
     for k, v in pairs(objs) do
-      y, depth = addMetaObjective(k, v, y, depth) -- It's like KY. Only better, and faintly racist.
+      v.trackkey = k
+      table.insert(sort_objs, v)
+    end
+    
+    table.sort(sort_objs, function (a, b) return tostring(a.trackkey) < tostring(b.trackkey) end)
+    
+    for _, v in pairs(sort_objs) do
+      y, depth = addMetaObjective(v.trackkey, v, y, depth)
       had_pinned = true
       QuestHelper:ReleaseTable(v)
     end
+    QuestHelper:ReleaseTable(sort_objs)
     QuestHelper:ReleaseTable(objs)
   end
   

@@ -49,7 +49,7 @@ local function AppendObjlinks(target, source, tooltips, icon, last_name, map_lin
     end
   else
     for _, v in ipairs(source) do
-      local dbgi = DB_GetItem(v.sourcetype, v.sourceid)
+      local dbgi = DB_GetItem(v.sourcetype, v.sourceid, nil, true)
       local licon
       
       if v.sourcetype == "monster" then
@@ -71,6 +71,8 @@ local function AppendObjlinks(target, source, tooltips, icon, last_name, map_lin
       AppendObjlinks(target, dbgi, tooltips, icon or licon, source.name, map_lines, tooltip_lines, seen)
       table.remove(tooltip_lines, 1)
       table.remove(map_lines)
+      
+      DB_ReleaseItem(dbgi)
     end
   end
   seen[source] = false
@@ -82,7 +84,7 @@ local quest_list_used = {}
 
 local function GetQuestMetaobjective(questid, lbcount)
   if not quest_list[questid] then
-    local q = DB_GetItem("quest", questid, true)
+    local q = DB_GetItem("quest", questid, true, true)
     
     if not lbcount then
       QuestHelper: TextOut("Missing lbcount, guessing wildly")
@@ -148,6 +150,8 @@ local function GetQuestMetaobjective(questid, lbcount)
     end
     
     quest_list[questid] = ite
+    
+    if q then DB_ReleaseItem(q) end
   end
   
   quest_list_used[questid] = quest_list[questid]

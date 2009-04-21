@@ -35,7 +35,7 @@ function QH_redo_flightpath()
   local has = {}
   
   for k, v in pairs(flightids) do
-    flightdb[v] = DB_GetItem("flightmasters", v)
+    flightdb[v] = DB_GetItem("flightmasters", v, true, true)
     if QuestHelper_KnownFlightRoutes[flightdb[v].name] then
       has[k] = true
     end
@@ -48,7 +48,7 @@ function QH_redo_flightpath()
   QH_Timeslice_Yield()
   
   for k, v in pairs(has) do
-    local tdb = DB_GetItem("flightpaths", k)
+    local tdb = DB_GetItem("flightpaths", k, true, true)
     if tdb then for dest, dat in pairs(tdb) do
       if has[dest] then
         for _, route in ipairs(dat) do
@@ -77,6 +77,7 @@ function QH_redo_flightpath()
         end
       end
     end end
+    DB_ReleaseItem(tdb)
   end
   
   QH_Timeslice_Yield()
@@ -86,8 +87,12 @@ function QH_redo_flightpath()
   for k, v in pairs(important) do
     table.insert(imp_flat, k)
     if flightdb[k].mid then
-      flightmasters[k] = DB_GetItem("monster", flightdb[k].mid)
-      if not flightmasters[k].loc then --[[QuestHelper:TextOut(string.format("Missing flightmaster location for node %d/%s", k, tostring(flightdb[k].name)))]]  flightmasters[k] = nil end
+      flightmasters[k] = DB_GetItem("monster", flightdb[k].mid, true, true)
+      if not flightmasters[k].loc then
+        --QuestHelper:TextOut(string.format("Missing flightmaster location for node %d/%s", k, tostring(flightdb[k].name)))
+        DB_ReleaseItem(flightmasters[k])
+        flightmasters[k] = nil
+      end
     else
       --QuestHelper:TextOut(string.format("Missing flightmaster for node %d/%s", k, tostring(flightdb[k].name)))
     end
@@ -195,5 +200,12 @@ function QH_redo_flightpath()
         end
       end
     end
+  end
+  
+  for _, v in pairs(flightdb) do
+    DB_ReleaseItem(v)
+  end
+  for _, v in pairs(flightmasters) do
+    DB_ReleaseItem(v)
   end
 end
