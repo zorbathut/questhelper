@@ -77,6 +77,7 @@ local started = false
 function QH_Timeslice_Doneinit()
   if not started and debug_output then
     QuestHelper:TextOut("Done with initialization step")
+    collectgarbage("collect") -- fuuuuuck youuuuuuuu
   end
   
   started = true
