@@ -74,15 +74,10 @@ function QH_PrintPathcacheSize()
   QuestHelper:TextOut(string.format("Inactive pathcache: %d", pcs(pathcache_inactive)))
 end
 function QH_ClearPathcache()
-  print("START")
-  QuestHelper:Top()
-  QH_PrintPathcacheSize()
+  local ps = pcs(pathcache_inactive)
   pathcache_active = new_pathcache_table()
   pathcache_inactive = new_pathcache_table()
-  print("CLEARED")
-  QuestHelper:Top()
-  QH_PrintPathcacheSize()
-  print("END")
+  return ps
 end
 
 local notification_funcs = {}
@@ -302,44 +297,57 @@ Route_Core_Init(
   end,
   function(loc1, loctable, reverse)
     QH_Timeslice_Yield()
+    
     QuestHelper: Assert(loc1)
     QuestHelper: Assert(loc1.loc)
-    
-    if not pathcache_active[loc1] then pathcache_active[loc1] = new_pathcache_table() end
-    if not pathcache_inactive[loc1] then pathcache_inactive[loc1] = new_pathcache_table() end
     
     local lt = QuestHelper:CreateTable("route controller path shunt loctable")
     for _, v in ipairs(loctable) do
       QuestHelper: Assert(v.loc)
       table.insert(lt, v.loc)
-      
-      if not pathcache_active[v] then pathcache_active[v] = new_pathcache_table() end
-      if not pathcache_inactive[v] then pathcache_inactive[v] = new_pathcache_table() end
     end
-    local rv = QH_Graph_Pathmultifind(loc1.loc, lt, reverse, true)
     
-    local rvv = QuestHelper:CreateTable("route controller path shunt returnvalue")
-    for k, v in ipairs(lt) do
-      if not rv[k] then
-        QuestHelper:TextOut(QuestHelper:StringizeTable(loc1.loc))
-        QuestHelper:TextOut(QuestHelper:StringizeTable(lt[k]))
-      end
-      QuestHelper: Assert(rv[k], string.format("%d to %d", loc1.loc.p, loctable[k].loc.p))
-      QuestHelper: Assert(rv[k].d)
-      rvv[k] = rv[k].d
-      
-      -- We're only setting the inactive to give the garbage collector potentially a little more to clean up (i.e. the old path.)
+    local rvv
+    
+    if QuestHelper_Pref.precache then
       if not reverse then
-        pathcache_active[loc1][loctable[k]] = rv[k]
-        pathcache_inactive[loc1][loctable[k]] = rv[k]
+        if not pathcache_active[loc1] then pathcache_active[loc1] = new_pathcache_table() end
+        if not pathcache_inactive[loc1] then pathcache_inactive[loc1] = new_pathcache_table() end
       else
-        pathcache_active[loctable[k]][loc1] = rv[k]
-        pathcache_inactive[loctable[k]][loc1] = rv[k]
+        for _, v in ipairs(loctable) do
+          if not pathcache_active[v] then pathcache_active[v] = new_pathcache_table() end
+          if not pathcache_inactive[v] then pathcache_inactive[v] = new_pathcache_table() end
+        end
       end
+      
+      rvv = QuestHelper:CreateTable("route controller path shunt returnvalue")
+      local rv = QH_Graph_Pathmultifind(loc1.loc, lt, reverse, true)
+      
+      for k, v in ipairs(lt) do
+        if not rv[k] then
+          QuestHelper:TextOut(QuestHelper:StringizeTable(loc1.loc))
+          QuestHelper:TextOut(QuestHelper:StringizeTable(lt[k]))
+        end
+        QuestHelper: Assert(rv[k], string.format("%d to %d", loc1.loc.p, loctable[k].loc.p))
+        QuestHelper: Assert(rv[k].d)
+        rvv[k] = rv[k].d
+        
+        -- We're only setting the inactive to give the garbage collector potentially a little more to clean up (i.e. the old path.)
+        if not reverse then
+          pathcache_active[loc1][loctable[k]] = rv[k]
+          pathcache_inactive[loc1][loctable[k]] = rv[k]
+        else
+          pathcache_active[loctable[k]][loc1] = rv[k]
+          pathcache_inactive[loctable[k]][loc1] = rv[k]
+        end
+      end
+      
+      QuestHelper:ReleaseTable(lt)
+      QuestHelper:ReleaseTable(rv)  -- this had better be releasable
+    else
+      rvv = QH_Graph_Pathmultifind(loc1.loc, lt, reverse)
     end
     
-    QuestHelper:ReleaseTable(lt)
-    QuestHelper:ReleaseTable(rv)  -- this had better be releasable
     return rvv
   end
 )

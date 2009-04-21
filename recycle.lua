@@ -18,7 +18,7 @@ It's ugly. I'm not arguing that. But it really, really helps.
 ]]
 
 QuestHelper.used_tables = 0
-QuestHelper.free_tables = {}
+QuestHelper.free_tables = setmetatable({}, {__mode="k"})  -- But Zorba, the only thing you're storing here is unused table values! Yeah, that's right, *unused* table values, if the garbage collector wants to have a field day, go for it
 
 local function crashy(tab, name)
   QuestHelper: Assert(false, "Tried to access " .. name .. " from released table")
@@ -69,7 +69,7 @@ function QuestHelper:ReleaseTable(tbl)
   self.used_tables = self.used_tables - 1
   self.recycle_tabletyping[tbl] = nil
   
-  if QH_RegisterTable or self.used_tables < 2000 or release_cycle < 100 then -- this is actually plenty. you'd be horrified how much table churn there is in this thing
+  if QH_RegisterTable or self.used_tables < 500 or release_cycle < 100 then -- this is actually plenty. you'd be horrified how much table churn there is in this thing
     self.free_tables[setmetatable(tbl, unused_meta)] = true
     release_cycle = release_cycle + 1
   else

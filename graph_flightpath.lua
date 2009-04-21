@@ -87,12 +87,20 @@ function QH_redo_flightpath()
   for k, v in pairs(important) do
     table.insert(imp_flat, k)
     if flightdb[k].mid then
-      flightmasters[k] = DB_GetItem("monster", flightdb[k].mid, true, true)
-      if not flightmasters[k].loc then
+      local fmx = DB_GetItem("monster", flightdb[k].mid, true, true)
+      if fmx.loc then
+        flightmasters[k] = QuestHelper:CreateTable("flightmaster cachey")
+        for tk, v in pairs(fmx.loc[1]) do
+          if not tk:match("__.*") then
+            flightmasters[k][tk] = v
+            QuestHelper:Assert(type(tk) ~= "table")
+            QuestHelper:Assert(type(v) ~= "table")
+          end
+        end
+      else
         --QuestHelper:TextOut(string.format("Missing flightmaster location for node %d/%s", k, tostring(flightdb[k].name)))
-        DB_ReleaseItem(flightmasters[k])
-        flightmasters[k] = nil
       end
+      DB_ReleaseItem(fmx)
     else
       --QuestHelper:TextOut(string.format("Missing flightmaster for node %d/%s", k, tostring(flightdb[k].name)))
     end
@@ -165,9 +173,6 @@ function QH_redo_flightpath()
         local fms = flightmasters[src]
         local fmd = flightmasters[dest]
         if fms and fmd then
-          fms = fms.loc[1]
-          fmd = fmd.loc[1]
-          
           QuestHelper: Assert(fms.c and (fms.c == fmd.c))
           QuestHelper: Assert(fms.rc and (fms.rc == fmd.rc))
         end
@@ -186,9 +191,6 @@ function QH_redo_flightpath()
         local fms = flightmasters[src]
         local fmd = flightmasters[dest]
         if fms and fmd then
-          fms = fms.loc[1]
-          fmd = fmd.loc[1]
-          
           QuestHelper: Assert(fms.c and (fms.c == fmd.c))
           QuestHelper: Assert(fms.rc and (fms.rc == fmd.rc))
           
@@ -206,6 +208,6 @@ function QH_redo_flightpath()
     DB_ReleaseItem(v)
   end
   for _, v in pairs(flightmasters) do
-    DB_ReleaseItem(v)
+    QuestHelper:ReleaseTable(v)
   end
 end

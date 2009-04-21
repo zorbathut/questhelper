@@ -142,7 +142,7 @@ function DB_ReleaseItem(ite)
   frequencies[ite] = frequencies[ite] - 1
   
   if frequencies[ite] == 0 then
-    print("incinerating", freq_group[ite], freq_id[ite])
+    --print("incinerating", freq_group[ite], freq_id[ite])
     cache[freq_group[ite]][freq_id[ite]] = nil
     freq_group[ite] = nil
     freq_id[ite] = nil

@@ -276,6 +276,8 @@ QuestHelper_Translations.enUS =
   SETTINGS_ARROWLINK_ARROW = "QuestHelper Arrow",
   SETTINGS_ARROWLINK_CART = "Cartographer Waypoints",
   SETTINGS_ARROWLINK_TOMTOM = "TomTom",
+  SETTINGS_PRECACHE_ON = "Precache has been %h(enabled).",
+  SETTINGS_PRECACHE_OFF = "Precache has been %h(disabled).",
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE = "%h1 yards",

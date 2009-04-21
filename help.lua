@@ -229,6 +229,15 @@ function QuestHelper:ToggleAnts()
   end
 end
 
+function QuestHelper:TogglePrecache()
+  QuestHelper_Pref.precache = not QuestHelper_Pref.precache
+  if QuestHelper_Pref.precache then
+    self:TextOut(QHText("SETTINGS_PRECACHE_ON"))
+  else
+    self:TextOut(QHText("SETTINGS_PRECACHE_OFF"))
+  end
+end
+
 function QuestHelper:LevelOffset(offset)
   local level = tonumber(offset)
   if level then
@@ -477,12 +486,19 @@ function QuestHelper:Top(cmd)
   self:TextOut(string.format("QuestHelper is using %dkb (pre-collect %dkb) of RAM (%s/%s/%s/%s)%s", post_gc, pre_gc, QuestHelper_local_version, QuestHelper_toc_version, GetBuildInfo(), GetLocale(), uncs))
   
   if cmd and string.find(cmd, "clear") then
+    local cleared = QH_ClearPathcache()
+    
+    collectgarbage("collect")
+    UpdateAddOnMemoryUsage()
+    local new_post_gc = GetAddOnMemoryUsage("QuestHelper")
+    self:TextOut(string.format("QuestHelper is using %dkb/%dkb/%dkb (%d pathcache cleared) of RAM (%s/%s/%s/%s)%s", pre_gc, post_gc, new_post_gc, cleared, QuestHelper_local_version, QuestHelper_toc_version, GetBuildInfo(), GetLocale(), uncs))
+    
     local cleared = QuestHelper:RecycleClear()
     
     collectgarbage("collect")
-    local new_post_gc = GetAddOnMemoryUsage("QuestHelper")
     UpdateAddOnMemoryUsage()
-    self:TextOut(string.format("QuestHelper is using %dkb/%dkb/%dkb (%d cleared) of RAM (%s/%s/%s/%s)%s", pre_gc, post_gc, new_post_gc, cleared, QuestHelper_local_version, QuestHelper_toc_version, GetBuildInfo(), GetLocale(), uncs))
+    local new_post_gc_2 = GetAddOnMemoryUsage("QuestHelper")
+    self:TextOut(string.format("QuestHelper is using %dkb/%dkb/%dkb/%dkb (%d recycle cleared) of RAM (%s/%s/%s/%s)%s", pre_gc, post_gc, new_post_gc, new_post_gc_2, cleared, QuestHelper_local_version, QuestHelper_toc_version, GetBuildInfo(), GetLocale(), uncs))
   end
 end
 
@@ -737,7 +753,11 @@ commands =
         {"/qh perfload 50%", "Does half as much background processing"},
         {"/qh perfload 3", "Loads 3 times as quickly."}},
         QuestHelper.genericSetScale, QuestHelper, "perfload_scale", "boot performance factor", .2, 5},
-        
+    
+    {"PRECACHE",
+     "Toggles the routing precache on or off. Allowing precaching will increase performance significantly, at the expense of some memory, most notably at startup.",
+      {}, QuestHelper.TogglePrecache, QuestHelper},
+      
     {"TOP",
      "Displays various performance stats on QuestHelper.",
       {
