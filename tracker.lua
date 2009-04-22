@@ -302,6 +302,8 @@ local function addItem(name, quest, obj, y, qname, qindex)
             specitem_max = specitem_max + 1
           end
           
+          item.specitem:SetParent(item)
+          
           item.specitem:SetScale(0.9)
           item.specitem:ClearAllPoints()
           item.specitem:SetPoint("TOPRIGHT", item, "TOPLEFT", 0, 0)
@@ -780,7 +782,6 @@ function tracker:HideDefaultTracker()
     local index = 1
     while true do
       local orig = _G["WatchFrameItem" .. tostring(index)]
-      print("WatchFrameItem" .. tostring(index), orig)
       if orig then orig:Hide() else break end
       index = index + 1
     end

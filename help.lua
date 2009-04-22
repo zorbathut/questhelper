@@ -333,37 +333,49 @@ function QuestHelper:Filter(input)
   end
 end
 
+function QuestHelper:ToggleArrow(text)
+  if text == "reset" then QH_Arrow_Reset() return end
+  
+  QuestHelper_Pref.arrow = not QuestHelper_Pref.arrow
+  if QuestHelper_Pref.arrow then
+    QH_Arrow_Show()
+    self:TextOut(QHFormat("SETTINGS_ARROWLINK_ON", QHText("SETTINGS_ARROWLINK_ARROW")))
+  else
+    self:TextOut(QHFormat("SETTINGS_ARROWLINK_OFF", QHText("SETTINGS_ARROWLINK_ARROW")))
+  end
+end
+
 function QuestHelper:ToggleCartWP()
-  QuestHelper_Pref.cart_wp = not QuestHelper_Pref.cart_wp
-  if QuestHelper_Pref.cart_wp then
+  QuestHelper_Pref.cart_wp_new = not QuestHelper_Pref.cart_wp_new
+  if QuestHelper_Pref.cart_wp_new then
     self:EnableCartographer()
     if Cartographer_Waypoints then
       if Waypoint and Waypoint.prototype then
-        self:TextOut("Would use "..self:HightlightText("Cartographer Waypoints").." to show objectives, but another mod is interfering with it.")
+        self:TextOut("Would use "..self:HighlightText("Cartographer Waypoints").." to show objectives, but another mod is interfering with it.")
       else
-        self:TextOut("Will use "..self:HighlightText("Cartographer Waypoints").." to show objectives.")
+        self:TextOut(QHFormat("SETTINGS_ARROWLINK_ON", QHText("SETTINGS_ARROWLINK_CART")))
       end
     else
       self:TextOut("Would use "..self:HighlightText("Cartographer Waypoints").." to show objectives, except it doesn't seem to be present.")
     end
   else
     self:DisableCartographer()
-    self:TextOut("Won't use "..self:HighlightText("Cartographer Waypoints").." to show objectives.")
+    self:TextOut(QHFormat("SETTINGS_ARROWLINK_OFF", QHText("SETTINGS_ARROWLINK_CART")))
   end
 end
 
 function QuestHelper:ToggleTomTomWP()
-  QuestHelper_Pref.tomtom_wp = not QuestHelper_Pref.tomtom_wp
-  if QuestHelper_Pref.tomtom_wp then
+  QuestHelper_Pref.tomtom_wp_new = not QuestHelper_Pref.tomtom_wp_new
+  if QuestHelper_Pref.tomtom_wp_new then
     self:EnableTomTom()
     if TomTom then
-      self:TextOut("Will use "..self:HighlightText("TomTom").." to show objectives.")
+      self:TextOut(QHFormat("SETTINGS_ARROWLINK_ON", QHText("SETTINGS_ARROWLINK_TOMTOM")))
     else
       self:TextOut("Would use "..self:HighlightText("TomTom").." to show objectives, except it doesn't seem to be present.")
     end
   else
     self:DisableTomTom()
-    self:TextOut("Won't use "..self:HighlightText("TomTom").." to show objectives.")
+    self:TextOut(QHFormat("SETTINGS_ARROWLINK_OFF", QHText("SETTINGS_ARROWLINK_TOMTOM")))
   end
 end
 
@@ -572,6 +584,11 @@ commands =
     {"HIDE",
      "Hides QuestHelper's modifications to the minimap and world map, and pauses routing calculations.",
       {}, QuestHelper.ToggleHide, QuestHelper},
+    
+    {"ARROW",
+     "Toggles Questhelper's built-in directional arrow.",
+      {{"/qh arrow reset", "Reset location to the center of the screen."}},
+      QuestHelper.ToggleArrow, QuestHelper},
       
     {"CARTWP",
      "Toggles displaying the current objective using Cartographer Waypoints (must be installed separately).",

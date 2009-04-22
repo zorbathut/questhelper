@@ -39,8 +39,10 @@ QuestHelper_DefaultPref =
   show_ants = true,
   level = 3,
   hide = false,
-  cart_wp = true,
-  tomtom_wp = true,
+  cart_wp_new = false,
+  tomtom_wp_new = false,
+  arrow = true,
+  arrow_locked = false,
   flight_time = true,
   locale = GetLocale(), -- This variable is used for display purposes, and has nothing to do with the collected data.
   perf_scale = 1,       -- How much background processing can the current machine handle?  Higher means more load, lower means better performance.
@@ -213,6 +215,7 @@ function QuestHelper:Initialize()
       ["error.lua"] = true,
       ["timeslice.lua"] = true,
       ["lang.lua"] = true,
+      ["arrow.lua"] = true,
 
       ["static.lua"] = true,
       ["static_deDE.lua"] = true,
@@ -296,7 +299,7 @@ function QuestHelper:Initialize()
     return
   end
   
-  if not GetCategoryList or not GetQuestLogSpecialItemInfo then
+  if not GetCategoryList or not GetQuestLogSpecialItemInfo or not WatchFrame_RemoveObjectiveHandler then
     message(QHText("PRIVATE_SERVER"))
     QuestHelper_ErrorCatcher_ExplicitError(true, "error id cakbep ten T")
     QuestHelper = nil
@@ -459,11 +462,11 @@ function QuestHelper:Initialize()
       QuestHelper:InitMapButton()
   end
   
-  if QuestHelper_Pref.cart_wp then
+  if QuestHelper_Pref.cart_wp_new then
     init_cartographer_later = true
   end
 
-  if QuestHelper_Pref.tomtom_wp then
+  if QuestHelper_Pref.tomtom_wp_new then
     self:EnableTomTom()
   end
 

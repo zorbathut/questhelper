@@ -259,7 +259,17 @@ QuestHelper_Translations.enUS =
   TOOLTIP_QUEST = "For Quest %h1.",
   TOOLTIP_PURCHASE = "Purchase %h1.",
   TOOLTIP_SLAY = "Slay for %h1.",
-  TOOLTIP_LOOT = "Loot for %h1."
+  TOOLTIP_LOOT = "Loot for %h1.",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = "Will use %h1 to show objectives.",
+  SETTINGS_ARROWLINK_OFF = "Won't use %h1 to show objectives.",
+  SETTINGS_ARROWLINK_ARROW = "QuestHelper Arrow",
+  SETTINGS_ARROWLINK_CART = "Cartographer Waypoints",
+  SETTINGS_ARROWLINK_TOMTOM = "TomTom",
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = "%h1 yards",
  }
 
 QuestHelper_TranslationFunctions.enUS =
