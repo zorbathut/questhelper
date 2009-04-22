@@ -95,7 +95,7 @@ local function StripBlizzQHTooltipClone(ttp)
     
     if qh_tooltip_print_a_lot then print(r, g, b, a) end
     
-    if r == 255 and g == 210 and b == 0 and a == 255 then
+    if r == 255 and g == 210 and b == 0 and a == 255 and qh_tooltip_do_not_hide_things then
       --_G["GameTooltipTextLeft" .. line]:SetText("hellos")
       _G["GameTooltipTextLeft" .. line]:SetText(nil)
       _G["GameTooltipTextLeft" .. line]:SetHeight(0)

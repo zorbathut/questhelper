@@ -63,7 +63,7 @@ end
 local wayframe = CreateFrame("Button", "QHArrowFrame", UIParent)
 wayframe:SetHeight(42)
 wayframe:SetWidth(56)
-wayframe:SetPoint("CENTER", 0, 0)
+wayframe:SetPoint("CENTER", -300, 300)
 wayframe:EnableMouse(true)
 wayframe:SetMovable(true)
 wayframe:SetUserPlaced(true)

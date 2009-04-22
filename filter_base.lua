@@ -74,7 +74,7 @@ local filter_quest_level = QH_MakeFilter("filter_quest_level", function(obj)
     else
       qtx = VirtualLevel(obj.type_quest.level, 5, false)  -- meh
     end
-  elseif obj.type_quest.variety == LFG_TYPE_DUNGEON then
+  elseif obj.type_quest.variety == LFG_TYPE_DUNGEON or obj.type_quest.variety == DUNGEON_DIFFICULTY2 then
     qtx = VirtualLevel(obj.type_quest.level, 5, true)
   elseif obj.type_quest.variety == LFG_TYPE_RAID then
     qtx = VirtualLevel(obj.type_quest.level, 25, true)
