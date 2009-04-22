@@ -1,4 +1,9 @@
 
+== Version 0.104 4/22/2009 ==
+
+* Questhelper now includes a built-in arrow. "/qh arrow" to disable or enable, "/qh arrow reset" to reset its position. I've turned the Cartographer and Tomtom arrows off by default, but you can turn them back on with the old /qh cartwp and /qh tomtom commands.
+* Possibly fix a small issue with the "special item" code
+
 == Version 0.103 4/16/2009 ==
 
 * Fix up the errors more permanently with a fundamentally better system
