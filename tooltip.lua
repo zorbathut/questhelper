@@ -89,6 +89,8 @@ local function StripBlizzQHTooltipClone(ttp)
   local changed = false
   local removed = 0
   
+  if qh_tooltip_print_a_lot then print(line, _G["GameTooltipTextLeft" .. line], _G["GameTooltipTextLeft" .. line]:IsShown()) end
+  
   while _G["GameTooltipTextLeft" .. line] and _G["GameTooltipTextLeft" .. line]:IsShown() do
     local r, g, b, a = _G["GameTooltipTextLeft" .. line]:GetTextColor()
     r, g, b, a = math.floor(r * 255 + 0.5), math.floor(g * 255 + 0.5), math.floor(b * 255 + 0.5), math.floor(a * 255 + 0.5)
