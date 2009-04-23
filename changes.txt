@@ -1,4 +1,9 @@
 
+== Version 1.0.7-alpha 4/22/2009 ==
+
+* Not quite sure where to start here.
+* Full rewrite of the routing core, pathing core, filters, quest director, data collector, data compilation, and database systems. Probably more. Consider this essentially an entire new UI mod, that merely happens to behave identically to QH 0.x.
+
 == Version 0.104 4/22/2009 ==
 
 * Questhelper now includes a built-in arrow. "/qh arrow" to disable or enable, "/qh arrow reset" to reset its position. I've turned the Cartographer and Tomtom arrows off by default, but you can turn them back on with the old /qh cartwp and /qh tomtom commands.
