@@ -196,6 +196,16 @@ QuestHelper_Translations.zhCN =
   TOOLTIP_QUEST = "为了任务 %h1.",
   TOOLTIP_PURCHASE = "购买 %h1.",
   TOOLTIP_SLAY = "击杀为了 %h1.",
-  TOOLTIP_LOOT = "拾取为 %h1."
+  TOOLTIP_LOOT = "拾取为 %h1.",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = nil,
+  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_TOMTOM = nil,
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = nil,
  }
 

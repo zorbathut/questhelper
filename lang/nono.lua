@@ -3,7 +3,7 @@
 QuestHelper_Translations.noNO =
  {
   -- Displayed by locale chooser.
-  LOCALE_NAME = "Engelsk",
+  LOCALE_NAME = "Norwegian",
   
   -- Messages used when starting.
   LOCALE_ERROR = "Språket i dine lagrede data passer ikke til språket på din WoW klient. For å bruke QuestHelper må du enten skifte språk, eller slette alle data ved å skrive %h(/qh purge)",
@@ -22,7 +22,7 @@ QuestHelper_Translations.noNO =
   HOME_CHANGED = "Ditt hjem har blitt endret.",
   TALK_TO_FLIGHT_MASTER = "Vennligst prat med den lokale flight masteren.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Takk.",
-  WILL_RESET_PATH = "Viltilbakestille ruteinformasjon.",
+  WILL_RESET_PATH = "Vil nullstille ruteinformasjon.",
   UPDATING_ROUTE = "Oppdaterer rute.",
   
   -- Special tracker text
@@ -37,7 +37,7 @@ QuestHelper_Translations.noNO =
   
   -- Words used for objectives.
   SLAY_VERB = "Drep",
-  ACQUIRE_VERB = "Anskaff",
+  ACQUIRE_VERB = "Anskaffe",
   
   OBJECTIVE_REASON = "%1 %h2 for quest %h3.", -- %1 is a verb, %2 is a noun (item or monster)
   OBJECTIVE_REASON_FALLBACK = "%h1 for quest %h2.",
@@ -126,20 +126,20 @@ QuestHelper_Translations.noNO =
   NAG_SINGLE_FP = "En flight master",
   NAG_SINGLE_QUEST = "1 quest",
   NAG_SINGLE_ROUTE = "En fly rute",
-  NAG_SINGLE_ITEM_OBJ = nil,
-  NAG_SINGLE_OBJECT_OBJ = nil,
+  NAG_SINGLE_ITEM_OBJ = "en ting oppdrag",
+  NAG_SINGLE_OBJECT_OBJ = "et objekt objektiv",
   NAG_SINGLE_MONSTER_OBJ = "Et monster objektiv",
-  NAG_SINGLE_EVENT_OBJ = nil,
+  NAG_SINGLE_EVENT_OBJ = "en hending objektiv",
   NAG_SINGLE_REPUTATION_OBJ = "Et rykte objektiv",
   NAG_SINGLE_PLAYER_OBJ = "Et spiller objektiv",
   
   NAG_MULTIPLE_FP = "%1 flight masters",
   NAG_MULTIPLE_QUEST = "%1 quester",
   NAG_MULTIPLE_ROUTE = "%1 fly rute",
-  NAG_MULTIPLE_ITEM_OBJ = nil,
-  NAG_MULTIPLE_OBJECT_OBJ = nil,
-  NAG_MULTIPLE_MONSTER_OBJ = nil,
-  NAG_MULTIPLE_EVENT_OBJ = nil,
+  NAG_MULTIPLE_ITEM_OBJ = "%1 ting oppdrag",
+  NAG_MULTIPLE_OBJECT_OBJ = "%1 objekt oppdrag",
+  NAG_MULTIPLE_MONSTER_OBJ = "%1 monster oppdrag",
+  NAG_MULTIPLE_EVENT_OBJ = "@",
   NAG_MULTIPLE_REPUTATION_OBJ = "%1 rykte objektiv",
   NAG_MULTIPLE_PLAYER_OBJ = "%1 spiller objektiver",
   
@@ -174,7 +174,7 @@ QuestHelper_Translations.noNO =
   MENU_MAP_BUTTON = "%1 Kartknapp",
   MENU_ZONE_FILTER = "%1 Sone filter",
   MENU_DONE_FILTER = "%1 Utført Filter",
-  MENU_BLOCKED_FILTER = "%1 Blokkert Filter",
+  MENU_BLOCKED_FILTER = "%1 Blokkerte Filter",
   MENU_WATCHED_FILTER = "%1 Overvåket Filter",
   MENU_LEVEL_FILTER = "%1 Nivåfilter",
   MENU_LEVEL_OFFSET = "Nivåfilter Offset",
@@ -196,6 +196,16 @@ QuestHelper_Translations.noNO =
   TOOLTIP_QUEST = "For Quest %h1.",
   TOOLTIP_PURCHASE = "Kjøp %h1.",
   TOOLTIP_SLAY = "Drep for %h1.",
-  TOOLTIP_LOOT = "Bytte for %h1."
+  TOOLTIP_LOOT = "Bytte for %h1.",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = nil,
+  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_TOMTOM = nil,
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = nil,
  }
 

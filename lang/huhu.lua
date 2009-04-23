@@ -196,6 +196,16 @@ QuestHelper_Translations.huHU =
   TOOLTIP_QUEST = "A(z) %h1 questhez.",
   TOOLTIP_PURCHASE = "Végy %h1-t.",
   TOOLTIP_SLAY = "Ölj ehhez: %h1.",
-  TOOLTIP_LOOT = "Lootolj %h1-t."
+  TOOLTIP_LOOT = "Lootolj %h1-t.",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = nil,
+  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_TOMTOM = nil,
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = nil,
  }
 

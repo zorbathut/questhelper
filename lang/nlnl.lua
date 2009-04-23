@@ -196,6 +196,16 @@ QuestHelper_Translations.nlNL =
   TOOLTIP_QUEST = "Voor Quest %h1.",
   TOOLTIP_PURCHASE = "Koop %h1.",
   TOOLTIP_SLAY = "Dood voor %h1.",
-  TOOLTIP_LOOT = "Loot voor %h1."
+  TOOLTIP_LOOT = "Loot voor %h1.",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = nil,
+  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_TOMTOM = nil,
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = nil,
  }
 

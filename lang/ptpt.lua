@@ -196,6 +196,16 @@ QuestHelper_Translations.ptPT =
   TOOLTIP_QUEST = "Para a Missão %h1.",
   TOOLTIP_PURCHASE = "Adquirir %h1.",
   TOOLTIP_SLAY = "Matar para %h1.",
-  TOOLTIP_LOOT = "Pilhar por %h1."
+  TOOLTIP_LOOT = "Pilhar por %h1.",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = nil,
+  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_TOMTOM = nil,
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = nil,
  }
 

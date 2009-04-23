@@ -196,6 +196,16 @@ QuestHelper_Translations.daDK =
   TOOLTIP_QUEST = "Til Questen %h1.",
   TOOLTIP_PURCHASE = "Køb %h1.",
   TOOLTIP_SLAY = "Dræb for at få %h1.",
-  TOOLTIP_LOOT = "Plyndr for at få %h1."
+  TOOLTIP_LOOT = "Plyndr for at få %h1.",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = nil,
+  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_TOMTOM = nil,
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = nil,
  }
 

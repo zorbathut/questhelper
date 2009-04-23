@@ -12,10 +12,10 @@ QuestHelper_Translations.esES =
   HOME_NOT_KNOWN = "Se desconoce la posición de su hogar. Cuando pueda, por favor, hable con su posadero para restaurarla.",
   PRIVATE_SERVER = "QuestHelper no soporta servidores privados.",
   PLEASE_RESTART = "Se ha producido un error al iniciar QuestHelper. Por favor, sal de completamente de World of Warcraft e inténtalo de nuevo.",
-  NOT_UNZIPPED_CORRECTLY = "QuestHelper se instaló correctamente. Se recomienda usar Curse Client o 7zip para instalar. Aseguresé de que los subdirectorios son descomprimidos.",
+  NOT_UNZIPPED_CORRECTLY = "QuestHelper se instaló incorrectamente. Se recomienda usar Curse Client o 7zip para instalar. Aseguresé de que los subdirectorios son descomprimidos.",
   PLEASE_DONATE = "%h(QuestHelper se financia de donaciones!). Se agradece cualquier contribución, sólo unos pocos dólares al mes asegurarán el mantenimiento de la aplicación y futuras actualizaciones. Escriba %h(/qh donate) para más información.",
   HOW_TO_CONFIGURE = "QuestHelper no tiene aun una pagina de opciones, pero puede ser configurado escribiendo \"/qh settings\". Para más ayuda \"/qh help\"",
-  TIME_TO_UPDATE = "Puede que haya una %h (nueva versión) disponible . Las nuevas versiones suelen incluir nuevas funcionalidades, bases de datos y arreglan errores. Por favor, actualice!",
+  TIME_TO_UPDATE = "Puede que haya una %h (nueva versión de QuestHelper) disponible . Las nuevas versiones suelen incluir nuevas funcionalidades, bases de datos y arreglan errores. Por favor, actualice!",
   
   -- Route related text.
   ROUTES_CHANGED = "Las rutas de vuelo de su personaje han sido alteradas.",
@@ -88,8 +88,8 @@ QuestHelper_Translations.esES =
   PEER_ITEM = "Ayuda a %1 a adquirir %h2",
   PEER_OTHER = "Ayudar a %1 con %h2.",
   
-  PEER_NEWER = "%h1 está utilizando una nueva versión de protocolo. Tal vez sea el momento de actualizarse.",
-  PEER_OLDER = "%h1 está utilizando una versión mas antigua del protocolo.",
+  PEER_NEWER = "%h1 está utilizando una nueva versión de QuestHelper. Tal vez sea el momento de actualizarlo.",
+  PEER_OLDER = "%h1 está utilizando una versión mas antigua del QuestHelper.",
   
   UNKNOWN_MESSAGE = "Tipo de mensaje desconocido '%1' desde '%2'.",
   
@@ -175,12 +175,12 @@ QuestHelper_Translations.esES =
   MENU_ZONE_FILTER = "%1 Filtro de Zona",
   MENU_DONE_FILTER = "%1 Filtro de Hecho",
   MENU_BLOCKED_FILTER = "%1 Filtro de Bloqueado",
-  MENU_WATCHED_FILTER = nil,
+  MENU_WATCHED_FILTER = "%1 Vistos usando Filtración",
   MENU_LEVEL_FILTER = "%1 Filtro de Nivel",
   MENU_LEVEL_OFFSET = "Margen del Filtro de Nivel",
   MENU_ICON_SCALE = "Escala del Icono",
   MENU_FILTERS = "Filtros",
-  MENU_PERFORMANCE = "Escala de Route Workload",
+  MENU_PERFORMANCE = "Escala de Ruta de Trabajo",
   MENU_LOCALE = "Idioma",
   MENU_PARTY = "Grupo",
   MENU_PARTY_SHARE = "%1 Compartir Objetivo",
@@ -196,6 +196,16 @@ QuestHelper_Translations.esES =
   TOOLTIP_QUEST = "Para Misión %h1.",
   TOOLTIP_PURCHASE = "Comprar %h1.",
   TOOLTIP_SLAY = "Matar para %h1.",
-  TOOLTIP_LOOT = "Botín para %h1."
+  TOOLTIP_LOOT = "Botín para %h1.",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = "Usara %h1 para mostrar objetivos.",
+  SETTINGS_ARROWLINK_OFF = "No usara %h1 para mostrar objetivos.",
+  SETTINGS_ARROWLINK_ARROW = "Flecha de QuestHelper",
+  SETTINGS_ARROWLINK_CART = "Puntos de ruta de Cartographer",
+  SETTINGS_ARROWLINK_TOMTOM = "TomTom",
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = "%h1 Metros",
  }
 

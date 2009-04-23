@@ -196,6 +196,16 @@ QuestHelper_Translations.roRO =
   TOOLTIP_QUEST = nil,
   TOOLTIP_PURCHASE = nil,
   TOOLTIP_SLAY = nil,
-  TOOLTIP_LOOT = nil
+  TOOLTIP_LOOT = nil,
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = nil,
+  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_TOMTOM = nil,
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = nil,
  }
 

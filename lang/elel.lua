@@ -196,6 +196,16 @@ QuestHelper_Translations.elEL =
   TOOLTIP_QUEST = "Για την Αποστολή %h1.",
   TOOLTIP_PURCHASE = "Αγόρασε %h1.",
   TOOLTIP_SLAY = "Σκότωσε για το %h1.",
-  TOOLTIP_LOOT = "Λάφυρα για τον %h1."
+  TOOLTIP_LOOT = "Λάφυρα για τον %h1.",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = nil,
+  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_TOMTOM = nil,
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = nil,
  }
 

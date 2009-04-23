@@ -196,6 +196,16 @@ QuestHelper_Translations.plPL =
   TOOLTIP_QUEST = "Do Questa %h1",
   TOOLTIP_PURCHASE = "Kup %h1",
   TOOLTIP_SLAY = "Zabij do %h1",
-  TOOLTIP_LOOT = "Wylootuj dla %h1"
+  TOOLTIP_LOOT = "Wylootuj dla %h1",
+  
+  -- Settings
+  SETTINGS_ARROWLINK_ON = nil,
+  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_TOMTOM = nil,
+  
+  -- I'm just tossing miscellaneous stuff down here
+  DISTANCE = nil,
  }
 
