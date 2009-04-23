@@ -298,7 +298,7 @@ local function UpdateQuests()
   
   deebey = noobey
   
-  QuestHelper: Assert(diffs <= 5, string.format("excessive quest diffs - delta is %d, went from %d to %d", diffs, dsize, nsize))
+  --QuestHelper: Assert(diffs <= 5, string.format("excessive quest diffs - delta is %d, went from %d to %d", diffs, dsize, nsize))
   --QuestHelper:TextOut(string.format("done in %f", GetTime() - tim))
 end
 
