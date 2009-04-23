@@ -95,13 +95,13 @@ local function StripBlizzQHTooltipClone(ttp)
     
     if qh_tooltip_print_a_lot then print(r, g, b, a) end
     
-    if r == 255 and g == 210 and b == 0 and a == 255 and qh_tooltip_do_not_hide_things then
+    if r == 255 and g == 210 and b == 0 and a == 255 and not qh_tooltip_do_not_hide_things then
+      if qh_tooltip_print_a_lot then print("hiding") end
       --_G["GameTooltipTextLeft" .. line]:SetText("hellos")
       _G["GameTooltipTextLeft" .. line]:SetText(nil)
       _G["GameTooltipTextLeft" .. line]:SetHeight(0)
       _G["GameTooltipTextLeft" .. line]:ClearAllPoints()
       _G["GameTooltipTextLeft" .. line]:SetPoint("TOPLEFT", _G["GameTooltipTextLeft" .. (line - 1)], "BOTTOMLEFT", 0, 1)
-      GameTooltip:Show()
       changed = true
       removed = removed + 1
     end
@@ -135,6 +135,7 @@ function CreateTooltip(self)
       self:Show()
     end
     
+    if qh_tooltip_print_a_lot then print("wut") end
     if ulink and IsMonsterGUID(ulink) then
       if QH_filter_hints then
         glob_strip = StripBlizzQHTooltipClone(self)
@@ -153,6 +154,7 @@ end
 
 local ottsu = GameTooltip:GetScript("OnTooltipSetUnit")
 GameTooltip:SetScript("OnTooltipSetUnit", function (self, ...)
+  if qh_tooltip_print_a_lot then print("lol") end
   CreateTooltip(self)
   if ottsu then ottsu(self, ...) end
 end)
