@@ -852,7 +852,7 @@ function QuestHelper:OnUpdate()
   
   if init_cartographer_later and Cartographer_Waypoints then    -- there has to be a better way to do this
     init_cartographer_later = false
-    if QuestHelper_Pref.cart_wp then
+    if QuestHelper_Pref.cart_wp_new then
       self:EnableCartographer()
     end
   end
