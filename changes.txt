@@ -8,6 +8,7 @@
 
 * Questhelper now includes a built-in arrow. "/qh arrow" to disable or enable, "/qh arrow reset" to reset its position. I've turned the Cartographer and Tomtom arrows off by default, but you can turn them back on with the old /qh cartwp and /qh tomtom commands.
 * Possibly fix a small issue with the "special item" code
+* Disable the map button. This is temporary - it's just kind of broken right now and conflicts with the default Blizzard UI. I'll come up with a solution.
 
 == Version 0.103 4/16/2009 ==
 
