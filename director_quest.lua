@@ -100,7 +100,7 @@ local function GetQuestMetaobjective(questid, lbcount)
     
     -- just doublechecking here
     if q and q.criteria then for k, v in pairs(q.criteria) do
-      QuestHelper: Assert(type(k) ~= "number" or k <= lbcount, string.format("%s %s", lbcount, k))
+      QuestHelper: Assert(type(k) ~= "number" or k <= lbcount, string.format("%s %s %s", questid, lbcount, k))
     end end
     
     ite = {type_quest = {}} -- we don't want to mutate the existing quest data

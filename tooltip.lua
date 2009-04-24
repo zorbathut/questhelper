@@ -1,4 +1,4 @@
-QuestHelper_File["tooltip.lua"] = "Development Version"
+QuestHelper_File["tooltip.lua"] = "1.0.7-alpha"
 QuestHelper_Loadtime["tooltip.lua"] = GetTime()
 
 local function DoTooltip(self, tooltipi)
@@ -137,7 +137,7 @@ function CreateTooltip(self)
       self:Show()
     end
     
-    if qh_tooltip_print_a_lot then print("wut") end
+    if qh_tooltip_print_a_lot then print("wut", ulink, IsMonsterGUID(ulink)) print(ulink) print(IsMonsterGUID(ulink)) end
     if ulink and IsMonsterGUID(ulink) then
       if QH_filter_hints then
         glob_strip = StripBlizzQHTooltipClone(self)
