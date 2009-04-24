@@ -371,6 +371,7 @@ end
 local function process()
 
   local last_cull = 0
+  local last_movement = 0
   
   local first = true
   -- Order here is important. We don't want to update the location, then wait for a while as we add nodes. We also need the location updated before the first nodes are added. This way, it all works and we don't need anything outside the loop.
@@ -387,27 +388,31 @@ local function process()
       pathcache_active = new_pathcache_table()
     end
     
-    local c, x, y, rc, rz = QuestHelper.collect_ac, QuestHelper.collect_ax, QuestHelper.collect_ay, QuestHelper.c, QuestHelper.z  -- ugh we need a better solution to this, but with this weird "planes" hybrid there just isn't one right now
-    if c and x and y and rc and rz and (c ~= lc or x ~= lx or y ~= ly or rc ~= lrc or rz ~= lrz) then
-      --local t = GetTime()
-      lc, lx, ly, lrc, lrz = c, x, y, rc, rz
-      
-      local new_playerpos = {desc = "Start", why = StartObjective, loc = NewLoc(c, x, y, rc, rz), tracker_hidden = true, ignore = true}
-      Route_Core_SetStart(new_playerpos)
-      if last_path then last_path[1] = new_playerpos end
-      --QuestHelper: TextOut(string.format("SS takes %f", GetTime() - t))
-      ReplotPath()
-      
-      if last_playerpos then
-        -- if it's in active, then it must be in inactive as well, so we do our actual deallocation in inactive only
-        if pathcache_active[last_playerpos] then QuestHelper:ReleaseTable(pathcache_active[last_playerpos]) pathcache_active[last_playerpos] = nil end
-        for k, v in pairs(pathcache_active) do v[last_playerpos] = nil end
+    if last_movement + 1 < GetTime() then
+      local c, x, y, rc, rz = QuestHelper.collect_ac, QuestHelper.collect_ax, QuestHelper.collect_ay, QuestHelper.c, QuestHelper.z  -- ugh we need a better solution to this, but with this weird "planes" hybrid there just isn't one right now
+      if c and x and y and rc and rz and (c ~= lc or x ~= lx or y ~= ly or rc ~= lrc or rz ~= lrz) then
+        --local t = GetTime()
+        lc, lx, ly, lrc, lrz = c, x, y, rc, rz
         
-        if pathcache_inactive[last_playerpos] then ReleaseShard(last_playerpos, pathcache_inactive[last_playerpos]) pathcache_inactive[last_playerpos] = nil end
-        for k, v in pairs(pathcache_inactive) do if v[last_playerpos] then QuestHelper:ReleaseTable(v[last_playerpos]) v[last_playerpos] = nil end end
+        local new_playerpos = {desc = "Start", why = StartObjective, loc = NewLoc(c, x, y, rc, rz), tracker_hidden = true, ignore = true}
+        Route_Core_SetStart(new_playerpos)
+        if last_path then last_path[1] = new_playerpos end
+        --QuestHelper: TextOut(string.format("SS takes %f", GetTime() - t))
+        ReplotPath()
+        
+        if last_playerpos then
+          -- if it's in active, then it must be in inactive as well, so we do our actual deallocation in inactive only
+          if pathcache_active[last_playerpos] then QuestHelper:ReleaseTable(pathcache_active[last_playerpos]) pathcache_active[last_playerpos] = nil end
+          for k, v in pairs(pathcache_active) do v[last_playerpos] = nil end
+          
+          if pathcache_inactive[last_playerpos] then ReleaseShard(last_playerpos, pathcache_inactive[last_playerpos]) pathcache_inactive[last_playerpos] = nil end
+          for k, v in pairs(pathcache_inactive) do if v[last_playerpos] then QuestHelper:ReleaseTable(v[last_playerpos]) v[last_playerpos] = nil end end
+        end
+        
+        last_playerpos = new_playerpos
+        
+        last_movement = GetTime()
       end
-      
-      last_playerpos = new_playerpos
     end
     
     if not first then
