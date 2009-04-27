@@ -154,11 +154,14 @@ function CreateTooltip(self)
   end
 end
 
+local unit_to_adjust = nil
+
 local ottsu = GameTooltip:GetScript("OnTooltipSetUnit")
 GameTooltip:SetScript("OnTooltipSetUnit", function (self, ...)
   if qh_tooltip_print_a_lot then print("lol") end
   CreateTooltip(self)
   if ottsu then ottsu(self, ...) end
+  unit_to_adjust = self:GetUnit()
 end)
 
 local ottsi = GameTooltip:GetScript("OnTooltipSetItem")
@@ -167,10 +170,11 @@ GameTooltip:SetScript("OnTooltipSetItem", function (self, ...)
   if ottsi then return ottsi(self, ...) end
 end)
 
-local ttsx = GameTooltip:GetScript("OnShow")
-GameTooltip:SetScript("OnShow", function (self, ...)
+local ttsx = GameTooltip:GetScript("OnUpdate")
+GameTooltip:SetScript("OnUpdate", function (self, ...)
   if ttsx then ttsx(self, ...) end
-  if self:GetUnit() then
+  if unit_to_adjust == self:GetUnit() then
     self:SetHeight(self:GetHeight() - glob_strip * 3) -- maaaaaagic
+    unit_to_adjust = nil
   end
 end)
