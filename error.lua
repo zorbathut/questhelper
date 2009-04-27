@@ -134,7 +134,7 @@ function QuestHelper_ErrorCatcher_ExplicitError(loud, o_msg, o_frame, o_stack, .
   
   QuestHelper_ErrorCatcher_RegisterError("crash", terror)
   
-  if not first_error then first_error = terror end
+  if not first_error or first_error.generated then first_error = terror end
   
   QuestHelper_ErrorCatcher.CondenseErrors()
   
@@ -142,6 +142,20 @@ function QuestHelper_ErrorCatcher_ExplicitError(loud, o_msg, o_frame, o_stack, .
     message("QuestHelper has broken. You may have to restart WoW. Type \"/qh error\" for a detailed error message.")
     yelled_at_user = true
   end
+end
+
+function QuestHelper_ErrorCatcher_GenerateReport()
+  if first_error then return end -- don't need to generate one
+  
+  local terror = QuestHelper_ErrorPackage()
+  
+  terror.message = "(Full report)"
+  terror.addons = QuestHelper_ErrorCatcher.GetAddOns()
+  terror.stack = ""
+  terror.silent = "(Full report)"
+  terror.generated = true
+  
+  first_error = terror
 end
 
 function QuestHelper_ErrorCatcher.OnError(o_msg, o_frame, o_stack, o_etype, ...)
