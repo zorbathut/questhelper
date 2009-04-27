@@ -61,8 +61,6 @@ local function ColorGradient(perc, ...)
 end
 
 local wayframe = CreateFrame("Button", "QHArrowFrame", UIParent)
-wayframe:SetHeight(42)
-wayframe:SetWidth(56)
 wayframe:SetPoint("CENTER", 0, 0)
 wayframe:EnableMouse(true)
 wayframe:SetMovable(true)
@@ -80,6 +78,7 @@ wayframe.tta = titleframe:CreateFontString("OVERLAY", nil, "GameFontNormalSmall"
 wayframe.title:SetPoint("TOP", wayframe, "BOTTOM", 0, 0)
 wayframe.status:SetPoint("TOP", wayframe.title, "BOTTOM", 0, 0)
 wayframe.tta:SetPoint("TOP", wayframe.status, "BOTTOM", 0, 0)
+local default_font_name, default_font_size, default_font_flags = wayframe.title:GetFont()
 
 do
   local r, g, b, a = wayframe.status:GetTextColor()
@@ -128,6 +127,23 @@ function QH_Arrow_Reset()
   wayframe:SetPoint("CENTER", 0, 0)
   QuestHelper_Pref.arrow_locked = false -- they're probably going to want to move it
 end
+
+function QH_Arrow_SetScale(scale)
+  wayframe:SetHeight(42 * scale)
+  wayframe:SetWidth(56 * scale)
+  QuestHelper_Pref.arrow_arrowsize = scale
+  --wayframe:SetScale(scale)
+end
+QH_Arrow_SetScale(QuestHelper_Pref.arrow_arrowsize or 1)
+
+function QH_Arrow_SetTextScale(scale)
+  wayframe.title:SetFont(default_font_name, default_font_size * scale, default_font_flags)
+  wayframe.status:SetFont(default_font_name, default_font_size * scale, default_font_flags)
+  wayframe.tta:SetFont(default_font_name, default_font_size * scale, default_font_flags)
+  QuestHelper_Pref.arrow_textsize = scale
+  --wayframe:SetScale(scale)
+end
+QH_Arrow_SetTextScale(QuestHelper_Pref.arrow_textsize or 1)
 
 local function wpupdate(c, z, x, y, desc)
   active_point.c, active_point.z, active_point.x, active_point.y = c, z, x, y
@@ -285,6 +301,40 @@ local function WayFrame_OnClick(self, button)
   lock:AddTexture(ltex, true)
   lock:AddTexture(spacer(), false)
   ltex:SetVertexColor(1, 1, 1, QuestHelper_Pref.arrow_locked and 1 or 0)
+  
+  local scale = QuestHelper:CreateMenuItem(menu, "Arrow Scale")
+  local scale_menu = QuestHelper:CreateMenu()
+  scale:SetSubmenu(scale_menu)
+  scale:AddTexture(spacer(), true)
+  for i = 5, 15 do
+    local it = QuestHelper:CreateMenuItem(scale_menu, string.format("%d%%", i * 10))
+    local ix = i
+    it:SetFunction(function () QH_Arrow_SetScale(ix / 10) end)
+    local icon = QuestHelper:CreateIconTexture(item, 10)
+    if QuestHelper_Pref.arrow_arrowsize == ix / 10 then
+      icon:SetVertexColor(1, 1, 1, 1)
+    else
+      icon:SetVertexColor(1, 1, 1, 0)
+    end
+    it:AddTexture(icon)
+  end
+  
+  local tscale = QuestHelper:CreateMenuItem(menu, "Text Scale")
+  local tscale_menu = QuestHelper:CreateMenu()
+  tscale:SetSubmenu(tscale_menu)
+  tscale:AddTexture(spacer(), true)
+  for i = 5, 15 do
+    local it = QuestHelper:CreateMenuItem(tscale_menu, string.format("%d%%", i * 10))
+    local ix = i
+    it:SetFunction(function () QH_Arrow_SetTextScale(ix / 10) end)
+    local icon = QuestHelper:CreateIconTexture(item, 10)
+    if QuestHelper_Pref.arrow_textsize == ix / 10 then
+      icon:SetVertexColor(1, 1, 1, 1)
+    else
+      icon:SetVertexColor(1, 1, 1, 0)
+    end
+    it:AddTexture(icon)
+  end
   
   menu:ShowAtCursor()
 end
