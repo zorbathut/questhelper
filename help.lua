@@ -539,7 +539,10 @@ After you find |cff40bbffQuestHelper.lua|r, you can email it to me here: |cff40b
 ]], "How To Submit Your Data")
 end
 
-function QuestHelper:ShowError()
+function QuestHelper:ShowError(params)
+  if params and params == "full" then
+    QuestHelper_ErrorCatcher_GenerateReport()
+  end
   QuestHelper_ErrorCatcher_ReportError()
 end
 

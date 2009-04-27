@@ -61,8 +61,6 @@ local function ColorGradient(perc, ...)
 end
 
 local wayframe = CreateFrame("Button", "QHArrowFrame", UIParent)
-wayframe:SetHeight(42)
-wayframe:SetWidth(56)
 wayframe:SetPoint("CENTER", -300, 300)
 wayframe:EnableMouse(true)
 wayframe:SetMovable(true)
@@ -80,6 +78,7 @@ wayframe.tta = titleframe:CreateFontString("OVERLAY", nil, "GameFontNormalSmall"
 wayframe.title:SetPoint("TOP", wayframe, "BOTTOM", 0, 0)
 wayframe.status:SetPoint("TOP", wayframe.title, "BOTTOM", 0, 0)
 wayframe.tta:SetPoint("TOP", wayframe.status, "BOTTOM", 0, 0)
+local default_font_name, default_font_size, default_font_flags = wayframe.title:GetFont()
 
 do
   local r, g, b, a = wayframe.status:GetTextColor()
@@ -113,7 +112,8 @@ wayframe:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 wayframe:SetScript("OnEvent", OnEvent)
 
 wayframe.arrow = wayframe:CreateTexture("OVERLAY")
-wayframe.arrow:SetTexture("Interface\\Addons\\QuestHelper\\arrow_image")
+--wayframe.arrow:SetTexture("Interface\\AddOns\\QuestHelper\\arrow_image_down") -- if we don't do this, the image doesn't seem to end up cached. :blizzard:
+wayframe.arrow:SetTexture("Interface\\AddOns\\QuestHelper\\arrow_image")
 wayframe.arrow:SetAllPoints()
 
 local active_point, arrive_distance, showDownArrow, point_title
@@ -129,6 +129,33 @@ function QH_Arrow_Reset()
   QuestHelper_Pref.arrow_locked = false -- they're probably going to want to move it
 end
 
+function QH_Arrow_SetScale(scale)
+  if scale then
+    QuestHelper_Pref.arrow_arrowsize = scale
+  else
+    scale = QuestHelper_Pref.arrow_arrowsize
+  end
+  
+  if not showDownArrow then
+    wayframe:SetHeight(42 * scale)
+    wayframe:SetWidth(56 * scale)
+  else
+    scale = scale * 0.8
+    wayframe:SetHeight(70 * scale)
+    wayframe:SetWidth(53 * scale)
+  end
+end
+QH_Arrow_SetScale()
+
+function QH_Arrow_SetTextScale(scale)
+  wayframe.title:SetFont(default_font_name, default_font_size * scale, default_font_flags)
+  wayframe.status:SetFont(default_font_name, default_font_size * scale, default_font_flags)
+  wayframe.tta:SetFont(default_font_name, default_font_size * scale, default_font_flags)
+  QuestHelper_Pref.arrow_textsize = scale
+  --wayframe:SetScale(scale)
+end
+QH_Arrow_SetTextScale(QuestHelper_Pref.arrow_textsize or 1)
+
 local function wpupdate(c, z, x, y, desc)
   active_point.c, active_point.z, active_point.x, active_point.y = c, z, x, y
   wayframe.title:SetText(desc)
@@ -141,7 +168,6 @@ QuestHelper:AddWaypointCallback(wpupdate)
 local status = wayframe.status
 local tta = wayframe.tta
 local arrow = wayframe.arrow
-local count = 0
 local last_distance = 0
 local tta_throttle = 0
 local speed = 0
@@ -162,26 +188,18 @@ OnUpdate = function(self, elapsed)
   else
     status:SetText("")
   end
-  
-	local cell
 
 	-- Showing the arrival arrow?
-  --[[
 	if dist and dist <= 10 then
 		if not showDownArrow then
-			arrow:SetHeight(70)
-			arrow:SetWidth(53)
-			arrow:SetTexture("Interface\\AddOns\\TomTom\\Images\\Arrow-UP")
-			arrow:SetVertexColor(0, 1, 0)
 			showDownArrow = true
+      QH_Arrow_SetScale()
+			arrow:SetTexture("Interface\\AddOns\\QuestHelper\\arrow_image_down")
+			arrow:SetVertexColor(0, 1, 0)
 		end
 
-		count = count + 1
-		if count >= 55 then
-			count = 0
-		end
+		local cell = math.floor(mod(GetTime() * 20, 55)) -- 20 fps seems to be around the right number
 
-		cell = count
 		local column = cell % 9
 		local row = floor(cell / 9)
 
@@ -192,11 +210,11 @@ OnUpdate = function(self, elapsed)
 		arrow:SetTexCoord(xstart,xend,ystart,yend)
 	else
 		if showDownArrow then
-			arrow:SetHeight(56)
-			arrow:SetWidth(42)
-			arrow:SetTexture("Interface\\AddOns\\TomTom\\Images\\Arrow")
 			showDownArrow = false
-		end]]
+      QH_Arrow_SetScale()
+			arrow:SetTexture("Interface\\AddOns\\QuestHelper\\arrow_image")
+			showDownArrow = false
+		end
 
 		local angle = atan2(-dx, -dy) / 360 * (math.pi * 2) -- degrees. seriously what
     --if angle < 0 then angle = angle + math.pi * 2 end
@@ -213,7 +231,7 @@ OnUpdate = function(self, elapsed)
 		arrow:SetVertexColor(r,g,b)
 
 
-		cell = floor(angle / (math.pi * 2) * 108 + 0.5) % 108
+		local cell = floor(angle / (math.pi * 2) * 108 + 0.5) % 108
 		local column = cell % 9
 		local row = floor(cell / 9)
 
@@ -222,7 +240,7 @@ OnUpdate = function(self, elapsed)
 		local xend = ((column + 1) * 56) / 512
 		local yend = ((row + 1) * 42) / 512
 		arrow:SetTexCoord(xstart,xend,ystart,yend)
-	--end
+	end
 
 	-- Calculate the TTA every second  (%01d:%02d)
 
@@ -285,6 +303,40 @@ local function WayFrame_OnClick(self, button)
   lock:AddTexture(ltex, true)
   lock:AddTexture(spacer(), false)
   ltex:SetVertexColor(1, 1, 1, QuestHelper_Pref.arrow_locked and 1 or 0)
+  
+  local scale = QuestHelper:CreateMenuItem(menu, "Arrow Scale")
+  local scale_menu = QuestHelper:CreateMenu()
+  scale:SetSubmenu(scale_menu)
+  scale:AddTexture(spacer(), true)
+  for i = 5, 15 do
+    local it = QuestHelper:CreateMenuItem(scale_menu, string.format("%d%%", i * 10))
+    local ix = i
+    it:SetFunction(function () QH_Arrow_SetScale(ix / 10) end)
+    local icon = QuestHelper:CreateIconTexture(item, 10)
+    if QuestHelper_Pref.arrow_arrowsize == ix / 10 then
+      icon:SetVertexColor(1, 1, 1, 1)
+    else
+      icon:SetVertexColor(1, 1, 1, 0)
+    end
+    it:AddTexture(icon)
+  end
+  
+  local tscale = QuestHelper:CreateMenuItem(menu, "Text Scale")
+  local tscale_menu = QuestHelper:CreateMenu()
+  tscale:SetSubmenu(tscale_menu)
+  tscale:AddTexture(spacer(), true)
+  for i = 5, 15 do
+    local it = QuestHelper:CreateMenuItem(tscale_menu, string.format("%d%%", i * 10))
+    local ix = i
+    it:SetFunction(function () QH_Arrow_SetTextScale(ix / 10) end)
+    local icon = QuestHelper:CreateIconTexture(item, 10)
+    if QuestHelper_Pref.arrow_textsize == ix / 10 then
+      icon:SetVertexColor(1, 1, 1, 1)
+    else
+      icon:SetVertexColor(1, 1, 1, 0)
+    end
+    it:AddTexture(icon)
+  end
   
   menu:ShowAtCursor()
 end
