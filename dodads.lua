@@ -213,7 +213,7 @@ function QuestHelper:CreateWorldMapWalker()
           if not dodad then
             self.map_dodads[cur_dodad] = self.frame:CreateWorldMapDodad(self.route[i], i)
           else
-            self.map_dodads[cur_dodad]:SetObjective(self.route[i], i)
+            self.map_dodads[cur_dodad]:SetObjective(self.route[i], i == 2)
           end
           cur_dodad = cur_dodad + 1
         end
@@ -368,7 +368,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
     QuestHelper.tooltip:Show()
   end
   
-  function icon:SetObjective(objective, i)
+  function icon:SetObjective(objective, nxt)
     self:SetHeight(20*QuestHelper_Pref.scale)
     self:SetWidth(20*QuestHelper_Pref.scale)
     
@@ -384,19 +384,13 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
     
     if objective then
       self.objective = objective
-      self.index = i
       
-      if i == 1 then
-        -- if it's the very next objective, give it the green background
+      if nxt then
         self.bg = QuestHelper:CreateIconTexture(self, 13)
-      elseif objective.filter_blocked then
-        -- if there are still prerequisites, make it grey
-        -- filter_blocked is updated by [Add|Remove]ObjectiveWatch and ObjectiveObjectDependsOn,
-        -- and will be true if there are other objectives that need to be completed before this one.
-        self.bg = QuestHelper:CreateIconTexture(self, 16)
+      elseif objective.map_highlight then
+        self.bg = QuestHelper:CreateIconTexture(self, 14)
       else
-        -- otherwise give it the background selected by the objective
-        self.bg = QuestHelper:CreateIconTexture(self, objective.icon_bg or 16)
+        self.bg = QuestHelper:CreateIconTexture(self, 16)
       end
       
       self.dot = QuestHelper:CreateIconTexture(self, objective.icon_id or 8)

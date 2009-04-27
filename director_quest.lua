@@ -329,6 +329,10 @@ function QH_UpdateQuests(force)
             
             -- This is our "quest turnin" objective, which is currently being handled separately for no particularly good reason.
             if db.finish and #db.finish > 0 then
+              for _, v in ipairs(db.finish) do
+                v.map_highlight = (complete == 1)
+              end
+              
               turnin = db.finish
               nactive[turnin] = true
               if not active[turnin] then
