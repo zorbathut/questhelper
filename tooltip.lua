@@ -1,4 +1,4 @@
-QuestHelper_File["tooltip.lua"] = "1.0.7-alpha"
+QuestHelper_File["tooltip.lua"] = "Development Version"
 QuestHelper_Loadtime["tooltip.lua"] = GetTime()
 
 local function DoTooltip(self, tooltipi)
@@ -167,11 +167,10 @@ GameTooltip:SetScript("OnTooltipSetItem", function (self, ...)
   if ottsi then return ottsi(self, ...) end
 end)
 
-local ttsx = GameTooltip:GetScript("OnUpdate")
-GameTooltip:SetScript("OnUpdate", function (self, ...)
+local ttsx = GameTooltip:GetScript("OnShow")
+GameTooltip:SetScript("OnShow", function (self, ...)
   if ttsx then ttsx(self, ...) end
   if self:GetUnit() then
-    self:Show()
     self:SetHeight(self:GetHeight() - glob_strip * 3) -- maaaaaagic
   end
 end)
