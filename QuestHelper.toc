@@ -9,7 +9,7 @@
 ## Notes-koKR: 노선에 대한 계산을 수행합니다.
 ## Version: Development Version
 ## OptionalDeps: Cartographer_Waypoints, TomTom, !Swatter
-## SavedVariables: QuestHelper_Version QuestHelper_SaveVersion QuestHelper_Locale QuestHelper_Quests QuestHelper_Objectives QuestHelper_FlightInstructors QuestHelper_FlightRoutes QuestHelper_Pref QuestHelper_UID QuestHelper_SaveDate QuestHelper_SeenRealms QuestHelper_Errors QuestHelper_Collector QuestHelper_Collector_Version
+## SavedVariables: QuestHelper_Pref QuestHelper_UID QuestHelper_SaveDate QuestHelper_Errors QuestHelper_Collector QuestHelper_Collector_Version
 ## SavedVariablesPerCharacter: QuestHelper_KnownFlightRoutes QuestHelper_Home QuestHelper_CharVersion QuestHelper_Flight_Updates
 ## X-Website: http://www.quest-helper.com/
 ## X-Embeds: AstrolabeQH, ChatThrottleLib
@@ -21,14 +21,6 @@
 # That is a pile of saved variables. Let me try to explain them better.
 # 
 # Old data gathering:
-# QuestHelper_Version: The version of Questhelper last used. Largely irrelevant.
-# QuestHelper_SaveVersion: Save file data structure version number.
-# QuestHelper_Locale: Locale last used to touch the file. Irrelevant and misleading and dangerous.
-# QuestHelper_Quests: Quest database
-# QuestHelper_Objectives: "Objectives". Eugh. I hate that catchall. Monsters, items, objects, and events, in one huge horrible pile.
-# QuestHelper_FlightInstructors: List of known flight instructors.
-# QuestHelper_FlightRoutes: List of known flight routes, with travel time.
-# QuestHelper_SeenRealms: Realms that have been seen by the player (largely exists to catch private servers)
 # QuestHelper_SaveDate: Date of last shutdown.
 # QuestHelper_Collector_Version: Originally part of the new system, now just hanging around until I believe it vanishing won't cause problems.
 #
