@@ -207,11 +207,10 @@ end
 -------------------------------------------------------------------------------------
 -- Set up the Map Button
 function QuestHelper:InitMapButton()
-  do return end -- disabled until I figure out where to put it
   
   if not self.MapButton then
     -- Create the button
-    local button = CreateFrame("Button", "QuestHelperWorldMapButton", WorldMapFrame, "UIPanelButtonTemplate")
+    local button = CreateFrame("Button", "QuestHelperWorldMapButton", WorldMapButton, "UIPanelButtonTemplate")
     
     -- Assign the font QuestHelper selected for the currect locale.
     if button.GetFont then
@@ -252,8 +251,9 @@ function QuestHelper:InitMapButton()
 --~         Cartographer:AddMapButton(button, 3)
 --~     else
         -- Otherwise, just put it in the upper right corner
-        button:SetPoint("RIGHT", WorldMapPositioningGuide, "RIGHT", -20, 0)
-        button:SetPoint("BOTTOM", WorldMapZoomOutButton, "BOTTOM", 0, 0)
+        button:SetPoint("TOPRIGHT", WorldMapButton, "TOPRIGHT", -10, -10)
+        button:SetFrameLevel(WorldMapButton:GetFrameLevel()+1)
+        button:SetFrameStrata("FULLSCREEN")
 --    end
 
     -- Save the button so we can reference it later if need be
