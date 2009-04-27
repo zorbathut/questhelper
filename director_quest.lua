@@ -103,7 +103,7 @@ local function GetQuestMetaobjective(questid, lbcount)
     -- just doublechecking here
     if not QuestCriteriaWarningBroadcast and q and q.criteria then for k, v in pairs(q.criteria) do
       if type(k) == "number" and k > lbcount then
-        QuestHelper:TextOut(string.format("Too many stored objectives for this quest, please report to Zorba (%s %s %s)", questid, lbcount, k))
+        QuestHelper:TextOut(string.format("Too many stored objectives for this quest, please report on the Questhelper homepage (%s %s %s)", questid, lbcount, k))
         QuestHelper_ErrorCatcher_ExplicitError(false, string.format("Too many stored objectives (%s %s %s)", questid, lbcount, k))
         QuestCriteriaWarningBroadcast = true
       end
