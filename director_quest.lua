@@ -296,6 +296,8 @@ function QH_UpdateQuests(force)
       local title, level, variety, groupsize, _, _, complete = GetQuestLogTitle(index)
       if not title then break end
       
+      title = title:match("%[.*%] (.*)") or title
+      
       local qlink = GetQuestLink(index)
       if qlink then -- If we don't have a quest link, it's not really a quest
         local id = GetQuestType(qlink)
