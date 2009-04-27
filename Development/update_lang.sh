@@ -32,7 +32,7 @@ function local_list {
 
 function changed {
   # Check if the file on the server matches the local file.
-  if [ "`${GIT_SSH} ${SSH_REMOTE} cat /server/http/cgi/lang/lang_${1} | sha1sum -`" == "`cat lang/${1} | sha1sum -`" ] ; then
+  if [ "`${GIT_SSH} ${SSH_REMOTE} \"cat /server/http/cgi/lang/lang_${1} | sha1sum -\"`" == "`cat lang/${1} | sha1sum -`" ] ; then
     echo "same"
   else
     echo "changed"
@@ -44,6 +44,11 @@ function uploadifchanged {
   if [ `changed ${1}` == "changed" ] ; then
     echo "Uploading ${1}..."
     ${GIT_SSH} ${SSH_REMOTE} "cat > /server/http/cgi/lang/lang_${1}" < lang/${1} || die "Error uploading '${1}'."
+    
+    # Make sure webserver is able to write to this file.
+    # Sorry whoever put all that work into editing csCZ; I'm sure seeing the 'unable to save' message was disheartening,
+    # but fear not, it was emailed to me, and I applied it for you. :)
+    ${GIT_SSH} ${SSH_REMOTE} "chmod g+w /server/http/cgi/lang/lang_${1}" || die "Error making file writable '${1}'."
   fi
 }
 
