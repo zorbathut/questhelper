@@ -747,7 +747,7 @@ commands =
       {"/qh perf 1", "Sets standard performance"},
       {"/qh perf 50%", "Does half as much background processing"},
       {"/qh perf 3", "Computes routes 3 times more aggressively.  Better have some good horsepower!"}},
-      QuestHelper.genericSetScale, QuestHelper, "perf_scale", "performance factor", .01, 5},
+      QuestHelper.genericSetScale, QuestHelper, "perf_scale", "performance factor", .1, 5},
     
     {"PERFLOAD",
        "Sets or shows the initialization workload. Higher numbers will make QuestHelper load faster, lower numbers will result in better framerate while it's loading.",
