@@ -112,7 +112,8 @@ wayframe:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 wayframe:SetScript("OnEvent", OnEvent)
 
 wayframe.arrow = wayframe:CreateTexture("OVERLAY")
-wayframe.arrow:SetTexture("Interface\\Addons\\QuestHelper\\arrow_image")
+--wayframe.arrow:SetTexture("Interface\\AddOns\\QuestHelper\\arrow_image_down") -- if we don't do this, the image doesn't seem to end up cached. :blizzard:
+wayframe.arrow:SetTexture("Interface\\AddOns\\QuestHelper\\arrow_image")
 wayframe.arrow:SetAllPoints()
 
 local active_point, arrive_distance, showDownArrow, point_title
@@ -129,12 +130,22 @@ function QH_Arrow_Reset()
 end
 
 function QH_Arrow_SetScale(scale)
-  wayframe:SetHeight(42 * scale)
-  wayframe:SetWidth(56 * scale)
-  QuestHelper_Pref.arrow_arrowsize = scale
-  --wayframe:SetScale(scale)
+  if scale then
+    QuestHelper_Pref.arrow_arrowsize = scale
+  else
+    scale = QuestHelper_Pref.arrow_arrowsize
+  end
+  
+  if not showDownArrow then
+    wayframe:SetHeight(42 * scale)
+    wayframe:SetWidth(56 * scale)
+  else
+    scale = scale * 0.8
+    wayframe:SetHeight(70 * scale)
+    wayframe:SetWidth(53 * scale)
+  end
 end
-QH_Arrow_SetScale(QuestHelper_Pref.arrow_arrowsize or 1)
+QH_Arrow_SetScale()
 
 function QH_Arrow_SetTextScale(scale)
   wayframe.title:SetFont(default_font_name, default_font_size * scale, default_font_flags)
@@ -157,7 +168,6 @@ QuestHelper:AddWaypointCallback(wpupdate)
 local status = wayframe.status
 local tta = wayframe.tta
 local arrow = wayframe.arrow
-local count = 0
 local last_distance = 0
 local tta_throttle = 0
 local speed = 0
@@ -178,26 +188,18 @@ OnUpdate = function(self, elapsed)
   else
     status:SetText("")
   end
-  
-	local cell
 
 	-- Showing the arrival arrow?
-  --[[
 	if dist and dist <= 10 then
 		if not showDownArrow then
-			arrow:SetHeight(70)
-			arrow:SetWidth(53)
-			arrow:SetTexture("Interface\\AddOns\\TomTom\\Images\\Arrow-UP")
-			arrow:SetVertexColor(0, 1, 0)
 			showDownArrow = true
+      QH_Arrow_SetScale()
+			arrow:SetTexture("Interface\\AddOns\\QuestHelper\\arrow_image_down")
+			arrow:SetVertexColor(0, 1, 0)
 		end
 
-		count = count + 1
-		if count >= 55 then
-			count = 0
-		end
+		local cell = math.floor(mod(GetTime() * 20, 55)) -- 20 fps seems to be around the right number
 
-		cell = count
 		local column = cell % 9
 		local row = floor(cell / 9)
 
@@ -208,11 +210,11 @@ OnUpdate = function(self, elapsed)
 		arrow:SetTexCoord(xstart,xend,ystart,yend)
 	else
 		if showDownArrow then
-			arrow:SetHeight(56)
-			arrow:SetWidth(42)
-			arrow:SetTexture("Interface\\AddOns\\TomTom\\Images\\Arrow")
 			showDownArrow = false
-		end]]
+      QH_Arrow_SetScale()
+			arrow:SetTexture("Interface\\AddOns\\QuestHelper\\arrow_image")
+			showDownArrow = false
+		end
 
 		local angle = atan2(-dx, -dy) / 360 * (math.pi * 2) -- degrees. seriously what
     --if angle < 0 then angle = angle + math.pi * 2 end
@@ -229,7 +231,7 @@ OnUpdate = function(self, elapsed)
 		arrow:SetVertexColor(r,g,b)
 
 
-		cell = floor(angle / (math.pi * 2) * 108 + 0.5) % 108
+		local cell = floor(angle / (math.pi * 2) * 108 + 0.5) % 108
 		local column = cell % 9
 		local row = floor(cell / 9)
 
@@ -238,7 +240,7 @@ OnUpdate = function(self, elapsed)
 		local xend = ((column + 1) * 56) / 512
 		local yend = ((row + 1) * 42) / 512
 		arrow:SetTexCoord(xstart,xend,ystart,yend)
-	--end
+	end
 
 	-- Calculate the TTA every second  (%01d:%02d)
 

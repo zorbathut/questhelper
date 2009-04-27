@@ -640,6 +640,7 @@ if archive_zip or archive_7z then
   
   FileUtil.copyFile("../MinimapArrow.tga", "QuestHelper")
   FileUtil.copyFile("../arrow_image.blp", "QuestHelper")
+  FileUtil.copyFile("../arrow_image_down.blp", "QuestHelper")
   
   if archive_zip then
     local archive = "../QuestHelper-"..version_string..".zip"
