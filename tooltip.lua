@@ -139,9 +139,9 @@ function CreateTooltip(self)
     
     if qh_tooltip_print_a_lot then print("wut", ulink, IsMonsterGUID(ulink)) print(ulink) print(IsMonsterGUID(ulink)) end
     if ulink and IsMonsterGUID(ulink) then
-      if QH_filter_hints then
-        glob_strip = StripBlizzQHTooltipClone(self)
-      end
+      if qh_tooltip_print_a_lot then print("huhwuzat") print(QH_filter_hints) end
+      
+      glob_strip = StripBlizzQHTooltipClone(self)
       
       local ite = tostring(GetMonsterType(ulink))
       
