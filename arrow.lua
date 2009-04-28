@@ -99,7 +99,7 @@ local function OnDragStop(self, button)
 end
 
 local function OnEvent(self, event, ...)
-	if event == "ZONE_CHANGED_NEW_AREA" and QuestHelper_Pref.arrow then -- TODO TWEAKERY
+	if event == "ZONE_CHANGED_NEW_AREA" and QuestHelper_Pref.arrow and not QuestHelper_Pref.hide then -- TODO TWEAKERY
 		self:Show()
     OnUpdate(self, nil)
 	end

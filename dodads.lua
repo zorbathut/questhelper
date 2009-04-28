@@ -624,16 +624,14 @@ end
 function QuestHelper:InvokeWaypointCallbacks(c, z, x, y, desc)
   if c ~= last_c or z ~= last_z or x ~= last_x or y ~= last_y or desc ~= last_desc then
     last_c, last_z, last_x, last_y, last_desc = c, z, x, y, desc
-    if c and z and x and y and z then
-      for cb in pairs(callbacks) do
-        local len = cb.len
-        cb[len+1] = c
-        cb[len+2] = z
-        cb[len+3] = x
-        cb[len+4] = y
-        cb[len+5] = desc
-        cb.func(unpack(cb, 1, len+5))
-      end
+    for cb in pairs(callbacks) do
+      local len = cb.len
+      cb[len+1] = c
+      cb[len+2] = z
+      cb[len+3] = x
+      cb[len+4] = y
+      cb[len+5] = desc
+      cb.func(unpack(cb, 1, len+5))
     end
   end
 end
