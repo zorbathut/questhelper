@@ -173,7 +173,7 @@ end)
 local ttsx = GameTooltip:GetScript("OnUpdate")
 GameTooltip:SetScript("OnUpdate", function (self, ...)
   if ttsx then ttsx(self, ...) end
-  if unit_to_adjust == self:GetUnit() then
+  if unit_to_adjust and unit_to_adjust == self:GetUnit() then
     self:SetHeight(self:GetHeight() - glob_strip * 3) -- maaaaaagic
     unit_to_adjust = nil
   end
