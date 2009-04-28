@@ -441,123 +441,13 @@ function QuestHelper:buildFlightTimes()
 end
 
 function QuestHelper:taxiMapOpened()
-  local routes = QuestHelper_FlightRoutes_Local[self.faction]
-  
-  if not routes then
-    routes = {}
-    QuestHelper_FlightRoutes_Local[self.faction] = routes
-  end
-  
-  local sroutes = QuestHelper_StaticData[self.locale]
-  sroutes = sroutes and sroutes.flight_routes
-  sroutes = sroutes and sroutes[self.faction]
-  
-  local origin, altered = nil, false
-  
   for i = 1,NumTaxiNodes() do
     local name = TaxiNodeName(i)
     if not QuestHelper_KnownFlightRoutes[name] then
       QuestHelper_KnownFlightRoutes[name] = true
-      altered = true
-      --self:TextOut("New flight master: " .. name)
+      self:TextOut("New flight master: " .. name)
       QH_Route_FlightPathRecalc()
     end
-    
-    if GetNumRoutes(i) == 0 then -- Zero hops from this location, must be where we are.
-      origin = name
-    end
-  end
-  
-  if origin then
-    local npc = UnitName("npc")
-    
-    if npc then
-      -- Record who the flight instructor for this location is.
-      local fi_table = QuestHelper_FlightInstructors_Local[self.faction]
-      if not fi_table then
-        fi_table = {}
-        QuestHelper_FlightInstructors_Local[self.faction] = fi_table
-      end
-      
-      fi_table[origin] = npc
-    end
-    
-    if not self.flight_times[origin] then
-      -- If this is true, then we probably either didn't who the flight instructor here was,
-      -- or did know but didn't know where.
-      -- As we should now know, the flight times should be updated.
-      altered = true
-    end
-    
-    for j = 1,NumTaxiNodes() do
-      local node_count = GetNumRoutes(j)
-      if node_count and i ~= j and node_count > 0 and node_count < 100 then
-        for k = 1,node_count do
-          local n1, n2 = LookupName(TaxiGetSrcX(j, k), TaxiGetSrcY(j, k)), LookupName(TaxiGetDestX(j, k), TaxiGetDestY(j, k))
-          
-          -- let's make this a bit easier and faster
-          if not QuestHelper_KnownFlightRoutes[n2] then
-            QuestHelper_KnownFlightRoutes[n2] = true
-            altered = true
-            --self:TextOut("New flight master implied: " .. n2)
-          end
-          
-          --QuestHelper:TextOut(string.format("taxi %d: %d is %s/%s", j, k, n1, n2))
-          
-          assert(n1 and n2 and n1 ~= n2)
-          
-          local dest1, dest2 = routes[n1], routes[n2]
-          
-          if not dest1 then
-            dest1 = {}
-            routes[n1] = dest1
-          end
-          
-          if not dest2 then
-            dest2 = {}
-            routes[n2] = dest2
-          end
-          
-          local hash1, hash2 = dest1[n2], dest2[n1]
-          
-          if not hash1 then
-            hash1 = {}
-            dest1[n2] = hash1
-          end
-          
-          if not hash2 then
-            hash2 = {}
-            dest2[n1] = hash2
-          end
-          
-          if not hash1[0] then
-            if not (sroutes and sroutes[n1] and sroutes[n1][n2] and sroutes[n1][n2][0]) then
-              -- hadn't been considering this link in pathing.
-              --self:TextOut(string.format("Found new link between %s and %s", n1, n2))
-              altered = true
-            end
-            hash1[0] = true
-          end
-          
-          if not hash2[0] then
-            if not (sroutes and sroutes[n2] and sroutes[n2][n1] and sroutes[n2][n1][0]) then
-              -- hadn't been considering this link in pathing.
-              --self:TextOut(string.format("Found new link between %s and %s", n2, n1))
-              altered = true
-            end
-            hash2[0] = true
-          end
-        end
-      end
-    end
-  end
-  
-  if altered then
-    self:TextOut(QHText("ROUTES_CHANGED"))
-    self:TextOut(QHText("WILL_RESET_PATH"))
-    self.defered_graph_reset = true
-    self.defered_flight_times = true
-    --self:buildFlightTimes()
   end
 end
 
