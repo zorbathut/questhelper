@@ -924,7 +924,7 @@ function tracker:update(delta)
   end
   
   check_delay = check_delay + delta
-  if check_delay > 0.1 then
+  if check_delay > 1 then
     check_delay = 0
     
     QH_Tracker_Rescan()
