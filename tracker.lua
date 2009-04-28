@@ -329,6 +329,7 @@ local function addItem(objective, y, meta)
     QuestHelper: Assert(objective.type_quest.index)
   end
   
+  local spacer = 0
   -- hacky - progress only shows up if we're not on a metaobjective. wheee
   if objective.type_quest then
     local _, _, _, _, _, _, complete = GetQuestLogTitle(objective.type_quest.index)
@@ -359,19 +360,21 @@ local function addItem(objective, y, meta)
       item.specitem.rangeTimer = -1 -- This makes the little dot go away. Why does it do that?
       
       item.specitem:Show()
+      
+      spacer = h
     end
   end
   
-  return w+x+4, y+h
+  return w+x+4, y+h, y+h+spacer
 end
 
 local function addMetaObjective(metaobj, items, y, depth)
-  local x
-  x, y = addItem(metaobj, y, true)
+  local x, spacer
+  x, y, spacer = addItem(metaobj, y, true)
   for _, v in ipairs(items) do
     x, y = addItem(v, y, false)
   end
-  return y, depth + #items + 1
+  return math.max(y, spacer), depth + #items + 1
 end
 
 --[[  -- these will be plugged in later one way or another
