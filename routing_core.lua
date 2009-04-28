@@ -431,7 +431,6 @@ end
           last_best.distance = last_best.distance + Distance[last_best[i - 1]][last_best[i]]
         end
         
-        QuestHelper:TextOut("Found and dumped")
         ct = ct + 1
         i = i - 1
       end
@@ -439,7 +438,7 @@ end
     
     last_best_tweaked = true
     
-    QuestHelper:TextOut("Despliced with " .. ct)
+    --QuestHelper:TextOut("Despliced with " .. ct)
   end
   
   local function SpliceIn(index, touched)
@@ -463,14 +462,14 @@ end
     
     -- Next, figure out where it can go
     for i = 2, #last_best do
-      print(index, last_best[i], ClusterLookup[last_best[i]], dl_lookup[ClusterLookup[last_best[i]]], dlr_lookup[ClusterLookup[last_best[i]]], ClusterPriority[ClusterLookup[last_best[i]]], ClusterPriority[index])
+      --print(index, last_best[i], ClusterLookup[last_best[i]], dl_lookup[ClusterLookup[last_best[i]]], dlr_lookup[ClusterLookup[last_best[i]]], ClusterPriority[ClusterLookup[last_best[i]]], ClusterPriority[index])
       if dl_lookup[ClusterLookup[last_best[i]]] then start_bound = i + 1 end
       if dlr_lookup[ClusterLookup[last_best[i]]] and not end_bound then end_bound = i end
       if ClusterPriority[ClusterLookup[last_best[i]]] < ClusterPriority[index] then start_bound = i + 1 end
       if ClusterPriority[ClusterLookup[last_best[i]]] > ClusterPriority[index] and not end_bound then end_bound = i end
     end
     if not end_bound then end_bound = #last_best + 1 end
-    QuestHelper: TextOut(string.format("Placed cluster %d between %d and %d", index, start_bound, end_bound))
+    --QuestHelper: TextOut(string.format("Placed cluster %d between %d and %d", index, start_bound, end_bound))
     QuestHelper: Assert(end_bound >= start_bound)
     
     -- Figure out the best place to put it
@@ -645,7 +644,7 @@ end
 
 -- Lots of doublechecks to make sure our route is both sane and complete
 local function CheckRoute(route)
-  print("starting check")
+  --print("starting check")
   
   QuestHelper: Assert(route[1] == 1)  -- starting at the beginning
   
@@ -653,7 +652,7 @@ local function CheckRoute(route)
   for i = 1, #route - 1 do
     td = td + Distance[route[i]][route[i + 1]]
   end
-  print(td, route.distance)
+  --print(td, route.distance)
   QuestHelper: Assert(abs(td - route.distance) < 5 or abs(td / route.distance - 1) < 0.0001)
   
   local seen = QuestHelper:CreateTable("check seen")
@@ -664,7 +663,7 @@ local function CheckRoute(route)
     
     local clust = ClusterLookup[route[i]]
     if clust then
-      print("seeing cluster ", clust, cpri, ClusterPriority[clust])
+      --print("seeing cluster ", clust, cpri, ClusterPriority[clust])
       QuestHelper: Assert(ClusterIgnoredCount[clust] == 0)
       QuestHelper: Assert(not seen[clust])
       seen[clust] = true
@@ -682,7 +681,7 @@ local function CheckRoute(route)
   
   QuestHelper:ReleaseTable(seen)
   
-  print("ending check")
+  --print("ending check")
 end
 
 local function BetterRoute(route)
@@ -755,7 +754,6 @@ function QH_Route_Core_Process()
       
       if not ignored and not exists then
         -- here we go
-        print("sin", k)
         SpliceIn(k, touched_clusts)
         last_best_tweaked = true
       end
@@ -764,7 +762,7 @@ function QH_Route_Core_Process()
   end
   
   if last_best_tweaked then
-    QuestHelper:TextOut("Pushing tweaked")
+    --QuestHelper:TextOut("Pushing tweaked")
     BetterRoute(last_best)
     last_best_tweaked = false
   end

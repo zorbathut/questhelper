@@ -418,6 +418,12 @@ local function process()
     if not first then
       Route_Core_Process()
       QH_Timeslice_Doneinit()
+      
+      -- Wackyland code here
+      if QH_WACKYLAND then
+        QH_Route_Filter_Rescan()
+        QH_Route_TraverseClusters(function (clust) QH_Route_SetClusterPriority(clust, math.random(-2, 2)) end)
+      end
     end
     first = false
     
