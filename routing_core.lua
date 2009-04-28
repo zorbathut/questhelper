@@ -1335,12 +1335,14 @@ function QH_Route_Core_DistanceClear()
     table.insert(tlnod, NodeList[v])
   end
 
-  for _, idx in ipairs(ActiveNodes) do
+  for ani, idx in ipairs(ActiveNodes) do
     local forward = DistBatch(NodeList[idx], tlnod)
     
     for k, v in ipairs(ActiveNodes) do
       Distance[idx][v] = forward[k]
     end
+    
+    if QuestHelper.loading_preroll and #ActiveNodes > 1 then QuestHelper.loading_preroll:SetPercentage(ani / #ActiveNodes) end
   end
   
   if last_best then

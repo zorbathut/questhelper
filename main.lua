@@ -587,6 +587,11 @@ function QuestHelper:Initialize()
   LibStub("LibAboutPanelQH").new(nil, "QuestHelper")
   
   QuestHelper_Loadtime["init_end"] = GetTime()
+  
+  QuestHelper.loading_main = QuestHelper.CreateLoadingCounter()
+  
+  QuestHelper.loading_flightpath = QuestHelper.loading_main:MakeSubcategory(1)
+  QuestHelper.loading_preroll = QuestHelper.loading_main:MakeSubcategory(1)
 end
 
 local startup_time

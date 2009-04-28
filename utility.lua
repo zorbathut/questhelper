@@ -389,3 +389,31 @@ function QuestHelper:AppendNotificationError(type, data)
   QuestHelper_ErrorCatcher_RegisterError(type, terror)
 end
 
+
+
+function QuestHelper.CreateLoadingCounter()
+  return {
+    MakeSubcategory = function(self, weight)
+      QuestHelper: Assert(not self.percentage)
+      if not self.weighting then self.weighting = {} end
+      local subcat = QuestHelper:CreateLoadingCounter()
+      table.insert(self.weighting, {weight = weight, item = subcat})
+      return subcat
+    end,
+    SetPercentage = function(self, percent)
+      QuestHelper: Assert(not self.weighting)
+      self.percentage = percent
+    end,
+    GetPercentage = function(self)
+      if self.percentage then return self.percentage end
+      if not self.weighting then return 0 end
+      local total_weight = 0
+      local total_value = 0
+      for _, v in ipairs(self.weighting) do
+        total_weight = total_weight + v.weight
+        total_value = total_value + v.weight * v.item:GetPercentage()
+      end
+      return total_value / total_weight
+    end
+  }
+end

@@ -89,7 +89,7 @@ QuestHelper_Translations.enUS =
   UPDATING_ROUTE = "Refreshing route.",
   
   -- Special tracker text
-  QH_LOADING = "QuestHelper is loading (%1%%)...",
+  QH_LOADING = "QuestHelper is loading (%1%)...",
   QUESTS_HIDDEN_1 = "Quests may be hidden",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" to list)",
   

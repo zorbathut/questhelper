@@ -560,9 +560,10 @@ local function addobj(objective, seen, obj_index_lookup, filter, x, y, gap)
 end
 ]=]
 
-local loading_vquest = { cat = "quest", obj = "7777/" .. QHFormat("QH_LOADING", "0"), after = {}, watched = true }
-local hidden_vquest1 = { cat = "quest", obj = "7778/" .. QHText("QUESTS_HIDDEN_1"), after = {}, watched = true }
-local hidden_vquest2 = { cat = "quest", obj = "7778/    " .. QHText("QUESTS_HIDDEN_2"), after = {}, watched = true }
+local loading_vquest = {tracker_desc = QHFormat("QH_LOADING", "0")}
+
+--local hidden_vquest1 = { cat = "quest", obj = "7778/" .. QHText("QUESTS_HIDDEN_1"), after = {}, watched = true }
+--local hidden_vquest2 = { cat = "quest", obj = "7778/    " .. QHText("QUESTS_HIDDEN_2"), after = {}, watched = true }
 
 local route = {}
 local pinned = {}
@@ -576,9 +577,9 @@ function QH_Tracker_Rescan()
   
   local y, depth = 0, 0
   
-  local had_pinned = false
-  
   do
+    local had_pinned = false
+  
     local objs = QuestHelper:CreateTable("tracker objs")
     for k, v in pairs(pinned) do
       if not objs[k.why] then objs[k.why] = QuestHelper:CreateTable("tracker objs sub") end
@@ -601,9 +602,15 @@ function QH_Tracker_Rescan()
     end
     QuestHelper:ReleaseTable(sort_objs)
     QuestHelper:ReleaseTable(objs)
+    
+    if had_pinned then y = y + 10 end
   end
   
-  if had_pinned then y = y + 10 end
+  if QuestHelper.loading_main then
+    loading_vquest.tracker_desc = QHFormat("QH_LOADING", string.format("%d", QuestHelper.loading_main:GetPercentage() * 100))
+    local x, ty = addItem(loading_vquest, y)
+    y = ty + 10
+  end
   
   local metalookup = QuestHelper:CreateTable("tracker rescan metalookup")
   for k, v in ipairs(route) do
@@ -917,7 +924,7 @@ function tracker:update(delta)
   end
   
   check_delay = check_delay + delta
-  if check_delay > 5 then
+  if check_delay > 0.1 then
     check_delay = 0
     
     QH_Tracker_Rescan()

@@ -7,6 +7,19 @@ QH_Flight_Distances = {}
 function QH_redo_flightpath()
   QuestHelper: Assert(DB_Ready())
   
+  local load_preroll
+  local load_floyd
+  local load_postroll
+  
+  if QuestHelper.loading_flightpath then
+    load_earlyload = QuestHelper.loading_flightpath:MakeSubcategory(1)
+    load_preroll = QuestHelper.loading_flightpath:MakeSubcategory(1)
+    load_floyd = QuestHelper.loading_flightpath:MakeSubcategory(1)
+    load_postroll = QuestHelper.loading_flightpath:MakeSubcategory(0.1)
+  end
+  
+  if load_preroll then load_preroll:SetPercentage(0) end
+  
   -- First, let's figure out if the player can fly.
   -- The logic we're using: if he has 225 or 300, then he can fly in Outland. If he's got Cold Weather Flying and those levels, he can fly in Northrend.
   do
@@ -33,12 +46,18 @@ function QH_redo_flightpath()
   local flightdb = {}
   
   local has = {}
+  local has_count = 0
   
+  local fidcount = 0
   for k, v in pairs(flightids) do
     flightdb[v] = DB_GetItem("flightmasters", v, true, true)
     if QuestHelper_KnownFlightRoutes[flightdb[v].name] then
       has[k] = true
+      has_count = has_count + 1
     end
+    
+    fidcount = fidcount + 1
+    if load_earlyload then load_earlyload:SetPercentage(fidcount / QuestHelper:TableSize(flightids)) end
   end
   
   local adjacency = {}
@@ -47,6 +66,7 @@ function QH_redo_flightpath()
   
   QH_Timeslice_Yield()
   
+  local has_seen = 0
   for k, v in pairs(has) do
     local tdb = DB_GetItem("flightpaths", k, true, true)
     if tdb then
@@ -80,6 +100,9 @@ function QH_redo_flightpath()
       end
       DB_ReleaseItem(tdb)
     end
+    
+    has_seen = has_seen + 1
+    if load_preroll then load_preroll:SetPercentage(has_seen / has_count) end
   end
   
   QH_Timeslice_Yield()
@@ -113,7 +136,7 @@ function QH_redo_flightpath()
     adjacency[v] = adjacency[v] or {}
   end
   
-  for _, pivot in ipairs(imp_flat) do
+  for idx, pivot in ipairs(imp_flat) do
     QH_Timeslice_Yield()
     for _, i in ipairs(imp_flat) do
       for _, j in ipairs(imp_flat) do
@@ -127,6 +150,8 @@ function QH_redo_flightpath()
         end
       end
     end
+    
+    if load_floyd then load_floyd:SetPercentage(idx / #imp_flat) end
   end
   
   QH_Timeslice_Yield()
@@ -212,4 +237,6 @@ function QH_redo_flightpath()
   for _, v in pairs(flightmasters) do
     QuestHelper:ReleaseTable(v)
   end
+  
+  if load_postroll then load_postroll:SetPercentage(1) end
 end
