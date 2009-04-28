@@ -388,6 +388,7 @@ end
 -- End initialization
 
 local last_best = nil
+local last_best_tweaked = false
 
 local function ValidateNumber(x)
   QuestHelper: Assert(x == x)
@@ -410,6 +411,97 @@ local function GetWeight(x, y)
   --ValidateNumber(weight)
   return weight
 end
+
+-- Realtime splice
+  local function DespliceCN(cluster, node)
+    QuestHelper: Assert(not cluster or not node)
+    QuestHelper: Assert(cluster or node)
+    if not last_best then return end
+    
+    local ct = 0
+    for i = 2, #last_best do
+      if last_best[i] and (last_best[i] == node or ClusterLookup[last_best[i]] == cluster) then
+        -- Splice it out!
+        last_best.distance = last_best.distance - Distance[last_best[i - 1]][last_best[i]]
+        if i ~= #last_best then
+          last_best.distance = last_best.distance - Distance[last_best[i]][last_best[i + 1]]
+        end
+        table.remove(last_best, i)
+        if i ~= #last_best + 1 then
+          last_best.distance = last_best.distance + Distance[last_best[i - 1]][last_best[i]]
+        end
+        
+        QuestHelper:TextOut("Found and dumped")
+        ct = ct + 1
+        i = i - 1
+      end
+    end
+    
+    last_best_tweaked = true
+    
+    QuestHelper:TextOut("Despliced with " .. ct)
+  end
+  
+  local function SpliceIn(index, touched)
+    QuestHelper: Assert(index)
+    if touched[index] then return end
+    
+    QH_Timeslice_Yield()
+    
+    -- First, try to splice everything it depends on
+    if DependencyLinks[index] then for _, v in ipairs(DependencyLinks[index]) do
+      SpliceIn(v, touched)
+    end end
+    
+    local dl_lookup = QuestHelper:CreateTable("splice dl lookup")
+    local dlr_lookup = QuestHelper:CreateTable("splice dlr lookup")
+    if DependencyLinks[index] then for _, v in ipairs(DependencyLinks[index]) do dl_lookup[v] = true end end
+    if DependencyLinksReverse[index] then for _, v in ipairs(DependencyLinksReverse[index]) do dlr_lookup[v] = true end end
+    
+    local start_bound = 2
+    local end_bound
+    
+    -- Next, figure out where it can go
+    for i = 2, #last_best do
+      print(index, last_best[i], ClusterLookup[last_best[i]], dl_lookup[ClusterLookup[last_best[i]]], dlr_lookup[ClusterLookup[last_best[i]]], ClusterPriority[ClusterLookup[last_best[i]]], ClusterPriority[index])
+      if dl_lookup[ClusterLookup[last_best[i]]] then start_bound = i + 1 end
+      if dlr_lookup[ClusterLookup[last_best[i]]] and not end_bound then end_bound = i end
+      if ClusterPriority[ClusterLookup[last_best[i]]] < ClusterPriority[index] then start_bound = i + 1 end
+      if ClusterPriority[ClusterLookup[last_best[i]]] > ClusterPriority[index] and not end_bound then end_bound = i end
+    end
+    if not end_bound then end_bound = #last_best + 1 end
+    QuestHelper: TextOut(string.format("Placed cluster %d between %d and %d", index, start_bound, end_bound))
+    QuestHelper: Assert(end_bound >= start_bound)
+    
+    -- Figure out the best place to put it
+    local best_spot = nil
+    local best_node = nil
+    local best_cost = nil
+    for i = start_bound, end_bound do
+      for _, nindex in ipairs(Cluster[index]) do
+        if NodeIgnoredCount[nindex] == 0 then
+          local tcost = Distance[last_best[i - 1]][nindex]  -- Cost of that-node-to-this-one
+          if i <= #last_best then
+            tcost = tcost + Distance[nindex][last_best[i]] - Distance[last_best[i - 1]][last_best[i]]
+          end
+          if not best_cost or tcost < best_cost then
+            best_spot, best_node, best_cost = i, nindex, tcost
+          end
+        end
+      end
+    end
+    
+    QuestHelper: Assert(best_spot)
+    table.insert(last_best, best_spot, best_node)
+    last_best.distance = last_best.distance + best_cost
+    
+    touched[index] = true
+    last_best_tweaked = true
+    
+    QuestHelper:ReleaseTable(dl_lookup)
+    QuestHelper:CreateTable(dlr_lookup)
+  end
+-- end realtime splice
 
 -- Yeah, this function, right here? This is QH's brain. This is the only thing in all of Questhelper that actually generates routes. THIS IS IT.
 local function RunAnt()
@@ -551,7 +643,50 @@ local function RunAnt()
   return route
 end
 
+-- Lots of doublechecks to make sure our route is both sane and complete
+local function CheckRoute(route)
+  print("starting check")
+  
+  QuestHelper: Assert(route[1] == 1)  -- starting at the beginning
+  
+  local td = 0
+  for i = 1, #route - 1 do
+    td = td + Distance[route[i]][route[i + 1]]
+  end
+  print(td, route.distance)
+  QuestHelper: Assert(abs(td - route.distance) < 5 or abs(td / route.distance - 1) < 0.0001)
+  
+  local seen = QuestHelper:CreateTable("check seen")
+  
+  local cpri = nil
+  for i = 1, #route do
+    QuestHelper: Assert(NodeIgnoredCount[route[i]] == 0)
+    
+    local clust = ClusterLookup[route[i]]
+    if clust then
+      print("seeing cluster ", clust, cpri, ClusterPriority[clust])
+      QuestHelper: Assert(ClusterIgnoredCount[clust] == 0)
+      QuestHelper: Assert(not seen[clust])
+      seen[clust] = true
+      QuestHelper: Assert(not cpri or cpri <= ClusterPriority[clust])
+      cpri = ClusterPriority[clust]
+      
+      if DependencyLinks[clust] then for _, v in ipairs(DependencyLinks[clust]) do QuestHelper: Assert(seen[v]) end end
+      if DependencyLinksReverse[clust] then for _, v in ipairs(DependencyLinksReverse[clust]) do QuestHelper: Assert(not seen[v]) end end
+    end
+  end
+  
+  for k, v in pairs(ClusterIgnoredCount) do
+    QuestHelper: Assert(not seen[k] == (ClusterIgnoredCount[k] > 0))
+  end
+  
+  QuestHelper:ReleaseTable(seen)
+  
+  print("ending check")
+end
+
 local function BetterRoute(route)
+  CheckRoute(route)
   local rt = {}
   for k, v in ipairs(route) do
     rt[k] = NodeList[v]
@@ -601,6 +736,37 @@ function QH_Route_Core_Process()
       QuestHelper:ReleaseTable(DistanceWaiting)
       DistanceWaiting = QuestHelper:CreateTable("routecore distance waiting")
     end
+  end
+  
+  -- Next we see if last_best needs tweaking
+  if last_best then
+    local touched_clusts = QuestHelper:CreateTable("routing touched")
+    for i = 2, #last_best do
+      local clust = ClusterLookup[last_best[i]]
+      QuestHelper: Assert(clust)
+      QuestHelper: Assert(not touched_clusts[clust])
+      touched_clusts[clust] = true
+    end
+    
+    for k, _ in pairs(Cluster) do
+      local exists = touched_clusts[k]
+      local ignored = (ClusterIgnoredCount[k] ~= 0)
+      QuestHelper: Assert(not (ignored and exists)) -- something went wrong
+      
+      if not ignored and not exists then
+        -- here we go
+        print("sin", k)
+        SpliceIn(k, touched_clusts)
+        last_best_tweaked = true
+      end
+    end
+    QuestHelper:ReleaseTable(touched_clusts)
+  end
+  
+  if last_best_tweaked then
+    QuestHelper:TextOut("Pushing tweaked")
+    BetterRoute(last_best)
+    last_best_tweaked = false
   end
   
   local worst = 0
@@ -676,9 +842,9 @@ end
     if accum == 0 then return end
     --print(clustid, accum)
     
-    if ClusterIgnoredCount[clustid] == 0 then last_best = nil end
+    if ClusterIgnoredCount[clustid] == 0 then QuestHelper: Assert(accum > 0) DespliceCN(clustid) end
     ClusterIgnoredCount[clustid] = ClusterIgnoredCount[clustid] + accum
-    if ClusterIgnoredCount[clustid] == 0 then last_best = nil end
+    if ClusterIgnoredCount[clustid] == 0 then QuestHelper: Assert(accum < 0) end  -- Item being added, we'll handle this at the beginning of run
     
     if DependencyLinksReverse[clustid] then
       for _, v in pairs(DependencyLinksReverse[clustid]) do
@@ -743,10 +909,9 @@ end
       
       NodeIgnoredCount[nid] = NodeIgnoredCount[nid] + 1
       if NodeIgnoredCount[nid] == 1 then
-        last_best = nil
+        DespliceCN(nil, nid)
         
         if ClusterLookup[nid] then
-          last_best = nil
           ClusterIgnoredNodeActive[ClusterLookup[nid]] = ClusterIgnoredNodeActive[ClusterLookup[nid]] - 1
           if ClusterIgnoredNodeActive[ClusterLookup[nid]] == 0 then
             Internal_IgnoreCluster(ClusterLookup[nid], "internal_node_ignored")
@@ -772,10 +937,10 @@ end
       
       NodeIgnoredCount[nid] = NodeIgnoredCount[nid] - 1
       if NodeIgnoredCount[nid] == 0 then
-        last_best = nil
+        -- Item being added
         
         if ClusterLookup[nid] then
-          last_best = nil
+          -- Item being added
           ClusterIgnoredNodeActive[ClusterLookup[nid]] = ClusterIgnoredNodeActive[ClusterLookup[nid]] + 1
           if ClusterIgnoredNodeActive[ClusterLookup[nid]] == 1 then
             Internal_UnignoreCluster(ClusterLookup[nid], "internal_node_ignored")
@@ -905,7 +1070,7 @@ end
     
     DistanceWaiting[idx] = true
     
-    last_best = nil
+    -- Item being added
     
     return idx
   end
@@ -941,7 +1106,7 @@ end
     NodeIgnored[idx] = nil
     NodeIgnoredCount[idx] = nil
     
-    last_best = nil
+    DespliceCN(nil, idx)
     
     return idx
   end
@@ -1108,7 +1273,8 @@ function QH_Route_Core_ClusterRequires(a, b, hackery)
   if not DependencyLinksReverse[bidx] then DependencyLinksReverse[bidx] = {} end
   table.insert(DependencyLinksReverse[bidx], aidx)
   
-  last_best = nil
+  DespliceCN(aidx)
+  DespliceCN(bidx)
   
   Storage_ClusterDependency(aidx, bidx)
 end
@@ -1142,7 +1308,7 @@ local function QH_Route_Core_SetClusterPriority_Internal(clustid, new_pri)
   if not PriorityCount[new_pri] then table.insert(Priorities, new_pri) table.sort(Priorities) end
   PriorityCount[new_pri] = (PriorityCount[new_pri] or 0) + 1
   
-  last_best = nil
+  DespliceCN(clustid)
   
   -- NOTE: These are recursive functions. It is vitally important that these not be called if nothing is changing, and it is vitally important that we change the local node first, otherwise we'll get infinite recursion and explosions. Or even EXPLOISIONS.
   
@@ -1179,7 +1345,12 @@ function QH_Route_Core_DistanceClear()
     end
   end
   
-  last_best = nil   -- todo: just generate new distance info
+  if last_best then
+    last_best.distance = 0
+    for i = 1, #last_best - 1 do
+      last_best.distance = last_best.distance + Distance[last_best[i]][last_best[i + 1]]
+    end
+  end
   
   Storage_Distance_StoreAll()
 end

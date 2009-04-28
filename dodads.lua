@@ -211,7 +211,7 @@ function QuestHelper:CreateWorldMapWalker()
         if not self.route[i].ignore then
           local dodad = self.map_dodads[cur_dodad]
           if not dodad then
-            self.map_dodads[cur_dodad] = self.frame:CreateWorldMapDodad(self.route[i], i)
+            self.map_dodads[cur_dodad] = self.frame:CreateWorldMapDodad(self.route[i], i == 2)
           else
             self.map_dodads[cur_dodad]:SetObjective(self.route[i], i == 2)
           end
@@ -220,7 +220,7 @@ function QuestHelper:CreateWorldMapWalker()
       end
 
       if cur_dodad <= self.used_map_dodads then for i = cur_dodad,self.used_map_dodads do
-        self.map_dodads[i]:SetObjective(nil, 0)
+        self.map_dodads[i]:SetObjective(nil, false)
       end end
 
       self.used_map_dodads = cur_dodad - 1
@@ -344,7 +344,7 @@ end
 globx = 0.5
 globy = 0.5
 
-function QuestHelper:CreateWorldMapDodad(objective, index)
+function QuestHelper:CreateWorldMapDodad(objective, nxt)
   local icon = CreateFrame("Button", nil, QuestHelper.map_overlay)
   icon:SetFrameStrata("FULLSCREEN")
   
@@ -589,7 +589,7 @@ function QuestHelper:CreateWorldMapDodad(objective, index)
   
   icon:RegisterEvent("WORLD_MAP_UPDATE")
   
-  icon:SetObjective(objective, index)
+  icon:SetObjective(objective, nxt)
   return icon
 end
 
