@@ -331,38 +331,35 @@ local function addItem(objective, y, meta)
   
   local spacer = 0
   -- hacky - progress only shows up if we're not on a metaobjective. wheee
-  if objective.type_quest then
-    local _, _, _, _, _, _, complete = GetQuestLogTitle(objective.type_quest.index)
-    if complete == nil and not objective.progress and GetQuestLogSpecialItemInfo(objective.type_quest.index) then
-      item.specitem = table.remove(specitem_unused)
-      if not item.specitem then
-        item.specitem = CreateFrame("BUTTON", "QH_SpecItem_" .. tostring(specitem_max), item, "WatchFrameItemButtonTemplate")
-        QuestHelper: Assert(item.specitem)
-        
-        local rangey = _G["QH_SpecItem_" .. tostring(specitem_max) .. "HotKey"]
-        QuestHelper: Assert(rangey)
-        local fn, fh, ff = rangey:GetFont()
-        rangey:SetFont("Fonts\\ARIALN.TTF", fh, ff)
-        rangey:SetText(RANGE_INDICATOR)
-        rangey:ClearAllPoints()
-        rangey:SetPoint("BOTTOMRIGHT", item.specitem, "BOTTOMRIGHT", 0, 2)
-        
-        specitem_max = specitem_max + 1
-      end
+  if objective.type_quest and not objective.progress and GetQuestLogSpecialItemInfo(objective.type_quest.index) then
+    item.specitem = table.remove(specitem_unused)
+    if not item.specitem then
+      item.specitem = CreateFrame("BUTTON", "QH_SpecItem_" .. tostring(specitem_max), item, "WatchFrameItemButtonTemplate")
+      QuestHelper: Assert(item.specitem)
       
-      item.specitem:SetScale(0.9)
-      item.specitem:ClearAllPoints()
-      item.specitem:SetPoint("TOPRIGHT", item, "TOPLEFT", 0, 0)
+      local rangey = _G["QH_SpecItem_" .. tostring(specitem_max) .. "HotKey"]
+      QuestHelper: Assert(rangey)
+      local fn, fh, ff = rangey:GetFont()
+      rangey:SetFont("Fonts\\ARIALN.TTF", fh, ff)
+      rangey:SetText(RANGE_INDICATOR)
+      rangey:ClearAllPoints()
+      rangey:SetPoint("BOTTOMRIGHT", item.specitem, "BOTTOMRIGHT", 0, 2)
       
-      local _, tex = GetQuestLogSpecialItemInfo(objective.type_quest.index)
-      item.specitem:SetID(objective.type_quest.index)
-      SetItemButtonTexture(item.specitem, tex)
-      item.specitem.rangeTimer = -1 -- This makes the little dot go away. Why does it do that?
-      
-      item.specitem:Show()
-      
-      spacer = h
+      specitem_max = specitem_max + 1
     end
+    
+    item.specitem:SetScale(0.9)
+    item.specitem:ClearAllPoints()
+    item.specitem:SetPoint("TOPRIGHT", item, "TOPLEFT", 0, 0)
+    
+    local _, tex = GetQuestLogSpecialItemInfo(objective.type_quest.index)
+    item.specitem:SetID(objective.type_quest.index)
+    SetItemButtonTexture(item.specitem, tex)
+    item.specitem.rangeTimer = -1 -- This makes the little dot go away. Why does it do that?
+    
+    item.specitem:Show()
+    
+    spacer = h
   end
   
   return w+x+4, y+h, y+h+spacer
