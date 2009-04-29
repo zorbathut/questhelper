@@ -75,8 +75,10 @@ end
 local started = false
 
 function QH_Timeslice_Doneinit()
-  if not started and debug_output then
-    QuestHelper:TextOut("Done with initialization step")
+  if not started then
+    if debug_output then
+      QuestHelper:TextOut("Done with initialization step")
+    end
     
     QuestHelper.loading_main = nil
     QuestHelper.loading_flightpath = nil
