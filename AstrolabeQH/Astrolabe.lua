@@ -208,6 +208,7 @@ end
 --------------------------------------------------------------------------------------------------------------
 
 function Astrolabe:ComputeDistance( c1, z1, x1, y1, c2, z2, x2, y2 )
+  QuestHelper: Assert(c1 and z1 and x1 and y1 and c2 and z2 and x2 and y2)
 	--[[
 	argcheck(c1, 2, "number");
 	assert(3, c1 >= 0, "ComputeDistance: Illegal continent index to c1: "..c1);
