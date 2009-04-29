@@ -88,6 +88,7 @@ function QuestHelper:ToggleHide()
     end
     
     self.map_overlay:Show()
+    self.minimap_marker:Show()
     self:TextOut("QuestHelper is now |cff00ff00shown|r.")
 
     QH_Timeslice_Bonus(20)        -- Let the corutine do some overtime...
