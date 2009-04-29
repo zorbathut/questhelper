@@ -219,7 +219,7 @@ local function ScanCluster(clust)
 end
 
 function QH_Route_Filter_Rescan(name)
-  QuestHelper: Assert(not name or filters[name])
+  QuestHelper: Assert(not name or filters[name] or name == "user_manual_ignored")
   table.insert(pending, function ()
     Route_Core_TraverseNodes(function (...)
       ScanNode(...)  -- yeah, so we're really rescanning every node, aren't we. laaaazy
@@ -252,10 +252,6 @@ function QH_Route_IgnoreCluster(clust, reason)
 end
 
 function QH_Route_UnignoreCluster(clust, reason)
-  table.insert(pending, function () Route_Core_UnignoreCluster(clust, reason) end)
-end
-
-function QH_Route_UnignoreCluster(clust, pri)
   table.insert(pending, function () Route_Core_UnignoreCluster(clust, reason) end)
 end
 
