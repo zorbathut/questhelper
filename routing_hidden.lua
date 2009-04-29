@@ -8,10 +8,7 @@ local NodeChainIgnored = {
   friendly_reason = QHText("DEPENDS_ON"),
 }
 
-function QH_Hidden_Menu()
-  local menu = QuestHelper:CreateMenu()
-  QuestHelper:CreateMenuTitle(menu, QHText("HIDDEN_TITLE"))
-  
+function QH_PopulateHidden(menu)
   local part_of_cluster = {}
   
   local ignore_reasons = {}
@@ -127,6 +124,13 @@ function QH_Hidden_Menu()
       end
     end
   end
+end
+
+function QH_Hidden_Menu()
+  local menu = QuestHelper:CreateMenu()
+  QuestHelper:CreateMenuTitle(menu, QHText("HIDDEN_TITLE"))
+  
+  QH_PopulateHidden(menu)
   
   menu:ShowAtCursor()
 end

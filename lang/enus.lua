@@ -279,6 +279,16 @@ QuestHelper_Translations.enUS =
   SETTINGS_PRECACHE_ON = "Precache has been %h(enabled).",
   SETTINGS_PRECACHE_OFF = "Precache has been %h(disabled).",
   
+  SETTINGS_MENU_ENABLE = "Enable",
+  SETTINGS_MENU_DISABLE = "Disable",
+  SETTINGS_MENU_CARTWP = "%1 Cartographer Arrow",
+  SETTINGS_MENU_TOMTOM = "%1 TomTom Arrow",
+  
+  SETTINGS_MENU_ARROW_LOCK = "Lock",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Arrow Scale",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Text Scale",
+  SETTINGS_MENU_ARROW_RESET = "Reset",
+  
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE = "%h1 yards",
  }

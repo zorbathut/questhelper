@@ -22,9 +22,25 @@ QuestHelper_Loadtime["mapbutton.lua"] = GetTime()
 -------------------------------------------------------------------------------------
 -- Display a Settings menu.  Used from the map button's right-click, and from /qh settings.
 function QuestHelper:DoSettingsMenu()
-    do return end -- BZZZT
     local menu = QuestHelper:CreateMenu()
     self:CreateMenuTitle(menu, QHText("MENU_SETTINGS"))
+    
+    arrowmenu = self:CreateMenu()
+    QH_Arrow_PopulateMenu(arrowmenu)
+    self:CreateMenuItem(menu, QHText("SETTINGS_ARROWLINK_ARROW")):SetSubmenu(arrowmenu)
+    
+    -- Cartographer Waypoints
+    if Cartographer_Waypoints then
+      self:CreateMenuItem(menu, QHFormat("SETTINGS_MENU_CARTWP", QuestHelper_Pref.cart_wp_new and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
+                    :SetFunction(self.ToggleCartWP, self)
+    end
+    
+    -- TomTom
+    if TomTom then
+      self:CreateMenuItem(menu, QHFormat("SETTINGS_MENU_TOMTOM", QuestHelper_Pref.tomtom_wp_new and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
+                    :SetFunction(self.ToggleTomTomWP, self)
+    end
+    
     
     -- Flight Timer
     self:CreateMenuItem(menu, QHFormat("MENU_FLIGHT_TIMER", QuestHelper_Pref.flight_time and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
@@ -38,29 +54,18 @@ function QuestHelper:DoSettingsMenu()
     self:CreateMenuItem(menu, QHFormat("MENU_OBJECTIVE_TIPS", QuestHelper_Pref.tooltip and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
                     :SetFunction(self.ToggleTooltip, self)
     
-    -- Cartographer Waypoints
-    if Cartographer_Waypoints then
-      self:CreateMenuItem(menu, QHFormat("MENU_WAYPOINT_ARROW", QuestHelper_Pref.cart_wp_new and QHText("MENU_DISABLE") or QHText("MENU_ENABLE"))..(TomTom and " (Cartographer Waypoints)" or ""))
-                    :SetFunction(self.ToggleCartWP, self)
-    end
-    
-    -- TomTom
-    if TomTom then
-      self:CreateMenuItem(menu, QHFormat("MENU_WAYPOINT_ARROW", QuestHelper_Pref.tomtom_wp_new and QHText("MENU_DISABLE") or QHText("MENU_ENABLE"))..(Cartographer_Waypoints and " (TomTom)" or ""))
-                    :SetFunction(self.ToggleTomTomWP, self)
-    end
-    
+    --[[
     -- Options regarding party members.
     local submenu = self:CreateMenu()
     self:CreateMenuItem(submenu, QHFormat("MENU_PARTY_SHARE", QuestHelper_Pref.share and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
                  :SetFunction(self.ToggleShare, self)
     self:CreateMenuItem(submenu, QHFormat("MENU_PARTY_SOLO", QuestHelper_Pref.solo and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
                  :SetFunction(self.ToggleSolo, self)
-    self:CreateMenuItem(menu, QHText("MENU_PARTY")):SetSubmenu(submenu)
+    self:CreateMenuItem(menu, QHText("MENU_PARTY")):SetSubmenu(submenu)]]
     
     -- Map frame button
-    self:CreateMenuItem(menu, QHFormat("MENU_MAP_BUTTON", QuestHelper_Pref.map_button and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
-                    :SetFunction(self.ToggleMapButton, self)
+    --[[self:CreateMenuItem(menu, QHFormat("MENU_MAP_BUTTON", QuestHelper_Pref.map_button and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
+                    :SetFunction(self.ToggleMapButton, self)]]
 
     -- Icon Scale
     submenu = self:CreateMenu()
@@ -75,19 +80,21 @@ function QuestHelper:DoSettingsMenu()
     
     -- Hidden Objectives
     submenu = self:CreateMenu()
-    self:PopulateHidden(submenu)
+    QH_PopulateHidden(submenu)
     self:CreateMenuItem(menu, QHText("HIDDEN_TITLE")):SetSubmenu(submenu)
     
     -- Tracker Options
     submenu = self:CreateMenu()
     self:CreateMenuItem(submenu, QHFormat("MENU_QUEST_TRACKER", QuestHelper_Pref.track and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
                     :SetFunction(self.ToggleTrack, self)
+    --[[
     self:CreateMenuItem(submenu, QHFormat("MENU_TRACKER_LEVEL", QuestHelper_Pref.track_level and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
                     :SetFunction(self.ToggleTrackLevel, self)
     self:CreateMenuItem(submenu, QHFormat("MENU_TRACKER_QCOLOUR", QuestHelper_Pref.track_qcolour and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
                     :SetFunction(self.ToggleTrackQColour, self)
     self:CreateMenuItem(submenu, QHFormat("MENU_TRACKER_OCOLOUR", QuestHelper_Pref.track_ocolour and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
                     :SetFunction(self.ToggleTrackOColour, self)
+                    ]]
     local submenu2 = self:CreateMenu()
     for pct = 60,120,10 do
       local item = self:CreateMenuItem(submenu2, pct.."%")
@@ -145,7 +152,7 @@ function QuestHelper:DoSettingsMenu()
       tex:SetVertexColor(1, 1, 1, QuestHelper_Pref.locale == loc and 1 or 0)
     end
     local item = self:CreateMenuItem(menu, QHText("MENU_LOCALE"))
-    item:AddTexture(self:CreateIconTexture(item, 25), true) -- Add Globe icon to locale menu.
+    --item:AddTexture(self:CreateIconTexture(item, 25), true) -- Add Globe icon to locale menu.
     item:SetSubmenu(submenu)
     
     -- Stuff to read.

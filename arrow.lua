@@ -124,9 +124,11 @@ function QH_Arrow_Show()
 end
 
 function QH_Arrow_Reset()
+  QuestHelper_Pref.arrow = true
   wayframe:ClearAllPoints()
   wayframe:SetPoint("CENTER", 0, 0)
   QuestHelper_Pref.arrow_locked = false -- they're probably going to want to move it
+  QH_Arrow_Show()
 end
 
 function QH_Arrow_SetScale(scale)
@@ -287,12 +289,8 @@ local function spacer()
   return htex
 end
 
-local function WayFrame_OnClick(self, button)
-  local menu = QuestHelper:CreateMenu()
-  
-  QuestHelper:CreateMenuTitle(menu, "QuestHelper Arrow")
-  
-  local hide = QuestHelper:CreateMenuItem(menu, "Hide")
+function QH_Arrow_PopulateMenu(menu)
+  local hide = QuestHelper:CreateMenuItem(menu, QuestHelper_Pref.arrow and QHText("QH_BUTTON_HIDE") or QHText("QH_BUTTON_SHOW"))
   hide:SetFunction(function () QuestHelper:ToggleArrow() end)
   --hide:AddTexture(spacer(), true)
   --hide:AddTexture(spacer(), false)
@@ -337,6 +335,16 @@ local function WayFrame_OnClick(self, button)
     end
     it:AddTexture(icon)
   end
+  
+  local reset = QuestHelper:CreateMenuItem(menu, QHText("SETTINGS_MENU_ARROW_RESET"))
+  reset:SetFunction(function () QH_Arrow_Reset() end)
+end
+
+local function WayFrame_OnClick(self, button)
+  local menu = QuestHelper:CreateMenu()
+  QuestHelper:CreateMenuTitle(menu, QHText("SETTINGS_ARROWLINK_ARROW"))
+  
+  QH_Arrow_PopulateMenu(menu)
   
   menu:ShowAtCursor()
 end
