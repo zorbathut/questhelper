@@ -1,4 +1,18 @@
 
+== Version 1.0.8-beta 4/29/2009 ==
+
+* Change how the too-many-objectives-for-this-quest error shows up - hopefully I'll get reports without it breaking people's QH now
+* Remove a lot of old 0.x saved variables
+* Better support for mods that embed the quest level into the quest name
+* Highlight quest-turn-in spots gold
+* Many tweaks to handle WoW tooltips properly
+* Update the route in realtime as you gain/lose objectives, instead of throwing all the work away and starting semi-fresh
+* Store new flightmasters properly
+* Fix a minor issue with tracker spacing on quests that have special items
+* Add loading progress percentage
+* Fix issue with arrow and minimap dodad not unhiding properly
+* Add settings menu and button
+
 == Version 0.106 4/27/2009 ==
 
 * Provide scaling for the arrow and the arrow text
