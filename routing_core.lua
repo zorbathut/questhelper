@@ -470,7 +470,7 @@ end
     end
     if not end_bound then end_bound = #last_best + 1 end
     --QuestHelper: TextOut(string.format("Placed cluster %d between %d and %d", index, start_bound, end_bound))
-    QuestHelper: Assert(end_bound >= start_bound)
+    QuestHelper: Assert(end_bound >= start_bound, string.format("%d and %d", start_bound, end_bound))
     
     -- Figure out the best place to put it
     local best_spot = nil
