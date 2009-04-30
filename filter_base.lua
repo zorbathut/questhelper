@@ -90,7 +90,7 @@ local filter_quest_done = QH_MakeFilter("filter_quest_done", function(obj)
   
   if not obj.type_quest then return end -- yeah it's fine
   if not obj.type_quest.done then return true end -- bzzt
-end, {friendly_reason = QHText("FILTERED_ZONE"), friendly_name = "zone"})
+end, {friendly_reason = QHText("FILTERED_COMPLETE"), friendly_name = "done"})
 
 local filter_quest_watched = QH_MakeFilter("filter_quest_watched", function(obj)
   if not QuestHelper_Pref.filter_watched then return end
