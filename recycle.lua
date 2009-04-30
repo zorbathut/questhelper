@@ -52,7 +52,7 @@ function QuestHelper:CreateTable(tag)
   tag = tag or string.gsub(debugstack(2, 1, 1), "\n.*", "")
   
   if QH_RegisterTable then QH_RegisterTable(tbl, true, tag) end
-  QuestHelper: Assert(pcall(function (table, item, tag) table[item] = tag end, self.recycle_tabletyping, tbl, tag, "recycle overflow error (too many tables)")
+  QuestHelper: Assert(pcall(function (table, item, tag) table[item] = tag end, self.recycle_tabletyping, tbl, tag), "recycle overflow error (too many tables)")
   
   return tbl
 end
