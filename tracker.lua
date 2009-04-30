@@ -42,6 +42,7 @@ local minbutton = CreateFrame("Button", "QuestHelperQuestWatchFrameMinimizeButto
 
 QuestHelper.tracker = tracker
 
+local resizing = false
 tracker:Hide()
 tracker:SetWidth(200)
 tracker:SetHeight(100)
@@ -693,6 +694,22 @@ function QH_Tracker_Rescan()
   QuestHelper:ReleaseTable(used_count)
   used_count = nil
   
+  if y ~= tracker.dh then
+    tracker.t = 0
+    tracker.sh = tracker:GetHeight()
+    tracker.dh = y
+    tracker.sw = tracker.dw
+    resizing = true
+  end
+  
+  --[[
+  if x ~= tracker.dw or y ~= tracker.dy then
+    tracker.t = 0
+    tracker.sw, tracker.sh = tracker:GetWidth(), tracker:GetHeight()
+    tracker.dw, tracker.dh = x, y
+    resizing = true
+  end]]
+  
   --[[
   
     local quests = QuestHelper.quest_log
@@ -875,7 +892,6 @@ function QH_Tracker_SetPin(metaobjective, flag)
 end
 
 
-local resizing = false
 local check_delay = 4
 
 -- This function does the grunt work of cursor positioning and rescaling. It does not actually reorganize items.

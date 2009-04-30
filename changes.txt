@@ -3,6 +3,7 @@
 
 * Instrument some errors that people are running into - I haven't fixed them, but this should give me more information on how to fix them properly.
 * Fix a bug causing the routing code to essentially stop routing new things when a large number of flightpoints are discovered
+* Allow the tracker to grow up again
 
 == Version 1.0.8-beta 4/29/2009 ==
 
