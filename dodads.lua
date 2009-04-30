@@ -783,13 +783,6 @@ function QuestHelper:CreateMipmapDodad()
     
     if obj ~= self.obj then
       self.obj = obj
-      if obj and not QuestHelper_Pref.hide then
-        self:Show()
-      else
-        QuestHelper:InvokeWaypointCallbacks()
-        self:Hide()
-        return
-      end
       
       self.recalc_timeout = 0
       
