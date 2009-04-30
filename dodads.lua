@@ -600,6 +600,10 @@ function QuestHelper:RemoveWaypointCallback(cb)
 end
 
 function QuestHelper:InvokeWaypointCallbacks(c, z, x, y, desc)
+  QuestHelper: Assert(type(c) == "number")
+  QuestHelper: Assert(type(z) == "number")
+  QuestHelper: Assert(type(x) == "number")
+  QuestHelper: Assert(type(y) == "number")
   if c ~= last_c or z ~= last_z or x ~= last_x or y ~= last_y or desc ~= last_desc then
     last_c, last_z, last_x, last_y, last_desc = c, z, x, y, desc
     for cb in pairs(callbacks) do
@@ -765,6 +769,8 @@ function QuestHelper:CreateMipmapDodad()
               end
             end
             local c, z = QuestHelper_IndexLookup[index]
+            QuestHelper: Assert(not c or type(c) == "number", index)
+            QuestHelper: Assert(not z or type(z) == "number", index)
             QuestHelper:InvokeWaypointCallbacks(c, z, x, y, reason)
           end
         end
