@@ -179,6 +179,7 @@ end
 function QuestHelper:HardReset(code)
   if code == self.purge_code then
     self:ResetTrackerPosition() -- do this before we kill off the prefs, since it touches a pref
+    QH_Arrow_Reset()
     QuestHelper_Pref = nil
     QuestHelper_ErrorList = nil -- BIZAM
     QuestHelper_KnownFlightRoutes = nil
