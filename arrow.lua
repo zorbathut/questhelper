@@ -159,6 +159,15 @@ end
 QH_Arrow_SetTextScale(QuestHelper_Pref.arrow_textsize or 1)
 
 local function wpupdate(c, z, x, y, desc)
+  if c then
+    QuestHelper: Assert(z)
+    QuestHelper: Assert(x)
+    QuestHelper: Assert(y)
+  else
+    QuestHelper: Assert(not z)
+    QuestHelper: Assert(not x)
+    QuestHelper: Assert(not y)
+  end
   active_point.c, active_point.z, active_point.x, active_point.y = c, z, x, y
   wayframe.title:SetText(desc)
   wayframe:Show()
