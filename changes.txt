@@ -1,4 +1,11 @@
 
+== Version 0.106 4/27/2009 ==
+
+* Provide scaling for the arrow and the arrow text
+* Re-insert the map button in a less conflicty place, hopefully
+* Add a feature to generate error reports on-demand - "/qh error full" to get a version and addon dump, which may be useful for debugging issues.
+* Provide the rotating-arrow-pointing-down thingy, now people are going to leave comments complaining about the existence of it instead of the nonexistence of it, I CAN SEE THE FUTURE AND IT'S FULL OF EMO
+
 == Version 0.105 4/22/2009 ==
 
 * Fix a bug in the Cart-arrow-autodisable, hopefully before too many people have looked at two arrows and said "oh hey I think I'll turn this one off" and picked mine (sigh.)
