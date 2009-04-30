@@ -153,7 +153,7 @@ function QH_Collector_Init()
     end
     
     for _, v in ipairs(obliterate) do
-      QuestHelper_Collector[k] = nil
+      QuestHelper_Collector[v] = nil
     end
   end
   
