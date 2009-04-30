@@ -259,8 +259,12 @@ function QH_Route_SetClusterPriority(clust, pri)
   table.insert(pending, function () Route_Core_SetClusterPriority(clust, pri) end)
 end
 
+local pending_recalc = false
 function QH_Route_FlightPathRecalc()
-  table.insert(pending, function () QH_redo_flightpath() pathcache_active = new_pathcache_table() pathcache_inactive = new_pathcache_table() Route_Core_DistanceClear() ReplotPath() end)
+  if not pending_recalc then
+    pending_recalc = true
+    table.insert(pending, function () pending_recalc = false QH_redo_flightpath() pathcache_active = new_pathcache_table() pathcache_inactive = new_pathcache_table() Route_Core_DistanceClear() ReplotPath() end)
+  end
 end
 QH_Route_FlightPathRecalc() -- heh heh
 

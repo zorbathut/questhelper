@@ -7,18 +7,20 @@ QH_Flight_Distances = {}
 function QH_redo_flightpath()
   QuestHelper: Assert(DB_Ready())
   
-  local load_preroll
-  local load_floyd
-  local load_postroll
-  
+  local globby
   if QuestHelper.loading_flightpath then
-    load_earlyload = QuestHelper.loading_flightpath:MakeSubcategory(1)
-    load_preroll = QuestHelper.loading_flightpath:MakeSubcategory(1)
-    load_floyd = QuestHelper.loading_flightpath:MakeSubcategory(1)
-    load_postroll = QuestHelper.loading_flightpath:MakeSubcategory(0.1)
+    globby = QuestHelper.loading_flightpath
+  else
+    QuestHelper.flightpathing = QuestHelper.CreateLoadingCounter()
+    globby = QuestHelper.flightpathing
   end
   
-  if load_preroll then load_preroll:SetPercentage(0) end
+  local load_earlyload = globby:MakeSubcategory(1)
+  local load_preroll = globby:MakeSubcategory(1)
+  local load_floyd = globby:MakeSubcategory(1)
+  local load_postroll = globby:MakeSubcategory(0.1)
+  
+  load_preroll:SetPercentage(0)
   
   -- First, let's figure out if the player can fly.
   -- The logic we're using: if he has 225 or 300, then he can fly in Outland. If he's got Cold Weather Flying and those levels, he can fly in Northrend.
@@ -57,7 +59,7 @@ function QH_redo_flightpath()
     end
     
     fidcount = fidcount + 1
-    if load_earlyload then load_earlyload:SetPercentage(fidcount / QuestHelper:TableSize(flightids)) end
+    load_earlyload:SetPercentage(fidcount / QuestHelper:TableSize(flightids))
   end
   
   local adjacency = {}
@@ -102,7 +104,7 @@ function QH_redo_flightpath()
     end
     
     has_seen = has_seen + 1
-    if load_preroll then load_preroll:SetPercentage(has_seen / has_count) end
+    load_preroll:SetPercentage(has_seen / has_count)
   end
   
   QH_Timeslice_Yield()
@@ -151,7 +153,7 @@ function QH_redo_flightpath()
       end
     end
     
-    if load_floyd then load_floyd:SetPercentage(idx / #imp_flat) end
+    load_floyd:SetPercentage(idx / #imp_flat)
   end
   
   QH_Timeslice_Yield()
@@ -238,5 +240,9 @@ function QH_redo_flightpath()
     QuestHelper:ReleaseTable(v)
   end
   
-  if load_postroll then load_postroll:SetPercentage(1) end
+  load_postroll:SetPercentage(1)
+  
+  if not QuestHelper.loading_flightpath then
+    QuestHelper.flightpathing = nil
+  end
 end

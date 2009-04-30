@@ -558,6 +558,7 @@ end
 ]=]
 
 local loading_vquest = {tracker_desc = QHFormat("QH_LOADING", "0")}
+local flightpath_vquest = {tracker_desc = QHFormat("QH_FLIGHTPATH", "0")}
 
 --local hidden_vquest1 = { cat = "quest", obj = "7778/" .. QHText("QUESTS_HIDDEN_1"), after = {}, watched = true }
 --local hidden_vquest2 = { cat = "quest", obj = "7778/    " .. QHText("QUESTS_HIDDEN_2"), after = {}, watched = true }
@@ -607,6 +608,11 @@ function QH_Tracker_Rescan()
   if QuestHelper.loading_main then
     loading_vquest.tracker_desc = QHFormat("QH_LOADING", string.format("%d", QuestHelper.loading_main:GetPercentage() * 100))
     local x, ty = addItem(loading_vquest, y)
+    y = ty + 10
+  end
+  if QuestHelper.flightpathing then
+    flightpath_vquest.tracker_desc = QHFormat("QH_FLIGHTPATH", string.format("%d", QuestHelper.flightpathing:GetPercentage() * 100))
+    local x, ty = addItem(flightpath_vquest, y)
     y = ty + 10
   end
   
