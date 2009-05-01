@@ -51,6 +51,8 @@ if not DongleStub:IsNewerVersion(LIBRARY_VERSION_MAJOR, LIBRARY_VERSION_MINOR) t
 
 local Astrolabe = {};
 
+local Minimap = _G.Minimap
+
 -- define local variables for Data Tables (defined at the end of this file)
 local WorldMapSize, MinimapSize, ValidMinimapShapes, VirtualContinentIndexes;
 
@@ -453,8 +455,7 @@ function Astrolabe:GetFacing()
   if MinimapCompassRing then  -- 3.1 hackery
     return MinimapCompassRing:GetFacing()
   else
-    local x, y = MinimapCompassTexture:GetTexCoord()
-    return atan2(y - 0.5, x - 0.5) - 3.14159 / 4 * 5
+    return -GetPlayerFacing()
   end
 end
 local minimapRotationOffset = -Astrolabe.GetFacing()
@@ -636,7 +637,6 @@ do
 			
 			local C, Z, x, y = self:GetCurrentPlayerPosition();
 			if ( C and C ~= -1 ) then
-				local Minimap = Minimap;
 				local lastPosition = self.LastPlayerPosition;
 				local lC, lZ, lx, ly = unpack(lastPosition);
 				
@@ -779,7 +779,6 @@ do
 				
 				local currentZoom = Minimap:GetZoom();
 				lastZoom = currentZoom;
-				local Minimap = Minimap;
 				local mapWidth = Minimap:GetWidth();
 				local mapHeight = Minimap:GetHeight();
 				local count = 0
@@ -938,7 +937,6 @@ end
 function Astrolabe:OnEvent( frame, event )
 	if ( event == "MINIMAP_UPDATE_ZOOM" ) then
 		-- update minimap zoom scale
-		local Minimap = Minimap;
 		local curZoom = Minimap:GetZoom();
 		if ( GetCVar("minimapZoom") == GetCVar("minimapInsideZoom") ) then
 			if ( curZoom < 2 ) then
@@ -1023,6 +1021,10 @@ function Astrolabe:AllWorldMapsHidden()
 	end
 end
 
+function Astrolabe:SetMinimapObject(minimap)
+	Minimap = minimap
+	self:UpdateMinimapIconPositions()
+end
 
 --------------------------------------------------------------------------------------------------------------
 -- Library Registration

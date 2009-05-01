@@ -3,6 +3,7 @@ QuestHelper_Loadtime["dodads.lua"] = GetTime()
 
 local ofs = 0.000723339 * (GetScreenHeight()/GetScreenWidth() + 1/3) * 70.4;
 local radius = ofs / 1.166666666666667;
+local Minimap = _G.Minimap
 
 -- These conversions are nasty, and this entire section needs a serious cleanup.
 local function convertLocation(p)
@@ -638,6 +639,13 @@ function QuestHelper:InvokeWaypointCallbacks(c, z, x, y, desc)
       cb.func(unpack(cb, 1, len+5))
     end
   end
+end
+
+function QuestHelper:SetMinimapObject(minimap)
+	Minimap = minimap
+	QuestHelper.Astrolabe:SetMinimapObject(minimap)
+	QuestHelper.minimap_marker:SetParent(minimap)
+	QuestHelper.Astrolabe.processingFrame:SetParent(minimap)
 end
 
 --[[ Small parts of the arrow rendering code are thanks to Tomtom, with the following license:
