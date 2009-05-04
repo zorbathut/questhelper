@@ -425,6 +425,9 @@ function QuestHelper:Initialize()
   self:RegisterEvent("GOSSIP_SHOW")
   self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE")
   self:RegisterEvent("UNIT_LEVEL")
+  self:RegisterEvent("ZONE_CHANGED")
+  self:RegisterEvent("ZONE_CHANGED_INDOORS")
+  self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 
   self:SetLocaleFonts()
 
@@ -868,6 +871,10 @@ function QuestHelper:OnEvent(event)
     please_donate_initted = true
     
     QHUpdateNagInit()
+  end
+  
+  if event == "ZONE_CHANGED" or event == "ZONE_CHANGED_INDOORS" or event == "ZONE_CHANGED_NEW_AREA" then
+    QH_Route_Filter_Rescan()
   end
   
   QH_Timeslice_Increment(GetTime() - tstart, "event")

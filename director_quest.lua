@@ -436,6 +436,8 @@ function QH_UpdateQuests(force)
     active = nactive
     
     quest_list = quest_list_used
+    
+    QH_Route_Filter_Rescan()  -- 'cause filters may also change
   end
 end
 
