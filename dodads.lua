@@ -627,16 +627,20 @@ function QuestHelper:InvokeWaypointCallbacks(c, z, x, y, desc)
   QuestHelper: Assert(not z or type(z) == "number")
   QuestHelper: Assert(not x or type(x) == "number")
   QuestHelper: Assert(not y or type(y) == "number")
-  if c ~= last_c or z ~= last_z or x ~= last_x or y ~= last_y or desc ~= last_desc then
-    last_c, last_z, last_x, last_y, last_desc = c, z, x, y, desc
-    for cb in pairs(callbacks) do
-      local len = cb.len
-      cb[len+1] = c
-      cb[len+2] = z
-      cb[len+3] = x
-      cb[len+4] = y
-      cb[len+5] = desc
-      cb.func(unpack(cb, 1, len+5))
+  if c == last_c and z == last_z and desc == last_desc and not x and not y then x, y = last_x, last_y end -- sometimes we may not have up-to-date location, but could still in theory be pointing at the same spot
+  
+  if x and y then
+    if c ~= last_c or z ~= last_z or x ~= last_x or y ~= last_y or desc ~= last_desc then
+      last_c, last_z, last_x, last_y, last_desc = c, z, x, y, desc
+      for cb in pairs(callbacks) do
+        local len = cb.len
+        cb[len+1] = c
+        cb[len+2] = z
+        cb[len+3] = x
+        cb[len+4] = y
+        cb[len+5] = desc
+        cb.func(unpack(cb, 1, len+5))
+      end
     end
   end
 end
