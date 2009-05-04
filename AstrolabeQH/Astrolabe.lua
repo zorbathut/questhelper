@@ -154,7 +154,7 @@ function Astrolabe:GetCurrentVirtualMapCZ()
   if C == -1 and Z == 0 then
     -- welllllp
     local mapname = GetMapInfo()
-    if VirtualContinentIndexes[mapname] then
+    if VirtualContinentIndexes[mapname] and GetCurrentMapDungeonLevel() == 0 then
       C = VirtualContinentIndexes[mapname]
       Z = 1
     elseif mapname and VirtualContinentIndexes[mapname .. GetCurrentMapDungeonLevel()] then
@@ -1692,7 +1692,7 @@ if true then
   VContinent(-101, "UtgardePinnacle1", 100) -- temporary value  -- hey they spelled it right
   VContinent(-102, "UtgardePinnacle2", 100) -- temporary value
   
-  VContinent(-103, "VaultofArchavon", 100) -- temporary value -- Weirdly, Emalon is actually within the "Vault of Archavon"
+  VContinent(-103, "VaultofArchavon", 603.25) -- temporary value -- Weirdly, Emalon is actually within the "Vault of Archavon"
   
   VContinent(-104, "Naxxramas1", 1237.5) -- construct quarter
   VContinent(-105, "Naxxramas2", 1237.5) -- arachnid quarter
@@ -1705,9 +1705,9 @@ if true then
   
   VContinent(-111, "TheEyeOfEternity", 286.7)
   
-  VContinent(-112, "Ulduar", 100) -- temporary value
-  VContinent(-113, "Ulduar1", 100) -- temporary value
-  VContinent(-114, "Ulduar2", 100) -- temporary value
+  VContinent(-112, "Ulduar", 2191.7) -- temporary value
+  VContinent(-113, "Ulduar1", 446.5) -- temporary value
+  VContinent(-114, "Ulduar2", 885.6) -- temporary value
   VContinent(-115, "Ulduar3", 100) -- temporary value
   VContinent(-116, "Ulduar4", 100) -- temporary value
 end
