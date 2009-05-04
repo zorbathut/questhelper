@@ -1,6 +1,14 @@
 QuestHelper_File["comm.lua"] = "Development Version"
 QuestHelper_Loadtime["comm.lua"] = GetTime()
 
+function QuestHelper:HandleRemoteData() end
+function QuestHelper:PumpCommMessages() end
+function QuestHelper:HandlePartyChange() end
+function QuestHelper:EnableSharing() end
+function QuestHelper:DisableSharing() end
+
+do return end
+
 -- We can't send more than 256 bytes per message.
 local comm_version = 1
 local max_msg_size = 256-4-1-1 -- To allow room for "QHpr\t" ... "\0"
