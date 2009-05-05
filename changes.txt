@@ -1,4 +1,12 @@
 
+== Version 1.0.10-beta 5/5/2009 ==
+
+* "Done" filter was mislabeled as "zone" filter in /qh hidden
+* Fixed dumb mistake in the code to clear out ancient collected data
+* Add hooks to allow QH to be reset to point at a custom minimap object, thanks to Antiarc
+* Maybe fix that recurring crash in the arrow
+* Make it slightly more emphatic about rescanning filters when they're likely to change
+
 == Version 1.0.9-beta 4/30/2009 ==
 
 * Instrument some errors that people are running into - I haven't fixed them, but this should give me more information on how to fix them properly.
