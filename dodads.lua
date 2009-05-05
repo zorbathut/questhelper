@@ -800,7 +800,7 @@ function QuestHelper:CreateMipmapDodad()
       
       if self.dot then QuestHelper:ReleaseTexture(self.dot) self.dot = nil end
       
-      if not self.dot and self.obj then
+      if self.obj then
         self.dot = QuestHelper:CreateIconTexture(self, self.obj.icon_id or 8)
         self.dot:SetPoint("TOPLEFT", icon, "TOPLEFT", 2, -2)
         self.dot:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -2, 2)
