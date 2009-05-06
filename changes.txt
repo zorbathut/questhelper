@@ -3,6 +3,7 @@
 
 * Fix the obj-null-arrow error that's been plauging a lot of people
 * Better-instrument the too-many-tables error. If you've been running into this error, please make it happen again and report it
+* Increase performance a bit when using flying mounts
 
 == Version 1.0.10-beta 5/5/2009 ==
 

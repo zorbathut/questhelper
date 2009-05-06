@@ -629,7 +629,7 @@ function QuestHelper:InvokeWaypointCallbacks(c, z, x, y, desc)
   QuestHelper: Assert(not y or type(y) == "number")
   if c == last_c and z == last_z and desc == last_desc and not x and not y then x, y = last_x, last_y end -- sometimes we may not have up-to-date location, but could still in theory be pointing at the same spot
   
-  if x and y then
+  if not c or (x and y) then
     if c ~= last_c or z ~= last_z or x ~= last_x or y ~= last_y or desc ~= last_desc then
       last_c, last_z, last_x, last_y, last_desc = c, z, x, y, desc
       for cb in pairs(callbacks) do
@@ -705,49 +705,33 @@ function QuestHelper:CreateMipmapDodad()
   icon.bg:SetAllPoints()
   
   function icon:OnUpdate(elapsed)
+    local c, z, x, y, textdesc
+    if self.obj then
+      c, z = QuestHelper.collect_rc, QuestHelper.collect_rz
+      if c and z then
+        x, y = convertLocationToScreen(self.obj.loc, c, z)
+      end
+    
+      if self.obj.map_desc_chain then
+        -- the first line will just be an "enroute" line
+        textdesc = self.obj.map_desc[1] .. "\n" .. self.obj.map_desc_chain.map_desc[1]
+      else
+        textdesc = self.obj.map_desc[1]
+      end
+    end
+    
+    QuestHelper: Assert(not c or type(c) == "number")
+    QuestHelper: Assert(not z or type(z) == "number")
+    
+    -- Deal with waypoint callbacks
+    if QuestHelper_Pref.hide or UnitIsDeadOrGhost("player") and not QuestHelper.InBrokenInstance then
+      QuestHelper:InvokeWaypointCallbacks()
+    else
+      QuestHelper:InvokeWaypointCallbacks(c, z, x, y, textdesc)
+    end
+    
     if self.obj and not QuestHelper.InBrokenInstance then
       self:Show() -- really only triggers if the non-broken-instance code is being poked
-      
-      -- Deal with waypoint callbacks
-      if QuestHelper_Pref.hide or UnitIsDeadOrGhost("player") then
-        QuestHelper:InvokeWaypointCallbacks()
-      else
-        local c, z = QuestHelper.collect_rc or 0, QuestHelper.collect_rz or 0
-        local x, y = convertLocationToScreen(self.obj.loc, c, z)
-        --QuestHelper:TextOut(string.format("internal: %f %f %f %f or %f %f %f", c, z, x, y, self.obj.loc.c, self.obj.loc.x, self.obj.loc.y))
-        
-        local textdesc
-        if self.obj.map_desc_chain then
-          -- the first line will just be an "enroute" line
-          textdesc = self.obj.map_desc[1] .. "\n" .. self.obj.map_desc_chain.map_desc[1]
-        else
-          textdesc = self.obj.map_desc[1]
-        end
-        
-        QuestHelper: Assert(not c or type(c) == "number")
-        QuestHelper: Assert(not z or type(z) == "number")
-        QuestHelper:InvokeWaypointCallbacks(c, z, x, y, textdesc)
-        
-        --[=[
-        if QuestHelper.c == t[1] then
-          -- Translate the position to the zone the player is standing in.
-          local c, z = QuestHelper.c, QuestHelper.z
-          local x, y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], c, z)
-          QuestHelper:InvokeWaypointCallbacks(c, z, x, y, reason)
-        else
-          -- Try to find the nearest zone on the continent the objective is in.
-          local index, distsqr, x, y
-          for z, i in pairs(QuestHelper_IndexLookup[t[1]]) do
-            local _x, _y = QuestHelper.Astrolabe:TranslateWorldMapPosition(t[1], t[2], t[3], t[4], t[1], z)
-            local d = (_x-0.5)*(_x-0.5)+(_y-0.5)*(_y-0.5)
-            if not index or d < distsqr then
-              index, distsqr, x, y = i, d, _x, _y
-            end
-          end
-          local c, z = QuestHelper_IndexLookup[index]
-          QuestHelper:InvokeWaypointCallbacks(c, z, x, y, reason)
-        end]=]
-      end
       
       if not QuestHelper_Pref.hide and QuestHelper.Astrolabe:PlaceIconOnMinimap(self, convertLocation(self.obj.loc)) ~= -1 then
         local edge = QuestHelper.Astrolabe:IsIconOnEdge(self)
