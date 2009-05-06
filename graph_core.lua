@@ -354,8 +354,6 @@ end
 
 local linkages = {}
 
-qxdx = {}
-
 local function QH_Graph_Plane_ReallyMakeLink(item)
   local name, coord1, coord2, cost, cost_reverse = unpack(item)
   
@@ -378,8 +376,6 @@ local function QH_Graph_Plane_ReallyMakeLink(item)
     if name == "static_transition" then return end -- ha ha, yep, that's how we find out, tooootally reliable
     
     local xyd = xydist(node1, node2)
-    print(xyd, cost, cost_reverse)
-    table.insert(qxdx, string.format("%s %s %s", tostring(xyd), tostring(cost), tostring(cost_reverse)))
     if cost >= xyd and (not cost_reverse or cost_reverse >= xyd) then
       return  -- DENIED
     end

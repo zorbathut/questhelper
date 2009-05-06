@@ -52,7 +52,27 @@ function QuestHelper:CreateTable(tag)
   tag = tag or string.gsub(debugstack(2, 1, 1), "\n.*", "")
   
   if QH_RegisterTable then QH_RegisterTable(tbl, true, tag) end
-  QuestHelper: Assert(pcall(function (table, item, tag) table[item] = tag end, self.recycle_tabletyping, tbl, tag), "recycle overflow error (too many tables)")
+  if not pcall(function (table, item, tag) table[item] = tag end, self.recycle_tabletyping, tbl, tag) or qhcrashy then
+    local freq = {}
+    for _, v in pairs(self.recycle_tabletyping) do
+      freq[v] = (freq[v] or 0) + 1
+    end
+    
+    local fqx = {}
+    for k, v in pairs(freq) do
+      table.insert(fqx, {k, v})
+    end
+    
+    table.sort(fqx, function(a, b) return a[2] < b[2] end)
+    
+    local stt = "recycle overflow error (too many tables)\n"
+    
+    for _, v in ipairs(fqx) do
+      stt = stt .. string.format("        %d: %s\n", v[2], v[1])
+    end
+    
+    QuestHelper: Assert(false, stt)
+  end
   
   return tbl
 end
@@ -73,7 +93,7 @@ function QuestHelper:ReleaseTable(tbl)
     self.free_tables[setmetatable(tbl, unused_meta)] = true
     release_cycle = release_cycle + 1
   else
-    self.recycle_tabletyping[tbl] = "((released))"
+    self.recycle_tabletyping[tbl] = (self.recycle_tabletyping[tbl] or "((unknown))") .. "((released))"
     release_cycle = 0
   end
 end
