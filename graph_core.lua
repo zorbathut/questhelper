@@ -109,6 +109,7 @@ end
 local active = false
 
 function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
+  --QuestHelper:TextOut("Starting PMF")
   QuestHelper: Assert(not active)
   active = true -- The fun thing about coroutines is that this is actually safe.
   local out = QuestHelper:CreateTable("graphcore output")  -- THIS HAD BETTER BE RELEASABLE OR IT WILL BE BAD
@@ -118,13 +119,20 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   
   local link = QuestHelper:CreateTable("graphcore link")
   
+  --local stats = QuestHelper:CreateTable("graphcore --stats")
+  
   QuestHelper: Assert(st.x and st.y and st.p)
+  
+  --stats.dests_quick = 0
+  --stats.dests_complex = 0
+  --stats.dests_total = 0
   
   for k, v in ipairs(nda) do
     QuestHelper: Assert(v.x and v.y and v.p)
     local cpvp = canoplane(v.p)
     if canoplane(st.p) == cpvp then
       out[k] = xydist(st, v)
+      --stats.dests_quick = --stats.dests_quick + 1
     else
       if plane[cpvp] then
       --print("Destination plane insertion")
@@ -135,12 +143,25 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
         table.insert(plane[cpvp], link[k])
         undone[k] = true
         remaining = remaining + 1
+        --stats.dests_complex = --stats.dests_complex + 1
       end
     end
+    --stats.dests_total = --stats.dests_total + 1
   end
   
   local link_id = reverse and "rlink" or "link"
   local link_cost_id = reverse and "rlink_cost" or "link_cost"
+  
+  --stats.node_initialized_first = 0
+  --stats.node_done = 0
+  --stats.node_done_already = 0
+  --stats.node_modified_before_use = 0
+  --stats.node_link_reprocessed = 0
+  --stats.node_link_first = 0
+  --stats.node_link_alreadydone = 0
+  --stats.node_inner_reprocessed = 0
+  --stats.node_inner_first = 0
+  --stats.node_inner_alreadydone = 0
   
   local dijheap = QuestHelper:CreateTable("graphcore heap center")
   if plane[canoplane(st.p)] then
@@ -156,17 +177,27 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
         local hep = QuestHelper:CreateTable("graphcore heap")
         hep.c, hep.cs, hep.n = dst + v[link_cost_id], dst, v
         heap_insert(dijheap, hep)
+        
+        --stats.node_initialized_first = --stats.node_initialized_first + 1
       end
     end
   end
   
+  --stats.heap_max = #dijheap
+  
+  --QuestHelper:TextOut("Starting routing")
+  
   while remaining > 0 and #dijheap > 0 do
     QH_Timeslice_Yield()
+    --stats.heap_max = math.max(--stats.heap_max, #dijheap)
     local cdj = heap_extract(dijheap)
     if cdj.done then
       if undone[cdj.done] then
         undone[cdj.done] = nil
         remaining = remaining - 1
+        --stats.node_done = --stats.node_done + 1
+      else
+        --stats.node_done_already = --stats.node_done_already + 1
       end
     else
     --print(string.format("Extracted cost %f/%s pointing at %f/%f/%d", cdj.c, tostring(cdj.n.scan_cost), cdj.n.x, cdj.n.y, cdj.n.p))
@@ -175,14 +206,19 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
         local linkto = cdj.n[link_id]
         local basecost = cdj.c + cdj.n[link_cost_id]
         if linkto.scan_id ~= grid or linkto.scan_cost > basecost then
+          if linkto.scan_id == grid then
+            --stats.node_link_reprocessed = --stats.node_link_reprocessed + 1
+          else
+            --stats.node_link_first = --stats.node_link_first + 1
+          end
           linkto.scan_id = grid
           linkto.scan_cost = basecost
           linkto.scan_from = nil
           
           for _, v in ipairs(plane[linkto.p]) do
+            -- One way or another, we gotta calculate this.
+            local goalcost = basecost + xydist(linkto, v)
             if v.goal then
-              -- One way or another, we gotta calculate this.
-              local goalcost = basecost + xydist(linkto, v)
               if not out[v.goal] or out[v.goal] > goalcost then
                 out[v.goal] = goalcost
                 v.scan_from = cdj.n
@@ -192,8 +228,12 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
                 heap_insert(dijheap, hep)
               end
             elseif v[link_id] and (v.scan_id ~= grid or v.scan_cost > basecost) then
-              local goalcost = basecost + xydist(linkto, v)
               if v.scan_id ~= grid or v.scan_cost > goalcost then
+                if linkto.scan_id == grid then
+                  --stats.node_inner_reprocessed = --stats.node_inner_reprocessed + 1
+                else
+                  --stats.node_inner_first = --stats.node_inner_first + 1
+                end
                 v.scan_id = grid
                 v.scan_cost = goalcost
                 v.scan_from = cdj.n
@@ -201,14 +241,23 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
                 local hep = QuestHelper:CreateTable("graphcore heap")
                 hep.c, hep.cs, hep.n = goalcost + v[link_cost_id], goalcost, v
                 heap_insert(dijheap, hep)
+              else
+                --stats.node_inner_alreadydone = --stats.node_inner_alreadydone + 1
               end
             end
           end
+        else
+          --stats.node_link_alreadydone = --stats.node_link_alreadydone + 1
         end
+      else
+        --stats.node_modified_before_use = --stats.node_modified_before_use + 1
       end
     end
     QuestHelper:ReleaseTable(cdj)
+    --stats.heap_max = math.max(--stats.heap_max, #dijheap)
   end
+  
+  --QuestHelper:TextOut("Starting pathing")
   
   for _, v in ipairs(dijheap) do
     QuestHelper:ReleaseTable(v)
@@ -278,6 +327,12 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   QuestHelper:ReleaseTable(link)
   QuestHelper:ReleaseTable(undone)
   
+  --QuestHelper:TextOut("Finishing")
+  
+  --for k, v in pairs(stats) do
+    --print(k, v)
+  --end
+  
   active = false
   return out  -- THIS HAD BETTER BE RELEASABLE OR IT WILL BE BAD
 end
@@ -299,6 +354,8 @@ end
 
 local linkages = {}
 
+qxdx = {}
+
 local function QH_Graph_Plane_ReallyMakeLink(item)
   local name, coord1, coord2, cost, cost_reverse = unpack(item)
   
@@ -316,9 +373,16 @@ local function QH_Graph_Plane_ReallyMakeLink(item)
   if node1.p == node2.p then
     -- if they're the same location, we don't want to include them
     -- right now, "the same location" is being done really, really cheaply
-    -- hey look me! I'm kind of a bastard!
+    -- hey look at me! I'm kind of a bastard!
     
     if name == "static_transition" then return end -- ha ha, yep, that's how we find out, tooootally reliable
+    
+    local xyd = xydist(node1, node2)
+    print(xyd, cost, cost_reverse)
+    table.insert(qxdx, string.format("%s %s %s", tostring(xyd), tostring(cost), tostring(cost_reverse)))
+    if cost >= xyd and (not cost_reverse or cost_reverse >= xyd) then
+      return  -- DENIED
+    end
   end
   
   if not plane[node1.p] then plane[node1.p] = {} end
