@@ -52,6 +52,7 @@ function QuestHelper:CreateTable(tag)
   end
   
   tag = tag or string.gsub(debugstack(2, 1, 1), "\n.*", "")
+  if type(tag) ~= "string" then tag = tostring(tag) .. " ((weird)) " .. string.gsub(debugstack(2, 1, 1), "\n.*", "") end
   
   if QH_RegisterTable then QH_RegisterTable(tbl, true, tag) end
   if not pcall(mark, self.recycle_tabletyping, tbl, tag) then
