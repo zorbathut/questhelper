@@ -891,7 +891,7 @@ function QuestHelper:OnUpdate()
   
   if not QuestHelper_Loadtime["onupdate"] then QuestHelper_Loadtime["onupdate"] = GetTime() end
   
-  if frams == 60 then
+  if false and frams == 60 then
     self:ShowText([[
 This is a |cffff8000beta of QuestHelper|r. Be warned: It may crash. It may lock up. It may give bad advice. It may spew errors. It shouldn't spam people, delete your hard-won epics, or make your computer catch on fire, but technically I'm giving no guarantees. |cffff8000If you want a polished, functioning product, close WoW, download the official QH release from curse.com, and use that.|r
 
