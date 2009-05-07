@@ -231,15 +231,6 @@ function QuestHelper:ToggleAnts()
   end
 end
 
-function QuestHelper:TogglePrecache()
-  QuestHelper_Pref.precache = not QuestHelper_Pref.precache
-  if QuestHelper_Pref.precache then
-    self:TextOut(QHText("SETTINGS_PRECACHE_ON"))
-  else
-    self:TextOut(QHText("SETTINGS_PRECACHE_OFF"))
-  end
-end
-
 function QuestHelper:LevelOffset(offset)
   local level = tonumber(offset)
   if level then
@@ -758,10 +749,6 @@ commands =
         {"/qh perfload 50%", "Does half as much background processing"},
         {"/qh perfload 3", "Loads 3 times as quickly."}},
         QuestHelper.genericSetScale, QuestHelper, "perfload_scale", "boot performance factor", .2, 5},
-    
-    {"PRECACHE",
-     "Toggles the routing precache on or off. Allowing precaching will increase performance significantly, at the expense of some memory, most notably at startup.",
-      {}, QuestHelper.TogglePrecache, QuestHelper},
       
     {"TOP",
      "Displays various performance stats on QuestHelper.",

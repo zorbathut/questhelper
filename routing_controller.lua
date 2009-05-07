@@ -51,8 +51,8 @@ local pending = {}
 
 local weak_key = {__mode="k"}
 
-local function new_pathcache_table()
-  return setmetatable(QuestHelper:CreateTable("controller cache"), weak_key)
+local function new_pathcache_table(conservative)
+  return setmetatable(conservative and {} or QuestHelper:CreateTable("controller cache"), weak_key)
 end
 
 -- Every minute or two, we dump the inactive and move active to inactive. Every time we touch something, we put it in active.
@@ -73,10 +73,10 @@ function QH_PrintPathcacheSize()
   QuestHelper:TextOut(string.format("Active pathcache: %d", pcs(pathcache_active)))
   QuestHelper:TextOut(string.format("Inactive pathcache: %d", pcs(pathcache_inactive)))
 end
-function QH_ClearPathcache()
+function QH_ClearPathcache(conservative)
   local ps = pcs(pathcache_inactive)
-  pathcache_active = new_pathcache_table()
-  pathcache_inactive = new_pathcache_table()
+  pathcache_active = new_pathcache_table(conservative)
+  pathcache_inactive = new_pathcache_table(conservative)
   return ps
 end
 
@@ -295,7 +295,7 @@ Route_Core_Init(
     last_path = path
     ReplotPath()
   end,
-  function(loc1, loctable, reverse)
+  function(loc1, loctable, reverse, complete_pass)
     QH_Timeslice_Yield()
     
     QuestHelper: Assert(loc1)
@@ -309,7 +309,7 @@ Route_Core_Init(
     
     local rvv
     
-    if QuestHelper_Pref.precache then
+    if not complete_pass then
       if not reverse then
         if not pathcache_active[loc1] then pathcache_active[loc1] = new_pathcache_table() end
         if not pathcache_inactive[loc1] then pathcache_inactive[loc1] = new_pathcache_table() end

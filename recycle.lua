@@ -38,6 +38,8 @@ QuestHelper.free_frames = {}
 -- This little table rigs up a basic typing system to assist with debugging. It has weak-reference keys so it shouldn't ever lead to leaks of any kind.
 QuestHelper.recycle_tabletyping = setmetatable({}, {__mode="k"})
 
+local toomanytables_warned = false
+local function mark(table, item, tag) table[item] = tag end
 function QuestHelper:CreateTable(tag)
   local tbl = next(self.free_tables)
   self.used_tables = self.used_tables + 1
@@ -52,7 +54,7 @@ function QuestHelper:CreateTable(tag)
   tag = tag or string.gsub(debugstack(2, 1, 1), "\n.*", "")
   
   if QH_RegisterTable then QH_RegisterTable(tbl, true, tag) end
-  if not pcall(function (table, item, tag) table[item] = tag end, self.recycle_tabletyping, tbl, tag) or qhcrashy then
+  if not pcall(mark, self.recycle_tabletyping, tbl, tag) then
     local freq = {}
     for _, v in pairs(self.recycle_tabletyping) do
       freq[v] = (freq[v] or 0) + 1
@@ -71,7 +73,20 @@ function QuestHelper:CreateTable(tag)
       stt = stt .. string.format("        %d: %s\n", v[2], v[1])
     end
     
-    QuestHelper: Assert(false, stt)
+    local pcscaught = QH_ClearPathcache(true)
+    collectgarbage("collect")
+    
+    stt = stt .. string.format("        (pathcache cleared %d)\n", pcscaught)
+    
+    if not pcall(mark, self.recycle_tabletyping, tbl, tag) then
+      QuestHelper: Assert(false, stt)
+    end
+    
+    QuestHelper_ErrorCatcher_ExplicitError(false, stt .. "        (recovered)\n")
+    if not toomanytables_warned then
+      QuestHelper:TextOut("Something has gone wrong! QuestHelper should continue working, but Zorba would really appreciate it if you type |cffbbffd6/qh error|r and went to report that on the QuestHelper homepage.")
+      toomanytables_warned = true
+    end
   end
   
   return tbl

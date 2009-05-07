@@ -1336,7 +1336,7 @@ function QH_Route_Core_DistanceClear()
   end
 
   for ani, idx in ipairs(ActiveNodes) do
-    local forward = DistBatch(NodeList[idx], tlnod)
+    local forward = DistBatch(NodeList[idx], tlnod, false, true)
     
     for k, v in ipairs(ActiveNodes) do
       Distance[idx][v] = forward[k]
