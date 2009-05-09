@@ -1287,7 +1287,7 @@ local UserIgnored = {
 function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
   local submenu = self:CreateMenu()
   
-  local pri = QH_Route_GetClusterPriority(obj.cluster) + 3
+  local pri = (QH_Route_GetClusterPriority(obj.cluster) or 0) + 3
   for i = 1, 5 do
     local name = QHText("PRIORITY"..i)
     local item = self:CreateMenuItem(submenu, name)
