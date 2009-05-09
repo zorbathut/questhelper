@@ -20,6 +20,7 @@ local do_questtables = true
 local do_flight = true
 
 local do_compress = true
+local do_serialize = true
 
 local dbg_data = false
 
@@ -40,6 +41,7 @@ ll()
 -- we pretend to be WoW
 local LZW
 local Merger
+local Bitstream
 
 do
   local world = {}
@@ -67,6 +69,7 @@ do
   world.QH_Collect_LZW_Init(nil, api)
   LZW = api.Utility_LZW
   Merger = api.Utility_Merger
+  Bitstream = api.Utility_Bitstream
   assert(Merger.Add)
 end
 
@@ -2185,6 +2188,79 @@ local compress = ChainBlock_Create("compress", {compress_split},
         end]]
       end
       
+      if do_serialize and segment ~= "flightmasters" then
+        --[[Header format:
+
+          Itemid (0 for endnode)
+          Offset
+          Length
+          Rightlink]]
+
+        assert(not self.finalfile.__serialize_index)
+        assert(not self.finalfile.__serialize_data)
+        
+        local ntx = {}
+        local intdat = {}
+        for k, v in pairs(self.finalfile) do
+          if type(k) == "number" then
+            if k <= 0 then
+              print("Out of bounds:", orig_locale, orig_faction, orig_segment, k)
+              ntx[k] = v
+            elseif type(v) ~= "string" then
+              print("Not a string:", orig_locale, orig_faction, orig_segment, k)
+              ntx[k] = v
+            else
+              assert(#v >= 1)
+              table.insert(intdat, {key = k, value = v})
+            end
+          else
+            ntx[k] = v
+          end
+        end
+        
+        local data = {}
+        local dat_len = 1
+        
+        table.sort(intdat, function(a, b) return a.key < b.key end)
+        
+        local function write_adaptint(dest, val)
+          assert(type(val) == "number")
+          assert(val == math.floor(val))
+          
+          repeat
+            dest:append(math.mod(val, 128), 7)
+            dest:append((val >= 128) and 1 or 0, 1)
+            val = math.floor(val / 128)
+          until val == 0
+        end
+        
+        local function streamout(st, nd)
+          local ttx = Bitstream.Output(8)
+          if st > nd then
+            write_adaptint(ttx, 0)
+            return ttx:finish()
+          else
+            local tindex = math.floor((st + nd) / 2)
+            write_adaptint(ttx, intdat[tindex].key)
+            write_adaptint(ttx, dat_len)
+            write_adaptint(ttx, #intdat[tindex].value - 1)
+            Merger.Add(data, intdat[tindex].value)
+            dat_len = dat_len + #intdat[tindex].value
+            local lhs = streamout(st, tindex - 1)
+            local rhs = streamout(tindex + 1, nd)
+            write_adaptint(ttx, #lhs)
+            return ttx:finish() .. lhs .. rhs
+          end
+        end
+        
+        ntx.__serialize_index = streamout(1, #intdat)
+        ntx.__serialize_data = Merger.Finish(data)
+        
+        print("Index is", #ntx.__serialize_index, "data is", #ntx.__serialize_data)
+        
+        self.finalfile = ntx
+      end
+      
       Output(string.format("%s/%s", orig_locale, orig_faction), nil, {id = orig_segment, data = self.finalfile})
     end,
   } end)
@@ -2336,7 +2412,7 @@ local count = 1
 
 --local s = 1048
 --local e = 1048
---local e = 1000
+--local e = 10000
 
 local function readdir()
   local pip = io.popen(("find data/08 -type f | head -n %s | tail -n +%s"):format(e or 1000000000, s or 0))
