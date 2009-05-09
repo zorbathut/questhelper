@@ -41,6 +41,48 @@ local function mark(tab, tomark)
   tab.__owner = tomark
 end
 
+local function read_adaptint(data, offset)
+  local stx = 0
+  local acu = 1
+  while true do
+    local v = strbyte(data, offset)
+    QuestHelper: Assert(v, string.format("%d %d", #data, offset))
+    stx = stx + acu * math.floor(v / 2)
+    offset = offset + 1
+    acu = acu * 128
+    if mod(v, 2) == 0 then break end
+  end
+  return stx, offset
+end
+
+local function search_index(index, data, item)
+  --[[Header format:
+
+    Itemid (0 for endnode)
+    Offset
+    Length
+    Rightlink]]
+  
+  local cofs = 1
+  assert(index and type(index) == "string")
+  assert(data and type(data) == "string")
+  
+  while true do
+    local idx, ofs, len, rlink
+    idx, cofs = read_adaptint(index, cofs)
+    if idx == 0 then return end
+    ofs, cofs = read_adaptint(index, cofs)
+    len, cofs = read_adaptint(index, cofs)
+    rlink, cofs = read_adaptint(index, cofs)
+    
+    if idx == item then
+      return strsub(data, ofs, ofs + len)
+    end
+    
+    if idx < item then cofs = cofs + rlink end
+  end
+end
+
 local initted = false
 function DB_Init()
   QuestHelper: Assert(not initted)
@@ -84,23 +126,35 @@ function DB_GetItem(group, id, silent, register)
     
     for _, db in ipairs(QHDB) do
       --print(db, db[group], db[group] and db[group][id], type(group), type(id))
-      if db[group] and db[group][id] then
+      if db[group] then
         if not ite then ite = QuestHelper:CreateTable("db") end
         
         local srctab
         
-        if type(db[group][id]) == "string" then
-          QuestHelper: Assert(db[group].__tokens == nil or type(db[group].__tokens) == "table")
-          srctab = loadstring("return {" .. QH_LZW_Decompress_Dicts_Prepared_Arghhacky(db[group][id], db[group].__dictionary, nil, db[group].__tokens) .. "}")()
-        elseif type(db[group][id]) == "table" then
-          srctab = db[group][id]
-        else
-          QuestHelper: Assert()
+        local dat
+        if db[group][id] then
+          dat = db[group][id]
         end
         
-        for k, v in pairs(srctab) do
-          QuestHelper: Assert(not ite[k])
-          ite[k] = v
+        --print(not dat, type(id), id, not not db[group].__serialize_index, not not db[group].__serialize_index)
+        if not dat and type(id) == "number" and id > 0 and db[group].__serialize_index and db[group].__serialize_data then
+          dat = search_index(db[group].__serialize_index, db[group].__serialize_data, id)
+        end
+        
+        if dat then
+          if type(dat) == "string" then
+            QuestHelper: Assert(db[group].__tokens == nil or type(db[group].__tokens) == "table")
+            srctab = loadstring("return {" .. QH_LZW_Decompress_Dicts_Prepared_Arghhacky(dat, db[group].__dictionary, nil, db[group].__tokens) .. "}")()
+          elseif type(dat) == "table" then
+            srctab = dat
+          else
+            QuestHelper: Assert()
+          end
+          
+          for k, v in pairs(srctab) do
+            QuestHelper: Assert(not ite[k])
+            ite[k] = v
+          end
         end
       end
     end
@@ -160,11 +214,14 @@ end
 function DB_ListItems(group)
   local tab = {}
   for _, db in ipairs(QHDB) do
-    if db[group] then for k, _ in pairs(db[group]) do
-      if type(k) ~= "string" or not k:match("__.*") then
-        tab[k] = true
+    if db[group] then
+      QuestHelper: Assert(not db.__serialize_index and not db.__serialize_data)
+      for k, _ in pairs(db[group]) do
+        if type(k) ~= "string" or not k:match("__.*") then
+          tab[k] = true
+        end
       end
-    end end
+    end
   end
   
   local rv = {}

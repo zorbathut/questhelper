@@ -15,14 +15,14 @@ local function Output(outbits)
       self.cval = self.cval + value
       while self.cbits >= outbits do
         Merger.Add(self.r, strchar(bit.rshift(self.cval, self.cbits - outbits)))
-        self.cbits = self.cbits - outbits;
+        self.cbits = self.cbits - outbits
         self.cval = bit.band(self.cval, bit.lshift(1, self.cbits) - 1)
       end
     end,
     finish = function (self)
       if self.cbits > 0 then self:append(0, outbits - self.cbits) end
       return Merger.Finish(self.r)
-    end
+    end,
   }
 end
 
