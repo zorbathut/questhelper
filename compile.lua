@@ -95,6 +95,9 @@ do
   end
   world.getfenv = function (x) assert(x == 0 or not x) return world end
   
+  
+  world._G = world
+  world.GetPlayerFacing = function () return 0 end
   world.MinimapCompassTexture = {GetTexCoord = function() return 0, 1 end}
   world.CreateFrame = function () return {Hide = function () end, SetParent = function () end, UnregisterAllEvents = function () end, RegisterEvent = function () end, SetScript = function () end} end
   world.GetMapContinents = function () return "Kalimdor", "Eastern Kingdoms", "Outland", "Northrend" end
@@ -1267,6 +1270,8 @@ if do_compile and do_questtables then
         -- Accumulate the old criteria strings into our new data
         if value.start then for k, v in pairs(value.start) do position_accumulate(self.accum.start, v.loc) end end
         if value.finish then for k, v in pairs(value.finish) do position_accumulate(self.accum.finish, v.loc) end end
+        
+        self.accum.appearances = (self.accum.appearances or 0) + 1
         for id, dat in pairs(value.criteria) do
           if not self.accum.criteria[id] then self.accum.criteria[id] = {count = 0, loc = {}, monster = {}, item = {}} end
           local cid = self.accum.criteria[id]
@@ -1307,10 +1312,7 @@ if do_compile and do_questtables then
         
         -- First we see if we need to chop out some criteria
         do
-          local appearances = 0
-          for k, v in pairs(self.accum.criteria) do
-            appearances = math.max(appearances, v.appearances)
-          end
+          local appearances = self.accum.appearances * 0.9
           appearances = appearances * 0.9
           local strips = {}
           for k, v in pairs(self.accum.criteria) do
@@ -1367,7 +1369,10 @@ if do_compile and do_questtables then
         if position_has(self.accum.finish) then qout.finish = { loc = position_finalize(self.accum.finish) } end
         
         -- we don't actually care about the level, so we don't bother to store it. Really, we only care about the name for debug purposes also, so we should probably get rid of it before release.
-        if dbg_data then qout.dbg_name = self.accum.name.enUS end
+        if dbg_data then
+          qout.dbg_name = self.accum.name.enUS
+          qout.appearances = self.accum.appearances or "none"
+        end
         
         local has_stuff = false
         for k, v in pairs(qout) do
