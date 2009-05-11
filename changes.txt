@@ -1,4 +1,10 @@
 
+== Version 1.0.13 5/11/2009 ==
+
+* Lucky number 13 is the official release.
+* kmcguire pointed out that a bit of QH was using far more memory than I'd thought, and gave a suggestion for how to improve it. It's now a lot more efficient. Memory usage reduced by ~5mb.
+* Handle one or two this-should-probably-never-happen errors more cleanly
+
 == Version 1.0.12-rc 5/6/2009 ==
 
 * Attempt to fix the too-many-tables error in several different ways
