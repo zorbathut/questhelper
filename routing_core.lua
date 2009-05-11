@@ -473,7 +473,7 @@ end
     if not end_bound then end_bound = #last_best + 1 end
     --QuestHelper: TextOut(string.format("Placed cluster %d between %d and %d", index, start_bound, end_bound))
     
-    if true or end_bound < start_bound then
+    if end_bound < start_bound then
       -- arrrrgh
       -- this should never happen, but I don't want it to show up all the time, sooooo
       QuestHelper_ErrorCatcher_ExplicitError(false, string.format("Routing paradox: %d and %d, panicking and restarting", start_bound, end_bound))
