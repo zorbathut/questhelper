@@ -449,7 +449,9 @@ end
     
     -- First, try to splice everything it depends on
     if DependencyLinks[index] then for _, v in ipairs(DependencyLinks[index]) do
-      SpliceIn(v, touched)
+      if SpliceIn(v, touched) then
+        return true
+      end
     end end
     
     local dl_lookup = QuestHelper:CreateTable("splice dl lookup")
@@ -470,7 +472,13 @@ end
     end
     if not end_bound then end_bound = #last_best + 1 end
     --QuestHelper: TextOut(string.format("Placed cluster %d between %d and %d", index, start_bound, end_bound))
-    QuestHelper: Assert(end_bound >= start_bound, string.format("%d and %d", start_bound, end_bound))
+    
+    if true or end_bound < start_bound then
+      -- arrrrgh
+      -- this should never happen, but I don't want it to show up all the time, sooooo
+      QuestHelper_ErrorCatcher_ExplicitError(false, string.format("Routing paradox: %d and %d, panicking and restarting", start_bound, end_bound))
+      return true
+    end
     
     -- Figure out the best place to put it
     local best_spot = nil
@@ -754,14 +762,17 @@ function QH_Route_Core_Process()
       
       if not ignored and not exists then
         -- here we go
-        SpliceIn(k, touched_clusts)
+        if SpliceIn(k, touched_clusts) then
+          last_best = nil
+          break
+        end
         last_best_tweaked = true
       end
     end
     QuestHelper:ReleaseTable(touched_clusts)
   end
   
-  if last_best_tweaked then
+  if last_best_tweaked and last_best then
     --QuestHelper:TextOut("Pushing tweaked")
     BetterRoute(last_best)
     last_best_tweaked = false
