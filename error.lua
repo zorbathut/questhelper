@@ -130,10 +130,11 @@ function QuestHelper_ErrorCatcher_ExplicitError(loud, o_msg, o_frame, o_stack, .
   terror.message = msg
   terror.addons = QuestHelper_ErrorCatcher.GetAddOns()
   terror.stack = o_stack or terror.stack
-  terror.silent = silent
+  terror.silent = not loud
   
   QuestHelper_ErrorCatcher_RegisterError("crash", terror)
   
+  if first_error and first_error.silent and not first_error.next_loud then first_error.next_loud = terror end
   if not first_error or first_error.generated then first_error = terror end
   
   QuestHelper_ErrorCatcher.CondenseErrors()
@@ -220,9 +221,17 @@ function QHE_Gui.ErrorUpdate()
 	QHE_Gui.Error.Box:ClearFocus()
 end
 
+function TextinateError(err)
+  local tserr = string.format("msg: %s\ntoc: %s\nv: %s\ngame: %s\nlocale: %s\ntimestamp: %s\nmutation: %s\nsilent: %s\n\n%s\naddons:\n%s", err.message, err.toc_version, err.local_version, err.game_version, err.locale, err.timestamp, tostring(err.mutation_passes_exceeded), tostring(err.silent), err.stack, err.addons)
+  if err.next_loud then
+    tserr = tserr .. "\n\n---- Following loud error\n\n" .. TextinateError(err.next_loud)
+  end
+  return tserr
+end
+
 function QHE_Gui.ErrorTextinate()
   if first_error then
-    QHE_Gui.Error.curError = string.format("msg: %s\ntoc: %s\nv: %s\ngame: %s\nlocale: %s\ntimestamp: %s\nmutation: %s\nsilent: %s\n\n%s\naddons:\n%s", first_error.message, first_error.toc_version, first_error.local_version, first_error.game_version, first_error.locale, first_error.timestamp, tostring(first_error.mutation_passes_exceeded), tostring(first_error.silent), first_error.stack, first_error.addons)
+    QHE_Gui.Error.curError = TextinateError(first_error)
   else
     QHE_Gui.Error.curError = "None"
   end
