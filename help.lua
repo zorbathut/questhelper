@@ -96,6 +96,9 @@ function QuestHelper:ToggleHide()
 end
 
 function QuestHelper:ToggleShare()
+  self:TextOut("Objective sharing is currently broken. Zorba will make it work again once he can.")
+  do return end
+  
   QuestHelper_Pref.share = not QuestHelper_Pref.share
   if QuestHelper_Pref.share then
     if QuestHelper_Pref.solo then
