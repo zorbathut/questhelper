@@ -121,6 +121,7 @@ local function ReplotPath()
   
   local distance = 0
   for k, v in ipairs(last_path) do
+    QH_Timeslice_Yield()
     QuestHelper: Assert(not v.condense_type) -- no
     v.distance = distance -- I'm not a huge fan of mutating things like this, but it is safe, and these nodes are technically designed to be modified during runtime anyway
     table.insert(real_path, v)
@@ -168,6 +169,7 @@ local function ReplotPath()
   end
   
   for _, v in pairs(notification_funcs) do
+    QH_Timeslice_Yield()
     v(real_path)
   end
   
@@ -185,6 +187,8 @@ local function ReplotPath()
   end
   
   cleanup_path = real_path
+  
+  QH_Timeslice_Yield()
 end
 
 local filters = {}

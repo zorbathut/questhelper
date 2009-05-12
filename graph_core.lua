@@ -14,6 +14,8 @@ QuestHelper_Loadtime["graph_core.lua"] = GetTime()
 
 -- Make a map from "phase" to "flyphase". Store all the links we're being told to make. When placing links, if the flyphase is flyable, we use the flyphase instead of the phase for placing. We don't place if it's an internal boundary (there's a few ways we can detect this, but let's just use the hacky one where we just look at the ID.) From there it's all pretty standard.
 
+local QH_Timeslice_Yield = QH_Timeslice_Yield -- performance hack :(
+
 local function heap_left(x) return (2*x) end
 local function heap_right(x) return (2*x + 1) end
 
@@ -281,6 +283,7 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   if make_path then
     --print("mpath")
     for k, v in pairs(out) do
+      QH_Timeslice_Yield()
       --print(out[k])
       local rp = QuestHelper:CreateTable("graphcore return")
       rp.d = v

@@ -55,7 +55,7 @@ local function QH_LZW_Decompress(input, tokens, outbits, inputstatic)
   Merger.Add(rv, d[bit.mod(tok, tokens)][math.floor(tok / tokens)])
   local w = d[bit.mod(tok, tokens)][math.floor(tok / tokens)]
   while true do
-    if idlect == 100 then
+    if idlect == 25 then
       QH_Timeslice_Yield()
       idlect = 0
     else

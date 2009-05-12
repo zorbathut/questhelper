@@ -32,6 +32,8 @@ Later, we'll provide something similar on items (or just dump items entirely? it
 
 ]]
 
+local QH_Timeslice_Yield = QH_Timeslice_Yield -- performance hack :(
+
 local OptimizationHackery = false
 
 if OptimizationHackery then debug_output = false end -- :ughh:
@@ -543,6 +545,7 @@ local function RunAnt()
     
     -- Here is we add the new batch of nodes
     for _, v in ipairs(ActiveNodes) do
+      QH_Timeslice_Yield()
       if v ~= 1 then -- if it's ignored, then we just plain don't do anything
         local clustid = ClusterLookup[v]
         QuestHelper: Assert(clustid)
@@ -572,6 +575,7 @@ local function RunAnt()
     end
     
     while needed_count > 0 do
+      QH_Timeslice_Yield()
       QuestHelper: Assert(needed_ready_count > 0)
       
       local accumulated_weight = 0
@@ -584,6 +588,8 @@ local function RunAnt()
     
       tweight = accumulated_weight
       accumulated_weight = accumulated_weight * math.random()
+      
+      QH_Timeslice_Yield()
       
       local nod = nil
       for k, _ in pairs(needed) do
@@ -806,13 +812,18 @@ function QH_Route_Core_Process()
     scale = 1 / (worst - last_best.distance)
   end
   
+  QH_Timeslice_Yield()
+  
   for _, x in ipairs(ActiveNodes) do
+    local wx = Weight[x]
     for _, y in ipairs(ActiveNodes) do
       --local idx = GetIndex(x, y)
-      Weight[x][y] = Weight[x][y] * PheremonePreservation + UniversalBonus
+      wx[y] = wx[y] * PheremonePreservation + UniversalBonus
       --ValidateNumber(Weight[idx])
     end
   end
+  
+  QH_Timeslice_Yield()
   
   for _, x in ipairs(trouts) do
     local amount = 1 / x.distance
@@ -823,15 +834,20 @@ function QH_Route_Core_Process()
     end
   end
   
+  QH_Timeslice_Yield()
+  
   local weitotal = 0
   local weicount = 0
   for _, x in ipairs(ActiveNodes) do
+    local wx = Weight[x]
     for _, y in ipairs(ActiveNodes) do
       --local idx = GetIndex(x, y)
-      weitotal = weitotal + Weight[x][y]
+      weitotal = weitotal + wx[y]
       weicount = weicount + 1
     end
   end
+  
+  QH_Timeslice_Yield()
   
   weight_ave = weitotal / weicount
   
