@@ -403,6 +403,9 @@ function QH_Graph_Plane_Makelink(name, coord1, coord2, cost, cost_reverse)
   QuestHelper: Assert(coord2)
   QuestHelper: Assert(cost)
   
+  QuestHelper: Assert(cost >= 0)
+  QuestHelper: Assert(not cost_reverse or cost_reverse >= 0)
+  
   local tlink = {name, coord1, coord2, cost, cost_reverse}
   if not linkages[name] then linkages[name] = {} end
   table.insert(linkages[name], tlink)
