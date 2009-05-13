@@ -536,11 +536,16 @@ function QuestHelper:Initialize()
   -- Seems to do its own garbage collection pass before fully loading, so I'll just rely on that
   --collectgarbage("collect") -- Free everything we aren't using.
 
+  --[[
   if self.debug_objectives then
     for name, data in pairs(self.debug_objectives) do
       self:LoadDebugObjective(name, data)
     end
-  end
+  end]]
+  
+  -- wellllp
+  QH_Arrow_SetScale()
+  QH_Arrow_SetTextScale()
   
   --[[
   QH_Timeslice_Add(function ()

@@ -147,16 +147,18 @@ function QH_Arrow_SetScale(scale)
     wayframe:SetWidth(53 * scale)
   end
 end
-QH_Arrow_SetScale()
 
 function QH_Arrow_SetTextScale(scale)
+  if scale then
+    QuestHelper_Pref.arrow_textsize = scale
+  else
+    scale = QuestHelper_Pref.arrow_textsize
+  end
+  
   wayframe.title:SetFont(default_font_name, default_font_size * scale, default_font_flags)
   wayframe.status:SetFont(default_font_name, default_font_size * scale, default_font_flags)
   wayframe.tta:SetFont(default_font_name, default_font_size * scale, default_font_flags)
-  QuestHelper_Pref.arrow_textsize = scale
-  --wayframe:SetScale(scale)
 end
-QH_Arrow_SetTextScale(QuestHelper_Pref.arrow_textsize or 1)
 
 local function wpupdate(c, z, x, y, desc)
   if c then
