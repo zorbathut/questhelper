@@ -137,6 +137,39 @@ function QuestHelper:ToggleTrack()
   end
 end
 
+function QuestHelper:ToggleTrackLevel()
+  QuestHelper_Pref.track_level = not QuestHelper_Pref.track_level
+  if QuestHelper_Pref.track_level then
+    self:TextOut("Display of levels in the quest tracker has been |cff00ff00enabled|r.")
+  else
+    self:TextOut("Display of levels in the quest tracker has been |cffff0000disabled|r.")
+  end
+  QH_UpdateQuests(true)
+  QH_Tracker_Rescan()
+end
+
+function QuestHelper:ToggleTrackQColour()
+  QuestHelper_Pref.track_qcolour = not QuestHelper_Pref.track_qcolour
+  if QuestHelper_Pref.track_qcolour then
+    self:TextOut("Colour for quest difficulty in quest tracker has been |cff00ff00enabled|r.")
+  else
+    self:TextOut("Colour for quest difficulty in quest tracker has been |cffff0000disabled|r.")
+  end
+  QH_UpdateQuests(true)
+  QH_Tracker_Rescan()
+end
+
+function QuestHelper:ToggleTrackOColour()
+  QuestHelper_Pref.track_ocolour = not QuestHelper_Pref.track_ocolour
+  if QuestHelper_Pref.track_ocolour then
+    self:TextOut("Colour for objective progress in quest tracker has been |cff00ff00enabled|r.")
+  else
+    self:TextOut("Colour for objective progress in quest tracker has been |cffff0000disabled|r.")
+  end
+  QH_UpdateQuests(true)
+  QH_Tracker_Rescan()
+end
+
 function QuestHelper:ToggleTooltip()
   QuestHelper_Pref.tooltip = not QuestHelper_Pref.tooltip
   if QuestHelper_Pref.tooltip then
@@ -695,6 +728,18 @@ commands =
     {"TRESET",
      "Reset's the position of the quest tracker provided by QuestHelper, in cause you move it somewhere inaccessable.",
      {{"/qh treset center", "Resets to the center of the screen, instead of a more normal quest tracker location."}}, QuestHelper.ResetTrackerPosition, QuestHelper},
+     
+    {"TLEVEL",
+     "Toggles display of levels in the quest tracker provided by QuestHelper.",
+     {}, QuestHelper.ToggleTrackLevel, QuestHelper},
+    
+    {"TQCOL",
+     "Toggles display of colours for the difficulty level of quests in the quest tracker provided by QuestHelper.",
+     {}, QuestHelper.ToggleTrackQColour, QuestHelper},
+    
+    {"TOCOL",
+     "Toggles display of colours for objective progress in the quest tracker provided by QuestHelper.",
+     {}, QuestHelper.ToggleTrackOColour, QuestHelper},
      
     {"TOOLTIP",
      "Toggles appending information about tracked items and NPCs to their tooltips.",

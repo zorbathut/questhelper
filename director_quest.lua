@@ -247,7 +247,14 @@ local function MakeQuestTitle(title, level)
   
   local isgray = (plevel - floor(grayd) >= level)
   
-  return string.format("%s[%d] %s", isgray and "|cffb0b0b0" or difficulty_color(1 - ((level - plevel) / grayd + 1) / 2), level, title)
+  local ccode = isgray and "|cffb0b0b0" or difficulty_color(1 - ((level - plevel) / grayd + 1) / 2)
+  local qlevel = string.format("[%d] ", level)
+  
+  local ret = title
+  if QuestHelper_Pref.track_level then ret = qlevel .. ret end
+  if QuestHelper_Pref.track_qcolour then ret = ccode .. ret end
+  
+  return ret
 end
 
 local function MakeQuestObjectiveTitle(title, typ, done)
@@ -260,9 +267,10 @@ local function MakeQuestObjectiveTitle(title, typ, done)
     local ccode = difficulty_color(have / need)
     
     if need > 1 then target = string.format("%s: %d/%d", target, have, need) end
-    return ccode .. target
+    if QuestHelper_Pref.track_ocolour then target = ccode .. target end
+    return target
   else
-    return string.format("|cffff0000%s: %s/%s", target, have, need)
+    return string.format("%s%s: %s/%s", QuestHelper_Pref.track_ocolour and "|cffff0000" or "", target, have, need)
   end
 end
 
