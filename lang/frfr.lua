@@ -7,8 +7,10 @@ QuestHelper_Translations.frFR =
   
   -- Messages used when starting.
   LOCALE_ERROR = "La langue de vos données sauvegardées ne correspond pas à la langue de votre client WoW. Pour utiliser QuestHelper, vous devez soit remettre la langue que vous aviez avant, soit supprimer les données en tapant %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Je refuse de fonctionner, par crainte de corrompre vos données sauvegardées. Veuillez attendre la sortie d'une mise à jour capable de prendre en charge la nouvelle zone.",
-  DOWNGRADE_ERROR = "Vos données sauvegardées ne sont pas compatibles avec cette version de QuestHelper. Utilisez une nouvelle version ou supprimez les variables sauvegardées.",
+  ZONE_LAYOUT_ERROR = "Je refuse de fonctionner, par crainte de corrompre vos données sauvegardées. "..
+				"Veuillez attendre la sortie d'une mise à jour capable de prendre en charge la nouvelle zone.",
+  DOWNGRADE_ERROR = "Vos données sauvegardées ne sont pas compatibles avec cette version de QuestHelper. "..
+				"Utilisez une nouvelle version ou supprimez les variables sauvegardées.",
   HOME_NOT_KNOWN = "Vous n'avez pas de foyer défini. Lorsque cela sera possible, veuillez parler à votre aubergiste et réinitialisez-le.",
   PRIVATE_SERVER = "QuestHelper ne supporte pas les serveurs privés.",
   PLEASE_RESTART = "Une erreur est survenue au lancement de QuestHelper. Veuillez quitter World of Warcraft et essayer de nouveau.",
@@ -26,7 +28,8 @@ QuestHelper_Translations.frFR =
   UPDATING_ROUTE = "Route actualisée.",
   
   -- Special tracker text
-  QH_LOADING = "Chargement de QuestHelper (%1%%)...",
+  QH_LOADING = "Chargement de QuestHelper (%1%)...",
+  QH_FLIGHTPATH = "Recalculating flightpaths (%1%)...",
   QUESTS_HIDDEN_1 = "Les quêtes peuvent êtres cachées",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" pour lister)",
   
@@ -46,7 +49,10 @@ QuestHelper_Translations.frFR =
   OBJECTIVE_TALK = "Parler à %h1.",
   OBJECTIVE_SLAY = "Tuer %h1.",
   OBJECTIVE_LOOT = "Ramasser en butin sur %h1.",
-  
+
+  OBJECTIVE_MONSTER_UNKNOWN = "monstrer inconnu",
+  OBJECTIVE_ITEM_UNKNOWN = "objet inconnu",
+
   ZONE_BORDER = "%1/%2 bordure",
   
   -- Stuff used in objective menus.
@@ -59,8 +65,9 @@ QuestHelper_Translations.frFR =
   SHARING = "Partage",
   SHARING_ENABLE = "Partager",
   SHARING_DISABLE = "Ne pas partager",
-  IGNORE = "Ignore",
-  
+  IGNORE = "Ignorer",
+  IGNORE_LOCATION = "Ignorer cet endroit",
+
   IGNORED_PRIORITY_TITLE = "La priorité sélectionnée sera ignorée.",
   IGNORED_PRIORITY_FIX = "Appliquer la même priorité aux objectifs bloquants.",
   IGNORED_PRIORITY_IGNORE = "Je réglerais les priorités moi-même.",
@@ -98,6 +105,7 @@ QuestHelper_Translations.frFR =
   HIDDEN_NONE = "Il n'y a aucun objectif caché.",
   DEPENDS_ON_SINGLE = "Dépend de '%1'.",
   DEPENDS_ON_COUNT = "Dépend de %1 objectifs cachés.",
+  DEPENDS_ON = "Dépend des objectifs filtré",
   FILTERED_LEVEL = "Filtré à cause du niveau.",
   FILTERED_ZONE = "Filtré à cause de la zone.",
   FILTERED_COMPLETE = "Filtré car terminé.",
@@ -106,15 +114,18 @@ QuestHelper_Translations.frFR =
   FILTERED_USER = "Vous avez demandé à cacher cet objectif.",
   FILTERED_UNKNOWN = "Ne sais pas comment le terminer.",
   
-  HIDDEN_SHOW = "Montrer.",
+  HIDDEN_SHOW = "Montrer",
+  HIDDEN_SHOW_NO = "Not showable",
+  HIDDEN_EXCEPTION = "Ajouter une exception",
   DISABLE_FILTER = "Désactiver le filtre : %1",
   FILTER_DONE = "terminé",
   FILTER_ZONE = "zone",
   FILTER_LEVEL = "niveau",
   FILTER_BLOCKED = "bloqué",
-  
+  FILTER_WATCHED = "regardé",
+
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
-  NAG_MULTIPLE_NEW = "Vous avez %h(des nouvelles informations) pour %h1 et %h(des mises à jour) pour %h2.",
+  NAG_MULTIPLE_NEW = "Vous avez %h(des nouvelles informations) pour %h1, et %h(des mises à jour) pour %h2.",
   NAG_SINGLE_NEW = "Vous avez %h(une nouvelle information) sur %h1.",
   NAG_ADDITIONAL = "Vous avez %h(des informations complémentaires) pour %h1.",
   NAG_POLLUTED = "La base de donnée a été infectée par des données provenant d'un serveur privé ou de test, et sera remis à zéro lors du redémarrage.",
@@ -145,22 +156,23 @@ QuestHelper_Translations.frFR =
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "Progression pour %1:",
-  TRAVEL_ESTIMATE = "Temps de voyage estimé:",
+  TRAVEL_ESTIMATE = "Temps de voyage estimé :",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Visiter %h1 sur la route de :",
+  FLIGHT_POINT = "%1 point de vol",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
-  QH_BUTTON_TOOLTIP1 = "Clic gauche : %1 information de route.",
-  QH_BUTTON_TOOLTIP2 = "Clic droit : afficher le menu des options.",
-  QH_BUTTON_SHOW = "Montrer",
+  QH_BUTTON_TOOLTIP1 = "Clic-Gauche : %1 information de route.",
+  QH_BUTTON_TOOLTIP2 = "Clic-Droit : afficher le menu des options.",
+  QH_BUTTON_SHOW = "Afficher",
   QH_BUTTON_HIDE = "Cacher",
 
   MENU_CLOSE = "Fermer le menu",
   MENU_SETTINGS = "Options",
   MENU_ENABLE = "Activer",
   MENU_DISABLE = "Désactiver",
-  MENU_OBJECTIVE_TIPS = "%1 Bulles d'aide pour les objectifs",
+  MENU_OBJECTIVE_TIPS = "%1 les bulles d'aide pour les objectifs",
   MENU_TRACKER_OPTIONS = "Liste de quêtes",
   MENU_QUEST_TRACKER = "%1 la liste de quête",
   MENU_TRACKER_LEVEL = "%1 l'affichage des niveaux de quête",
@@ -168,23 +180,23 @@ QuestHelper_Translations.frFR =
   MENU_TRACKER_OCOLOUR = "%1 la colorisation des objectifs",
   MENU_TRACKER_SCALE = "Échelle de la liste de quêtes",
   MENU_TRACKER_RESET = "Réinitialiser la position de la liste de quêtes",
-  MENU_FLIGHT_TIMER = "%1 Temps de vol",
-  MENU_ANT_TRAILS = "%1 chemins pointillés",
+  MENU_FLIGHT_TIMER = "%1 le temps de vol",
+  MENU_ANT_TRAILS = "%1 les chemins pointillés",
   MENU_WAYPOINT_ARROW = "%1 le compas",
-  MENU_MAP_BUTTON = "%1 Bouton sur la carte",
+  MENU_MAP_BUTTON = "%1 le bouton sur la carte",
   MENU_ZONE_FILTER = "%1 le filtre de zone",
-  MENU_DONE_FILTER = "%1 Filtrage des quêtes terminées",
+  MENU_DONE_FILTER = "%1 le filtrage des quêtes terminées",
   MENU_BLOCKED_FILTER = "%1 filtre bloqué",
   MENU_WATCHED_FILTER = "%1 le filtrage des quêtes suivies",
-  MENU_LEVEL_FILTER = "%1 Filtrage par niveau",
+  MENU_LEVEL_FILTER = "%1 le filtrage par niveau",
   MENU_LEVEL_OFFSET = "Limite pour le filtre de niveau",
   MENU_ICON_SCALE = "Échelle des icônes",
   MENU_FILTERS = "Filtres",
   MENU_PERFORMANCE = "Charge attribuée au calcul des routes",
   MENU_LOCALE = "Langue",
   MENU_PARTY = "Groupe",
-  MENU_PARTY_SHARE = "%1 Partage d'objectif",
-  MENU_PARTY_SOLO = "%1 Prise en compte du groupe",
+  MENU_PARTY_SHARE = "%1 le partage d'objectif",
+  MENU_PARTY_SOLO = "%1 le prise en compte du groupe",
   MENU_HELP = "Aide",
   MENU_HELP_SLASH = "Commandes avec barre oblique",
   MENU_HELP_CHANGES = "Historique des modifications",
@@ -199,13 +211,24 @@ QuestHelper_Translations.frFR =
   TOOLTIP_LOOT = "Ramasser pour le butin %h1",
   
   -- Settings
-  SETTINGS_ARROWLINK_ON = nil,
-  SETTINGS_ARROWLINK_OFF = nil,
-  SETTINGS_ARROWLINK_ARROW = nil,
-  SETTINGS_ARROWLINK_CART = nil,
-  SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_ARROWLINK_ON = "Will use %h1 to show objectives.",
+  SETTINGS_ARROWLINK_OFF = "Won't use %h1 to show objectives.",
+  SETTINGS_ARROWLINK_ARROW = "QuestHelper Arrow",
+  SETTINGS_ARROWLINK_CART = "Cartographer Waypoints",
+  SETTINGS_ARROWLINK_TOMTOM = "TomTom",
+  SETTINGS_PRECACHE_ON = "Precache has been %h(enabled).",
+  SETTINGS_PRECACHE_OFF = "Precache has been %h(disabled).",
+  
+  SETTINGS_MENU_ENABLE = "Activer",
+  SETTINGS_MENU_DISABLE = "Désactiver",
+  SETTINGS_MENU_CARTWP = "%1 Cartographer Arrow",
+  SETTINGS_MENU_TOMTOM = "%1 TomTom Arrow",
+  
+  SETTINGS_MENU_ARROW_LOCK = "Bloquer",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Échelle de la flêche",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Échelle du texte",
+  SETTINGS_MENU_ARROW_RESET = "Réinitialiser",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = nil,
+  DISTANCE = "%h1 yards",
  }
-
