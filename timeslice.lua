@@ -43,7 +43,7 @@ function QH_Timeslice_Yield()
       
       local sti = debugstack(2, 5, 5) -- string.gsub(debugstack(2, 1, 1), "\n.*", "")
       if qh_loud_and_annoying and GetTime() > coroutine_panic_time then
-        print(yield_ct, "took too long", last_stack, "------", sti)
+        print(yield_ct, "took too long", last_stack, "------", sti, "------", GetTime() - coroutine_panic_time)
       end
       coroutine.yield()
       last_stack = sti
