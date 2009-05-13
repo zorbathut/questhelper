@@ -2,8 +2,11 @@ QuestHelper_File["error.lua"] = "Development Version"
 QuestHelper_Loadtime["error.lua"] = GetTime()
 
 --[[
-  Much of this code is ganked wholesale from Swatter, and is Copyright (C) 2006 Norganna.
+  Much of this code is ganked wholesale from Swatter, and is Copyright (C) 2006 Norganna. Licensed under LGPL v3.0.
 ]]
+
+local debug_output = false
+if QuestHelper_File["error.lua"] == "Development Version" then debug_output = true end
 
 QuestHelper_local_version = QuestHelper_File["error.lua"]
 QuestHelper_toc_version = GetAddOnMetadata("QuestHelper", "Version")
@@ -122,7 +125,8 @@ function QuestHelper_ErrorPackage(depth)
 end
 
 function QuestHelper_ErrorCatcher_ExplicitError(loud, o_msg, o_frame, o_stack, ...)
-  msg = o_msg or ""
+  local msg = o_msg or ""
+  if debug_output then loud = true end
 
   -- We toss it into StartupErrors, and then if we're running properly, we'll merge it into the main DB.
   local terror = QuestHelper_ErrorPackage()
