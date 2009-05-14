@@ -43,9 +43,9 @@ local function AppendObjlinks(target, source, tooltips, icon, last_name, map_lin
       QuestHelper: Assert(#source == 0)
       
       QuestHelper: Assert(target)
-      QuestHelper: Assert(QuestHelper_IndexLookup)
-      QuestHelper: Assert(QuestHelper_IndexLookup[v.rc], v.rc)
-      table.insert(target, {loc = {x = v.x, y = v.y, c = v.c, p = QuestHelper_IndexLookup[v.rc][v.rz]}, path_desc = copy(map_lines), icon_id = icon or 6})
+      QuestHelper: Assert(QuestHelper_ParentLookup)
+      QuestHelper: Assert(QuestHelper_ParentLookup[v.p], v.p)
+      table.insert(target, {loc = {x = v.x, y = v.y, c = QuestHelper_ParentLookup[v.p], p = v.p}, path_desc = copy(map_lines), icon_id = icon or 6})
     end
   else
     for _, v in ipairs(source) do
@@ -145,7 +145,7 @@ local function GetQuestMetaobjective(questid, lbcount)
         --print(v.rc, v.rz)
         --print(QuestHelper_IndexLookup[v.rc])
         --print(QuestHelper_IndexLookup[v.rc][v.rz])
-        table.insert(ttx, {desc = "Turn in quest", why = ite, loc = {x = v.x, y = v.y, c = v.c, p = QuestHelper_IndexLookup[v.rc][v.rz]}, tracker_hidden = true, cluster = ttx, icon_id = 7, type_quest = ite.type_quest})
+        table.insert(ttx, {desc = "Turn in quest", why = ite, loc = {x = v.x, y = v.y, c = QuestHelper_ParentLookup[v.p], p = v.p}, tracker_hidden = true, cluster = ttx, icon_id = 7, type_quest = ite.type_quest})
       end end
       
       if #ttx == 0 then

@@ -202,8 +202,9 @@ function QH_redo_flightpath()
         local fms = flightmasters[src]
         local fmd = flightmasters[dest]
         if fms and fmd then
-          QuestHelper: Assert(fms.c and (fms.c == fmd.c))
-          QuestHelper: Assert(fms.rc and (fms.rc == fmd.rc))
+          local fmsc = QuestHelper_ParentLookup[fms.p]
+          local fmdc = QuestHelper_ParentLookup[fmd.p]
+          QuestHelper: Assert(fmsc == fmdc)
         end
       end
       
@@ -220,11 +221,8 @@ function QH_redo_flightpath()
         local fms = flightmasters[src]
         local fmd = flightmasters[dest]
         if fms and fmd then
-          QuestHelper: Assert(fms.c and (fms.c == fmd.c))
-          QuestHelper: Assert(fms.rc and (fms.rc == fmd.rc))
-          
-          local snode = {x = fms.x, y = fms.y, c = fms.c, p = QuestHelper_IndexLookup[fms.rc][fms.rz], map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("FLIGHT_POINT", flightdb[dest].name))}, condense_class = "flightpath"}
-          local dnode = {x = fmd.x, y = fmd.y, c = fmd.c, p = QuestHelper_IndexLookup[fmd.rc][fmd.rz], map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("FLIGHT_POINT", flightdb[src].name))}, condense_class = "flightpath"}
+          local snode = {x = fms.x, y = fms.y, c = QuestHelper_ParentLookup[fms.p], p = fms.p, map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("FLIGHT_POINT", flightdb[dest].name))}, condense_class = "flightpath"}
+          local dnode = {x = fmd.x, y = fmd.y, c = QuestHelper_ParentLookup[fmd.p], p = fmd.p, map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("FLIGHT_POINT", flightdb[src].name))}, condense_class = "flightpath"}
           
           local ret = adjacency[dest][src] and adjacency[dest][src].original and adjacency[dest][src].dist
           QH_Graph_Plane_Makelink("flightpath", snode, dnode, dat.dist, ret)

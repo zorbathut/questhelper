@@ -290,6 +290,9 @@ QuestHelper_ZoneLookup = {}
 -- Maps indexes to zone names.
 QuestHelper_NameLookup = {}
 
+-- Maps plane indexes to the ultimate continent parents
+QuestHelper_ParentLookup = {}
+
 local built = false
 
 function QuestHelper_BuildZoneLookup()
@@ -349,6 +352,16 @@ function QuestHelper_BuildZoneLookup()
       if index[2] == -1 then
         assert(not QuestHelper_IndexLookup[name])
         QuestHelper_IndexLookup[name] = index[1]
+      end
+    end
+    
+    for k, v in pairs(QuestHelper_ZoneLookup) do
+      if type(k) == "number" then
+        if v[1] == 1 or v[1] == 2 or v[1] == 4 then  -- weh
+          QuestHelper_ParentLookup[k] = 0
+        else
+          QuestHelper_ParentLookup[k] = v[1]
+        end
       end
     end
   else
