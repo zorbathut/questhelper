@@ -93,6 +93,9 @@ static_enUS_2.lua
 static_esES.lua
 static_esES_1.lua
 static_esES_2.lua
+static_esMX.lua
+static_esMX_1.lua
+static_esMX_2.lua
 static_frFR.lua
 static_frFR_1.lua
 static_frFR_2.lua
