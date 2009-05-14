@@ -61,11 +61,23 @@ end
 -- now it gets complicated
 for _, v in pairs(csave.QuestHelper_Collector) do
   if v.compressed then
-    local rv, dat = pcall(LZW.Decompress, v.compressed, 256, 8)
-    if not rv then print("    Error!") v.compressed = nil v.invalid = true continue end
+    local tx
+    if type(v.compressed == "string") then
+      local rv, dat = pcall(LZW.Decompress, v.compressed, 256, 8)
+      if not rv then print("    Error!") v.compressed = nil v.invalid = true continue end
+      
+      local deco = "return " .. dat
+      tx = loadstring(deco)()
+    elseif type(v.compressed == "table") then
+      local acu = ""
+      for _, comp in ipairs(v.compressed) do
+        acu = acu .. LZW.Decompress(comp, 256, 8)
+      end
+      
+      acu = "return " .. acu
+      tx = loadstring(acu)()
+    end
     
-    local deco = "return " .. dat
-    local tx = loadstring(deco)()
     assert(tx)
     v.compressed = nil
     for tk, tv in pairs(tx) do

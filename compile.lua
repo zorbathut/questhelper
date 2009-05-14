@@ -19,10 +19,14 @@ local do_compile = true
 local do_questtables = true
 local do_flight = true
 
-local do_compress = true
+local do_compress = false
 local do_serialize = true
 
 local dbg_data = false
+
+--local s = 1048
+--local e = 1048
+local e = 100
 
 require("luarocks.require")
 require("persistence")
@@ -76,6 +80,9 @@ end
 
 local Astrolabe
 
+local QuestHelper_IndexLookup
+local QuestHelper_ZoneLookup
+
 do
   local world = {}
   local cropy = {
@@ -118,22 +125,34 @@ do
   world.SetMapZoom = function (c, z) tc, tz = c, z end
   world.GetMapInfo = function ()
     local db = {
-      {"Ashenvale", "Aszhara", "AzuremystIsle", "BloodmystIsle", "Darkshore", "Darnassis", "Desolace", "Durotar", "Dustwallow", "Felwood", "Feralas", "Moonglade", "Mulgore", "Ogrimmar", "Silithus", "StonetalonMountains", "Tanaris", "Teldrassil", "Barrens", "TheExodar", "ThousandNeedles", "ThunderBluff", "UngoroCrater", "Winterspring"},
-      {"Alterac", "Arathi", "Badlands", "BlastedLands", "BurningSteppes", "DeadwindPass", "DunMorogh", "Duskwood", "EasternPlaguelands", "Elwynn", "EversongWoods", "Ghostlands", "Hilsbrad", "Ironforge", "Sunwell", "LochModan", "Redridge", "SearingGorge", "SilvermoonCity", "Silverpine", "Stormwind", "Stranglethorn", "SwampOfSorrows", "Hinterlands", "Tirisfal", "Undercity", "WesternPlaguelands", "Westfall", "Wetlands"},
-      {"BladesEdgeMountains", "Hellfire", "Nagrand", "Netherstorm", "ShadowmoonValley", "ShattrathCity", "TerokkarForest", "Zangarmarsh"},
-      {"BoreanTundra", "CrystalsongForest", "Dalaran", "Dragonblight", "GrizzlyHills", "HowlingFjord", "IcecrownGlacier", "SholazarBasin", "TheStormPeaks", "LakeWintergrasp", "ZulDrak"},
+      {"Ashenvale", "Aszhara", "AzuremystIsle", "BloodmystIsle", "Darkshore", "Darnassis", "Desolace", "Durotar", "Dustwallow", "Felwood", "Feralas", "Moonglade", "Mulgore", "Ogrimmar", "Silithus", "StonetalonMountains", "Tanaris", "Teldrassil", "Barrens", "TheExodar", "ThousandNeedles", "ThunderBluff", "UngoroCrater", "Winterspring", [0] = "Kalimdor"},
+      {"Alterac", "Arathi", "Badlands", "BlastedLands", "BurningSteppes", "DeadwindPass", "DunMorogh", "Duskwood", "EasternPlaguelands", "Elwynn", "EversongWoods", "Ghostlands", "Hilsbrad", "Ironforge", "Sunwell", "LochModan", "Redridge", "SearingGorge", "SilvermoonCity", "Silverpine", "Stormwind", "Stranglethorn", "SwampOfSorrows", "Hinterlands", "Tirisfal", "Undercity", "WesternPlaguelands", "Westfall", "Wetlands", [0] = "Azeroth"},
+      {"BladesEdgeMountains", "Hellfire", "Nagrand", "Netherstorm", "ShadowmoonValley", "ShattrathCity", "TerokkarForest", "Zangarmarsh", [0] = "Expansion01"},
+      {"BoreanTundra", "CrystalsongForest", "Dalaran", "Dragonblight", "GrizzlyHills", "HowlingFjord", "IcecrownGlacier", "SholazarBasin", "TheStormPeaks", "LakeWintergrasp", "ZulDrak", [0] = "Northrend"},
     }
     
     return db[tc][tz]
   end
   world.IsLoggedIn = function () end
   
+  world.QuestHelper_File = {}
+  world.QuestHelper_Loadtime = {}
+  world.GetTime = function() return 0 end
+  world.QuestHelper = { Assert = function (self, ...) assert(...) end, CreateTable = function() return {} end, ReleaseTable = function() end, TextOut = function(qh, ...) print(...) end }
+  
   setfenv(loadfile("../questhelper/AstrolabeQH/DongleStub.lua"), world)()
   setfenv(loadfile("../questhelper/AstrolabeQH/AstrolabeMapMonitor.lua"), world)()
   setfenv(loadfile("../questhelper/AstrolabeQH/Astrolabe.lua"), world)()
+  setfenv(loadfile("../questhelper/upgrade.lua"), world)()
   
-  Astrolabe = world.DongleStub("Astrolabe-0.4-QuestHelper")
+  world.QuestHelper.Astrolabe = world.DongleStub("Astrolabe-0.4-QuestHelper")
+  Astrolabe = world.QuestHelper.Astrolabe
   assert(Astrolabe)
+  
+  world.QuestHelper_BuildZoneLookup()
+  
+  QuestHelper_IndexLookup = world.QuestHelper_IndexLookup
+  QuestHelper_ZoneLookup = world.QuestHelper_ZoneLookup
 end
 
 -- LuaSrcDiet embedding
@@ -296,23 +315,32 @@ local function loc_version(ver)
   end
 end
 
-local function convert_loc(loc)
+local function convert_loc(loc, locale)
   if not loc then return end
+  assert(locale)
+  if locale ~= "enUS" then return end -- arrrgh, to be fixed eventually
   
   if loc.relative then
     loc.c, loc.x, loc.y = Astrolabe:GetAbsoluteContinentPosition(loc.rc, loc.rz, loc.x, loc.y)
     loc.relative = false
   end
   
+  if not loc.c then return end
+  
+  --print(loc.c, loc.rc, loc.rz, QuestHelper_IndexLookup, QuestHelper_IndexLookup[loc.rc])
+  --print(loc.c, loc.rc, loc.rz, QuestHelper_IndexLookup, QuestHelper_IndexLookup[loc.rc], QuestHelper_IndexLookup[loc.rc][loc.rz])
+  loc.p = QuestHelper_IndexLookup[loc.rc][loc.rz]
+  loc.c, loc.rc, loc.rz = nil, nil, nil
+  
   return loc
 end
 
-local function convert_multiple_loc(locs)
+local function convert_multiple_loc(locs, locale)
   if not locs then return end
   
   for _, v in ipairs(locs) do
     if v.loc then
-      convert_loc(v.loc)
+      convert_loc(v.loc, locale)
     end
   end
 end
@@ -405,9 +433,8 @@ end
 
 local function valid_pos(ite)
   if not ite then return end
-  if not ite.c or not ite.x or not ite.y or not ite.rc or not ite.rz then return end
-  if ite.c ~= 0 and ite.c ~= 3 and ite.c > -77 then return end
-  if ite.rz <= 0 then return end  -- this should get rid of locations showing up in "northrend" or whatever
+  if not ite.p or not ite.x or not ite.y then return end
+  if QuestHelper_ZoneLookup[ite.p][2] == 0 then return end -- this should get rid of locations showing up in "northrend" or whatever
   return true
 end
 
@@ -419,11 +446,11 @@ local function position_accumulate(accu, tpos)
   if not accu[tpos.priority] then accu[tpos.priority] = {} end
   accu = accu[tpos.priority]  -- this is a bit grim
   
-  if not accu[tpos.c] then
-    accu[tpos.c] = {}
+  if not accu[tpos.p] then
+    accu[tpos.p] = {}
   end
   
-  local conti = accu[tpos.c]
+  local conti = accu[tpos.p]
   local closest = nil
   local clodist = 300
   for k, v in ipairs(conti) do
@@ -439,13 +466,11 @@ local function position_accumulate(accu, tpos)
     closest.y = (closest.y * closest.w + tpos.y) / (closest.w + 1)
     closest.w = closest.w + 1
   else
-    closest = {x = tpos.x, y = tpos.y, w = 1, cz = {}}
+    closest = {x = tpos.x, y = tpos.y, w = 1}
     table.insert(conti, closest)
   end
   
   accu.weight = (accu.weight or 0) + 1
-  
-  list_accumulate(closest, "cz", string.format("%d@%d", tpos.rc, tpos.rz))
 end
 
 local function position_has(accu)
@@ -473,12 +498,10 @@ local function position_finalize(sacu, mostest)
   
   local pozes = {}
   local tw = 0
-  for c, ci in pairs(accu) do
-    if type(c) == "string" then continue end
-    for _, v in ipairs(ci) do
-      local rc, rz = list_most_common(v.cz):match("(-?[%d]+)@(-?[%d]+)")
-      rc, rz = tonumber(rc), tonumber(rz)
-      table.insert(pozes, {c = c, x = math.floor(v.x + 0.5), y = math.floor(v.y + 0.5), w = v.w, rc = rc, rz = rz--[[, pri = highest, pri_hi = hi, pri_lo = lo]]})
+  for p, pi in pairs(accu) do
+    if type(p) == "string" then continue end
+    for _, v in ipairs(pi) do
+      table.insert(pozes, {p = p, x = math.floor(v.x + 0.5), y = math.floor(v.y + 0.5), w = v.w})
     end
   end
   
@@ -560,7 +583,7 @@ end
 Standard data accumulation functions
 ]]
 
-local function standard_pos_accum(accum, value, lv, fluff)
+local function standard_pos_accum(accum, value, lv, locale, fluff)
   if not fluff then fluff = 0 end
   for _, v in ipairs(value) do
     if math.mod(#v, 11 + fluff) ~= 0 then
@@ -570,7 +593,7 @@ local function standard_pos_accum(accum, value, lv, fluff)
   
   for _, v in ipairs(value) do
     for off = 1, #v, 11 + fluff do
-      local tite = convert_loc(slice_loc(v:sub(off, off + 10), lv))
+      local tite = convert_loc(slice_loc(v:sub(off, off + 10), lv), locale)
       if tite then position_accumulate(accum.loc, tite) end
     end
   end
@@ -680,19 +703,20 @@ local chainhead = ChainBlock_Create("parse", nil,
               
               assert(math.mod(#chunk, 11) == 0, tostring(#chunk))
               for point = 1, #chunk, 11 do
-                local pos = convert_loc(slice_loc(string.sub(chunk, point, point + 10), lv))
+                local pos = convert_loc(slice_loc(string.sub(chunk, point, point + 10), lv), locale)
                 if pos then
                   if not zonecolors[zname] then
                     local r, g, b = math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255))
                     zonecolors[zname] = r * 65536 + g * 256 + b
                   end
                   pos.zonecolor = zonecolors[zname]
-                  if pos.c and pos.x and pos.y then  -- These might be invalid if there are nils embedded in the string. They might still be useful with only one or two nils, but I've got a bunch of data and don't really need more.
+                  if pos.p and pos.x and pos.y then  -- These might be invalid if there are nils embedded in the string. They might still be useful with only one or two nils, but I've got a bunch of data and don't really need more.
                     if not valid_pos(pos) then
                       items = nil
                       break
                     end
                     
+                    pos.c = QuestHelper_ZoneLookup[ite.p][1]
                     table.insert(items, pos)
                   end
                 end
@@ -731,7 +755,7 @@ if false and do_compile then
       Data = function(self, key, subkey, value, Output)
         local name, locale = key:match("(.*)@@(.*)")
         
-        if standard_pos_accum(self.accum, value, loc_version(subkey)) then return end
+        if standard_pos_accum(self.accum, value, loc_version(subkey), locale) then return end
         
         while #value > 0 do table.remove(value) end
         
@@ -773,7 +797,7 @@ if false and do_compile then
     local closest = 5000000000  -- yeah, that's five billion. five fuckin' billion.
     --print(#locblock)
     for _, ite in ipairs(locblock) do
-      if loc.c == ite.c then
+      if loc.p == ite.p then
         local tx = loc.x - ite.x
         local ty = loc.y - ite.y
         local d = tx * tx + ty * ty
@@ -1021,7 +1045,7 @@ if do_compile and do_questtables then
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
-        if standard_pos_accum(self.accum, value, loc_version(subkey), 2) then return end
+        if standard_pos_accum(self.accum, value, loc_version(subkey), value.locale, 2) then return end
         if standard_name_accum(self.accum.name, value) then return end
         
         loot_accumulate(value, {type = "monster", id = tonumber(key)}, Output)
@@ -1244,11 +1268,11 @@ if do_compile and do_questtables then
         -- Split apart the start/end info. This includes locations and possibly the monster that was targeted.
         if value.start then
           value.start = split_quest_startend(value.start, lv)
-          convert_multiple_loc(value.start)
+          convert_multiple_loc(value.start, value.locale)
         end
         if value["end"] then   --sigh
           value.finish = split_quest_startend(value["end"], lv)
-          convert_multiple_loc(value.finish)
+          convert_multiple_loc(value.finish, value.locale)
           value["end"] = nil
         end
         
@@ -1261,7 +1285,7 @@ if do_compile and do_questtables then
             
             if token == "satisfied" then
               value[k] = split_quest_satisfied(value[k], lv)
-              convert_multiple_loc(value[k])
+              convert_multiple_loc(value[k], value.locale)
             end
             
             if not value.criteria[tonumber(item)] then value.criteria[tonumber(item)] = {} end
@@ -2188,7 +2212,7 @@ local compress = ChainBlock_Create("compress", {compress_split},
         end]]
       end
       
-      if do_serialize and segment ~= "flightmasters" then
+      if do_compress and do_serialize and segment ~= "flightmasters" then
         --[[Header format:
 
           Itemid (0 for endnode)
@@ -2409,10 +2433,6 @@ end
 if ChainBlock_Work() then return end
 
 local count = 1
-
---local s = 1048
---local e = 1048
---local e = 10000
 
 local function readdir()
   local pip = io.popen(("find data/08 -type f | head -n %s | tail -n +%s"):format(e or 1000000000, s or 0))
