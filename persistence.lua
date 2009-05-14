@@ -71,6 +71,8 @@ persistence =
         if isflat then
           -- We're flat! Special case.
           --f:write("--[[isflat]]")
+          persistence.writeIndent(f, level+1);
+          
           for k, v in ipairs(item) do
             if k ~= 1 then
               f:write(", ")
@@ -103,8 +105,8 @@ persistence =
             persistence.write(f, item[v], level+1);
           end
           f:write("\n")
+          persistence.writeIndent(f, level);
         end
-        persistence.writeIndent(f, level);
 				f:write("}");
 			end;
 		["function"] = function (f, item, level)

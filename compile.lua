@@ -26,7 +26,7 @@ local dbg_data = false
 
 --local s = 1048
 --local e = 1048
-local e = 100
+local e = 1000
 
 require("luarocks.require")
 require("persistence")
@@ -320,15 +320,18 @@ local function convert_loc(loc, locale)
   assert(locale)
   if locale ~= "enUS" then return end -- arrrgh, to be fixed eventually
   
+  local lr = loc.relative
   if loc.relative then
     loc.c, loc.x, loc.y = Astrolabe:GetAbsoluteContinentPosition(loc.rc, loc.rz, loc.x, loc.y)
     loc.relative = false
   end
   
-  if not loc.c then return end
+  if not loc.c or not QuestHelper_IndexLookup[loc.rc] then return end
   
-  --print(loc.c, loc.rc, loc.rz, QuestHelper_IndexLookup, QuestHelper_IndexLookup[loc.rc])
-  --print(loc.c, loc.rc, loc.rz, QuestHelper_IndexLookup, QuestHelper_IndexLookup[loc.rc], QuestHelper_IndexLookup[loc.rc][loc.rz])
+  if not QuestHelper_IndexLookup[loc.rc] or not QuestHelper_IndexLookup[loc.rc][loc.rz] then
+    print(loc.c, loc.rc, loc.rz, QuestHelper_IndexLookup, QuestHelper_IndexLookup[loc.rc])
+    print(loc.c, loc.rc, loc.rz, QuestHelper_IndexLookup, QuestHelper_IndexLookup[loc.rc], QuestHelper_IndexLookup[loc.rc][loc.rz])
+  end
   loc.p = QuestHelper_IndexLookup[loc.rc][loc.rz]
   loc.c, loc.rc, loc.rz = nil, nil, nil
   
@@ -1379,6 +1382,8 @@ if do_compile and do_questtables then
             qout.criteria[k].count = v.count
             qout.criteria[k].type = v.type
             qout.criteria[k].appearances = v.appearances
+            
+            qout.criteria[k].snaggy = snaggy or "(nothin')"
           end
           
           if snaggy then
@@ -1669,7 +1674,7 @@ if do_compile and do_flight then
       Data = function(self, key, subkey, value, Output)
         if self.fail then return end
         
-        if not self.table then print("Entire missing faction table!") return end
+        if not self.table then if not e or e > 1000 then print("Entire missing faction table!") end return end
         assert(self.table)
         
         if not self.src or not self.dst then
@@ -1934,17 +1939,10 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
       
       -- Then we optionally cull and unmark
       for t, d in pairs(self.finalfile) do
-        local repl = {}
         for k, v in pairs(d) do
-          if v.used then
-            repl[k] = v
-          else
-            v.used = false
-          end
-          
           if dbg_data then
             for _, tv in pairs(v) do
-              if type(tv) == "table" then tv.used = v.used end
+              if type(tv) == "table" then tv.used = v.used or false end
             end
           end
           
