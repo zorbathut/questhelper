@@ -164,7 +164,6 @@ main.lua
 objective.lua
 quest.lua
 questlog.lua
-graph.lua
 teleport.lua
 pathfinding.lua
 routing.lua
