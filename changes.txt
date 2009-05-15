@@ -1,4 +1,8 @@
 
+== Version 1.0.15 5/14/2009 ==
+
+* Fix a very silly mistake causing QH to crash on login if the user decompressed over the old version (this does nothing useful if 1.0.14 works for you, but if it doesn't, try this out)
+
 == Version 1.0.14 5/14/2009 ==
 
 * Take a shot at a fix for routing in non-enUS locales
