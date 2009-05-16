@@ -351,6 +351,7 @@ local function addItem(objective, y, meta)
     
     item.specitem:SetScale(0.9)
     item.specitem:ClearAllPoints()
+    item.specitem:SetParent(item)
     item.specitem:SetPoint("TOPRIGHT", item, "TOPLEFT", 0, 0)
     
     local _, tex = GetQuestLogSpecialItemInfo(objective.type_quest.index)
