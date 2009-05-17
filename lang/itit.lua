@@ -7,7 +7,7 @@ QuestHelper_Translations.itIT =
   
   -- Messages used when starting.
   LOCALE_ERROR = "La lingua dei tuoi dati salvati non corrisponde alla lingua del tuo client WoW. Per usare QuestHelper dovrai cambiare nuovamente la lingua, o cancellare i dati col comando %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Mi rifiuto di funzionare, per la paura di corrompere i tuoi dati salvati. Per favore, aspetta una patch che potrà occuparsi del nuovo layout della zona.",
+  ZONE_LAYOUT_ERROR = "Mi rifiuto di funzionare, c'è il rischio di corrompere i tuoi dati salvati. Per favore, aspetta una patch che potrà occuparsi del nuovo layout della zona.",
   DOWNGRADE_ERROR = "I dati salvati non sono compatibili con quest versione di QuestHelper. Usa una versione nuova, o cancella le variabili salvate.",
   HOME_NOT_KNOWN = "La tua località base è sconosciuta. Appena puoi, parla con un locandiere per reimpostarla.",
   PRIVATE_SERVER = "QuestHelper non sopporta i server privati.",
@@ -27,6 +27,7 @@ QuestHelper_Translations.itIT =
   
   -- Special tracker text
   QH_LOADING = "QuestHelper si sta caricando (%1%%)...",
+  QH_FLIGHTPATH = nil,
   QUESTS_HIDDEN_1 = "Le Quest potrebbero essere nascoste",
   QUESTS_HIDDEN_2 = "(scrivi \"/qh hidden\" per una lista)",
   
@@ -47,6 +48,9 @@ QuestHelper_Translations.itIT =
   OBJECTIVE_SLAY = "Uccidi %h1.",
   OBJECTIVE_LOOT = "Saccheggia %h1.",
   
+  OBJECTIVE_MONSTER_UNKNOWN = nil,
+  OBJECTIVE_ITEM_UNKNOWN = nil,
+  
   ZONE_BORDER = "Confine tra %1 e %2",
   
   -- Stuff used in objective menus.
@@ -60,6 +64,7 @@ QuestHelper_Translations.itIT =
   SHARING_ENABLE = "Condividi",
   SHARING_DISABLE = "Non condividere",
   IGNORE = "Ignora",
+  IGNORE_LOCATION = nil,
   
   IGNORED_PRIORITY_TITLE = "La priorità selezionata verrà ignorata.",
   IGNORED_PRIORITY_FIX = "Applica la stessa priorità agli obiettivi bloccanti.",
@@ -98,6 +103,7 @@ QuestHelper_Translations.itIT =
   HIDDEN_NONE = "Non ci sono obiettivi nascosti.",
   DEPENDS_ON_SINGLE = "Dipende da '%1'",
   DEPENDS_ON_COUNT = "Dipende da %1 obiettivi nascosti.",
+  DEPENDS_ON = nil,
   FILTERED_LEVEL = "Nascosto per il livello.",
   FILTERED_ZONE = "Filtrato per la zona",
   FILTERED_COMPLETE = "Nascosto per il completamento",
@@ -107,11 +113,14 @@ QuestHelper_Translations.itIT =
   FILTERED_UNKNOWN = "Non so come completare.",
   
   HIDDEN_SHOW = "Mostra.",
+  HIDDEN_SHOW_NO = nil,
+  HIDDEN_EXCEPTION = nil,
   DISABLE_FILTER = "Disattiva filtro: %1",
   FILTER_DONE = "fatto",
   FILTER_ZONE = "zona",
   FILTER_LEVEL = "livello",
   FILTER_BLOCKED = "bloccato",
+  FILTER_WATCHED = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Hai %h(nuove informazioni) su %h1, e %h(informazioni aggiornate) su %h2.",
@@ -148,6 +157,7 @@ QuestHelper_Translations.itIT =
   TRAVEL_ESTIMATE = "Tempo di viaggio stimato:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Visita %h1 sul percorso per:",
+  FLIGHT_POINT = nil,
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -199,13 +209,25 @@ QuestHelper_Translations.itIT =
   TOOLTIP_LOOT = "Saccheggia in cerc di %h1.",
   
   -- Settings
-  SETTINGS_ARROWLINK_ON = nil,
-  SETTINGS_ARROWLINK_OFF = nil,
-  SETTINGS_ARROWLINK_ARROW = nil,
-  SETTINGS_ARROWLINK_CART = nil,
-  SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_ARROWLINK_ON = "Sarà utilizzata %h1 per visualizzare gli obiettivi",
+  SETTINGS_ARROWLINK_OFF = "Non sarà utilizzata %h1 per visualizzare gli obiettivi",
+  SETTINGS_ARROWLINK_ARROW = "Freccia di QuestHelper",
+  SETTINGS_ARROWLINK_CART = "Waypoints di Cartographer",
+  SETTINGS_ARROWLINK_TOMTOM = "TomTom",
+  SETTINGS_PRECACHE_ON = nil,
+  SETTINGS_PRECACHE_OFF = nil,
+  
+  SETTINGS_MENU_ENABLE = nil,
+  SETTINGS_MENU_DISABLE = nil,
+  SETTINGS_MENU_CARTWP = nil,
+  SETTINGS_MENU_TOMTOM = nil,
+  
+  SETTINGS_MENU_ARROW_LOCK = nil,
+  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
+  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
+  SETTINGS_MENU_ARROW_RESET = nil,
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = nil,
+  DISTANCE = "%h1 yards",
  }
 

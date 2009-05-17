@@ -27,6 +27,7 @@ QuestHelper_Translations.trTR =
   
   -- Special tracker text
   QH_LOADING = "QuestHelper yükleniyor (%1%%)...",
+  QH_FLIGHTPATH = nil,
   QUESTS_HIDDEN_1 = nil,
   QUESTS_HIDDEN_2 = nil,
   
@@ -47,6 +48,9 @@ QuestHelper_Translations.trTR =
   OBJECTIVE_SLAY = "%h1 öldür.",
   OBJECTIVE_LOOT = "%h1 topla",
   
+  OBJECTIVE_MONSTER_UNKNOWN = nil,
+  OBJECTIVE_ITEM_UNKNOWN = nil,
+  
   ZONE_BORDER = "%1/%2 siniri",
   
   -- Stuff used in objective menus.
@@ -60,6 +64,7 @@ QuestHelper_Translations.trTR =
   SHARING_ENABLE = "Paylas.",
   SHARING_DISABLE = "Paylasma.",
   IGNORE = "Dikkate alma",
+  IGNORE_LOCATION = nil,
   
   IGNORED_PRIORITY_TITLE = "Seçilmis öncelik dikkate alinmayacak.",
   IGNORED_PRIORITY_FIX = "Engellenen islere ayni önceligi uygula.",
@@ -98,6 +103,7 @@ QuestHelper_Translations.trTR =
   HIDDEN_NONE = "Sizden gizlenen görev bulunmamakta.",
   DEPENDS_ON_SINGLE = "'%1' durumuna bagli.",
   DEPENDS_ON_COUNT = "%1 gizli görevlerin durumuna bagli.",
+  DEPENDS_ON = nil,
   FILTERED_LEVEL = "Seviyeniz nedeniyle filtrelendi.",
   FILTERED_ZONE = "Bölge nedeniyle filtrelendi.",
   FILTERED_COMPLETE = "Tamamlandigi için filtrelendi.",
@@ -107,11 +113,14 @@ QuestHelper_Translations.trTR =
   FILTERED_UNKNOWN = "Nasil bitirilecegi bilinmiyor.",
   
   HIDDEN_SHOW = "Göster.",
+  HIDDEN_SHOW_NO = nil,
+  HIDDEN_EXCEPTION = nil,
   DISABLE_FILTER = "Filtrelemeyi kapat: %1",
   FILTER_DONE = "Tamamlandi",
   FILTER_ZONE = "bölge",
   FILTER_LEVEL = "seviye",
   FILTER_BLOCKED = "Engellendi.",
+  FILTER_WATCHED = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "%h1 yeni bilgileriniz ve %h2 güncellemeleriniz var %h(%s3).",
@@ -148,6 +157,7 @@ QuestHelper_Translations.trTR =
   TRAVEL_ESTIMATE = "Kalan tahmini zaman:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Yolda %h1 e ugra:",
+  FLIGHT_POINT = nil,
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -204,6 +214,18 @@ QuestHelper_Translations.trTR =
   SETTINGS_ARROWLINK_ARROW = nil,
   SETTINGS_ARROWLINK_CART = nil,
   SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_PRECACHE_ON = nil,
+  SETTINGS_PRECACHE_OFF = nil,
+  
+  SETTINGS_MENU_ENABLE = nil,
+  SETTINGS_MENU_DISABLE = nil,
+  SETTINGS_MENU_CARTWP = nil,
+  SETTINGS_MENU_TOMTOM = nil,
+  
+  SETTINGS_MENU_ARROW_LOCK = nil,
+  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
+  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
+  SETTINGS_MENU_ARROW_RESET = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE = nil,

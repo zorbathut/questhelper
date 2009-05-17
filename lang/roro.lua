@@ -27,6 +27,7 @@ QuestHelper_Translations.roRO =
   
   -- Special tracker text
   QH_LOADING = nil,
+  QH_FLIGHTPATH = nil,
   QUESTS_HIDDEN_1 = nil,
   QUESTS_HIDDEN_2 = nil,
   
@@ -47,6 +48,9 @@ QuestHelper_Translations.roRO =
   OBJECTIVE_SLAY = nil,
   OBJECTIVE_LOOT = nil,
   
+  OBJECTIVE_MONSTER_UNKNOWN = nil,
+  OBJECTIVE_ITEM_UNKNOWN = nil,
+  
   ZONE_BORDER = nil,
   
   -- Stuff used in objective menus.
@@ -60,6 +64,7 @@ QuestHelper_Translations.roRO =
   SHARING_ENABLE = nil,
   SHARING_DISABLE = nil,
   IGNORE = "Ignora",
+  IGNORE_LOCATION = nil,
   
   IGNORED_PRIORITY_TITLE = nil,
   IGNORED_PRIORITY_FIX = nil,
@@ -98,6 +103,7 @@ QuestHelper_Translations.roRO =
   HIDDEN_NONE = "Nu exista obiective ascunse.",
   DEPENDS_ON_SINGLE = "Depinde de '%1'.",
   DEPENDS_ON_COUNT = "Depinde de %1 obiective ascunse.",
+  DEPENDS_ON = nil,
   FILTERED_LEVEL = nil,
   FILTERED_ZONE = nil,
   FILTERED_COMPLETE = nil,
@@ -107,11 +113,14 @@ QuestHelper_Translations.roRO =
   FILTERED_UNKNOWN = "Nu stiu cum sa termin.",
   
   HIDDEN_SHOW = "Arata.",
+  HIDDEN_SHOW_NO = nil,
+  HIDDEN_EXCEPTION = nil,
   DISABLE_FILTER = "Dezactiveaza filtrul: %1",
   FILTER_DONE = "Terminat",
   FILTER_ZONE = "Zona",
   FILTER_LEVEL = "Nivel",
   FILTER_BLOCKED = "Blocat",
+  FILTER_WATCHED = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = nil,
@@ -148,6 +157,7 @@ QuestHelper_Translations.roRO =
   TRAVEL_ESTIMATE = nil,
   TRAVEL_ESTIMATE_VALUE = nil,
   WAYPOINT_REASON = nil,
+  FLIGHT_POINT = nil,
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = nil,
@@ -204,6 +214,18 @@ QuestHelper_Translations.roRO =
   SETTINGS_ARROWLINK_ARROW = nil,
   SETTINGS_ARROWLINK_CART = nil,
   SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_PRECACHE_ON = nil,
+  SETTINGS_PRECACHE_OFF = nil,
+  
+  SETTINGS_MENU_ENABLE = nil,
+  SETTINGS_MENU_DISABLE = nil,
+  SETTINGS_MENU_CARTWP = nil,
+  SETTINGS_MENU_TOMTOM = nil,
+  
+  SETTINGS_MENU_ARROW_LOCK = nil,
+  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
+  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
+  SETTINGS_MENU_ARROW_RESET = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE = nil,

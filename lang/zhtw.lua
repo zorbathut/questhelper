@@ -27,6 +27,7 @@ QuestHelper_Translations.zhTW =
   
   -- Special tracker text
   QH_LOADING = "QestHelper正在載入（%1%%）...",
+  QH_FLIGHTPATH = nil,
   QUESTS_HIDDEN_1 = "任務可能已隱藏",
   QUESTS_HIDDEN_2 = "(“/qh 隱藏“ 於列表中“）",
   
@@ -47,6 +48,9 @@ QuestHelper_Translations.zhTW =
   OBJECTIVE_SLAY = "殺死 %h1",
   OBJECTIVE_LOOT = "拾取 %h1",
   
+  OBJECTIVE_MONSTER_UNKNOWN = nil,
+  OBJECTIVE_ITEM_UNKNOWN = nil,
+  
   ZONE_BORDER = "%1/%2 ",
   
   -- Stuff used in objective menus.
@@ -60,6 +64,7 @@ QuestHelper_Translations.zhTW =
   SHARING_ENABLE = "分享",
   SHARING_DISABLE = "不分享",
   IGNORE = "忽略",
+  IGNORE_LOCATION = nil,
   
   IGNORED_PRIORITY_TITLE = "您選擇的優先次序將被忽略",
   IGNORED_PRIORITY_FIX = "將同樣的優先次序設定，套用到被勾選的項目上",
@@ -98,6 +103,7 @@ QuestHelper_Translations.zhTW =
   HIDDEN_NONE = "你並未設定有任何隱藏的物件",
   DEPENDS_ON_SINGLE = "根據 '%1'",
   DEPENDS_ON_COUNT = "根據 %1 隱藏目標",
+  DEPENDS_ON = nil,
   FILTERED_LEVEL = "由等級過濾",
   FILTERED_ZONE = "由區域過濾",
   FILTERED_COMPLETE = "由完成度過濾",
@@ -107,11 +113,14 @@ QuestHelper_Translations.zhTW =
   FILTERED_UNKNOWN = "不知道如何完成任務",
   
   HIDDEN_SHOW = "顯示",
+  HIDDEN_SHOW_NO = nil,
+  HIDDEN_EXCEPTION = nil,
   DISABLE_FILTER = "關閉過濾： %1",
   FILTER_DONE = "完成",
   FILTER_ZONE = "地區",
   FILTER_LEVEL = "等級",
   FILTER_BLOCKED = "封鎖",
+  FILTER_WATCHED = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "您有%h(新的)%h1資料，並且%h(更新了)%h2資料。",
@@ -148,6 +157,7 @@ QuestHelper_Translations.zhTW =
   TRAVEL_ESTIMATE = "預估飛行時間為：",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "探查 %h1 相鄰規劃路線至:",
+  FLIGHT_POINT = nil,
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -204,6 +214,18 @@ QuestHelper_Translations.zhTW =
   SETTINGS_ARROWLINK_ARROW = nil,
   SETTINGS_ARROWLINK_CART = nil,
   SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_PRECACHE_ON = nil,
+  SETTINGS_PRECACHE_OFF = nil,
+  
+  SETTINGS_MENU_ENABLE = nil,
+  SETTINGS_MENU_DISABLE = nil,
+  SETTINGS_MENU_CARTWP = nil,
+  SETTINGS_MENU_TOMTOM = nil,
+  
+  SETTINGS_MENU_ARROW_LOCK = nil,
+  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
+  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
+  SETTINGS_MENU_ARROW_RESET = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE = nil,

@@ -27,6 +27,7 @@ QuestHelper_Translations.plPL =
   
   -- Special tracker text
   QH_LOADING = "Ładowanie QuestHelper'a (%1%%)...",
+  QH_FLIGHTPATH = "Obliczanie flightpatchów",
   QUESTS_HIDDEN_1 = "Questy mogą być ukryte",
   QUESTS_HIDDEN_2 = "(wpisz \"/qh hidden\" w celu uzyskania listy ukrytych questów)",
   
@@ -47,6 +48,9 @@ QuestHelper_Translations.plPL =
   OBJECTIVE_SLAY = "Zabij %h1",
   OBJECTIVE_LOOT = "Wylootuj %h1",
   
+  OBJECTIVE_MONSTER_UNKNOWN = "Nieznana postać/potwór",
+  OBJECTIVE_ITEM_UNKNOWN = "Nieznana rzecz",
+  
   ZONE_BORDER = "Granica %1/%2",
   
   -- Stuff used in objective menus.
@@ -60,6 +64,7 @@ QuestHelper_Translations.plPL =
   SHARING_ENABLE = "Udostepnij",
   SHARING_DISABLE = "Nie udostepniaj",
   IGNORE = "Zignoruj",
+  IGNORE_LOCATION = "Zignoruj tą lokację",
   
   IGNORED_PRIORITY_TITLE = "Zaznaczony priorytet będzie ignorowany.",
   IGNORED_PRIORITY_FIX = "zaakceptuj ten sam priorytet do blokowanych obiektów",
@@ -98,6 +103,7 @@ QuestHelper_Translations.plPL =
   HIDDEN_NONE = "Nie ma ukrytych zadań.",
   DEPENDS_ON_SINGLE = "Zależy od '%1'",
   DEPENDS_ON_COUNT = "Zależy od %1 ukrytych zadań.",
+  DEPENDS_ON = "Zależy od filtrowanych zadań",
   FILTERED_LEVEL = "Filtr ukrył zadanie, gdyż masz za niski poziom.",
   FILTERED_ZONE = "Ukryte z powodu obszaru.",
   FILTERED_COMPLETE = "Zadanie wypełnione, filtr je ukrył.",
@@ -107,11 +113,14 @@ QuestHelper_Translations.plPL =
   FILTERED_UNKNOWN = "Program nie wie, jak ukończyć zadanie.",
   
   HIDDEN_SHOW = "Pokaż.",
+  HIDDEN_SHOW_NO = "Nie pokazywalne",
+  HIDDEN_EXCEPTION = "Dodaj zaznaczenie",
   DISABLE_FILTER = "Zablokuj filtry: %1",
   FILTER_DONE = "zrobione",
   FILTER_ZONE = "obszar",
   FILTER_LEVEL = "poziom",
   FILTER_BLOCKED = "zablokowane",
+  FILTER_WATCHED = "oglądance",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Masz %h(nowa informacje) w %h1, i %h(zaktualizowana informacje) w %h2.",
@@ -148,6 +157,7 @@ QuestHelper_Translations.plPL =
   TRAVEL_ESTIMATE = "Pozostaly czas podrozy:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Udaj sie do %1 w drodze do:",
+  FLIGHT_POINT = "%1 punkt lotu",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -199,13 +209,25 @@ QuestHelper_Translations.plPL =
   TOOLTIP_LOOT = "Wylootuj dla %h1",
   
   -- Settings
-  SETTINGS_ARROWLINK_ON = nil,
-  SETTINGS_ARROWLINK_OFF = nil,
-  SETTINGS_ARROWLINK_ARROW = nil,
-  SETTINGS_ARROWLINK_CART = nil,
-  SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_ARROWLINK_ON = "Używaj %h1 do pokazywanie celów",
+  SETTINGS_ARROWLINK_OFF = "Nie używaj %h1 do pokazywania celów",
+  SETTINGS_ARROWLINK_ARROW = "Strzałka QuesHelper'a",
+  SETTINGS_ARROWLINK_CART = "Waypointy Cartographer",
+  SETTINGS_ARROWLINK_TOMTOM = "TomTom",
+  SETTINGS_PRECACHE_ON = "Wpisywanie zostało %h(włączone)",
+  SETTINGS_PRECACHE_OFF = "Wpisywanie zostało %h(wyłączone)",
+  
+  SETTINGS_MENU_ENABLE = "Włącz",
+  SETTINGS_MENU_DISABLE = "Wyłącz",
+  SETTINGS_MENU_CARTWP = "%1 Strzałka Cartographera",
+  SETTINGS_MENU_TOMTOM = "%1 Strzałka TomToma",
+  
+  SETTINGS_MENU_ARROW_LOCK = "Zablokuj",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Rozmiar strzałki",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Rozmiar texu",
+  SETTINGS_MENU_ARROW_RESET = "Zresetuj",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = nil,
+  DISTANCE = "%h1 jardów",
  }
 

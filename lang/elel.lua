@@ -27,6 +27,7 @@ QuestHelper_Translations.elEL =
   
   -- Special tracker text
   QH_LOADING = "Φόρτωση Quest Helper (%1%%)...",
+  QH_FLIGHTPATH = nil,
   QUESTS_HIDDEN_1 = "Οι αποστολές μπορεί να είναι κρυμμένες",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" για να δεις τις κρυφές)",
   
@@ -47,6 +48,9 @@ QuestHelper_Translations.elEL =
   OBJECTIVE_SLAY = "Σκότωσε %h1.",
   OBJECTIVE_LOOT = "Λάφυρα %h1.",
   
+  OBJECTIVE_MONSTER_UNKNOWN = nil,
+  OBJECTIVE_ITEM_UNKNOWN = nil,
+  
   ZONE_BORDER = "%1/%2 όρια ζώνης",
   
   -- Stuff used in objective menus.
@@ -60,6 +64,7 @@ QuestHelper_Translations.elEL =
   SHARING_ENABLE = "Διαμοίρασε",
   SHARING_DISABLE = "Μην Διανέμεις",
   IGNORE = "Αγνοήστε",
+  IGNORE_LOCATION = nil,
   
   IGNORED_PRIORITY_TITLE = "Η επιλεγμένη προτεραιότητα θα αγνοηθεί.",
   IGNORED_PRIORITY_FIX = "Εφαρμόστε ίδια προτεραιότητα στους κρυφούς στόχους.",
@@ -98,6 +103,7 @@ QuestHelper_Translations.elEL =
   HIDDEN_NONE = "Δεν υπάρχουν στόχοι που να είναι κρυφοί.",
   DEPENDS_ON_SINGLE = "Εξαρτώμενο από '%1'",
   DEPENDS_ON_COUNT = "Εξαρτώμενο απο %1 κρυφούς στόχους",
+  DEPENDS_ON = nil,
   FILTERED_LEVEL = "Φιλτραρίστηκε λόγω επιπέδου.",
   FILTERED_ZONE = "Φιλτραρίστηκε λόγω ζώνης.",
   FILTERED_COMPLETE = "Φιλτραρίστηκε διότι ολοκληρώθηκε.",
@@ -107,11 +113,14 @@ QuestHelper_Translations.elEL =
   FILTERED_UNKNOWN = "Δεν γνωρίζουμε πως να ολοκληρωθεί.",
   
   HIDDEN_SHOW = "Εμφανησε.",
+  HIDDEN_SHOW_NO = nil,
+  HIDDEN_EXCEPTION = nil,
   DISABLE_FILTER = "Απενεργοποίηση φίλτρου: %1",
   FILTER_DONE = "Ολοκληρώθηκε",
   FILTER_ZONE = "Ζώνη",
   FILTER_LEVEL = "Επίπεδο",
   FILTER_BLOCKED = "Μπλοκαρισμένο",
+  FILTER_WATCHED = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Έχετε %h(νέες πληροφορίες) στο %h1, και %h(ενημερωμένες πληροφορίες) στο %h2.",
@@ -148,6 +157,7 @@ QuestHelper_Translations.elEL =
   TRAVEL_ESTIMATE = "Εκτιμώμενος χρόνος ταξιδίου:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Επισκευθείτε %h1 στην διαδρομή προς:",
+  FLIGHT_POINT = nil,
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "Βοηθός Αποστολών",
@@ -204,6 +214,18 @@ QuestHelper_Translations.elEL =
   SETTINGS_ARROWLINK_ARROW = nil,
   SETTINGS_ARROWLINK_CART = nil,
   SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_PRECACHE_ON = nil,
+  SETTINGS_PRECACHE_OFF = nil,
+  
+  SETTINGS_MENU_ENABLE = nil,
+  SETTINGS_MENU_DISABLE = nil,
+  SETTINGS_MENU_CARTWP = nil,
+  SETTINGS_MENU_TOMTOM = nil,
+  
+  SETTINGS_MENU_ARROW_LOCK = nil,
+  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
+  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
+  SETTINGS_MENU_ARROW_RESET = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE = nil,

@@ -27,6 +27,7 @@ QuestHelper_Translations.zhCN =
   
   -- Special tracker text
   QH_LOADING = "QestHelper正在载入（%1%%）...",
+  QH_FLIGHTPATH = "重新计算飞行路线中 (%1%)...",
   QUESTS_HIDDEN_1 = "任务可能已隐藏",
   QUESTS_HIDDEN_2 = "(“/qh hidden“ 到列表“）",
   
@@ -47,7 +48,10 @@ QuestHelper_Translations.zhCN =
   OBJECTIVE_SLAY = "击杀 %h1.",
   OBJECTIVE_LOOT = "拾取 %h1.",
   
-  ZONE_BORDER = "%1/%2 边框",
+  OBJECTIVE_MONSTER_UNKNOWN = "未知的怪物",
+  OBJECTIVE_ITEM_UNKNOWN = "未知的物品",
+  
+  ZONE_BORDER = "%1/%2 区域边界",
   
   -- Stuff used in objective menus.
   PRIORITY = "优先度",
@@ -60,6 +64,7 @@ QuestHelper_Translations.zhCN =
   SHARING_ENABLE = "分享",
   SHARING_DISABLE = "不分享",
   IGNORE = "忽略",
+  IGNORE_LOCATION = "忽略这个地点目标",
   
   IGNORED_PRIORITY_TITLE = "您选择的优先次序将被忽略",
   IGNORED_PRIORITY_FIX = "将同样的优先次序设定套用到被勾选的项目上",
@@ -98,6 +103,7 @@ QuestHelper_Translations.zhCN =
   HIDDEN_NONE = "您没有设定任何隐藏物件",
   DEPENDS_ON_SINGLE = "根据 ‘%1’",
   DEPENDS_ON_COUNT = "根据 %1 隐藏目标",
+  DEPENDS_ON = "依赖已经过滤掉的目标任务",
   FILTERED_LEVEL = "由登记过滤",
   FILTERED_ZONE = "有区域过滤",
   FILTERED_COMPLETE = "由完成度过滤",
@@ -107,11 +113,14 @@ QuestHelper_Translations.zhCN =
   FILTERED_UNKNOWN = "不知道如何完成任务",
   
   HIDDEN_SHOW = "显示",
+  HIDDEN_SHOW_NO = nil,
+  HIDDEN_EXCEPTION = nil,
   DISABLE_FILTER = "关闭过滤：%1",
   FILTER_DONE = "完成",
   FILTER_ZONE = "地区",
   FILTER_LEVEL = "登记",
   FILTER_BLOCKED = "封锁",
+  FILTER_WATCHED = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "您有%h（新的）%h1资料，并且%h（更新了）%h2资料。",
@@ -148,6 +157,7 @@ QuestHelper_Translations.zhCN =
   TRAVEL_ESTIMATE = "预估飞行时间为：",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "查探 %h1 相邻路径至：",
+  FLIGHT_POINT = "%1 飞行点",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -204,8 +214,20 @@ QuestHelper_Translations.zhCN =
   SETTINGS_ARROWLINK_ARROW = nil,
   SETTINGS_ARROWLINK_CART = nil,
   SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_PRECACHE_ON = nil,
+  SETTINGS_PRECACHE_OFF = nil,
+  
+  SETTINGS_MENU_ENABLE = nil,
+  SETTINGS_MENU_DISABLE = nil,
+  SETTINGS_MENU_CARTWP = nil,
+  SETTINGS_MENU_TOMTOM = nil,
+  
+  SETTINGS_MENU_ARROW_LOCK = nil,
+  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
+  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
+  SETTINGS_MENU_ARROW_RESET = nil,
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = nil,
+  DISTANCE = "%h1 码距离",
  }
 
