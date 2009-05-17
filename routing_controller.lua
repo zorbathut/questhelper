@@ -310,6 +310,7 @@ Route_Core_Init(
       QuestHelper: Assert(v.loc)
       table.insert(lt, v.loc)
     end
+    QuestHelper: Assert(#loctable == #lt)
     
     local rvv
     
@@ -327,6 +328,7 @@ Route_Core_Init(
       rvv = QuestHelper:CreateTable("route controller path shunt returnvalue")
       local rv = QH_Graph_Pathmultifind(loc1.loc, lt, reverse, true)
       
+      QuestHelper: Assert(#lt == #rv)
       for k, v in ipairs(lt) do
         if not rv[k] then
           QuestHelper:TextOut(QuestHelper:StringizeTable(loc1.loc))
@@ -338,6 +340,8 @@ Route_Core_Init(
         
         -- We're only setting the inactive to give the garbage collector potentially a little more to clean up (i.e. the old path.)
         if not reverse then
+          QuestHelper: Assert(pathcache_active[loc1])
+          QuestHelper: Assert(pathcache_inactive[loc1])
           pathcache_active[loc1][loctable[k]] = rv[k]
           pathcache_inactive[loc1][loctable[k]] = rv[k]
         else
