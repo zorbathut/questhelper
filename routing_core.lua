@@ -90,7 +90,6 @@ local DistBatch
   local NodeList = {[1] = StartNode}
   local Distance = {{0}}
   local Weight = {{0}}
-  local FinalWeights = {{0}}
   
   local DistanceWaiting = {} -- which node indices are waiting for distance data
   
@@ -579,14 +578,12 @@ local function RunAnt()
       QH_Timeslice_Yield()
       QuestHelper: Assert(needed_ready_count > 0)
       
-      local fwcl = FinalWeights[curloc]
-      
       local accumulated_weight = 0
       local tweight = 0
       for k, _ in pairs(needed) do
-        --local tw = fwcl[k]
-        --gwc[k] = tw
-        accumulated_weight = accumulated_weight + fwcl[k]
+        local tw = GetWeight(curloc, k)
+        gwc[k] = tw
+        accumulated_weight = accumulated_weight + tw
       end
     
       tweight = accumulated_weight
@@ -596,7 +593,7 @@ local function RunAnt()
       
       local nod = nil
       for k, _ in pairs(needed) do
-        accumulated_weight = accumulated_weight - fwcl[k]
+        accumulated_weight = accumulated_weight - gwc[k]
         if accumulated_weight < 0 then
           nod = k
           break
@@ -785,14 +782,6 @@ function QH_Route_Core_Process()
     --QuestHelper:TextOut("Pushing tweaked")
     BetterRoute(last_best)
     last_best_tweaked = false
-  end
-  
-  -- Next we cache a pile of weights
-  for _, x in ipairs(ActiveNodes) do
-    QH_Timeslice_Yield()
-    for _, y in ipairs(ActiveNodes) do
-      FinalWeights[x][y] = GetWeight(x, y)
-    end
   end
   
   local worst = 0
@@ -998,17 +987,12 @@ end
     for _, v in ipairs(Weight) do
       table.insert(v, 0)
     end
-    for _, v in ipairs(FinalWeights) do
-      table.insert(v, 0)
-    end
     table.insert(Distance, {})
     table.insert(Weight, {})
-    table.insert(FinalWeights, {})
     
     for k = 1, CurrentNodes + 1 do
       table.insert(Distance[#Distance], 0)
       table.insert(Weight[#Weight], 0)
-      table.insert(FinalWeights[#FinalWeights], 0)
     end
     
     CurrentNodes = CurrentNodes + 1
