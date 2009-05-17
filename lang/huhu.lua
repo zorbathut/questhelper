@@ -27,6 +27,7 @@ QuestHelper_Translations.huHU =
   
   -- Special tracker text
   QH_LOADING = "QuestHelper betöltése folyamatban... (%1%%)",
+  QH_FLIGHTPATH = "Repülési pontok újraszámítása (%1)...",
   QUESTS_HIDDEN_1 = "Rejtett Questek lehetnek...",
   QUESTS_HIDDEN_2 = "( Használd a \"/qh hidden\" parancsot a felsoroláshoz)",
   
@@ -47,6 +48,9 @@ QuestHelper_Translations.huHU =
   OBJECTIVE_SLAY = "Ölj %h1-t.",
   OBJECTIVE_LOOT = "Gyűjts %h1-t.",
   
+  OBJECTIVE_MONSTER_UNKNOWN = "Ismeretlen szörny",
+  OBJECTIVE_ITEM_UNKNOWN = "Ismeretlen tárgy",
+  
   ZONE_BORDER = "%1 és %2 határa",
   
   -- Stuff used in objective menus.
@@ -60,6 +64,7 @@ QuestHelper_Translations.huHU =
   SHARING_ENABLE = "Megoszt",
   SHARING_DISABLE = "Megosztás Ki",
   IGNORE = "Hagyd figyelmen kívül",
+  IGNORE_LOCATION = "Helyszín figyelmen kívül hagyása",
   
   IGNORED_PRIORITY_TITLE = "A választott elsőbbséget figyelmen kívül hagyom.",
   IGNORED_PRIORITY_FIX = "Állíts be elsőbbségeket az akadályozó feladatoknak.",
@@ -98,6 +103,7 @@ QuestHelper_Translations.huHU =
   HIDDEN_NONE = "Nincsenek elrejtett feladatok.",
   DEPENDS_ON_SINGLE = "Ettől függ: '%1'.",
   DEPENDS_ON_COUNT = "%1 rejtett objektumtól függ.",
+  DEPENDS_ON = "Szűrt objektumoktól függ",
   FILTERED_LEVEL = "Rejtve a szintkülönbség miatt.",
   FILTERED_ZONE = "Rejtve, mivel másik területen található.",
   FILTERED_COMPLETE = "Rejtve, mivel kész.",
@@ -107,11 +113,14 @@ QuestHelper_Translations.huHU =
   FILTERED_UNKNOWN = "Nem tudom, hogyan kell megcsinálni.",
   
   HIDDEN_SHOW = "Mutasd.",
+  HIDDEN_SHOW_NO = "Nem mutatható",
+  HIDDEN_EXCEPTION = "Kivétel hozzáadása",
   DISABLE_FILTER = "%1-szűrő kikapcsolása.",
   FILTER_DONE = "kész",
   FILTER_ZONE = "terület",
   FILTER_LEVEL = "szint",
   FILTER_BLOCKED = "blokkolt",
+  FILTER_WATCHED = "figyelt",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "%h(Új információd) van %h1, és %h(frissített adatod) %h2.",
@@ -148,9 +157,10 @@ QuestHelper_Translations.huHU =
   TRAVEL_ESTIMATE = "Előrelátható utazási idő:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Érintsd %h1-t, hogy elérd:",
+  FLIGHT_POINT = "%1 repülési cél",
 
   -- QuestHelper Map Button
-  QH_BUTTON_TEXT = "QuestHelper (by 123.wizek@gmail.com)",
+  QH_BUTTON_TEXT = "QuestHelper",
   QH_BUTTON_TOOLTIP1 = "Bal Klikk: Útvonalterv %1.",
   QH_BUTTON_TOOLTIP2 = "Jobb Klikk: Beállítások-menü megjelenítése.",
   QH_BUTTON_SHOW = "Mutat",
@@ -201,11 +211,23 @@ QuestHelper_Translations.huHU =
   -- Settings
   SETTINGS_ARROWLINK_ON = nil,
   SETTINGS_ARROWLINK_OFF = nil,
-  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_ARROW = "QuestHelper Nyíl",
   SETTINGS_ARROWLINK_CART = nil,
   SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_PRECACHE_ON = nil,
+  SETTINGS_PRECACHE_OFF = nil,
+  
+  SETTINGS_MENU_ENABLE = nil,
+  SETTINGS_MENU_DISABLE = nil,
+  SETTINGS_MENU_CARTWP = nil,
+  SETTINGS_MENU_TOMTOM = nil,
+  
+  SETTINGS_MENU_ARROW_LOCK = nil,
+  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
+  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
+  SETTINGS_MENU_ARROW_RESET = nil,
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = nil,
+  DISTANCE = "%h1 yard",
  }
 

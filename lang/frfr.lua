@@ -7,10 +7,8 @@ QuestHelper_Translations.frFR =
   
   -- Messages used when starting.
   LOCALE_ERROR = "La langue de vos données sauvegardées ne correspond pas à la langue de votre client WoW. Pour utiliser QuestHelper, vous devez soit remettre la langue que vous aviez avant, soit supprimer les données en tapant %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Je refuse de fonctionner, par crainte de corrompre vos données sauvegardées. "..
-				"Veuillez attendre la sortie d'une mise à jour capable de prendre en charge la nouvelle zone.",
-  DOWNGRADE_ERROR = "Vos données sauvegardées ne sont pas compatibles avec cette version de QuestHelper. "..
-				"Utilisez une nouvelle version ou supprimez les variables sauvegardées.",
+  ZONE_LAYOUT_ERROR = "Je refuse de fonctionner, par crainte de corrompre vos données sauvegardées. Veuillez attendre la sortie d'une mise à jour capable de prendre en charge la nouvelle zone.",
+  DOWNGRADE_ERROR = "Vos données sauvegardées ne sont pas compatibles avec cette version de QuestHelper. Utilisez une nouvelle version ou supprimez les variables sauvegardées.",
   HOME_NOT_KNOWN = "Vous n'avez pas de foyer défini. Lorsque cela sera possible, veuillez parler à votre aubergiste et réinitialisez-le.",
   PRIVATE_SERVER = "QuestHelper ne supporte pas les serveurs privés.",
   PLEASE_RESTART = "Une erreur est survenue au lancement de QuestHelper. Veuillez quitter World of Warcraft et essayer de nouveau.",
@@ -29,7 +27,7 @@ QuestHelper_Translations.frFR =
   
   -- Special tracker text
   QH_LOADING = "Chargement de QuestHelper (%1%)...",
-  QH_FLIGHTPATH = "Recalculating flightpaths (%1%)...",
+  QH_FLIGHTPATH = "Recalcul des points de vols (%1%)...",
   QUESTS_HIDDEN_1 = "Les quêtes peuvent êtres cachées",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" pour lister)",
   
@@ -49,10 +47,10 @@ QuestHelper_Translations.frFR =
   OBJECTIVE_TALK = "Parler à %h1.",
   OBJECTIVE_SLAY = "Tuer %h1.",
   OBJECTIVE_LOOT = "Ramasser en butin sur %h1.",
-
-  OBJECTIVE_MONSTER_UNKNOWN = "monstrer inconnu",
-  OBJECTIVE_ITEM_UNKNOWN = "objet inconnu",
-
+  
+  OBJECTIVE_MONSTER_UNKNOWN = "monstre inconnu",
+  OBJECTIVE_ITEM_UNKNOWN = "item inconnu",
+  
   ZONE_BORDER = "%1/%2 bordure",
   
   -- Stuff used in objective menus.
@@ -65,9 +63,9 @@ QuestHelper_Translations.frFR =
   SHARING = "Partage",
   SHARING_ENABLE = "Partager",
   SHARING_DISABLE = "Ne pas partager",
-  IGNORE = "Ignorer",
+  IGNORE = "Ignore",
   IGNORE_LOCATION = "Ignorer cet endroit",
-
+  
   IGNORED_PRIORITY_TITLE = "La priorité sélectionnée sera ignorée.",
   IGNORED_PRIORITY_FIX = "Appliquer la même priorité aux objectifs bloquants.",
   IGNORED_PRIORITY_IGNORE = "Je réglerais les priorités moi-même.",
@@ -105,7 +103,7 @@ QuestHelper_Translations.frFR =
   HIDDEN_NONE = "Il n'y a aucun objectif caché.",
   DEPENDS_ON_SINGLE = "Dépend de '%1'.",
   DEPENDS_ON_COUNT = "Dépend de %1 objectifs cachés.",
-  DEPENDS_ON = "Dépend des objectifs filtré",
+  DEPENDS_ON = "Dépend des objectifs filtrés",
   FILTERED_LEVEL = "Filtré à cause du niveau.",
   FILTERED_ZONE = "Filtré à cause de la zone.",
   FILTERED_COMPLETE = "Filtré car terminé.",
@@ -114,16 +112,16 @@ QuestHelper_Translations.frFR =
   FILTERED_USER = "Vous avez demandé à cacher cet objectif.",
   FILTERED_UNKNOWN = "Ne sais pas comment le terminer.",
   
-  HIDDEN_SHOW = "Montrer",
-  HIDDEN_SHOW_NO = "Not showable",
-  HIDDEN_EXCEPTION = "Ajouter une exception",
+  HIDDEN_SHOW = "Montrer.",
+  HIDDEN_SHOW_NO = "Ne peux être vu",
+  HIDDEN_EXCEPTION = "Ajout d'exception",
   DISABLE_FILTER = "Désactiver le filtre : %1",
   FILTER_DONE = "terminé",
   FILTER_ZONE = "zone",
   FILTER_LEVEL = "niveau",
   FILTER_BLOCKED = "bloqué",
   FILTER_WATCHED = "regardé",
-
+  
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Vous avez %h(des nouvelles informations) pour %h1, et %h(des mises à jour) pour %h2.",
   NAG_SINGLE_NEW = "Vous avez %h(une nouvelle information) sur %h1.",
@@ -160,7 +158,7 @@ QuestHelper_Translations.frFR =
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Visiter %h1 sur la route de :",
   FLIGHT_POINT = "%1 point de vol",
-
+  
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
   QH_BUTTON_TOOLTIP1 = "Clic-Gauche : %1 information de route.",
@@ -211,24 +209,24 @@ QuestHelper_Translations.frFR =
   TOOLTIP_LOOT = "Ramasser pour le butin %h1",
   
   -- Settings
-  SETTINGS_ARROWLINK_ON = "Will use %h1 to show objectives.",
-  SETTINGS_ARROWLINK_OFF = "Won't use %h1 to show objectives.",
-  SETTINGS_ARROWLINK_ARROW = "QuestHelper Arrow",
-  SETTINGS_ARROWLINK_CART = "Cartographer Waypoints",
+  SETTINGS_ARROWLINK_ON = "Utilisera %h1 pour afficher les objectifs.",
+  SETTINGS_ARROWLINK_OFF = "N'utilise pas %h1 pour afficher les objectifs.",
+  SETTINGS_ARROWLINK_ARROW = "Indicateur QuestHelper",
+  SETTINGS_ARROWLINK_CART = "Etapes Cartographer",
   SETTINGS_ARROWLINK_TOMTOM = "TomTom",
-  SETTINGS_PRECACHE_ON = "Precache has been %h(enabled).",
-  SETTINGS_PRECACHE_OFF = "Precache has been %h(disabled).",
+  SETTINGS_PRECACHE_ON = "La Préchache a été %h(activé).",
+  SETTINGS_PRECACHE_OFF = "La Précache a été %h(désactivé).",
   
   SETTINGS_MENU_ENABLE = "Activer",
   SETTINGS_MENU_DISABLE = "Désactiver",
-  SETTINGS_MENU_CARTWP = "%1 Cartographer Arrow",
-  SETTINGS_MENU_TOMTOM = "%1 TomTom Arrow",
+  SETTINGS_MENU_CARTWP = "%1 Flèche de Cartographer",
+  SETTINGS_MENU_TOMTOM = "%1 Flèche TomTom",
   
-  SETTINGS_MENU_ARROW_LOCK = "Bloquer",
-  SETTINGS_MENU_ARROW_ARROWSCALE = "Échelle de la flêche",
-  SETTINGS_MENU_ARROW_TEXTSCALE = "Échelle du texte",
-  SETTINGS_MENU_ARROW_RESET = "Réinitialiser",
+  SETTINGS_MENU_ARROW_LOCK = "Barrer",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Grosseur de la Flèche",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Grosseur du Texte",
+  SETTINGS_MENU_ARROW_RESET = "Remise à Zéro",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = "%h1 yards",
+  DISTANCE = "%h1 mètres",
  }

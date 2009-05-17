@@ -27,6 +27,7 @@ QuestHelper_Translations.daDK =
   
   -- Special tracker text
   QH_LOADING = "QuestHelper indlæser (%1%%)...",
+  QH_FLIGHTPATH = nil,
   QUESTS_HIDDEN_1 = "Der er evt. skjulte quests",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" for liste)",
   
@@ -47,6 +48,9 @@ QuestHelper_Translations.daDK =
   OBJECTIVE_SLAY = "Dræb %h1.",
   OBJECTIVE_LOOT = "Plyndr %h1.",
   
+  OBJECTIVE_MONSTER_UNKNOWN = nil,
+  OBJECTIVE_ITEM_UNKNOWN = nil,
+  
   ZONE_BORDER = "Grænse mellem %1/%2",
   
   -- Stuff used in objective menus.
@@ -60,6 +64,7 @@ QuestHelper_Translations.daDK =
   SHARING_ENABLE = "Del",
   SHARING_DISABLE = "Del ikke",
   IGNORE = "Ignore",
+  IGNORE_LOCATION = nil,
   
   IGNORED_PRIORITY_TITLE = "Den valgte prioritet bliver ignoreret.",
   IGNORED_PRIORITY_FIX = "Sæt samme prioritet til de(t) blokerende mål.",
@@ -98,6 +103,7 @@ QuestHelper_Translations.daDK =
   HIDDEN_NONE = "Der er ingen mål skjult for dig.",
   DEPENDS_ON_SINGLE = "Afhænger af '%1'.",
   DEPENDS_ON_COUNT = "Afhænger af %1 skjulte mål.",
+  DEPENDS_ON = nil,
   FILTERED_LEVEL = "Filtreret på grund af level.",
   FILTERED_ZONE = "Filtreret på grund af område.",
   FILTERED_COMPLETE = "Filtreret da det er afsluttet.",
@@ -107,11 +113,14 @@ QuestHelper_Translations.daDK =
   FILTERED_UNKNOWN = "Ved ikke hvordan det afsluttes.",
   
   HIDDEN_SHOW = "Vis.",
+  HIDDEN_SHOW_NO = nil,
+  HIDDEN_EXCEPTION = nil,
   DISABLE_FILTER = "Slå filter fra: %1",
   FILTER_DONE = "færdig",
   FILTER_ZONE = "område",
   FILTER_LEVEL = "level",
   FILTER_BLOCKED = "blokeret",
+  FILTER_WATCHED = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Du har %h(ny information) til %h1 og %h(opdateret information) til %h2.",
@@ -148,6 +157,7 @@ QuestHelper_Translations.daDK =
   TRAVEL_ESTIMATE = "Anslået rejsetid:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Besøg %h1 på vej til:",
+  FLIGHT_POINT = nil,
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -204,6 +214,18 @@ QuestHelper_Translations.daDK =
   SETTINGS_ARROWLINK_ARROW = nil,
   SETTINGS_ARROWLINK_CART = nil,
   SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_PRECACHE_ON = nil,
+  SETTINGS_PRECACHE_OFF = nil,
+  
+  SETTINGS_MENU_ENABLE = nil,
+  SETTINGS_MENU_DISABLE = nil,
+  SETTINGS_MENU_CARTWP = nil,
+  SETTINGS_MENU_TOMTOM = nil,
+  
+  SETTINGS_MENU_ARROW_LOCK = nil,
+  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
+  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
+  SETTINGS_MENU_ARROW_RESET = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE = nil,

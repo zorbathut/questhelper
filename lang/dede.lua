@@ -26,7 +26,8 @@ QuestHelper_Translations.deDE =
   UPDATING_ROUTE = "Strecke wird neu berechnet.",
   
   -- Special tracker text
-  QH_LOADING = "QuestHelper wird geladen: (%1%%)",
+  QH_LOADING = "QuestHelper wird geladen... (%1%%)",
+  QH_FLIGHTPATH = "Flugstrecken werden neu berechnet... (%1%)",
   QUESTS_HIDDEN_1 = "Quests sind vielleicht ausgeblendet.",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" zum Auflisten)",
   
@@ -47,6 +48,9 @@ QuestHelper_Translations.deDE =
   OBJECTIVE_SLAY = "Töte %h1.",
   OBJECTIVE_LOOT = "Erbeute %h1.",
   
+  OBJECTIVE_MONSTER_UNKNOWN = "unbekanntes Monster",
+  OBJECTIVE_ITEM_UNKNOWN = "unbekanntes Objekt",
+  
   ZONE_BORDER = "Grenze %1/%2",
   
   -- Stuff used in objective menus.
@@ -60,6 +64,7 @@ QuestHelper_Translations.deDE =
   SHARING_ENABLE = "Teilen",
   SHARING_DISABLE = "Nicht teilen",
   IGNORE = "Ignorieren",
+  IGNORE_LOCATION = "Diesen Ort ignorieren",
   
   IGNORED_PRIORITY_TITLE = "Die ausgewählte Priorität würde ignoriert werden.",
   IGNORED_PRIORITY_FIX = "Den blockierenden Zielen dieselbe Priorität zuweisen.",
@@ -98,6 +103,7 @@ QuestHelper_Translations.deDE =
   HIDDEN_NONE = "Es sind keine Ziele ausgeblendet.",
   DEPENDS_ON_SINGLE = "Ist abhängig von '%1'.",
   DEPENDS_ON_COUNT = "Ist abhängig von %1 versteckten Zielen.",
+  DEPENDS_ON = "Ist abhängig von gefilterten Zielen.",
   FILTERED_LEVEL = "Wegen der Stufe gefiltert.",
   FILTERED_ZONE = "Wegen des Gebiets gefiltert.",
   FILTERED_COMPLETE = "Gefiltert, weil abgeschlossen.",
@@ -107,11 +113,14 @@ QuestHelper_Translations.deDE =
   FILTERED_UNKNOWN = "Der Lösungsweg ist unbekannt.",
   
   HIDDEN_SHOW = "Anzeigen",
+  HIDDEN_SHOW_NO = "Nicht anzeigbar",
+  HIDDEN_EXCEPTION = "Ausnahme hinzufügen",
   DISABLE_FILTER = "Filter deaktivieren: %1",
   FILTER_DONE = "Erledigt",
   FILTER_ZONE = "Gebiet",
   FILTER_LEVEL = "Stufe",
   FILTER_BLOCKED = "Blockiert",
+  FILTER_WATCHED = "Beobachtet",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Du hast %h(neue Informationen) zu %h1 und %h(aktualisierte Informationen) zu %h2.",
@@ -148,6 +157,7 @@ QuestHelper_Translations.deDE =
   TRAVEL_ESTIMATE = "Geschätzte Reisezeit:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Besuche %h1 auf dem Weg zu:",
+  FLIGHT_POINT = "%1 Flugpunkt",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -199,13 +209,25 @@ QuestHelper_Translations.deDE =
   TOOLTIP_LOOT = "Erbeute für %h1.",
   
   -- Settings
-  SETTINGS_ARROWLINK_ON = nil,
-  SETTINGS_ARROWLINK_OFF = nil,
-  SETTINGS_ARROWLINK_ARROW = nil,
-  SETTINGS_ARROWLINK_CART = nil,
-  SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_ARROWLINK_ON = "%h1 wird zur Zieldarstellung verwendet.",
+  SETTINGS_ARROWLINK_OFF = "%h1 wird nicht zur Zieldarstellung verwendet.",
+  SETTINGS_ARROWLINK_ARROW = "QuestHelper-Richtungspfeil",
+  SETTINGS_ARROWLINK_CART = "Cartographer-Wegpunkte",
+  SETTINGS_ARROWLINK_TOMTOM = "TomTom",
+  SETTINGS_PRECACHE_ON = "Precache wurde %h(aktiviert).",
+  SETTINGS_PRECACHE_OFF = "Precache wurde %h(deaktiviert).",
+  
+  SETTINGS_MENU_ENABLE = "aktivieren",
+  SETTINGS_MENU_DISABLE = "deaktivieren",
+  SETTINGS_MENU_CARTWP = "Cartographer-Pfeil %1",
+  SETTINGS_MENU_TOMTOM = "TomTom-Pfeil %1",
+  
+  SETTINGS_MENU_ARROW_LOCK = "Sperren",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Pfeilgröße",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Textgröße",
+  SETTINGS_MENU_ARROW_RESET = "Zurücksetzen",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = nil,
+  DISTANCE = "%h1 Meter",
  }
 
