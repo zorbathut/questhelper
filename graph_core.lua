@@ -94,6 +94,10 @@ local function canoplane(plane)
   if flyplanes_enabled[plane_to_flyplane[plane]] then return plane_to_flyplane[plane] else return plane end
 end
 
+local function xydist_raw(plane, stx, sty, ndx, ndy)
+  local dx, dy = stx - ndx, sty - ndy
+  return math.sqrt(dx * dx + dy * dy) / (plane_multiplier[plane] or 7)
+end
 local function xydist(st, nd)
   QuestHelper: Assert(canoplane(st.p) == canoplane(nd.p))
   local dx, dy = st.x - nd.x, st.y - nd.y
@@ -125,34 +129,26 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   
   QuestHelper: Assert(st.x and st.y and st.p)
   
-  --stats.dests_quick = 0
   --stats.dests_complex = 0
   --stats.dests_total = 0
   
   for k, v in ipairs(nda) do
     QuestHelper: Assert(v.x and v.y and v.p)
     local cpvp = canoplane(v.p)
-    if canoplane(st.p) == cpvp then
-      out[k] = xydist(st, v)
-      --stats.dests_quick = --stats.dests_quick + 1
-    else
-      if plane[cpvp] then
+    if plane[cpvp] then
       --print("Destination plane insertion")
-        -- ugh I hate this optimization
-        local dest = QuestHelper:CreateTable("graphcore destination")
-        dest.x, dest.y, dest.p, dest.goal = v.x, v.y, cpvp, k
-        link[k] = dest
-        table.insert(plane[cpvp], link[k])
-        undone[k] = true
-        remaining = remaining + 1
-        --stats.dests_complex = --stats.dests_complex + 1
-      end
+      local dest = QuestHelper:CreateTable("graphcore destination")
+      dest.x, dest.y, dest.p, dest.goal = v.x, v.y, cpvp, k
+      link[k] = dest
+      table.insert(plane[cpvp], link[k])
+      undone[k] = true
+      remaining = remaining + 1
+      --stats.dests_complex = --stats.dests_complex + 1
     end
     --stats.dests_total = --stats.dests_total + 1
   end
   
-  local link_id = reverse and "rlink" or "link"
-  local link_cost_id = reverse and "rlink_cost" or "link_cost"
+  local link_id = reverse and "rlinks" or "links"
   
   --stats.node_initialized_first = 0
   --stats.node_done = 0
@@ -165,24 +161,16 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   --stats.node_inner_first = 0
   --stats.node_inner_alreadydone = 0
   
-  local dijheap = QuestHelper:CreateTable("graphcore heap center")
-  if plane[canoplane(st.p)] then
-    --print("ST plane insertion")
-    for _, v in ipairs(plane[canoplane(st.p)]) do
-      if v[link_id] then
-        QuestHelper: Assert(not v.goal)
-        local dst = xydist(st, v)
-        v.scan_id = grid
-        v.scan_cost = dst
-        v.scan_from = nil
-        
-        local hep = QuestHelper:CreateTable("graphcore heap")
-        hep.c, hep.cs, hep.n = dst + v[link_cost_id], dst, v
-        heap_insert(dijheap, hep)
-        
-        --stats.node_initialized_first = --stats.node_initialized_first + 1
-      end
-    end
+  local dijheap = QuestHelper:CreateTable("graphcore heap container")
+  local stnode = QuestHelper:CreateTable("graphcore stnode")
+  do
+    stnode.x, stnode.y, stnode.p, stnode.c, stnode.scan_id, stnode.scan_cost = st.x, st.y, canoplane(st.p), st.c, grid, 0
+    QuestHelper: Assert(plane[canoplane(st.p)])
+    table.insert(plane[stnode.p], stnode)
+    
+    local hep = QuestHelper:CreateTable("graphcore heap")
+    hep.c, hep.n = 0, stnode
+    heap_insert(dijheap, hep)
   end
   
   --stats.heap_max = #dijheap
@@ -195,6 +183,7 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
     local cdj = heap_extract(dijheap)
     if cdj.done then
       if undone[cdj.done] then
+        out[cdj.done] = cdj.c
         undone[cdj.done] = nil
         remaining = remaining - 1
         --stats.node_done = --stats.node_done + 1
@@ -202,61 +191,49 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
         --stats.node_done_already = --stats.node_done_already + 1
       end
     else
+      local snode = cdj.n
     --print(string.format("Extracted cost %f/%s pointing at %f/%f/%d", cdj.c, tostring(cdj.n.scan_cost), cdj.n.x, cdj.n.y, cdj.n.p))
-      QuestHelper: Assert(cdj.n[link_id])
-      if cdj.n.scan_cost == cdj.cs then  -- if we've modified it since then, don't bother
-        local linkto = cdj.n[link_id]
-        local basecost = cdj.c + cdj.n[link_cost_id]
-        if linkto.scan_id ~= grid or linkto.scan_cost > basecost then
-          if linkto.scan_id == grid then
-            --stats.node_link_reprocessed = --stats.node_link_reprocessed + 1
-          else
-            --stats.node_link_first = --stats.node_link_first + 1
-          end
-          linkto.scan_id = grid
-          linkto.scan_cost = basecost
-          linkto.scan_from = nil
-          
-          for _, v in ipairs(plane[linkto.p]) do
-            -- One way or another, we gotta calculate this.
-            local goalcost = basecost + xydist(linkto, v)
-            if v.goal then
-              if not out[v.goal] or out[v.goal] > goalcost then
-                out[v.goal] = goalcost
-                v.scan_from = cdj.n
-                
+      if snode.scan_cost == cdj.c then  -- if we've modified it since then, don't bother
+        for _, v in ipairs(plane[snode.p]) do
+          if v.scan_id ~= grid or v.scan_cost > snode.scan_cost then
+            local dst = xydist(snode, v)
+            local modcost = snode.scan_cost + dst
+            if v.scan_id ~= grid or v.scan_cost > modcost then
+              v.scan_id = grid
+              v.scan_cost = modcost
+              v.scan_from = snode
+              v.scan_outnode = nil
+              v.scan_outnode_from = nil
+              
+              if v.goal then
+                -- we wouldn't be here if we hadn't found a better solution
                 local hep = QuestHelper:CreateTable("graphcore heap")
-                hep.c, hep.done = goalcost, v.goal
+                hep.c, hep.done = modcost, v.goal
                 heap_insert(dijheap, hep)
-              end
-            elseif v[link_id] and (v.scan_id ~= grid or v.scan_cost > basecost) then
-              if v.scan_id ~= grid or v.scan_cost > goalcost then
-                if linkto.scan_id == grid then
-                  --stats.node_inner_reprocessed = --stats.node_inner_reprocessed + 1
-                else
-                  --stats.node_inner_first = --stats.node_inner_first + 1
+                QuestHelper: Assert(not v[link_id])
+              elseif v[link_id] then
+                for _, lnk in pairs(v[link_id]) do
+                  local mc2 = modcost + lnk.cost
+                  local linkto = lnk.link
+                  if linkto.scan_id ~= grid or linkto.scan_cost > mc2 then
+                    linkto.scan_id = grid
+                    linkto.scan_cost = mc2
+                    linkto.scan_from = v
+                    linkto.scan_outnode = lnk.outnode_to
+                    linkto.scan_outnode_from = lnk.outnode_from
+                    
+                    local hep = QuestHelper:CreateTable("graphcore heap")
+                    hep.c, hep.n = mc2, linkto
+                    heap_insert(dijheap, hep)
+                  end
                 end
-                v.scan_id = grid
-                v.scan_cost = goalcost
-                v.scan_from = cdj.n
-                
-                local hep = QuestHelper:CreateTable("graphcore heap")
-                hep.c, hep.cs, hep.n = goalcost + v[link_cost_id], goalcost, v
-                heap_insert(dijheap, hep)
-              else
-                --stats.node_inner_alreadydone = --stats.node_inner_alreadydone + 1
               end
             end
           end
-        else
-          --stats.node_link_alreadydone = --stats.node_link_alreadydone + 1
         end
-      else
-        --stats.node_modified_before_use = --stats.node_modified_before_use + 1
       end
     end
     QuestHelper:ReleaseTable(cdj)
-    --stats.heap_max = math.max(--stats.heap_max, #dijheap)
   end
   
   --QuestHelper:TextOut("Starting pathing")
@@ -295,19 +272,20 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
         QuestHelper: Assert(link[k].scan_from)
         local tpath = reverse and rp or QuestHelper:CreateTable("graphcore path reversal")
         local cpx = link[k].scan_from
+        local mdlast = nil
         while cpx do
-          if reverse then
-            QuestHelper: Assert(cpx.rlink)
-            table.insert(tpath, cpx.rlink)
-          else
-            QuestHelper: Assert(cpx.link)
-            table.insert(tpath, cpx.link)
-          end
           QuestHelper: Assert(cpx)
-          table.insert(tpath, cpx)
+          
+          if cpx.scan_outnode then
+            table.insert(tpath, cpx.scan_outnode)
+          end
+          if cpx.scan_outnode_from then
+            table.insert(tpath, cpx.scan_outnode_from)
+          end
           
           cpx = cpx.scan_from
         end
+        QuestHelper: Assert(not mdlast)
         
         if not reverse then
           for i = #tpath, 1, -1 do
@@ -321,6 +299,7 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
     end
   end
   
+  QuestHelper:ReleaseTable(table.remove(plane[stnode.p])) -- always added last, so we remove it first
   for k, v in ipairs(nda) do
     if plane[canoplane(v.p)] and plane[canoplane(v.p)][#plane[canoplane(v.p)]].goal then   -- might not be the exact one, but we'll remove 'em all once we get there anyway :D
       QuestHelper:ReleaseTable(table.remove(plane[canoplane(v.p)]))
@@ -357,6 +336,20 @@ end
 
 local linkages = {}
 
+local function findnode(coord)
+  local p = canoplane(coord.p)
+  if not plane[p] then plane[p] = {} end
+  for _, v in ipairs(plane[p]) do
+    if v.x == coord.x and v.y == coord.y and v.name == coord.name then
+      return v
+    end
+  end
+  
+  local nd = {x = coord.x, y = coord.y, p = p, name = coord.name}
+  table.insert(plane[p], nd)
+  return nd
+end
+
 local function QH_Graph_Plane_ReallyMakeLink(item)
   local name, coord1, coord2, cost, cost_reverse = unpack(item)
   
@@ -368,30 +361,37 @@ local function QH_Graph_Plane_ReallyMakeLink(item)
   QuestHelper: Assert(coord2)
   QuestHelper: Assert(cost)
   
-  local node1 = {x = coord1.x, y = coord1.y, p = canoplane(coord1.p), c = coord1.c, map_desc = coord1.map_desc, condense_class = coord1.condense_class, name = name}
-  local node2 = {x = coord2.x, y = coord2.y, p = canoplane(coord2.p), c = coord2.c, map_desc = coord2.map_desc, condense_class = coord2.condense_class, name = name}
+  local n1p = canoplane(coord1.p)
+  local n2p = canoplane(coord2.p)
   
-  if node1.p == node2.p then
-    -- if they're the same location, we don't want to include them
-    -- right now, "the same location" is being done really, really cheaply
-    -- hey look at me! I'm kind of a bastard!
-    
+  if canoplane(coord1.p) == canoplane(coord2.p) then
     if name == "static_transition" then return end -- ha ha, yep, that's how we find out, tooootally reliable
     
-    local xyd = xydist(node1, node2)
+    local xyd = xydist_raw(canoplane(coord1.p), coord1.x, coord1.y, coord2.x, coord2.y)
     if cost >= xyd and (not cost_reverse or cost_reverse >= xyd) then
       return  -- DENIED
     end
   end
   
-  if not plane[node1.p] then plane[node1.p] = {} end
-  if not plane[node2.p] then plane[node2.p] = {} end
+  local node1 = findnode(coord1)
+  local node2 = findnode(coord2)
   
-  node1.link, node1.link_cost, node2.rlink, node2.rlink_cost = node2, cost, node1, cost
-  if cost_reverse then node1.rlink, node1.rlink_cost, node2.link, node2.link_cost = node2, cost_reverse, node1, cost_reverse end
+  local n1d = {x = coord1.x, y = coord1.y, p = coord1.p, c = coord1.c, map_desc = coord1.map_desc, condense_class = coord1.condense_class}
+  local n2d = {x = coord2.x, y = coord2.y, p = coord2.p, c = coord2.c, map_desc = coord2.map_desc, condense_class = coord2.condense_class}
   
-  table.insert(plane[node1.p], node1)
-  table.insert(plane[node2.p], node2)
+  if not node1.links then node1.links = {} end
+  if not node2.rlinks then node2.rlinks = {} end
+  
+  table.insert(node1.links, {cost = cost, link = node2, outnode_to = n2d, outnode_from = n1d})
+  table.insert(node2.rlinks, {cost = cost, link = node1, outnode_to = n1d, outnode_from = n2d})
+  
+  if cost_reverse then
+    if not node1.rlinks then node1.rlinks = {} end
+    if not node2.links then node2.links = {} end
+    
+    table.insert(node1.rlinks, {cost = cost_reverse, link = node2, outnode_to = n2d, outnode_from = n1d})
+    table.insert(node2.links, {cost = cost_reverse, link = node1, outnode_to = n1d, outnode_from = n2d})
+  end
 end
 
 function QH_Graph_Plane_Makelink(name, coord1, coord2, cost, cost_reverse)

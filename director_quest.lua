@@ -1,6 +1,9 @@
 QuestHelper_File["director_quest.lua"] = "Development Version"
 QuestHelper_Loadtime["director_quest.lua"] = GetTime()
 
+local debug_output = false
+if QuestHelper_File["director_quest.lua"] == "Development Version" then debug_output = true end
+
 --[[
 
 Little bit of explanation here.
@@ -39,42 +42,45 @@ local function AppendObjlinks(target, source, tooltips, icon, last_name, map_lin
   
   seen[source] = true
   if source.loc then
-    for m, v in ipairs(source.loc) do
-      QuestHelper: Assert(#source == 0)
-      
-      QuestHelper: Assert(target)
-      QuestHelper: Assert(QuestHelper_ParentLookup)
-      QuestHelper: Assert(QuestHelper_ParentLookup[v.p], v.p)
-      table.insert(target, {loc = {x = v.x, y = v.y, c = QuestHelper_ParentLookup[v.p], p = v.p}, path_desc = copy(map_lines), icon_id = icon or 6})
-    end
-  else
-    for _, v in ipairs(source) do
-      local dbgi = DB_GetItem(v.sourcetype, v.sourceid, nil, true)
-      local licon
-      
-      if v.sourcetype == "monster" then
-        table.insert(map_lines, QHFormat("OBJECTIVE_SLAY", dbgi.name or QHText("OBJECTIVE_UNKNOWN_MONSTER")))
-        table.insert(tooltip_lines, 1, QHFormat("TOOLTIP_SLAY", source.name or "nothing"))
-        licon = 1
-      elseif v.sourcetype == "item" then
-        table.insert(map_lines, QHFormat("OBJECTIVE_ACQUIRE", dbgi.name or QHText("OBJECTIVE_ITEM_UNKNOWN")))
-        table.insert(tooltip_lines, 1, QHFormat("TOOLTIP_LOOT", source.name or "nothing"))
-        licon = 2
-      else
-        table.insert(map_lines, string.format("unknown %s (%s/%s)", tostring(dbgi.name), tostring(v.sourcetype), tostring(v.sourceid)))
-        table.insert(tooltip_lines, 1, string.format("unknown %s (%s/%s)", tostring(last_name), tostring(v.sourcetype), tostring(v.sourceid)))
-        licon = 3
+    if target then
+      for m, v in ipairs(source.loc) do
+        QuestHelper: Assert(target)
+        QuestHelper: Assert(QuestHelper_ParentLookup)
+        QuestHelper: Assert(QuestHelper_ParentLookup[v.p], v.p)
+        table.insert(target, {loc = {x = v.x, y = v.y, c = QuestHelper_ParentLookup[v.p], p = v.p}, path_desc = copy(map_lines), icon_id = icon or 6})
       end
-      
-      tooltips[string.format("%s@@%s", v.sourcetype, v.sourceid)] = copy_without_last(tooltip_lines)
-      
-      AppendObjlinks(target, dbgi, tooltips, icon or licon, source.name, map_lines, tooltip_lines, seen)
-      table.remove(tooltip_lines, 1)
-      table.remove(map_lines)
-      
-      DB_ReleaseItem(dbgi)
     end
+    
+    target = nil  -- if we have a "source" as well, then we want to plow through it for tooltip data, but we don't want to add targets for it
   end
+  
+  for _, v in ipairs(source) do
+    local dbgi = DB_GetItem(v.sourcetype, v.sourceid, nil, true)
+    local licon
+    
+    if v.sourcetype == "monster" then
+      table.insert(map_lines, QHFormat("OBJECTIVE_SLAY", dbgi.name or QHText("OBJECTIVE_UNKNOWN_MONSTER")))
+      table.insert(tooltip_lines, 1, QHFormat("TOOLTIP_SLAY", source.name or "nothing"))
+      licon = 1
+    elseif v.sourcetype == "item" then
+      table.insert(map_lines, QHFormat("OBJECTIVE_ACQUIRE", dbgi.name or QHText("OBJECTIVE_ITEM_UNKNOWN")))
+      table.insert(tooltip_lines, 1, QHFormat("TOOLTIP_LOOT", source.name or "nothing"))
+      licon = 2
+    else
+      table.insert(map_lines, string.format("unknown %s (%s/%s)", tostring(dbgi.name), tostring(v.sourcetype), tostring(v.sourceid)))
+      table.insert(tooltip_lines, 1, string.format("unknown %s (%s/%s)", tostring(last_name), tostring(v.sourcetype), tostring(v.sourceid)))
+      licon = 3
+    end
+    
+    tooltips[string.format("%s@@%s", v.sourcetype, v.sourceid)] = copy_without_last(tooltip_lines)
+    
+    AppendObjlinks(target, dbgi, tooltips, icon or licon, source.name, map_lines, tooltip_lines, seen)
+    table.remove(tooltip_lines, 1)
+    table.remove(map_lines)
+    
+    DB_ReleaseItem(dbgi)
+  end
+
   seen[source] = false
 end
 
@@ -118,7 +124,13 @@ local function GetQuestMetaobjective(questid, lbcount)
       
       ttx.tooltip = {}
       
-      if q and q.criteria and q.criteria[i] then AppendObjlinks(ttx, q.criteria[i], ttx.tooltip) end
+      if q and q.criteria and q.criteria[i] then
+        AppendObjlinks(ttx, q.criteria[i], ttx.tooltip)
+        
+        if debug_output and q.criteria[i].loc and #q.criteria[i] > 0 then
+          QuestHelper:TextOut(string.format("Wackyquest %d/%d", questid, i))
+        end
+      end
       
       if #ttx == 0 then
         table.insert(ttx, {loc = {x = 5000, y = 5000, c = 0, p = 2}, icon_id = 7, type_quest_unknown = true, map_desc = {"Unknown"}})  -- this is Ashenvale, for no particularly good reason
