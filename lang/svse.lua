@@ -27,6 +27,7 @@ QuestHelper_Translations.svSE =
   
   -- Special tracker text
   QH_LOADING = "QuestHelper laddas (%1%%)...",
+  QH_FLIGHTPATH = "Räknar om flygplatserna",
   QUESTS_HIDDEN_1 = "Uppdrg är kanske gömda",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" för att visa)",
   
@@ -47,6 +48,9 @@ QuestHelper_Translations.svSE =
   OBJECTIVE_SLAY = "Döda %h1.",
   OBJECTIVE_LOOT = "Samla %h1",
   
+  OBJECTIVE_MONSTER_UNKNOWN = "Okänt monster",
+  OBJECTIVE_ITEM_UNKNOWN = "Okänt objekt",
+  
   ZONE_BORDER = "gränsen %1/%2",
   
   -- Stuff used in objective menus.
@@ -60,6 +64,7 @@ QuestHelper_Translations.svSE =
   SHARING_ENABLE = "Dela",
   SHARING_DISABLE = "Dela inte",
   IGNORE = "Ignorera",
+  IGNORE_LOCATION = "Ignonera denna plats",
   
   IGNORED_PRIORITY_TITLE = "Den valda prioriteten skulle ignoreras.",
   IGNORED_PRIORITY_FIX = "Godkänn samma prioritet till det blockerade uppdraget.",
@@ -98,6 +103,7 @@ QuestHelper_Translations.svSE =
   HIDDEN_NONE = "Inga uppdrag är gömda för dig",
   DEPENDS_ON_SINGLE = "Beroende av '%1'.",
   DEPENDS_ON_COUNT = "Beroende av %1 gömda uppdrag.",
+  DEPENDS_ON = "Beror på filtrerade objekt",
   FILTERED_LEVEL = "Filtrerad på grund av nivå.",
   FILTERED_ZONE = "Filtrerad på grund av zon.",
   FILTERED_COMPLETE = "Filtrerad på grund av fullgjort",
@@ -107,11 +113,14 @@ QuestHelper_Translations.svSE =
   FILTERED_UNKNOWN = "Vet inte hur man klarar av.",
   
   HIDDEN_SHOW = "Visa.",
+  HIDDEN_SHOW_NO = "Ej visningsbar",
+  HIDDEN_EXCEPTION = "lägg till undantag",
   DISABLE_FILTER = "Inaktivera filter: %1",
   FILTER_DONE = "Avklarad",
   FILTER_ZONE = "Zon",
   FILTER_LEVEL = "Nivå",
   FILTER_BLOCKED = "Blockerad",
+  FILTER_WATCHED = "Bevakad",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Du har %h(ny information) på %h1, och %h(uppdaterad information) på %h2.",
@@ -148,6 +157,7 @@ QuestHelper_Translations.svSE =
   TRAVEL_ESTIMATE = "Beräknad restid:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Besök %h1 på väg till:",
+  FLIGHT_POINT = "Flyg plats",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -199,13 +209,25 @@ QuestHelper_Translations.svSE =
   TOOLTIP_LOOT = "Plocka för %h1.",
   
   -- Settings
-  SETTINGS_ARROWLINK_ON = nil,
-  SETTINGS_ARROWLINK_OFF = nil,
-  SETTINGS_ARROWLINK_ARROW = nil,
-  SETTINGS_ARROWLINK_CART = nil,
-  SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_ARROWLINK_ON = "Kommer använda %h1 för att visa objektiv",
+  SETTINGS_ARROWLINK_OFF = "Kommer inte använda %h1 för att visa objektiv",
+  SETTINGS_ARROWLINK_ARROW = "QuestHelper Pil",
+  SETTINGS_ARROWLINK_CART = "Cartograhp flyg checkpoint",
+  SETTINGS_ARROWLINK_TOMTOM = "TomTom Go",
+  SETTINGS_PRECACHE_ON = "Precache minne har blivit %h aktiverad",
+  SETTINGS_PRECACHE_OFF = "Precache minne har blivit %h avstängd",
+  
+  SETTINGS_MENU_ENABLE = "De aktivera",
+  SETTINGS_MENU_DISABLE = "Aktivera",
+  SETTINGS_MENU_CARTWP = "%1 Cartographer pil",
+  SETTINGS_MENU_TOMTOM = "%1 TomTom Arrow",
+  
+  SETTINGS_MENU_ARROW_LOCK = "Lås",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Pil storlek",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Text storlek",
+  SETTINGS_MENU_ARROW_RESET = "Återställ",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = nil,
+  DISTANCE = "avstånd",
  }
 

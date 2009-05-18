@@ -19,7 +19,7 @@
 # Swatter really likes intercepting all error messages and not letting them through. Since I want to intercept my own messages, I go after Swatter so I can insert my hook earlier on.
 
 # That is a pile of saved variables. Let me try to explain them better.
-# 
+#
 # Old data gathering:
 # QuestHelper_SaveDate: Date of last shutdown.
 # QuestHelper_Collector_Version: Originally part of the new system, now just hanging around until I believe it vanishing won't cause problems.
@@ -61,6 +61,7 @@ lang\elel.lua
 lang\enus.lua
 lang\eses.lua
 lang\esmx.lua
+lang\fifi.lua
 lang\frfr.lua
 lang\huhu.lua
 lang\itit.lua

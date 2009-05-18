@@ -6,9 +6,9 @@ QuestHelper_Translations.ruRU =
   LOCALE_NAME = "Русский",
   
   -- Messages used when starting.
-  LOCALE_ERROR = "Локализация ваших сохраненных данных не соответствует локализации вашего клиента WoW.",
+  LOCALE_ERROR = "Локализация ваших сохраненных данных не соответствует локализации вашего клиента WoW. Чтобы далее использовать QuestHelper, вам необходимо изменить локализацию обратно или удалить данные, набрав %h(/qh purge). ",
   ZONE_LAYOUT_ERROR = "Боюсь, при загрузке вы потеряете все свои сохраненные данные Пожалуйста, дождитесь выхода патча для обновления информации по новым зонам.",
-  DOWNGRADE_ERROR = "Ваши сохраненные данные не подходят для этой версии QuestHelper. Используйте новую версию или удалите старые данные.",
+  DOWNGRADE_ERROR = "Ваши сохраненные данные не совместимы с этой версией QuestHelper. Используйте новую версию или удалите старые данные.",
   HOME_NOT_KNOWN = "Местоположение вашего дома неизвестно. Когда будет возможность, пожалуйста, поговорите с хозяином таверны и обновите информацию о вашем доме.",
   PRIVATE_SERVER = "QuestHelper не поддерживает частные серверы.",
   PLEASE_RESTART = "При запуске QuestHelper произошла ошибка. Пожалуйста, выйдите из игры полностью и попробуйте еще раз.",
@@ -27,6 +27,7 @@ QuestHelper_Translations.ruRU =
   
   -- Special tracker text
   QH_LOADING = "QuestHelper загружается (%1%%)...",
+  QH_FLIGHTPATH = "Перерасчет путей полета (%1%)...",
   QUESTS_HIDDEN_1 = "Задания могут быть скрыты",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" для просмотра списка)",
   
@@ -47,19 +48,23 @@ QuestHelper_Translations.ruRU =
   OBJECTIVE_SLAY = "Убейте %h1.",
   OBJECTIVE_LOOT = "Соберите %h1.",
   
+  OBJECTIVE_MONSTER_UNKNOWN = "неизвестный монстр",
+  OBJECTIVE_ITEM_UNKNOWN = "неизвестный предмет",
+  
   ZONE_BORDER = "граница %1/%2",
   
   -- Stuff used in objective menus.
   PRIORITY = "Приоритет",
-  PRIORITY1 = "Самый высокий",
+  PRIORITY1 = "Высочайший",
   PRIORITY2 = "Высокий",
   PRIORITY3 = "Обычный",
   PRIORITY4 = "Низкий",
   PRIORITY5 = "Самый низкий",
-  SHARING = "Разделение задания",
-  SHARING_ENABLE = "Разделять задание",
-  SHARING_DISABLE = "Не разделять задание",
+  SHARING = "Делиться заданием",
+  SHARING_ENABLE = "Поделиться заданием",
+  SHARING_DISABLE = "Не делиться заданием",
   IGNORE = "Игнорировать",
+  IGNORE_LOCATION = "Игнорировать данную локацию",
   
   IGNORED_PRIORITY_TITLE = "Выбранный приоритет будет проигнорирован.",
   IGNORED_PRIORITY_FIX = "Применить такой же приоритет к связанным заданиям.",
@@ -69,9 +74,9 @@ QuestHelper_Translations.ruRU =
   RESULTS_TITLE = "Результаты поиска",
   NO_RESULTS = "Ничего нет!",
   CREATED_OBJ = "Создано: %1",
-  REMOVED_OBJ = "Утрачено: %1",
+  REMOVED_OBJ = "Удалено: %1",
   USER_OBJ = "Цель пользователя: %h1",
-  UNKNOWN_OBJ = "Я не знаю, куда надо идти для этой цели.",
+  UNKNOWN_OBJ = "Я не знаю, куда вам надо идти для этого задания.",
   INACCESSIBLE_OBJ = "QuestHelper не смог найти подходящей области для %h1. В список заданий добавлено недоступное для указания место. Если вы обнаружите подходящее место для выполнения этого задания, пришлите нам данные об этом! (%h(/qh submit))",
   
   SEARCHING_STATE = "Идет поиск: %1",
@@ -88,7 +93,7 @@ QuestHelper_Translations.ruRU =
   PEER_ITEM = "Помогите %1 добыть %h2.",
   PEER_OTHER = "Помогите %1 с %h2.",
   
-  PEER_NEWER = "%h1 использует протокол новой версии. Наверное, время обновиться.",
+  PEER_NEWER = "%h1 использует протокол новой версии. Наверное, пришло время обновиться.",
   PEER_OLDER = "%h1 использует протокол старой версии.",
   
   UNKNOWN_MESSAGE = "Неизвестный тип сообщения '%1' от '%2'.",
@@ -98,20 +103,24 @@ QuestHelper_Translations.ruRU =
   HIDDEN_NONE = "У вас нет скрытых целей.",
   DEPENDS_ON_SINGLE = "Зависит от '%1'.",
   DEPENDS_ON_COUNT = "Зависит от %1 скрытых целей.",
+  DEPENDS_ON = "Зависит от отфильтрованных целей.",
   FILTERED_LEVEL = "Скрыто в соответствии с фильтром уровня.",
   FILTERED_ZONE = "Скрыто в соответствии с фильтром зоны.",
   FILTERED_COMPLETE = "Скрыто по причине завершенности задания.",
   FILTERED_BLOCKED = "Скрыто из-за незавершенной предыдущей цели задания.",
-  FILTERED_UNWATCHED = "Скрыто, так как не помечено отслеживающимся в журнале заданий.",
+  FILTERED_UNWATCHED = "Скрыто, так как не отслеживается в журнале заданий.",
   FILTERED_USER = "Вы запросили скрыть эту цель.",
   FILTERED_UNKNOWN = "Неизвестно как завершить задание.",
   
   HIDDEN_SHOW = "Показать.",
+  HIDDEN_SHOW_NO = "Не показываемые",
+  HIDDEN_EXCEPTION = "Добавить исключение",
   DISABLE_FILTER = "Отключить фильтр: %1",
   FILTER_DONE = "готово",
   FILTER_ZONE = "зона",
   FILTER_LEVEL = "уровень",
   FILTER_BLOCKED = "заблокировано",
+  FILTER_WATCHED = "наблюдаемый",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "У вас есть %h(новая информация) о %h1 и %h(обновленная информация) о %h2.",
@@ -145,9 +154,10 @@ QuestHelper_Translations.ruRU =
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1 прогресс:",
-  TRAVEL_ESTIMATE = "Время прибытия:",
+  TRAVEL_ESTIMATE = "Приблизительное время прибытия:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Пройдите через %h1 по дороге к:",
+  FLIGHT_POINT = "%1 точка полета",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -187,7 +197,7 @@ QuestHelper_Translations.ruRU =
   MENU_PARTY_SOLO = "%1 игнорирование группы",
   MENU_HELP = "Помощь",
   MENU_HELP_SLASH = "Клавиатурные команды",
-  MENU_HELP_CHANGES = "История изменений",
+  MENU_HELP_CHANGES = "Журнал изменений",
   MENU_HELP_SUBMIT = "Отправка данных",
   
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
@@ -195,17 +205,29 @@ QuestHelper_Translations.ruRU =
   TOOLTIP_WATCHED = "Отслеживается QuestHelper'ом",
   TOOLTIP_QUEST = "Для задания %h1.",
   TOOLTIP_PURCHASE = "Купите %h1.",
-  TOOLTIP_SLAY = "Убейте, чтобы получить %h1.",
-  TOOLTIP_LOOT = "Соберите добычу, чтобы получить %h1.",
+  TOOLTIP_SLAY = "Убейте для %h1.",
+  TOOLTIP_LOOT = "Соберите для %h1.",
   
   -- Settings
-  SETTINGS_ARROWLINK_ON = nil,
-  SETTINGS_ARROWLINK_OFF = nil,
-  SETTINGS_ARROWLINK_ARROW = nil,
-  SETTINGS_ARROWLINK_CART = nil,
-  SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_ARROWLINK_ON = "Будет использоваться %h1, чтобы показать цели.",
+  SETTINGS_ARROWLINK_OFF = "Не будет использоваться %h1, чтобы показать цели.",
+  SETTINGS_ARROWLINK_ARROW = "Указатель QuestHelperа",
+  SETTINGS_ARROWLINK_CART = "Точки маршрута Cartographerа",
+  SETTINGS_ARROWLINK_TOMTOM = "TomTom",
+  SETTINGS_PRECACHE_ON = "Предварительное кэширование было %h(включено).",
+  SETTINGS_PRECACHE_OFF = "Предварительное кэширование было %h(выключено).",
+  
+  SETTINGS_MENU_ENABLE = "Включить",
+  SETTINGS_MENU_DISABLE = "Отключить",
+  SETTINGS_MENU_CARTWP = "%1 Указатель Cartographerа",
+  SETTINGS_MENU_TOMTOM = "%1 Указатель TomTomа",
+  
+  SETTINGS_MENU_ARROW_LOCK = "Закрепить",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Размер указателя",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Размер текста",
+  SETTINGS_MENU_ARROW_RESET = "Сбросить",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = nil,
+  DISTANCE = "%h1 метров",
  }
 

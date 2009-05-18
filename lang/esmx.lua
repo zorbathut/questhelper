@@ -9,7 +9,7 @@ QuestHelper_Translations.esMX =
   LOCALE_ERROR = "El idioma de sus datos guardados no coincide con el idioma del cliente Wow. Para utilizar QuestHelper tendrá que cambiar la configuración regional de vuelta, o borre los datos tecleando %h(/qh purge).",
   ZONE_LAYOUT_ERROR = "Me niego a ejecutarme, por temor a dañar sus datos guardados. Por favor, espere a un nuevo parche que será capaz de manejar el nuevo diseño de zona.",
   DOWNGRADE_ERROR = "Sus datos guardados no son compatibles con esta versión del QuestHelper. Utilice una nueva vesión, o borre sus variables guardadas.",
-  HOME_NOT_KNOWN = "Se desconoce la posición de su hogar. Cuando pueda, por favos, hable con su posadero para restaurarla.",
+  HOME_NOT_KNOWN = "Se desconoce la posición de su hogar. Cuando pueda, por favor, hable con su posadero para restaurarla.",
   PRIVATE_SERVER = "QuestHelper no funciona en Servidores Privados",
   PLEASE_RESTART = "Hubo un error iniciando QuestHelper. Por favor salga completamente del World of Warcraft e intente nuevamente.",
   NOT_UNZIPPED_CORRECTLY = "Quest Helper se ha instalado incorrectamente. Recomendamos usar o el Curse Client o Zip.7 para instalarlo.  Asegurese que los subdirectorios son extraidos",
@@ -27,8 +27,9 @@ QuestHelper_Translations.esMX =
   
   -- Special tracker text
   QH_LOADING = "Cargando Quest Helper (%1%%)...",
-  QUESTS_HIDDEN_1 = " ",
-  QUESTS_HIDDEN_2 = nil,
+  QH_FLIGHTPATH = "Cargando Rutas de Vuelo (%1%)...",
+  QUESTS_HIDDEN_1 = " Ques que pueden estar ocultas",
+  QUESTS_HIDDEN_2 = "(\"/qh hidden\" para listar)",
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Idiomas disponibles:",
@@ -47,6 +48,9 @@ QuestHelper_Translations.esMX =
   OBJECTIVE_SLAY = "Matar %h1.",
   OBJECTIVE_LOOT = "Recoger de %h1.",
   
+  OBJECTIVE_MONSTER_UNKNOWN = "Monstruo Desconocido.",
+  OBJECTIVE_ITEM_UNKNOWN = "Item Desconocido.",
+  
   ZONE_BORDER = "la frontera %1/%2",
   
   -- Stuff used in objective menus.
@@ -60,6 +64,7 @@ QuestHelper_Translations.esMX =
   SHARING_ENABLE = "Compartir",
   SHARING_DISABLE = "No Compartir",
   IGNORE = "Ignorar",
+  IGNORE_LOCATION = "Ignorar este Objeto.",
   
   IGNORED_PRIORITY_TITLE = "La prioridad seleccionada podria ser ignorada.",
   IGNORED_PRIORITY_FIX = "Aplique la misma prioridad a los objetivos bloqueados. ",
@@ -98,20 +103,24 @@ QuestHelper_Translations.esMX =
   HIDDEN_NONE = "No tiene objetivos ocultos.",
   DEPENDS_ON_SINGLE = "Depende de '%1'.",
   DEPENDS_ON_COUNT = "Depende de los objetivos ocultos %1.",
+  DEPENDS_ON = "Depende de %1.",
   FILTERED_LEVEL = "Filtrado por Nivel.",
   FILTERED_ZONE = "Filtrado por zona.",
   FILTERED_COMPLETE = "Filtrado debido a completados.",
   FILTERED_BLOCKED = "Filtrado debido al objetivo anterior incompleto.",
-  FILTERED_UNWATCHED = nil,
+  FILTERED_UNWATCHED = "Filtrado debido a que no se está dando seguimiento en el registro de misiones",
   FILTERED_USER = "Pidió que este objetivo se ocultara.",
   FILTERED_UNKNOWN = "No se cómo completarlo.",
   
   HIDDEN_SHOW = "Mostrar.",
+  HIDDEN_SHOW_NO = "No se puede Mostrar.",
+  HIDDEN_EXCEPTION = "Agregar Execpción.",
   DISABLE_FILTER = "Desactivar el filtro: %1",
   FILTER_DONE = "Hecho",
   FILTER_ZONE = "Zona",
   FILTER_LEVEL = "Nivel",
   FILTER_BLOCKED = "Bloqueado",
+  FILTER_WATCHED = "Observado.",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Tiene %h(nueva información) sobre %h1, y %h(información actualicada) sobre %h2.",
@@ -148,6 +157,7 @@ QuestHelper_Translations.esMX =
   TRAVEL_ESTIMATE = "Tiempo estimado de viaje:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Visita %h1 de camino a:",
+  FLIGHT_POINT = "Ruta de vuelo a %1.",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -199,13 +209,25 @@ QuestHelper_Translations.esMX =
   TOOLTIP_LOOT = "Botín para %h1.",
   
   -- Settings
-  SETTINGS_ARROWLINK_ON = nil,
-  SETTINGS_ARROWLINK_OFF = nil,
-  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_ON = "Se usará %h1 para mostrar objetivos",
+  SETTINGS_ARROWLINK_OFF = "No se usará %h1 para mostrar objetivos.",
+  SETTINGS_ARROWLINK_ARROW = "QuestHelper flecha",
   SETTINGS_ARROWLINK_CART = nil,
-  SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_ARROWLINK_TOMTOM = "TomTom",
+  SETTINGS_PRECACHE_ON = nil,
+  SETTINGS_PRECACHE_OFF = nil,
+  
+  SETTINGS_MENU_ENABLE = "Activar",
+  SETTINGS_MENU_DISABLE = "Desactivar",
+  SETTINGS_MENU_CARTWP = nil,
+  SETTINGS_MENU_TOMTOM = nil,
+  
+  SETTINGS_MENU_ARROW_LOCK = "Bloquear",
+  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
+  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
+  SETTINGS_MENU_ARROW_RESET = "Reiniciar",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = nil,
+  DISTANCE = "&h1 yardas",
  }
 

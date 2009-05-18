@@ -27,6 +27,7 @@ QuestHelper_Translations.esES =
   
   -- Special tracker text
   QH_LOADING = "Cargando QuestHelper (%1%%)...",
+  QH_FLIGHTPATH = nil,
   QUESTS_HIDDEN_1 = "Puede haber misiones ocultas",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" para mostrarlas)",
   
@@ -47,6 +48,9 @@ QuestHelper_Translations.esES =
   OBJECTIVE_SLAY = "Matar %h1.",
   OBJECTIVE_LOOT = "Recoger de %h1.",
   
+  OBJECTIVE_MONSTER_UNKNOWN = "monstruo desconocido",
+  OBJECTIVE_ITEM_UNKNOWN = "objeto desconocido",
+  
   ZONE_BORDER = "la frontera %1/%2",
   
   -- Stuff used in objective menus.
@@ -60,6 +64,7 @@ QuestHelper_Translations.esES =
   SHARING_ENABLE = "Compartir",
   SHARING_DISABLE = "No Compartir",
   IGNORE = "Ignorar",
+  IGNORE_LOCATION = "Ignore esta posicion",
   
   IGNORED_PRIORITY_TITLE = "La prioridad seleccionada podria ser ignorada.",
   IGNORED_PRIORITY_FIX = "Aplique la misma prioridad a los objetivos de bloqueo.",
@@ -98,6 +103,7 @@ QuestHelper_Translations.esES =
   HIDDEN_NONE = "No tiene objetivos ocultos",
   DEPENDS_ON_SINGLE = "Depende de '%1'.",
   DEPENDS_ON_COUNT = "Depende de los objetivos ocultos %1.",
+  DEPENDS_ON = "Depende de los objetivos filtrados",
   FILTERED_LEVEL = "Filtrado debido al nivel.",
   FILTERED_ZONE = "Filtrado debido a la zona.",
   FILTERED_COMPLETE = "Filtrado debido a completados.",
@@ -107,11 +113,14 @@ QuestHelper_Translations.esES =
   FILTERED_UNKNOWN = "Desconozco cómo llevarlo a cabo.",
   
   HIDDEN_SHOW = "Mostrar.",
+  HIDDEN_SHOW_NO = "No mostrable",
+  HIDDEN_EXCEPTION = "Añade excepcion",
   DISABLE_FILTER = "Desactivar el filtro: %1",
   FILTER_DONE = "hecho",
   FILTER_ZONE = "zona",
   FILTER_LEVEL = "nivel",
   FILTER_BLOCKED = "bloqueado",
+  FILTER_WATCHED = "mostrado",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Tiene %h(nueva información) sobre %h1, y %h(información actualizada) sobre %h2.",
@@ -148,6 +157,7 @@ QuestHelper_Translations.esES =
   TRAVEL_ESTIMATE = "Tiempo estimado de viaje:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Visita %h1 de camino a:",
+  FLIGHT_POINT = "%1 punto de vuelo",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -204,6 +214,18 @@ QuestHelper_Translations.esES =
   SETTINGS_ARROWLINK_ARROW = "Flecha de QuestHelper",
   SETTINGS_ARROWLINK_CART = "Puntos de ruta de Cartographer",
   SETTINGS_ARROWLINK_TOMTOM = "TomTom",
+  SETTINGS_PRECACHE_ON = "Precarga ha sido %h(activada).",
+  SETTINGS_PRECACHE_OFF = "Precarga ha sido %h(desactivada).",
+  
+  SETTINGS_MENU_ENABLE = "Permita",
+  SETTINGS_MENU_DISABLE = "Neutralización",
+  SETTINGS_MENU_CARTWP = "Flecha de %1 cartógrafos",
+  SETTINGS_MENU_TOMTOM = "Flecha de %1 TomTom",
+  
+  SETTINGS_MENU_ARROW_LOCK = "Cerradura",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Escala de la flecha",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Escala del texto",
+  SETTINGS_MENU_ARROW_RESET = "Reajuste",
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE = "%h1 Metros",

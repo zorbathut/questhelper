@@ -1,6 +1,7 @@
 build-cache.lua
 wowdata.7z
 wowdata.lua
+botkey
 
 passwords.py
 *.pyc

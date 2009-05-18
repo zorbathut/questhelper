@@ -27,6 +27,7 @@ QuestHelper_Translations.ptBR =
   
   -- Special tracker text
   QH_LOADING = "QuestHelper está carregando (%1%%)...",
+  QH_FLIGHTPATH = "Recalculando pontos de vouo",
   QUESTS_HIDDEN_1 = "Quests podem estar escondida.",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" para listar(quests escondidas)",
   
@@ -47,6 +48,9 @@ QuestHelper_Translations.ptBR =
   OBJECTIVE_SLAY = "Mate %h1.",
   OBJECTIVE_LOOT = "Loot %1.",
   
+  OBJECTIVE_MONSTER_UNKNOWN = "Monstro Desconhecido",
+  OBJECTIVE_ITEM_UNKNOWN = "Item Desconhecido",
+  
   ZONE_BORDER = "Borda %1/%2",
   
   -- Stuff used in objective menus.
@@ -60,6 +64,7 @@ QuestHelper_Translations.ptBR =
   SHARING_ENABLE = "Compartilhar",
   SHARING_DISABLE = "Não compartilhar",
   IGNORE = "Ignore",
+  IGNORE_LOCATION = "Ignorar está  localização",
   
   IGNORED_PRIORITY_TITLE = "A prioridade selecionada será ignorada.",
   IGNORED_PRIORITY_FIX = "Aplique a mesma prioridade aos objetivos bloqueados.",
@@ -98,6 +103,7 @@ QuestHelper_Translations.ptBR =
   HIDDEN_NONE = "Não existem objetivos escondidos.",
   DEPENDS_ON_SINGLE = "Depende de '%1'.",
   DEPENDS_ON_COUNT = "Depende de %1 objetivos ocultos.",
+  DEPENDS_ON = nil,
   FILTERED_LEVEL = "Filtrado por causa do nível.",
   FILTERED_ZONE = "Filtrado por causa da zona.",
   FILTERED_COMPLETE = "Filtrado porque está completo.",
@@ -107,11 +113,14 @@ QuestHelper_Translations.ptBR =
   FILTERED_UNKNOWN = "Não sei como completar.",
   
   HIDDEN_SHOW = "Exibir.",
+  HIDDEN_SHOW_NO = nil,
+  HIDDEN_EXCEPTION = nil,
   DISABLE_FILTER = "Filtro desactivado: %1",
   FILTER_DONE = "concluído",
   FILTER_ZONE = "zona",
   FILTER_LEVEL = "level",
   FILTER_BLOCKED = "bloqueado",
+  FILTER_WATCHED = "vigiado",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Você tem %h(novas informações) em %h1, e %h(informações atualizadas) em %h2.",
@@ -148,6 +157,7 @@ QuestHelper_Translations.ptBR =
   TRAVEL_ESTIMATE = "Tempo de vôo estimado:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Visite %h1 para a rota até:",
+  FLIGHT_POINT = "Ponto de vouo",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -201,9 +211,21 @@ QuestHelper_Translations.ptBR =
   -- Settings
   SETTINGS_ARROWLINK_ON = nil,
   SETTINGS_ARROWLINK_OFF = nil,
-  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_ARROW = "Seta QuestHelper",
   SETTINGS_ARROWLINK_CART = nil,
   SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_PRECACHE_ON = nil,
+  SETTINGS_PRECACHE_OFF = nil,
+  
+  SETTINGS_MENU_ENABLE = "Abilitado",
+  SETTINGS_MENU_DISABLE = "Desabilidado",
+  SETTINGS_MENU_CARTWP = nil,
+  SETTINGS_MENU_TOMTOM = nil,
+  
+  SETTINGS_MENU_ARROW_LOCK = nil,
+  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
+  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
+  SETTINGS_MENU_ARROW_RESET = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE = nil,
