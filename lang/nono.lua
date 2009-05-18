@@ -228,6 +228,7 @@ QuestHelper_Translations.noNO =
   SETTINGS_MENU_ARROW_RESET = "reset",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = "%h(%m1) meter",
+  DISTANCE_YARDS = nil,
+  DISTANCE_METRES = "%h1 meter"
  }
 

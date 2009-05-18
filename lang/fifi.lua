@@ -228,6 +228,7 @@ QuestHelper_Translations.fiFI =
   SETTINGS_MENU_ARROW_RESET = "nollaa",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = "jaardia",
+  DISTANCE_YARDS = "%h1 jaardia",
+  DISTANCE_METRES = nil
  }
 

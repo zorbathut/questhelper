@@ -228,6 +228,6 @@ QuestHelper_Translations.daDK =
   SETTINGS_MENU_ARROW_RESET = nil,
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = nil,
+  DISTANCE_YARDS = nil,
  }
 

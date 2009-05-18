@@ -43,6 +43,7 @@ QuestHelper_DefaultPref =
   arrow_locked = false,
   arrow_arrowsize = 1,
   arrow_textsize = 1,
+  metric = (QuestHelper_Locale ~= "enUS" and QuestHelper_Locale ~= "esMX"),
   flight_time = true,
   locale = GetLocale(), -- This variable is used for display purposes, and has nothing to do with the collected data.
   perf_scale = 1,       -- How much background processing can the current machine handle?  Higher means more load, lower means better performance.

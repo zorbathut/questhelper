@@ -228,6 +228,7 @@ QuestHelper_Translations.zhTW =
   SETTINGS_MENU_ARROW_RESET = "重置",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = "%h1 碼距離",
+  DISTANCE_YARDS = "%h1 碼距離",
+  DISTANCE_METRES = nil
  }
 
