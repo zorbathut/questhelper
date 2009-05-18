@@ -26,7 +26,7 @@ QuestHelper_Translations.deDE =
   UPDATING_ROUTE = "Strecke wird neu berechnet.",
   
   -- Special tracker text
-  QH_LOADING = "QuestHelper wird geladen... (%1%%)",
+  QH_LOADING = "QuestHelper wird geladen... (%1%)",
   QH_FLIGHTPATH = "Flugstrecken werden neu berechnet... (%1%)",
   QUESTS_HIDDEN_1 = "Quests sind vielleicht ausgeblendet.",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" zum Auflisten)",

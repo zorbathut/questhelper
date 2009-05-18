@@ -158,7 +158,7 @@ QuestHelper_Translations.frFR =
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Visiter %h1 sur la route de :",
   FLIGHT_POINT = "%1 point de vol",
-  
+
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
   QH_BUTTON_TOOLTIP1 = "Clic-Gauche : %1 information de route.",
@@ -230,3 +230,4 @@ QuestHelper_Translations.frFR =
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE = "%h1 mètres",
  }
+

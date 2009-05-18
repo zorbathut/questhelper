@@ -11,11 +11,11 @@ QuestHelper_Translations.zhTW =
   DOWNGRADE_ERROR = "您所儲存的舊設定資料，與本版本的QuestHelper並不相容。請您使用新版的QuestHelper，或是刪除WTF目錄下的QuestHelper紀錄檔。",
   HOME_NOT_KNOWN = "目前無法得知您爐石所設定的城鎮。當您有機會經過旅店的時候，請您與旅店老闆談話，並設置您的爐石位置。",
   PRIVATE_SERVER = "本插件不支援私服",
-  PLEASE_RESTART = "QuestHelper 啟始失敗無法載入, 請重開魔獸世界再試一下.",
+  PLEASE_RESTART = "QuestHelper 啟始失敗無法載入, 請完全退出魔獸世界再試試.",
   NOT_UNZIPPED_CORRECTLY = "Quest Helper未正確安裝，我們建議使用Curse客戶端或者7Zip解壓縮程式來安裝。請確定子目錄皆有解壓縮。",
   PLEASE_DONATE = "有關捐助給作者持續更新 QuestHelper 的方式, 請輸入 /qh donate 查看",
   HOW_TO_CONFIGURE = "輸入 /qh settings 可進入QuestHelper GUI設定頁面, 或輸入 /qh help 查看指令.",
-  TIME_TO_UPDATE = "可能有%h(新的QuestHelper版本) 可供使用，新的版本通常包含新功能、新任務資料庫以及臭蟲的修正。請更新您的版本！",
+  TIME_TO_UPDATE = "可能有%h(新的QuestHelper版本) 可供使用，新的版本通常包含新功能、新任務資料庫以及BUG的修正。請更新您的版本！",
   
   -- Route related text.
   ROUTES_CHANGED = "你角色的飛行路徑資訊已經更新了。",
@@ -27,7 +27,7 @@ QuestHelper_Translations.zhTW =
   
   -- Special tracker text
   QH_LOADING = "QestHelper正在載入（%1%%）...",
-  QH_FLIGHTPATH = nil,
+  QH_FLIGHTPATH = "重新計算飛行路線中 (%1%)...",
   QUESTS_HIDDEN_1 = "任務可能已隱藏",
   QUESTS_HIDDEN_2 = "(“/qh 隱藏“ 於列表中“）",
   
@@ -43,13 +43,13 @@ QuestHelper_Translations.zhTW =
   OBJECTIVE_REASON = "任務 %h3 需要 %1%h2", -- %1 is a verb, %2 is a noun (item or monster)
   OBJECTIVE_REASON_FALLBACK = "任務 %h2 需要 %h1",
   OBJECTIVE_REASON_TURNIN = "歸還任務 %h1",
-  OBJECTIVE_PURCHASE = "從%h1購得",
+  OBJECTIVE_PURCHASE = "從 %h1 購得",
   OBJECTIVE_TALK = "與 %1 交談",
   OBJECTIVE_SLAY = "殺死 %h1",
   OBJECTIVE_LOOT = "拾取 %h1",
   
-  OBJECTIVE_MONSTER_UNKNOWN = nil,
-  OBJECTIVE_ITEM_UNKNOWN = nil,
+  OBJECTIVE_MONSTER_UNKNOWN = "未知的怪物",
+  OBJECTIVE_ITEM_UNKNOWN = "未知的物品",
   
   ZONE_BORDER = "%1/%2 ",
   
@@ -64,7 +64,7 @@ QuestHelper_Translations.zhTW =
   SHARING_ENABLE = "分享",
   SHARING_DISABLE = "不分享",
   IGNORE = "忽略",
-  IGNORE_LOCATION = nil,
+  IGNORE_LOCATION = "忽略這個地點",
   
   IGNORED_PRIORITY_TITLE = "您選擇的優先次序將被忽略",
   IGNORED_PRIORITY_FIX = "將同樣的優先次序設定，套用到被勾選的項目上",
@@ -103,7 +103,7 @@ QuestHelper_Translations.zhTW =
   HIDDEN_NONE = "你並未設定有任何隱藏的物件",
   DEPENDS_ON_SINGLE = "根據 '%1'",
   DEPENDS_ON_COUNT = "根據 %1 隱藏目標",
-  DEPENDS_ON = nil,
+  DEPENDS_ON = "依據已過濾的目標",
   FILTERED_LEVEL = "由等級過濾",
   FILTERED_ZONE = "由區域過濾",
   FILTERED_COMPLETE = "由完成度過濾",
@@ -113,14 +113,14 @@ QuestHelper_Translations.zhTW =
   FILTERED_UNKNOWN = "不知道如何完成任務",
   
   HIDDEN_SHOW = "顯示",
-  HIDDEN_SHOW_NO = nil,
-  HIDDEN_EXCEPTION = nil,
+  HIDDEN_SHOW_NO = "不顯示",
+  HIDDEN_EXCEPTION = "添加排除清單",
   DISABLE_FILTER = "關閉過濾： %1",
   FILTER_DONE = "完成",
   FILTER_ZONE = "地區",
   FILTER_LEVEL = "等級",
   FILTER_BLOCKED = "封鎖",
-  FILTER_WATCHED = nil,
+  FILTER_WATCHED = "已查閱",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "您有%h(新的)%h1資料，並且%h(更新了)%h2資料。",
@@ -157,7 +157,7 @@ QuestHelper_Translations.zhTW =
   TRAVEL_ESTIMATE = "預估飛行時間為：",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "探查 %h1 相鄰規劃路線至:",
-  FLIGHT_POINT = nil,
+  FLIGHT_POINT = "%1 飛行點",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -179,7 +179,7 @@ QuestHelper_Translations.zhTW =
   MENU_TRACKER_SCALE = "追蹤器的大小",
   MENU_TRACKER_RESET = "重置位置",
   MENU_FLIGHT_TIMER = "%1 飛行計時器",
-  MENU_ANT_TRAILS = "%1 螞蟻拖曳蹤跡",
+  MENU_ANT_TRAILS = "%1 建議路線",
   MENU_WAYPOINT_ARROW = "%1 路徑指南針",
   MENU_MAP_BUTTON = "%1 地圖按鈕",
   MENU_ZONE_FILTER = "%1 任務區域過濾",
@@ -209,25 +209,25 @@ QuestHelper_Translations.zhTW =
   TOOLTIP_LOOT = "收集為了 %h1.",
   
   -- Settings
-  SETTINGS_ARROWLINK_ON = nil,
-  SETTINGS_ARROWLINK_OFF = nil,
-  SETTINGS_ARROWLINK_ARROW = nil,
-  SETTINGS_ARROWLINK_CART = nil,
-  SETTINGS_ARROWLINK_TOMTOM = nil,
-  SETTINGS_PRECACHE_ON = nil,
-  SETTINGS_PRECACHE_OFF = nil,
+  SETTINGS_ARROWLINK_ON = "將使用 %h1 顯示標的.",
+  SETTINGS_ARROWLINK_OFF = "將不使用 %h1 顯示標的.",
+  SETTINGS_ARROWLINK_ARROW = "QuestHelper 箭頭指標",
+  SETTINGS_ARROWLINK_CART = "採用 Cartographer 導航",
+  SETTINGS_ARROWLINK_TOMTOM = "採用 TomTom 導航",
+  SETTINGS_PRECACHE_ON = "預載功能(Precache)已 %h(啟用). ",
+  SETTINGS_PRECACHE_OFF = "預載功能(Precache)已 %h(停用). ",
   
-  SETTINGS_MENU_ENABLE = nil,
-  SETTINGS_MENU_DISABLE = nil,
-  SETTINGS_MENU_CARTWP = nil,
-  SETTINGS_MENU_TOMTOM = nil,
+  SETTINGS_MENU_ENABLE = "啟用",
+  SETTINGS_MENU_DISABLE = "停用",
+  SETTINGS_MENU_CARTWP = "%1 Cartographer 導航指標",
+  SETTINGS_MENU_TOMTOM = "%1 TomTom 導航指標",
   
-  SETTINGS_MENU_ARROW_LOCK = nil,
-  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
-  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
-  SETTINGS_MENU_ARROW_RESET = nil,
+  SETTINGS_MENU_ARROW_LOCK = "鎖定",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "箭頭指標大小",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "字體大小",
+  SETTINGS_MENU_ARROW_RESET = "重置",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = nil,
+  DISTANCE = "%h1 碼距離",
  }
 
