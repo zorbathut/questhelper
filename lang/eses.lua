@@ -228,6 +228,6 @@ QuestHelper_Translations.esES =
   SETTINGS_MENU_ARROW_RESET = "Reajuste",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = "%h1 Metros",
+  DISTANCE = "%h(%m1) Metros",
  }
 

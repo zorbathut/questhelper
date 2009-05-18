@@ -228,6 +228,6 @@ QuestHelper_Translations.deDE =
   SETTINGS_MENU_ARROW_RESET = "Zurücksetzen",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = "%h1 Meter",
+  DISTANCE = "%h(%m1) Meter",
  }
 

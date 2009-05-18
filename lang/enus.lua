@@ -313,6 +313,9 @@ QuestHelper_TranslationFunctions.enUS =
   -- Quote: "%q1" will insert argument 1 as quoted text.
   ["q"] = function(data) return string.format("“%s”", data) end,
   
+  -- Meters: For locales that prefer metric, this displays distance in yards as an integer number of meters.
+  ["m"] = function(data) return string.format("%d", data*0.9144+0.5) end,
+  
   -- Lua quote: "%Q1" will insert argument 1 as a quoted lua string.
   ["Q"] = function(data) return string.format("%q", data) end
  }
