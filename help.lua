@@ -66,6 +66,16 @@ function QuestHelper:SetLocale(loc)
   end
 end
 
+function QuestHelper:ToggleMetric()
+  QuestHelper_Pref.metric = not QuestHelper_Pref.metric
+  
+  if QuestHelper_Pref.metric then
+    self:TextOut("Distances are now in metres.")
+  else
+    self:TextOut("Distances are now in yards.")
+  end
+end
+
 function QuestHelper:ToggleHide()
   QuestHelper_Pref.hide = not QuestHelper_Pref.hide
   
@@ -660,7 +670,11 @@ commands =
      "Toggles Questhelper's built-in directional arrow.",
       {{"/qh arrow reset", "Reset location to the center of the screen."}},
       QuestHelper.ToggleArrow, QuestHelper},
-      
+    
+    {"METRIC",
+     "Toggles distance units between metres and yards.",
+     {}, QuestHelper.ToggleMetric, QuestHelper},
+    
     {"CARTWP",
      "Toggles displaying the current objective using Cartographer Waypoints (must be installed separately).",
       {}, QuestHelper.ToggleCartWP, QuestHelper},
