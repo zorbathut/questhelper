@@ -190,8 +190,6 @@ local function UpdateTrigger()
   update = true
 end
 
-local active = {}
-
 -- It's possible that things end up garbage-collected and we end up with different tables than we expect. This is something that the entire system is kind of prone to. The solution's pretty easy - we just have to store them ourselves while we're using them.
 local active_db = {}
 
@@ -299,6 +297,54 @@ local dontknow  = {
   friendly_reason = QHText("UNKNOWN_OBJ"),
 }
 
+local InsertedItems = {}
+local in_pass = nil
+
+local function StartInsertionPass(id)
+  QuestHelper: Assert(not in_pass)
+  in_pass = id
+  for k, v in pairs(InsertedItems) do
+    v[id] = nil
+  end
+end
+local function RefreshItem(id, item)
+  QuestHelper: Assert(in_pass == id)
+  local added = false
+  if not InsertedItems[item] then
+    QH_Route_ClusterAdd(item)
+    added = true
+    InsertedItems[item] = {}
+    if item.tooltip then QH_Tooltip_Add(item.tooltip) end
+  end
+  InsertedItems[item][id] = true
+  
+  return added
+end
+local function EndInsertionPass(id)
+  QuestHelper: Assert(in_pass == id)
+  local rem = QuestHelper:CreateTable("ip rem")
+  for k, v in pairs(InsertedItems) do
+    local has = false
+    for _, _ in pairs(v) do
+      has = true
+      break
+    end
+    if not has then
+      QH_Tracker_Unpin(k[1])
+      if k.tooltip then QH_Tooltip_Remove(k.tooltip) end
+      QH_Route_ClusterRemove(k)
+      rem[k] = true
+    end
+  end
+  
+  for k, _ in pairs(rem) do
+    InsertedItems[k] = nil
+  end
+  QuestHelper:ReleaseTable(rem)
+  
+  in_pass = nil
+end
+
 -- Here's the core update function
 function QH_UpdateQuests(force)
   if not DB_Ready() then return end
@@ -306,10 +352,11 @@ function QH_UpdateQuests(force)
   if update or force then  -- Sometimes (usually) we don't actually update
     local index = 1
     
-    local nactive = {}
     quest_list_used = {}
     
     local unknown = {}
+    
+    StartInsertionPass("local")
     
     -- This begins the main update loop that loops through all of the quests
     while true do
@@ -325,115 +372,115 @@ function QH_UpdateQuests(force)
           local lbcount = GetNumQuestLeaderBoards(index)
           local db = GetQuestMetaobjective(id, lbcount) -- This generates the above-mentioned metaobjective, including doing the database lookup.
           
-          if db then  -- If we didn't get a database lookup, then we don't have a metaobjective either. Urgh. abort abort abort
+          QuestHelper: Assert(db)
           
-            -- The section in here, in other words, is: we have a metaobjective (which may be a new one, or may not be), and we're trying to attach things to our routing engine. Now is where the real work begins! (six conditionals deep)
-            local lindex = index
-            db.desc = title
-            db.tracker_desc = MakeQuestTitle(title, level)
-            db.tracker_clicked = function () Clicky(lindex) end
+          local watched = IsQuestWatched(index)
+          
+          -- The section in here, in other words, is: we have a metaobjective (which may be a new one, or may not be), and we're trying to attach things to our routing engine. Now is where the real work begins! (many conditionals deep)
+          local lindex = index
+          db.desc = title
+          db.tracker_desc = MakeQuestTitle(title, level)
+          db.tracker_clicked = function () Clicky(lindex) end
+          
+          db.type_quest.level = level
+          db.type_quest.done = (complete == 1)
+          db.type_quest.index = index
+          db.type_quest.variety = variety
+          db.type_quest.groupsize = groupsize
+          db.type_quest.title = title
+          db.type_quest.objectives = lbcount
+          QuestHelper: Assert(db.type_quest.index) -- why is this failing?
+          
+          for i = 1, lbcount do
+            QuestHelper: Assert(db[i])
+            db[i].temp_desc, db[i].temp_typ, db[i].temp_done = GetQuestLogLeaderBoard(i, index)
+          end
+          
+          local turnin
+          local turnin_new
+          
+          -- This is our "quest turnin" objective, which is currently being handled separately for no particularly good reason.
+          if db.finish and #db.finish > 0 then
+            for _, v in ipairs(db.finish) do
+              v.map_highlight = (complete == 1)
+            end
             
-            local watched = IsQuestWatched(index)
-            
-            db.type_quest.level = level
-            db.type_quest.done = (complete == 1)
-            db.type_quest.index = index
-            db.type_quest.variety = variety
-            db.type_quest.groupsize = groupsize
-            db.type_quest.title = title
-            db.type_quest.objectives = lbcount
-            QuestHelper: Assert(db.type_quest.index) -- why is this failing?
-            
-            local turnin
-            local turnin_new
-            
-            -- This is our "quest turnin" objective, which is currently being handled separately for no particularly good reason.
-            if db.finish and #db.finish > 0 then
-              for _, v in ipairs(db.finish) do
-                v.map_highlight = (complete == 1)
+            turnin = db.finish
+            if RefreshItem("local", turnin) then
+              turnin_new = true
+              for k, v in ipairs(turnin) do
+                v.tracker_clicked = function () Clicky(lindex) end
+                
+                v.map_desc = {QHFormat("OBJECTIVE_REASON_TURNIN", title)}
+              end
+            end
+            QH_Tracker_SetPin(db.finish[1], watched)
+            if db.finish[1].type_quest_unknown then table.insert(unknown, db.finish) end
+          end
+          
+          -- These are the individual criteria of the quest. Remember that each criteria can be represented by multiple routing objectives.
+          for i = 1, lbcount do
+            if db[i] then
+              local pt, pd, have, need = objective_parse(db[i].temp_typ, db[i].temp_desc, db[i].temp_done)
+              local dline
+              if pt == "item" or pt == "object" then
+                dline = QHFormat("OBJECTIVE_REASON", QHText("ACQUIRE_VERB"), pd, title)
+              elseif pt == "monster" then
+                dline = QHFormat("OBJECTIVE_REASON", QHText("SLAY_VERB"), pd, title)
+              else
+                dline = QHFormat("OBJECTIVE_REASON_FALLBACK", pd, title)
               end
               
-              turnin = db.finish
-              nactive[turnin] = true
-              if not active[turnin] then
-                turnin_new = true
-                for k, v in ipairs(turnin) do
-                  v.tracker_clicked = function () Clicky(lindex) end
-                  
-                  v.map_desc = {QHFormat("OBJECTIVE_REASON_TURNIN", title)}
-                end
-                QH_Route_ClusterAdd(db.finish)
+              if not db[i].progress then
+                db[i].progress = {}
               end
-              QH_Tracker_SetPin(db.finish[1], watched)
-              if db.finish[1].type_quest_unknown then table.insert(unknown, db.finish) end
-            end
-            
-            -- These are the individual criteria of the quest. Remember that each criteria can be represented by multiple routing objectives.
-            for i = 1, lbcount do
-              if db[i] then
-                local desc, typ, done = GetQuestLogLeaderBoard(i, index)
-                local pt, pd, have, need = objective_parse(typ, desc, done)
-                local dline
-                if pt == "item" or pt == "object" then
-                  dline = QHFormat("OBJECTIVE_REASON", QHText("ACQUIRE_VERB"), pd, title)
-                elseif pt == "monster" then
-                  dline = QHFormat("OBJECTIVE_REASON", QHText("SLAY_VERB"), pd, title)
+              
+              if type(have) == "number" and type(need) == "number" then
+                db[i].progress[UnitName("player")] = {have, need, have / need}
+              else
+                db[i].progress[UnitName("player")] = {have, need, 0}  -- it's only used for the coloring anyway
+              end
+              
+              db[i].desc = QHFormat("TOOLTIP_QUEST", title)
+              
+              for k, v in ipairs(db[i]) do
+                v.tracker_desc = MakeQuestObjectiveTitle(db[i].temp_desc, db[i].temp_typ, db[i].temp_done)
+                v.desc = db[i].temp_desc
+                v.tracker_clicked = db.tracker_clicked
+                
+                v.progress = db[i].progress
+                
+                if v.path_desc then
+                  v.map_desc = copy(v.path_desc)
+                  v.map_desc[1] = dline
                 else
-                  dline = QHFormat("OBJECTIVE_REASON_FALLBACK", pd, title)
-                end
-                
-                if not db[i].progress then
-                  db[i].progress = {}
-                end
-                
-                if type(have) == "number" and type(need) == "number" then
-                  db[i].progress[UnitName("player")] = {have, need, have / need}
-                else
-                  db[i].progress[UnitName("player")] = {have, need, 0}  -- it's only used for the coloring anyway
-                end
-                
-                db[i].desc = QHFormat("TOOLTIP_QUEST", title)
-                
-                for k, v in ipairs(db[i]) do
-                  v.tracker_desc = MakeQuestObjectiveTitle(desc, typ, done)
-                  v.desc = desc
-                  v.tracker_clicked = function () Clicky(lindex) end
-                  
-                  v.progress = db[i].progress
-                  
-                  if v.path_desc then
-                    v.map_desc = copy(v.path_desc)
-                    v.map_desc[1] = dline
-                  else
-                    v.map_desc = {dline}
-                  end
-                end
-                
-                -- This is the snatch of code that actually adds it to routing.
-                if not done and #db[i] > 0 then
-                  nactive[db[i]] = true
-                  if not active[db[i]] then
-                    QH_Route_ClusterAdd(db[i])
-                    if db[i].tooltip then QH_Tooltip_Add(db[i].tooltip) end
-                    if turnin then QH_Route_ClusterRequires(turnin, db[i]) end
-                  end
-                  QH_Tracker_SetPin(db[i][1], watched)
-                  if db[i][1].type_quest_unknown then table.insert(unknown, db[i]) end
+                  v.map_desc = {dline}
                 end
               end
+              
+              -- This is the snatch of code that actually adds it to routing.
+              if not done and #db[i] > 0 then
+                if RefreshItem("local", db[i]) then
+                  if turnin then QH_Route_ClusterRequires(turnin, db[i]) end
+                end
+                QH_Tracker_SetPin(db[i][1], watched)
+                if db[i][1].type_quest_unknown then table.insert(unknown, db[i]) end
+              end
+              
+              db[i].temp_desc, db[i].temp_typ, db[i].temp_done = nil, nil, nil
             end
-            
-            if turnin_new then
-              local timidx = 1
-              while true do
-                local timer = GetQuestIndexForTimer(timidx)
-                if not timer then break end
-                if timer == index then
-                  QH_Route_SetClusterPriority(turnin, -1)
-                  break
-                end
-                timidx = timidx + 1
+          end
+          
+          if turnin_new then
+            local timidx = 1
+            while true do
+              local timer = GetQuestIndexForTimer(timidx)
+              if not timer then break end
+              if timer == index then
+                QH_Route_SetClusterPriority(turnin, -1)
+                break
               end
+              timidx = timidx + 1
             end
           end
         end
@@ -445,15 +492,7 @@ function QH_UpdateQuests(force)
       QH_Route_IgnoreCluster(v, dontknow)
     end
     
-    for k, v in pairs(active) do
-      if not nactive[k] then
-        if k.tooltip then QH_Tooltip_Remove(k.tooltip) end
-        QH_Tracker_Unpin(k[1])
-        QH_Route_ClusterRemove(k)
-      end
-    end
-    
-    active = nactive
+    EndInsertionPass("local")
     
     quest_list = quest_list_used
     
