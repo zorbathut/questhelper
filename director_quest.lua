@@ -201,7 +201,6 @@ local objective_parse_table = {
 }
 
 local function objective_parse(typ, txt, done)
-  print(typ, txt, done)
   local pt, target, have, need = typ, objective_parse_table[typ](txt, done)
   
   if not target then
@@ -267,7 +266,6 @@ local function MakeQuestTitle(title, level)
 end
 
 local function MakeQuestObjectiveTitle(progress, target)
-  print("MQOT", progress, target)
   if not progress then return nil end
   
   local player = UnitName("player")
@@ -330,7 +328,6 @@ local function MakeQuestObjectiveTitle(progress, target)
     target = target .. " " .. party
   end
   
-  print("Reto", target)
   return target
 end
 
@@ -527,7 +524,6 @@ end
 function DeSerItem(item)
   local t = item:sub(1, 1)
   local d = item:sub(2)
-  print(t, d, tonumber(d))
   if t == "b" then
     return (d == "t")
   elseif t == "n" then
@@ -551,6 +547,14 @@ local function Serialize(...)
   return sx
 end
 
+local function SAM(msg, chattype, target)
+  QuestHelper: TextOut(string.format("%s/%s: %s", chattype, tostring(target), msg))
+  ChatThrottleLib:SendAddonMessage("BULK", "QHpr", msg, chattype, target, "QHpr")
+end
+
+-- qid, chunk
+local current_chunks = {}
+
 -- Here's the core update function
 function QH_UpdateQuests(force)
   if not DB_Ready() then return end
@@ -560,6 +564,8 @@ function QH_UpdateQuests(force)
     
     local player = UnitName("player")
     StartInsertionPass(player)
+    
+    local next_chunks = {}
     
     -- This begins the main update loop that loops through all of the quests
     while true do
@@ -594,8 +600,7 @@ function QH_UpdateQuests(force)
           end
           local timed = not not timidx
           
-          print(id, title, level, group, variety, groupsize, complete, timed)
-          local chunk = Serialize(id, title, level, group, variety, groupsize, complete, timed)
+          local chunk = "q:" .. Serialize(id, title, level, group, variety, groupsize, complete, timed)
           for i = 1, lbcount do
             QuestHelper: Assert(db[i])
             db[i].temp_desc, db[i].temp_typ, db[i].temp_done = GetQuestLogLeaderBoard(i, index)
@@ -603,7 +608,7 @@ function QH_UpdateQuests(force)
             chunk = chunk .. ":" .. Serialize(db[i].temp_desc, db[i].temp_typ, db[i].temp_done)
           end
           
-          QuestHelper: TextOut(chunk)
+          next_chunks[id] = chunk
           
           QuestProcessor(player, db, title, level, group, variety, groupsize, watched, complete, lbcount, timed)
         end
@@ -614,6 +619,20 @@ function QH_UpdateQuests(force)
     EndInsertionPass(player)
     
     QH_Route_Filter_Rescan()  -- 'cause filters may also change
+    
+    for k, v in pairs(next_chunks) do
+      if current_chunks[k] ~= v then
+        SAM(v, "RAID")
+      end
+    end
+    
+    for k, v in pairs(current_chunks) do
+      if not next_chunks[k] then
+        SAM(string.format("q:n%d", k), "RAID")
+      end
+    end
+    
+    current_chunks = next_chunks
   end
 end
 
@@ -634,7 +653,6 @@ local function RefreshUserComms(user)
     end
     
     local lbcount = #obj
-    print(id, lbcount)
     local db = GetQuestMetaobjective(id, lbcount) -- This generates the above-mentioned metaobjective, including doing the database lookup.
 
     QuestHelper: Assert(db)
@@ -659,7 +677,6 @@ function QH_InsertCommPacket(user, data)
   local idx = 1
   for item in chunk:gmatch("([^:]+)") do
     dat[idx] = DeSerItem(item)
-    print(dat[idx])
     idx = idx + 1
   end
   
@@ -671,6 +688,11 @@ function QH_InsertCommPacket(user, data)
   end
   
   -- refresh the comms
+  RefreshUserComms(user)
+end
+
+local function QH_DumpCommUser(user)
+  comm_packets[user] = nil
   RefreshUserComms(user)
 end
 
@@ -690,3 +712,71 @@ QH_AddNotifier(GetTime() + 5, function ()
     QH_UpdateQuests(true)
   end
 end)
+
+local old_playerlist = {}
+
+function QH_Questcomm_Sync()
+  local playerlist = {}
+  if GetNumRaidMembers() > 0 then
+    for i = 1, 40 do
+      local liv = UnitName(string.format("raid%d", i))
+      if liv then playerlist[liv] = true end
+    end
+  elseif GetNumPartyMembers() > 0 then
+    -- we is in a party
+    for i = 1, 4 do
+      local liv = UnitName(string.format("party%d", i))
+      if liv then playerlist[liv] = true end
+    end
+  end
+  playerlist[UnitName("player")] = nil
+  
+  local additions = {}
+  for k, v in pairs(playerlist) do
+    if not old_playerlist[k] then
+      table.insert(additions, k)
+    end
+  end
+  
+  local removals = {}
+  for k, v in pairs(old_playerlist) do
+    if not playerlist[k] then
+      table.insert(removals, k)
+    end
+  end
+  
+  old_playerlist = playerlist
+  
+  for _, v in ipairs(removals) do
+    QH_DumpCommUser(v)
+  end
+  
+  if additions == 0 then return end
+  
+  local private_sync
+  if #additions <= 1 then private_sync = additions[1] end
+  
+  SAM("syn:2", private_sync and "WHISPER" or "RAID", additions[1])
+end
+
+local newer_reported = false
+function QH_Questcomm_Msg(data, from)
+  if data:match("syn:.*") then
+    local synv = data:match("syn:([0-9]*)")
+    if synv then synv = tonumber(synv) end
+    if synv and synv > 2 and not newer_reported then
+      self:TextOut(QHFormat("PEER_NEWER", from))
+      newer_reported = true
+    end
+    
+    SAM("hello:2", "WHISPER", from)
+  elseif data == "hello:2" then
+    for k, v in pairs(current_chunks) do
+      SAM(v, "WHISPER", from)
+    end
+  else
+    if old_playerlist[from] then
+      QH_InsertCommPacket(from, data)
+    end
+  end
+end

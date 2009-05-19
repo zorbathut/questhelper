@@ -755,17 +755,22 @@ function QuestHelper:OnEvent(event)
     end
   end]]
 
-  --[[if event == "CHAT_MSG_ADDON" then
-    if arg1 == "QHpr" and (arg3 == "PARTY" or arg3 == "WHISPER") and arg4 ~= UnitName("player") then
-      self:HandleRemoteData(arg2, arg4)
+  if event == "CHAT_MSG_ADDON" then
+    if arg1 == "QHpr" and arg4 ~= UnitName("player") then
+      QH_Questcomm_Msg(arg2, arg4)
     end
-  end]]
+  end
 
   if event == "PARTY_MEMBERS_CHANGED" or
     event == "UNIT_LEVEL" or
     event == "RAID_ROSTER_UPDATE" then
     QH_Filter_Group_Sync()
     QH_Route_Filter_Rescan("filter_quest_level")
+  end
+  
+  if event == "PARTY_MEMBERS_CHANGED" or
+    event == "RAID_ROSTER_UPDATE" then
+    QH_Questcomm_Sync()
   end
   
   if event == "PLAYER_LEVEL_UP" then
