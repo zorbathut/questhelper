@@ -150,7 +150,7 @@ local function GetQuestMetaobjective(questid, lbcount)
     end
     
     do
-      local ttx = {}
+      local ttx = {type_quest_finish = true}
       --QuestHelper:TextOut(string.format("finny %d", q.finish.loc and #q.finish.loc or -1))
       if q and q.finish and q.finish.loc then for m, v in ipairs(q.finish.loc) do
         --print(v.rc, v.rz)
