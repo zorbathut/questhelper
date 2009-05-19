@@ -266,25 +266,10 @@ local function MakeQuestTitle(title, level)
   return ret
 end
 
-local function MakeQuestObjectiveTitleItem(title, typ, done)
-  local _, target, have, need = objective_parse(typ, title, done)
+local function MakeQuestObjectiveTitle(progress, target)
+  print("MQOT", progress, target)
+  if not progress then return nil end
   
-  local nhave, nneed = tonumber(have), tonumber(need)
-  if nhave and nneed then
-    have, need = nhave, nneed
-    
-    local ccode = difficulty_color(have / need)
-    
-    if need > 1 then target = string.format("%s: %d/%d", target, have, need) end
-    if QuestHelper_Pref.track_ocolour then target = ccode .. target end
-    return target
-  else
-    return string.format("%s%s: %s/%s", QuestHelper_Pref.track_ocolour and "|cffff0000" or "", target, have, need)
-  end
-end
-
-local function MakeQuestObjectiveTitle(progress, title, typ)
-  local _, target, have, need = objective_parse(typ, title)
   local player = UnitName("player")
   
   local pt, pd = 0, 0
@@ -300,17 +285,17 @@ local function MakeQuestObjectiveTitle(progress, title, typ)
   local party_compact = false
   
   if progress[player] then
-    local nhave, nneed = tonumber(progress[player][1]), tonumber(progress[player][2])
+    local have, need = tonumber(progress[player][1]), tonumber(progress[player][2])
     
     ccode = difficulty_color(progress[player][3])
     
-    if nhave and nneed then
+    if have and need then
       if need > 1 then
         status = string.format("%d/%d", have, need)
         party_compact = true
       end
     else
-      status = string.format("%s/%s", have, need)
+      status = string.format("%s/%s", progress[player][1], progress[player][2])
       party_compact = true
     end
     
@@ -345,6 +330,7 @@ local function MakeQuestObjectiveTitle(progress, title, typ)
     target = target .. " " .. party
   end
   
+  print("Reto", target)
   return target
 end
 
@@ -374,11 +360,14 @@ local function StartInsertionPass(id)
     
     if k.progress then
       k.progress[id] = nil
+      local desc = MakeQuestObjectiveTitle(k.progress, k.target)
+      for _, v in ipairs(k) do
+        v.tracker_desc = desc or "phail"
+      end
     end
   end
 end
 local function RefreshItem(id, item)
-  print("refri", id, item)
   QuestHelper: Assert(in_pass == id)
   local added = false
   if not InsertedItems[item] then
@@ -390,6 +379,11 @@ local function RefreshItem(id, item)
   InsertedItems[item][id] = true
   
   if item.type_quest_unknown then table.insert(Unknowning, item) end
+  
+  local desc = MakeQuestObjectiveTitle(item.progress, item.target)
+  for _, v in ipairs(item) do
+    v.tracker_desc = desc or "phail"
+  end
   
   return added
 end
@@ -452,7 +446,7 @@ function QuestProcessor(user_id, db, title, level, group, variety, groupsize, wa
         v.map_desc = {QHFormat("OBJECTIVE_REASON_TURNIN", title)}
       end
     end
-    QH_Tracker_SetPin(db.finish[1], watched)
+    if watched ~= "(ignore)" then QH_Tracker_SetPin(db.finish[1], watched) end
   end
   
   -- These are the individual criteria of the quest. Remember that each criteria can be represented by multiple routing objectives.
@@ -478,10 +472,12 @@ function QuestProcessor(user_id, db, title, level, group, variety, groupsize, wa
         db[i].progress[db[i].temp_person] = {have, need, db[i].temp_done and 1 or 0}  -- it's only used for the coloring anyway
       end
       
+      local _, target = objective_parse(db[i].temp_typ, db[i].temp_desc)
+      db[i].target = target
+      
       db[i].desc = QHFormat("TOOLTIP_QUEST", title)
       
       for k, v in ipairs(db[i]) do
-        v.tracker_desc = MakeQuestObjectiveTitle(db[i].progress, db[i].temp_desc, db[i].temp_typ)
         v.desc = db[i].temp_desc
         v.tracker_clicked = db.tracker_clicked
         
@@ -500,7 +496,7 @@ function QuestProcessor(user_id, db, title, level, group, variety, groupsize, wa
         if RefreshItem(user_id, db[i]) then
           if turnin then QH_Route_ClusterRequires(turnin, db[i]) end
         end
-        QH_Tracker_SetPin(db[i][1], watched)
+        if watched ~= "(ignore)" then QH_Tracker_SetPin(db[i][1], watched) end
       end
       
       db[i].temp_desc, db[i].temp_typ, db[i].temp_done = nil, nil, nil
@@ -598,8 +594,8 @@ function QH_UpdateQuests(force)
           end
           local timed = not not timidx
           
-          print(id, title, level, group, variety, groupsize, watched, complete, timed)
-          local chunk = Serialize(id, title, level, group, variety, groupsize, watched, complete, timed)
+          print(id, title, level, group, variety, groupsize, complete, timed)
+          local chunk = Serialize(id, title, level, group, variety, groupsize, complete, timed)
           for i = 1, lbcount do
             QuestHelper: Assert(db[i])
             db[i].temp_desc, db[i].temp_typ, db[i].temp_done = GetQuestLogLeaderBoard(i, index)
@@ -628,8 +624,8 @@ local function RefreshUserComms(user)
   StartInsertionPass(user)
   
   if comm_packets[user] then for _, dat in pairs(comm_packets[user]) do
-    local id, title, level, group, variety, groupsize, watched, complete, timed = dat[1], dat[2], dat[3], dat[4], dat[5], dat[6], dat[7], dat[8], dat[9]
-    local objstart = 10
+    local id, title, level, group, variety, groupsize, complete, timed = dat[1], dat[2], dat[3], dat[4], dat[5], dat[6], dat[7], dat[8]
+    local objstart = 9
     
     local obj = {}
     while true do
@@ -647,7 +643,7 @@ local function RefreshUserComms(user)
       db[i].temp_desc, db[i].temp_typ, db[i].temp_done, db[i].temp_person = obj[i][1], obj[i][2], obj[i][3], user
     end
     
-    QuestProcessor(user, db, title, level, group, variety, groupsize, watched, complete, lbcount, false)
+    QuestProcessor(user, db, title, level, group, variety, groupsize, "(ignore)", complete, lbcount, false)
   end end
 
   EndInsertionPass(user)
