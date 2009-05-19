@@ -85,8 +85,7 @@ local function AppendObjlinks(target, source, tooltips, icon, last_name, map_lin
 end
 
 
-local quest_list = {}
-local quest_list_used = {}
+local quest_list = setmetatable({}, {__mode="k"})
 
 local QuestCriteriaWarningBroadcast
 
@@ -115,7 +114,7 @@ local function GetQuestMetaobjective(questid, lbcount)
       end
     end end
     
-    ite = {type_quest = {}} -- we don't want to mutate the existing quest data
+    ite = {type_quest = {__backlink = ite}} -- we don't want to mutate the existing quest data. backlink exists only for nasty GC reasons
     ite.desc = string.format("Quest %s", q and q.name or "(unknown)")  -- this gets changed later anyway
     
     for i = 1, lbcount do
@@ -172,7 +171,6 @@ local function GetQuestMetaobjective(questid, lbcount)
     if q then DB_ReleaseItem(q) end
   end
   
-  quest_list_used[questid] = quest_list[questid]
   return quest_list[questid]
 end
 
@@ -203,6 +201,7 @@ local objective_parse_table = {
 }
 
 local function objective_parse(typ, txt, done)
+  print(typ, txt, done)
   local pt, target, have, need = typ, objective_parse_table[typ](txt, done)
   
   if not target then
@@ -297,6 +296,7 @@ local dontknow  = {
   friendly_reason = QHText("UNKNOWN_OBJ"),
 }
 
+-- InsertedItem[item] = {"list", "of", "reasons"}
 local InsertedItems = {}
 local Unknowning = {}
 local in_pass = nil
@@ -309,6 +309,7 @@ local function StartInsertionPass(id)
   end
 end
 local function RefreshItem(id, item)
+  print("refri", id, item)
   QuestHelper: Assert(in_pass == id)
   local added = false
   if not InsertedItems[item] then
@@ -353,7 +354,7 @@ local function EndInsertionPass(id)
   in_pass = nil
 end
 
-function QuestProcessor(db, title, level, group, variety, groupsize, watched, complete, lbcount)
+function QuestProcessor(user_id, db, title, level, group, variety, groupsize, watched, complete, lbcount, timed)
   db.desc = title
   db.tracker_desc = MakeQuestTitle(title, level)
   
@@ -374,7 +375,7 @@ function QuestProcessor(db, title, level, group, variety, groupsize, watched, co
     end
     
     turnin = db.finish
-    if RefreshItem("local", turnin) then
+    if RefreshItem(user_id, turnin) then
       turnin_new = true
       for k, v in ipairs(turnin) do
         v.tracker_clicked = function () Clicky(lindex) end
@@ -382,7 +383,6 @@ function QuestProcessor(db, title, level, group, variety, groupsize, watched, co
         v.map_desc = {QHFormat("OBJECTIVE_REASON_TURNIN", title)}
       end
     end
-    QuestHelper: Assert(watched)
     QH_Tracker_SetPin(db.finish[1], watched)
   end
   
@@ -428,7 +428,7 @@ function QuestProcessor(db, title, level, group, variety, groupsize, watched, co
       
       -- This is the snatch of code that actually adds it to routing.
       if not done and #db[i] > 0 then
-        if RefreshItem("local", db[i]) then
+        if RefreshItem(user_id, db[i]) then
           if turnin then QH_Route_ClusterRequires(turnin, db[i]) end
         end
         QH_Tracker_SetPin(db[i][1], watched)
@@ -438,9 +438,52 @@ function QuestProcessor(db, title, level, group, variety, groupsize, watched, co
     end
   end
   
-  if turnin_new and timidx then
+  if turnin_new and timed then
     QH_Route_SetClusterPriority(turnin, -1)
   end
+end
+
+function SerItem(item)
+  local rtx
+  if type(item) == "boolean" then
+    rtx = "b" .. (item and "t" or "f")
+  elseif type(item) == "number" then
+    rtx = "n" .. tostring(item)
+  elseif type(item) == "string" then
+    rtx = "s" .. item:gsub("\\", "\\\\"):gsub(":", "\\;")
+  elseif type(item) == "nil" then
+    rtx = "0"
+  else
+    QuestHelper: Assert()
+  end
+  return rtx
+end
+
+function DeSerItem(item)
+  local t = item:sub(1, 1)
+  local d = item:sub(2)
+  print(t, d, tonumber(d))
+  if t == "b" then
+    return (d == "t")
+  elseif t == "n" then
+    return tonumber(d)
+  elseif t == "s" then
+    return d:gsub("\\;", ":"):gsub("\\\\", "\\")
+  elseif t == "0" then
+    return nil
+  else
+    QuestHelper: Assert()
+  end
+end
+
+local function Serialize(...)
+  local sx
+  for i = 1, select("#", ...) do
+    if sx then sx = sx .. ":" else sx = "" end
+    sx = sx .. SerItem(select(i, ...))
+  end
+  QuestHelper: Assert(sx)
+  return sx
 end
 
 -- Here's the core update function
@@ -449,8 +492,6 @@ function QH_UpdateQuests(force)
 
   if update or force then  -- Sometimes (usually) we don't actually update
     local index = 1
-    
-    quest_list_used = {}
     
     StartInsertionPass("local")
     
@@ -478,11 +519,6 @@ function QH_UpdateQuests(force)
           
           db.type_quest.index = index
           
-          for i = 1, lbcount do
-            QuestHelper: Assert(db[i])
-            db[i].temp_desc, db[i].temp_typ, db[i].temp_done = GetQuestLogLeaderBoard(i, index)
-          end
-          
           local timidx = 1
           while true do
             local timer = GetQuestIndexForTimer(timidx)
@@ -490,9 +526,19 @@ function QH_UpdateQuests(force)
             if timer == index then break end
             timidx = timidx + 1
           end
-          timidx = not not timidx
+          local timed = not not timidx
           
-          QuestProcessor(db, title, level, group, variety, groupsize, watched, complete, lbcount)
+          print(id, title, level, group, variety, groupsize, watched, complete, timed)
+          local chunk = Serialize(id, title, level, group, variety, groupsize, watched, complete, timed)
+          for i = 1, lbcount do
+            QuestHelper: Assert(db[i])
+            db[i].temp_desc, db[i].temp_typ, db[i].temp_done = GetQuestLogLeaderBoard(i, index)
+            chunk = chunk .. ":" .. Serialize(db[i].temp_desc, db[i].temp_typ, db[i].temp_done)
+          end
+          
+          QuestHelper: TextOut(chunk)
+          
+          QuestProcessor("local", db, title, level, group, variety, groupsize, watched, complete, lbcount, timed)
         end
       end
       index = index + 1
@@ -500,10 +546,65 @@ function QH_UpdateQuests(force)
     
     EndInsertionPass("local")
     
-    quest_list = quest_list_used
-    
     QH_Route_Filter_Rescan()  -- 'cause filters may also change
   end
+end
+
+-- comm_packets[user][qid] = data
+local comm_packets = {}
+
+function QH_InsertCommPacket(user, data)
+  local q, chunk = data:match("([^:]+):(.*)")
+  if q ~= "q" then return end
+  
+  local dat = {}
+  local idx = 1
+  for item in chunk:gmatch("([^:]+)") do
+    dat[idx] = DeSerItem(item)
+    print(dat[idx])
+    idx = idx + 1
+  end
+  
+  user = "comm/" .. user
+  
+  if not comm_packets[user] then comm_packets[user] = {} end
+  if idx == 2 then
+    comm_packets[user][dat[1]] = nil
+  else
+    comm_packets[user][dat[1]] = dat
+  end
+  
+  -- refresh the comms
+  StartInsertionPass(user)
+  
+  for _, dat in pairs(comm_packets[user]) do
+    local id, title, level, group, variety, groupsize, watched, complete, timed = dat[1], dat[2], dat[3], dat[4], dat[5], dat[6], dat[7], dat[8], dat[9]
+    local objstart = 10
+    
+    local obj = {}
+    while true do
+      if dat[#obj * 3 + objstart] == nil and dat[#obj * 3 + objstart + 1] == nil and dat[#obj * 3 + objstart + 2] == nil then break end
+      table.insert(obj, {dat[#obj * 3 + objstart], dat[#obj * 3 + objstart + 1], dat[#obj * 3 + objstart + 2]})
+    end
+    
+    local lbcount = #obj
+    print(id, lbcount)
+    local db = GetQuestMetaobjective(id, lbcount) -- This generates the above-mentioned metaobjective, including doing the database lookup.
+
+    QuestHelper: Assert(db)
+    
+    for i = 1, lbcount do
+      db[i].temp_desc, db[i].temp_typ, db[i].temp_done = obj[i][1], obj[i][2], obj[i][3]
+    end
+    
+    QuestHelper: TextOut(chunk)
+    
+    QuestProcessor(user, db, title, level, group, variety, groupsize, watched, complete, lbcount, false)
+  end
+
+  EndInsertionPass(user)
+  
+  QH_Route_Filter_Rescan()  -- 'cause filters may also change
 end
 
 QuestHelper.EventHookRegistrar("UNIT_QUEST_LOG_CHANGED", UpdateTrigger)
