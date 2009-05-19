@@ -306,6 +306,10 @@ local function StartInsertionPass(id)
   in_pass = id
   for k, v in pairs(InsertedItems) do
     v[id] = nil
+    
+    if k.progress then
+      k.progress[id] = nil
+    end
   end
 end
 local function RefreshItem(id, item)
@@ -404,9 +408,9 @@ function QuestProcessor(user_id, db, title, level, group, variety, groupsize, wa
       end
       
       if type(have) == "number" and type(need) == "number" then
-        db[i].progress[UnitName("player")] = {have, need, have / need}
+        db[i].progress[db[i].temp_person] = {have, need, have / need}
       else
-        db[i].progress[UnitName("player")] = {have, need, 0}  -- it's only used for the coloring anyway
+        db[i].progress[db[i].temp_person] = {have, need, 0}  -- it's only used for the coloring anyway
       end
       
       db[i].desc = QHFormat("TOOLTIP_QUEST", title)
@@ -493,7 +497,8 @@ function QH_UpdateQuests(force)
   if update or force then  -- Sometimes (usually) we don't actually update
     local index = 1
     
-    StartInsertionPass("local")
+    local player = UnitName("player")
+    StartInsertionPass(player)
     
     -- This begins the main update loop that loops through all of the quests
     while true do
@@ -533,18 +538,19 @@ function QH_UpdateQuests(force)
           for i = 1, lbcount do
             QuestHelper: Assert(db[i])
             db[i].temp_desc, db[i].temp_typ, db[i].temp_done = GetQuestLogLeaderBoard(i, index)
+            db[i].temp_person = player
             chunk = chunk .. ":" .. Serialize(db[i].temp_desc, db[i].temp_typ, db[i].temp_done)
           end
           
           QuestHelper: TextOut(chunk)
           
-          QuestProcessor("local", db, title, level, group, variety, groupsize, watched, complete, lbcount, timed)
+          QuestProcessor(player, db, title, level, group, variety, groupsize, watched, complete, lbcount, timed)
         end
       end
       index = index + 1
     end
     
-    EndInsertionPass("local")
+    EndInsertionPass(player)
     
     QH_Route_Filter_Rescan()  -- 'cause filters may also change
   end
@@ -564,8 +570,6 @@ function QH_InsertCommPacket(user, data)
     print(dat[idx])
     idx = idx + 1
   end
-  
-  user = "comm/" .. user
   
   if not comm_packets[user] then comm_packets[user] = {} end
   if idx == 2 then
@@ -594,7 +598,7 @@ function QH_InsertCommPacket(user, data)
     QuestHelper: Assert(db)
     
     for i = 1, lbcount do
-      db[i].temp_desc, db[i].temp_typ, db[i].temp_done = obj[i][1], obj[i][2], obj[i][3]
+      db[i].temp_desc, db[i].temp_typ, db[i].temp_done, db[i].temp_person = obj[i][1], obj[i][2], obj[i][3], user
     end
     
     QuestHelper: TextOut(chunk)
