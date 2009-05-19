@@ -266,7 +266,7 @@ local function MakeQuestTitle(title, level)
   return ret
 end
 
-local function MakeQuestObjectiveTitle(title, typ, done)
+local function MakeQuestObjectiveTitleItem(title, typ, done)
   local _, target, have, need = objective_parse(typ, title, done)
   
   local nhave, nneed = tonumber(have), tonumber(need)
@@ -281,6 +281,71 @@ local function MakeQuestObjectiveTitle(title, typ, done)
   else
     return string.format("%s%s: %s/%s", QuestHelper_Pref.track_ocolour and "|cffff0000" or "", target, have, need)
   end
+end
+
+local function MakeQuestObjectiveTitle(progress, title, typ)
+  local _, target, have, need = objective_parse(typ, title)
+  local player = UnitName("player")
+  
+  local pt, pd = 0, 0
+  for _, v in pairs(progress) do
+    pt = pt + 1
+    if v[3] == 1 then pd = pd + 1 end
+  end
+
+  local ccode
+  local status
+  local party
+  local party_show = false
+  local party_compact = false
+  
+  if progress[player] then
+    local nhave, nneed = tonumber(progress[player][1]), tonumber(progress[player][2])
+    
+    ccode = difficulty_color(progress[player][3])
+    
+    if nhave and nneed then
+      if need > 1 then
+        status = string.format("%d/%d", have, need)
+        party_compact = true
+      end
+    else
+      status = string.format("%s/%s", have, need)
+      party_compact = true
+    end
+    
+    if pt > 1 then party_show = true end
+  else
+    ccode = difficulty_color(pd / pt)
+    
+    party_show = true
+  end
+  
+  if party_show then
+    if party_compact then
+      party = string.format("(P: %d/%d)", pd, pt)
+    else
+      party = string.format("Party %d/%d", pd, pt)
+    end
+  end
+  
+  if QuestHelper_Pref.track_ocolour then
+    target = ccode .. target
+  end
+  
+  if status or party then
+    target = target .. ":"
+  end
+  
+  if status then
+    target = target .. " " .. status
+  end
+  
+  if party then
+    target = target .. " " .. party
+  end
+  
+  return target
 end
 
 local function Clicky(index)
@@ -410,13 +475,13 @@ function QuestProcessor(user_id, db, title, level, group, variety, groupsize, wa
       if type(have) == "number" and type(need) == "number" then
         db[i].progress[db[i].temp_person] = {have, need, have / need}
       else
-        db[i].progress[db[i].temp_person] = {have, need, 0}  -- it's only used for the coloring anyway
+        db[i].progress[db[i].temp_person] = {have, need, db[i].temp_done and 1 or 0}  -- it's only used for the coloring anyway
       end
       
       db[i].desc = QHFormat("TOOLTIP_QUEST", title)
       
       for k, v in ipairs(db[i]) do
-        v.tracker_desc = MakeQuestObjectiveTitle(db[i].temp_desc, db[i].temp_typ, db[i].temp_done)
+        v.tracker_desc = MakeQuestObjectiveTitle(db[i].progress, db[i].temp_desc, db[i].temp_typ)
         v.desc = db[i].temp_desc
         v.tracker_clicked = db.tracker_clicked
         
@@ -431,7 +496,7 @@ function QuestProcessor(user_id, db, title, level, group, variety, groupsize, wa
       end
       
       -- This is the snatch of code that actually adds it to routing.
-      if not done and #db[i] > 0 then
+      if not db[i].temp_done and #db[i] > 0 then
         if RefreshItem(user_id, db[i]) then
           if turnin then QH_Route_ClusterRequires(turnin, db[i]) end
         end
@@ -559,6 +624,37 @@ end
 -- comm_packets[user][qid] = data
 local comm_packets = {}
 
+local function RefreshUserComms(user)
+  StartInsertionPass(user)
+  
+  if comm_packets[user] then for _, dat in pairs(comm_packets[user]) do
+    local id, title, level, group, variety, groupsize, watched, complete, timed = dat[1], dat[2], dat[3], dat[4], dat[5], dat[6], dat[7], dat[8], dat[9]
+    local objstart = 10
+    
+    local obj = {}
+    while true do
+      if dat[#obj * 3 + objstart] == nil and dat[#obj * 3 + objstart + 1] == nil and dat[#obj * 3 + objstart + 2] == nil then break end
+      table.insert(obj, {dat[#obj * 3 + objstart], dat[#obj * 3 + objstart + 1], dat[#obj * 3 + objstart + 2]})
+    end
+    
+    local lbcount = #obj
+    print(id, lbcount)
+    local db = GetQuestMetaobjective(id, lbcount) -- This generates the above-mentioned metaobjective, including doing the database lookup.
+
+    QuestHelper: Assert(db)
+    
+    for i = 1, lbcount do
+      db[i].temp_desc, db[i].temp_typ, db[i].temp_done, db[i].temp_person = obj[i][1], obj[i][2], obj[i][3], user
+    end
+    
+    QuestProcessor(user, db, title, level, group, variety, groupsize, watched, complete, lbcount, false)
+  end end
+
+  EndInsertionPass(user)
+  
+  QH_Route_Filter_Rescan()  -- 'cause filters may also change
+end
+
 function QH_InsertCommPacket(user, data)
   local q, chunk = data:match("([^:]+):(.*)")
   if q ~= "q" then return end
@@ -579,36 +675,7 @@ function QH_InsertCommPacket(user, data)
   end
   
   -- refresh the comms
-  StartInsertionPass(user)
-  
-  for _, dat in pairs(comm_packets[user]) do
-    local id, title, level, group, variety, groupsize, watched, complete, timed = dat[1], dat[2], dat[3], dat[4], dat[5], dat[6], dat[7], dat[8], dat[9]
-    local objstart = 10
-    
-    local obj = {}
-    while true do
-      if dat[#obj * 3 + objstart] == nil and dat[#obj * 3 + objstart + 1] == nil and dat[#obj * 3 + objstart + 2] == nil then break end
-      table.insert(obj, {dat[#obj * 3 + objstart], dat[#obj * 3 + objstart + 1], dat[#obj * 3 + objstart + 2]})
-    end
-    
-    local lbcount = #obj
-    print(id, lbcount)
-    local db = GetQuestMetaobjective(id, lbcount) -- This generates the above-mentioned metaobjective, including doing the database lookup.
-
-    QuestHelper: Assert(db)
-    
-    for i = 1, lbcount do
-      db[i].temp_desc, db[i].temp_typ, db[i].temp_done, db[i].temp_person = obj[i][1], obj[i][2], obj[i][3], user
-    end
-    
-    QuestHelper: TextOut(chunk)
-    
-    QuestProcessor(user, db, title, level, group, variety, groupsize, watched, complete, lbcount, false)
-  end
-
-  EndInsertionPass(user)
-  
-  QH_Route_Filter_Rescan()  -- 'cause filters may also change
+  RefreshUserComms(user)
 end
 
 QuestHelper.EventHookRegistrar("UNIT_QUEST_LOG_CHANGED", UpdateTrigger)
