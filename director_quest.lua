@@ -353,6 +353,96 @@ local function EndInsertionPass(id)
   in_pass = nil
 end
 
+function QuestProcessor(db, title, level, group, variety, groupsize, watched, complete, lbcount)
+  db.desc = title
+  db.tracker_desc = MakeQuestTitle(title, level)
+  
+  db.type_quest.objectives = lbcount
+  db.type_quest.level = level
+  db.type_quest.done = (complete == 1)
+  db.type_quest.variety = variety
+  db.type_quest.groupsize = groupsize
+  db.type_quest.title = title
+  
+  local turnin
+  local turnin_new
+  
+  -- This is our "quest turnin" objective, which is currently being handled separately for no particularly good reason.
+  if db.finish and #db.finish > 0 then
+    for _, v in ipairs(db.finish) do
+      v.map_highlight = (complete == 1)
+    end
+    
+    turnin = db.finish
+    if RefreshItem("local", turnin) then
+      turnin_new = true
+      for k, v in ipairs(turnin) do
+        v.tracker_clicked = function () Clicky(lindex) end
+        
+        v.map_desc = {QHFormat("OBJECTIVE_REASON_TURNIN", title)}
+      end
+    end
+    QuestHelper: Assert(watched)
+    QH_Tracker_SetPin(db.finish[1], watched)
+  end
+  
+  -- These are the individual criteria of the quest. Remember that each criteria can be represented by multiple routing objectives.
+  for i = 1, lbcount do
+    if db[i] then
+      local pt, pd, have, need = objective_parse(db[i].temp_typ, db[i].temp_desc, db[i].temp_done)
+      local dline
+      if pt == "item" or pt == "object" then
+        dline = QHFormat("OBJECTIVE_REASON", QHText("ACQUIRE_VERB"), pd, title)
+      elseif pt == "monster" then
+        dline = QHFormat("OBJECTIVE_REASON", QHText("SLAY_VERB"), pd, title)
+      else
+        dline = QHFormat("OBJECTIVE_REASON_FALLBACK", pd, title)
+      end
+      
+      if not db[i].progress then
+        db[i].progress = {}
+      end
+      
+      if type(have) == "number" and type(need) == "number" then
+        db[i].progress[UnitName("player")] = {have, need, have / need}
+      else
+        db[i].progress[UnitName("player")] = {have, need, 0}  -- it's only used for the coloring anyway
+      end
+      
+      db[i].desc = QHFormat("TOOLTIP_QUEST", title)
+      
+      for k, v in ipairs(db[i]) do
+        v.tracker_desc = MakeQuestObjectiveTitle(db[i].temp_desc, db[i].temp_typ, db[i].temp_done)
+        v.desc = db[i].temp_desc
+        v.tracker_clicked = db.tracker_clicked
+        
+        v.progress = db[i].progress
+        
+        if v.path_desc then
+          v.map_desc = copy(v.path_desc)
+          v.map_desc[1] = dline
+        else
+          v.map_desc = {dline}
+        end
+      end
+      
+      -- This is the snatch of code that actually adds it to routing.
+      if not done and #db[i] > 0 then
+        if RefreshItem("local", db[i]) then
+          if turnin then QH_Route_ClusterRequires(turnin, db[i]) end
+        end
+        QH_Tracker_SetPin(db[i][1], watched)
+      end
+      
+      db[i].temp_desc, db[i].temp_typ, db[i].temp_done = nil, nil, nil
+    end
+  end
+  
+  if turnin_new and timidx then
+    QH_Route_SetClusterPriority(turnin, -1)
+  end
+end
+
 -- Here's the core update function
 function QH_UpdateQuests(force)
   if not DB_Ready() then return end
@@ -361,8 +451,6 @@ function QH_UpdateQuests(force)
     local index = 1
     
     quest_list_used = {}
-    
-    local unknown = {}
     
     StartInsertionPass("local")
     
@@ -386,18 +474,9 @@ function QH_UpdateQuests(force)
           
           -- The section in here, in other words, is: we have a metaobjective (which may be a new one, or may not be), and we're trying to attach things to our routing engine. Now is where the real work begins! (many conditionals deep)
           local lindex = index
-          db.desc = title
-          db.tracker_desc = MakeQuestTitle(title, level)
           db.tracker_clicked = function () Clicky(lindex) end
           
-          db.type_quest.level = level
-          db.type_quest.done = (complete == 1)
           db.type_quest.index = index
-          db.type_quest.variety = variety
-          db.type_quest.groupsize = groupsize
-          db.type_quest.title = title
-          db.type_quest.objectives = lbcount
-          QuestHelper: Assert(db.type_quest.index) -- why is this failing?
           
           for i = 1, lbcount do
             QuestHelper: Assert(db[i])
@@ -413,84 +492,7 @@ function QH_UpdateQuests(force)
           end
           timidx = not not timidx
           
-          local turnin
-          local turnin_new
-          
-          -- This is our "quest turnin" objective, which is currently being handled separately for no particularly good reason.
-          if db.finish and #db.finish > 0 then
-            for _, v in ipairs(db.finish) do
-              v.map_highlight = (complete == 1)
-            end
-            
-            turnin = db.finish
-            if RefreshItem("local", turnin) then
-              turnin_new = true
-              for k, v in ipairs(turnin) do
-                v.tracker_clicked = function () Clicky(lindex) end
-                
-                v.map_desc = {QHFormat("OBJECTIVE_REASON_TURNIN", title)}
-              end
-            end
-            QH_Tracker_SetPin(db.finish[1], watched)
-            if db.finish[1].type_quest_unknown then table.insert(unknown, db.finish) end
-          end
-          
-          -- These are the individual criteria of the quest. Remember that each criteria can be represented by multiple routing objectives.
-          for i = 1, lbcount do
-            if db[i] then
-              local pt, pd, have, need = objective_parse(db[i].temp_typ, db[i].temp_desc, db[i].temp_done)
-              local dline
-              if pt == "item" or pt == "object" then
-                dline = QHFormat("OBJECTIVE_REASON", QHText("ACQUIRE_VERB"), pd, title)
-              elseif pt == "monster" then
-                dline = QHFormat("OBJECTIVE_REASON", QHText("SLAY_VERB"), pd, title)
-              else
-                dline = QHFormat("OBJECTIVE_REASON_FALLBACK", pd, title)
-              end
-              
-              if not db[i].progress then
-                db[i].progress = {}
-              end
-              
-              if type(have) == "number" and type(need) == "number" then
-                db[i].progress[UnitName("player")] = {have, need, have / need}
-              else
-                db[i].progress[UnitName("player")] = {have, need, 0}  -- it's only used for the coloring anyway
-              end
-              
-              db[i].desc = QHFormat("TOOLTIP_QUEST", title)
-              
-              for k, v in ipairs(db[i]) do
-                v.tracker_desc = MakeQuestObjectiveTitle(db[i].temp_desc, db[i].temp_typ, db[i].temp_done)
-                v.desc = db[i].temp_desc
-                v.tracker_clicked = db.tracker_clicked
-                
-                v.progress = db[i].progress
-                
-                if v.path_desc then
-                  v.map_desc = copy(v.path_desc)
-                  v.map_desc[1] = dline
-                else
-                  v.map_desc = {dline}
-                end
-              end
-              
-              -- This is the snatch of code that actually adds it to routing.
-              if not done and #db[i] > 0 then
-                if RefreshItem("local", db[i]) then
-                  if turnin then QH_Route_ClusterRequires(turnin, db[i]) end
-                end
-                QH_Tracker_SetPin(db[i][1], watched)
-                if db[i][1].type_quest_unknown then table.insert(unknown, db[i]) end
-              end
-              
-              db[i].temp_desc, db[i].temp_typ, db[i].temp_done = nil, nil, nil
-            end
-          end
-          
-          if turnin_new and timidx then
-            QH_Route_SetClusterPriority(turnin, -1)
-          end
+          QuestProcessor(db, title, level, group, variety, groupsize, watched, complete, lbcount)
         end
       end
       index = index + 1
