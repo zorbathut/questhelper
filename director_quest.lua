@@ -298,6 +298,7 @@ local dontknow  = {
 }
 
 local InsertedItems = {}
+local Unknowning = {}
 local in_pass = nil
 
 local function StartInsertionPass(id)
@@ -317,6 +318,8 @@ local function RefreshItem(id, item)
     if item.tooltip then QH_Tooltip_Add(item.tooltip) end
   end
   InsertedItems[item][id] = true
+  
+  if item.type_quest_unknown then table.insert(Unknowning, item) end
   
   return added
 end
@@ -341,6 +344,11 @@ local function EndInsertionPass(id)
     InsertedItems[k] = nil
   end
   QuestHelper:ReleaseTable(rem)
+  
+  for _, v in ipairs(Unknowning) do
+    QH_Route_IgnoreCluster(v, dontknow)
+  end
+  while table.remove(Unknowning) do end
   
   in_pass = nil
 end
@@ -395,6 +403,15 @@ function QH_UpdateQuests(force)
             QuestHelper: Assert(db[i])
             db[i].temp_desc, db[i].temp_typ, db[i].temp_done = GetQuestLogLeaderBoard(i, index)
           end
+          
+          local timidx = 1
+          while true do
+            local timer = GetQuestIndexForTimer(timidx)
+            if not timer then timidx = nil break end
+            if timer == index then break end
+            timidx = timidx + 1
+          end
+          timidx = not not timidx
           
           local turnin
           local turnin_new
@@ -471,25 +488,12 @@ function QH_UpdateQuests(force)
             end
           end
           
-          if turnin_new then
-            local timidx = 1
-            while true do
-              local timer = GetQuestIndexForTimer(timidx)
-              if not timer then break end
-              if timer == index then
-                QH_Route_SetClusterPriority(turnin, -1)
-                break
-              end
-              timidx = timidx + 1
-            end
+          if turnin_new and timidx then
+            QH_Route_SetClusterPriority(turnin, -1)
           end
         end
       end
       index = index + 1
-    end
-    
-    for _, v in ipairs(unknown) do
-      QH_Route_IgnoreCluster(v, dontknow)
     end
     
     EndInsertionPass("local")
