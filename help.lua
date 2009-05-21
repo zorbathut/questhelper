@@ -105,14 +105,14 @@ function QuestHelper:ToggleShare()
       self:TextOut("Objective sharing will been |cff00ff00enabled|r when you disable solo mode.")
     else
       self:TextOut("Objective sharing has been |cff00ff00enabled|r.")
-      self:EnableSharing()
+      self:SetShare(true)
     end
   else
     self:TextOut("Objective sharing has been |cffff0000disabled|r.")
     if QuestHelper_Pref.solo then
       self:TextOut("Objective sharing won't be reenabled when you disable solo mode.")
     else
-      self:DisableSharing()
+      self:SetShare(false)
     end
   end
 end
@@ -234,14 +234,14 @@ function QuestHelper:ToggleSolo()
   QuestHelper_Pref.solo = not QuestHelper_Pref.solo
   if QuestHelper_Pref.solo then
     if QuestHelper_Pref.share then
-      self:DisableSharing()
+      self:SetShare(false)
       self:TextOut("Objective sharing has been temporarly |cffff0000disabled|r.")
     end
     self:TextOut("Solo mode has been |cff00ff00enabled|r.")
   else
     self:TextOut("Solo mode has been |cffff0000disabled|r.")
     if QuestHelper_Pref.share then
-      self:EnableSharing()
+      self:SetShare(true)
       self:TextOut("Objective sharing has been re|cff00ff00enabled|r.")
     end
   end

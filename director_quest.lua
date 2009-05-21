@@ -359,7 +359,7 @@ local function StartInsertionPass(id)
       k.progress[id] = nil
       local desc = MakeQuestObjectiveTitle(k.progress, k.target)
       for _, v in ipairs(k) do
-        v.tracker_desc = desc or "phail"
+        v.tracker_desc = desc or "(no description available)"
       end
     end
   end
@@ -379,7 +379,7 @@ local function RefreshItem(id, item)
   
   local desc = MakeQuestObjectiveTitle(item.progress, item.target)
   for _, v in ipairs(item) do
-    v.tracker_desc = desc or "phail"
+    v.tracker_desc = desc or "(no description available)"
   end
   
   return added
@@ -516,6 +516,7 @@ function SerItem(item)
   elseif type(item) == "nil" then
     rtx = "0"
   else
+    print(type(item), item)
     QuestHelper: Assert()
   end
   return rtx
@@ -600,7 +601,8 @@ function QH_UpdateQuests(force)
           end
           local timed = not not timidx
           
-          local chunk = "q:" .. Serialize(id, title, level, group, variety, groupsize, complete, timed)
+          --print(id, title, level, groupsize, variety, groupsize, complete, timed)
+          local chunk = "q:" .. Serialize(id, title, level, groupsize, variety, groupsize, complete, timed)
           for i = 1, lbcount do
             QuestHelper: Assert(db[i])
             db[i].temp_desc, db[i].temp_typ, db[i].temp_done = GetQuestLogLeaderBoard(i, index)
@@ -610,7 +612,7 @@ function QH_UpdateQuests(force)
           
           next_chunks[id] = chunk
           
-          QuestProcessor(player, db, title, level, group, variety, groupsize, watched, complete, lbcount, timed)
+          QuestProcessor(player, db, title, level, groupsize, variety, groupsize, watched, complete, lbcount, timed)
         end
       end
       index = index + 1
@@ -622,13 +624,13 @@ function QH_UpdateQuests(force)
     
     for k, v in pairs(next_chunks) do
       if current_chunks[k] ~= v then
-        SAM(v, "RAID")
+        SAM(v, "PARTY")
       end
     end
     
     for k, v in pairs(current_chunks) do
       if not next_chunks[k] then
-        SAM(string.format("q:n%d", k), "RAID")
+        SAM(string.format("q:n%d", k), "PARTY")
       end
     end
     
@@ -717,12 +719,12 @@ local old_playerlist = {}
 
 function QH_Questcomm_Sync()
   local playerlist = {}
-  if GetNumRaidMembers() > 0 then
+  --[[if GetNumRaidMembers() > 0 then
     for i = 1, 40 do
       local liv = UnitName(string.format("raid%d", i))
       if liv then playerlist[liv] = true end
     end
-  elseif GetNumPartyMembers() > 0 then
+  elseif]] if GetNumPartyMembers() > 0 then
     -- we is in a party
     for i = 1, 4 do
       local liv = UnitName(string.format("party%d", i))
@@ -734,6 +736,7 @@ function QH_Questcomm_Sync()
   local additions = {}
   for k, v in pairs(playerlist) do
     if not old_playerlist[k] then
+      print("new player:", k)
       table.insert(additions, k)
     end
   end
@@ -741,6 +744,7 @@ function QH_Questcomm_Sync()
   local removals = {}
   for k, v in pairs(old_playerlist) do
     if not playerlist[k] then
+      print("lost player:", k)
       table.insert(removals, k)
     end
   end
@@ -751,26 +755,36 @@ function QH_Questcomm_Sync()
     QH_DumpCommUser(v)
   end
   
-  if additions == 0 then return end
+  if #additions == 0 then return end
   
-  local private_sync
-  if #additions <= 1 then private_sync = additions[1] end
-  
-  SAM("syn:2", private_sync and "WHISPER" or "RAID", additions[1])
+  if #additions == 1 then
+    SAM("syn:2", "WHISPER", additions[1])
+  else
+    SAM("syn:2", "PARTY")
+  end
 end
 
 local newer_reported = false
 function QH_Questcomm_Msg(data, from)
+  if data:match("syn:0") then
+    QH_DumpCommUser(from)
+    return
+  end
+  if QuestHelper_Pref.solo then return end
+  
+  print("received", from, data)
   if data:match("syn:.*") then
     local synv = data:match("syn:([0-9]*)")
     if synv then synv = tonumber(synv) end
     if synv and synv > 2 and not newer_reported then
-      self:TextOut(QHFormat("PEER_NEWER", from))
+      QuestHelper:TextOut(QHFormat("PEER_NEWER", from))
       newer_reported = true
     end
     
     SAM("hello:2", "WHISPER", from)
-  elseif data == "hello:2" then
+  elseif data == "hello:2" or data == "retrieve:2" then
+    if data == "hello:2" then SAM("retrieve:2", "WHISPER", from) end  -- requests their info as well, needed to deal with UI reloading/logon/logoff properly
+    
     for k, v in pairs(current_chunks) do
       SAM(v, "WHISPER", from)
     end
@@ -778,5 +792,13 @@ function QH_Questcomm_Msg(data, from)
     if old_playerlist[from] then
       QH_InsertCommPacket(from, data)
     end
+  end
+end
+
+function QuestHelper:SetShare(flag)
+  if flag then
+    SAM("syn:2", "PARTY")
+  else
+    SAM("syn:0", "PARTY")
   end
 end
