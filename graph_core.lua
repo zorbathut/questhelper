@@ -169,7 +169,7 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
     table.insert(plane[stnode.p], stnode)
     
     local hep = QuestHelper:CreateTable("graphcore heap")
-    hep.c, hep.n = 0, stnode
+    hep.c, hep.n = 0, stnode  -- more than the subtraction, less than the minimum
     heap_insert(dijheap, hep)
   end
   
@@ -181,54 +181,61 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
     QH_Timeslice_Yield()
     --stats.heap_max = math.max(--stats.heap_max, #dijheap)
     local cdj = heap_extract(dijheap)
-    if cdj.done then
-      if undone[cdj.done] then
-        out[cdj.done] = cdj.c
-        undone[cdj.done] = nil
+    
+    local snode = cdj.n
+    --print(string.format("Extracted cost %f/%s pointing at %d/%f/%f", cdj.c, tostring(cdj.n.scan_cost), cdj.n.p, cdj.n.x, cdj.n.y))
+    if snode.scan_cost == cdj.c then  -- if we've modified it since then, don't bother
+      -- Are we at an end node?
+      if snode.goal then
+        -- we wouldn't be here if we hadn't found a better solution
+        QuestHelper: Assert(undone[snode.goal])
+        out[snode.goal] = cdj.c
+        undone[snode.goal] = nil
         remaining = remaining - 1
-        --stats.node_done = --stats.node_done + 1
-      else
-        --stats.node_done_already = --stats.node_done_already + 1
       end
-    else
-      local snode = cdj.n
-    --print(string.format("Extracted cost %f/%s pointing at %f/%f/%d", cdj.c, tostring(cdj.n.scan_cost), cdj.n.x, cdj.n.y, cdj.n.p))
-      if snode.scan_cost == cdj.c then  -- if we've modified it since then, don't bother
+      
+      -- Link to everything else on the plane
+      if not snode.pi then  -- Did we come from this plane? If so, there's no reason to scan it again  (flag means "plane internal")
         for _, v in ipairs(plane[snode.p]) do
           if v.scan_id ~= grid or v.scan_cost > snode.scan_cost then
             local dst = xydist(snode, v)
             local modcost = snode.scan_cost + dst
+            --print(string.format("Doing %d/%f vs %s/%s at %d/%f/%f", grid, modcost, tostring(v.scan_id), tostring(v.scan_cost), v.p, v.x, v.y))
             if v.scan_id ~= grid or v.scan_cost > modcost then
               v.scan_id = grid
               v.scan_cost = modcost
               v.scan_from = snode
+              v.scan_processed = false
               v.scan_outnode = nil
               v.scan_outnode_from = nil
               
-              if v.goal then
-                -- we wouldn't be here if we hadn't found a better solution
-                local hep = QuestHelper:CreateTable("graphcore heap")
-                hep.c, hep.done = modcost, v.goal
-                heap_insert(dijheap, hep)
-                QuestHelper: Assert(not v[link_id])
-              elseif v[link_id] then
-                for _, lnk in pairs(v[link_id]) do
-                  local mc2 = modcost + lnk.cost
-                  local linkto = lnk.link
-                  if linkto.scan_id ~= grid or linkto.scan_cost > mc2 then
-                    linkto.scan_id = grid
-                    linkto.scan_cost = mc2
-                    linkto.scan_from = v
-                    linkto.scan_outnode = lnk.outnode_to
-                    linkto.scan_outnode_from = lnk.outnode_from
-                    
-                    local hep = QuestHelper:CreateTable("graphcore heap")
-                    hep.c, hep.n = mc2, linkto
-                    heap_insert(dijheap, hep)
-                  end
-                end
+              do
+                local snude = QuestHelper:CreateTable("graphcore heap")
+                snude.c, snude.n, snude.pi = modcost, v, true
+                heap_insert(dijheap, snude)
+                --print(string.format("Inserting %f at %d/%f/%f, plane", snude.c, v.p, v.x, v.y))
               end
             end
+          end
+        end
+      end
+      
+      -- Link to everything we link to
+      if snode[link_id] then
+        for _, lnk in pairs(snode[link_id]) do
+          local mc2 = snode.scan_cost + lnk.cost
+          local linkto = lnk.link
+          if linkto.scan_id ~= grid or linkto.scan_cost > mc2 then
+            linkto.scan_id = grid
+            linkto.scan_cost = mc2
+            linkto.scan_from = snode
+            linkto.scan_outnode = lnk.outnode_to
+            linkto.scan_outnode_from = lnk.outnode_from
+            
+            local hep = QuestHelper:CreateTable("graphcore heap")
+            hep.c, hep.n = mc2, linkto
+            heap_insert(dijheap, hep)
+            --print(string.format("Inserting %f at %d/%f/%f, link", hep.c, linkto.p, linkto.x, linkto.y))
           end
         end
       end
@@ -248,7 +255,7 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   if remaining > 0 then
     for k, v in ipairs(nda) do
       if not out[k] then
-        QuestHelper: Assert(false, string.format("Couldn't find path to %d/%f/%f", nda[k].p, nda[k].x, nda[k].y))
+        QuestHelper: Assert(false, string.format("Couldn't find path to %d/%f/%f from %d/%f/%f", nda[k].p, nda[k].x, nda[k].y, st.p, st.x, st.y))
       end
     end
   end
@@ -405,6 +412,9 @@ function QH_Graph_Plane_Makelink(name, coord1, coord2, cost, cost_reverse)
   
   QuestHelper: Assert(cost >= 0)
   QuestHelper: Assert(not cost_reverse or cost_reverse >= 0)
+  
+  --cost = math.max(cost, 0.01)
+  --if cost_reverse then cost_reverse = math.max(cost_reverse, 0.01) end
   
   local tlink = {name, coord1, coord2, cost, cost_reverse}
   if not linkages[name] then linkages[name] = {} end
