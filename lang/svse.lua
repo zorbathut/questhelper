@@ -229,6 +229,6 @@ QuestHelper_Translations.svSE =
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = nil,
-  DISTANCE_METRES = nil
+  DISTANCE_METRES = "%h1 meter"
  }
 
