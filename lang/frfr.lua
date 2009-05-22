@@ -72,7 +72,7 @@ QuestHelper_Translations.frFR =
   
   -- Custom objectives.
   RESULTS_TITLE = "Résultats de la recherche",
-  NO_RESULTS = "Il n'y en a aucun !",
+  NO_RESULTS = "Il n'y en a aucun!",
   CREATED_OBJ = "Création: %1",
   REMOVED_OBJ = "Supprimé: %1",
   USER_OBJ = "Objectif utilisateur: %h1",
@@ -228,7 +228,7 @@ QuestHelper_Translations.frFR =
   SETTINGS_MENU_ARROW_RESET = "Remise à Zéro",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE_YARDS = nil,
+  DISTANCE_YARDS = "%h1 yards",
   DISTANCE_METRES = "%h1 mètres"
  }
 
