@@ -1,4 +1,14 @@
 
+== Version 1.0.18-beta 5/22/2009 ==
+
+BACK TO BETA
+
+So, why's it beta? Because I've got an experimental implementation of group quest sharing working. See, normally, when I do big nasty things, I go and test it for a few hours on my own. I bet you can figure out the problem with testing "group quest sharing" on my own!
+
+So I'm posting it here. Want group quest sharing? Try it out, you've got the weekend. Barring bugs, it'll be released as a non-beta on Monday. And if it then turns out to be buggy I shall be very cross indeed.
+
+That's the only change of note in this version.
+
 == Version 1.0.17 5/21/2009 ==
 
 * Fix the issue with QH crashing inside Ulduar and Naxxramas (and, in the process, fix some truly stupid decisions I made with the pathfinding. seriously, what was I thinking. can someone invent a time machine so I can go back and kick myself in the shins?)
