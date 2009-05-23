@@ -138,7 +138,7 @@ function QuestHelper_ErrorCatcher_ExplicitError(loud, o_msg, o_frame, o_stack, .
   
   QuestHelper_ErrorCatcher_RegisterError("crash", terror)
   
-  if first_error and first_error.silent and not first_error.next_loud then first_error.next_loud = terror end
+  if first_error and first_error.silent and not first_error.next_loud then first_error.next_loud = terror first_error.addons = "" end
   if not first_error or first_error.generated then first_error = terror end
   
   QuestHelper_ErrorCatcher.CondenseErrors()

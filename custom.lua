@@ -320,7 +320,7 @@ local function ReturnArgument(x)
 end
 
 function search_frame:PerformSearch(input)
-  self:TextOut("/qh find is currently disabled. Sorry! I'll get it back in once I can.")
+  QuestHelper:TextOut("/qh find is currently disabled. Sorry! I'll get it back in once I can.")
   do return end
   if not self.routine then
     self.query = string.gsub(input, "|c.-|H.-|h%[(.-)%]|h|r", ReturnArgument)
