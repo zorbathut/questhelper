@@ -550,7 +550,18 @@ end
 
 local function SAM(msg, chattype, target)
   QuestHelper: TextOut(string.format("%s/%s: %s", chattype, tostring(target), msg))
-  ChatThrottleLib:SendAddonMessage("BULK", "QHpr", msg, chattype, target, "QHpr")
+  
+  local thresh = 245
+  local msgsize = 240
+  if #msg > thresh then
+    for i = 1, #msg, msgsize do
+      local prefx = "x:"
+      if i == 1 then prefx = "v:" elseif i + msgsize > #msg then prefx = "X:" end
+      SAM(prefx .. msg:sub(i, i + msgsize - 1), chattype, target)
+    end
+  else
+    ChatThrottleLib:SendAddonMessage("BULK", "QHpr", msg, chattype, target, "QHpr")
+  end
 end
 
 -- qid, chunk
@@ -727,8 +738,9 @@ function QH_Questcomm_Sync()
   elseif]] if GetNumPartyMembers() > 0 then
     -- we is in a party
     for i = 1, 4 do
-      local liv = UnitName(string.format("party%d", i))
-      if liv then playerlist[liv] = true end
+      local targ = string.format("party%d", i)
+      local liv = UnitName(targ)
+      if liv and liv ~= UNKNOWNOBJECT and UnitIsConnected(targ) then playerlist[liv] = true end
     end
   end
   playerlist[UnitName("player")] = nil
@@ -764,6 +776,8 @@ function QH_Questcomm_Sync()
   end
 end
 
+local aku = {}
+
 local newer_reported = false
 function QH_Questcomm_Msg(data, from)
   if data:match("syn:0") then
@@ -773,6 +787,31 @@ function QH_Questcomm_Msg(data, from)
   if QuestHelper_Pref.solo then return end
   
   print("received", from, data)
+  do
+    local cont = true
+    
+    local key, value = data:match("(.):(.*)")
+    if key == "v" then
+      aku[from] = value
+    elseif key == "x" then
+      if aku[from] then
+        aku[from] = aku[from] .. value
+      end
+    elseif key == "X" then
+      if aku[from] then
+        aku[from] = aku[from] .. value
+        data = aku[from]
+        aku[from] = nil
+        cont = true
+      end
+    else
+      cont = true
+    end
+    
+    if not cont then return end
+  end
+  
+  print("packet received", from, data)
   if data:match("syn:.*") then
     local synv = data:match("syn:([0-9]*)")
     if synv then synv = tonumber(synv) end
@@ -781,7 +820,9 @@ function QH_Questcomm_Msg(data, from)
       newer_reported = true
     end
     
-    SAM("hello:2", "WHISPER", from)
+    if synv and synv >= 2 then
+      SAM("hello:2", "WHISPER", from)
+    end
   elseif data == "hello:2" or data == "retrieve:2" then
     if data == "hello:2" then SAM("retrieve:2", "WHISPER", from) end  -- requests their info as well, needed to deal with UI reloading/logon/logoff properly
     
@@ -800,5 +841,8 @@ function QuestHelper:SetShare(flag)
     SAM("syn:2", "PARTY")
   else
     SAM("syn:0", "PARTY")
+    local cpb = comm_packets
+    comm_packets = {}
+    for k in pairs(cpb) do RefreshUserComms(k) end
   end
 end
