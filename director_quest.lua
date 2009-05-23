@@ -549,7 +549,7 @@ local function Serialize(...)
 end
 
 local function SAM(msg, chattype, target)
-  QuestHelper: TextOut(string.format("%s/%s: %s", chattype, tostring(target), msg))
+  --QuestHelper: TextOut(string.format("%s/%s: %s", chattype, tostring(target), msg))
   
   local thresh = 245
   local msgsize = 240
@@ -748,7 +748,7 @@ function QH_Questcomm_Sync()
   local additions = {}
   for k, v in pairs(playerlist) do
     if not old_playerlist[k] then
-      print("new player:", k)
+      --print("new player:", k)
       table.insert(additions, k)
     end
   end
@@ -756,7 +756,7 @@ function QH_Questcomm_Sync()
   local removals = {}
   for k, v in pairs(old_playerlist) do
     if not playerlist[k] then
-      print("lost player:", k)
+      --print("lost player:", k)
       table.insert(removals, k)
     end
   end
@@ -786,7 +786,7 @@ function QH_Questcomm_Msg(data, from)
   end
   if QuestHelper_Pref.solo then return end
   
-  print("received", from, data)
+  --print("received", from, data)
   do
     local cont = true
     
@@ -811,7 +811,7 @@ function QH_Questcomm_Msg(data, from)
     if not cont then return end
   end
   
-  print("packet received", from, data)
+  --print("packet received", from, data)
   if data:match("syn:.*") then
     local synv = data:match("syn:([0-9]*)")
     if synv then synv = tonumber(synv) end
