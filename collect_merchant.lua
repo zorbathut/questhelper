@@ -59,9 +59,9 @@ function QH_Collect_Merchant_Init(QHCData, API)
    if not QHCData.monster then QHCData.monster = {} end
   QHCM = QHCData.monster
   
-  API.Registrar_EventHook("MERCHANT_SHOW", MerchantShow)
-  API.Registrar_EventHook("GOSSIP_SHOW", GossipShow)
-  API.Registrar_EventHook("QUEST_GREETING", QuestGreeting)
+  QH_Event("MERCHANT_SHOW", MerchantShow)
+  QH_Event("GOSSIP_SHOW", GossipShow)
+  QH_Event("QUEST_GREETING", QuestGreeting)
   
   IsMonsterGUID = API.Utility_IsMonsterGUID
   GetMonsterType = API.Utility_GetMonsterType

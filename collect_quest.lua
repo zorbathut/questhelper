@@ -394,19 +394,19 @@ function QH_Collect_Quest_Init(QHCData, API)
   
   deebey = ScanQuests()
   
-  API.Registrar_EventHook("UNIT_QUEST_LOG_CHANGED", LogChanged)
-  API.Registrar_EventHook("QUEST_LOG_UPDATE", UpdateQuests)
-  API.Registrar_EventHook("QUEST_WATCH_UPDATE", WatchUpdate)
+  QH_Event("UNIT_QUEST_LOG_CHANGED", LogChanged)
+  QH_Event("QUEST_LOG_UPDATE", UpdateQuests)
+  QH_Event("QUEST_WATCH_UPDATE", WatchUpdate)
   
-  API.Registrar_EventHook("CHAT_MSG_LOOT", Looted)
-  API.Registrar_EventHook("COMBAT_LOG_EVENT_UNFILTERED", Combat)
+  QH_Event("CHAT_MSG_LOOT", Looted)
+  QH_Event("COMBAT_LOG_EVENT_UNFILTERED", Combat)
   
   API.Registrar_TooltipHook(MouseoverUnit)
   
   -- Here's a pile of events that seem to trigger during startup that also don't seem like would trigger while questing.
   -- We'll lose a few quest updates from this, but that's OK.
-  API.Registrar_EventHook("PLAYER_ENTERING_WORLD", Init)
-  API.Registrar_EventHook("UNIT_MODEL_CHANGED", Init)
-  API.Registrar_EventHook("GUILDBANK_UPDATE_WITHDRAWMONEY", Init)
-  API.Registrar_EventHook("UPDATE_TICKET", Init)
+  QH_Event("PLAYER_ENTERING_WORLD", Init)
+  QH_Event("UNIT_MODEL_CHANGED", Init)
+  QH_Event("GUILDBANK_UPDATE_WITHDRAWMONEY", Init)
+  QH_Event("UPDATE_TICKET", Init)
 end

@@ -542,25 +542,25 @@ function QH_Collect_Loot_Init(QHCData, API)
   if not QHC.fishing then QHC.fishing = {} end
   if not QHC.item then QHC.item = {} end
   
-  API.Registrar_EventHook("PLAYER_ENTERING_WORLD", MembersUpdate)
-  API.Registrar_EventHook("RAID_ROSTER_UPDATE", MembersUpdate)
-  API.Registrar_EventHook("PARTY_MEMBERS_CHANGED", MembersUpdate)
-  API.Registrar_EventHook("COMBAT_LOG_EVENT_UNFILTERED", CombatLogEvent)
+  QH_Event("PLAYER_ENTERING_WORLD", MembersUpdate)
+  QH_Event("RAID_ROSTER_UPDATE", MembersUpdate)
+  QH_Event("PARTY_MEMBERS_CHANGED", MembersUpdate)
+  QH_Event("COMBAT_LOG_EVENT_UNFILTERED", CombatLogEvent)
 
-  API.Registrar_EventHook("UPDATE_MOUSEOVER_UNIT", SkinnableflagsTooltipy)
+  QH_Event("UPDATE_MOUSEOVER_UNIT", SkinnableflagsTooltipy)
   
-  API.Registrar_EventHook("UNIT_SPELLCAST_SENT", PPSent)
-  API.Registrar_EventHook("UNIT_SPELLCAST_SUCCEEDED", PPSucceed)
+  QH_Event("UNIT_SPELLCAST_SENT", PPSent)
+  QH_Event("UNIT_SPELLCAST_SUCCEEDED", PPSucceed)
   
-  API.Registrar_EventHook("ITEM_LOCK_CHANGED", ItemLock)
+  QH_Event("ITEM_LOCK_CHANGED", ItemLock)
   
-  API.Registrar_EventHook("UNIT_SPELLCAST_SENT", SpellSent)
-  API.Registrar_EventHook("UNIT_SPELLCAST_START", SpellStart)
-  API.Registrar_EventHook("COMBAT_LOG_EVENT_UNFILTERED", SpellCombatLog)
-  API.Registrar_EventHook("UNIT_SPELLCAST_SUCCEEDED", SpellSucceed)
-  API.Registrar_EventHook("UNIT_SPELLCAST_INTERRUPTED", SpellInterrupt)
+  QH_Event("UNIT_SPELLCAST_SENT", SpellSent)
+  QH_Event("UNIT_SPELLCAST_START", SpellStart)
+  QH_Event("COMBAT_LOG_EVENT_UNFILTERED", SpellCombatLog)
+  QH_Event("UNIT_SPELLCAST_SUCCEEDED", SpellSucceed)
+  QH_Event("UNIT_SPELLCAST_INTERRUPTED", SpellInterrupt)
   
-  API.Registrar_EventHook("LOOT_OPENED", LootOpened)
+  QH_Event("LOOT_OPENED", LootOpened)
   
   MembersUpdate() -- to get self, probably won't work but hey
   

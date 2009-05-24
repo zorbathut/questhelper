@@ -119,7 +119,7 @@ function QH_Collect_Equip_Init(QHCData, API)
   API.Patterns_Register("LOOT_ITEM_PUSHED_SELF", "|c.*|r")
   API.Patterns_Register("LOOT_ITEM_SELF", "|c.*|r")
   
-  API.Registrar_EventHook("CHAT_MSG_LOOT", Looted)
+  QH_Event("CHAT_MSG_LOOT", Looted)
   
   GetItemType = API.Utility_GetItemType
   Notifier = API.Utility_Notifier

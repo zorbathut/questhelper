@@ -80,6 +80,7 @@ lang\zhtw.lua
 
 # Basic utilities used for miscellaneous things, also creates the QH frame
 utility.lua
+utility_event.lua
 
 # This is kind of a lot of files.
 static.lua

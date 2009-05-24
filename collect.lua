@@ -9,33 +9,8 @@ local QuestHelper_Collector_Version_Current = 7
 QuestHelper_Collector = {}
 QuestHelper_Collector_Version = QuestHelper_Collector_Version_Current
 
-local EventRegistrar = {}
 local OnUpdateRegistrar = {}
 local TooltipRegistrar = {}
-
-local frame = CreateFrame("Frame")
-
-local function OnEvent(_, event, ...)
-  local tstart = GetTime()
-  for _, v in pairs(EventRegistrar[event]) do
-    v(...)
-  end
-  QH_Timeslice_Increment(GetTime() - tstart, "collect_event")
-end
-
-frame:UnregisterAllEvents()
-frame:SetScript("OnEvent", OnEvent)
-
-frame:Show()
-
-local function EventHookRegistrar(event, func)
-  QuestHelper: Assert(func)
-  if not EventRegistrar[event] then
-    frame:RegisterEvent(event)
-    EventRegistrar[event] = {}
-  end
-  table.insert(EventRegistrar[event], func)
-end
 
 local function OnUpdateHookRegistrar(func)
   QuestHelper: Assert(func)
@@ -83,7 +58,6 @@ local function TooltipHookRegistrar(func)
 end
 
 local API = {
-  Registrar_EventHook = EventHookRegistrar,
   Registrar_OnUpdateHook = OnUpdateHookRegistrar,
   Registrar_TooltipHook = TooltipHookRegistrar,
   Callback_Location_Raw = function () return QuestHelper:Location_RawRetrieve() end,

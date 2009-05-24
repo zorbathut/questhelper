@@ -98,8 +98,8 @@ function QH_Collect_Monster_Init(QHCData, API)
   if not QHCData.monster then QHCData.monster = {} end
   QHCM = QHCData.monster
   
-  API.Registrar_EventHook("UPDATE_MOUSEOVER_UNIT", MouseoverUnit)
-  API.Registrar_EventHook("CHAT_MSG_SYSTEM", SystemMessage)
+  QH_Event("UPDATE_MOUSEOVER_UNIT", MouseoverUnit)
+  QH_Event("CHAT_MSG_SYSTEM", SystemMessage)
   
   Patterns = API.Patterns
   QuestHelper: Assert(Patterns)

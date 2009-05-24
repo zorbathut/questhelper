@@ -195,6 +195,7 @@ function QuestHelper:Initialize()
       ["quest.lua"] = true,
       ["questlog.lua"] = true,
       ["utility.lua"] = true,
+      ["utility_event.lua"] = true,
       ["dodads.lua"] = true,
       ["teleport.lua"] = true,
       ["pathfinding.lua"] = true,
