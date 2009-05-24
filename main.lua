@@ -169,7 +169,11 @@ end
 local interruptcount = 0   -- counts how many "played gained control" messages we recieve, used for flight paths
 local init_cartographer_later = false
 
-function QuestHelper:Initialize()
+QH_Event("ADDON_LOADED", function (addonid)
+  if addonid ~= "QuestHelper" then return end
+  local tstart = GetTime()
+  local self = QuestHelper -- whee hack hack hack
+  
   QuestHelper_Loadtime["init_start"] = GetTime()
   
   -- Use DefaultPref as fallback for unset preference keys.
@@ -605,19 +609,15 @@ function QuestHelper:Initialize()
   
   QuestHelper.loading_flightpath = QuestHelper.loading_main:MakeSubcategory(1)
   QuestHelper.loading_preroll = QuestHelper.loading_main:MakeSubcategory(1)
-end
+  
+  QH_Timeslice_Increment(GetTime() - tstart, "init")
+end)
 
 local startup_time
 local please_donate_enabled = false
 local please_donate_initted = false
 
 function QuestHelper:OnEvent(event)
-  if event == "VARIABLES_LOADED" then
-    local tstart = GetTime()
-    self:Initialize()
-    QH_Timeslice_Increment(GetTime() - tstart, "init")
-  end
-
   local tstart = GetTime()
   
   --[[
@@ -1044,5 +1044,4 @@ function QuestHelper:Location_AbsoluteRetrieve()
   return self.collect_delayed, self.collect_ac, self.collect_ax, self.collect_ay
 end
 
-QuestHelper:RegisterEvent("VARIABLES_LOADED")
 QuestHelper:SetScript("OnEvent", QuestHelper.OnEvent)
