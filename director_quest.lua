@@ -298,6 +298,9 @@ local function MakeQuestObjectiveTitle(progress, target)
     end
     
     if pt > 1 then party_show = true end
+  elseif pt == 0 then
+    ccode = difficulty_color(1) -- probably just in the process of being removed from the tracker
+    status = "Complete"
   else
     ccode = difficulty_color(pd / pt)
     
