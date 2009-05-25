@@ -228,8 +228,7 @@ function QuestHelper:CreateWorldMapWalker()
     end
   end
   
-  walker:SetScript("OnEvent", function () walker:RouteChanged() end)  -- we do this just to strip the parameters out
-  walker:RegisterEvent("WORLD_MAP_UPDATE")
+  QH_Event("WORLD_MAP_UPDATE", function () walker:RouteChanged() end)
   
   walker:SetScript("OnUpdate", walker.OnUpdate)
   
@@ -547,7 +546,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
     self.old_count = 0
   end
   
-  function icon:OnEvent(event)
+  function icon:OnEvent()
     if self.objective then
       QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(self.objective.loc))
     else
@@ -588,7 +587,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
   
   icon:RegisterForClicks("RightButtonUp")
   
-  icon:RegisterEvent("WORLD_MAP_UPDATE")
+  QH_Event("WORLD_MAP_UPDATE", function () icon:OnEvent() end)
   
   icon:SetObjective(objective, nxt)
   return icon
@@ -833,11 +832,11 @@ function QuestHelper:CreateMipmapDodad()
   icon:SetScript("OnUpdate", icon.OnUpdate)
   icon:SetScript("OnEnter", icon.OnEnter)
   icon:SetScript("OnLeave", icon.OnLeave)
-  icon:SetScript("OnEvent", icon.OnEvent)
   icon:SetScript("OnClick", icon.OnClick)
   
   icon:RegisterForClicks("RightButtonUp")
-  icon:RegisterEvent("PLAYER_ENTERING_WORLD")
+  
+  QH_Event("PLAYER_ENTERING_WORLD", function () icon:OnEvent() end)
   
   return icon
 end

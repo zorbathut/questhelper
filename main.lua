@@ -171,7 +171,6 @@ local init_cartographer_later = false
 
 QH_Event("ADDON_LOADED", function (addonid)
   if addonid ~= "QuestHelper" then return end
-  local tstart = GetTime()
   local self = QuestHelper -- whee hack hack hack
   
   QuestHelper_Loadtime["init_start"] = GetTime()
@@ -199,7 +198,6 @@ QH_Event("ADDON_LOADED", function (addonid)
       ["quest.lua"] = true,
       ["questlog.lua"] = true,
       ["utility.lua"] = true,
-      ["utility_event.lua"] = true,
       ["dodads.lua"] = true,
       ["teleport.lua"] = true,
       ["pathfinding.lua"] = true,
@@ -416,28 +414,6 @@ QH_Event("ADDON_LOADED", function (addonid)
   
   self.player_level = UnitLevel("player")
 
-  self:UnregisterEvent("VARIABLES_LOADED")
-  self:RegisterEvent("PLAYER_TARGET_CHANGED")
-  self:RegisterEvent("LOOT_OPENED")
-  self:RegisterEvent("QUEST_COMPLETE")
-  self:RegisterEvent("QUEST_LOG_UPDATE")
-  self:RegisterEvent("QUEST_PROGRESS")
-  self:RegisterEvent("MERCHANT_SHOW")
-  self:RegisterEvent("QUEST_DETAIL")
-  self:RegisterEvent("TAXIMAP_OPENED")
-  self:RegisterEvent("PLAYER_CONTROL_GAINED")
-  self:RegisterEvent("PLAYER_LEVEL_UP")
-  self:RegisterEvent("PARTY_MEMBERS_CHANGED")
-  self:RegisterEvent("CHAT_MSG_ADDON")
-  self:RegisterEvent("CHAT_MSG_SYSTEM")
-  self:RegisterEvent("BAG_UPDATE")
-  self:RegisterEvent("GOSSIP_SHOW")
-  self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE")
-  self:RegisterEvent("UNIT_LEVEL")
-  self:RegisterEvent("ZONE_CHANGED")
-  self:RegisterEvent("ZONE_CHANGED_INDOORS")
-  self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-
   self:SetLocaleFonts()
 
   if QuestHelper_Pref.share and not QuestHelper_Pref.solo then
@@ -610,13 +586,41 @@ QH_Event("ADDON_LOADED", function (addonid)
   QuestHelper.loading_flightpath = QuestHelper.loading_main:MakeSubcategory(1)
   QuestHelper.loading_preroll = QuestHelper.loading_main:MakeSubcategory(1)
   
-  QH_Timeslice_Increment(GetTime() - tstart, "init")
+  QH_Event("CHAT_MSG_ADDON", function (...)
+    if arg1 == "QHpr" and arg4 ~= UnitName("player") then
+      QH_Questcomm_Msg(arg2, arg4)
+    end
+  end)
+
+  QH_Event({"PARTY_MEMBERS_CHANGED", "UNIT_LEVEL", "RAID_ROSTER_UPDATE"}, function ()
+    QH_Filter_Group_Sync()
+    QH_Route_Filter_Rescan("filter_quest_level")
+  end)
+  
+  QH_Event({"PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE"}, function ()
+    QH_Questcomm_Sync()
+  end)
+  
+  QH_Event("PLAYER_LEVEL_UP", function ()
+    self.player_level = arg1
+    QH_Route_Filter_Rescan("filter_quest_level")
+  end)
+  
+  QH_Event("TAXIMAP_OPENED", function ()
+    self:taxiMapOpened()
+  end)
+  
+  QH_Event({"ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "ZONE_CHANGED_NEW_AREA"}, function()
+    QH_Route_Filter_Rescan()
+  end)
+
 end)
 
 local startup_time
 local please_donate_enabled = false
 local please_donate_initted = false
 
+--[==[
 function QuestHelper:OnEvent(event)
   local tstart = GetTime()
   
@@ -756,28 +760,7 @@ function QuestHelper:OnEvent(event)
     end
   end]]
 
-  if event == "CHAT_MSG_ADDON" then
-    if arg1 == "QHpr" and arg4 ~= UnitName("player") then
-      QH_Questcomm_Msg(arg2, arg4)
-    end
-  end
 
-  if event == "PARTY_MEMBERS_CHANGED" or
-    event == "UNIT_LEVEL" or
-    event == "RAID_ROSTER_UPDATE" then
-    QH_Filter_Group_Sync()
-    QH_Route_Filter_Rescan("filter_quest_level")
-  end
-  
-  if event == "PARTY_MEMBERS_CHANGED" or
-    event == "RAID_ROSTER_UPDATE" then
-    QH_Questcomm_Sync()
-  end
-  
-  if event == "PLAYER_LEVEL_UP" then
-    self.player_level = arg1
-    QH_Route_Filter_Rescan("filter_quest_level")
-  end
   
 
   --[[if event == "QUEST_DETAIL" then
@@ -893,7 +876,7 @@ function QuestHelper:OnEvent(event)
   end
   
   QH_Timeslice_Increment(GetTime() - tstart, "event")
-end
+end]==]
 
 local map_shown_decay = 0
 local delayed_action = 100
@@ -1044,4 +1027,4 @@ function QuestHelper:Location_AbsoluteRetrieve()
   return self.collect_delayed, self.collect_ac, self.collect_ax, self.collect_ay
 end
 
-QuestHelper:SetScript("OnEvent", QuestHelper.OnEvent)
+--QuestHelper:SetScript("OnEvent", QuestHelper.OnEvent)

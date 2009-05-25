@@ -712,8 +712,8 @@ local function QH_DumpCommUser(user)
   RefreshUserComms(user)
 end
 
-QuestHelper.EventHookRegistrar("UNIT_QUEST_LOG_CHANGED", UpdateTrigger)
-QuestHelper.EventHookRegistrar("QUEST_LOG_UPDATE", QH_UpdateQuests)
+QH_Event("UNIT_QUEST_LOG_CHANGED", UpdateTrigger)
+QH_Event("QUEST_LOG_UPDATE", QH_UpdateQuests)
 
 -- We don't return anything here, but I don't think that's actually an issue - those functions don't return anything anyway. Someday I'll regret writing this. Delay because of beql which is a bitch.
 QH_AddNotifier(GetTime() + 5, function ()

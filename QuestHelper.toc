@@ -81,7 +81,9 @@ lang\zhtw.lua
 
 # Basic utilities used for miscellaneous things, also creates the QH frame
 utility.lua
-utility_event.lua
+
+# Event manager module. Depends on nothing, calls no external functions.
+manager_event.lua
 
 # This is kind of a lot of files.
 static.lua
@@ -120,9 +122,6 @@ recycle.lua
 
 # Patterns for parsing the GlobalString patterns. Depends on nothing, calls nothing. Honestly, it's better than collect_pattern, I should probably be using it there. I need util_ or something.
 pattern.lua
-
-# Event manager module. Depends on nothing, calls no external functions.
-manager_event.lua
 
 # Database module. Depends on nothing, calls no external functions.
 db_get.lua

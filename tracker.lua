@@ -89,9 +89,7 @@ function QuestHelper:ResetTrackerPosition(cmd)
   self:TextOut("Quest tracker postion reset.")
 end
 
-minbutton:SetScript("OnEvent", minbutton.moved)
-minbutton:RegisterEvent("DISPLAY_SIZE_CHANGED")
-minbutton:RegisterEvent("PLAYER_ENTERING_WORLD")
+QH_Event({"DISPLAY_SIZE_CHANGED", "PLAYER_ENTERING_WORLD"}, function () minbutton:moved() end)
 
 minbutton:SetScript("OnClick", function ()
   QuestHelper_Pref.track_minimized = not QuestHelper_Pref.track_minimized

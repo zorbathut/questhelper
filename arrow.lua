@@ -98,18 +98,16 @@ local function OnDragStop(self, button)
 	self:StopMovingOrSizing()
 end
 
-local function OnEvent(self, event, ...)
-	if event == "ZONE_CHANGED_NEW_AREA" and QuestHelper_Pref.arrow and not QuestHelper_Pref.hide then -- TODO TWEAKERY
+QH_Event("ZONE_CHANGED_NEW_AREA", function ()
+	if QuestHelper_Pref.arrow and not QuestHelper_Pref.hide then -- TODO TWEAKERY
 		self:Show()
     OnUpdate(self, nil)
 	end
-end
+end)
 
 wayframe:SetScript("OnDragStart", OnDragStart)
 wayframe:SetScript("OnDragStop", OnDragStop)
 wayframe:RegisterForDrag("LeftButton")
-wayframe:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-wayframe:SetScript("OnEvent", OnEvent)
 
 wayframe.arrow = wayframe:CreateTexture("OVERLAY")
 --wayframe.arrow:SetTexture("Interface\\AddOns\\QuestHelper\\arrow_image_down") -- if we don't do this, the image doesn't seem to end up cached. :blizzard:
