@@ -100,8 +100,8 @@ end
 
 QH_Event("ZONE_CHANGED_NEW_AREA", function ()
 	if QuestHelper_Pref.arrow and not QuestHelper_Pref.hide then -- TODO TWEAKERY
-		self:Show()
-    OnUpdate(self, nil)
+		wayframe:Show()
+    OnUpdate()
 	end
 end)
 
@@ -171,7 +171,7 @@ local function wpupdate(c, z, x, y, desc)
   active_point.c, active_point.z, active_point.x, active_point.y = c, z, x, y
   wayframe.title:SetText(desc)
   wayframe:Show()
-  OnUpdate(wayframe, nil)
+  OnUpdate()
 end
 
 QuestHelper:AddWaypointCallback(wpupdate)
@@ -184,13 +184,16 @@ local tta_throttle = 0
 local speed = 0
 local speed_count = 0
 
-OnUpdate = function(self, elapsed)
+OnUpdate = function()
+  local self = wayframe
   QuestHelper: Assert(self)
   
 	if not active_point.c or QuestHelper.collect_rc ~= active_point.c or QuestHelper.collect_delayed or QuestHelper.InBrokenInstance or not QuestHelper_Pref.arrow then
 		self:Hide()
 		return
 	end
+  
+  self:Show()
 
   local dist, dx, dy = QuestHelper.Astrolabe:ComputeDistance(QuestHelper.collect_rc, QuestHelper.collect_rz, QuestHelper.collect_rx, QuestHelper.collect_ry, active_point.c, active_point.z, active_point.x, active_point.y)
   
@@ -359,4 +362,6 @@ local function WayFrame_OnClick(self, button)
 end
 
 wayframe:RegisterForClicks("RightButtonUp")
-wayframe:SetScript("OnClick", WayFrame_OnClick)
+
+QH_OnUpdate(OnUpdate)
+
