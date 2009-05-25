@@ -138,13 +138,13 @@ function QH_Collector_Init()
   API.Utility_Notifier(GetTime() + (debug_output and 0 or (30 * 60)), function() CompressCollection(QHCData, QuestHelper_Collector[sig_altfaction], API.Utility_Merger, API.Utility_LZW.Compress) end)
 end
 
-function QH_Collector_OnUpdate()
+QH_OnUpdate(function ()
   local tstart = GetTime()
   for _, v in pairs(OnUpdateRegistrar) do
     v()
   end
   QH_Timeslice_Increment(GetTime() - tstart, "collect_update")
-end
+end)
 
 
 

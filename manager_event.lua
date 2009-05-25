@@ -22,8 +22,6 @@ end
 qh_event_frame:UnregisterAllEvents()
 qh_event_frame:SetScript("OnEvent", OnEvent)
 
-
-
 function QH_Event(event, func, identifier)
   QuestHelper: Assert(func)
   if type(event) == "table" then
@@ -40,7 +38,29 @@ function QH_Event(event, func, identifier)
   end
 end
 
---[[
-function QH_Event_FrameHook(identifier, frame, hook, func)
+
+local OnUpdate = {}
+local OnUpdateHigh = {}
+local function OnUpdateTrigger()
+  for _, v in pairs(OnUpdateHigh) do
+    v.func()
+  end
+  
+  for _, v in pairs(OnUpdate) do
+    v.func()
+  end
+  
+  QH_Timeslice_Work()
 end
-]]
+
+function QH_OnUpdate(func, identifier)
+  if not identifier then identifier = "(unknown onupdate)" end
+  table.insert(OnUpdate, {func = func, id = identifier})
+end
+
+function QH_OnUpdate_High(func, identifier)
+  if not identifier then identifier = "(unknown high-onupdate)" end
+  table.insert(OnUpdateHigh, {func = func, id = identifier})
+end
+
+qh_event_frame:SetScript("OnUpdate", OnUpdateTrigger)
