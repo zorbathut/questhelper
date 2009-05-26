@@ -1,11 +1,5 @@
 QuestHelper_File["custom.lua"] = "Development Version"
 QuestHelper_Loadtime["custom.lua"] = GetTime()
-
-function QuestHelper:PerformSearch()
-  QuestHelper:TextOut("/qh find is currently disabled. Sorry! I'll get it back in once I can.")
-end
-
-do return end
   
 -- This next bit of stuff is for fuzzy string comarisons.
 
