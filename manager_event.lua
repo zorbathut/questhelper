@@ -64,3 +64,8 @@ function QH_OnUpdate_High(func, identifier)
 end
 
 qh_event_frame:SetScript("OnUpdate", OnUpdateTrigger)
+
+
+function QH_Hook(target, hookname, func, identifier)
+  target:SetScript(hookname, func)
+end

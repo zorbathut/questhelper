@@ -239,17 +239,17 @@ function QuestHelper:InitMapButton()
     button:GetNormalTexture():SetDesaturated(QuestHelper_Pref.hide)
     
     -- Add event handlers to provide Tooltip
-    button:SetScript("OnEnter", QuestHelperWorldMapButton_OnEnter)
-    button:SetScript("OnLeave", function(this)
+    QH_Hook(button, "OnEnter", QuestHelperWorldMapButton_OnEnter)
+    QH_Hook(button, "OnLeave", function(this)
         QuestHelper.tooltip:Hide()
     end)
 
     -- Add Click handler
-    button:SetScript("OnClick", QuestHelperWorldMapButton_OnClick)
+    QH_Hook(button, "OnClick", QuestHelperWorldMapButton_OnClick)
     button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 
     -- Add Hide handler, so we can dismiss any menus when map is closed
-    button:SetScript("OnHide", QuestHelper_WorldMapHidden)
+    QH_Hook(button, "OnHide", QuestHelper_WorldMapHidden)
 
     -- Position it on the World Map frame
 --~     if Cartographer then

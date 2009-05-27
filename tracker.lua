@@ -91,7 +91,7 @@ end
 
 QH_Event({"DISPLAY_SIZE_CHANGED", "PLAYER_ENTERING_WORLD"}, function () minbutton:moved() end)
 
-minbutton:SetScript("OnClick", function ()
+QH_Hook(minbutton, "OnClick", function ()
   QuestHelper_Pref.track_minimized = not QuestHelper_Pref.track_minimized
   if QuestHelper_Pref.track_minimized then
     tracker:Hide()
@@ -102,24 +102,24 @@ end)
 
 minbutton:RegisterForDrag("LeftButton")
 
-minbutton:SetScript("OnDragStart", function(self)
+QH_Hook(minbutton, "OnDragStart", function(self)
   if self:IsVisible() then
     self:StartMoving()
-    self:SetScript("OnUpdate", self.moved)
+    QH_Hook(self, "OnUpdate", self.moved)
   end
 end)
 
-minbutton:SetScript("OnDragStop", function(self)
-  self:SetScript("OnUpdate", nil)
+QH_Hook(minbutton, "OnDragStop", function(self)
+  QH_Hook(self, "OnUpdate", nil)
   self:StopMovingOrSizing()
   self:moved()
 end)
 
-minbutton:SetScript("OnEnter", function (self)
+QH_Hook(minbutton, "OnEnter", function (self)
   self:SetAlpha(1)
 end)
 
-minbutton:SetScript("OnLeave", function (self)
+QH_Hook(minbutton, "OnLeave", function (self)
   self:SetAlpha(QuestHelper_Pref.track_minimized and .3 or .5)
 end)
 
@@ -163,7 +163,7 @@ local function itemupdate(item, delta)
   item:SetPoint("TOPLEFT", tracker, "TOPLEFT", item.x, -item.y)
   
   if done then
-    item:SetScript("OnUpdate", nil)
+    QH_Hook(item, "OnUpdate", nil)
   end
 end
 
@@ -176,7 +176,7 @@ local function itemfadeout(item, delta)
   else
     item:SetAlpha(1)
     item:Hide()
-    item:SetScript("OnUpdate", nil)
+    QH_Hook(item, "OnUpdate", nil)
     table.insert(recycled_items, item)
     return
   end
@@ -295,7 +295,7 @@ local function addItem(objective, y, meta)
     item.obj = objective
 
     item.sx, item.sy, item.x, item.y, item.ex, item.ey, item.t = x+30, y, x, y, x, y, 0
-    item:SetScript("OnUpdate", itemupdate)
+    QH_Hook(item, "OnUpdate", itemupdate)
     item:SetAlpha(0)
     item:Show()
   end
@@ -307,14 +307,14 @@ local function addItem(objective, y, meta)
   item:SetHeight(h)
   
   if objective.tracker_clicked then
-    item:SetScript("OnMouseDown", function (self, button) if button == "RightButton" then objective.tracker_clicked() end end)
+    QH_Hook(item, "OnMouseDown", function (self, button) if button == "RightButton" then objective.tracker_clicked() end end)
     item:EnableMouse(true)
   end
   
   if item.ex ~= x or item.ey ~= y then
     item.sx, item.sy, item.ex, item.ey = item.x, item.y, x, y
     item.t = 0
-    item:SetScript("OnUpdate", itemupdate)
+    QH_Hook(item, "OnUpdate", itemupdate)
   end
   
     -- we're just going to recycle this each time
@@ -431,9 +431,9 @@ end
 local function removeUnusedItem(item)
   item.t = 0
   item.sx, item.sy, item.dx, item.dy = item.x, item.y, item.x+30, item.y
-  item:SetScript("OnMouseDown", nil)
+  QH_Hook(item, "OnMouseDown", nil)
   item:EnableMouse(false)
-  item:SetScript("OnUpdate", itemfadeout)
+  QH_Hook(item, "OnUpdate", itemfadeout)
   
   if item.specitem then
     item.specitem:Hide()
@@ -946,7 +946,7 @@ function tracker:update(delta)
   end
 end
 
-tracker:SetScript("OnUpdate", tracker.update)
+QH_Hook(tracker, "OnUpdate", tracker.update)
 
 -- Some hooks to update the tracker when quests are added or removed. These should be moved into the quest director.
 --[[
@@ -1013,7 +1013,7 @@ function tracker:HideDefaultTracker()
       TrackerBackdropFound:Hide()
 
       orig_TrackerBackdropOnShow = TrackerBackdropFound:GetScript("OnShow")
-      TrackerBackdropFound:SetScript("OnShow", TrackerBackdropOnShow)
+      QH_Hook(TrackerBackdropFound, "OnShow", TrackerBackdropOnShow)
     end
   end
 end
@@ -1046,7 +1046,7 @@ if QuestWatchFrame then   -- 3.1 hackery
     end
   end
 
-  QuestWatchFrame:SetScript("OnShow", QuestWatchFrameOnShow)
+  QH_Hook(QuestWatchFrame, "OnShow", QuestWatchFrameOnShow)
 end
 
 function QuestHelper:ShowTracker()

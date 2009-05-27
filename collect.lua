@@ -40,13 +40,13 @@ local function CollectTooltippery(self)
 end
 
 local ottsu = GameTooltip:GetScript("OnTooltipSetUnit")
-GameTooltip:SetScript("OnTooltipSetUnit", function (self, ...)
+QH_Hook(GameTooltip, "OnTooltipSetUnit", function (self, ...)
   CollectTooltippery(self)
   if ottsu then return ottsu(self, ...) end
 end)
 
 local ottsi = GameTooltip:GetScript("OnTooltipSetItem")
-GameTooltip:SetScript("OnTooltipSetItem", function (self, ...)
+QH_Hook(GameTooltip, "OnTooltipSetItem", function (self, ...)
   CollectTooltippery(self)
   if ottsi then return ottsi(self, ...) end
 end)

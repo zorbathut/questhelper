@@ -230,7 +230,7 @@ function QuestHelper:CreateWorldMapWalker()
   
   QH_Event("WORLD_MAP_UPDATE", function () walker:RouteChanged() end)
   
-  walker:SetScript("OnUpdate", walker.OnUpdate)
+  QH_Hook(walker, "OnUpdate", walker.OnUpdate)
   
   return walker
 end
@@ -493,7 +493,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
           self.glow_list = nil
         end
         
-        self:SetScript("OnUpdate", nil)
+        QH_Hook(self, "OnUpdate", nil)
         return
       end
     end
@@ -537,7 +537,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
     
     self:SetGlow(list)
     
-    self:SetScript("OnUpdate", self.OnUpdate)
+    QH_Hook(self, "OnUpdate", self.OnUpdate)
   end
   
   function icon:OnLeave()
@@ -580,10 +580,10 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
     end
   end
   
-  icon:SetScript("OnClick", icon.OnClick)
-  icon:SetScript("OnEnter", icon.OnEnter)
-  icon:SetScript("OnLeave", icon.OnLeave)
-  icon:SetScript("OnEvent", icon.OnEvent)
+  QH_Hook(icon, "OnClick", icon.OnClick)
+  QH_Hook(icon, "OnEnter", icon.OnEnter)
+  QH_Hook(icon, "OnLeave", icon.OnLeave)
+  QH_Hook(icon, "OnEvent", icon.OnEvent)
   
   icon:RegisterForClicks("RightButtonUp")
   
@@ -829,10 +829,10 @@ function QuestHelper:CreateMipmapDodad()
     end
   end
   
-  icon:SetScript("OnUpdate", icon.OnUpdate)
-  icon:SetScript("OnEnter", icon.OnEnter)
-  icon:SetScript("OnLeave", icon.OnLeave)
-  icon:SetScript("OnClick", icon.OnClick)
+  QH_Hook(icon, "OnUpdate", icon.OnUpdate)
+  QH_Hook(icon, "OnEnter", icon.OnEnter)
+  QH_Hook(icon, "OnLeave", icon.OnLeave)
+  QH_Hook(icon, "OnClick", icon.OnClick)
   
   icon:RegisterForClicks("RightButtonUp")
   

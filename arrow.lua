@@ -105,8 +105,8 @@ QH_Event("ZONE_CHANGED_NEW_AREA", function ()
 	end
 end)
 
-wayframe:SetScript("OnDragStart", OnDragStart)
-wayframe:SetScript("OnDragStop", OnDragStop)
+QH_Hook(wayframe, "OnDragStart", OnDragStart)
+QH_Hook(wayframe, "OnDragStop", OnDragStop)
 wayframe:RegisterForDrag("LeftButton")
 
 wayframe.arrow = wayframe:CreateTexture("OVERLAY")
@@ -292,7 +292,7 @@ OnUpdate = function()
   ]]
 end
 
-wayframe:SetScript("OnUpdate", OnUpdate)
+QH_Hook(wayframe, "OnUpdate", OnUpdate)
 
 
 local function spacer()

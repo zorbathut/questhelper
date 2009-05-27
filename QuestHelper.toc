@@ -43,6 +43,12 @@ bst_pre.lua
 # Loads before everything else so we can catch errors in everything else
 error.lua
 
+# Basic utilities used for miscellaneous things, also creates the QH frame
+utility.lua
+
+# Event manager module. Depends on nothing, calls no external functions.
+manager_event.lua
+
 bst_libaboutpanel.lua
 LibAboutPanel\lib.xml
 
@@ -78,12 +84,6 @@ lang\svse.lua
 lang\trtr.lua
 lang\zhcn.lua
 lang\zhtw.lua
-
-# Basic utilities used for miscellaneous things, also creates the QH frame
-utility.lua
-
-# Event manager module. Depends on nothing, calls no external functions.
-manager_event.lua
 
 # This is kind of a lot of files.
 static.lua

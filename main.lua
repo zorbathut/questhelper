@@ -517,7 +517,7 @@ QH_Event("ADDON_LOADED", function (addonid)
     end
   end
 
-  self:SetScript("OnUpdate", self.OnUpdate)
+  QH_Hook(self, "OnUpdate", self.OnUpdate)
 
   -- Seems to do its own garbage collection pass before fully loading, so I'll just rely on that
   --collectgarbage("collect") -- Free everything we aren't using.
@@ -1022,4 +1022,4 @@ function QuestHelper:Location_AbsoluteRetrieve()
   return self.collect_delayed, self.collect_ac, self.collect_ax, self.collect_ay
 end
 
---QuestHelper:SetScript("OnEvent", QuestHelper.OnEvent)
+--QH_Hook(QuestHelper, "OnEvent", QuestHelper.OnEvent)

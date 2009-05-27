@@ -100,8 +100,8 @@ local function onHide( frame )
 end
 
 local function setScripts( monitorFrame )
-	monitorFrame:SetScript("OnShow", onShow);
-	monitorFrame:SetScript("OnHide", onHide);
+QH_Hook(	monitorFrame, "OnShow", onShow);
+QH_Hook(	monitorFrame, "OnHide", onHide);
 end
 
 
