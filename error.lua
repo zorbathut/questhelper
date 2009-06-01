@@ -171,6 +171,8 @@ function QuestHelper_ErrorCatcher.OnError(o_msg, o_frame, o_stack, o_etype, ...)
     if string.find(lin, "QuestHelper") and not string.find(lin, "QuestHelper\\AstrolabeQH\\DongleStub.lua") then errorize = true end
   end
   
+  if string.find(o_msg, "SavedVariables") then errorize, loud = false, false end
+  
   if loud then errorize = true end
   
   if errorize then QuestHelper_ErrorCatcher_ExplicitError(loud, o_msg, o_frame, o_stack) end
