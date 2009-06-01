@@ -7,24 +7,27 @@ local count = 1
 function QH_Filter_Group_Sync()
   avg_level = UnitLevel("player")
   count = 1
-  if GetNumRaidMembers() > 0 then
-    avg_level = 0
-    count = 0
-    -- we is in a raid
-    for i = 1, 40 do
-      local liv = UnitLevel(string.format("raid%d", i))
-      if liv >= 1 then
-        avg_level = avg_level + liv
-        count = count + 1
+  
+  if not QuestHelper_Pref.solo then
+    if GetNumRaidMembers() > 0 then
+      avg_level = 0
+      count = 0
+      -- we is in a raid
+      for i = 1, 40 do
+        local liv = UnitLevel(string.format("raid%d", i))
+        if liv >= 1 then
+          avg_level = avg_level + liv
+          count = count + 1
+        end
       end
-    end
-  elseif GetNumPartyMembers() > 0 then
-    -- we is in a party
-    for i = 1, 4 do
-      local liv = UnitLevel(string.format("party%d", i))
-      if liv >= 1 then
-        avg_level = avg_level + liv
-        count = count + 1
+    elseif GetNumPartyMembers() > 0 then
+      -- we is in a party
+      for i = 1, 4 do
+        local liv = UnitLevel(string.format("party%d", i))
+        if liv >= 1 then
+          avg_level = avg_level + liv
+          count = count + 1
+        end
       end
     end
   end
