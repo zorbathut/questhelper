@@ -98,7 +98,7 @@ end, {friendly_reason = QHText("FILTERED_COMPLETE"), friendly_name = "done"})
 local filter_quest_watched = QH_MakeFilter("filter_quest_watched", function(obj)
   if not QuestHelper_Pref.filter_watched then return end
   
-  if not obj.type_quest then return end
+  if not obj.type_quest or not obj.type_quest.index then return end
   
   return not IsQuestWatched(obj.type_quest.index)
 end, {friendly_reason = QHText("FILTERED_UNWATCHED"), friendly_name = "watched"})
