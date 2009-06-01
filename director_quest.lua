@@ -636,15 +636,17 @@ function QH_UpdateQuests(force)
     
     QH_Route_Filter_Rescan()  -- 'cause filters may also change
     
-    for k, v in pairs(next_chunks) do
-      if current_chunks[k] ~= v then
-        SAM(v, "PARTY")
+    if not QuestHelper_Pref.solo and QuestHelper_Pref.share then
+      for k, v in pairs(next_chunks) do
+        if current_chunks[k] ~= v then
+          SAM(v, "PARTY")
+        end
       end
-    end
-    
-    for k, v in pairs(current_chunks) do
-      if not next_chunks[k] then
-        SAM(string.format("q:n%d", k), "PARTY")
+      
+      for k, v in pairs(current_chunks) do
+        if not next_chunks[k] then
+          SAM(string.format("q:n%d", k), "PARTY")
+        end
       end
     end
     
@@ -732,6 +734,11 @@ end)
 local old_playerlist = {}
 
 function QH_Questcomm_Sync()
+  if not (not QuestHelper_Pref.solo and QuestHelper_Pref.share) then
+    old_playerlist = {}
+    return
+  end
+  
   local playerlist = {}
   --[[if GetNumRaidMembers() > 0 then
     for i = 1, 40 do
@@ -841,7 +848,7 @@ end
 
 function QuestHelper:SetShare(flag)
   if flag then
-    SAM("syn:2", "PARTY")
+    QH_Questcomm_Sync()
   else
     SAM("syn:0", "PARTY")
     local cpb = comm_packets
