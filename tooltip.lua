@@ -162,19 +162,19 @@ QH_Hook(GameTooltip, "OnTooltipSetUnit", function (self, ...)
   CreateTooltip(self)
   if ottsu then ottsu(self, ...) end
   unit_to_adjust = self:GetUnit()
-end)
+end, "tooltip OnTooltipSetUnit")
 
 local ottsi = GameTooltip:GetScript("OnTooltipSetItem")
 QH_Hook(GameTooltip, "OnTooltipSetItem", function (self, ...)
-  CreateTooltip(self)
-  if ottsi then return ottsi(self, ...) end
-end)
+  QH_Hook_NotMyFault(CreateTooltip, self)
+  if ottsi then return QH_Hook_NotMyFault(ottsi, self, ...) end
+end, "tooltip OnTooltipSetItem")
 
 local ttsx = GameTooltip:GetScript("OnUpdate")
 QH_Hook(GameTooltip, "OnUpdate", function (self, ...)
-  if ttsx then ttsx(self, ...) end
+  if ttsx then QH_Hook_NotMyFault(ttsx, self, ...) end
   if glob_strip and unit_to_adjust and unit_to_adjust == self:GetUnit() then
     self:SetHeight(self:GetHeight() - glob_strip * 3) -- maaaaaagic
     unit_to_adjust = nil
   end
-end)
+end, "tooltip OnUpdate")

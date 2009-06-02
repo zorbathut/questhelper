@@ -30,11 +30,9 @@ end
 local function CollectTooltippery(self)
   if not self then self = GameTooltip end
   
-  local tstart = GetTime()
   for k, v in pairs(TooltipRegistrar) do
     v(self)
   end
-  QH_Timeslice_Increment(GetTime() - tstart, "collect_tooltip")
   
   -- anything past here is not my fault
 end
@@ -42,14 +40,14 @@ end
 local ottsu = GameTooltip:GetScript("OnTooltipSetUnit")
 QH_Hook(GameTooltip, "OnTooltipSetUnit", function (self, ...)
   CollectTooltippery(self)
-  if ottsu then return ottsu(self, ...) end
-end)
+  if ottsu then return QH_Hook_NotMyFault(ottsu, self, ...) end
+end, "collection OnTooltipSetUnit")
 
 local ottsi = GameTooltip:GetScript("OnTooltipSetItem")
 QH_Hook(GameTooltip, "OnTooltipSetItem", function (self, ...)
   CollectTooltippery(self)
-  if ottsi then return ottsi(self, ...) end
-end)
+  if ottsi then return QH_Hook_NotMyFault(ottsi, self, ...) end
+end, "collection OnTooltipSetItem")
 
 
 local function TooltipHookRegistrar(func)

@@ -789,6 +789,7 @@ end
 local aku = {}
 
 local newer_reported = false
+local older_reported = false
 function QH_Questcomm_Msg(data, from)
   if data:match("syn:0") then
     QH_DumpCommUser(from)
@@ -825,9 +826,14 @@ function QH_Questcomm_Msg(data, from)
   if data:match("syn:.*") then
     local synv = data:match("syn:([0-9]*)")
     if synv then synv = tonumber(synv) end
-    if synv and synv > 2 and not newer_reported then
-      QuestHelper:TextOut(QHFormat("PEER_NEWER", from))
-      newer_reported = true
+    if synv and synv ~= 2 then
+      if synv > 2 and not newer_reported then
+        QuestHelper:TextOut(QHFormat("PEER_NEWER", from))
+        newer_reported = true
+      elseif synv < 2 and not older_reported then
+        QuestHelper:TextOut(QHFormat("PEER_OLDER", from))
+        older_reported = true
+      end
     end
     
     if synv and synv >= 2 then

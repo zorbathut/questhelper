@@ -16,14 +16,37 @@ local OnUpdate_Keyed = {}
 
 local qh_event_frame = CreateFrame("Frame")
 
+
+qh_loud_and_annoying = true
+
+function QH_Hook_NotMyFault(func, ...)
+  return func(...)
+end
+
 local function wraptime(ident, func, ...)
-  local st
+  QuestHelper: Assert(ident)
+  local st, qhh_nmf
+  local qhh_adj = 0
   if qh_loud_and_annoying then
+    qhh_nmf = QH_Hook_NotMyFault
+    QH_Hook_NotMyFault = function(func, ...)
+      local zst = GetTime()
+      --print("a", GetTime())
+      return (function(...)
+        --print("c", GetTime(), GetTime() - zst, qhh_adj)
+        qhh_adj = qhh_adj + (GetTime() - zst)
+        --print(qhh_adj)
+        return ...
+      end)(func(...))
+    end
     st = GetTime()
   end
   func(...)
-  if qh_loud_and_annoying and GetTime() - st > 0.0025 then
-    QuestHelper: TextOut(string.format("Took way too long, %4f, at %s", (GetTime() - st) * 1000, ident))
+  if qh_loud_and_annoying then
+    if GetTime() - st - qhh_adj > 0.0025 then
+      QuestHelper: TextOut(string.format("Took way too long, %4f, at %s (adjusted by %4f)", (GetTime() - st - qhh_adj) * 1000, ident, qhh_adj * 1000))
+    end
+    QH_Hook_NotMyFault = qhh_nmf
   end
 end
 
@@ -96,10 +119,10 @@ qh_event_frame:SetScript("OnUpdate", OnUpdateTrigger)
 
 
 function QH_Hook(target, hookname, func, identifier)
+  if not identifier then identifier = string.format("(unknown hook %s/%s)", hookname, tostring(target)) end
   if hookname == "OnUpdate" then
     OnUpdate[target] = {func = func and function (...) func(target, ...) end, id = identifier}
   else
-    local ide = string.format("(unknown %s/%s)", tostring(target), hookname)
-    target:SetScript(hookname, function (...) wraptime(ide, func, ...) end)
+    target:SetScript(hookname, function (...) wraptime(identifier, func, ...) end)
   end
 end
