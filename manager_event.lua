@@ -17,7 +17,6 @@ local OnUpdate_Keyed = {}
 local qh_event_frame = CreateFrame("Frame")
 
 
-qh_loud_and_annoying = true
 
 function QH_Hook_NotMyFault(func, ...)
   return func(...)
