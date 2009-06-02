@@ -32,7 +32,7 @@ QuestHelper_Translations.frFR =
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" pour lister)",
   
   -- Locale switcher.
-  LOCALE_LIST_BEGIN = "Langues disponibles :",
+  LOCALE_LIST_BEGIN = "Langues disponibles:",
   LOCALE_CHANGED = "Langue changée en: %h1",
   LOCALE_UNKNOWN = "La langue %h1 est inconnue.",
   
@@ -72,14 +72,14 @@ QuestHelper_Translations.frFR =
   
   -- Custom objectives.
   RESULTS_TITLE = "Résultats de la recherche",
-  NO_RESULTS = "Il n'y en a aucun !",
-  CREATED_OBJ = "Création : %1",
-  REMOVED_OBJ = "Supprimé : %1",
-  USER_OBJ = "Objectif utilisateur : %h1",
+  NO_RESULTS = "Il n'y en a aucun!",
+  CREATED_OBJ = "Création: %1",
+  REMOVED_OBJ = "Supprimé: %1",
+  USER_OBJ = "Objectif utilisateur: %h1",
   UNKNOWN_OBJ = "Destination inconnue pour cet objectif.",
   INACCESSIBLE_OBJ = "QuestHelper n'a pas été capable de trouver une destination utile pour %h1. Nous avons ajoutés une destination impossible à rejoindre dans la liste des objectifs. Si vous trouvez une version utile de cet objet, merci de soumettre vos données ! (%h(/qh submit))",
   
-  SEARCHING_STATE = "Recherche : %1",
+  SEARCHING_STATE = "Recherche: %1",
   SEARCHING_LOCAL = "Local %1",
   SEARCHING_STATIC = "Statique %1",
   SEARCHING_ITEMS = "Objets",
@@ -100,22 +100,22 @@ QuestHelper_Translations.frFR =
   
   -- Hidden objectives.
   HIDDEN_TITLE = "Objectifs cachés",
-  HIDDEN_NONE = "Il n'y a aucun objectif caché.",
-  DEPENDS_ON_SINGLE = "Dépend de '%1'.",
-  DEPENDS_ON_COUNT = "Dépend de %1 objectifs cachés.",
+  HIDDEN_NONE = "Il n'y a aucun objectifs cachés",
+  DEPENDS_ON_SINGLE = "Dépend de '%1'",
+  DEPENDS_ON_COUNT = "Dépend de %1 objectifs cachés",
   DEPENDS_ON = "Dépend des objectifs filtrés",
-  FILTERED_LEVEL = "Filtré à cause du niveau.",
-  FILTERED_ZONE = "Filtré à cause de la zone.",
-  FILTERED_COMPLETE = "Filtré car terminé.",
+  FILTERED_LEVEL = "Filtré à cause du niveau",
+  FILTERED_ZONE = "Filtré à cause de la zone",
+  FILTERED_COMPLETE = "Filtré car terminé",
   FILTERED_BLOCKED = "Filtré car dépend d'un objectif qui n'a pas été réalisé",
   FILTERED_UNWATCHED = "Filtré car l'objectif n'est pas suivi dans le journal de quêtes",
-  FILTERED_USER = "Vous avez demandé à cacher cet objectif.",
-  FILTERED_UNKNOWN = "Ne sais pas comment le terminer.",
+  FILTERED_USER = "Vous avez demandé à cacher cet objectif",
+  FILTERED_UNKNOWN = "Ne sais pas comment le terminer",
   
-  HIDDEN_SHOW = "Montrer.",
+  HIDDEN_SHOW = "Montrer",
   HIDDEN_SHOW_NO = "Ne peux être vu",
   HIDDEN_EXCEPTION = "Ajout d'exception",
-  DISABLE_FILTER = "Désactiver le filtre : %1",
+  DISABLE_FILTER = "Désactiver le filtre: %1",
   FILTER_DONE = "terminé",
   FILTER_ZONE = "zone",
   FILTER_LEVEL = "niveau",
@@ -154,15 +154,15 @@ QuestHelper_Translations.frFR =
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "Progression pour %1:",
-  TRAVEL_ESTIMATE = "Temps de voyage estimé :",
+  TRAVEL_ESTIMATE = "Temps de voyage estimé:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
-  WAYPOINT_REASON = "Visiter %h1 sur la route de :",
+  WAYPOINT_REASON = "Visiter %h1 sur la route de:",
   FLIGHT_POINT = "%1 point de vol",
-  
+
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
-  QH_BUTTON_TOOLTIP1 = "Clic-Gauche : %1 information de route.",
-  QH_BUTTON_TOOLTIP2 = "Clic-Droit : afficher le menu des options.",
+  QH_BUTTON_TOOLTIP1 = "Clic-Gauche: %1 information de route.",
+  QH_BUTTON_TOOLTIP2 = "Clic-Droit: afficher le menu des options.",
   QH_BUTTON_SHOW = "Afficher",
   QH_BUTTON_HIDE = "Cacher",
 
@@ -203,10 +203,10 @@ QuestHelper_Translations.frFR =
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
   -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
   TOOLTIP_WATCHED = "Suivi par QuestHelper",
-  TOOLTIP_QUEST = "Pour la quête %h1",
-  TOOLTIP_PURCHASE = "Acheter %h1",
-  TOOLTIP_SLAY = "À tuer pour %h1",
-  TOOLTIP_LOOT = "Ramasser pour le butin %h1",
+  TOOLTIP_QUEST = "Pour la quête %h1.",
+  TOOLTIP_PURCHASE = "Acheter %h1.",
+  TOOLTIP_SLAY = "À tuer pour %h1.",
+  TOOLTIP_LOOT = "Ramasser pour le butin %h1.",
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "Utilisera %h1 pour afficher les objectifs.",
@@ -228,5 +228,7 @@ QuestHelper_Translations.frFR =
   SETTINGS_MENU_ARROW_RESET = "Remise à Zéro",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = "%h1 mètres",
+  DISTANCE_YARDS = "%h1 yards",
+  DISTANCE_METRES = "%h1 mètres"
  }
+

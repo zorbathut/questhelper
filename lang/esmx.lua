@@ -228,6 +228,7 @@ QuestHelper_Translations.esMX =
   SETTINGS_MENU_ARROW_RESET = "Reiniciar",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = "&h1 yardas",
+  DISTANCE_YARDS = "%h1 yardas",
+  DISTANCE_METRES = "%h1 metros",
  }
 

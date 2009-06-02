@@ -228,6 +228,7 @@ QuestHelper_Translations.ruRU =
   SETTINGS_MENU_ARROW_RESET = "Сбросить",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = "%h1 метров",
+  DISTANCE_YARDS = nil,
+  DISTANCE_METRES = "%h1 метров"
  }
 

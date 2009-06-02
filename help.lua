@@ -66,6 +66,16 @@ function QuestHelper:SetLocale(loc)
   end
 end
 
+function QuestHelper:ToggleMetric()
+  QuestHelper_Pref.metric = not QuestHelper_Pref.metric
+  
+  if QuestHelper_Pref.metric then
+    self:TextOut("Distances are now in metres.")
+  else
+    self:TextOut("Distances are now in yards.")
+  end
+end
+
 function QuestHelper:ToggleHide()
   QuestHelper_Pref.hide = not QuestHelper_Pref.hide
   
@@ -96,23 +106,20 @@ function QuestHelper:ToggleHide()
 end
 
 function QuestHelper:ToggleShare()
-  self:TextOut("Objective sharing is currently broken. Zorba will make it work again once he can.")
-  do return end
-  
   QuestHelper_Pref.share = not QuestHelper_Pref.share
   if QuestHelper_Pref.share then
     if QuestHelper_Pref.solo then
       self:TextOut("Objective sharing will been |cff00ff00enabled|r when you disable solo mode.")
     else
       self:TextOut("Objective sharing has been |cff00ff00enabled|r.")
-      self:EnableSharing()
+      self:SetShare(true)
     end
   else
     self:TextOut("Objective sharing has been |cffff0000disabled|r.")
     if QuestHelper_Pref.solo then
       self:TextOut("Objective sharing won't be reenabled when you disable solo mode.")
     else
-      self:DisableSharing()
+      self:SetShare(false)
     end
   end
 end
@@ -234,14 +241,14 @@ function QuestHelper:ToggleSolo()
   QuestHelper_Pref.solo = not QuestHelper_Pref.solo
   if QuestHelper_Pref.solo then
     if QuestHelper_Pref.share then
-      self:DisableSharing()
+      self:SetShare(false)
       self:TextOut("Objective sharing has been temporarly |cffff0000disabled|r.")
     end
     self:TextOut("Solo mode has been |cff00ff00enabled|r.")
   else
     self:TextOut("Solo mode has been |cffff0000disabled|r.")
     if QuestHelper_Pref.share then
-      self:EnableSharing()
+      self:SetShare(true)
       self:TextOut("Objective sharing has been re|cff00ff00enabled|r.")
     end
   end
@@ -663,7 +670,11 @@ commands =
      "Toggles Questhelper's built-in directional arrow.",
       {{"/qh arrow reset", "Reset location to the center of the screen."}},
       QuestHelper.ToggleArrow, QuestHelper},
-      
+    
+    {"METRIC",
+     "Toggles distance units between metres and yards.",
+     {}, QuestHelper.ToggleMetric, QuestHelper},
+    
     {"CARTWP",
      "Toggles displaying the current objective using Cartographer Waypoints (must be installed separately).",
       {}, QuestHelper.ToggleCartWP, QuestHelper},

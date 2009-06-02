@@ -228,6 +228,7 @@ QuestHelper_Translations.svSE =
   SETTINGS_MENU_ARROW_RESET = "Återställ",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = "avstånd",
+  DISTANCE_YARDS = nil,
+  DISTANCE_METRES = "%h1 meter"
  }
 

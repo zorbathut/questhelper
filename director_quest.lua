@@ -85,8 +85,7 @@ local function AppendObjlinks(target, source, tooltips, icon, last_name, map_lin
 end
 
 
-local quest_list = {}
-local quest_list_used = {}
+local quest_list = setmetatable({}, {__mode="k"})
 
 local QuestCriteriaWarningBroadcast
 
@@ -115,7 +114,7 @@ local function GetQuestMetaobjective(questid, lbcount)
       end
     end end
     
-    ite = {type_quest = {}} -- we don't want to mutate the existing quest data
+    ite = {type_quest = {__backlink = ite}} -- we don't want to mutate the existing quest data. backlink exists only for nasty GC reasons
     ite.desc = string.format("Quest %s", q and q.name or "(unknown)")  -- this gets changed later anyway
     
     for i = 1, lbcount do
@@ -151,7 +150,7 @@ local function GetQuestMetaobjective(questid, lbcount)
     end
     
     do
-      local ttx = {}
+      local ttx = {type_quest_finish = true}
       --QuestHelper:TextOut(string.format("finny %d", q.finish.loc and #q.finish.loc or -1))
       if q and q.finish and q.finish.loc then for m, v in ipairs(q.finish.loc) do
         --print(v.rc, v.rz)
@@ -172,7 +171,6 @@ local function GetQuestMetaobjective(questid, lbcount)
     if q then DB_ReleaseItem(q) end
   end
   
-  quest_list_used[questid] = quest_list[questid]
   return quest_list[questid]
 end
 
@@ -189,8 +187,6 @@ local update = true
 local function UpdateTrigger()
   update = true
 end
-
-local active = {}
 
 -- It's possible that things end up garbage-collected and we end up with different tables than we expect. This is something that the entire system is kind of prone to. The solution's pretty easy - we just have to store them ourselves while we're using them.
 local active_db = {}
@@ -269,21 +265,70 @@ local function MakeQuestTitle(title, level)
   return ret
 end
 
-local function MakeQuestObjectiveTitle(title, typ, done)
-  local _, target, have, need = objective_parse(typ, title, done)
+local function MakeQuestObjectiveTitle(progress, target)
+  if not progress then return nil end
   
-  local nhave, nneed = tonumber(have), tonumber(need)
-  if nhave and nneed then
-    have, need = nhave, nneed
-    
-    local ccode = difficulty_color(have / need)
-    
-    if need > 1 then target = string.format("%s: %d/%d", target, have, need) end
-    if QuestHelper_Pref.track_ocolour then target = ccode .. target end
-    return target
-  else
-    return string.format("%s%s: %s/%s", QuestHelper_Pref.track_ocolour and "|cffff0000" or "", target, have, need)
+  local player = UnitName("player")
+  
+  local pt, pd = 0, 0
+  for _, v in pairs(progress) do
+    pt = pt + 1
+    if v[3] == 1 then pd = pd + 1 end
   end
+
+  local ccode
+  local status
+  local party
+  local party_show = false
+  local party_compact = false
+  
+  if progress[player] then
+    local have, need = tonumber(progress[player][1]), tonumber(progress[player][2])
+    
+    ccode = difficulty_color(progress[player][3])
+    
+    if have and need then
+      if need > 1 then
+        status = string.format("%d/%d", have, need)
+        party_compact = true
+      end
+    else
+      status = string.format("%s/%s", progress[player][1], progress[player][2])
+      party_compact = true
+    end
+    
+    if pt > 1 then party_show = true end
+  else
+    ccode = difficulty_color(pd / pt)
+    
+    party_show = true
+  end
+  
+  if party_show then
+    if party_compact then
+      party = string.format("(P: %d/%d)", pd, pt)
+    else
+      party = string.format("Party %d/%d", pd, pt)
+    end
+  end
+  
+  if QuestHelper_Pref.track_ocolour then
+    target = ccode .. target
+  end
+  
+  if status or party then
+    target = target .. ":"
+  end
+  
+  if status then
+    target = target .. " " .. status
+  end
+  
+  if party then
+    target = target .. " " .. party
+  end
+  
+  return target
 end
 
 local function Clicky(index)
@@ -299,6 +344,229 @@ local dontknow  = {
   friendly_reason = QHText("UNKNOWN_OBJ"),
 }
 
+-- InsertedItem[item] = {"list", "of", "reasons"}
+local InsertedItems = {}
+local Unknowning = {}
+local in_pass = nil
+
+local function StartInsertionPass(id)
+  QuestHelper: Assert(not in_pass)
+  in_pass = id
+  for k, v in pairs(InsertedItems) do
+    v[id] = nil
+    
+    if k.progress then
+      k.progress[id] = nil
+      local desc = MakeQuestObjectiveTitle(k.progress, k.target)
+      for _, v in ipairs(k) do
+        v.tracker_desc = desc or "(no description available)"
+      end
+    end
+  end
+end
+local function RefreshItem(id, item)
+  QuestHelper: Assert(in_pass == id)
+  local added = false
+  if not InsertedItems[item] then
+    QH_Route_ClusterAdd(item)
+    added = true
+    InsertedItems[item] = {}
+    if item.tooltip then QH_Tooltip_Add(item.tooltip) end
+  end
+  InsertedItems[item][id] = true
+  
+  if item.type_quest_unknown then table.insert(Unknowning, item) end
+  
+  local desc = MakeQuestObjectiveTitle(item.progress, item.target)
+  for _, v in ipairs(item) do
+    v.tracker_desc = desc or "(no description available)"
+  end
+  
+  return added
+end
+local function EndInsertionPass(id)
+  QuestHelper: Assert(in_pass == id)
+  local rem = QuestHelper:CreateTable("ip rem")
+  for k, v in pairs(InsertedItems) do
+    local has = false
+    for _, _ in pairs(v) do
+      has = true
+      break
+    end
+    if not has then
+      QH_Tracker_Unpin(k[1])
+      if k.tooltip then QH_Tooltip_Remove(k.tooltip) end
+      QH_Route_ClusterRemove(k)
+      rem[k] = true
+    end
+  end
+  
+  for k, _ in pairs(rem) do
+    InsertedItems[k] = nil
+  end
+  QuestHelper:ReleaseTable(rem)
+  
+  for _, v in ipairs(Unknowning) do
+    QH_Route_IgnoreCluster(v, dontknow)
+  end
+  while table.remove(Unknowning) do end
+  
+  in_pass = nil
+end
+
+function QuestProcessor(user_id, db, title, level, group, variety, groupsize, watched, complete, lbcount, timed)
+  db.desc = title
+  db.tracker_desc = MakeQuestTitle(title, level)
+  
+  db.type_quest.objectives = lbcount
+  db.type_quest.level = level
+  db.type_quest.done = (complete == 1)
+  db.type_quest.variety = variety
+  db.type_quest.groupsize = groupsize
+  db.type_quest.title = title
+  
+  local turnin
+  local turnin_new
+  
+  -- This is our "quest turnin" objective, which is currently being handled separately for no particularly good reason.
+  if db.finish and #db.finish > 0 then
+    for _, v in ipairs(db.finish) do
+      v.map_highlight = (complete == 1)
+    end
+    
+    turnin = db.finish
+    if RefreshItem(user_id, turnin) then
+      turnin_new = true
+      for k, v in ipairs(turnin) do
+        v.tracker_clicked = function () Clicky(lindex) end
+        
+        v.map_desc = {QHFormat("OBJECTIVE_REASON_TURNIN", title)}
+      end
+    end
+    if watched ~= "(ignore)" then QH_Tracker_SetPin(db.finish[1], watched) end
+  end
+  
+  -- These are the individual criteria of the quest. Remember that each criteria can be represented by multiple routing objectives.
+  for i = 1, lbcount do
+    if db[i] then
+      local pt, pd, have, need = objective_parse(db[i].temp_typ, db[i].temp_desc, db[i].temp_done)
+      local dline
+      if pt == "item" or pt == "object" then
+        dline = QHFormat("OBJECTIVE_REASON", QHText("ACQUIRE_VERB"), pd, title)
+      elseif pt == "monster" then
+        dline = QHFormat("OBJECTIVE_REASON", QHText("SLAY_VERB"), pd, title)
+      else
+        dline = QHFormat("OBJECTIVE_REASON_FALLBACK", pd, title)
+      end
+      
+      if not db[i].progress then
+        db[i].progress = {}
+      end
+      
+      if type(have) == "number" and type(need) == "number" then
+        db[i].progress[db[i].temp_person] = {have, need, have / need}
+      else
+        db[i].progress[db[i].temp_person] = {have, need, db[i].temp_done and 1 or 0}  -- it's only used for the coloring anyway
+      end
+      
+      local _, target = objective_parse(db[i].temp_typ, db[i].temp_desc)
+      db[i].target = target
+      
+      db[i].desc = QHFormat("TOOLTIP_QUEST", title)
+      
+      for k, v in ipairs(db[i]) do
+        v.desc = db[i].temp_desc
+        v.tracker_clicked = db.tracker_clicked
+        
+        v.progress = db[i].progress
+        
+        if v.path_desc then
+          v.map_desc = copy(v.path_desc)
+          v.map_desc[1] = dline
+        else
+          v.map_desc = {dline}
+        end
+      end
+      
+      -- This is the snatch of code that actually adds it to routing.
+      if not db[i].temp_done and #db[i] > 0 then
+        if RefreshItem(user_id, db[i]) then
+          if turnin then QH_Route_ClusterRequires(turnin, db[i]) end
+        end
+        if watched ~= "(ignore)" then QH_Tracker_SetPin(db[i][1], watched) end
+      end
+      
+      db[i].temp_desc, db[i].temp_typ, db[i].temp_done = nil, nil, nil
+    end
+  end
+  
+  if turnin_new and timed then
+    QH_Route_SetClusterPriority(turnin, -1)
+  end
+end
+
+function SerItem(item)
+  local rtx
+  if type(item) == "boolean" then
+    rtx = "b" .. (item and "t" or "f")
+  elseif type(item) == "number" then
+    rtx = "n" .. tostring(item)
+  elseif type(item) == "string" then
+    rtx = "s" .. item:gsub("\\", "\\\\"):gsub(":", "\\;")
+  elseif type(item) == "nil" then
+    rtx = "0"
+  else
+    print(type(item), item)
+    QuestHelper: Assert()
+  end
+  return rtx
+end
+
+function DeSerItem(item)
+  local t = item:sub(1, 1)
+  local d = item:sub(2)
+  if t == "b" then
+    return (d == "t")
+  elseif t == "n" then
+    return tonumber(d)
+  elseif t == "s" then
+    return d:gsub("\\;", ":"):gsub("\\\\", "\\")
+  elseif t == "0" then
+    return nil
+  else
+    QuestHelper: Assert()
+  end
+end
+
+local function Serialize(...)
+  local sx
+  for i = 1, select("#", ...) do
+    if sx then sx = sx .. ":" else sx = "" end
+    sx = sx .. SerItem(select(i, ...))
+  end
+  QuestHelper: Assert(sx)
+  return sx
+end
+
+local function SAM(msg, chattype, target)
+  --QuestHelper: TextOut(string.format("%s/%s: %s", chattype, tostring(target), msg))
+  
+  local thresh = 245
+  local msgsize = 240
+  if #msg > thresh then
+    for i = 1, #msg, msgsize do
+      local prefx = "x:"
+      if i == 1 then prefx = "v:" elseif i + msgsize > #msg then prefx = "X:" end
+      SAM(prefx .. msg:sub(i, i + msgsize - 1), chattype, target)
+    end
+  else
+    ChatThrottleLib:SendAddonMessage("BULK", "QHpr", msg, chattype, target, "QHpr")
+  end
+end
+
+-- qid, chunk
+local current_chunks = {}
+
 -- Here's the core update function
 function QH_UpdateQuests(force)
   if not DB_Ready() then return end
@@ -306,10 +574,10 @@ function QH_UpdateQuests(force)
   if update or force then  -- Sometimes (usually) we don't actually update
     local index = 1
     
-    local nactive = {}
-    quest_list_used = {}
+    local player = UnitName("player")
+    StartInsertionPass(player)
     
-    local unknown = {}
+    local next_chunks = {}
     
     -- This begins the main update loop that loops through all of the quests
     while true do
@@ -325,140 +593,120 @@ function QH_UpdateQuests(force)
           local lbcount = GetNumQuestLeaderBoards(index)
           local db = GetQuestMetaobjective(id, lbcount) -- This generates the above-mentioned metaobjective, including doing the database lookup.
           
-          if db then  -- If we didn't get a database lookup, then we don't have a metaobjective either. Urgh. abort abort abort
+          QuestHelper: Assert(db)
           
-            -- The section in here, in other words, is: we have a metaobjective (which may be a new one, or may not be), and we're trying to attach things to our routing engine. Now is where the real work begins! (six conditionals deep)
-            local lindex = index
-            db.desc = title
-            db.tracker_desc = MakeQuestTitle(title, level)
-            db.tracker_clicked = function () Clicky(lindex) end
-            
-            local watched = IsQuestWatched(index)
-            
-            db.type_quest.level = level
-            db.type_quest.done = (complete == 1)
-            db.type_quest.index = index
-            db.type_quest.variety = variety
-            db.type_quest.groupsize = groupsize
-            db.type_quest.title = title
-            db.type_quest.objectives = lbcount
-            QuestHelper: Assert(db.type_quest.index) -- why is this failing?
-            
-            local turnin
-            local turnin_new
-            
-            -- This is our "quest turnin" objective, which is currently being handled separately for no particularly good reason.
-            if db.finish and #db.finish > 0 then
-              for _, v in ipairs(db.finish) do
-                v.map_highlight = (complete == 1)
-              end
-              
-              turnin = db.finish
-              nactive[turnin] = true
-              if not active[turnin] then
-                turnin_new = true
-                for k, v in ipairs(turnin) do
-                  v.tracker_clicked = function () Clicky(lindex) end
-                  
-                  v.map_desc = {QHFormat("OBJECTIVE_REASON_TURNIN", title)}
-                end
-                QH_Route_ClusterAdd(db.finish)
-              end
-              QH_Tracker_SetPin(db.finish[1], watched)
-              if db.finish[1].type_quest_unknown then table.insert(unknown, db.finish) end
-            end
-            
-            -- These are the individual criteria of the quest. Remember that each criteria can be represented by multiple routing objectives.
-            for i = 1, lbcount do
-              if db[i] then
-                local desc, typ, done = GetQuestLogLeaderBoard(i, index)
-                local pt, pd, have, need = objective_parse(typ, desc, done)
-                local dline
-                if pt == "item" or pt == "object" then
-                  dline = QHFormat("OBJECTIVE_REASON", QHText("ACQUIRE_VERB"), pd, title)
-                elseif pt == "monster" then
-                  dline = QHFormat("OBJECTIVE_REASON", QHText("SLAY_VERB"), pd, title)
-                else
-                  dline = QHFormat("OBJECTIVE_REASON_FALLBACK", pd, title)
-                end
-                
-                if not db[i].progress then
-                  db[i].progress = {}
-                end
-                
-                if type(have) == "number" and type(need) == "number" then
-                  db[i].progress[UnitName("player")] = {have, need, have / need}
-                else
-                  db[i].progress[UnitName("player")] = {have, need, 0}  -- it's only used for the coloring anyway
-                end
-                
-                db[i].desc = QHFormat("TOOLTIP_QUEST", title)
-                
-                for k, v in ipairs(db[i]) do
-                  v.tracker_desc = MakeQuestObjectiveTitle(desc, typ, done)
-                  v.desc = desc
-                  v.tracker_clicked = function () Clicky(lindex) end
-                  
-                  v.progress = db[i].progress
-                  
-                  if v.path_desc then
-                    v.map_desc = copy(v.path_desc)
-                    v.map_desc[1] = dline
-                  else
-                    v.map_desc = {dline}
-                  end
-                end
-                
-                -- This is the snatch of code that actually adds it to routing.
-                if not done and #db[i] > 0 then
-                  nactive[db[i]] = true
-                  if not active[db[i]] then
-                    QH_Route_ClusterAdd(db[i])
-                    if db[i].tooltip then QH_Tooltip_Add(db[i].tooltip) end
-                    if turnin then QH_Route_ClusterRequires(turnin, db[i]) end
-                  end
-                  QH_Tracker_SetPin(db[i][1], watched)
-                  if db[i][1].type_quest_unknown then table.insert(unknown, db[i]) end
-                end
-              end
-            end
-            
-            if turnin_new then
-              local timidx = 1
-              while true do
-                local timer = GetQuestIndexForTimer(timidx)
-                if not timer then break end
-                if timer == index then
-                  QH_Route_SetClusterPriority(turnin, -1)
-                  break
-                end
-                timidx = timidx + 1
-              end
-            end
+          local watched = IsQuestWatched(index)
+          
+          -- The section in here, in other words, is: we have a metaobjective (which may be a new one, or may not be), and we're trying to attach things to our routing engine. Now is where the real work begins! (many conditionals deep)
+          local lindex = index
+          db.tracker_clicked = function () Clicky(lindex) end
+          
+          db.type_quest.index = index
+          
+          local timidx = 1
+          while true do
+            local timer = GetQuestIndexForTimer(timidx)
+            if not timer then timidx = nil break end
+            if timer == index then break end
+            timidx = timidx + 1
           end
+          local timed = not not timidx
+          
+          --print(id, title, level, groupsize, variety, groupsize, complete, timed)
+          local chunk = "q:" .. Serialize(id, title, level, groupsize, variety, groupsize, complete, timed)
+          for i = 1, lbcount do
+            QuestHelper: Assert(db[i])
+            db[i].temp_desc, db[i].temp_typ, db[i].temp_done = GetQuestLogLeaderBoard(i, index)
+            db[i].temp_person = player
+            chunk = chunk .. ":" .. Serialize(db[i].temp_desc, db[i].temp_typ, db[i].temp_done)
+          end
+          
+          next_chunks[id] = chunk
+          
+          QuestProcessor(player, db, title, level, groupsize, variety, groupsize, watched, complete, lbcount, timed)
         end
       end
       index = index + 1
     end
     
-    for _, v in ipairs(unknown) do
-      QH_Route_IgnoreCluster(v, dontknow)
-    end
+    EndInsertionPass(player)
     
-    for k, v in pairs(active) do
-      if not nactive[k] then
-        if k.tooltip then QH_Tooltip_Remove(k.tooltip) end
-        QH_Tracker_Unpin(k[1])
-        QH_Route_ClusterRemove(k)
+    QH_Route_Filter_Rescan()  -- 'cause filters may also change
+    
+    for k, v in pairs(next_chunks) do
+      if current_chunks[k] ~= v then
+        SAM(v, "PARTY")
       end
     end
     
-    active = nactive
+    for k, v in pairs(current_chunks) do
+      if not next_chunks[k] then
+        SAM(string.format("q:n%d", k), "PARTY")
+      end
+    end
     
-    quest_list = quest_list_used
-    
-    QH_Route_Filter_Rescan()  -- 'cause filters may also change
+    current_chunks = next_chunks
   end
+end
+
+-- comm_packets[user][qid] = data
+local comm_packets = {}
+
+local function RefreshUserComms(user)
+  StartInsertionPass(user)
+  
+  if comm_packets[user] then for _, dat in pairs(comm_packets[user]) do
+    local id, title, level, group, variety, groupsize, complete, timed = dat[1], dat[2], dat[3], dat[4], dat[5], dat[6], dat[7], dat[8]
+    local objstart = 9
+    
+    local obj = {}
+    while true do
+      if dat[#obj * 3 + objstart] == nil and dat[#obj * 3 + objstart + 1] == nil and dat[#obj * 3 + objstart + 2] == nil then break end
+      table.insert(obj, {dat[#obj * 3 + objstart], dat[#obj * 3 + objstart + 1], dat[#obj * 3 + objstart + 2]})
+    end
+    
+    local lbcount = #obj
+    local db = GetQuestMetaobjective(id, lbcount) -- This generates the above-mentioned metaobjective, including doing the database lookup.
+
+    QuestHelper: Assert(db)
+    
+    for i = 1, lbcount do
+      db[i].temp_desc, db[i].temp_typ, db[i].temp_done, db[i].temp_person = obj[i][1], obj[i][2], obj[i][3], user
+    end
+    
+    QuestProcessor(user, db, title, level, group, variety, groupsize, "(ignore)", complete, lbcount, false)
+  end end
+
+  EndInsertionPass(user)
+  
+  QH_Route_Filter_Rescan()  -- 'cause filters may also change
+end
+
+function QH_InsertCommPacket(user, data)
+  local q, chunk = data:match("([^:]+):(.*)")
+  if q ~= "q" then return end
+  
+  local dat = {}
+  local idx = 1
+  for item in chunk:gmatch("([^:]+)") do
+    dat[idx] = DeSerItem(item)
+    idx = idx + 1
+  end
+  
+  if not comm_packets[user] then comm_packets[user] = {} end
+  if idx == 2 then
+    comm_packets[user][dat[1]] = nil
+  else
+    comm_packets[user][dat[1]] = dat
+  end
+  
+  -- refresh the comms
+  RefreshUserComms(user)
+end
+
+local function QH_DumpCommUser(user)
+  comm_packets[user] = nil
+  RefreshUserComms(user)
 end
 
 QuestHelper.EventHookRegistrar("UNIT_QUEST_LOG_CHANGED", UpdateTrigger)
@@ -477,3 +725,124 @@ QH_AddNotifier(GetTime() + 5, function ()
     QH_UpdateQuests(true)
   end
 end)
+
+local old_playerlist = {}
+
+function QH_Questcomm_Sync()
+  local playerlist = {}
+  --[[if GetNumRaidMembers() > 0 then
+    for i = 1, 40 do
+      local liv = UnitName(string.format("raid%d", i))
+      if liv then playerlist[liv] = true end
+    end
+  elseif]] if GetNumPartyMembers() > 0 then
+    -- we is in a party
+    for i = 1, 4 do
+      local targ = string.format("party%d", i)
+      local liv = UnitName(targ)
+      if liv and liv ~= UNKNOWNOBJECT and UnitIsConnected(targ) then playerlist[liv] = true end
+    end
+  end
+  playerlist[UnitName("player")] = nil
+  
+  local additions = {}
+  for k, v in pairs(playerlist) do
+    if not old_playerlist[k] then
+      --print("new player:", k)
+      table.insert(additions, k)
+    end
+  end
+  
+  local removals = {}
+  for k, v in pairs(old_playerlist) do
+    if not playerlist[k] then
+      --print("lost player:", k)
+      table.insert(removals, k)
+    end
+  end
+  
+  old_playerlist = playerlist
+  
+  for _, v in ipairs(removals) do
+    QH_DumpCommUser(v)
+  end
+  
+  if #additions == 0 then return end
+  
+  if #additions == 1 then
+    SAM("syn:2", "WHISPER", additions[1])
+  else
+    SAM("syn:2", "PARTY")
+  end
+end
+
+local aku = {}
+
+local newer_reported = false
+function QH_Questcomm_Msg(data, from)
+  if data:match("syn:0") then
+    QH_DumpCommUser(from)
+    return
+  end
+  if QuestHelper_Pref.solo then return end
+  
+  --print("received", from, data)
+  do
+    local cont = true
+    
+    local key, value = data:match("(.):(.*)")
+    if key == "v" then
+      aku[from] = value
+    elseif key == "x" then
+      if aku[from] then
+        aku[from] = aku[from] .. value
+      end
+    elseif key == "X" then
+      if aku[from] then
+        aku[from] = aku[from] .. value
+        data = aku[from]
+        aku[from] = nil
+        cont = true
+      end
+    else
+      cont = true
+    end
+    
+    if not cont then return end
+  end
+  
+  --print("packet received", from, data)
+  if data:match("syn:.*") then
+    local synv = data:match("syn:([0-9]*)")
+    if synv then synv = tonumber(synv) end
+    if synv and synv > 2 and not newer_reported then
+      QuestHelper:TextOut(QHFormat("PEER_NEWER", from))
+      newer_reported = true
+    end
+    
+    if synv and synv >= 2 then
+      SAM("hello:2", "WHISPER", from)
+    end
+  elseif data == "hello:2" or data == "retrieve:2" then
+    if data == "hello:2" then SAM("retrieve:2", "WHISPER", from) end  -- requests their info as well, needed to deal with UI reloading/logon/logoff properly
+    
+    for k, v in pairs(current_chunks) do
+      SAM(v, "WHISPER", from)
+    end
+  else
+    if old_playerlist[from] then
+      QH_InsertCommPacket(from, data)
+    end
+  end
+end
+
+function QuestHelper:SetShare(flag)
+  if flag then
+    SAM("syn:2", "PARTY")
+  else
+    SAM("syn:0", "PARTY")
+    local cpb = comm_packets
+    comm_packets = {}
+    for k in pairs(cpb) do RefreshUserComms(k) end
+  end
+end

@@ -196,11 +196,19 @@ OnUpdate = function(self, elapsed)
 
   local dist, dx, dy = QuestHelper.Astrolabe:ComputeDistance(QuestHelper.collect_rc, QuestHelper.collect_rz, QuestHelper.collect_rx, QuestHelper.collect_ry, active_point.c, active_point.z, active_point.x, active_point.y)
   
+  local text = ""
+  
   if dist then
-    status:SetText(QHFormat("DISTANCE", math.floor(dist + 0.5)))
-  else
-    status:SetText("")
+    -- I had support for miles and kilometers, but decided that distances were rarely large
+    -- enough to warrent it.
+    if QuestHelper_Pref.metric then
+      text = QHFormat("DISTANCE_METRES", math.floor(0.5+dist*0.9144))
+    else
+      text = QHFormat("DISTANCE_YARDS", math.floor(0.5 + dist))
+    end
   end
+  
+  status:SetText(text)
 
 	-- Showing the arrival arrow?
 	if dist and dist <= 10 then

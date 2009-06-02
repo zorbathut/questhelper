@@ -65,7 +65,7 @@ local filter_quest_level = QH_MakeFilter("filter_quest_level", function(obj)
   
   if not obj.type_quest then return end -- yeah it's fine
   
-  if obj.type_quest.objectives > 0 then return end
+  if obj.type_quest.objectives > 0 and obj.cluster.type_quest_finish then return end
   
   local qtx
   if obj.type_quest.variety == GROUP then
