@@ -291,7 +291,8 @@ QuestHelper_Translations.enUS =
   SETTINGS_MENU_ARROW_RESET = "Reset",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = "%h1 yards",
+  DISTANCE_YARDS = "%h1 yards",
+  DISTANCE_METRES = "%h1 metres"
  }
 
 QuestHelper_TranslationFunctions.enUS =
