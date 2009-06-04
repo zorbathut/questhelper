@@ -1,7 +1,8 @@
 QuestHelper_File["custom.lua"] = "Development Version"
 QuestHelper_Loadtime["custom.lua"] = GetTime()
-
+  
 -- This next bit of stuff is for fuzzy string comarisons.
+
 
 local row, prow = {}, {}
 
@@ -109,7 +110,7 @@ function search_frame:OnUpdate()
   else
     self:ShowResults()
     self.routine = nil
-    self:SetScript("OnUpdate", nil)
+    QH_Hook(self, "OnUpdate", nil)
     self:Hide()
   end
 end
@@ -326,7 +327,7 @@ function search_frame:PerformSearch(input)
     self.query = string.gsub(input, "|c.-|H.-|h%[(.-)%]|h|r", ReturnArgument)
     self.routine = coroutine.create(self.SearchRoutine)
     self:Show()
-    self:SetScript("OnUpdate", self.OnUpdate)
+    QH_Hook(self, "OnUpdate", self.OnUpdate)
   end
 end
 
@@ -337,14 +338,14 @@ end
 function QuestHelper:PerformCustomSearch(func)
   if not search_frame:GetScript("OnUpdate") then
     search_frame:Show()
-    search_frame:SetScript("OnUpdate", func)
+    QH_Hook(search_frame, "OnUpdate", func)
   end
 end
 
 function QuestHelper:StopCustomSearch()
   if not search_frame.routine then
     search_frame:Hide()
-    search_frame:SetScript("OnUpdate", nil)
+    QH_Hook(search_frame, "OnUpdate", nil)
   end
 end
 

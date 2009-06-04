@@ -196,8 +196,8 @@ function QH_Collect_Achievement_Init(_, API)
   createAchievementList()
   Collect_Achievement.AchievementDB = getAchievementDB() -- 'coz we're lazy
   
-  API.Registrar_EventHook("CRITERIA_UPDATE", OnEvent)
-  API.Registrar_EventHook("ACHIEVEMENT_EARNED", OnEvent)
+  QH_Event("CRITERIA_UPDATE", OnEvent)
+  QH_Event("ACHIEVEMENT_EARNED", OnEvent)
   
   OnEvent() -- kick it into its first update cycle
 end

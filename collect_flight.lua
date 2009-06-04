@@ -102,7 +102,7 @@ function QH_Collect_Flight_Init(QHCData, API)
   QuestHelper: Assert(IsMonsterGUID)
   QuestHelper: Assert(GetMonsterType)
 
-  API.Registrar_EventHook("TAXIMAP_OPENED", TaximapOpened)
+  QH_Event("TAXIMAP_OPENED", TaximapOpened)
   
   API.Registrar_OnUpdateHook(OnUpdate)
 end

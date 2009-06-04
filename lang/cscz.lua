@@ -228,6 +228,6 @@ QuestHelper_Translations.csCZ =
   SETTINGS_MENU_ARROW_RESET = "Resetovat",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = "%h1 yardu",
+  DISTANCE_YARDS = "%h1 yardu",
  }
 

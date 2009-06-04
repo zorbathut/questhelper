@@ -32,13 +32,13 @@ local function Menu_OnUpdate(self, elapsed)
     self.show_phase = self.show_phase + elapsed * 5.0
     if self.show_phase > 1 then
       self.show_phase = 1
-      self:SetScript("OnUpdate", nil)
+      QH_Hook(self, "OnUpdate", nil)
     end
   else
     self.show_phase = self.show_phase - elapsed * 3.0
     if self.show_phase < 0 then
       self.show_phase = 0
-      self:SetScript("OnUpdate", nil)
+      QH_Hook(self, "OnUpdate", nil)
       self:Hide()
       if self.func then
         self.func(unpack(self.func_arg))
@@ -69,7 +69,7 @@ local function Menu_DoShow(self)
   self:SetWidth(w+2*menuBorderInset)
   self:SetHeight(h+2*menuBorderInset)
   self:Show()
-  self:SetScript("OnUpdate", self.OnUpdate)
+  QH_Hook(self, "OnUpdate", self.OnUpdate)
   
   for i, c in ipairs(self.items) do
     local cw, ch = c:GetSize()
@@ -100,11 +100,11 @@ end
 
 local function Menu_DoHide(self)
   self.showing = false
-  self:SetScript("OnUpdate", self.OnUpdate)
+  QH_Hook(self, "OnUpdate", self.OnUpdate)
   
   if self.active_item then
     self.active_item.highlighting = false
-    self.active_item:SetScript("OnUpdate", self.active_item.OnUpdate)
+    QH_Hook(self.active_item, "OnUpdate", self.active_item.OnUpdate)
   end
   
   for i, n in ipairs(self.items) do
@@ -198,7 +198,7 @@ end
 
 local function MenuItem_DoShow(self)
   self.showing = true
-  self:SetScript("OnUpdate", self.OnUpdate)
+  QH_Hook(self, "OnUpdate", self.OnUpdate)
   self:Show()
 end
 
@@ -208,7 +208,7 @@ local function MenuItem_DoHide(self)
   end
   
   self.showing = false
-  self:SetScript("OnUpdate", self.OnUpdate)
+  QH_Hook(self, "OnUpdate", self.OnUpdate)
 end
 
 local function MenuItem_OnUpdate(self, elapsed)
@@ -252,7 +252,7 @@ local function MenuItem_OnUpdate(self, elapsed)
   self:Shade(self.show_phase, self.highlight_phase)
   
   if done_update then
-    self:SetScript("OnUpdate", nil)
+    QH_Hook(self, "OnUpdate", nil)
   end
 end
 
@@ -292,11 +292,11 @@ end
 
 local function MenuItem_OnEnter(self)
   self.highlighting = true
-  self:SetScript("OnUpdate", self.OnUpdate)
+  QH_Hook(self, "OnUpdate", self.OnUpdate)
   
   if self.parent.active_item and self.parent.active_item ~= self then
     self.parent.active_item.highlighting = false
-    self.parent.active_item:SetScript("OnUpdate", self.parent.active_item.OnUpdate)
+    QH_Hook(self.parent.active_item, "OnUpdate", self.parent.active_item.OnUpdate)
   end
   
   self.parent.active_item = self
@@ -450,8 +450,8 @@ function QuestHelper:CreateMenuItem(menu, text)
   item.OnClick = MenuItem_OnClick
   
   item:RegisterForClicks("LeftButtonUp", "RightButtonDown")
-  item:SetScript("OnEnter", item.OnEnter)
-  item:SetScript("OnClick", item.OnClick)
+  QH_Hook(item, "OnEnter", item.OnEnter)
+  QH_Hook(item, "OnClick", item.OnClick)
   
   menu:AddItem(item)
   
@@ -554,9 +554,9 @@ function QuestHelper:CreateMenuTitle(menu, title)
   item.OnClick = MenuTitle_OnClick
   
   item:RegisterForClicks("RightButtonDown")
-  item:SetScript("OnClick", item.OnClick)
-  item:SetScript("OnDragStart", item.OnDragStart)
-  item:SetScript("OnDragStop", item.OnDragStop)
+  QH_Hook(item, "OnClick", item.OnClick)
+  QH_Hook(item, "OnDragStart", item.OnDragStart)
+  QH_Hook(item, "OnDragStop", item.OnDragStop)
   item:RegisterForDrag("LeftButton")
   
   item.text:SetFont(QuestHelper.font.fancy, 11)

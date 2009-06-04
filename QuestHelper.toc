@@ -8,7 +8,7 @@
 ## Notes-esMX: Calcula la mejor ruta a seguir para usted.
 ## Notes-koKR: 노선에 대한 계산을 수행합니다.
 ## Version: Development Version
-## OptionalDeps: Cartographer_Waypoints, TomTom, !Swatter
+## OptionalDeps: Cartographer_Waypoints, TomTom, !Swatter, tekticles
 ## SavedVariables: QuestHelper_Pref QuestHelper_UID QuestHelper_SaveDate QuestHelper_Errors QuestHelper_Collector QuestHelper_Collector_Version
 ## SavedVariablesPerCharacter: QuestHelper_KnownFlightRoutes QuestHelper_Home QuestHelper_CharVersion QuestHelper_Flight_Updates
 ## X-Website: http://www.quest-helper.com/
@@ -17,6 +17,7 @@
 # Explanation of optional deps:
 # Cartographer and Tomtom are there so I can link with their arrows properly.
 # Swatter really likes intercepting all error messages and not letting them through. Since I want to intercept my own messages, I go after Swatter so I can insert my hook earlier on.
+# Tekticles is around because, if QH loads before it does, then QH doesn't use its custom fonts, and I think its custom fonts are pretty. There's probably a better solution to this, but it turns out I'm incredibly lazy, so, meh.
 
 # That is a pile of saved variables. Let me try to explain them better.
 #
@@ -32,7 +33,7 @@
 # QuestHelper_UID: User unique ID
 # QuestHelper_Errors: List of errors seen
 #
-# Everything under "Old data gathering" will go away once the new data gathering is in place.
+# Everything under "Old data gathering" will go away once the new data gathering is in place. (note: they have mostly gone away)
 #
 # Per-character stuff needs to be consolidated as well, which will happen in some future version. I need to see how it handles *removing* variables. And yeah we're adding more per-character stuff already argharblrghab
 
@@ -41,6 +42,12 @@ bst_pre.lua
 
 # Loads before everything else so we can catch errors in everything else
 error.lua
+
+# Basic utilities used for miscellaneous things, also creates the QH frame
+utility.lua
+
+# Event manager module. Depends on nothing, calls no external functions.
+manager_event.lua
 
 bst_libaboutpanel.lua
 LibAboutPanel\lib.xml
@@ -77,9 +84,6 @@ lang\svse.lua
 lang\trtr.lua
 lang\zhcn.lua
 lang\zhtw.lua
-
-# Basic utilities used for miscellaneous things, also creates the QH frame
-utility.lua
 
 # This is kind of a lot of files.
 static.lua
@@ -118,9 +122,6 @@ recycle.lua
 
 # Patterns for parsing the GlobalString patterns. Depends on nothing, calls nothing. Honestly, it's better than collect_pattern, I should probably be using it there. I need util_ or something.
 pattern.lua
-
-# Event manager module. Depends on nothing, calls no external functions.
-manager_event.lua
 
 # Database module. Depends on nothing, calls no external functions.
 db_get.lua

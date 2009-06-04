@@ -1,3 +1,6 @@
+== Version (next) ==
+
+* Added <tt>/qh metric</tt> to toggle between metres and yards.
 
 == Version 1.0.18-beta 5/22/2009 ==
 

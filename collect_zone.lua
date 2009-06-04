@@ -44,9 +44,9 @@ function QH_Collect_Zone_Init(QHCData, API)
   if not QHCData.zone then QHCData.zone = {} end
   QHCZ = QHCData.zone
   
-  API.Registrar_EventHook("ZONE_CHANGED", OnEvent)
-  API.Registrar_EventHook("ZONE_CHANGED_INDOORS", OnEvent)
-  API.Registrar_EventHook("ZONE_CHANGED_NEW_AREA", OnEvent)
+  QH_Event("ZONE_CHANGED", OnEvent)
+  QH_Event("ZONE_CHANGED_INDOORS", OnEvent)
+  QH_Event("ZONE_CHANGED_NEW_AREA", OnEvent)
   
   API.Registrar_OnUpdateHook(OnUpdate)
   

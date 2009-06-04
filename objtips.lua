@@ -111,7 +111,7 @@ local function StripBlizzQHTooltipClone(ttp)
   end
 end
 
-GameTooltip:SetScript("OnShow", function(self, ...)
+QH_Hook(GameTooltip, "OnShow", function(self, ...)
   if not self then
     -- Some other AddOns hook this function, but don't bother to pass the values they were called with.
     self = GameTooltip

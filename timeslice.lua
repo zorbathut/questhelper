@@ -7,7 +7,6 @@ local debug_output = (QuestHelper_File["timeslice.lua"] == "Development Version"
 
 local coroutine_running = false
 local coroutine_stop_time = 0
-local coroutine_panic_time = 0
 local coroutine_list = {}
 local coroutine_route_pass = 1
 
@@ -37,14 +36,14 @@ function QH_Timeslice_Yield()
     -- Check if we've run our alotted time
     yield_ct = yield_ct + 1
     if GetTime() > coroutine_stop_time then
+      local sti = debugstack(2, 5, 5) -- string.gsub(debugstack(2, 1, 1), "\n.*", "")
+      if qh_loud_and_annoying and GetTime() > coroutine_stop_time + 0.0015 then
+        print(yield_ct, (GetTime() - coroutine_stop_time) * 1000, "took too long", sti, "------ from", last_stack, "------")
+      end
+      
       -- As a safety, reset stop time to 0.  If somehow we fail to set it next time,
       -- we'll be sure to yield promptly.
       coroutine_stop_time = 0
-      
-      local sti = debugstack(2, 5, 5) -- string.gsub(debugstack(2, 1, 1), "\n.*", "")
-      if qh_loud_and_annoying and GetTime() > coroutine_panic_time then
-        print(yield_ct, "took too long", last_stack, "------", sti, "------", GetTime() - coroutine_panic_time)
-      end
       coroutine.yield()
       last_stack = sti
       yield_ct = 0
@@ -101,7 +100,7 @@ function QH_Timeslice_Doneinit()
   started = true
 end
 
-function QH_Timeslice_Work()
+function QH_Timeslice_Work(time_used)
   -- There's probably a better way to do this, but. Eh. Lua.
   coro = nil
   key = nil
@@ -126,13 +125,13 @@ function QH_Timeslice_Work()
     local slicefactor = (QuestHelper_Pref.hide and 0.01 or (QuestHelper_Pref.perf_scale * math.min(coroutine_route_pass, 5)))
     if not started then slicefactor = 5 * QuestHelper_Pref.perfload_scale * math.min(coroutine_route_pass, 5) end  -- the init process gets much higher priority so we get done with it faster
     local coroutine_intended_stop_time = GetTime() + 2e-3 * slicefactor
-    coroutine_stop_time = coroutine_intended_stop_time - coroutine_time_exceeded
-    coroutine_panic_time = coroutine_stop_time + 2e-3 * slicefactor
+    coroutine_stop_time = coroutine_intended_stop_time - coroutine_time_exceeded - time_used
     coroutine_route_pass = coroutine_route_pass - 5
     if coroutine_route_pass <= 0 then coroutine_route_pass = 1 end
     
     local start = GetTime()
     local state, err = true, nil -- default values for "we're fine"
+    
     if start < coroutine_stop_time then -- We don't want to just return on failure because we want to credit the exceeded time properly.
       coroutine_running = true
       state, err = coroutine.resume(coro.coro)
@@ -141,7 +140,7 @@ function QH_Timeslice_Work()
     local total = GetTime() - start
     
     local coroutine_this_cycle_exceeded = GetTime() - coroutine_intended_stop_time -- may be either positive or negative
-    coroutine_time_exceeded = coroutine_time_exceeded + coroutine_this_cycle_exceeded
+    coroutine_time_exceeded = min(coroutine_time_exceeded + coroutine_this_cycle_exceeded, slicefactor * 2e-3 * 5)  -- honestly, waiting for more than five frames to recover from a stutter is just dumb
     
     coroutine_time_used[coro.name] = (coroutine_time_used[coro.name] or 0) + total
     

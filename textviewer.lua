@@ -38,9 +38,9 @@ function QuestHelper:ShowText(text, title, width, border, divide)
     viewer:SetPoint("CENTER", UIParent)
     viewer:EnableMouse(true)
     viewer:SetMovable(true)
-    viewer:SetScript("OnMouseDown", viewer_mousedown)
-    viewer:SetScript("OnMouseUp", viewer_cancelmove)
-    viewer:SetScript("OnHide", viewer_cancelmove)
+    QH_Hook(viewer, "OnMouseDown", viewer_mousedown)
+    QH_Hook(viewer, "OnMouseUp", viewer_cancelmove)
+    QH_Hook(viewer, "OnHide", viewer_cancelmove)
     
     -- This will cause it to be hidden if Esc is pressed.
     table.insert(UISpecialFrames, viewer:GetName())
@@ -75,7 +75,7 @@ function QuestHelper:ShowText(text, title, width, border, divide)
 
     viewer.closebutton = CreateFrame("Button", "QuestHelperTextViewer_CloseButton" .. suffix, viewer, "UIPanelCloseButton")
     viewer.closebutton:SetPoint("TOPRIGHT", viewer)
-    viewer.closebutton:SetScript("OnClick", viewer_closebutton)
+    QH_Hook(viewer.closebutton, "OnClick", viewer_closebutton)
     
     viewer.frame = CreateFrame("Frame", "QuestHelperTextViewer_Frame" .. suffix, viewer.scrollframe)
     viewer.scrollframe:SetScrollChild(viewer.frame)

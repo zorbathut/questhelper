@@ -228,6 +228,7 @@ QuestHelper_Translations.elEL =
   SETTINGS_MENU_ARROW_RESET = nil,
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = nil,
+  DISTANCE_YARDS = nil,
+  DISTANCE_METRES = nil
  }
 

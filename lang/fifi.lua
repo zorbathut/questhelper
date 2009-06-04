@@ -1,17 +1,17 @@
 -- Please see enus.lua for reference.
 
-QuestHelper_Translations.roRO =
+QuestHelper_Translations.fiFI =
  {
   -- Displayed by locale chooser.
-  LOCALE_NAME = nil,
+  LOCALE_NAME = "Englanti",
   
   -- Messages used when starting.
   LOCALE_ERROR = nil,
   ZONE_LAYOUT_ERROR = nil,
-  DOWNGRADE_ERROR = "Salvarea ta nu este compatibila cu aceasta versiune de QuestHelper. Foloseste o versiune mai recenta a QuestHelper.",
-  HOME_NOT_KNOWN = nil,
-  PRIVATE_SERVER = nil,
-  PLEASE_RESTART = nil,
+  DOWNGRADE_ERROR = nil,
+  HOME_NOT_KNOWN = "Kotisi sijainti ei ole tiedossa. Kun mahdollista, puhu majatalon pitäjälle antaaksesi tiedon.",
+  PRIVATE_SERVER = "QuestHelper ei tue yksityispalvelimia",
+  PLEASE_RESTART = "virhe käynnistettäessä QuestHelperiä. sulje World of Warcraft ja yritä uudelleen.",
   NOT_UNZIPPED_CORRECTLY = nil,
   PLEASE_DONATE = nil,
   HOW_TO_CONFIGURE = nil,
@@ -19,73 +19,73 @@ QuestHelper_Translations.roRO =
   
   -- Route related text.
   ROUTES_CHANGED = nil,
-  HOME_CHANGED = nil,
+  HOME_CHANGED = "kotisi on vaihdettu",
   TALK_TO_FLIGHT_MASTER = nil,
-  TALK_TO_FLIGHT_MASTER_COMPLETE = nil,
+  TALK_TO_FLIGHT_MASTER_COMPLETE = "kiitos",
   WILL_RESET_PATH = nil,
   UPDATING_ROUTE = nil,
   
   -- Special tracker text
-  QH_LOADING = nil,
+  QH_LOADING = "ladataan QuestHelper (%1%)...",
   QH_FLIGHTPATH = nil,
-  QUESTS_HIDDEN_1 = nil,
-  QUESTS_HIDDEN_2 = nil,
+  QUESTS_HIDDEN_1 = "tehtäviä piilotettu",
+  QUESTS_HIDDEN_2 = "(kirjoita \"/qh hidden\" nähdäksesi kaikki)",
   
   -- Locale switcher.
-  LOCALE_LIST_BEGIN = nil,
-  LOCALE_CHANGED = nil,
-  LOCALE_UNKNOWN = nil,
+  LOCALE_LIST_BEGIN = "Valittavat kielet",
+  LOCALE_CHANGED = "Kieli vaihdettu: %h1",
+  LOCALE_UNKNOWN = "Kieltä %h1 ei tunneta.",
   
   -- Words used for objectives.
-  SLAY_VERB = nil,
-  ACQUIRE_VERB = "Luat",
+  SLAY_VERB = "tapa",
+  ACQUIRE_VERB = "poimi",
   
   OBJECTIVE_REASON = nil, -- %1 is a verb, %2 is a noun (item or monster)
   OBJECTIVE_REASON_FALLBACK = nil,
   OBJECTIVE_REASON_TURNIN = nil,
   OBJECTIVE_PURCHASE = nil,
-  OBJECTIVE_TALK = nil,
-  OBJECTIVE_SLAY = nil,
-  OBJECTIVE_LOOT = nil,
+  OBJECTIVE_TALK = "Puhu %h1:lle",
+  OBJECTIVE_SLAY = "Tapa %h1.",
+  OBJECTIVE_LOOT = "Kerää %h1.",
   
-  OBJECTIVE_MONSTER_UNKNOWN = nil,
-  OBJECTIVE_ITEM_UNKNOWN = nil,
+  OBJECTIVE_MONSTER_UNKNOWN = "tuntematon vihollinen",
+  OBJECTIVE_ITEM_UNKNOWN = "tuntematon esine",
   
   ZONE_BORDER = nil,
   
   -- Stuff used in objective menus.
-  PRIORITY = nil,
-  PRIORITY1 = nil,
-  PRIORITY2 = nil,
-  PRIORITY3 = nil,
-  PRIORITY4 = nil,
-  PRIORITY5 = nil,
-  SHARING = nil,
-  SHARING_ENABLE = nil,
-  SHARING_DISABLE = nil,
-  IGNORE = "Ignora",
-  IGNORE_LOCATION = nil,
+  PRIORITY = "tärkeysaste",
+  PRIORITY1 = "korkein",
+  PRIORITY2 = "korkea",
+  PRIORITY3 = "normaali",
+  PRIORITY4 = "matala",
+  PRIORITY5 = "matalin",
+  SHARING = "jaettu",
+  SHARING_ENABLE = "jaa",
+  SHARING_DISABLE = "elä jaa",
+  IGNORE = "piilota",
+  IGNORE_LOCATION = "Piilota tämä sijainti",
   
-  IGNORED_PRIORITY_TITLE = nil,
+  IGNORED_PRIORITY_TITLE = "Valittu tärkeysaste piilotettu",
   IGNORED_PRIORITY_FIX = nil,
-  IGNORED_PRIORITY_IGNORE = nil,
+  IGNORED_PRIORITY_IGNORE = "Määritän tärkeysasteen itse",
   
   -- Custom objectives.
-  RESULTS_TITLE = nil,
+  RESULTS_TITLE = "hakutulokset",
   NO_RESULTS = nil,
-  CREATED_OBJ = "Creat",
+  CREATED_OBJ = "tee",
   REMOVED_OBJ = nil,
   USER_OBJ = nil,
   UNKNOWN_OBJ = nil,
   INACCESSIBLE_OBJ = nil,
   
-  SEARCHING_STATE = nil,
+  SEARCHING_STATE = "haetaan: %1",
   SEARCHING_LOCAL = nil,
   SEARCHING_STATIC = nil,
   SEARCHING_ITEMS = nil,
   SEARCHING_NPCS = nil,
-  SEARCHING_ZONES = nil,
-  SEARCHING_DONE = nil,
+  SEARCHING_ZONES = "alueet",
+  SEARCHING_DONE = "valmis!",
   
   -- Shared objectives.
   PEER_TURNIN = nil,
@@ -93,33 +93,33 @@ QuestHelper_Translations.roRO =
   PEER_ITEM = nil,
   PEER_OTHER = nil,
   
-  PEER_NEWER = nil,
-  PEER_OLDER = nil,
+  PEER_NEWER = "%h1 käyttää uudempaa versiota. päivitä QuestHelper.",
+  PEER_OLDER = "%h1 käyttää vanhempaa versiota.",
   
   UNKNOWN_MESSAGE = nil,
   
   -- Hidden objectives.
-  HIDDEN_TITLE = "Obiective ascunse",
-  HIDDEN_NONE = "Nu exista obiective ascunse.",
-  DEPENDS_ON_SINGLE = "Depinde de '%1'.",
-  DEPENDS_ON_COUNT = "Depinde de %1 obiective ascunse.",
+  HIDDEN_TITLE = nil,
+  HIDDEN_NONE = "ei piilotettuja objekteja",
+  DEPENDS_ON_SINGLE = nil,
+  DEPENDS_ON_COUNT = nil,
   DEPENDS_ON = nil,
   FILTERED_LEVEL = nil,
   FILTERED_ZONE = nil,
   FILTERED_COMPLETE = nil,
   FILTERED_BLOCKED = nil,
   FILTERED_UNWATCHED = nil,
-  FILTERED_USER = "Ai cerut ca acest obiectiv sa fie ascuns.",
-  FILTERED_UNKNOWN = "Nu stiu cum sa termin.",
+  FILTERED_USER = nil,
+  FILTERED_UNKNOWN = nil,
   
-  HIDDEN_SHOW = "Arata.",
-  HIDDEN_SHOW_NO = nil,
+  HIDDEN_SHOW = "näytä",
+  HIDDEN_SHOW_NO = "ei näytettävissä",
   HIDDEN_EXCEPTION = nil,
-  DISABLE_FILTER = "Dezactiveaza filtrul: %1",
-  FILTER_DONE = "Terminat",
-  FILTER_ZONE = "Zona",
-  FILTER_LEVEL = "Nivel",
-  FILTER_BLOCKED = "Blocat",
+  DISABLE_FILTER = nil,
+  FILTER_DONE = "tehty",
+  FILTER_ZONE = "alue",
+  FILTER_LEVEL = "lvl",
+  FILTER_BLOCKED = "estetty",
   FILTER_WATCHED = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
@@ -133,7 +133,7 @@ QuestHelper_Translations.roRO =
   NAG_INSTRUCTIONS = nil,
   
   NAG_SINGLE_FP = nil,
-  NAG_SINGLE_QUEST = nil,
+  NAG_SINGLE_QUEST = "tehtävä",
   NAG_SINGLE_ROUTE = nil,
   NAG_SINGLE_ITEM_OBJ = nil,
   NAG_SINGLE_OBJECT_OBJ = nil,
@@ -154,22 +154,22 @@ QuestHelper_Translations.roRO =
   
   -- Stuff used by dodads.
   PEER_PROGRESS = nil,
-  TRAVEL_ESTIMATE = nil,
+  TRAVEL_ESTIMATE = "Arvioitu matkustusaika",
   TRAVEL_ESTIMATE_VALUE = nil,
   WAYPOINT_REASON = nil,
-  FLIGHT_POINT = nil,
+  FLIGHT_POINT = "%1: lentopiste",
 
   -- QuestHelper Map Button
-  QH_BUTTON_TEXT = nil,
+  QH_BUTTON_TEXT = "QuestHelper",
   QH_BUTTON_TOOLTIP1 = nil,
-  QH_BUTTON_TOOLTIP2 = nil,
-  QH_BUTTON_SHOW = nil,
-  QH_BUTTON_HIDE = nil,
+  QH_BUTTON_TOOLTIP2 = "hiiren oikea painike: näytä asetukset",
+  QH_BUTTON_SHOW = "näytä",
+  QH_BUTTON_HIDE = "piilota",
 
-  MENU_CLOSE = "Inchide meniul",
-  MENU_SETTINGS = "Setari",
-  MENU_ENABLE = "Porneste",
-  MENU_DISABLE = "Opreste",
+  MENU_CLOSE = "Sulje",
+  MENU_SETTINGS = "asetukset",
+  MENU_ENABLE = nil,
+  MENU_DISABLE = "Estä",
   MENU_OBJECTIVE_TIPS = nil,
   MENU_TRACKER_OPTIONS = nil,
   MENU_QUEST_TRACKER = nil,
@@ -177,27 +177,27 @@ QuestHelper_Translations.roRO =
   MENU_TRACKER_QCOLOUR = nil,
   MENU_TRACKER_OCOLOUR = nil,
   MENU_TRACKER_SCALE = nil,
-  MENU_TRACKER_RESET = "Reseteaza pozitia",
+  MENU_TRACKER_RESET = nil,
   MENU_FLIGHT_TIMER = nil,
   MENU_ANT_TRAILS = nil,
   MENU_WAYPOINT_ARROW = nil,
   MENU_MAP_BUTTON = nil,
   MENU_ZONE_FILTER = nil,
   MENU_DONE_FILTER = nil,
-  MENU_BLOCKED_FILTER = "Filtru Blocat",
+  MENU_BLOCKED_FILTER = nil,
   MENU_WATCHED_FILTER = nil,
-  MENU_LEVEL_FILTER = nil,
+  MENU_LEVEL_FILTER = "%1 tason suodatus",
   MENU_LEVEL_OFFSET = nil,
   MENU_ICON_SCALE = nil,
-  MENU_FILTERS = nil,
+  MENU_FILTERS = "suotimet",
   MENU_PERFORMANCE = nil,
-  MENU_LOCALE = "Local",
-  MENU_PARTY = "Grup",
+  MENU_LOCALE = nil,
+  MENU_PARTY = "party",
   MENU_PARTY_SHARE = nil,
   MENU_PARTY_SOLO = nil,
-  MENU_HELP = "Ajutor",
+  MENU_HELP = "apua",
   MENU_HELP_SLASH = nil,
-  MENU_HELP_CHANGES = nil,
+  MENU_HELP_CHANGES = "muutosloki",
   MENU_HELP_SUBMIT = nil,
   
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
@@ -205,30 +205,30 @@ QuestHelper_Translations.roRO =
   TOOLTIP_WATCHED = nil,
   TOOLTIP_QUEST = nil,
   TOOLTIP_PURCHASE = nil,
-  TOOLTIP_SLAY = nil,
-  TOOLTIP_LOOT = nil,
+  TOOLTIP_SLAY = "tapa %h1:lle",
+  TOOLTIP_LOOT = "kerää %h1:ltä",
   
   -- Settings
   SETTINGS_ARROWLINK_ON = nil,
   SETTINGS_ARROWLINK_OFF = nil,
-  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_ARROW = "QuestHelper nuoli",
   SETTINGS_ARROWLINK_CART = nil,
-  SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_ARROWLINK_TOMTOM = "TomTom",
   SETTINGS_PRECACHE_ON = nil,
   SETTINGS_PRECACHE_OFF = nil,
   
-  SETTINGS_MENU_ENABLE = nil,
-  SETTINGS_MENU_DISABLE = nil,
+  SETTINGS_MENU_ENABLE = "salli",
+  SETTINGS_MENU_DISABLE = "estä",
   SETTINGS_MENU_CARTWP = nil,
   SETTINGS_MENU_TOMTOM = nil,
   
-  SETTINGS_MENU_ARROW_LOCK = nil,
-  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
+  SETTINGS_MENU_ARROW_LOCK = "lukitse",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "nuolen koko",
   SETTINGS_MENU_ARROW_TEXTSCALE = nil,
-  SETTINGS_MENU_ARROW_RESET = nil,
+  SETTINGS_MENU_ARROW_RESET = "nollaa",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE_YARDS = nil,
+  DISTANCE_YARDS = "%h1 jaardia",
   DISTANCE_METRES = nil
  }
 

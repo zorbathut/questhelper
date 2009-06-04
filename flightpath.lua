@@ -462,7 +462,7 @@ local function flight_updater(frame, delta)
                                             QuestHelper:TimeString(math.max(0, data.end_time_estimate-time()))))
     else
       frame:Hide()
-      frame:SetScript("OnUpdate", nil)
+      QH_Hook(frame, "OnUpdate", nil)
     end
   end
 end

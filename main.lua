@@ -43,6 +43,7 @@ QuestHelper_DefaultPref =
   arrow_locked = false,
   arrow_arrowsize = 1,
   arrow_textsize = 1,
+  metric = (QuestHelper_Locale ~= "enUS" and QuestHelper_Locale ~= "esMX"),
   flight_time = true,
   locale = GetLocale(), -- This variable is used for display purposes, and has nothing to do with the collected data.
   perf_scale = 1,       -- How much background processing can the current machine handle?  Higher means more load, lower means better performance.
@@ -169,7 +170,10 @@ end
 local interruptcount = 0   -- counts how many "played gained control" messages we recieve, used for flight paths
 local init_cartographer_later = false
 
-function QuestHelper:Initialize()
+QH_Event("ADDON_LOADED", function (addonid)
+  if addonid ~= "QuestHelper" then return end
+  local self = QuestHelper -- whee hack hack hack
+  
   QuestHelper_Loadtime["init_start"] = GetTime()
   
   -- Use DefaultPref as fallback for unset preference keys.
@@ -411,28 +415,6 @@ function QuestHelper:Initialize()
   
   self.player_level = UnitLevel("player")
 
-  self:UnregisterEvent("VARIABLES_LOADED")
-  self:RegisterEvent("PLAYER_TARGET_CHANGED")
-  self:RegisterEvent("LOOT_OPENED")
-  self:RegisterEvent("QUEST_COMPLETE")
-  self:RegisterEvent("QUEST_LOG_UPDATE")
-  self:RegisterEvent("QUEST_PROGRESS")
-  self:RegisterEvent("MERCHANT_SHOW")
-  self:RegisterEvent("QUEST_DETAIL")
-  self:RegisterEvent("TAXIMAP_OPENED")
-  self:RegisterEvent("PLAYER_CONTROL_GAINED")
-  self:RegisterEvent("PLAYER_LEVEL_UP")
-  self:RegisterEvent("PARTY_MEMBERS_CHANGED")
-  self:RegisterEvent("CHAT_MSG_ADDON")
-  self:RegisterEvent("CHAT_MSG_SYSTEM")
-  self:RegisterEvent("BAG_UPDATE")
-  self:RegisterEvent("GOSSIP_SHOW")
-  self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE")
-  self:RegisterEvent("UNIT_LEVEL")
-  self:RegisterEvent("ZONE_CHANGED")
-  self:RegisterEvent("ZONE_CHANGED_INDOORS")
-  self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-
   self:SetLocaleFonts()
 
   if QuestHelper_Pref.share and not QuestHelper_Pref.solo then
@@ -536,7 +518,7 @@ function QuestHelper:Initialize()
     end
   end
 
-  self:SetScript("OnUpdate", self.OnUpdate)
+  QH_Hook(self, "OnUpdate", self.OnUpdate)
 
   -- Seems to do its own garbage collection pass before fully loading, so I'll just rely on that
   --collectgarbage("collect") -- Free everything we aren't using.
@@ -604,19 +586,43 @@ function QuestHelper:Initialize()
   
   QuestHelper.loading_flightpath = QuestHelper.loading_main:MakeSubcategory(1)
   QuestHelper.loading_preroll = QuestHelper.loading_main:MakeSubcategory(1)
-end
+  
+  QH_Event("CHAT_MSG_ADDON", function (...)
+    if arg1 == "QHpr" and arg4 ~= UnitName("player") then
+      QH_Questcomm_Msg(arg2, arg4)
+    end
+  end)
+
+  QH_Event({"PARTY_MEMBERS_CHANGED", "UNIT_LEVEL", "RAID_ROSTER_UPDATE"}, function ()
+    QH_Filter_Group_Sync()
+    QH_Route_Filter_Rescan("filter_quest_level")
+  end)
+  
+  QH_Event({"PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE"}, function ()
+    QH_Questcomm_Sync()
+  end)
+  
+  QH_Event("PLAYER_LEVEL_UP", function ()
+    self.player_level = arg1
+    QH_Route_Filter_Rescan("filter_quest_level")
+  end)
+  
+  QH_Event("TAXIMAP_OPENED", function ()
+    self:taxiMapOpened()
+  end)
+  
+  QH_Event({"ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "ZONE_CHANGED_NEW_AREA"}, function()
+    QH_Route_Filter_Rescan()
+  end)
+
+end)
 
 local startup_time
 local please_donate_enabled = false
 local please_donate_initted = false
 
+--[==[
 function QuestHelper:OnEvent(event)
-  if event == "VARIABLES_LOADED" then
-    local tstart = GetTime()
-    self:Initialize()
-    QH_Timeslice_Increment(GetTime() - tstart, "init")
-  end
-
   local tstart = GetTime()
   
   --[[
@@ -755,28 +761,7 @@ function QuestHelper:OnEvent(event)
     end
   end]]
 
-  if event == "CHAT_MSG_ADDON" then
-    if arg1 == "QHpr" and arg4 ~= UnitName("player") then
-      QH_Questcomm_Msg(arg2, arg4)
-    end
-  end
 
-  if event == "PARTY_MEMBERS_CHANGED" or
-    event == "UNIT_LEVEL" or
-    event == "RAID_ROSTER_UPDATE" then
-    QH_Filter_Group_Sync()
-    QH_Route_Filter_Rescan("filter_quest_level")
-  end
-  
-  if event == "PARTY_MEMBERS_CHANGED" or
-    event == "RAID_ROSTER_UPDATE" then
-    QH_Questcomm_Sync()
-  end
-  
-  if event == "PLAYER_LEVEL_UP" then
-    self.player_level = arg1
-    QH_Route_Filter_Rescan("filter_quest_level")
-  end
   
 
   --[[if event == "QUEST_DETAIL" then
@@ -892,7 +877,7 @@ function QuestHelper:OnEvent(event)
   end
   
   QH_Timeslice_Increment(GetTime() - tstart, "event")
-end
+end]==]
 
 local map_shown_decay = 0
 local delayed_action = 100
@@ -900,7 +885,8 @@ local delayed_action = 100
 local ontaxi = false
 local frams = 0
 
-function QuestHelper:OnUpdate()
+QH_OnUpdate_High(function ()
+  local self = QuestHelper -- hoorj
   local tstart = GetTime()
   frams = frams + 1
   
@@ -1026,13 +1012,7 @@ Thanks for testing!]], "QuestHelper " .. version_string, 500, 20, 10)
     
     self:PumpCommMessages()
   --end
-  
-  QH_Collector_OnUpdate()
-  
-  QH_Timeslice_Increment(GetTime() - tstart, "onupdate")
-  
-  QH_Timeslice_Work()
-end
+end)
 
 -- Some or all of these may be nil. c,x,y should be enough for a location - c is the pure continent (currently either 0 or 3 for Azeroth or Outland, or -77 for the DK starting zone) and x,y are the coordinates within that continent.
 -- rc and rz are the continent and zone that Questhelper thinks it's within. For various reasons, this isn't perfect. TODO: Base it off the map zone name identifiers instead of the map itself?
@@ -1043,5 +1023,4 @@ function QuestHelper:Location_AbsoluteRetrieve()
   return self.collect_delayed, self.collect_ac, self.collect_ax, self.collect_ay
 end
 
-QuestHelper:RegisterEvent("VARIABLES_LOADED")
-QuestHelper:SetScript("OnEvent", QuestHelper.OnEvent)
+--QH_Hook(QuestHelper, "OnEvent", QuestHelper.OnEvent)

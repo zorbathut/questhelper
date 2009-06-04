@@ -9,33 +9,8 @@ local QuestHelper_Collector_Version_Current = 7
 QuestHelper_Collector = {}
 QuestHelper_Collector_Version = QuestHelper_Collector_Version_Current
 
-local EventRegistrar = {}
 local OnUpdateRegistrar = {}
 local TooltipRegistrar = {}
-
-local frame = CreateFrame("Frame")
-
-local function OnEvent(_, event, ...)
-  local tstart = GetTime()
-  for _, v in pairs(EventRegistrar[event]) do
-    v(...)
-  end
-  QH_Timeslice_Increment(GetTime() - tstart, "collect_event")
-end
-
-frame:UnregisterAllEvents()
-frame:SetScript("OnEvent", OnEvent)
-
-frame:Show()
-
-local function EventHookRegistrar(event, func)
-  QuestHelper: Assert(func)
-  if not EventRegistrar[event] then
-    frame:RegisterEvent(event)
-    EventRegistrar[event] = {}
-  end
-  table.insert(EventRegistrar[event], func)
-end
 
 local function OnUpdateHookRegistrar(func)
   QuestHelper: Assert(func)
@@ -55,26 +30,24 @@ end
 local function CollectTooltippery(self)
   if not self then self = GameTooltip end
   
-  local tstart = GetTime()
   for k, v in pairs(TooltipRegistrar) do
     v(self)
   end
-  QH_Timeslice_Increment(GetTime() - tstart, "collect_tooltip")
   
   -- anything past here is not my fault
 end
 
 local ottsu = GameTooltip:GetScript("OnTooltipSetUnit")
-GameTooltip:SetScript("OnTooltipSetUnit", function (self, ...)
+QH_Hook(GameTooltip, "OnTooltipSetUnit", function (self, ...)
   CollectTooltippery(self)
-  if ottsu then return ottsu(self, ...) end
-end)
+  if ottsu then return QH_Hook_NotMyFault(ottsu, self, ...) end
+end, "collection OnTooltipSetUnit")
 
 local ottsi = GameTooltip:GetScript("OnTooltipSetItem")
-GameTooltip:SetScript("OnTooltipSetItem", function (self, ...)
+QH_Hook(GameTooltip, "OnTooltipSetItem", function (self, ...)
   CollectTooltippery(self)
-  if ottsi then return ottsi(self, ...) end
-end)
+  if ottsi then return QH_Hook_NotMyFault(ottsi, self, ...) end
+end, "collection OnTooltipSetItem")
 
 
 local function TooltipHookRegistrar(func)
@@ -83,7 +56,6 @@ local function TooltipHookRegistrar(func)
 end
 
 local API = {
-  Registrar_EventHook = EventHookRegistrar,
   Registrar_OnUpdateHook = OnUpdateHookRegistrar,
   Registrar_TooltipHook = TooltipHookRegistrar,
   Callback_Location_Raw = function () return QuestHelper:Location_RawRetrieve() end,
@@ -164,13 +136,13 @@ function QH_Collector_Init()
   API.Utility_Notifier(GetTime() + (debug_output and 0 or (30 * 60)), function() CompressCollection(QHCData, QuestHelper_Collector[sig_altfaction], API.Utility_Merger, API.Utility_LZW.Compress) end)
 end
 
-function QH_Collector_OnUpdate()
+QH_OnUpdate(function ()
   local tstart = GetTime()
   for _, v in pairs(OnUpdateRegistrar) do
     v()
   end
   QH_Timeslice_Increment(GetTime() - tstart, "collect_update")
-end
+end)
 
 
 

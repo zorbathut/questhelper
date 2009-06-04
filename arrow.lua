@@ -98,18 +98,16 @@ local function OnDragStop(self, button)
 	self:StopMovingOrSizing()
 end
 
-local function OnEvent(self, event, ...)
-	if event == "ZONE_CHANGED_NEW_AREA" and QuestHelper_Pref.arrow and not QuestHelper_Pref.hide then -- TODO TWEAKERY
-		self:Show()
-    OnUpdate(self, nil)
+QH_Event("ZONE_CHANGED_NEW_AREA", function ()
+	if QuestHelper_Pref.arrow and not QuestHelper_Pref.hide then -- TODO TWEAKERY
+		wayframe:Show()
+    OnUpdate()
 	end
-end
+end)
 
-wayframe:SetScript("OnDragStart", OnDragStart)
-wayframe:SetScript("OnDragStop", OnDragStop)
+QH_Hook(wayframe, "OnDragStart", OnDragStart)
+QH_Hook(wayframe, "OnDragStop", OnDragStop)
 wayframe:RegisterForDrag("LeftButton")
-wayframe:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-wayframe:SetScript("OnEvent", OnEvent)
 
 wayframe.arrow = wayframe:CreateTexture("OVERLAY")
 --wayframe.arrow:SetTexture("Interface\\AddOns\\QuestHelper\\arrow_image_down") -- if we don't do this, the image doesn't seem to end up cached. :blizzard:
@@ -173,7 +171,7 @@ local function wpupdate(c, z, x, y, desc)
   active_point.c, active_point.z, active_point.x, active_point.y = c, z, x, y
   wayframe.title:SetText(desc)
   wayframe:Show()
-  OnUpdate(wayframe, nil)
+  OnUpdate()
 end
 
 QuestHelper:AddWaypointCallback(wpupdate)
@@ -186,21 +184,32 @@ local tta_throttle = 0
 local speed = 0
 local speed_count = 0
 
-OnUpdate = function(self, elapsed)
+OnUpdate = function()
+  local self = wayframe
   QuestHelper: Assert(self)
   
 	if not active_point.c or QuestHelper.collect_rc ~= active_point.c or QuestHelper.collect_delayed or QuestHelper.InBrokenInstance or not QuestHelper_Pref.arrow then
 		self:Hide()
 		return
 	end
+  
+  self:Show()
 
   local dist, dx, dy = QuestHelper.Astrolabe:ComputeDistance(QuestHelper.collect_rc, QuestHelper.collect_rz, QuestHelper.collect_rx, QuestHelper.collect_ry, active_point.c, active_point.z, active_point.x, active_point.y)
   
+  local text = ""
+  
   if dist then
-    status:SetText(QHFormat("DISTANCE", math.floor(dist + 0.5)))
-  else
-    status:SetText("")
+    -- I had support for miles and kilometers, but decided that distances were rarely large
+    -- enough to warrent it.
+    if QuestHelper_Pref.metric then
+      text = QHFormat("DISTANCE_METRES", math.floor(0.5+dist*0.9144))
+    else
+      text = QHFormat("DISTANCE_YARDS", math.floor(0.5 + dist))
+    end
   end
+  
+  status:SetText(text)
 
 	-- Showing the arrival arrow?
 	if dist and dist <= 10 then
@@ -291,7 +300,7 @@ OnUpdate = function(self, elapsed)
   ]]
 end
 
-wayframe:SetScript("OnUpdate", OnUpdate)
+QH_Hook(wayframe, "OnUpdate", OnUpdate)
 
 
 local function spacer()
@@ -361,4 +370,6 @@ local function WayFrame_OnClick(self, button)
 end
 
 wayframe:RegisterForClicks("RightButtonUp")
-wayframe:SetScript("OnClick", WayFrame_OnClick)
+
+QH_OnUpdate(OnUpdate)
+

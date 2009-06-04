@@ -85,7 +85,7 @@ while len(inbox) > 0:
               if not pre in filehashdict:
                 # okay, that's cool. Now we S3 it.
                 assert(os.system("bzip2 -k --best -c \"%s\" > \"%s\"" % (destination + name, s3name)) == 0)
-                assert(os.system("s3cmd put \"%s\" s3://questhelper_data" % (s3name)) == 0)
+                assert(os.system("s3cmd put \"%s\" s3://questhelper_data/" % (s3name)) == 0)
                 assert(os.system("rm rawdata_*") == 0)
                 print "\t\t S3 saved"
                 filehashdict[pre] = name.partition(".")[1] + name.partition(".")[2]  # we only look at the first page of emails, over and over. this way, on the second pass through that page, we'll get and delete instead of just re-storing over and over.
@@ -101,6 +101,7 @@ while len(inbox) > 0:
                 assert(os.system("cat \"%s\" | bunzip2 > rawdata_temptest" % (s3oldname)) == 0)
                 assert(os.system("diff -q rawdata_temptest \"%s\"" % (destination + name)) == 0)
                 assert(os.system("rm rawdata_temptest \"%s\"" % (s3oldname)) == 0)
+              assert(os.system("rm \"%s\"" % (destination + name)) == 0)
             else:
               print "foobared attachment"
               mark = False

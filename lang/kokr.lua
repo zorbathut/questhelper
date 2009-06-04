@@ -228,6 +228,7 @@ QuestHelper_Translations.koKR =
   SETTINGS_MENU_ARROW_RESET = "재설정",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE = "%h1 미터",
+  DISTANCE_YARDS = "%h1 미터",
+  DISTANCE_METRES = nil
  }
 

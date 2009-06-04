@@ -228,10 +228,9 @@ function QuestHelper:CreateWorldMapWalker()
     end
   end
   
-  walker:SetScript("OnEvent", function () walker:RouteChanged() end)  -- we do this just to strip the parameters out
-  walker:RegisterEvent("WORLD_MAP_UPDATE")
+  QH_Event("WORLD_MAP_UPDATE", function () walker:RouteChanged() end)
   
-  walker:SetScript("OnUpdate", walker.OnUpdate)
+  QH_Hook(walker, "OnUpdate", walker.OnUpdate)
   
   return walker
 end
@@ -494,7 +493,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
           self.glow_list = nil
         end
         
-        self:SetScript("OnUpdate", nil)
+        QH_Hook(self, "OnUpdate", nil)
         return
       end
     end
@@ -538,7 +537,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
     
     self:SetGlow(list)
     
-    self:SetScript("OnUpdate", self.OnUpdate)
+    QH_Hook(self, "OnUpdate", self.OnUpdate)
   end
   
   function icon:OnLeave()
@@ -547,7 +546,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
     self.old_count = 0
   end
   
-  function icon:OnEvent(event)
+  function icon:OnEvent()
     if self.objective then
       QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, convertLocation(self.objective.loc))
     else
@@ -581,14 +580,14 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
     end
   end
   
-  icon:SetScript("OnClick", icon.OnClick)
-  icon:SetScript("OnEnter", icon.OnEnter)
-  icon:SetScript("OnLeave", icon.OnLeave)
-  icon:SetScript("OnEvent", icon.OnEvent)
+  QH_Hook(icon, "OnClick", icon.OnClick)
+  QH_Hook(icon, "OnEnter", icon.OnEnter)
+  QH_Hook(icon, "OnLeave", icon.OnLeave)
+  QH_Hook(icon, "OnEvent", icon.OnEvent)
   
   icon:RegisterForClicks("RightButtonUp")
   
-  icon:RegisterEvent("WORLD_MAP_UPDATE")
+  QH_Event("WORLD_MAP_UPDATE", function () icon:OnEvent() end)
   
   icon:SetObjective(objective, nxt)
   return icon
@@ -830,14 +829,14 @@ function QuestHelper:CreateMipmapDodad()
     end
   end
   
-  icon:SetScript("OnUpdate", icon.OnUpdate)
-  icon:SetScript("OnEnter", icon.OnEnter)
-  icon:SetScript("OnLeave", icon.OnLeave)
-  icon:SetScript("OnEvent", icon.OnEvent)
-  icon:SetScript("OnClick", icon.OnClick)
+  QH_Hook(icon, "OnUpdate", icon.OnUpdate)
+  QH_Hook(icon, "OnEnter", icon.OnEnter)
+  QH_Hook(icon, "OnLeave", icon.OnLeave)
+  QH_Hook(icon, "OnClick", icon.OnClick)
   
   icon:RegisterForClicks("RightButtonUp")
-  icon:RegisterEvent("PLAYER_ENTERING_WORLD")
+  
+  QH_Event("PLAYER_ENTERING_WORLD", function () icon:OnEvent() end)
   
   return icon
 end

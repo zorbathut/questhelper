@@ -298,6 +298,9 @@ local function MakeQuestObjectiveTitle(progress, target)
     end
     
     if pt > 1 then party_show = true end
+  elseif pt == 0 then
+    ccode = difficulty_color(1) -- probably just in the process of being removed from the tracker
+    status = "Complete"
   else
     ccode = difficulty_color(pd / pt)
     
@@ -633,15 +636,17 @@ function QH_UpdateQuests(force)
     
     QH_Route_Filter_Rescan()  -- 'cause filters may also change
     
-    for k, v in pairs(next_chunks) do
-      if current_chunks[k] ~= v then
-        SAM(v, "PARTY")
+    if not QuestHelper_Pref.solo and QuestHelper_Pref.share then
+      for k, v in pairs(next_chunks) do
+        if current_chunks[k] ~= v then
+          SAM(v, "PARTY")
+        end
       end
-    end
-    
-    for k, v in pairs(current_chunks) do
-      if not next_chunks[k] then
-        SAM(string.format("q:n%d", k), "PARTY")
+      
+      for k, v in pairs(current_chunks) do
+        if not next_chunks[k] then
+          SAM(string.format("q:n%d", k), "PARTY")
+        end
       end
     end
     
@@ -709,8 +714,8 @@ local function QH_DumpCommUser(user)
   RefreshUserComms(user)
 end
 
-QuestHelper.EventHookRegistrar("UNIT_QUEST_LOG_CHANGED", UpdateTrigger)
-QuestHelper.EventHookRegistrar("QUEST_LOG_UPDATE", QH_UpdateQuests)
+QH_Event("UNIT_QUEST_LOG_CHANGED", UpdateTrigger)
+QH_Event("QUEST_LOG_UPDATE", QH_UpdateQuests)
 
 -- We don't return anything here, but I don't think that's actually an issue - those functions don't return anything anyway. Someday I'll regret writing this. Delay because of beql which is a bitch.
 QH_AddNotifier(GetTime() + 5, function ()
@@ -729,6 +734,11 @@ end)
 local old_playerlist = {}
 
 function QH_Questcomm_Sync()
+  if not (not QuestHelper_Pref.solo and QuestHelper_Pref.share) then
+    old_playerlist = {}
+    return
+  end
+  
   local playerlist = {}
   --[[if GetNumRaidMembers() > 0 then
     for i = 1, 40 do
@@ -779,6 +789,7 @@ end
 local aku = {}
 
 local newer_reported = false
+local older_reported = false
 function QH_Questcomm_Msg(data, from)
   if data:match("syn:0") then
     QH_DumpCommUser(from)
@@ -815,9 +826,14 @@ function QH_Questcomm_Msg(data, from)
   if data:match("syn:.*") then
     local synv = data:match("syn:([0-9]*)")
     if synv then synv = tonumber(synv) end
-    if synv and synv > 2 and not newer_reported then
-      QuestHelper:TextOut(QHFormat("PEER_NEWER", from))
-      newer_reported = true
+    if synv and synv ~= 2 then
+      if synv > 2 and not newer_reported then
+        QuestHelper:TextOut(QHFormat("PEER_NEWER", from))
+        newer_reported = true
+      elseif synv < 2 and not older_reported then
+        QuestHelper:TextOut(QHFormat("PEER_OLDER", from))
+        older_reported = true
+      end
     end
     
     if synv and synv >= 2 then
@@ -838,7 +854,7 @@ end
 
 function QuestHelper:SetShare(flag)
   if flag then
-    SAM("syn:2", "PARTY")
+    QH_Questcomm_Sync()
   else
     SAM("syn:0", "PARTY")
     local cpb = comm_packets
