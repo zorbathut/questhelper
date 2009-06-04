@@ -120,8 +120,16 @@ qh_event_frame:SetScript("OnUpdate", OnUpdateTrigger)
 function QH_Hook(target, hookname, func, identifier)
   if not identifier then identifier = string.format("(unknown hook %s/%s)", hookname, tostring(target)) end
   if hookname == "OnUpdate" then
-    OnUpdate[target] = {func = func and function (...) func(target, ...) end, id = identifier}
+    if not func then
+      OnUpdate[target] = nil
+    else
+      OnUpdate[target] = {func = function (...) func(target, ...) end, id = identifier}
+    end
   else
-    target:SetScript(hookname, function (...) wraptime(identifier, func, ...) end)
+    if not func then
+      target:SetScript(hookname, nil)
+    else
+      target:SetScript(hookname, function (...) wraptime(identifier, func, ...) end)
+    end
   end
 end

@@ -195,8 +195,8 @@ function QuestHelper:ReleaseFrame(frame)
     end
   end
   
-  for i, script in ipairs(frameScripts) do
-    frame:SetScript(script, nil)
+  for _, script in ipairs(frameScripts) do
+    QH_Hook(frame, script, nil)
   end
   
   frame:Hide()
