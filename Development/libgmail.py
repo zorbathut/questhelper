@@ -5,7 +5,7 @@
 ## To get the version number of the available libgmail version.
 ## Reminder: add date before next release. This attribute is also
 ## used in the setup script.
-Version = '0.1.10' # (July 2008)
+Version = '0.1.11' # (August 2008)
 
 # Original author: follower@rancidbacon.com
 # Maintainers: Waseem (wdaher@mit.edu) and Stas Z (stas@linux.isbeter.nl)
@@ -329,7 +329,7 @@ class GmailAccount:
                 return cookie.value
         return ""
 
-    def _retrievePage(self, urlOrRequest, nodecode = 0):
+    def _retrievePage(self, urlOrRequest):
         """
         """
         if self.opener is None:
@@ -355,10 +355,7 @@ class GmailAccount:
         self._cookieJar.extract_cookies(resp, req)
 
         # TODO: Enable logging of page data for debugging purposes?
-        if nodecode == 1:
-          return pageData
-        return pageData.decode('utf-8')
-
+        return pageData
 
     def _parsePage(self, urlOrRequest):
         """
@@ -1369,8 +1366,10 @@ class GmailThread(_LabelHandlerMixin):
         """
         if not self._messages:
             self._messages = self._getMessages(self)
-            
-        return iter(self._messages)
+        
+        yit = self._messages
+        self._messages = None
+        return iter(yit)
 
     def __getitem__(self, key):
         """
@@ -1408,7 +1407,6 @@ class GmailThread(_LabelHandlerMixin):
                 for msg in msgsInfo:
                     result += [GmailMessage(thread, msg, isDraft = isDraft)]
                            
-
         return result
 
 class GmailMessageStub(_LabelHandlerMixin):
@@ -1446,16 +1444,23 @@ class GmailMessage(object):
         self._account = self._parent._account
         
         self.author = msgData[MI_AUTHORFIRSTNAME]
+        self.author_fullname = msgData[MI_AUTHORNAME]
         self.id = msgData[MI_MSGID]
         self.number = msgData[MI_NUM]
         self.subject = msgData[MI_SUBJECT]
-        self.to = msgData[MI_TO]
-        self.cc = msgData[MI_CC]
-        self.bcc = msgData[MI_BCC]
+        self.to = [x.decode('utf-8') for x in msgData[MI_TO]]
+        self.cc = [x.decode('utf-8') for x in msgData[MI_CC]]
+        self.bcc = [x.decode('utf-8') for x in msgData[MI_BCC]]
         self.sender = msgData[MI_AUTHOREMAIL]
         
-        self.attachments = [GmailAttachment(self, attachmentInfo)
-                            for attachmentInfo in msgData[MI_ATTACHINFO]]
+        # Messages created by google chat (from reply with chat, etc.)
+        # don't have any attachments, so we need this check not to choke
+        # on them
+        try:
+            self.attachments = [GmailAttachment(self, attachmentInfo)
+                    for attachmentInfo in msgData[MI_ATTACHINFO]]
+        except TypeError:
+            self.attachments = []
 
         # TODO: Populate additional fields & cache...(?)
 
@@ -1474,7 +1479,7 @@ class GmailMessage(object):
             #       to make it legal as per RFC?
             self._source = self._account.getRawMessage(self.id)
 
-        return self._source
+        return self._source.decode('utf-8')
 
     source = property(_getSource, doc = "")
         
@@ -1502,14 +1507,10 @@ class GmailAttachment:
     def _getContent(self):
         """
         """
-        if not self._content:
-            # TODO: Do this a more nicely...?
-            self._content = self._account._retrievePage(
+        return self._account._retrievePage(
                 _buildURL(view=U_ATTACHMENT_VIEW, disp="attd",
-                          attid=self.id, th=self._parent._parent.id), 1)
+                          attid=self.id, th=self._parent._parent.id))
             
-        return self._content
-
     content = property(_getContent, doc = "")
 
 
