@@ -1,6 +1,8 @@
-== Version (next) ==
+== Version 1.0.19 6/4/2009 ==
 
-* Added <tt>/qh metric</tt> to toggle between metres and yards.
+* Move event handling around quite a lot to make it possible to debug stutters and performance issues a little better
+* Added <tt>/qh metric</tt> to toggle between metres and yards, thanks to smariot
+* Various small bugfixes in the quest sharing code
 
 == Version 1.0.18-beta 5/22/2009 ==
 
