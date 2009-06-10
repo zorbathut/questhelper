@@ -1,3 +1,8 @@
+== Version 1.0.20 6/10/2009 ==
+
+* Fix compatibility issue with UnicodeFont
+* Database update
+
 == Version 1.0.19 6/4/2009 ==
 
 * Move event handling around quite a lot to make it possible to debug stutters and performance issues a little better
