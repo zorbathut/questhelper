@@ -215,6 +215,7 @@ QH_Event("ADDON_LOADED", function (addonid)
       ["tracker.lua"] = true,
       ["objtips.lua"] = true,
       ["cartographer.lua"] = true,
+      ["cartographer_is_terrible.lua"] = true,
       ["tomtom.lua"] = true,
       ["textviewer.lua"] = true,
       ["error.lua"] = true,
