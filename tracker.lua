@@ -300,7 +300,7 @@ local function addItem(objective, y, meta)
     item:Show()
   end
   
-  item.text:SetText(item.obj.tracker_desc)
+  item.text:SetText(item.obj.tracker_desc or "(no description)")
   
   local w, h = item.text:GetWidth(), item.text:GetHeight()
   item:SetWidth(w)
