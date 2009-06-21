@@ -287,6 +287,7 @@ QH_Event("ADDON_LOADED", function (addonid)
       ["routing_hidden.lua"] = true,
       
       ["director_quest.lua"] = true,
+      ["director_achievement.lua"] = true,
       
       ["db_get.lua"] = true,
       
