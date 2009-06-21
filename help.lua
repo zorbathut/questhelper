@@ -850,6 +850,12 @@ commands =
      "Displays some instructions and a link for donating.",
      {}, QuestHelper.Donate, QuestHelper},]]
   }},
+  
+  { "Incredibly Experimental And Unsupported", {
+    {"BONFIRES",
+     "Adds waypoints for the Midsummer Bonfires.",
+     {}, QH_AddFires},
+  }},
 }
 
 function QuestHelper_SlashCommand(input)
