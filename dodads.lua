@@ -344,6 +344,31 @@ end
 globx = 0.5
 globy = 0.5
 
+local function rightclick_menu(obj)
+  if obj then
+    local menu = QuestHelper:CreateMenu()
+    local list = QuestHelper:GetOverlapObjectives(obj)
+    local item
+    
+    if #list > 1 then
+      QuestHelper:CreateMenuTitle(menu, "Objectives")
+      
+      for i, o in ipairs(list) do
+        local submenu = QuestHelper:CreateMenu()
+        item = QuestHelper:CreateMenuItem(menu, o.map_desc[1])
+        item:SetSubmenu(submenu)
+        item:AddTexture(QuestHelper:CreateIconTexture(item, o.icon_id), true)
+        QuestHelper:AddObjectiveOptionsToMenu(o, submenu)
+      end
+    else
+      QuestHelper:CreateMenuTitle(menu, obj.map_desc[1])
+      QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
+    end
+    
+    menu:ShowAtCursor()
+  end
+end
+
 function QuestHelper:CreateWorldMapDodad(objective, nxt)
   local icon = CreateFrame("Button", nil, QuestHelper.map_overlay)
   icon:SetFrameStrata("FULLSCREEN")
@@ -556,28 +581,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
   end
   
   function icon:OnClick()
-    if self.objective then
-      local menu = QuestHelper:CreateMenu()
-      local list = QuestHelper:GetOverlapObjectives(self.objective)
-      local item
-      
-      if #list > 1 then
-        QuestHelper:CreateMenuTitle(menu, "Objectives")
-        
-        for i, o in ipairs(list) do
-          local submenu = QuestHelper:CreateMenu()
-          item = QuestHelper:CreateMenuItem(menu, o.map_desc[1])
-          item:SetSubmenu(submenu)
-          item:AddTexture(QuestHelper:CreateIconTexture(item, o.icon_id), true)
-          QuestHelper:AddObjectiveOptionsToMenu(o, submenu)
-        end
-      else
-        QuestHelper:CreateMenuTitle(menu, self.objective.map_desc[1])
-        QuestHelper:AddObjectiveOptionsToMenu(self.objective, menu)
-      end
-      
-      menu:ShowAtCursor()
-    end
+    rightclick_menu(self.objective)
   end
   
   QH_Hook(icon, "OnClick", icon.OnClick)
@@ -813,12 +817,7 @@ function QuestHelper:CreateMipmapDodad()
   end
   
   function icon:OnClick()
-    if self.objective then
-      local menu = QuestHelper:CreateMenu()
-      QuestHelper:CreateMenuTitle(menu, self.objective:Reason(true))
-      QuestHelper:AddObjectiveOptionsToMenu(self.obj, menu)
-      menu:ShowAtCursor()
-    end
+    rightclick_menu(self.obj)
   end
   
   function icon:OnEvent()
