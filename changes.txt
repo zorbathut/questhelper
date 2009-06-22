@@ -1,4 +1,28 @@
 
+== Version 1.0.22 6/22/2009 ==
+
+* Added right-clicking objectives on the minimap
+* Remove the annoying "Too Many Stored Objectives" error
+
+- INCREDIBLY EXPERIMENTAL FEATURE -
+
+Enjoying the Fire Festival? Want some way to easily path between all the bonfires? Now you have one! Type "/qh bonfires" and Questhelper will add an objective for each bonfire in the game! It's just that simple, right?
+
+No, it's not that simple.
+
+The bonfires are a thing I hacked in in about an hour. As such, it is a highly unpolished feature. On top of that, it exposes some scaling issues with the Questhelper core (issues that I knew existed, but haven't really been important until now.) On top of *that*, I put basically no effort into making the interface good.
+
+So:
+
+* Questhelper may take several minutes to display the bonfires in your route. Along with that, it may update the player location very infrequently.
+* Questhelper's initial route will be quite crummy. It may take several minutes for it to become good.
+* Questhelper will use significantly more RAM.
+* Questhelper will not detect which bonfires you've already completed, nor automatically remove the bonfire objectives after you complete them. You'll have to do that manually, with "ignore".
+* Performance issues will probably remain until you log off.
+* There may be other issues. This is a *highly experimental feature* and I provide no support for it - it's sort of a sneak peak into what's coming.
+
+Enjoy the Fire Festival!
+
 == Version 1.0.21 6/15/2009 ==
 
 * Tired of Cartographer being broken, hideous ghastly hackjob to make it stop causing problems in instances. With luck, it won't make Cartographer explode badly. With further luck, if it does, nobody will blame it on me.
