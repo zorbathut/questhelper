@@ -367,11 +367,14 @@ local function StartInsertionPass(id)
     end
   end
 end
-local function RefreshItem(id, item)
+local function RefreshItem(id, item, required)
+  --if not required and math.random() < 0.2 then return false end -- ha ha bzzzzt
+  
   QuestHelper: Assert(in_pass == id)
   local added = false
   if not InsertedItems[item] then
     QH_Route_ClusterAdd(item)
+    --QH_Route_SetClusterPriority(item, math.random(5))
     added = true
     InsertedItems[item] = {}
     if item.tooltip then QH_Tooltip_Add(item.tooltip) end
@@ -438,7 +441,7 @@ function QuestProcessor(user_id, db, title, level, group, variety, groupsize, wa
     end
     
     turnin = db.finish
-    if RefreshItem(user_id, turnin) then
+    if RefreshItem(user_id, turnin, true) then
       turnin_new = true
       for k, v in ipairs(turnin) do
         v.tracker_clicked = function () Clicky(lindex) end
