@@ -533,7 +533,7 @@ local function RunAnt()
   
   local gwc = QuestHelper:CreateTable("route_core_gwc")
   
-  --TestShit()
+  TestShit()
   
   for k, v in ipairs(Priorities) do
     if Priorities[k + 1] then
@@ -1271,6 +1271,8 @@ function QH_Route_Core_ClusterRemove(clust, clustid_used)
   Storage_ClusterDestroyed(clustid)
 end
 
+local QH_Route_Core_SetClusterPriority_Internal
+
 -- Add a note that node 1 requires node 2.
 function QH_Route_Core_ClusterRequires(a, b, hackery)
   local aidx
@@ -1302,15 +1304,17 @@ function QH_Route_Core_ClusterRequires(a, b, hackery)
   DespliceCN(bidx)
   
   Storage_ClusterDependency(aidx, bidx)
+  
+  QH_Route_Core_SetClusterPriority_Internal(bidx, ClusterPriority[bidx], true)
 end
 
 function QH_Route_Core_GetClusterPriority(clust)
   return ClusterPriority[ClusterTableLookup[clust]]
 end
 
-local function QH_Route_Core_SetClusterPriority_Internal(clustid, new_pri)
+function QH_Route_Core_SetClusterPriority_Internal(clustid, new_pri, force)
   QuestHelper: Assert(clustid)
-  if ClusterPriority[clustid] == new_pri then return end
+  if not force and ClusterPriority[clustid] == new_pri then return end
   --QuestHelper:TextOut(string.format("Setting %d to %d", clustid, new_pri))
   
   local pri = ClusterPriority[clustid]
@@ -1383,7 +1387,6 @@ function QH_Route_Core_DistanceClear()
 end
 QH_Route_Core_DistanceClear_Local = QH_Route_Core_DistanceClear
 
---[==[
 function findin(tab, val)
   local ct = 0
   for k, v in pairs(tab) do
@@ -1433,18 +1436,20 @@ function TestShit()
   for k, v in pairs(DependencyLinks) do
     for _, v2 in pairs(v) do
       QuestHelper: Assert(findin(DependencyLinksReverse[v2], k))
+      QuestHelper: Assert(ClusterPriority[v2] <= ClusterPriority[k])
     end
   end
   
   for k, v in pairs(DependencyLinksReverse) do
     for _, v2 in pairs(v) do
       QuestHelper: Assert(findin(DependencyLinks[v2], k))
+      QuestHelper: Assert(ClusterPriority[v2] >= ClusterPriority[k])
     end
   end
   
   QuestHelper: Assert(not fail)
 end
-]==]
+
 --[=[
 function HackeryDump()
   local st = "{"
