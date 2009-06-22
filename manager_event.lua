@@ -81,6 +81,7 @@ function QH_Event(event, func, identifier)
   end
 end
 
+local last_frame = GetTime()
 
 local OnUpdate = {}
 local OnUpdateHigh = {}
@@ -99,7 +100,9 @@ local function OnUpdateTrigger(_, ...)
     time_used = time_used + (GetTime() - tstart)
   end
   
-  QH_Timeslice_Work(time_used)
+  local tframe = GetTime()
+  QH_Timeslice_Work(time_used, tframe - last_frame)
+  last_frame = tframe
   
   next_started = false
 end
