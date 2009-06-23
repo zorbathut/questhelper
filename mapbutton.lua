@@ -135,10 +135,10 @@ function QuestHelper:DoSettingsMenu()
     submenu = self:CreateMenu()
     for scale = 0.2,2,0.2 do
       local menu = self:CreateMenuItem(submenu, (scale*100).."%")
-      menu:SetFunction(QuestHelper.genericSetScale, QuestHelper, "perf_scale", "performance factor", .1, 5, scale)
+      menu:SetFunction(QuestHelper.genericSetScale, QuestHelper, "perf_scale_2", "performance factor", .1, 5, scale)
       local tex = self:CreateIconTexture(item, 10)
       menu:AddTexture(tex, true)
-      tex:SetVertexColor(1, 1, 1, QuestHelper_Pref.perf_scale == scale and 1 or 0)
+      tex:SetVertexColor(1, 1, 1, QuestHelper_Pref.perf_scale_2 == scale and 1 or 0)
     end
     self:CreateMenuItem(menu, QHText("MENU_PERFORMANCE")):SetSubmenu(submenu)
     

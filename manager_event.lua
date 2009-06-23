@@ -81,7 +81,10 @@ function QH_Event(event, func, identifier)
   end
 end
 
+local tls = GetTime()
+
 local last_frame = GetTime()
+local time_per_frame = 0.05 -- Assume 20fps so we can get a little early loading
 
 local OnUpdate = {}
 local OnUpdateHigh = {}
@@ -101,8 +104,16 @@ local function OnUpdateTrigger(_, ...)
   end
   
   local tframe = GetTime()
-  QH_Timeslice_Work(time_used, tframe - last_frame)
-  last_frame = tframe
+  local tplf = tframe - last_frame
+  time_per_frame = math.exp(math.log(time_per_frame) * 0.99 + math.log(tplf + 0.0000000001) * 0.01)
+  
+  --[[
+  if tls < GetTime() - 1 then
+    tls = GetTime()
+    print(string.format("Avg TPF %f, current TPLF %f, time_used %f, this adjustment %f", time_per_frame, tplf, time_used, time_used - (time_per_frame - tplf)))
+  end]]
+  QH_Timeslice_Work(time_used, time_per_frame, time_per_frame - tplf)
+  last_frame = GetTime()
   
   next_started = false
 end

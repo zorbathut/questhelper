@@ -46,7 +46,7 @@ QuestHelper_DefaultPref =
   metric = (QuestHelper_Locale ~= "enUS" and QuestHelper_Locale ~= "esMX"),
   flight_time = true,
   locale = GetLocale(), -- This variable is used for display purposes, and has nothing to do with the collected data.
-  perf_scale = 1,       -- How much background processing can the current machine handle?  Higher means more load, lower means better performance.
+  perf_scale_2 = 1,       -- How much background processing can the current machine handle?  Higher means more load, lower means better performance.
   perfload_scale = 1,    -- Performance scale to use on startup
   map_button = true,
  }
@@ -939,8 +939,8 @@ Thanks for testing!]], "QuestHelper " .. version_string, 500, 20, 10)
   --if update_count <= 0 then
 
     -- Reset the update count for next time around; this will make sure the body executes every time
-    -- when perf_scale >= 1, and down to 1 in 10 iterations when perf_scale < 1, or when hidden.
-    --update_count = update_count + (QuestHelper_Pref.hide and 10 or 1/QuestHelper_Pref.perf_scale)
+    -- when perf_scale_2 >= 1, and down to 1 in 10 iterations when perf_scale_2 < 1, or when hidden.
+    --update_count = update_count + (QuestHelper_Pref.hide and 10 or 1/QuestHelper_Pref.perf_scale_2)
 
     --if update_count < 0 then
       -- Make sure the count doesn't go perpetually negative; don't know what will happen if it underflows.

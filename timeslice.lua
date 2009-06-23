@@ -100,7 +100,17 @@ function QH_Timeslice_Doneinit()
   started = true
 end
 
-function QH_Timeslice_Work(time_used, time_this_frame)
+local startacu = GetTime()
+local totalacu = 0
+local lacu = 0
+
+--[[function qhtacureset()
+  startacu = GetTime()
+  totalacu = 0
+  lacu = 0
+end]]
+
+function QH_Timeslice_Work(time_used, time_this_frame, bonus_time)
   -- There's probably a better way to do this, but. Eh. Lua.
   coro = nil
   key = nil
@@ -122,18 +132,23 @@ function QH_Timeslice_Work(time_used, time_this_frame)
       QuestHelper: Assert(coroutine.status(coro.coro) ~= "dead")
     end
     
-    local slicefactor = (QuestHelper_Pref.hide and 0.01 or (QuestHelper_Pref.perf_scale * math.min(coroutine_route_pass, 5)))
+    local slicefactor = (QuestHelper_Pref.hide and 0.01 or (QuestHelper_Pref.perf_scale_2 * math.min(coroutine_route_pass, 5)))
     if not started then slicefactor = 5 * QuestHelper_Pref.perfload_scale * math.min(coroutine_route_pass, 5) end  -- the init process gets much higher priority so we get done with it faster
     local time_to_use = slicefactor * time_this_frame * 0.075 -- We want to use 7.5% of the system CPU
     local coroutine_intended_stop_time = GetTime() + time_to_use
-    coroutine_stop_time = coroutine_intended_stop_time - coroutine_time_exceeded - time_used
+    coroutine_stop_time = coroutine_intended_stop_time - coroutine_time_exceeded - time_used + bonus_time
     coroutine_route_pass = coroutine_route_pass - 5
     if coroutine_route_pass <= 0 then coroutine_route_pass = 1 end
     
-    --print(string.format("using %f time this frame", time_to_use))
-    
     local start = GetTime()
     local state, err = true, nil -- default values for "we're fine"
+    
+    totalacu = totalacu + math.max(0, coroutine_stop_time - start)
+    --[[if lacu + 0.1 < totalacu then
+      lacu = totalacu
+      print(string.format("%f realtime, %f runtime, %f%%", start - startacu, totalacu, (totalacu / (start - startacu)) * 100))
+    end]]
+    --print(string.format("ttutf %f, tu %f, bt %f, wut %f lolwut %f", time_to_use, time_used, bonus_time, QuestHelper_Pref.perf_scale_2, slicefactor))
     
     if start < coroutine_stop_time then -- We don't want to just return on failure because we want to credit the exceeded time properly.
       coroutine_running = true
