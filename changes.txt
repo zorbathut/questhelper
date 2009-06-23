@@ -1,4 +1,21 @@
 
+== Version 1.0.23 6/23/2009 ==
+
+* Possibly fix that old routing paradox error. Why did it take me this long to come up with that fix? It is a very, very simple fix. Sigh.
+* Rework QH's CPU usage significantly.
+
+Old QH would use a certain amount of CPU time per frame (about 2 milliseconds by default). This meant that on high-FPS systems it could use 20% or more of the system CPU (reducing framerate heavily), and on low-FPS systems it could drop to 1% of the system CPU. Bad all around.
+
+New QH tries to use a roughly constant amount of CPU time (by default, it's 7.5%.) This should result in roughly the same CPU usage on systems that get 40FPS, with increased CPU usage with lower FPS and decreased CPU usage with higher FPS.
+
+On top of that, New QH tries to smooth out your framerate a little. If it notices that the last frame took a very very long time to render, it'll actually halt calculations for that frame, increasing your CPU. Conversely, if the last frame was extremely fast, it'll do more calculations since you probably won't notice. It's possible that WoW with QH installed will actually feel smoother than with it not installed - "/qh perf 500%" not only uses more CPU on my system than it used to, but it feels like only a slightly increased drain on resources.
+
+It turns out that, in many situations, the "use more CPU during higher framerate times" code will account for the majority of QH's CPU usage. That's pretty neat.
+
+As a side note, I reset everyone's "/qh perf" setting. The old numbers have basically no relevance to the new system.
+
+Lemme know what it feels like.
+
 == Version 1.0.22 6/22/2009 ==
 
 * Added right-clicking objectives on the minimap
