@@ -260,6 +260,7 @@ function QH_Route_UnignoreCluster(clust, reason)
 end
 
 function QH_Route_SetClusterPriority(clust, pri)
+  QuestHelper: Assert(clust)
   table.insert(pending, function () Route_Core_SetClusterPriority(clust, pri) end)
 end
 
