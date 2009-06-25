@@ -135,6 +135,7 @@ function QH_Timeslice_Work(time_used, time_this_frame, bonus_time)
     local slicefactor = (QuestHelper_Pref.hide and 0.01 or (QuestHelper_Pref.perf_scale_2 * math.min(coroutine_route_pass, 5)))
     if not started then slicefactor = 5 * QuestHelper_Pref.perfload_scale * math.min(coroutine_route_pass, 5) end  -- the init process gets much higher priority so we get done with it faster
     local time_to_use = slicefactor * time_this_frame * 0.075 -- We want to use 7.5% of the system CPU
+    if InCombatLockdown() then time_to_use = time_to_use / 5 end
     local coroutine_intended_stop_time = GetTime() + time_to_use
     coroutine_stop_time = coroutine_intended_stop_time - coroutine_time_exceeded - time_used + bonus_time
     coroutine_route_pass = coroutine_route_pass - 5
