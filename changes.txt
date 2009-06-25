@@ -1,4 +1,10 @@
 
+== Version 1.0.24 6/25/2009 ==
+
+* Add a new filter, "/qh filter group". Group allows you to dump group quests and instances regardless of level. The group cutoff can be changed with "/qh group 3", for example, to allow 3-person group quests but no more. It automatically disables when the player is in a group or raid, and defaults to 2-person groups at most.
+* Tweak the new CPU code to reduce CPU usage after being alt-tabbed
+* Update translations
+
 == Version 1.0.23 6/23/2009 ==
 
 * Possibly fix that old routing paradox error. Why did it take me this long to come up with that fix? It is a very, very simple fix. Sigh.
