@@ -121,10 +121,10 @@ local function GetQuestMetaobjective(questid, lbcount)
       local ttx = {}
       --QuestHelper:TextOut(string.format("critty %d %d", k, c.loc and #c.loc or -1))
       
-      ttx.tooltip = {}
+      ttx.tooltip_canned = {}
       
       if q and q.criteria and q.criteria[i] then
-        AppendObjlinks(ttx, q.criteria[i], ttx.tooltip)
+        AppendObjlinks(ttx, q.criteria[i], ttx.tooltip_canned)
         
         if debug_output and q.criteria[i].loc and #q.criteria[i] > 0 then
           QuestHelper:TextOut(string.format("Wackyquest %d/%d", questid, i))
@@ -142,8 +142,8 @@ local function GetQuestMetaobjective(questid, lbcount)
         v.type_quest = ite.type_quest
       end
       
-      for k, v in pairs(ttx.tooltip) do
-        ttx.tooltip[k] = {ttx.tooltip[k], ttx} -- we're gonna be handing out this table to other modules, so this isn't as dumb as it looks
+      for k, v in pairs(ttx.tooltip_canned) do
+        ttx.tooltip_canned[k] = {ttx.tooltip_canned[k], ttx} -- we're gonna be handing out this table to other modules, so this isn't as dumb as it looks
       end
       
       ite[i] = ttx
@@ -349,8 +349,38 @@ local dontknow  = {
 
 -- InsertedItem[item] = {"list", "of", "reasons"}
 local InsertedItems = {}
+local TooltipType = {}
 local Unknowning = {}
 local in_pass = nil
+
+local function SetTooltip(item, typ)
+  print("stt", item, typ)
+  if TooltipType[item] == typ then return end
+  
+  if TooltipType[item] == "canned" then
+    QuestHelper: Assert(item.tooltip_canned)
+    QH_Tooltip_Canned_Remove(k.tooltip_canned)
+  elseif TooltipType[item] == "defer" then
+    QuestHelper: Assert(item.tooltip_defer_questname)
+    QH_Tooltip_Defer_Remove(item.tooltip_defer_questname, item.tooltip_defer_questobjective)
+  elseif TooltipType[item] == nil then
+  else
+    QuestHelper: Assert(false)
+  end
+  
+  if typ == "canned" then
+    QuestHelper: Assert(item.tooltip_canned)
+    QH_Tooltip_Canned_Add(k.tooltip_canned)
+  elseif typ == "defer" then
+    QuestHelper: Assert(item.tooltip_defer_questname)
+    QH_Tooltip_Defer_Add(item.tooltip_defer_questname, item.tooltip_defer_questobjective, {{}, item})
+  elseif typ == nil then
+  else
+    QuestHelper: Assert(false)
+  end
+  
+  TooltipType[item] = typ
+end
 
 local function StartInsertionPass(id)
   QuestHelper: Assert(not in_pass)
@@ -377,9 +407,16 @@ local function RefreshItem(id, item, required)
     --QH_Route_SetClusterPriority(item, math.random(5))
     added = true
     InsertedItems[item] = {}
-    if item.tooltip then QH_Tooltip_Add(item.tooltip) end
   end
   InsertedItems[item][id] = true
+  
+  if item.tooltip_defer_questobjective then
+    SetTooltip(item, "defer")
+  elseif item.tooltip_canned then
+    SetTooltip(item, "canned")
+  else
+    SetTooltip(item, nil)
+  end
   
   if item.type_quest_unknown then table.insert(Unknowning, item) end
   
@@ -401,9 +438,10 @@ local function EndInsertionPass(id)
     end
     if not has then
       QH_Tracker_Unpin(k[1])
-      if k.tooltip then QH_Tooltip_Remove(k.tooltip) end
       QH_Route_ClusterRemove(k)
       rem[k] = true
+      
+      SetTooltip(item, nil)
     end
   end
   
@@ -624,6 +662,9 @@ function QH_UpdateQuests(force)
             QuestHelper: Assert(db[i])
             db[i].temp_desc, db[i].temp_typ, db[i].temp_done = GetQuestLogLeaderBoard(i, index)
             db[i].temp_person = player
+            
+            db[i].tooltip_defer_questname = title
+            db[i].tooltip_defer_questobjective = db[i].temp_desc  -- yoink
             chunk = chunk .. ":" .. Serialize(db[i].temp_desc, db[i].temp_typ, db[i].temp_done)
           end
           

@@ -1,29 +1,37 @@
 QuestHelper_File["tooltip.lua"] = "Development Version"
 QuestHelper_Loadtime["tooltip.lua"] = GetTime()
 
-local function DoTooltip(self, tooltipi)
-  local ct = 0
-  for data, lines in pairs(tooltipi) do
-    ct = ct + 1
-    
-    local indent = 1
-    --QuestHelper:TextOut(QuestHelper:StringizeTable(data))
-    --QuestHelper:TextOut(QuestHelper:StringizeTable(lines))
-    for _, v in ipairs(lines) do
-      self:AddLine(("  "):rep(indent) .. v, 1, 1, 1)
-      indent = indent + 1
-    end
-    self:AddLine(("  "):rep(indent) .. data.desc, 1, 1, 1)
-    QuestHelper:AppendObjectiveProgressToTooltip(data, self, nil, indent + 1)
+if QuestHelper_File["tooltip.lua"] == "Development Version" then
+  qh_hackery_nosuppress = true
+end
+
+local function DoTooltip(self, data, lines)
+  local indent = 1
+  --QuestHelper:TextOut(QuestHelper:StringizeTable(data))
+  --QuestHelper:TextOut(QuestHelper:StringizeTable(lines))
+  for _, v in ipairs(lines) do
+    self:AddLine(("  "):rep(indent) .. v, 1, 1, 1)
+    indent = indent + 1
   end
-  --QuestHelper:TextOut(string.format("Got %d items", ct))
+  self:AddLine(("  "):rep(indent) .. data.desc, 1, 1, 1)
+  QuestHelper:AppendObjectiveProgressToTooltip(data, self, nil, indent + 1)
 end
 
 local ctts = {}
 
-function QH_Tooltip_Add(tooltips)
+-- Format:
+-- { ["monster@@1234"] = {{"Slay for blah blah blah"}, (Objective)} }
+-- ("Slay for" is frequently an empty table)
+function QH_Tooltip_Canned_Add(tooltips)
   for k, v in pairs(tooltips) do
     local typ, id = k:match("([^@]+)@@([^@]+)")
+    --[[print(k)
+    for tk, tv in pairs(v[1]) do
+      print("    ", 1, tk, tv)
+    end
+    for tk, tv in pairs(v[2]) do
+      print("    ", 2, tk, tv)
+    end]]
     QuestHelper: Assert(typ and id, k)
     if not ctts[typ] then ctts[typ] = {} end
     if not ctts[typ][id] then ctts[typ][id] = {} end
@@ -31,7 +39,7 @@ function QH_Tooltip_Add(tooltips)
     ctts[typ][id][v[2]] = v[1]
   end
 end
-function QH_Tooltip_Remove(tooltips)
+function QH_Tooltip_Canned_Remove(tooltips)
   for k, v in pairs(tooltips) do
     local typ, id = k:match("([^@]+)@@([^@]+)")
     QuestHelper: Assert(typ and id, k)
@@ -46,6 +54,39 @@ function QH_Tooltip_Remove(tooltips)
     if cleanup then
       ctts[typ][id] = nil
     end
+  end
+end
+
+local deferences = {}
+local deference_default = {}  -- this is just a unique value that we can use to lookup
+
+-- think about what we want out of this
+-- If it matches quest/objective, we suppress it and show our canned text
+-- If it matches quest, but has unknown objectives, we suppress it and show some synthesized "Canned thing, for Quest Blahblahblah"
+
+-- tooltips is the same slay/objective pair in the above thing
+function QH_Tooltip_Defer_Add(questname, objective, tooltips)
+  --print("defer add", questname, objective)
+  if not objective then objective = deference_default end
+  
+  if not deferences[questname] then deferences[questname] = {} end
+  QuestHelper: Assert(not deferences[questname][objective])
+  deferences[questname][objective] = tooltips
+  if not deferences[questname][objective] then deferences[questname] = true end
+end
+function QH_Tooltip_Defer_Remove(questname, objective)
+  if not objective then objective = deference_default end
+  
+  QuestHelper: Assert(deferences[questname][objective])
+  deferences[questname][objective] = nil
+  
+  local cleanup = true
+  for _ in pairs(deferences[questname]) do
+    cleanup = false
+  end
+  
+  if cleanup then
+    deferences[questname] = nil
   end
 end
 
@@ -81,6 +122,7 @@ local function CopyOver(to, from)
 end
 
 local function StripBlizzQHTooltipClone(ttp)
+  --do return end
   if not UnitExists("mouseover") then return end
   
   local line = 2
@@ -91,6 +133,8 @@ local function StripBlizzQHTooltipClone(ttp)
   
   if qh_tooltip_print_a_lot then print(line, _G["GameTooltipTextLeft" .. line], _G["GameTooltipTextLeft" .. line]:IsShown()) end
   
+  local qobj = nil
+  
   while _G["GameTooltipTextLeft" .. line] and _G["GameTooltipTextLeft" .. line]:IsShown() do
     local r, g, b, a = _G["GameTooltipTextLeft" .. line]:GetTextColor()
     r, g, b, a = math.floor(r * 255 + 0.5), math.floor(g * 255 + 0.5), math.floor(b * 255 + 0.5), math.floor(a * 255 + 0.5)
@@ -99,13 +143,23 @@ local function StripBlizzQHTooltipClone(ttp)
     
     if r == 255 and g == 210 and b == 0 and a == 255 and not qh_tooltip_do_not_hide_things then
       if qh_tooltip_print_a_lot then print("hiding") end
-      --_G["GameTooltipTextLeft" .. line]:SetText("hellos")
-      _G["GameTooltipTextLeft" .. line]:SetText(nil)
-      _G["GameTooltipTextLeft" .. line]:SetHeight(0)
-      _G["GameTooltipTextLeft" .. line]:ClearAllPoints()
-      _G["GameTooltipTextLeft" .. line]:SetPoint("TOPLEFT", _G["GameTooltipTextLeft" .. (line - 1)], "BOTTOMLEFT", 0, 1)
-      changed = true
-      removed = removed + 1
+      
+      local thistext = _G["GameTooltipTextLeft" .. line]:GetText()
+      
+      if deferences[thistext] then
+        qobj = deferences[thistext]
+      elseif qobj and qobj[thistext] then
+        DoTooltip(ttp, qobj[thistext][2], qobj[thistext][1])
+      end
+      
+      if not qh_hackery_nosuppress then
+        _G["GameTooltipTextLeft" .. line]:SetText(nil)
+        _G["GameTooltipTextLeft" .. line]:SetHeight(0)
+        _G["GameTooltipTextLeft" .. line]:ClearAllPoints()
+        _G["GameTooltipTextLeft" .. line]:SetPoint("TOPLEFT", _G["GameTooltipTextLeft" .. (line - 1)], "BOTTOMLEFT", 0, 1)
+        changed = true
+        removed = removed + 1
+      end
     end
     
     line = line + 1
@@ -146,7 +200,9 @@ function CreateTooltip(self)
       local ite = tostring(GetMonsterType(ulink))
       
       if ctts["monster"] and ctts["monster"][ite] then
-        DoTooltip(self, ctts["monster"][ite])
+        for data, lines in pairs(ctts["monster"][ite]) do
+          DoTooltip(self, data, lines)
+        end
       end
       
       self:Show()
