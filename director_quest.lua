@@ -354,7 +354,7 @@ local Unknowning = {}
 local in_pass = nil
 
 local function SetTooltip(item, typ)
-  print("stt", item, typ)
+  --print("stt", item, typ)
   if TooltipType[item] == typ then return end
   
   if TooltipType[item] == "canned" then
