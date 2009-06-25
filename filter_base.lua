@@ -88,6 +88,29 @@ local filter_quest_level = QH_MakeFilter("filter_quest_level", function(obj)
   if qtx > VirtualLevel(avg_level, count) + QuestHelper_Pref.level then return true end -- bzzt
 end, {friendly_reason = QHText("FILTERED_LEVEL"), friendly_name = "level"})
 
+local filter_quest_group = QH_MakeFilter("filter_quest_group", function(obj)
+  if not QuestHelper_Pref.filter_group then return end
+  
+  if not obj.type_quest then return end -- yeah it's fine
+  if obj.type_quest.objectives > 0 and obj.cluster.type_quest_finish then return end
+  if count > 1 and not QuestHelper_Pref.solo then return end
+  
+  local expected_players = 1
+  if obj.type_quest.variety == GROUP then
+    if obj.type_quest.groupsize > 0 then
+      expected_players = obj.type_quest.groupsize
+    else
+      expected_players = 5
+    end
+  elseif obj.type_quest.variety == LFG_TYPE_DUNGEON or obj.type_quest.variety == DUNGEON_DIFFICULTY2 then
+    expected_players = 5
+  elseif obj.type_quest.variety == LFG_TYPE_RAID then
+    expected_players = 10
+  end
+  
+  if expected_players > QuestHelper_Pref.filter_group_param then return true end
+end, {friendly_reason = QHText("FILTERED_GROUP"), friendly_name = "group"})
+
 local filter_quest_done = QH_MakeFilter("filter_quest_done", function(obj)
   if not QuestHelper_Pref.filter_done then return end
   
@@ -133,6 +156,7 @@ end, {friendly_reason = QHText("FILTERED_BLOCKED"), friendly_name = "blocked"})
 QH_Route_RegisterFilter(filter_quest_level, "filter_quest_level")
 QH_Route_RegisterFilter(filter_quest_done, "filter_quest_done")
 QH_Route_RegisterFilter(filter_quest_watched, "filter_quest_watched")
+QH_Route_RegisterFilter(filter_quest_group, "filter_quest_group")
 QH_Route_RegisterFilter(filter_zone, "filter_zone")
 QH_Route_RegisterFilter(filter_blocked, "filter_blocked")
 

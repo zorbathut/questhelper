@@ -168,6 +168,7 @@ QuestHelper_Translations.enUS =
   DEPENDS_ON_COUNT = "Depends on %1 hidden objectives",
   DEPENDS_ON = "Depends on filtered objectives",
   FILTERED_LEVEL = "Filtered due to level",
+  FILTERED_GROUP = "Filtered due to group size",
   FILTERED_ZONE = "Filtered due to zone",
   FILTERED_COMPLETE = "Filtered due to completeness",
   FILTERED_BLOCKED = "Filtered due to incomplete prior objective",

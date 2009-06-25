@@ -254,16 +254,6 @@ function QuestHelper:ToggleSolo()
   end
 end
 
-function QuestHelper:ToggleComm()
-  if QuestHelper_Pref.comm then
-    QuestHelper_Pref.comm = false
-    self:TextOut("Communication display has been |cffff0000disabled|r.")
-  else
-    QuestHelper_Pref.comm = true
-    self:TextOut("Communication display has been |cff00ff00enabled|r.")
-  end
-end
-
 function QuestHelper:ToggleAnts()
   if QuestHelper_Pref.show_ants then
     QuestHelper_Pref.show_ants = false
@@ -312,6 +302,27 @@ function QuestHelper:LevelOffset(offset)
   end
 end
 
+function QuestHelper:GroupOffset(offset)
+  local group = tonumber(offset)
+  if offset == "instance" then group = 5 end
+  if offset == "raid" then group = 10 end
+  if group == 0 then group = 1 end
+  if group then
+    self:TextOut("Allowing quests requiring at most "..self:HighlightText(group).." player"..(group==1 and " " or "s ")..".")
+    
+    if not QuestHelper_Pref.filter_group then
+      self:TextOut("Note: This won't have any effect until you turn the group filter on.")
+    end
+    
+    QuestHelper_Pref.filter_group_param = group
+    QH_Route_Filter_Rescan("filter_quest_level")
+  elseif offset == "" then
+    self:TextOut("Group cutoff is currently set to "..self:HighlightText(QuestHelper_Pref.filter_group_param)..".")
+  else
+    self:TextOut("Expected a player count.")
+  end
+end
+
 function QuestHelper:Filter(input)
   input = string.upper(input)
   if input == "ZONE" then
@@ -326,6 +337,10 @@ function QuestHelper:Filter(input)
     QuestHelper_Pref.filter_level = not QuestHelper_Pref.filter_level
     self:TextOut("Filter "..self:HighlightText("level").." set to "..self:HighlightText(QuestHelper_Pref.filter_level and "active" or "inactive")..".")
     QH_Route_Filter_Rescan("filter_quest_level")
+  elseif input == "GROUP" then
+    QuestHelper_Pref.filter_group = not QuestHelper_Pref.filter_group
+    self:TextOut("Filter "..self:HighlightText("group").." set to "..self:HighlightText(QuestHelper_Pref.filter_group and "active" or "inactive")..".")
+    QH_Route_Filter_Rescan("filter_quest_group")
   elseif input == "BLOCKED" or input == "BLOCK" then
     QuestHelper_Pref.filter_blocked = not QuestHelper_Pref.filter_blocked
     self:TextOut("Filter "..self:HighlightText("blocked").." set to "..self:HighlightText(QuestHelper_Pref.filter_blocked and "active" or "inactive")..".")
@@ -337,11 +352,12 @@ function QuestHelper:Filter(input)
   elseif input == "" then
     self:TextOut("Filter "..self:HighlightText("zone")..": "..self:HighlightText(QuestHelper_Pref.filter_zone and "active" or "inactive"))
     self:TextOut("Filter "..self:HighlightText("level")..": "..self:HighlightText(QuestHelper_Pref.filter_level and "active" or "inactive"))
+    self:TextOut("Filter "..self:HighlightText("group")..": "..self:HighlightText(QuestHelper_Pref.filter_group and "active" or "inactive"))
     self:TextOut("Filter "..self:HighlightText("done")..": "..self:HighlightText(QuestHelper_Pref.filter_done and "active" or "inactive"))
     self:TextOut("Filter "..self:HighlightText("blocked")..": "..self:HighlightText(QuestHelper_Pref.filter_blocked and "active" or "inactive"))
     self:TextOut("Filter "..self:HighlightText("watched")..": "..self:HighlightText(QuestHelper_Pref.filter_watched and "active" or "inactive"))
   else
-    self:TextOut("Don't know what you want filtered, expect "..self:HighlightText("zone")..", "..self:HighlightText("done")..", "..self:HighlightText("level")..", "..self:HighlightText("blocked")..", or "..self:HighlightText("watched")..".")
+    self:TextOut("Don't know what you want filtered, expect "..self:HighlightText("zone")..", "..self:HighlightText("done")..", "..self:HighlightText("level")..", "..self:HighlightText("group")..", "..self:HighlightText("blocked")..", or "..self:HighlightText("watched")..".")
   end
 end
 
@@ -389,11 +405,6 @@ function QuestHelper:ToggleTomTomWP()
     self:DisableTomTom()
     self:TextOut(QHFormat("SETTINGS_ARROWLINK_OFF", QHText("SETTINGS_ARROWLINK_TOMTOM")))
   end
-end
-
-function QuestHelper:WantPathingReset()
-  self:TextOut("Will reset world graph.")
-  self.defered_graph_reset = true
 end
 
 function QuestHelper:PrintVersion()
@@ -700,11 +711,15 @@ commands =
   { "Objective filtering", {
     {"FILTER",
      "Automatically ignores/unignores objectives based on criteria.",
-     {{"/qh filter zone", "Toggle showing objectives outside the current zone"},
-      {"/qh filter done", "Toggle showing objectives for uncompleted quests."},
+     {
       {"/qh filter level", "Toggle showing objectives that are probably too hard, by considering the levels of you and your party members, and the offset set by the level command."},
+      {"/qh filter group", "Toggle showing objectives that require groups. Automatically disables while grouped."},
+      
+      {"/qh filter zone", "Toggle showing objectives outside the current zone."},
+      {"/qh filter done", "Toggle showing objectives for uncompleted quests."},
+      
       {"/qh filter blocked", "Toggle showing blocked objectives, such as quest turn-ins for incomplete quests."},
-      {"/qh filter watched", "Toggle limiting to objectives watched in the Quest Log"}
+      {"/qh filter watched", "Toggle limiting to objectives watched in the Quest Log"},
       }, QuestHelper.Filter, QuestHelper},
     
     {"LEVEL",
@@ -713,6 +728,16 @@ commands =
       {"/qh level 0", "Only allow objectives at or below your current level."},
       {"/qh level +2", "Allow objectives up to two levels above your current level."},
       {"/qh level -1", "Only allow objectives below your current level."}}, QuestHelper.LevelOffset, QuestHelper},
+    
+    {"GROUP",
+     "Adjusts the player cutoff used by the group filter. Naturally, the group filter must be turned on to have an effect.",
+     {{"/qh group", "See information related to the group filter."},
+      {"/qh group 0", "Only allow objectives that can be done solo."},
+      {"/qh group 2", "Allow objectives that require, at most, two groupmembers."},
+      {"/qh group 5", "Allow objectives that require, at most, five groupmembers."},
+      {"/qh group instance", "Equivalent to /qh group 5."},
+      {"/qh group raid", "Equivalent to /qh group 10. All raid quests are currently assumed to be 10-person raids."},
+    }, QuestHelper.GroupOffset, QuestHelper},
     
     {"SCALE",
      "Scales the map icons used by QuestHelper. Will accept values between 50% and 300%.",
@@ -781,9 +806,10 @@ commands =
      "Displays instructions for submitting your collected data.",
      {}, QuestHelper.Submit, QuestHelper},
      
+     --[[
     {"NAG",
      "Tells you if you have anything that's missing from the static database. It can only check quests from your own faction, as the quests of your opposing faction are ommitted to save memory.",
-       {{"/qh nag verbose", "Prints the specific changes that were found."}}, QuestHelper.Nag, QuestHelper},
+       {{"/qh nag verbose", "Prints the specific changes that were found."}}, QuestHelper.Nag, QuestHelper},]]
     
     {"PURGE",
      "Deletes all QuestHelper's collected data.", {}, QuestHelper.Purge, QuestHelper},
@@ -825,13 +851,6 @@ commands =
     {"POS",
       "Prints the player's current position. Exists mainly for my own personal convenience.",
       {}, function (qh) qh:TextOut(qh:LocationString(qh.i, qh.x, qh.y) .. "   " .. qh:Location_RawString(qh:Location_RawRetrieve()) .. "  " .. qh:Location_AbsoluteString(qh:Location_AbsoluteRetrieve())) end, QuestHelper},
-      
-    {"COMM",
-     "Toggles showing of the communication between QuestHelper users. Exists mainly for my own personal convenience.",
-      {}, QuestHelper.ToggleComm, QuestHelper},
-      
-    {"RECALC",
-     "Recalculates the world graph and locations for any active objectives. Should not be necessary.", {}, QuestHelper.WantPathingReset, QuestHelper},
   }},
   
   { "Help", {

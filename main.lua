@@ -22,6 +22,8 @@ QuestHelper_DefaultPref =
   filter_done=false,
   filter_blocked=false, -- Hides blocked objectives, such as quest turn-ins for incomplete quests
   filter_watched=false, -- Limits to Watched objectives
+  filter_group=true,
+  filter_group_param=2,
   track=true,
   track_minimized=false,
   track_scale=1,
@@ -598,6 +600,7 @@ QH_Event("ADDON_LOADED", function (addonid)
   QH_Event({"PARTY_MEMBERS_CHANGED", "UNIT_LEVEL", "RAID_ROSTER_UPDATE"}, function ()
     QH_Filter_Group_Sync()
     QH_Route_Filter_Rescan("filter_quest_level")
+    QH_Route_Filter_Rescan("filter_quest_group")
   end)
   
   QH_Event({"PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE"}, function ()
