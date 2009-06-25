@@ -27,7 +27,7 @@ QuestHelper_Translations.esES =
   
   -- Special tracker text
   QH_LOADING = "Cargando QuestHelper (%1%%)...",
-  QH_FLIGHTPATH = nil,
+  QH_FLIGHTPATH = "Recalculando rutas de vuelo (%1%)...",
   QUESTS_HIDDEN_1 = "Puede haber misiones ocultas",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" para mostrarlas)",
   
@@ -60,7 +60,7 @@ QuestHelper_Translations.esES =
   PRIORITY3 = "Normal",
   PRIORITY4 = "Baja",
   PRIORITY5 = "La más baja",
-  SHARING = "Compartir",
+  SHARING = "Compartiendo",
   SHARING_ENABLE = "Compartir",
   SHARING_DISABLE = "No Compartir",
   IGNORE = "Ignorar",
@@ -229,6 +229,6 @@ QuestHelper_Translations.esES =
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 Yardas",
-  DISTANCE_METRES = "%h1 Metros",
+  DISTANCE_METRES = "%h1 Metros"
  }
 

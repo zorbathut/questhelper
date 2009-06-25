@@ -27,7 +27,7 @@ QuestHelper_Translations.nlNL =
   
   -- Special tracker text
   QH_LOADING = "QuestHelper is aan het laden (%1%%)...",
-  QH_FLIGHTPATH = nil,
+  QH_FLIGHTPATH = "Vliegpad herberekenen",
   QUESTS_HIDDEN_1 = "Questen kunnen verborgen zijn",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" om verborgen Questen te zien)",
   
@@ -38,7 +38,7 @@ QuestHelper_Translations.nlNL =
   
   -- Words used for objectives.
   SLAY_VERB = "Dood",
-  ACQUIRE_VERB = "Verwerf",
+  ACQUIRE_VERB = "Verwerven",
   
   OBJECTIVE_REASON = "%1 %h2 for quest %h3.", -- %1 is a verb, %2 is a noun (item or monster)
   OBJECTIVE_REASON_FALLBACK = "%h1 for quest %h2.",
@@ -48,8 +48,8 @@ QuestHelper_Translations.nlNL =
   OBJECTIVE_SLAY = "Dood %h1.",
   OBJECTIVE_LOOT = "Loot %h1.",
   
-  OBJECTIVE_MONSTER_UNKNOWN = nil,
-  OBJECTIVE_ITEM_UNKNOWN = nil,
+  OBJECTIVE_MONSTER_UNKNOWN = "onbekend monster",
+  OBJECTIVE_ITEM_UNKNOWN = "Onbekend voorwerp",
   
   ZONE_BORDER = "%1/%2 border",
   
@@ -64,7 +64,7 @@ QuestHelper_Translations.nlNL =
   SHARING_ENABLE = "Deel",
   SHARING_DISABLE = "Deel niet",
   IGNORE = "Negeren",
-  IGNORE_LOCATION = nil,
+  IGNORE_LOCATION = "Negeer deze locatie",
   
   IGNORED_PRIORITY_TITLE = "De geselecteerde prioriteit zal worden genegeerd.",
   IGNORED_PRIORITY_FIX = "Apply same priority to the blocking objectives.",
@@ -103,7 +103,7 @@ QuestHelper_Translations.nlNL =
   HIDDEN_NONE = "Er zijn geen doelen verborgen voor je.",
   DEPENDS_ON_SINGLE = "Hangt van '%1' af.",
   DEPENDS_ON_COUNT = "Hangt van %1 verborgen doelen af.",
-  DEPENDS_ON = nil,
+  DEPENDS_ON = "Hangt van gefilterde doelen af",
   FILTERED_LEVEL = "Gefilterd als gevolg van je level.",
   FILTERED_ZONE = "Gefilterd voor je zone.",
   FILTERED_COMPLETE = "Gefilterd omdat je het al voltooid heb.",
@@ -113,14 +113,14 @@ QuestHelper_Translations.nlNL =
   FILTERED_UNKNOWN = "Geen idee hoe dit te voltooien.",
   
   HIDDEN_SHOW = "Toon.",
-  HIDDEN_SHOW_NO = nil,
-  HIDDEN_EXCEPTION = nil,
+  HIDDEN_SHOW_NO = "Niet toonbaar",
+  HIDDEN_EXCEPTION = "Voeg fout toe",
   DISABLE_FILTER = "Zet filter: %1 uit.",
   FILTER_DONE = "klaar",
   FILTER_ZONE = "zone",
   FILTER_LEVEL = "level",
   FILTER_BLOCKED = "geblokkeerd",
-  FILTER_WATCHED = nil,
+  FILTER_WATCHED = "In de gaten houden",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Je hebt nieuwe informatie voor %h1: %h(new information). En geupdated informatie voor %h2: %h(updated information).",
@@ -157,7 +157,7 @@ QuestHelper_Translations.nlNL =
   TRAVEL_ESTIMATE = "Geschatte reistijd:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Bezoek %h1 en route naar:",
-  FLIGHT_POINT = nil,
+  FLIGHT_POINT = "%1 VLieg punt",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -209,26 +209,26 @@ QuestHelper_Translations.nlNL =
   TOOLTIP_LOOT = "Loot voor %h1.",
   
   -- Settings
-  SETTINGS_ARROWLINK_ON = nil,
-  SETTINGS_ARROWLINK_OFF = nil,
-  SETTINGS_ARROWLINK_ARROW = nil,
-  SETTINGS_ARROWLINK_CART = nil,
-  SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_ARROWLINK_ON = "%h1 zal gebruikt worden om doelen aan te geven",
+  SETTINGS_ARROWLINK_OFF = "%h1 zal niet gebruikt worden om doelen aan te geven",
+  SETTINGS_ARROWLINK_ARROW = "QuestHelper Pijl",
+  SETTINGS_ARROWLINK_CART = "Cartographer Waypoints",
+  SETTINGS_ARROWLINK_TOMTOM = "TomTom",
   SETTINGS_PRECACHE_ON = nil,
   SETTINGS_PRECACHE_OFF = nil,
   
   SETTINGS_MENU_ENABLE = nil,
   SETTINGS_MENU_DISABLE = nil,
-  SETTINGS_MENU_CARTWP = nil,
+  SETTINGS_MENU_CARTWP = "%1 Cartographer pijl",
   SETTINGS_MENU_TOMTOM = nil,
   
-  SETTINGS_MENU_ARROW_LOCK = nil,
-  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
-  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
-  SETTINGS_MENU_ARROW_RESET = nil,
+  SETTINGS_MENU_ARROW_LOCK = "Slot",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Pijl schaal",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Tekst schaal",
+  SETTINGS_MENU_ARROW_RESET = "Herstel",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE_YARDS = nil,
-  DISTANCE_METRES = nil
+  DISTANCE_YARDS = "%h1 Yards",
+  DISTANCE_METRES = "%h1 Meters"
  }
 

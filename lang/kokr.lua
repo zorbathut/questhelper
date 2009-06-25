@@ -29,7 +29,7 @@ QuestHelper_Translations.koKR =
   QH_LOADING = "QuestHelper를 불러오는 중 (%1%%)...",
   QH_FLIGHTPATH = "비행경로를 재설정합니다. (%1%)",
   QUESTS_HIDDEN_1 = "감춰둔 퀘스트가 있을 지 모름",
-  QUESTS_HIDDEN_2 = "(목록을 보려면 \\\"/qh hidden\\\")",
+  QUESTS_HIDDEN_2 = "(목록은 \\\"/qh hidden\\\")",
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "사용 가능한 지역화 언어:",
@@ -217,18 +217,18 @@ QuestHelper_Translations.koKR =
   SETTINGS_PRECACHE_ON = "%h(사용함)으로 임시 저장되었습니다.",
   SETTINGS_PRECACHE_OFF = "%h(사용 안함)으로 임시 저장되었습니다.",
   
-  SETTINGS_MENU_ENABLE = "가능",
-  SETTINGS_MENU_DISABLE = "불가능",
-  SETTINGS_MENU_CARTWP = "%1 Cartographer 화살표",
-  SETTINGS_MENU_TOMTOM = "%1 톰톰(TomTom) 화살표",
+  SETTINGS_MENU_ENABLE = "사용 안함",
+  SETTINGS_MENU_DISABLE = "사용함",
+  SETTINGS_MENU_CARTWP = "Cartographer 화살표 %1",
+  SETTINGS_MENU_TOMTOM = "TomTom 화살표 %1",
   
-  SETTINGS_MENU_ARROW_LOCK = "잠그기",
-  SETTINGS_MENU_ARROW_ARROWSCALE = "화살표의 크기",
-  SETTINGS_MENU_ARROW_TEXTSCALE = "텍스트의 크기",
-  SETTINGS_MENU_ARROW_RESET = "재설정",
+  SETTINGS_MENU_ARROW_LOCK = "잠금",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "화살표 크기",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "글자 크기",
+  SETTINGS_MENU_ARROW_RESET = "초기화",
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 미터",
-  DISTANCE_METRES = nil
+  DISTANCE_METRES = "%h1 미터"
  }
 

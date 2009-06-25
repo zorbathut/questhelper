@@ -27,7 +27,7 @@ QuestHelper_Translations.daDK =
   
   -- Special tracker text
   QH_LOADING = "QuestHelper indlæser (%1%%)...",
-  QH_FLIGHTPATH = nil,
+  QH_FLIGHTPATH = "Omrukere flightpaths",
   QUESTS_HIDDEN_1 = "Der er evt. skjulte quests",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" for liste)",
   
@@ -48,8 +48,8 @@ QuestHelper_Translations.daDK =
   OBJECTIVE_SLAY = "Dræb %h1.",
   OBJECTIVE_LOOT = "Plyndr %h1.",
   
-  OBJECTIVE_MONSTER_UNKNOWN = nil,
-  OBJECTIVE_ITEM_UNKNOWN = nil,
+  OBJECTIVE_MONSTER_UNKNOWN = "Ukendt monster",
+  OBJECTIVE_ITEM_UNKNOWN = "Ukendt genstand",
   
   ZONE_BORDER = "Grænse mellem %1/%2",
   
@@ -64,7 +64,7 @@ QuestHelper_Translations.daDK =
   SHARING_ENABLE = "Del",
   SHARING_DISABLE = "Del ikke",
   IGNORE = "Ignore",
-  IGNORE_LOCATION = nil,
+  IGNORE_LOCATION = "Ignorer dette område",
   
   IGNORED_PRIORITY_TITLE = "Den valgte prioritet bliver ignoreret.",
   IGNORED_PRIORITY_FIX = "Sæt samme prioritet til de(t) blokerende mål.",
@@ -103,7 +103,7 @@ QuestHelper_Translations.daDK =
   HIDDEN_NONE = "Der er ingen mål skjult for dig.",
   DEPENDS_ON_SINGLE = "Afhænger af '%1'.",
   DEPENDS_ON_COUNT = "Afhænger af %1 skjulte mål.",
-  DEPENDS_ON = nil,
+  DEPENDS_ON = "Afhænger af filtrerede opgaver",
   FILTERED_LEVEL = "Filtreret på grund af level.",
   FILTERED_ZONE = "Filtreret på grund af område.",
   FILTERED_COMPLETE = "Filtreret da det er afsluttet.",
@@ -113,14 +113,14 @@ QuestHelper_Translations.daDK =
   FILTERED_UNKNOWN = "Ved ikke hvordan det afsluttes.",
   
   HIDDEN_SHOW = "Vis.",
-  HIDDEN_SHOW_NO = nil,
-  HIDDEN_EXCEPTION = nil,
+  HIDDEN_SHOW_NO = "Kan ikke vises",
+  HIDDEN_EXCEPTION = "Tilføj uldtagelse",
   DISABLE_FILTER = "Slå filter fra: %1",
   FILTER_DONE = "færdig",
   FILTER_ZONE = "område",
   FILTER_LEVEL = "level",
   FILTER_BLOCKED = "blokeret",
-  FILTER_WATCHED = nil,
+  FILTER_WATCHED = "Set",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Du har %h(ny information) til %h1 og %h(opdateret information) til %h2.",
@@ -157,7 +157,7 @@ QuestHelper_Translations.daDK =
   TRAVEL_ESTIMATE = "Anslået rejsetid:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Besøg %h1 på vej til:",
-  FLIGHT_POINT = nil,
+  FLIGHT_POINT = "%1 flight point",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -209,25 +209,26 @@ QuestHelper_Translations.daDK =
   TOOLTIP_LOOT = "Plyndr for at få %h1.",
   
   -- Settings
-  SETTINGS_ARROWLINK_ON = nil,
-  SETTINGS_ARROWLINK_OFF = nil,
-  SETTINGS_ARROWLINK_ARROW = nil,
-  SETTINGS_ARROWLINK_CART = nil,
-  SETTINGS_ARROWLINK_TOMTOM = nil,
-  SETTINGS_PRECACHE_ON = nil,
-  SETTINGS_PRECACHE_OFF = nil,
+  SETTINGS_ARROWLINK_ON = "Bruger %h1 til at vise opgaver",
+  SETTINGS_ARROWLINK_OFF = "Bruger ikke %h1 til at vise opgaver",
+  SETTINGS_ARROWLINK_ARROW = "QuestHelper pil",
+  SETTINGS_ARROWLINK_CART = "Cartographer Knudepunkter",
+  SETTINGS_ARROWLINK_TOMTOM = "TomTom",
+  SETTINGS_PRECACHE_ON = "Precache er slået %h.",
+  SETTINGS_PRECACHE_OFF = "Precache er slået %h.",
   
-  SETTINGS_MENU_ENABLE = nil,
-  SETTINGS_MENU_DISABLE = nil,
-  SETTINGS_MENU_CARTWP = nil,
-  SETTINGS_MENU_TOMTOM = nil,
+  SETTINGS_MENU_ENABLE = "Sæt til",
+  SETTINGS_MENU_DISABLE = "Sæt fra",
+  SETTINGS_MENU_CARTWP = "%1 Cartographer pil",
+  SETTINGS_MENU_TOMTOM = "%1 TomTom pil",
   
-  SETTINGS_MENU_ARROW_LOCK = nil,
-  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
-  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
-  SETTINGS_MENU_ARROW_RESET = nil,
+  SETTINGS_MENU_ARROW_LOCK = "Lås",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Pil størrelse",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Tekst størrelse",
+  SETTINGS_MENU_ARROW_RESET = "Reset",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE_YARDS = nil,
+  DISTANCE_YARDS = "%h1 yards",
+  DISTANCE_METRES = "%h1 Meter"
  }
 

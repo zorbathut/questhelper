@@ -229,6 +229,6 @@ QuestHelper_Translations.plPL =
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 jardów",
-  DISTANCE_METRES = nil,
+  DISTANCE_METRES = "%h1 metrów"
  }
 

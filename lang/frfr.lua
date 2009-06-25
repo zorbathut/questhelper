@@ -7,13 +7,13 @@ QuestHelper_Translations.frFR =
   
   -- Messages used when starting.
   LOCALE_ERROR = "La langue de vos données sauvegardées ne correspond pas à la langue de votre client WoW. Pour utiliser QuestHelper, vous devez soit remettre la langue que vous aviez avant, soit supprimer les données en tapant %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Je refuse de fonctionner, par crainte de corrompre vos données sauvegardées. Veuillez attendre la sortie d'une mise à jour capable de prendre en charge la nouvelle zone.",
+  ZONE_LAYOUT_ERROR = "Je refuse de fonctionner par crainte de corrompre vos données sauvegardées. Veuillez attendre la sortie d'une mise à jour capable de prendre en charge la nouvelle zone.",
   DOWNGRADE_ERROR = "Vos données sauvegardées ne sont pas compatibles avec cette version de QuestHelper. Utilisez une nouvelle version ou supprimez les variables sauvegardées.",
   HOME_NOT_KNOWN = "Vous n'avez pas de foyer défini. Lorsque cela sera possible, veuillez parler à votre aubergiste et réinitialisez-le.",
   PRIVATE_SERVER = "QuestHelper ne supporte pas les serveurs privés.",
   PLEASE_RESTART = "Une erreur est survenue au lancement de QuestHelper. Veuillez quitter World of Warcraft et essayer de nouveau.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper n'a pas été installé correctement. Nous vous recommandons d'utiliser soit le client Curse soit 7zip pour l'installation. Assurez-vous que les sous-dossiers soient extraits.",
-  PLEASE_DONATE = "%h(QuestHelper survit pour le moment grâce à vos dons !) Toute contribution sera appréciée, et quelques dollars par mois me permettront d'assurer les mises à jour et le bon fonctionnement. Entrez %h(/qh donate) pour de plus amples informations. ",
+  PLEASE_DONATE = "%h(QuestHelper survit pour le moment grâce à vos dons!) Toute contribution sera appréciée, et quelques dollars par mois me permettront d'assurer les mises à jour et le bon fonctionnement. Entrez %h(/qh donate) pour de plus amples informations. ",
   HOW_TO_CONFIGURE = "QuestHelper n'a pas encore une page de configuration fonctionnelle, mais peut être configuré en tapant %h(/qh settings). L'aide est disponible en utilisant %h(/qh help).",
   TIME_TO_UPDATE = "Il semble qu'une %h(nouvelle version de QuestHelper) soit disponible. Les nouvelles versions incluent généralement de nouvelles fonctionalités, de nouvelles bases de données de quêtes, et des corrections de bogues. Merci de mettre à jour !",
   
@@ -68,12 +68,12 @@ QuestHelper_Translations.frFR =
   
   IGNORED_PRIORITY_TITLE = "La priorité sélectionnée sera ignorée.",
   IGNORED_PRIORITY_FIX = "Appliquer la même priorité aux objectifs bloquants.",
-  IGNORED_PRIORITY_IGNORE = "Je réglerais les priorités moi-même.",
+  IGNORED_PRIORITY_IGNORE = "Je réglerai les priorités moi-même.",
   
   -- Custom objectives.
   RESULTS_TITLE = "Résultats de la recherche",
   NO_RESULTS = "Il n'y en a aucun!",
-  CREATED_OBJ = "Création: %1",
+  CREATED_OBJ = "Créé: %1",
   REMOVED_OBJ = "Supprimé: %1",
   USER_OBJ = "Objectif utilisateur: %h1",
   UNKNOWN_OBJ = "Destination inconnue pour cet objectif.",
@@ -85,7 +85,7 @@ QuestHelper_Translations.frFR =
   SEARCHING_ITEMS = "Objets",
   SEARCHING_NPCS = "NPCs",
   SEARCHING_ZONES = "Zones",
-  SEARCHING_DONE = "Terminé !",
+  SEARCHING_DONE = "Terminé!",
   
   -- Shared objectives.
   PEER_TURNIN = "Attendre %h1 pour valider %h2.",
@@ -100,7 +100,7 @@ QuestHelper_Translations.frFR =
   
   -- Hidden objectives.
   HIDDEN_TITLE = "Objectifs cachés",
-  HIDDEN_NONE = "Il n'y a aucun objectifs cachés",
+  HIDDEN_NONE = "Il n'y a pas d'objectifs cachés",
   DEPENDS_ON_SINGLE = "Dépend de '%1'",
   DEPENDS_ON_COUNT = "Dépend de %1 objectifs cachés",
   DEPENDS_ON = "Dépend des objectifs filtrés",
@@ -110,10 +110,10 @@ QuestHelper_Translations.frFR =
   FILTERED_BLOCKED = "Filtré car dépend d'un objectif qui n'a pas été réalisé",
   FILTERED_UNWATCHED = "Filtré car l'objectif n'est pas suivi dans le journal de quêtes",
   FILTERED_USER = "Vous avez demandé à cacher cet objectif",
-  FILTERED_UNKNOWN = "Ne sais pas comment le terminer",
+  FILTERED_UNKNOWN = "Ne sait pas comment le terminer",
   
   HIDDEN_SHOW = "Montrer",
-  HIDDEN_SHOW_NO = "Ne peux être vu",
+  HIDDEN_SHOW_NO = "Non visible",
   HIDDEN_EXCEPTION = "Ajout d'exception",
   DISABLE_FILTER = "Désactiver le filtre: %1",
   FILTER_DONE = "terminé",
@@ -172,7 +172,7 @@ QuestHelper_Translations.frFR =
   MENU_DISABLE = "Désactiver",
   MENU_OBJECTIVE_TIPS = "%1 les bulles d'aide pour les objectifs",
   MENU_TRACKER_OPTIONS = "Liste de quêtes",
-  MENU_QUEST_TRACKER = "%1 la liste de quête",
+  MENU_QUEST_TRACKER = "%1 la liste de quêtes",
   MENU_TRACKER_LEVEL = "%1 l'affichage des niveaux de quête",
   MENU_TRACKER_QCOLOUR = "%1 la colorisation des quêtes selon la difficulté",
   MENU_TRACKER_OCOLOUR = "%1 la colorisation des objectifs",
@@ -183,7 +183,7 @@ QuestHelper_Translations.frFR =
   MENU_WAYPOINT_ARROW = "%1 le compas",
   MENU_MAP_BUTTON = "%1 le bouton sur la carte",
   MENU_ZONE_FILTER = "%1 le filtre de zone",
-  MENU_DONE_FILTER = "%1 le filtrage des quêtes terminées",
+  MENU_DONE_FILTER = "%1 filtre fait",
   MENU_BLOCKED_FILTER = "%1 filtre bloqué",
   MENU_WATCHED_FILTER = "%1 le filtrage des quêtes suivies",
   MENU_LEVEL_FILTER = "%1 le filtrage par niveau",

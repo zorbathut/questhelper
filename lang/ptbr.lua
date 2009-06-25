@@ -103,7 +103,7 @@ QuestHelper_Translations.ptBR =
   HIDDEN_NONE = "Não existem objetivos escondidos.",
   DEPENDS_ON_SINGLE = "Depende de '%1'.",
   DEPENDS_ON_COUNT = "Depende de %1 objetivos ocultos.",
-  DEPENDS_ON = nil,
+  DEPENDS_ON = "Depende de objetos filtrados",
   FILTERED_LEVEL = "Filtrado por causa do nível.",
   FILTERED_ZONE = "Filtrado por causa da zona.",
   FILTERED_COMPLETE = "Filtrado porque está completo.",
@@ -113,8 +113,8 @@ QuestHelper_Translations.ptBR =
   FILTERED_UNKNOWN = "Não sei como completar.",
   
   HIDDEN_SHOW = "Exibir.",
-  HIDDEN_SHOW_NO = nil,
-  HIDDEN_EXCEPTION = nil,
+  HIDDEN_SHOW_NO = "Não mostravél",
+  HIDDEN_EXCEPTION = "Adicionar exceção",
   DISABLE_FILTER = "Filtro desactivado: %1",
   FILTER_DONE = "concluído",
   FILTER_ZONE = "zona",
@@ -209,26 +209,26 @@ QuestHelper_Translations.ptBR =
   TOOLTIP_LOOT = "Loot para %h1.",
   
   -- Settings
-  SETTINGS_ARROWLINK_ON = nil,
-  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ON = "Usará %h1 para mostrar objetivos.",
+  SETTINGS_ARROWLINK_OFF = "Não usará %h1 para mostrar objetivos.",
   SETTINGS_ARROWLINK_ARROW = "Seta QuestHelper",
-  SETTINGS_ARROWLINK_CART = nil,
-  SETTINGS_ARROWLINK_TOMTOM = nil,
-  SETTINGS_PRECACHE_ON = nil,
-  SETTINGS_PRECACHE_OFF = nil,
+  SETTINGS_ARROWLINK_CART = "Cartographer Waypoints",
+  SETTINGS_ARROWLINK_TOMTOM = "TomTom",
+  SETTINGS_PRECACHE_ON = "Prechache foi %h (ativado).",
+  SETTINGS_PRECACHE_OFF = "Precache foi %h (desativado).",
   
   SETTINGS_MENU_ENABLE = "Abilitado",
   SETTINGS_MENU_DISABLE = "Desabilidado",
-  SETTINGS_MENU_CARTWP = nil,
-  SETTINGS_MENU_TOMTOM = nil,
+  SETTINGS_MENU_CARTWP = "%1 Seta Cartographer",
+  SETTINGS_MENU_TOMTOM = "%1 Seta TomTom",
   
-  SETTINGS_MENU_ARROW_LOCK = nil,
-  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
-  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
-  SETTINGS_MENU_ARROW_RESET = nil,
+  SETTINGS_MENU_ARROW_LOCK = "Travar",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Tamanho da Seta",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Tamanho do Texto",
+  SETTINGS_MENU_ARROW_RESET = "Ressetar",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE_YARDS = nil,
-  DISTANCE_METRES = nil
+  DISTANCE_YARDS = "%h1 jardas",
+  DISTANCE_METRES = "%h1 metros"
  }
 

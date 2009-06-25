@@ -212,7 +212,7 @@ QuestHelper_Translations.esMX =
   SETTINGS_ARROWLINK_ON = "Se usará %h1 para mostrar objetivos",
   SETTINGS_ARROWLINK_OFF = "No se usará %h1 para mostrar objetivos.",
   SETTINGS_ARROWLINK_ARROW = "QuestHelper flecha",
-  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_CART = "coordenadas del Cartographer",
   SETTINGS_ARROWLINK_TOMTOM = "TomTom",
   SETTINGS_PRECACHE_ON = nil,
   SETTINGS_PRECACHE_OFF = nil,
@@ -223,12 +223,12 @@ QuestHelper_Translations.esMX =
   SETTINGS_MENU_TOMTOM = nil,
   
   SETTINGS_MENU_ARROW_LOCK = "Bloquear",
-  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
-  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Escala de flecha",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Escala de texto",
   SETTINGS_MENU_ARROW_RESET = "Reiniciar",
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 yardas",
-  DISTANCE_METRES = "%h1 metros",
+  DISTANCE_METRES = "%h1 metros"
  }
 
