@@ -357,7 +357,7 @@ local function rightclick_menu(obj)
         local submenu = QuestHelper:CreateMenu()
         item = QuestHelper:CreateMenuItem(menu, o.map_desc[1])
         item:SetSubmenu(submenu)
-        item:AddTexture(QuestHelper:CreateIconTexture(item, o.icon_id), true)
+        item:AddTexture(QuestHelper:CreateIconTexture(item, o.icon_id or 8), true)
         QuestHelper:AddObjectiveOptionsToMenu(o, submenu)
       end
     else

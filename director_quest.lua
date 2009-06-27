@@ -354,15 +354,21 @@ local Unknowning = {}
 local in_pass = nil
 
 local function SetTooltip(item, typ)
-  --print("stt", item, typ)
-  if TooltipType[item] == typ then return end
+  --print("stt", item, typ, item.tooltip_defer_questobjective)
+  if TooltipType[item] == typ and typ ~= "defer" and not item.tooltip_defer_questobjective_last then return end
+  if TooltipType[item] == "defer" and typ == "defer" and (not item.tooltip_defer_questobjective_last or item.tooltip_defer_questobjective_last == item.tooltip_defer_questobjective) then return end -- sigh
   
   if TooltipType[item] == "canned" then
     QuestHelper: Assert(item.tooltip_canned)
-    QH_Tooltip_Canned_Remove(k.tooltip_canned)
+    QH_Tooltip_Canned_Remove(item.tooltip_canned)
   elseif TooltipType[item] == "defer" then
     QuestHelper: Assert(item.tooltip_defer_questname)
-    QH_Tooltip_Defer_Remove(item.tooltip_defer_questname, item.tooltip_defer_questobjective)
+    if item.tooltip_defer_questobjective_last then
+      QH_Tooltip_Defer_Remove(item.tooltip_defer_questname, item.tooltip_defer_questobjective_last)
+      item.tooltip_defer_questobjective_last = nil
+    else
+      QH_Tooltip_Defer_Remove(item.tooltip_defer_questname, item.tooltip_defer_questobjective)
+    end
   elseif TooltipType[item] == nil then
   else
     QuestHelper: Assert(false)
@@ -370,7 +376,7 @@ local function SetTooltip(item, typ)
   
   if typ == "canned" then
     QuestHelper: Assert(item.tooltip_canned)
-    QH_Tooltip_Canned_Add(k.tooltip_canned)
+    QH_Tooltip_Canned_Add(item.tooltip_canned)
   elseif typ == "defer" then
     QuestHelper: Assert(item.tooltip_defer_questname)
     QH_Tooltip_Defer_Add(item.tooltip_defer_questname, item.tooltip_defer_questobjective, {{}, item})
@@ -410,7 +416,7 @@ local function RefreshItem(id, item, required)
   end
   InsertedItems[item][id] = true
   
-  if item.tooltip_defer_questobjective then
+  if item.tooltip_defer_questname then
     SetTooltip(item, "defer")
   elseif item.tooltip_canned then
     SetTooltip(item, "canned")
@@ -441,7 +447,7 @@ local function EndInsertionPass(id)
       QH_Route_ClusterRemove(k)
       rem[k] = true
       
-      SetTooltip(item, nil)
+      SetTooltip(k, nil)
     end
   end
   
@@ -479,6 +485,7 @@ function QuestProcessor(user_id, db, title, level, group, variety, groupsize, wa
     end
     
     turnin = db.finish
+    --print("turnin:", turnin.tooltip_defer_questname)
     if RefreshItem(user_id, turnin, true) then
       turnin_new = true
       for k, v in ipairs(turnin) do
@@ -663,10 +670,17 @@ function QH_UpdateQuests(force)
             db[i].temp_desc, db[i].temp_typ, db[i].temp_done = GetQuestLogLeaderBoard(i, index)
             db[i].temp_person = player
             
-            db[i].tooltip_defer_questname = title
-            db[i].tooltip_defer_questobjective = db[i].temp_desc  -- yoink
+            if db[i].temp_desc ~= db[i].tooltip_defer_questobjective then
+              db[i].tooltip_defer_questobjective_last = db[i].tooltip_defer_questobjective
+              
+              db[i].tooltip_defer_questname = title
+              db[i].tooltip_defer_questobjective = db[i].temp_desc  -- yoink
+            end
+            
             chunk = chunk .. ":" .. Serialize(db[i].temp_desc, db[i].temp_typ, db[i].temp_done)
           end
+          
+          db.finish.tooltip_defer_questname = title -- we're using this as our fallback right now
           
           next_chunks[id] = chunk
           

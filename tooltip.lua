@@ -5,8 +5,14 @@ if QuestHelper_File["tooltip.lua"] == "Development Version" then
   qh_hackery_nosuppress = true
 end
 
-local function DoTooltip(self, data, lines)
+local function DoTooltip(self, data, lines, prefix)
   local indent = 1
+  
+  if prefix then
+    self:AddLine(("  "):rep(indent) .. prefix, 1, 1, 1)
+    indent = indent + 1
+  end
+  
   --QuestHelper:TextOut(QuestHelper:StringizeTable(data))
   --QuestHelper:TextOut(QuestHelper:StringizeTable(lines))
   for _, v in ipairs(lines) do
@@ -15,6 +21,11 @@ local function DoTooltip(self, data, lines)
   end
   self:AddLine(("  "):rep(indent) .. data.desc, 1, 1, 1)
   QuestHelper:AppendObjectiveProgressToTooltip(data, self, nil, indent + 1)
+end
+
+local function DoTooltipDefault(self, qname, text)
+  self:AddLine("  " .. QHFormat("TOOLTIP_SLAY", text), 1, 1, 1)
+  self:AddLine("    " .. QHFormat("TOOLTIP_QUEST", qname), 1, 1, 1)
 end
 
 local ctts = {}
@@ -73,9 +84,13 @@ function QH_Tooltip_Defer_Add(questname, objective, tooltips)
   QuestHelper: Assert(not deferences[questname][objective])
   deferences[questname][objective] = tooltips
   if not deferences[questname][objective] then deferences[questname] = true end
+  
+  --print("add", questname, objective)
 end
 function QH_Tooltip_Defer_Remove(questname, objective)
   if not objective then objective = deference_default end
+  
+  --print("remove", questname, objective)
   
   QuestHelper: Assert(deferences[questname][objective])
   deferences[questname][objective] = nil
@@ -134,6 +149,7 @@ local function StripBlizzQHTooltipClone(ttp)
   if qh_tooltip_print_a_lot then print(line, _G["GameTooltipTextLeft" .. line], _G["GameTooltipTextLeft" .. line]:IsShown()) end
   
   local qobj = nil
+  local qobj_name = nil
   
   while _G["GameTooltipTextLeft" .. line] and _G["GameTooltipTextLeft" .. line]:IsShown() do
     local r, g, b, a = _G["GameTooltipTextLeft" .. line]:GetTextColor()
@@ -148,8 +164,18 @@ local function StripBlizzQHTooltipClone(ttp)
       
       if deferences[thistext] then
         qobj = deferences[thistext]
-      elseif qobj and qobj[thistext] then
-        DoTooltip(ttp, qobj[thistext][2], qobj[thistext][1])
+        qobj_name = thistext
+      elseif qobj then
+        --print(qobj, thistext, qobj[thistext], qobj[deference_default])
+        if qobj[thistext] then
+          local ttsplat = thistext:match("(.*): ([0-9]+)/([0-9]+)")
+          if ttsplat == ttp:GetUnit() then
+            ttsplat = nil
+          end
+          DoTooltip(ttp, qobj[thistext][2], qobj[thistext][1], ttsplat and QHFormat("TOOLTIP_SLAY", ttsplat))
+        elseif qobj[deference_default] then
+          DoTooltipDefault(ttp, qobj_name, thistext)
+        end
       end
       
       if not qh_hackery_nosuppress then
