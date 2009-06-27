@@ -111,6 +111,15 @@ local filter_quest_group = QH_MakeFilter("filter_quest_group", function(obj)
   if expected_players > QuestHelper_Pref.filter_group_param then return true end
 end, {friendly_reason = QHText("FILTERED_GROUP"), friendly_name = "group"})
 
+local filter_quest_wintergrasp = QH_MakeFilter("filter_quest_wintergrasp", function(obj)
+  if not QuestHelper_Pref.filter_wintergrasp then return end
+  
+  if not obj.type_quest then return end
+  if obj.type_quest.objectives > 0 and obj.cluster.type_quest_finish then return end
+  
+  if obj.loc.p == 74 and obj.type_quest.variety == PVP then return true end
+end, {friendly_reason = QHText("FILTERED_WINTERGRASP"), friendly_name = "wintergrasp"})
+
 local filter_quest_done = QH_MakeFilter("filter_quest_done", function(obj)
   if not QuestHelper_Pref.filter_done then return end
   
@@ -157,6 +166,7 @@ QH_Route_RegisterFilter(filter_quest_level, "filter_quest_level")
 QH_Route_RegisterFilter(filter_quest_done, "filter_quest_done")
 QH_Route_RegisterFilter(filter_quest_watched, "filter_quest_watched")
 QH_Route_RegisterFilter(filter_quest_group, "filter_quest_group")
+QH_Route_RegisterFilter(filter_quest_wintergrasp, "filter_quest_wintergrasp")
 QH_Route_RegisterFilter(filter_zone, "filter_zone")
 QH_Route_RegisterFilter(filter_blocked, "filter_blocked")
 

@@ -24,6 +24,7 @@ QuestHelper_DefaultPref =
   filter_watched=false, -- Limits to Watched objectives
   filter_group=true,
   filter_group_param=2,
+  filter_wintergrasp=false,
   track=true,
   track_minimized=false,
   track_scale=1,
