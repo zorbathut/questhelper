@@ -75,6 +75,7 @@ failures = [
   "uuencoded or xxencoded text", # some dude sent a giant UUE data block that doesn't want to UUD properly. I'm lazy, so, here we are.
   "Rich Text Format data", # some guy sent an RTF Swatter error message? I can't see anything good coming from RTF
   "news or mail text", # I refuse to attempt to decode a base64 encoded file with email headers attached
+  "PGP message", # meh
   
   # DENIED
   "Microsoft Office Document",  # Yeah fuckin' right.

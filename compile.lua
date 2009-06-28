@@ -19,14 +19,14 @@ local do_compile = true
 local do_questtables = true
 local do_flight = true
 
-local do_compress = false
+local do_compress = true
 local do_serialize = true
 
 local dbg_data = false
 
 --local s = 1048
 --local e = 1048
-local e = 1000
+--local e = 1000
 
 require("luarocks.require")
 require("persistence")
@@ -1836,15 +1836,24 @@ if flight_data_output then table.insert(sources, flight_data_output) end
 if flight_table_output then table.insert(sources, flight_table_output) end
 if flight_master_name_output then table.insert(sources, flight_master_name_output) end
 
-local function do_loc_choice(file, item)
+local function do_loc_choice(file, item, toplevel)
   local has_linkloc = false
+  local count = 0
   
   do
     local loc_obliterate = {}
     for k, v in ipairs(item) do
-      if file[v.sourcetype] and file[v.sourcetype][v.sourceid] and file[v.sourcetype][v.sourceid]["*/*"] and do_loc_choice(file, file[v.sourcetype][v.sourceid]["*/*"]) then
-        has_linkloc = true
-      else
+      local worked = false
+      if file[v.sourcetype] and file[v.sourcetype][v.sourceid] and file[v.sourcetype][v.sourceid]["*/*"] then
+        local valid, tcount = do_loc_choice(file, file[v.sourcetype][v.sourceid]["*/*"])
+        if valid then
+          has_linkloc = true
+          worked = true
+          count = count + tcount
+        end
+      end
+      
+      if not worked then
         table.insert(loc_obliterate, k)
       end
     end
@@ -1854,13 +1863,33 @@ local function do_loc_choice(file, item)
     end
   end
   
+  if dbg_data then
+    item.full_objective_count = count
+  end
+  
+  local reason = string.format("%s, %s, %s", tostring(has_linkloc), tostring(count), (item.loc and tostring(#item.loc) or "(no item.loc)"))
+  
   if has_linkloc then
-    if dbg_data then
-      item.loc_unused = item.loc_unused or item.loc
+    assert(count > 0)
+    if toplevel and count > 10 and item.loc then
+      while #item.loc > 10 do
+        table.remove(item.loc)
+      end
+      count = #item.loc
+    elseif toplevel and count > 10 then
+      item.loc = {} -- we're doing this just so we can say "hey, we don't want to use the original locations"
+      count = 0 -- :(
+    else
+      if dbg_data then
+        item.loc_unused = item.loc_unused or item.loc
+      end
+      
+      item.loc = nil
     end
-    
-    item.loc = nil
   else
+    assert(count == 0)
+    if item.loc then count = #item.loc end
+    
     if dbg_data then
       if #item > 0 then
         item.link_unused = {}
@@ -1871,7 +1900,13 @@ local function do_loc_choice(file, item)
     end
   end
   
-  return item.loc or #item > 0
+  local valid = item.loc or #item > 0
+  --[[if valid then -- technically not necessarily true
+    assert(count > 0)
+  else
+    assert(count == 0)
+  end]]
+  return valid, count, reason
 end
 
 local function mark_chains(file, item)
@@ -1910,13 +1945,19 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
     
     Finish = function(self, Output)
       -- First we go through and check to see who's got actual locations, and cull either location or linkage
+      local qct = {}
       if self.finalfile.quest then for k, v in pairs(self.finalfile.quest) do
         if v["*/*"] and v["*/*"].criteria then
-          for _, crit in pairs(v["*/*"].criteria) do
-            do_loc_choice(self.finalfile, crit)
+          for cid, crit in pairs(v["*/*"].criteria) do
+            local _, ct, reason = do_loc_choice(self.finalfile, crit, true)
+            table.insert(qct, {ct = ct, id = string.format("%d/%d", k, cid), reason = reason})
           end
         end
       end end
+      table.sort(qct, function(a, b) return a.ct < b.ct end)
+      for _, v in ipairs(qct) do
+        print("qct", v.ct, v.id, v.reason)
+      end
       
       -- Then we mark used/unused items
       if self.finalfile.quest then for k, v in pairs(self.finalfile.quest) do
