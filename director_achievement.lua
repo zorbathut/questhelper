@@ -108,7 +108,9 @@ function QH_AddFires()
     --print(v[1], v[2], v[3], v[4], ec, ez, c, x, y, QuestHelper_ParentLookup[v[1]])
     local desc = string.format("%s %s bonfire", v[4], QuestHelper_NameLookup[v[1]])
     local node = {loc = {x = x, y = y, p = v[1], c = QuestHelper_ParentLookup[v[1]]}, why = msfires, map_desc = {desc}, tracker_desc = desc}
+    local cluster = {node}
+    node.cluster = cluster
     
-    QH_Route_ClusterAdd({node})
+    QH_Route_ClusterAdd(cluster)
   end
 end

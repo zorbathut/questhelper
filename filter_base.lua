@@ -117,6 +117,8 @@ local filter_quest_wintergrasp = QH_MakeFilter("filter_quest_wintergrasp", funct
   if not obj.type_quest then return end
   if obj.type_quest.objectives > 0 and obj.cluster.type_quest_finish then return end
   
+  if QuestHelper.collect_rc and QuestHelper.collect_rz and QuestHelper_IndexLookup[QuestHelper.collect_rc] and QuestHelper_IndexLookup[QuestHelper.collect_rc][QuestHelper.collect_rz] == 74 then return end
+  
   if obj.loc.p == 74 and obj.type_quest.variety == PVP then return true end
 end, {friendly_reason = QHText("FILTERED_WINTERGRASP"), friendly_name = "wintergrasp"})
 

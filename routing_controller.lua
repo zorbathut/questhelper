@@ -157,6 +157,7 @@ local function ReplotPath()
         pathnode.map_desc = wp.map_desc
         pathnode.map_desc_chain = last_path[k + 1]
         pathnode.local_allocated = true
+        pathnode.cluster = last_path[k + 1].cluster
         table.insert(real_path, pathnode) -- Technically, we'll end up with the distance to the next objective. I'm okay with this.
         
         if not condense_type and wp.condense_type then
@@ -240,6 +241,9 @@ function QH_Route_UnignoreNode(node, reason)
 end
 
 function QH_Route_ClusterAdd(clust)
+  for _, v in ipairs(clust) do
+    QuestHelper: Assert(v.cluster == clust)
+  end
   table.insert(pending, function () Route_Core_ClusterAdd(clust) ScanCluster(clust) end)
 end
 
