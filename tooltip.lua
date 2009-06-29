@@ -92,7 +92,10 @@ function QH_Tooltip_Defer_Remove(questname, objective)
   
   --print("remove", questname, objective)
   
-  QuestHelper: Assert(deferences[questname][objective])
+  if not deferences[questname][objective] then
+    print(questname, objective)
+  end
+  QuestHelper: Assert(deferences[questname][objective], questname, objective)
   deferences[questname][objective] = nil
   
   local cleanup = true
@@ -173,7 +176,7 @@ local function StripBlizzQHTooltipClone(ttp)
             ttsplat = nil
           end
           DoTooltip(ttp, qobj[thistext][2], qobj[thistext][1], ttsplat and QHFormat("TOOLTIP_SLAY", ttsplat))
-        elseif qobj[deference_default] then
+        elseif qobj[deference_default] and not thistext:find(":") then  -- Blizzard cleverly does not suppress tooltips when the user has finished getting certain items, so we do instead
           DoTooltipDefault(ttp, qobj_name, thistext)
         end
       end
