@@ -85,16 +85,13 @@ function QH_Tooltip_Defer_Add(questname, objective, tooltips)
   deferences[questname][objective] = tooltips
   if not deferences[questname][objective] then deferences[questname] = true end
   
-  --print("add", questname, objective)
+  --print("adding", questname, objective)
 end
 function QH_Tooltip_Defer_Remove(questname, objective)
   if not objective then objective = deference_default end
   
   --print("remove", questname, objective)
-  
-  if not deferences[questname][objective] then
-    print(questname, objective)
-  end
+  --print("removing", questname, objective, deferences[questname][objective])
   QuestHelper: Assert(deferences[questname][objective], questname, objective)
   deferences[questname][objective] = nil
   

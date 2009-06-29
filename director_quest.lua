@@ -365,7 +365,6 @@ local function SetTooltip(item, typ)
     QuestHelper: Assert(item.tooltip_defer_questname)
     if item.tooltip_defer_questobjective_last then
       QH_Tooltip_Defer_Remove(item.tooltip_defer_questname, item.tooltip_defer_questobjective_last)
-      item.tooltip_defer_questobjective_last = nil
     else
       QH_Tooltip_Defer_Remove(item.tooltip_defer_questname, item.tooltip_defer_questobjective)
     end
@@ -385,6 +384,7 @@ local function SetTooltip(item, typ)
     QuestHelper: Assert(false)
   end
   
+  item.tooltip_defer_questobjective_last = nil  -- if it was anything, it is not now
   TooltipType[item] = typ
 end
 
