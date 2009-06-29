@@ -168,13 +168,11 @@ main.lua
 
 objective.lua
 quest.lua
-questlog.lua
 teleport.lua
 pathfinding.lua
 routing.lua
 custom.lua
 menu.lua
-hidden.lua
 nag.lua
 comm.lua
 mapbutton.lua
