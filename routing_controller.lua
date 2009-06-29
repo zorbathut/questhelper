@@ -402,7 +402,7 @@ local function process()
     end
     
     if last_movement + 1 < GetTime() then
-      local c, x, y, rc, rz = QuestHelper.collect_ac, QuestHelper.collect_ax, QuestHelper.collect_ay, QuestHelper.c, QuestHelper.z  -- ugh we need a better solution to this, but with this weird "planes" hybrid there just isn't one right now
+      local c, x, y, rc, rz = QuestHelper.routing_ac, QuestHelper.routing_ax, QuestHelper.routing_ay, QuestHelper.routing_c, QuestHelper.routing_z  -- ugh we need a better solution to this, but with this weird "planes" hybrid there just isn't one right now
       if c and x and y and rc and rz and (c ~= lc or x ~= lx or y ~= ly or rc ~= lrc or rz ~= lrz) then
         --local t = GetTime()
         lc, lx, ly, lrc, lrz = c, x, y, rc, rz

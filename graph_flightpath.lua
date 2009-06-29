@@ -3,6 +3,7 @@ QuestHelper_Loadtime["graph_flightpath.lua"] = GetTime()
 
 -- Name to Name, gives {time, accurate}
 QH_Flight_Distances = {}
+QH_Flight_Destinations = {}
 
 function QH_redo_flightpath()
   QuestHelper: Assert(DB_Ready())
@@ -194,9 +195,11 @@ function QH_redo_flightpath()
   
   -- reset!
   QH_Flight_Distances = {}
+  QH_Flight_Destinations = {}
   
   for src, t in pairs(adjacency) do
     QH_Timeslice_Yield()
+    
     for dest, dat in pairs(t) do
       do
         local fms = flightmasters[src]
@@ -206,6 +209,11 @@ function QH_redo_flightpath()
           local fmdc = QuestHelper_ParentLookup[fmd.p]
           QuestHelper: Assert(fmsc == fmdc)
         end
+      end
+      
+      if not QH_Flight_Destinations[dest] and flightmasters[dest] then
+        local fmd = flightmasters[dest]
+        QH_Flight_Destinations[flightdb[dest].name] = {x = fmd.x, y = fmd.y, c = QuestHelper_ParentLookup[fmd.p], p = fmd.p}
       end
       
       do

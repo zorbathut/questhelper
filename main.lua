@@ -1013,6 +1013,10 @@ Thanks for testing!]], "QuestHelper " .. version_string, 500, 20, 10)
       self.collect_delayed = true
       self.InBrokenInstance = true
     end
+    
+    if not UnitOnTaxi("player") and not UnitIsDeadOrGhost("player") then
+      QuestHelper.routing_ac, QuestHelper.routing_ax, QuestHelper.routing_ay, QuestHelper.routing_c, QuestHelper.routing_z = QuestHelper.collect_ac, QuestHelper.collect_ax, QuestHelper.collect_ay, QuestHelper.c, QuestHelper.z
+    end
 
     QH_Timeslice_Toggle("routing", not not self.c)
     
