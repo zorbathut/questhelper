@@ -674,7 +674,7 @@ function QH_UpdateQuests(force)
               db[i].tooltip_defer_questobjective_last = db[i].tooltip_defer_questobjective
               
               db[i].tooltip_defer_questname = title
-              db[i].tooltip_defer_questobjective = db[i].temp_desc  -- yoink
+              db[i].tooltip_defer_questobjective = db[i].temp_desc or string.format("(missing description %d)", i)  -- yoink
             end
             
             chunk = chunk .. ":" .. Serialize(db[i].temp_desc, db[i].temp_typ, db[i].temp_done)
