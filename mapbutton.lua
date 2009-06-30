@@ -54,14 +54,13 @@ function QuestHelper:DoSettingsMenu()
     self:CreateMenuItem(menu, QHFormat("MENU_OBJECTIVE_TIPS", QuestHelper_Pref.tooltip and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
                     :SetFunction(self.ToggleTooltip, self)
     
-    --[[
     -- Options regarding party members.
     local submenu = self:CreateMenu()
     self:CreateMenuItem(submenu, QHFormat("MENU_PARTY_SHARE", QuestHelper_Pref.share and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
                  :SetFunction(self.ToggleShare, self)
     self:CreateMenuItem(submenu, QHFormat("MENU_PARTY_SOLO", QuestHelper_Pref.solo and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
                  :SetFunction(self.ToggleSolo, self)
-    self:CreateMenuItem(menu, QHText("MENU_PARTY")):SetSubmenu(submenu)]]
+    self:CreateMenuItem(menu, QHText("MENU_PARTY")):SetSubmenu(submenu)
     
     -- Map frame button
     --[[self:CreateMenuItem(menu, QHFormat("MENU_MAP_BUTTON", QuestHelper_Pref.map_button and QHText("MENU_DISABLE") or QHText("MENU_ENABLE")))
