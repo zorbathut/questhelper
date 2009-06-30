@@ -1,4 +1,14 @@
 
+== Version 1.0.25 6/30/2009 ==
+
+* Defer to Blizzard tooltip hints when available, resort to the database entries when tooltip hints are unavailable
+* Fix some bugs related to the minimap right-click menu
+* If the user is dead or flying, do routing from the user's corpse or flightpath destination, since that's where they're probably going to be next anyway
+* Re-enable quest-sharing-related settings menu options
+* New filter: "/qh filter wintergrasp". This filter will automatically filter out Wintergrasp PvP objectives unless you are actually in Wintergrasp. (Though, if you're walking around Wintergrasp staring at your Questhelper arrow, you're doing it wrong anyway.)
+* Improve the behavior of the new CPU code again
+* Cull some old dead code left over from the 0.x line
+
 == Version 1.0.24 6/25/2009 ==
 
 * Add a new filter, "/qh filter group". Group allows you to dump group quests and instances regardless of level. The group cutoff can be changed with "/qh group 3", for example, to allow 3-person group quests but no more. It automatically disables when the player is in a group or raid, and defaults to 2-person groups at most.
