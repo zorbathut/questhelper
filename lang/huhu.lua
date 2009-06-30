@@ -7,12 +7,12 @@ QuestHelper_Translations.huHU =
   
   -- Messages used when starting.
   LOCALE_ERROR = "A mentett adatok nyelve nem egyezik meg a WoW-kliensed nyelvével. Ahhoz, hogy használd a QuestHelpert vagy vissza kell állítsd a kliensed nyelvét, vagy törölnöd kell a mentett adatokat azzal, hogy beírod: %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Sajnálom, de meg kelell tagadnom működésem, az eddig felhalmozott adatok védelméért. Kérlek várj, míg kijön egy frissítés, ami képes lesz kezelni az új terület kialakítását.",
-  DOWNGRADE_ERROR = "A rögzített adatok nem kompatibilisek a QuestHelper ezen verziójával. Tölts le egy újabb verziót, vagy töröld a mentett adatokat a 'Saved Variables' mappádban.",
-  HOME_NOT_KNOWN = "Nem tudom hol van az otthonod. Amikor csak tudsz, beszélj az 'Innkeeper'-eddel, és kérj új HS-t.",
+  ZONE_LAYOUT_ERROR = "Működés megtagadva az eddig felhalmozott adatok védelmében. Kérlek várj, míg kijön egy frissítés, ami képes lesz kezelni az új területi kialakítást.",
+  DOWNGRADE_ERROR = "A rögzített adatok nem kompatibilisek a QuestHelper ezen verziójával. Tölts le egy újabb verziót, vagy töröld a mentett adatokat a 'Saved Variables' mappában.",
+  HOME_NOT_KNOWN = "Nem tudom hol van az otthonod. Amint lehetőséged adódik, beszélj egy kocsmárossal és állítsd be újra.",
   PRIVATE_SERVER = "A QuestHelper nem támogatja a privát szervereket.",
   PLEASE_RESTART = "Hiba történt a QuestHelper indításakor. Kérlek zárd be teljesen a WoW-ot, és lépj be újra!",
-  NOT_UNZIPPED_CORRECTLY = "A QuestHelper hibásan lett telepítve! Kérlek telepítsd újta a hivatalos Curse oldalról, az ottani telepítési-utasításokat követve!",
+  NOT_UNZIPPED_CORRECTLY = "A QuestHelper hibásan lett telepítve! Ajánlott vagy a Curse-kliens vagy a 7zip használata. Győjőzdj meg róla, hogy az alkönyvtárak is ki lettek tömörítve.",
   PLEASE_DONATE = "%h( A QuestHelper-t jelenleg a Ti Adományaitok tartják életben!) Bármennyit, amit tudtok nélkülözni, szívesen fogadunk, és pár száz forint havonta is segít, hogy működésben, és frissítve tartsam az AddOnt. Több információért írd be: %h(/qh donate)",
   HOW_TO_CONFIGURE = "Még nincs működő Beállítások része ezen QuestHelpernek, de konfigurálhatod, ha beírod: %h(/qh settings). Segítség a %h(/qh help) beírásával érhatő el.",
   TIME_TO_UPDATE = "Valószinűleg létezik egy újabb QuestHelper verzió ( %h )! Újabb verziók újabb funkciókat, quest-adatbázisokat és hibajavításokat tartalmaznak. Kérlek, frissíts!",
@@ -60,19 +60,19 @@ QuestHelper_Translations.huHU =
   PRIORITY3 = "Szokásos",
   PRIORITY4 = "Alacsony",
   PRIORITY5 = "Legalacsonyabb",
-  SHARING = "Megosztás Be",
-  SHARING_ENABLE = "Megoszt",
+  SHARING = "Megosztás",
+  SHARING_ENABLE = "Megosztás Be",
   SHARING_DISABLE = "Megosztás Ki",
-  IGNORE = "Hagyd figyelmen kívül",
+  IGNORE = "Mellőz",
   IGNORE_LOCATION = "Helyszín figyelmen kívül hagyása",
   
   IGNORED_PRIORITY_TITLE = "A választott elsőbbséget figyelmen kívül hagyom.",
-  IGNORED_PRIORITY_FIX = "Állíts be elsőbbségeket az akadályozó feladatoknak.",
-  IGNORED_PRIORITY_IGNORE = "Magam állítom be az elsőbbségeket.",
+  IGNORED_PRIORITY_FIX = "Prioritás megadása az akadályozó feladatoknak.",
+  IGNORED_PRIORITY_IGNORE = "Magam állítom be a prioritásokat.",
   
   -- Custom objectives.
   RESULTS_TITLE = "Keresés Eredménye",
-  NO_RESULTS = "Nincs találat!",
+  NO_RESULTS = "Nincs ilyen!",
   CREATED_OBJ = "%1 készítette",
   REMOVED_OBJ = "%1 törölve",
   USER_OBJ = "Felhasználói Feladat: %h1",
@@ -100,14 +100,14 @@ QuestHelper_Translations.huHU =
   
   -- Hidden objectives.
   HIDDEN_TITLE = "Rejtett feladatok",
-  HIDDEN_NONE = "Nincsenek elrejtett feladatok.",
+  HIDDEN_NONE = "Nincsenek rejtett feladatok",
   DEPENDS_ON_SINGLE = "Ettől függ: '%1'.",
   DEPENDS_ON_COUNT = "%1 rejtett objektumtól függ.",
   DEPENDS_ON = "Szűrt objektumoktól függ",
   FILTERED_LEVEL = "Rejtve a szintkülönbség miatt.",
   FILTERED_ZONE = "Rejtve, mivel másik területen található.",
   FILTERED_COMPLETE = "Rejtve, mivel kész.",
-  FILTERED_BLOCKED = "Rejtve inkompatibilis elsődleges feladat miatt.",
+  FILTERED_BLOCKED = "Rejtve befejezetlen elsődleges feladat miatt.",
   FILTERED_UNWATCHED = "Szűrve, mert nincs benne a Quest Log-odban!",
   FILTERED_USER = "Te rejtetted el ezt a feladatot.",
   FILTERED_UNKNOWN = "Nem tudom, hogyan kell megcsinálni.",
@@ -117,10 +117,10 @@ QuestHelper_Translations.huHU =
   HIDDEN_EXCEPTION = "Kivétel hozzáadása",
   DISABLE_FILTER = "%1-szűrő kikapcsolása.",
   FILTER_DONE = "kész",
-  FILTER_ZONE = "terület",
+  FILTER_ZONE = "zóna",
   FILTER_LEVEL = "szint",
   FILTER_BLOCKED = "blokkolt",
-  FILTER_WATCHED = "figyelt",
+  FILTER_WATCHED = "megfigyelt",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "%h(Új információd) van %h1, és %h(frissített adatod) %h2.",
@@ -128,7 +128,7 @@ QuestHelper_Translations.huHU =
   NAG_ADDITIONAL = "%h(További információt) gyűjtöttél erről: %h1",
   NAG_POLLUTED = "Az adatbázisod szennyezett Tört Szerverről ( vagy teszt szerverről ) származó információval, a következő indításkor megtisztja önmagát.",
   
-  NAG_NOT_NEW = "Eddig még nem gyűjtöttél semmilyen olyan adatot ami ne lenne benne a Fő Adatbankban.",
+  NAG_NOT_NEW = "Eddig még nem gyűjtöttél semmilyen adatot, ami ne lenne benne az adatbázisbann.",
   NAG_NEW = "Megoszthatod az eddig rögzített adataidat, hogy mások hasznára is lehessen.",
   NAG_INSTRUCTIONS = "Használd a %h(/qh submit) paracsot, hogy megtudd, hogyan küldd el a rögzített adatjaidat.",
   
@@ -197,8 +197,8 @@ QuestHelper_Translations.huHU =
   MENU_PARTY_SOLO = "%1 a Party figyelmen kívül hagyását",
   MENU_HELP = "Segítség",
   MENU_HELP_SLASH = "Per-Parancsok ( / )",
-  MENU_HELP_CHANGES = "Változáslista",
-  MENU_HELP_SUBMIT = "Rögzített Adatok Elküldése",
+  MENU_HELP_CHANGES = "Változtatások az új verzióban",
+  MENU_HELP_SUBMIT = "Adatok küldése",
   
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
   -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
@@ -217,10 +217,10 @@ QuestHelper_Translations.huHU =
   SETTINGS_PRECACHE_ON = nil,
   SETTINGS_PRECACHE_OFF = nil,
   
-  SETTINGS_MENU_ENABLE = nil,
-  SETTINGS_MENU_DISABLE = nil,
+  SETTINGS_MENU_ENABLE = "Bekapcsolás",
+  SETTINGS_MENU_DISABLE = "Kikapcsolás",
   SETTINGS_MENU_CARTWP = nil,
-  SETTINGS_MENU_TOMTOM = nil,
+  SETTINGS_MENU_TOMTOM = "%1 TomTom nyíl",
   
   SETTINGS_MENU_ARROW_LOCK = nil,
   SETTINGS_MENU_ARROW_ARROWSCALE = nil,
@@ -229,6 +229,6 @@ QuestHelper_Translations.huHU =
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 yard",
-  DISTANCE_METRES = nil
+  DISTANCE_METRES = "méter még"
  }
 

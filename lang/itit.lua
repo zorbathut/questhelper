@@ -48,8 +48,8 @@ QuestHelper_Translations.itIT =
   OBJECTIVE_SLAY = "Uccidi %h1.",
   OBJECTIVE_LOOT = "Saccheggia %h1.",
   
-  OBJECTIVE_MONSTER_UNKNOWN = nil,
-  OBJECTIVE_ITEM_UNKNOWN = nil,
+  OBJECTIVE_MONSTER_UNKNOWN = "Mostro sconosciuto",
+  OBJECTIVE_ITEM_UNKNOWN = "Item sconosciuto",
   
   ZONE_BORDER = "Confine tra %1 e %2",
   
@@ -64,7 +64,7 @@ QuestHelper_Translations.itIT =
   SHARING_ENABLE = "Condividi",
   SHARING_DISABLE = "Non condividere",
   IGNORE = "Ignora",
-  IGNORE_LOCATION = nil,
+  IGNORE_LOCATION = "Ignora questa località",
   
   IGNORED_PRIORITY_TITLE = "La priorità selezionata verrà ignorata.",
   IGNORED_PRIORITY_FIX = "Applica la stessa priorità agli obiettivi bloccanti.",
@@ -113,8 +113,8 @@ QuestHelper_Translations.itIT =
   FILTERED_UNKNOWN = "Non so come completare.",
   
   HIDDEN_SHOW = "Mostra.",
-  HIDDEN_SHOW_NO = nil,
-  HIDDEN_EXCEPTION = nil,
+  HIDDEN_SHOW_NO = "Non visibile",
+  HIDDEN_EXCEPTION = "aggiungi eccezione",
   DISABLE_FILTER = "Disattiva filtro: %1",
   FILTER_DONE = "fatto",
   FILTER_ZONE = "zona",
@@ -217,15 +217,15 @@ QuestHelper_Translations.itIT =
   SETTINGS_PRECACHE_ON = nil,
   SETTINGS_PRECACHE_OFF = nil,
   
-  SETTINGS_MENU_ENABLE = nil,
-  SETTINGS_MENU_DISABLE = nil,
+  SETTINGS_MENU_ENABLE = "Abilita",
+  SETTINGS_MENU_DISABLE = "Disabilita",
   SETTINGS_MENU_CARTWP = nil,
   SETTINGS_MENU_TOMTOM = nil,
   
-  SETTINGS_MENU_ARROW_LOCK = nil,
+  SETTINGS_MENU_ARROW_LOCK = "Blocca",
   SETTINGS_MENU_ARROW_ARROWSCALE = nil,
-  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
-  SETTINGS_MENU_ARROW_RESET = nil,
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Scala testo",
+  SETTINGS_MENU_ARROW_RESET = "Resetta",
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 yards",

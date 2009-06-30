@@ -114,7 +114,7 @@ QuestHelper_Translations.roRO =
   
   HIDDEN_SHOW = "Arata.",
   HIDDEN_SHOW_NO = nil,
-  HIDDEN_EXCEPTION = nil,
+  HIDDEN_EXCEPTION = "Adauga exceptie",
   DISABLE_FILTER = "Dezactiveaza filtrul: %1",
   FILTER_DONE = "Terminat",
   FILTER_ZONE = "Zona",

@@ -8,10 +8,10 @@ QuestHelper_Translations.ruRU =
   -- Messages used when starting.
   LOCALE_ERROR = "Локализация ваших сохраненных данных не соответствует локализации вашего клиента WoW. Чтобы далее использовать QuestHelper, вам необходимо изменить локализацию обратно или удалить данные, набрав %h(/qh purge). ",
   ZONE_LAYOUT_ERROR = "Боюсь, при загрузке вы потеряете все свои сохраненные данные Пожалуйста, дождитесь выхода патча для обновления информации по новым зонам.",
-  DOWNGRADE_ERROR = "Ваши сохраненные данные не совместимы с этой версией QuestHelper. Используйте новую версию или удалите старые данные.",
+  DOWNGRADE_ERROR = "Ваши сохраненные данные не совместимы с этой версией QuestHelper'а. Используйте новую версию или удалите старые данные.",
   HOME_NOT_KNOWN = "Местоположение вашего дома неизвестно. Когда будет возможность, пожалуйста, поговорите с хозяином таверны и обновите информацию о вашем доме.",
   PRIVATE_SERVER = "QuestHelper не поддерживает частные серверы.",
-  PLEASE_RESTART = "При запуске QuestHelper произошла ошибка. Пожалуйста, выйдите из игры полностью и попробуйте еще раз.",
+  PLEASE_RESTART = "При запуске QuestHelper'а произошла ошибка. Пожалуйста, выйдите из игры полностью и попробуйте еще раз.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper был установлен некорректно. Рекомендуется использовать либо Curse Client, либо программу 7zip для инсталляции. Убедитесь, что поддиректории распаковываются верно.",
   PLEASE_DONATE = "%h(QuestHelper выживает благодаря вашим пожертвованиям!) Мы будем благодарны за Все, что вы сможете пожертвовать - даже несколько долларов в месяц позволит быть уверенным, что я продолжу обновлять и работать над этим аддоном. Наберите %h(/qh donate) для подробной информации.",
   HOW_TO_CONFIGURE = "QuestHelper пока не имеет работающей страницы опций, но может быть настроен при введении %h(/qh settings). Помощь доступна при наборе %h(/qh help).",
@@ -26,7 +26,7 @@ QuestHelper_Translations.ruRU =
   UPDATING_ROUTE = "Обновляются маршруты.",
   
   -- Special tracker text
-  QH_LOADING = "QuestHelper загружается (%1%%)...",
+  QH_LOADING = "QuestHelper загружается (%1%)...",
   QH_FLIGHTPATH = "Перерасчет путей полета (%1%)...",
   QUESTS_HIDDEN_1 = "Задания могут быть скрыты",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" для просмотра списка)",
@@ -154,7 +154,7 @@ QuestHelper_Translations.ruRU =
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1 прогресс:",
-  TRAVEL_ESTIMATE = "Приблизительное время прибытия:",
+  TRAVEL_ESTIMATE = "Время прибытия:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Пройдите через %h1 по дороге к:",
   FLIGHT_POINT = "%1 точка полета",
@@ -163,8 +163,8 @@ QuestHelper_Translations.ruRU =
   QH_BUTTON_TEXT = "QuestHelper",
   QH_BUTTON_TOOLTIP1 = "Левый клик: %1 информацию по маршрутам.",
   QH_BUTTON_TOOLTIP2 = "Правый клик: показать меню настроек.",
-  QH_BUTTON_SHOW = "показать",
-  QH_BUTTON_HIDE = "скрыть",
+  QH_BUTTON_SHOW = "Показать",
+  QH_BUTTON_HIDE = "Скрыть",
 
   MENU_CLOSE = "Закрыть меню",
   MENU_SETTINGS = "Настройки",
@@ -197,7 +197,7 @@ QuestHelper_Translations.ruRU =
   MENU_PARTY_SOLO = "%1 игнорирование группы",
   MENU_HELP = "Помощь",
   MENU_HELP_SLASH = "Клавиатурные команды",
-  MENU_HELP_CHANGES = "Журнал изменений",
+  MENU_HELP_CHANGES = "История изменений",
   MENU_HELP_SUBMIT = "Отправка данных",
   
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
@@ -205,22 +205,22 @@ QuestHelper_Translations.ruRU =
   TOOLTIP_WATCHED = "Отслеживается QuestHelper'ом",
   TOOLTIP_QUEST = "Для задания %h1.",
   TOOLTIP_PURCHASE = "Купите %h1.",
-  TOOLTIP_SLAY = "Убейте для %h1.",
-  TOOLTIP_LOOT = "Соберите для %h1.",
+  TOOLTIP_SLAY = "Убейте, чтобы получить %h1.",
+  TOOLTIP_LOOT = "Соберите добычу, чтобы получить %h1.",
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "Будет использоваться %h1, чтобы показать цели.",
   SETTINGS_ARROWLINK_OFF = "Не будет использоваться %h1, чтобы показать цели.",
-  SETTINGS_ARROWLINK_ARROW = "Указатель QuestHelperа",
-  SETTINGS_ARROWLINK_CART = "Точки маршрута Cartographerа",
+  SETTINGS_ARROWLINK_ARROW = "Указатель QuestHelper'а",
+  SETTINGS_ARROWLINK_CART = "Точки маршрута Картографа",
   SETTINGS_ARROWLINK_TOMTOM = "TomTom",
   SETTINGS_PRECACHE_ON = "Предварительное кэширование было %h(включено).",
   SETTINGS_PRECACHE_OFF = "Предварительное кэширование было %h(выключено).",
   
   SETTINGS_MENU_ENABLE = "Включить",
   SETTINGS_MENU_DISABLE = "Отключить",
-  SETTINGS_MENU_CARTWP = "%1 Указатель Cartographerа",
-  SETTINGS_MENU_TOMTOM = "%1 Указатель TomTomа",
+  SETTINGS_MENU_CARTWP = "%1 указатель Картографа",
+  SETTINGS_MENU_TOMTOM = "%1 указатель TomTom'а",
   
   SETTINGS_MENU_ARROW_LOCK = "Закрепить",
   SETTINGS_MENU_ARROW_ARROWSCALE = "Размер указателя",
@@ -228,7 +228,7 @@ QuestHelper_Translations.ruRU =
   SETTINGS_MENU_ARROW_RESET = "Сбросить",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE_YARDS = nil,
+  DISTANCE_YARDS = "%h1 ярдов",
   DISTANCE_METRES = "%h1 метров"
  }
 
