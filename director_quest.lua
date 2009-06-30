@@ -615,6 +615,16 @@ local function SAM(msg, chattype, target)
   end
 end
 
+-- sigh.
+function is_uncached(typ, txt, done)
+  if not txt then return true end
+  if txt == "" then return true end
+  if txt:match("^ : %d+/%d+$") then return true end
+  local _, target = objective_parse(typ, txt, done)
+  if target == "" or target == " " then return true end
+  return false
+end
+
 -- qid, chunk
 local current_chunks = {}
 
@@ -668,13 +678,16 @@ function QH_UpdateQuests(force)
           for i = 1, lbcount do
             QuestHelper: Assert(db[i])
             db[i].temp_desc, db[i].temp_typ, db[i].temp_done = GetQuestLogLeaderBoard(i, index)
+            if is_uncached(db[i].temp_typ, db[i].temp_desc, db[i].temp_done) then
+              db[i].temp_desc = string.format("(missing description %d)", i)
+            end
             db[i].temp_person = player
             
             if db[i].temp_desc ~= db[i].tooltip_defer_questobjective then
               db[i].tooltip_defer_questobjective_last = db[i].tooltip_defer_questobjective
               
               db[i].tooltip_defer_questname = title
-              db[i].tooltip_defer_questobjective = db[i].temp_desc or string.format("(missing description %d)", i)  -- yoink
+              db[i].tooltip_defer_questobjective = db[i].temp_desc -- yoink
             end
             
             chunk = chunk .. ":" .. Serialize(db[i].temp_desc, db[i].temp_typ, db[i].temp_done)

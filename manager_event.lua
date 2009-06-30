@@ -112,7 +112,9 @@ local function OnUpdateTrigger(_, ...)
     tls = GetTime()
     print(string.format("Avg TPF %f, current TPLF %f, time_used %f, this adjustment %f", time_per_frame, tplf, time_used, time_used - (time_per_frame - tplf)))
   end]]
-  QH_Timeslice_Work(time_used, time_per_frame, math.min(math.min(time_per_frame - tplf, (time_per_frame - tplf) * 0.8), 0.05))
+  if not qh_hackery_no_work then
+    QH_Timeslice_Work(time_used, time_per_frame, math.min(math.min(time_per_frame - tplf, (time_per_frame - tplf) * 0.8), 0.05))
+  end
   last_frame = GetTime()
   
   next_started = false

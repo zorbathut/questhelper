@@ -475,7 +475,6 @@ function QuestHelper:flightBegan()
     
     local eta, estimate = getEtaEstimate(src, dest)
     
-    print(src, dest)
     --[[
     local npc = self:getFlightInstructor(self.flight_data.dest) -- Will inform QuestHelper that we're going to be at this NPC in whenever.
     if npc then
@@ -496,7 +495,9 @@ function QuestHelper:flightBegan()
     
     do
       local loc = QH_Flight_Destinations[dest]
-      QuestHelper.routing_ac, QuestHelper.routing_ax, QuestHelper.routing_ay, QuestHelper.routing_c, QuestHelper.routing_z = QuestHelper_ParentLookup[loc.p], loc.x, loc.y, QuestHelper_ZoneLookup[loc.p][1], QuestHelper_ZoneLookup[loc.p][2]
+      if loc then -- sometimes we just don't have a loc, I think due to flightpath recalculations going on right then
+        QuestHelper.routing_ac, QuestHelper.routing_ax, QuestHelper.routing_ay, QuestHelper.routing_c, QuestHelper.routing_z = QuestHelper_ParentLookup[loc.p], loc.x, loc.y, QuestHelper_ZoneLookup[loc.p][1], QuestHelper_ZoneLookup[loc.p][2]
+      end
     end
     
     if eta and QuestHelper_Pref.flight_time then
