@@ -66,18 +66,6 @@ QuestHelper_Zones =
     [6]="Shattrath City",
     [7]="Terokkar Forest",
     [8]="Zangarmarsh"},
-   {[0]="Northrend",
-    [1]="Borean Tundra",
-    [2]="Crystalsong Forest",
-    [3]="Dalaran",
-    [4]="Dragonblight",
-    [5]="Grizzly Hills",
-    [6]="Howling Fjord",
-    [7]="Icecrown",
-    [8]="Sholazar Basin",
-    [9]="The Storm Peaks",
-    [10]="Wintergrasp",
-    [11]="Zul'Drak"},
     
   [-77]={[0]="ScarletEnclave_Continent", [1]="ScarletEnclave"},
   
@@ -212,11 +200,6 @@ QuestHelper_IndexLookup =
   ["Dragonblight"] = {68, 4, 4},
   ["GrizzlyHills"] = {69, 4, 5},
   ["HowlingFjord"] = {70, 4, 6},
-  ["IcecrownGlacier"] = {71, 4, 7},
-  ["SholazarBasin"] = {72, 4, 8},
-  ["TheStormPeaks"] = {73, 4, 9},
-  ["LakeWintergrasp"] = {74, 4, 10},
-  ["ZulDrak"] = {75, 4, 11},
   
   ["ScarletEnclave_Continent"] = {77, -77, 0}, ["ScarletEnclave"] = {78, -77, 1},
   
@@ -276,6 +259,59 @@ QuestHelper_IndexLookup =
   
   -- yes virginia 152 is currently the end
 }
+
+-- ughhh
+if QuestHelper:IsWrath32() then
+  QuestHelper_Zones[4] = {[0]="Northrend",
+    [1]="Borean Tundra",
+    [2]="Crystalsong Forest",
+    [3]="Dalaran",
+    [4]="Dragonblight",
+    [5]="Grizzly Hills",
+    [6]="Howling Fjord",
+    [7]="Hrothgar's Landing",
+    [8]="Icecrown",
+    [9]="Sholazar Basin",
+    [10]="The Storm Peaks",
+    [11]="Wintergrasp",
+    [12]="Zul'Drak",}
+  
+  local dt = {
+    ["HrothgarsLanding"] = {153, 4, 7}, -- wooo consecutive numbering
+    ["IcecrownGlacier"] = {71, 4, 8},
+    ["SholazarBasin"] = {72, 4, 9},
+    ["TheStormPeaks"] = {73, 4, 10},
+    ["LakeWintergrasp"] = {74, 4, 11},
+    ["ZulDrak"] = {75, 4, 12},
+  }
+  for k, v in pairs(dt) do
+    QuestHelper_IndexLookup[k] = v
+  end
+else
+  QuestHelper_Zones[4] = {[0]="Northrend",
+    [1]="Borean Tundra",
+    [2]="Crystalsong Forest",
+    [3]="Dalaran",
+    [4]="Dragonblight",
+    [5]="Grizzly Hills",
+    [6]="Howling Fjord",
+    [7]="Icecrown",
+    [8]="Sholazar Basin",
+    [9]="The Storm Peaks",
+    [10]="Wintergrasp",
+    [11]="Zul'Drak",}
+    
+  local dt = {
+    ["IcecrownGlacier"] = {71, 4, 7},
+    ["SholazarBasin"] = {72, 4, 8},
+    ["TheStormPeaks"] = {73, 4, 9},
+    ["LakeWintergrasp"] = {74, 4, 10},
+    ["ZulDrak"] = {75, 4, 11},
+  }
+  for k, v in pairs(dt) do
+    QuestHelper_IndexLookup[k] = v
+  end
+end
 
 QuestHelper_RestrictedZones = { -- Everything defaults to "nil"
   [78] = 1,
@@ -695,7 +731,7 @@ end
 -- These are used to convert coordinates back and forth from "Wrath" to "Native". "Force" is used to convert back and forth from "Wrath" to "BC".
 -- Both changes the data in-place and returns the data.
 function QuestHelper_ConvertCoordsToWrath(data, force)
-  if (force or not QuestHelper:IsWrath()) then
+  if force then
     if data[1] == 36 then -- Stormwind
       data[2] = data[2] * 0.77324 + 0.197
       data[3] = data[3] * 0.77324 + 0.245
@@ -708,7 +744,7 @@ function QuestHelper_ConvertCoordsToWrath(data, force)
 end
 
 function QuestHelper_ConvertCoordsFromWrath(data, force)
-  if (force or not QuestHelper:IsWrath()) then
+  if force then
     if data[1] == 36 then -- Stormwind
       data[2] = (data[2] - 0.197) / 0.77324
       data[3] = (data[3] - 0.245) / 0.77324
