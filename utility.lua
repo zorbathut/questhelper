@@ -383,6 +383,10 @@ function QuestHelper:IsWrath()
   return true -- this had better be true :D
 end
 
+function QuestHelper:IsWrath32()
+  return tonumber(GetBuildInfo():sub(3,3)) >= '2'
+end
+
 function QuestHelper:AppendNotificationError(type, data)
   local terror = QuestHelper_ErrorPackage(2)
   terror.data = data
