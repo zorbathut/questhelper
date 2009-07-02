@@ -362,11 +362,11 @@ local function SetTooltip(item, typ)
     QuestHelper: Assert(item.tooltip_canned)
     QH_Tooltip_Canned_Remove(item.tooltip_canned)
   elseif TooltipType[item] == "defer" then
-    QuestHelper: Assert(item.tooltip_defer_questname)
+    QuestHelper: Assert(item.tooltip_defer_questname_last)
     if item.tooltip_defer_questobjective_last then
-      QH_Tooltip_Defer_Remove(item.tooltip_defer_questname, item.tooltip_defer_questobjective_last)
+      QH_Tooltip_Defer_Remove(item.tooltip_defer_questname_last, item.tooltip_defer_questobjective_last)
     else
-      QH_Tooltip_Defer_Remove(item.tooltip_defer_questname, item.tooltip_defer_questobjective)
+      QH_Tooltip_Defer_Remove(item.tooltip_defer_questname_last, item.tooltip_defer_questobjective)
     end
   elseif TooltipType[item] == nil then
   else
@@ -379,6 +379,7 @@ local function SetTooltip(item, typ)
   elseif typ == "defer" then
     QuestHelper: Assert(item.tooltip_defer_questname)
     QH_Tooltip_Defer_Add(item.tooltip_defer_questname, item.tooltip_defer_questobjective, {{}, item})
+    item.tooltip_defer_questname_last = item.tooltip_defer_questname
   elseif typ == nil then
   else
     QuestHelper: Assert(false)
@@ -400,6 +401,12 @@ local function StartInsertionPass(id)
       for _, v in ipairs(k) do
         v.tracker_desc = desc or "(no description available)"
       end
+    end
+    
+    -- if these are needed to remove, they'll be stored in last, and this way they'll be obliterated if the user doesn't have that actual quest
+    if id == UnitName("player") then
+      k.tooltip_defer_questname = nil
+      k.tooltip_defer_questobjective = nil
     end
   end
 end
@@ -678,7 +685,7 @@ function QH_UpdateQuests(force)
           for i = 1, lbcount do
             QuestHelper: Assert(db[i])
             db[i].temp_desc, db[i].temp_typ, db[i].temp_done = GetQuestLogLeaderBoard(i, index)
-            if is_uncached(db[i].temp_typ, db[i].temp_desc, db[i].temp_done) then
+            if not db[i].temp_desc or is_uncached(db[i].temp_typ, db[i].temp_desc, db[i].temp_done) then
               db[i].temp_desc = string.format("(missing description %d)", i)
             end
             db[i].temp_person = player
