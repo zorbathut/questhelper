@@ -125,8 +125,7 @@ function QuestHelper_ErrorPackage(depth)
 end
 
 function QuestHelper_ErrorCatcher_ExplicitError(loud, o_msg, o_frame, o_stack, ...)
-  local msg = o_msg or ""
-  if debug_output then loud = true end
+  local msg = o_msg or ""  
 
   -- We toss it into StartupErrors, and then if we're running properly, we'll merge it into the main DB.
   local terror = QuestHelper_ErrorPackage()
@@ -142,8 +141,9 @@ function QuestHelper_ErrorCatcher_ExplicitError(loud, o_msg, o_frame, o_stack, .
   if not first_error or first_error.generated then first_error = terror end
   
   QuestHelper_ErrorCatcher.CondenseErrors()
-  
-  if loud and not yelled_at_user then
+
+  if debug_output or loud and not yelled_at_user then
+    --print("qhbroken")
     message("QuestHelper has broken. You may have to restart WoW. Type \"/qh error\" for a detailed error message.")
     yelled_at_user = true
   end
@@ -167,11 +167,16 @@ function QuestHelper_ErrorCatcher.OnError(o_msg, o_frame, o_stack, o_etype, ...)
   local errorize = false
   local loud = false
   if o_msg and string.find(o_msg, "QuestHelper") and not string.find(o_msg, "Cannot find a library with name") then loud = true end
+  
   for lin in string.gmatch(debugstack(2, 20, 20), "([^\n]*)") do
     if string.find(lin, "QuestHelper") and not string.find(lin, "QuestHelper\\AstrolabeQH\\DongleStub.lua") then errorize = true end
   end
   
   if string.find(o_msg, "SavedVariables") then errorize, loud = false, false end
+  if string.find(o_msg, "C stack overflow") then
+    if loud then errorize = true end
+    loud = false
+  end
   
   if loud then errorize = true end
   
