@@ -1,4 +1,8 @@
 
+== Version 1.0.28 7/2/2009 ==
+
+* Rare issue ain't fixed yet! Added more debugging info, please report any crashes you get with this version.
+
 == Version 1.0.27 7/2/2009 ==
 
 * Hopefully rather rare issue with quest objectives and, man, I'm not even sure. Groups? Maybe? It's more solid now, at least. Fingers crossed!
