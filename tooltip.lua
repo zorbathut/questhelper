@@ -78,21 +78,23 @@ local deference_default = {}  -- this is just a unique value that we can use to 
 -- tooltips is the same slay/objective pair in the above thing
 function QH_Tooltip_Defer_Add(questname, objective, tooltips)
   --print("defer add", questname, objective)
+  local objo = objective
   if not objective then objective = deference_default end
   
   if not deferences[questname] then deferences[questname] = {} end
-  QuestHelper: Assert(not deferences[questname][objective], string.format("%s %s", tostring(questname), tostring(objective)))
+  QuestHelper: Assert(not deferences[questname][objective], string.format("%s %s %s", tostring(questname), tostring(objective), tostring(objo)))
   deferences[questname][objective] = tooltips
   if not deferences[questname][objective] then deferences[questname] = true end
   
   --print("adding", questname, objective)
 end
 function QH_Tooltip_Defer_Remove(questname, objective)
+  local objo = objective
   if not objective then objective = deference_default end
   
   --print("remove", questname, objective)
   --print("removing", questname, objective, deferences[questname][objective])
-  QuestHelper: Assert(deferences[questname][objective], string.format("%s %s", tostring(questname), tostring(objective)))
+  QuestHelper: Assert(deferences[questname][objective], string.format("%s %s %s", tostring(questname), tostring(objective), tostring(objo)))
   deferences[questname][objective] = nil
   
   local cleanup = true

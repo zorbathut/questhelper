@@ -381,6 +381,7 @@ local function SetTooltip(item, typ)
     QuestHelper: Assert(item.tooltip_canned)
     QH_Tooltip_Canned_Add(item.tooltip_canned)
   elseif typ == "defer" then
+    QuestHelper: Assert(not not item.tooltip_defer_questobjective == not item.type_quest_finish)  -- hmmm
     --print("add", item.tooltip_defer_questname, item.tooltip_defer_questobjective)
     QuestHelper: Assert(item.tooltip_defer_questname)
     QH_Tooltip_Defer_Add(item.tooltip_defer_questname, item.tooltip_defer_questobjective, {{}, item})
@@ -694,10 +695,9 @@ function QH_UpdateQuests(force)
             end
             db[i].temp_person = player
             
-            if db[i].temp_desc ~= db[i].tooltip_defer_questobjective then
-              db[i].tooltip_defer_questname = title
-              db[i].tooltip_defer_questobjective = db[i].temp_desc -- yoink
-            end
+            db[i].tooltip_defer_questname = title
+            db[i].tooltip_defer_questobjective = db[i].temp_desc -- yoink
+            QuestHelper: Assert(db[i].tooltip_defer_questobjective)  -- hmmm
             
             chunk = chunk .. ":" .. Serialize(db[i].temp_desc, db[i].temp_typ, db[i].temp_done)
           end
