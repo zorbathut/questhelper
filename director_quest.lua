@@ -363,6 +363,7 @@ local function SetTooltip(item, typ)
     QH_Tooltip_Canned_Remove(item.tooltip_canned)
   elseif TooltipType[item] == "defer" then
     QuestHelper: Assert(item.tooltip_defer_questname_last)
+    print("remove", item.tooltip_defer_questname_last, item.tooltip_defer_questobjective_last, item.tooltip_defer_questobjective)
     if item.tooltip_defer_questobjective_last then
       QH_Tooltip_Defer_Remove(item.tooltip_defer_questname_last, item.tooltip_defer_questobjective_last)
     else
@@ -373,19 +374,22 @@ local function SetTooltip(item, typ)
     QuestHelper: Assert(false)
   end
   
+  item.tooltip_defer_questobjective_last = nil
+  item.tooltip_defer_questname_last = nil  -- if it was anything, it is not now
+  
   if typ == "canned" then
     QuestHelper: Assert(item.tooltip_canned)
     QH_Tooltip_Canned_Add(item.tooltip_canned)
   elseif typ == "defer" then
+    print("add", item.tooltip_defer_questname, item.tooltip_defer_questobjective)
     QuestHelper: Assert(item.tooltip_defer_questname)
     QH_Tooltip_Defer_Add(item.tooltip_defer_questname, item.tooltip_defer_questobjective, {{}, item})
     item.tooltip_defer_questname_last = item.tooltip_defer_questname
+    item.tooltip_defer_questobjective_last = item.tooltip_defer_questobjective
   elseif typ == nil then
   else
     QuestHelper: Assert(false)
   end
-  
-  item.tooltip_defer_questobjective_last = nil  -- if it was anything, it is not now
   TooltipType[item] = typ
 end
 
@@ -691,8 +695,6 @@ function QH_UpdateQuests(force)
             db[i].temp_person = player
             
             if db[i].temp_desc ~= db[i].tooltip_defer_questobjective then
-              db[i].tooltip_defer_questobjective_last = db[i].tooltip_defer_questobjective
-              
               db[i].tooltip_defer_questname = title
               db[i].tooltip_defer_questobjective = db[i].temp_desc -- yoink
             end
