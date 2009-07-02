@@ -1634,6 +1634,12 @@ if true then
 				xOffset = 9817.150055203074,
 				yOffset = 2924.636381254688,
 			},
+      HrothgarsLanding = {
+        height = 2452.7,
+        width = 2452.7*1.5,
+        xOffset = 23967.599 - 17549.182,
+        yOffset = 1027.392 - 1215.431,
+      }
 		},
 	}
   
@@ -1782,7 +1788,7 @@ for continent, zones in pairs(Astrolabe.ContinentList) do
 	for index, mapName in pairs(zones) do
 		if not ( mapData.zoneData[mapName] ) then
 			--WE HAVE A PROBLEM!!!
-			ChatFrame1:AddMessage("Astrolabe is missing data for "..select(index, GetVirtualMapZones(continent))..".");
+			ChatFrame1:AddMessage("Astrolabe is missing data for "..select(index, GetMapZones(continent))..".");
 			mapData.zoneData[mapName] = zeroData;
 		end
 		mapData[index] = mapData.zoneData[mapName];
