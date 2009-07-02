@@ -260,6 +260,8 @@ QuestHelper_IndexLookup =
   -- yes virginia 152 is currently the end
 }
 
+if not QuestHelper then QuestHelper = {IsWrath32 = function() return true end} end -- narsty hack for my embedding code
+
 -- ughhh
 if QuestHelper:IsWrath32() then
   QuestHelper_Zones[4] = {[0]="Northrend",
