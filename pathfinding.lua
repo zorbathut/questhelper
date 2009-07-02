@@ -247,6 +247,10 @@ local static_zone_transitions =
    {71, 73, 0.920, 0.767}, -- Icecrown <--> Storm Peaks
 }
 
+if QuestHelper:IsWrath32() then
+  table.insert(static_zone_transitions, {153, 71, 0.5, 0.5}) -- Hrothgar's Landing <--> Icecrown
+end
+
 function load_graph_links()
   local function convert_coordinate(coord)
     QuestHelper: Assert(coord[1] and coord[2] and coord[3])
