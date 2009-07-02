@@ -384,7 +384,7 @@ function QuestHelper:IsWrath()
 end
 
 function QuestHelper:IsWrath32()
-  return tonumber(GetBuildInfo():sub(3,3)) >= '2'
+  return tonumber(GetBuildInfo():sub(3,3)) >= 2
 end
 
 function QuestHelper:AppendNotificationError(type, data)
