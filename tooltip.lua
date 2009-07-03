@@ -82,20 +82,36 @@ function QH_Tooltip_Defer_Add(questname, objective, tooltips)
   if not objective then objective = deference_default end
   
   if not deferences[questname] then deferences[questname] = {} end
-  QuestHelper: Assert(not deferences[questname][objective], string.format("%s %s %s", tostring(questname), tostring(objective), tostring(objo)))
-  deferences[questname][objective] = tooltips
-  if not deferences[questname][objective] then deferences[questname] = true end
+  if not deferences[questname][objective] then deferences[questname][objective] = {} end
+  
+  for k, v in pairs(deferences[questname][objective]) do
+    QuestHelper: Assert(v ~= tooltips)
+  end
+  table.insert(deferences[questname][objective], tooltips)
   
   --print("adding", questname, objective)
 end
-function QH_Tooltip_Defer_Remove(questname, objective)
+function QH_Tooltip_Defer_Remove(questname, objective, tooltips)
   local objo = objective
   if not objective then objective = deference_default end
   
   --print("remove", questname, objective)
   --print("removing", questname, objective, deferences[questname][objective])
   QuestHelper: Assert(deferences[questname][objective], string.format("%s %s %s", tostring(questname), tostring(objective), tostring(objo)))
-  deferences[questname][objective] = nil
+  
+  local remmed = false
+  for k, v in pairs(deferences[questname][objective]) do
+    if v == tooltips then
+      table.remove(deferences[questname][objective], k)
+      remmed = true
+      break
+    end
+  end
+  QuestHelper: Assert(remmed)
+  
+  if #deferences[questname][objective] == 0 then
+    deferences[questname][objective] = nil
+  end
   
   local cleanup = true
   for _ in pairs(deferences[questname]) do
@@ -104,6 +120,14 @@ function QH_Tooltip_Defer_Remove(questname, objective)
   
   if cleanup then
     deferences[questname] = nil
+  end
+end
+function QH_Tooltip_Defer_Dump()
+  for k, v in pairs(deferences) do
+    print(k)
+    for t, m in pairs(v) do
+      print("  ", t, #m)
+    end
   end
 end
 
@@ -170,11 +194,14 @@ local function StripBlizzQHTooltipClone(ttp)
       elseif qobj then
         --print(qobj, thistext, qobj[thistext], qobj[deference_default])
         if qobj[thistext] then
+          local ite = qobj[thistext][1]
+          QuestHelper: Assert(ite)
+          
           local ttsplat = thistext:match("(.*): ([0-9]+)/([0-9]+)")
           if ttsplat == ttp:GetUnit() then
             ttsplat = nil
           end
-          DoTooltip(ttp, qobj[thistext][2], qobj[thistext][1], ttsplat and QHFormat("TOOLTIP_SLAY", ttsplat))
+          DoTooltip(ttp, ite[2], ite[1], ttsplat and QHFormat("TOOLTIP_SLAY", ttsplat))
         elseif qobj[deference_default] and not thistext:find(":") then  -- Blizzard cleverly does not suppress tooltips when the user has finished getting certain items, so we do instead
           DoTooltipDefault(ttp, qobj_name, thistext)
         end

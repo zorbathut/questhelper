@@ -365,9 +365,9 @@ local function SetTooltip(item, typ)
     QuestHelper: Assert(item.tooltip_defer_questname_last)
     --print("remove", item.tooltip_defer_questname_last, item.tooltip_defer_questobjective_last, item.tooltip_defer_questobjective)
     if item.tooltip_defer_questobjective_last then
-      QH_Tooltip_Defer_Remove(item.tooltip_defer_questname_last, item.tooltip_defer_questobjective_last)
+      QH_Tooltip_Defer_Remove(item.tooltip_defer_questname_last, item.tooltip_defer_questobjective_last, item.tooltip_defer_token_last)
     else
-      QH_Tooltip_Defer_Remove(item.tooltip_defer_questname_last, item.tooltip_defer_questobjective)
+      QH_Tooltip_Defer_Remove(item.tooltip_defer_questname_last, item.tooltip_defer_questobjective, item.tooltip_defer_token_last)
     end
   elseif TooltipType[item] == nil then
   else
@@ -376,6 +376,7 @@ local function SetTooltip(item, typ)
   
   item.tooltip_defer_questobjective_last = nil
   item.tooltip_defer_questname_last = nil  -- if it was anything, it is not now
+  item.tooltip_defer_token_last = nil
   
   if typ == "canned" then
     QuestHelper: Assert(item.tooltip_canned)
@@ -384,7 +385,8 @@ local function SetTooltip(item, typ)
     QuestHelper: Assert(not not item.tooltip_defer_questobjective == not item.type_quest_finish)  -- hmmm
     --print("add", item.tooltip_defer_questname, item.tooltip_defer_questobjective)
     QuestHelper: Assert(item.tooltip_defer_questname)
-    QH_Tooltip_Defer_Add(item.tooltip_defer_questname, item.tooltip_defer_questobjective, {{}, item})
+    item.tooltip_defer_token_last = {{}, item}
+    QH_Tooltip_Defer_Add(item.tooltip_defer_questname, item.tooltip_defer_questobjective, item.tooltip_defer_token_last)
     item.tooltip_defer_questname_last = item.tooltip_defer_questname
     item.tooltip_defer_questobjective_last = item.tooltip_defer_questobjective
   elseif typ == nil then
@@ -474,6 +476,8 @@ local function EndInsertionPass(id)
   while table.remove(Unknowning) do end
   
   in_pass = nil
+  
+  --QH_Tooltip_Defer_Dump()
 end
 
 function QuestProcessor(user_id, db, title, level, group, variety, groupsize, watched, complete, lbcount, timed)
@@ -690,9 +694,9 @@ function QH_UpdateQuests(force)
           for i = 1, lbcount do
             QuestHelper: Assert(db[i])
             db[i].temp_desc, db[i].temp_typ, db[i].temp_done = GetQuestLogLeaderBoard(i, index)
-            if not db[i].temp_desc or is_uncached(db[i].temp_typ, db[i].temp_desc, db[i].temp_done) then
+            --[[if not db[i].temp_desc or is_uncached(db[i].temp_typ, db[i].temp_desc, db[i].temp_done) then
               db[i].temp_desc = string.format("(missing description %d)", i)
-            end
+            end]]
             db[i].temp_person = player
             
             db[i].tooltip_defer_questname = title
