@@ -1,4 +1,8 @@
 
+== Version 1.0.29 7/3/2009 ==
+
+* Take 2 with the new rare issue bug
+
 == Version 1.0.28 7/2/2009 ==
 
 * Rare issue ain't fixed yet! Added more debugging info, please report any crashes you get with this version.
