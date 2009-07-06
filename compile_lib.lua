@@ -400,6 +400,31 @@ end
 
 --[[
 *****************************************************************
+Solids accumulation
+]]
+
+solid_grid = 16
+
+function solids_accumulate(accu, tpos)
+  if not accu[tpos.c] then accu[tpos.c] = {} end
+  local lex, ley = math.floor(tpos.x / solid_grid), math.floor(tpos.y / solid_grid)
+  if not accu[tpos.c][lex] then accu[tpos.c][lex] = {} end
+  accu[tpos.c][lex][ley] = (accu[tpos.c][lex][ley] or 0) + 1
+end
+function solids_combine(dest, src)
+  for k, v in pairs(src) do
+    if not dest[k] then dest[k] = {} end
+    for x, tv in pairs(v) do
+      if not dest[k][x] then dest[k][x] = {} end
+      for y, ttv in pairs(tv) do
+        dest[k][x][y] = (dest[k][x][y] or 0) + ttv
+      end
+    end
+  end
+end
+  
+--[[
+*****************************************************************
 Position accumulation
 ]]
 
@@ -421,7 +446,7 @@ function position_accumulate(accu, tpos)
   
   assert(tpos.priority)
   
-  if not accu[tpos.priority] then accu[tpos.priority] = {} end
+  if not accu[tpos.priority] then accu[tpos.priority] = {solid = {}} end
   accu = accu[tpos.priority]  -- this is a bit grim
   
   if not accu[tpos.p] then
@@ -449,6 +474,8 @@ function position_accumulate(accu, tpos)
   end
   
   accu.weight = (accu.weight or 0) + 1
+  
+  solids_accumulate(accu.solid, tpos)
 end
 
 function position_has(accu)
@@ -485,7 +512,9 @@ function position_finalize(sacu, mostest)
   
   if #pozes == 0 then return position_finalize(sacu, highest - 1) end
   
-  return weighted_concept_finalize(pozes, 0.8, 10)
+  local rv = weighted_concept_finalize(pozes, 0.8, 10)
+  rv.solid = accu.solid
+  return rv
 end
 
 --[[

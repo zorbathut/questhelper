@@ -7,7 +7,7 @@ local do_compile = true
 local do_questtables = true
 local do_flight = true
 
-local do_compress = true
+local do_compress = false
 local do_serialize = true
 
 local dbg_data = false
@@ -451,7 +451,7 @@ local monster_slurp
 if do_compile and do_questtables then 
   monster_slurp = ChainBlock_Create("monster_slurp", {chainhead},
     function (key) return {
-      accum = {name = {}, loc = {solid = {}}},
+      accum = {name = {}, loc = {}},
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
@@ -1243,16 +1243,18 @@ if flight_data_output then table.insert(sources, flight_data_output) end
 if flight_table_output then table.insert(sources, flight_table_output) end
 if flight_master_name_output then table.insert(sources, flight_master_name_output) end
 
-local function do_loc_choice(file, item, toplevel)
+local function do_loc_choice(file, item, toplevel, solidity)
   local has_linkloc = false
   local count = 0
+  
+  if not solidity then assert(toplevel)  solidity = {} end
   
   do
     local loc_obliterate = {}
     for k, v in ipairs(item) do
       local worked = false
       if file[v.sourcetype] and file[v.sourcetype][v.sourceid] and file[v.sourcetype][v.sourceid]["*/*"] then
-        local valid, tcount = do_loc_choice(file, file[v.sourcetype][v.sourceid]["*/*"])
+        local valid, tcount = do_loc_choice(file, file[v.sourcetype][v.sourceid]["*/*"], false, solidity)
         if valid then
           has_linkloc = true
           worked = true
@@ -1283,6 +1285,7 @@ local function do_loc_choice(file, item, toplevel)
         table.remove(item.loc)
       end
       count = #item.loc
+      solidity = item.loc.solid   -- reset solidity to just the quest objectives
     elseif toplevel and count > 10 then
       item.loc = {} -- we're doing this just so we can say "hey, we don't want to use the original locations"
       count = 0 -- :(
@@ -1295,7 +1298,10 @@ local function do_loc_choice(file, item, toplevel)
     end
   else
     assert(count == 0)
-    if item.loc then count = #item.loc end
+    if item.loc then
+      count = #item.loc
+      solids_combine(solidity, item.loc.solid)
+    end
     
     if dbg_data then
       if #item > 0 then
@@ -1313,7 +1319,7 @@ local function do_loc_choice(file, item, toplevel)
   else
     assert(count == 0)
   end]]
-  return valid, count, reason
+  return valid, count, reason, solidity
 end
 
 local function mark_chains(file, item)
@@ -1353,11 +1359,24 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
     Finish = function(self, Output)
       -- First we go through and check to see who's got actual locations, and cull either location or linkage
       local qct = {}
+      local solidity = {}
+      
       if self.finalfile.quest then for k, v in pairs(self.finalfile.quest) do
+        if not solidity[k] then solidity[k] = {} end
+        
         if v["*/*"] and v["*/*"].criteria then
           for cid, crit in pairs(v["*/*"].criteria) do
-            local _, ct, reason = do_loc_choice(self.finalfile, crit, true)
+            local _, ct, reason, solids = do_loc_choice(self.finalfile, crit, true)
+            assert(not solidity[k][cid])
+            solidity[k][cid] = solids
+            crit.solid = nil
             table.insert(qct, {ct = ct, id = string.format("%d/%d", k, cid), reason = reason})
+          end
+          
+          if v["*/*"].finish and v["*/*"].finish.loc and v["*/*"].finish.loc.solid then
+            assert(not solidity[k].finish)
+            solidity[k].finish = v["*/*"].finish.loc.solid
+            v["*/*"].finish.loc.solid = nil
           end
         end
       end end
@@ -1385,6 +1404,22 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
         v.used = true
       end end
       
+      -- Go through and clear out non-quest solidity
+      if self.finalfile.quest then for k, v in pairs(self.finalfile.quest) do
+        if v["*/*"] and v["*/*"].criteria then
+          for cid, crit in pairs(v["*/*"].criteria) do
+            if crit.loc then
+              crit.loc.solid = nil
+            end
+          end
+        end
+      end end
+      if self.finalfile.monster then for k, v in pairs(self.finalfile.monster) do
+        if v["*/*"] and v["*/*"].loc then
+          v["*/*"].loc.solid = nil
+        end
+      end end
+      
       -- Then we optionally cull and unmark
       for t, d in pairs(self.finalfile) do
         for k, v in pairs(d) do
@@ -1400,6 +1435,10 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
         if not dbg_data then
           self.finalfile[t] = d
         end
+      end
+      
+      for k, v in pairs(solidity) do
+        Output("solid/testing", nil, {id = "solid", key = k, data = v}, "output_direct")
       end
       
       for t, d in pairs(self.finalfile) do
