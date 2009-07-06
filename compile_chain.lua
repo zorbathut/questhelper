@@ -221,7 +221,7 @@ function ChainBlock_Work()
       local fil = gzio.open(prefix .. "/" .. line, "r")
       local str, err = fil:read("*a")
       
-      assert(str, err)
+      assert(str, err, prefix .. "/" .. line)
 
       fil:close()
 
