@@ -434,6 +434,9 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
     end
   end
   
+  local triangle_r, triangle_g, triangle_b = 1.0, 0.3, 0
+  local triangle_opacity = 0.6
+  
   function icon:SetGlow(list)
     local w, h = QuestHelper.map_overlay:GetWidth(), QuestHelper.map_overlay:GetHeight()
     local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
@@ -449,6 +452,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
       end
     end
     
+    local tid = 1
     for obj, _ in pairs(solids) do
       for k, v in pairs(obj) do
         print("  ", k, v)
@@ -463,17 +467,36 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
           for i = 3, #v do
             local tx, ty = convertRawToScreen(v.continent, v[i][1], v[i][2], c, z)
             
-            local tri = CreateTriangle(QuestHelper.map_overlay)
-            --print(x, y, lx, ly, tx, ty)
+            if not self.triangle_list then
+              self.triangle_list = QuestHelper:CreateTable()
+            end
+            local tri = self.triangle_list[tid]
+            if not tri then
+              tri = CreateTriangle(QuestHelper.map_overlay)
+              table.insert(self.triangle_list, tri)
+            end
+            tid = tid + 1
+            
             tri:SetTriangle(x, y, lx, ly, tx, ty)
-            tri:SetVertexColor(1.0, 0.3, 0, 0.6)
+            tri:SetVertexColor(0, 0, 0, 0)
+            tri:Show()
             
             lx, ly = tx, ty
           end
         end
       end
     end
-
+    
+    if self.triangle_list then
+      while #self.triangle_list >= tid do
+        ReleaseTriangle(table.remove(self.triangle_list))
+      end
+      
+      if #self.triangle_list == 0 then
+        QuestHelper:ReleaseTable(self.triangle_list)
+        self.triangle_list = nil
+      end
+    end
   end
   
   icon.show_glow = false
@@ -502,10 +525,10 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
       if self.glow_pct == 0 then
         if self.glow_list then
           while #self.glow_list > 0 do
-            QuestHelper:ReleaseTexture(table.remove(self.glow_list))
+            ReleaseTriangle(table.remove(self.triangle_list))
           end
-          QuestHelper:ReleaseTable(self.glow_list)
-          self.glow_list = nil
+          QuestHelper:ReleaseTable(self.triangle_list)
+          self.triangle_list = nil
         end
         
         QH_Hook(self, "OnUpdate", nil)
@@ -513,32 +536,9 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
       end
     end
     
-    if self.glow_list then
-      -- You know, these numbers are harmonics of pi. Would SETI detected them, or would they just be seen as noise?
-      -- I'd vote for the later.
-      --
-      -- Pi - circumference over diameter - when was the last time you actually cared about diameters in math?
-      -- 
-      -- Pretty much everything in computer geometry depends on the pythagorean theorem, which you can use for
-      -- circles, spheres, and hyper-spheres, if you use radius.
-      -- 
-      -- It's even the basis of special relativity, with time being multiplied by c so that you get a distance
-      -- that you can use with the spatial dimensions. We're all in agreement that space traveling aliens are
-      -- going to know about relativity, right?
-      -- 
-      -- And if you ever do trig, a full circle would be exactly (circumference over radius) radians instead of
-      -- (circumference over diameter)*2 radians.
-      -- 
-      -- Obviously aliens are much more likely to prefer 6.283185307179586... as constant than our pi.
-      --
-      -- Important update: I just noticed that large factorials can be approximated using (2*pi*n)^.5*(n/e)^n
-      -- There's that 2 times pi thing again.
-      local r, g, b = math.sin(self.phase)*0.25+0.75,
-                      math.sin(self.phase+2.094395102393195492308428922186335256131446266250070547316629728)*0.25+0.75,
-                      math.sin(self.phase+4.188790204786390984616857844372670512262892532500141094633259456)*0.25+0.75
-      
-      for i, tex in ipairs(self.glow_list) do
-        tex:SetVertexColor(r, g, b, self.glow_pct*tex.max_alpha)
+    if self.triangle_list then
+      for _, tri in ipairs(self.triangle_list) do
+        tri:SetVertexColor(triangle_r, triangle_g, triangle_b, self.glow_pct*triangle_opacity)
       end
     end
   end
