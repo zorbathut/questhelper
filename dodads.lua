@@ -466,6 +466,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
             local tri = CreateTriangle(QuestHelper.map_overlay)
             --print(x, y, lx, ly, tx, ty)
             tri:SetTriangle(x, y, lx, ly, tx, ty)
+            tri:SetVertexColor(1.0, 0.3, 0, 0.6)
             
             lx, ly = tx, ty
           end
