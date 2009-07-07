@@ -1,6 +1,9 @@
 QuestHelper_File["dodads_triangles.lua"] = "Development Version"
 QuestHelper_Loadtime["dodads_triangles.lua"] = GetTime()
 
+local function print()
+end
+
 function matrix_create()
   return {1, 0, 0, 0, 1, 0, 0, 0, 1}
 end
@@ -29,6 +32,13 @@ function dist(sx, sy, ex, ey)
   return math.sqrt(dx + dy)
 end
 
+local function testrange(...)
+  for k = 1, select("#", ...) do
+    if select(k, ...) < -60000 or select(k, ...) > 60000 then
+      return true
+    end
+  end
+end
 -- thoughts about the transformation
 -- start with a right triangle, define the top as the base (find a base)
 -- rescale Y to get the right height
@@ -55,10 +65,11 @@ for k = 1, 3 do
   table.insert(spots, minbutton)
 end
 
-function CreateTriangle(frame)
+local function MakeTriangle(frame)
   tex = frame:CreateTexture()
-  tex:SetTexture("Interface\\AddOns\\QuestHelper\\nil")
+  tex:SetTexture("Interface\\AddOns\\QuestHelper\\triangle")
   
+  tex.parent_frame = frame
   -- relative to 0,1 coordinates relative to parent
   tex.SetTriangle = function(self, ax, ay, bx, by, cx, cy)
     -- do we need to reverse the triangle?
@@ -131,6 +142,11 @@ function CreateTriangle(frame)
     print("height is", height)
     print("lenab is", lenab)
     
+    if height == 0 then
+      self:SetTexCoord(3, 3, 4, 4)
+      return
+    end
+    
     -- same as matrix_mult(base, 1, (nastything), 0, 1) (I think? maybe not?)
     matrix_mult(base, 1, -((ax - bx) * (cx - bx) + (ay - by) * (cy - by)) / lenab / height, 0, 0, 1, 0)
     --base[2] = base[2] - ((ax - bx) * (cx - bx) + (ay - by) * (cy - by)) / lenab / height * base[5]
@@ -169,19 +185,43 @@ function CreateTriangle(frame)
     URx, URy = ( E + B*F - C*E ) / det, ( -D - A*F + C*D ) / det
     LRx, LRy = ( E - B + B*F - C*E ) / det, ( -D + A -(A*F) + C*D ) / det
     
-    print(det, ULx, ULy, LLx, LLy, URx, URy, LRx, LRy)
+    if testrange(ULx, ULy, LLx, LLy, URx, URy, LRx, LRy) then
+      self:SetTexCoord(3, 3, 4, 4)
+      return
+    end
+    
+    --QuestHelper:TextOut(string.format("%f %f %f %f %f %f %f %f %f", det, ULx, ULy, LLx, LLy, URx, URy, LRx, LRy))
+    --QuestHelper:TextOut(string.format("%f %f %f %f %f %f", A, B, C, D, E, F))
     self:SetTexCoord(ULx, ULy, LLx, LLy, URx, URy, LRx, LRy); -- the sound you hear is vomiting
     
-    spots[1]:Moove(ax, ay)
+    --[[spots[1]:Moove(ax, ay)
     spots[2]:Moove(bx, by)
-    spots[3]:Moove(cx, cy)
+    spots[3]:Moove(cx, cy)]]
   end
   
   return tex
 end
 
+local alloc = {}
+
+function CreateTriangle(frame)
+  if alloc[frame] and #alloc[frame] > 0 then
+    return table.remove(alloc[frame])
+  else
+    return MakeTriangle(frame)
+  end
+end
+
+function ReleaseTriangle(tri)
+  if not alloc[tri.parent_frame] then alloc[tri.parent_frame] = {} end
+  table.insert(alloc[tri.parent_frame], tri)
+  tri:Hide()
+end
+
+--[[
 function testit()
   tritest = CreateTriangle(UIParent)
   tritest:SetTriangle(0.5, 0.6, 0.8, 0.5, 0.7, 0.7)
   tritest:Show()
 end
+]]

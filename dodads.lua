@@ -18,8 +18,9 @@ local function convertLocationToScreen(p, c, z)
   return ox, oy
 end
 
-local function convertNodeToScreen(n, c, z)
-  return QuestHelper.Astrolabe:TranslateWorldMapPosition(n.c, 0, n.x/QuestHelper.continent_scales_x[n.c], n.y/QuestHelper.continent_scales_y[n.c], c, z)
+local function convertRawToScreen(tc, x, y, c, z)
+  local rc, rx, ry = QuestHelper.Astrolabe:FromAbsoluteContinentPosition(tc, x, y)
+  return QuestHelper.Astrolabe:TranslateWorldMapPosition(rc, 0, rx, ry, c, z)
 end
 
 QuestHelper.map_overlay = CreateFrame("FRAME", nil, WorldMapButton)
@@ -437,53 +438,41 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
     local w, h = QuestHelper.map_overlay:GetWidth(), QuestHelper.map_overlay:GetHeight()
     local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
     
-    local nodes = {}
+    local solids = {}
     
+    print("sglow")
     for _, v in ipairs(list) do 
-      if v.cluster then
-        for _, i in ipairs(v.cluster) do
-          nodes[i] = true
-        end
-      else
-        nodes[v] = true
+      print(v.cluster, v.cluster and v.cluster.solid)
+      if v.cluster and v.cluster.solid then
+        print("solidified", #v.cluster.solid)
+        solids[v.cluster.solid] = true
       end
     end
     
-    
-    local out = 1
-    for obj, _ in pairs(nodes) do
-      local x, y = convertLocationToScreen(obj.loc, c, z)
-      if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
-        if not self.glow_list then
-          self.glow_list = QuestHelper:CreateTable()
+    for obj, _ in pairs(solids) do
+      for k, v in pairs(obj) do
+        print("  ", k, v)
+      end
+      print("objcounty", obj, #obj)
+      for _, v in ipairs(obj) do
+        local x, y = convertRawToScreen(v.continent, v[1][1], v[1][2], c, z)
+        print("matchup", c, v.continent, x, y)
+        if x and y then
+          local lx, ly = convertRawToScreen(v.continent, v[2][1], v[2][2], c, z)
+          
+          for i = 3, #v do
+            local tx, ty = convertRawToScreen(v.continent, v[i][1], v[i][2], c, z)
+            
+            local tri = CreateTriangle(QuestHelper.map_overlay)
+            --print(x, y, lx, ly, tx, ty)
+            tri:SetTriangle(x, y, lx, ly, tx, ty)
+            
+            lx, ly = tx, ty
+          end
         end
-        
-        tex = self.glow_list[out]
-        if not tex then
-          tex = QuestHelper:CreateGlowTexture(self)
-          table.insert(self.glow_list, tex)
-        end
-        out = out + 1
-        
-        tex:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", x*w, -y*h)
-        tex:SetVertexColor(1,1,1,0)
-        tex:SetWidth(h / 4) -- we want it to be a circle
-        tex:SetHeight(h / 4)
-        tex:Show()
-        tex.max_alpha = 1
       end
     end
-    
-    if self.glow_list then
-      while #self.glow_list >= out do
-        QuestHelper:ReleaseTexture(table.remove(self.glow_list))
-      end
-      
-      if #self.glow_list == 0 then
-        QuestHelper:ReleaseTable(self.glow_list)
-        self.glow_list = nil
-      end
-    end
+
   end
   
   icon.show_glow = false
