@@ -12,7 +12,7 @@ require("md5")
 function GetTime() return 0 end
 QuestHelper_File = {}
 QuestHelper_Loadtime = {}
-QuestHelper = {Assert = function(...) assert(...) end}
+QuestHelper = {Assert = function(...) assert(...) end, IsWrath32 = function() return true end}
 
 loadfile("../questhelper/collect_upgrade.lua")()
 loadfile("../questhelper/upgrade.lua")()

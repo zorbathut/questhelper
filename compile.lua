@@ -1438,14 +1438,21 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
       end
       
       for k, v in pairs(solidity) do
-        Output("solid/testing", nil, {id = "solid", key = k, data = v}, "output_direct")
+        for sk, tv in pairs(v) do
+          Output(string.format("%d/%s", k, tostring(sk)), nil, tv, "solidity")
+        end
       end
       
       for t, d in pairs(self.finalfile) do
         for k, d2 in pairs(d) do
           for s, d3 in pairs(d2) do
             assert(d3)
-            Output(s, nil, {id = t, key = k, data = d3}, "output_direct")
+            
+            if s == "*/*" and t == "quest" then
+              Output(tostring(k), nil, {core = d3}, "solidity_recombine")
+            else
+              Output(s, nil, {id = t, key = k, data = d3}, "output_direct")
+            end
           end
         end
       end
@@ -1453,11 +1460,365 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
   } end
 )
 
+
+local gausswidth = 6
+local gausscompact = 2
+local gaussu = gausswidth / gausscompact
+local gaussiate = {}
+do
+  for k = 0, gausswidth do
+    gaussiate[k] = (1 / (math.sqrt(2 * 3.14159) * gaussu)) * math.pow(2.71828183, -(k * k) / (2 * math.pow(gaussu, 2)))
+    --print(gaussiate[k])
+  end
+  
+  for k = -#gaussiate, -1 do
+    gaussiate[k] = gaussiate[math.abs(k)]
+  end
+  
+  local gtot = 0
+  for _, v in pairs(gaussiate) do
+    gtot = gtot +v
+  end
+  for k, v in pairs(gaussiate) do
+    gaussiate[k] = gaussiate[k] / gtot
+  end
+end -- normalized! :D (not that it really matters)
+
+-- we blur and swap axes, then swap again on the next call. black magic, etc
+local function doblur(chunk)
+  local targ = {}
+  for x, v in pairs(chunk) do
+    for y, tv in pairs(v) do
+      if not targ[y] then targ[y] = {} end
+      for k = -#gaussiate, #gaussiate do
+        targ[y][x + k] = (targ[y][x + k] or 0) + tv * gaussiate[k]
+      end
+    end
+  end
+  return targ
+end
+
+local function blur(chunk)
+  return doblur(doblur(chunk))
+end
+
+--[[
+*****************************************************************
+Create the solid triangle meshes
+]]
+
+local solidity = ChainBlock_Create("solidity", {file_cull},
+  function (key) return {
+    Data = function(self, key, subkey, value, Output)
+      local qid, crit = key:match("([0-9]+)/(.+)")
+      local fileprefix = key:gsub("/", "_")
+      assert(qid)
+      assert(crit)
+      
+      local returno = {}
+      local omx = {}
+      omx.processed = true
+      for k, v in pairs(value) do
+        omx[k] = blur(v)
+        
+        local mox = omx[k]
+        local mnx = 1000000
+        local mny = 1000000
+        local mxx = -1000000
+        local mxy = -1000000
+        local emphatic = 0
+        
+        for tx, v in pairs(mox) do
+          mnx = math.min(mnx, tx)
+          mxx = math.max(mxx, tx)
+          for ty, tv in pairs(v) do
+            mny = math.min(mny, ty)
+            mxy = math.max(mxy, ty)
+            emphatic = math.max(emphatic, tv)
+          end
+        end
+        
+        local wid = mxx - mnx + 1
+        local hei = mxy - mny + 1
+        
+        local mask = {}
+        
+        local image = Image(wid, hei)
+        for tx, v in pairs(mox) do
+          for ty, tv in pairs(v) do
+            local hard = math.floor((tv / emphatic) * 128 + 0.5)
+            assert(hard >= 0 and hard <= 255)
+            
+            local color
+            if hard > 20 then
+              if not mask[tx] then mask[tx] = {} end
+              mask[tx][ty] = true
+              hard = hard + 127
+            end
+            
+            color = 0x01010101 * hard
+            
+            --print(tx - mnx, ty - mny, wid, hei, color)
+            image:set(tx - mnx, ty - mny, color)
+          end
+        end
+        
+        image:write(string.format("intermed/%s_%s.png", fileprefix, tostring(k)))
+        image = nil
+        
+        -- alright, we process the mask here
+        local function process_item()
+          local x = next(mask)
+          local y = next(mask[x])
+          
+          local mnx = 1000000
+          local mny = 1000000
+          local mxx = -1000000
+          local mxy = -1000000
+          
+          local edges = {}
+          
+          local function recop(x, y)
+            if not mask[x] or not mask[x][y] then
+              if not edges[x] then edges[x] = {} end
+              edges[x][y] = "early"
+              mnx = math.min(mnx, x)
+              mny = math.min(mny, y)
+              mxx = math.max(mxx, x)
+              mxy = math.max(mxy, y)
+            else
+              mask[x][y] = nil
+              if not next(mask[x]) then mask[x] = nil end
+              
+              recop(x + 1, y)
+              recop(x - 1, y)
+              recop(x, y + 1)
+              recop(x, y - 1)
+            end
+          end
+          recop(x, y, edges)
+          
+          mnx = mnx - 1
+          mny = mny - 1
+          mxx = mxx + 1
+          mxy = mxy + 1
+          
+          local stx
+          local sty
+          
+          local function floody(x, y)
+            if x < mnx or x > mxx then return end
+            if y < mny or y > mxy then return end
+            
+            if not edges[x] then edges[x] = {} end
+            
+            if not edges[x][y] then
+              edges[x][y] = "filled"
+              floody(x + 1, y)
+              floody(x - 1, y)
+              floody(x, y + 1)
+              floody(x, y - 1)
+            elseif edges[x][y] == "early" then
+              edges[x][y] = "important"
+              stx, sty = x, y
+            end
+          end
+          floody(mnx, mny)
+          
+          local path = {}
+          
+          local function mpathy(x, y, first)
+            local adjct = 0
+            assert(edges[x][y] == "important")
+            edges[x][y] = "complete"
+            local ax
+            local ay
+            local function ctadj(x, y)
+              if edges[x] and edges[x][y] == "important" then
+                adjct = adjct + 1
+                ax = x
+                ay = y
+              end
+            end
+            
+            ctadj(x + 1, y + 1)
+            ctadj(x + 1, y - 1)
+            ctadj(x - 1, y + 1)
+            ctadj(x - 1, y - 1)
+            ctadj(x + 1, y)
+            ctadj(x - 1, y)
+            ctadj(x, y + 1)
+            ctadj(x, y - 1)
+            
+            if first then
+              assert(adjct == 2)
+              assert(ax)
+              assert(ay)
+            elseif adjct == 1 then
+              assert(ax)
+              assert(ay)
+            elseif adjct == 0 then
+              assert(not ax)
+              assert(not ay)
+            else
+              print(adjct, first)
+              assert()
+            end
+            
+            table.insert(path, {x, y})
+            
+            if ax and ay then mpathy(ax, ay) end
+          end
+          mpathy(stx, sty, true)
+          
+          assert(math.abs(path[1][1] - path[#path][1]) <= 1 and math.abs(path[1][2] - path[#path][2]) <= 1)
+          
+          local st = #path
+          --print("starting with", #path)
+          
+          -- FURTHER BLACK MAGIC
+          local function line_len(a, b)
+            local dx, dy = a[1] - b[1], a[2] - b[2]
+            return math.sqrt(dx * dx + dy * dy)
+          end
+          local function triangle_area(a, b, c)
+            local lenab, lenbc, lenca = line_len(a, b), line_len(b, c), line_len(c, a)
+            local s = (lenab + lenbc + lenca) / 2
+            if s * (s - lenab) * (s - lenbc) * (s - lenca) < 0 then return 0 end -- shouldn't happen, but, y'know, floating-point inaccuracy and all
+            return math.sqrt(s * (s - lenab) * (s - lenbc) * (s - lenca)) -- heron's formula
+          end
+          local function spin(i)
+            if i <= 0 then i = i + #path end
+            if i > #path then i = i - #path end
+            return i
+          end
+          local function evaluate_quality(i, spot)
+            local A, alt, B = spin(i - 1), spin(i + 1), spin(i + 2)
+            assert(path[A])
+            assert(path[i])
+            assert(path[alt])
+            assert(path[B])
+            assert(spot)
+            -- given that we have the path A i alt B
+            -- we will be combining this to A spot B
+            -- the cost is the sum of the triangles "A i spot" and "spot alt B"
+            return triangle_area(path[A], path[i], spot) + triangle_area(spot, path[alt], path[B])
+          end
+          local function get_best_spot(i)
+            local alt = spin(i + 1)
+            
+            local ctx = {(path[i][1] + path[alt][1]) / 2, (path[i][2] + path[alt][2]) / 2}
+            
+            local iv, av, cv = evaluate_quality(i, path[i]), evaluate_quality(i, path[alt]), evaluate_quality(i, ctx)
+            local mn = math.min(iv, av, cv)
+            
+            if mn == iv then return path[i] end
+            if mn == av then return path[alt] end
+            if mn == cv then return ctx end
+            assert(false, iv, av, cv, mn)
+          end
+          local function evaluate_best(i)
+            return evaluate_quality(i, get_best_spot(i))
+          end
+          
+          local costs = {}
+          local bcost = 1000000000
+          local bspot = nil
+          for i = 1, #path do
+            local tcost = evaluate_best(i)
+            if bcost > tcost then bcost = tcost bspot = i end
+            table.insert(costs, tcost)
+          end
+          
+          while bcost < 0.5 and #path > 3 do
+            --print("obliterating")
+            path[bspot] = get_best_spot(bspot)
+            
+            costs[bspot] = evaluate_best(bspot)
+            if bspot == #path then
+              table.remove(path, 1)
+              table.remove(costs, 1)
+            else
+              table.remove(path, bspot + 1)
+              table.remove(costs, bspot + 1)
+            end
+            
+            if bspot == 1 then
+              costs[#path] = evaluate_best(#path)
+            else
+              costs[bspot - 1] = evaluate_best(bspot - 1)
+            end
+            
+            bcost = 1000000000
+            bspot = nil
+            
+            for i = 1, #costs do
+              if costs[i] < bcost then
+                bcost = costs[i]
+                bspot = i
+              end
+            end
+          end
+          
+          print("left with", #path, "from", st)
+          
+          
+          
+          
+          for k, v in pairs(path) do
+            v[1] = v[1] * solid_grid + solid_grid / 2
+            v[2] = v[2] * solid_grid + solid_grid / 2
+          end
+          path.continent = k
+          table.insert(returno, path)
+        end
+        
+        while process_item() do end
+      end
+      
+      Output(tostring(qid), nil, {solid = returno, solid_key = tonumber(crit) or crit}, "solidity_recombine")
+    end,
+  } end,
+  nil, "solidity"
+)
+
+local solidity_recombine = ChainBlock_Create("solidity_recombine", {file_cull, solidity},
+  function (key) return {
+    solid = {},
+    Data = function(self, key, subkey, value, Output)
+      if value.core then
+        assert(not self.core)
+        self.core = value.core
+      end
+      if value.solid then
+        assert(not self.solid[value.solid_key])
+        self.solid[value.solid_key] = value.solid
+      end
+    end,
+    Finish = function(self, Output)
+      assert(self.core)
+      
+      for k, v in pairs(self.solid) do
+        local mpt = self.core.criteria
+        if k == "finish" then
+          mpt = self.core
+        end
+        assert(mpt[k], k, type(k))
+        mpt[k].solid = v
+      end
+      
+      Output("*/*", nil, {id = "quest", key = tonumber(key), data = self.core}, "output_direct")
+    end,
+  } end,
+  nil, "solidity_recombine"
+)
+
 local output_sources = {}
 for _, v in ipairs(sources) do
   table.insert(output_sources, v)
 end
 table.insert(output_sources, file_cull)
+table.insert(output_sources, solidity_recombine)
 
 local function LZW_precompute_table(inputs, tokens)
   -- shared init code

@@ -261,7 +261,7 @@ public:
   
   void set(int x, int y, unsigned int pix) {
     CHECK(x >= 0 && x < wid);
-    CHECK(y >= 0 && y < wid);
+    CHECK(y >= 0 && y < hei);
     data[y * wid + x] = pix;
   }
   
@@ -285,6 +285,42 @@ public:
   
   void clear() {
     fill(data.begin(), data.end(), 0);
+  }
+  
+  void write(const string &fname) {
+    FILE *fp = fopen(fname.c_str(), "wb");
+    CHECK(fp);
+    
+    png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    CHECK(png_ptr);
+    
+    png_infop info_ptr = png_create_info_struct(png_ptr);
+    CHECK(info_ptr);
+    
+    if(setjmp(png_jmpbuf(png_ptr))) {
+      CHECK(0);
+    }
+    
+    png_init_io(png_ptr, fp);
+    
+    //png_set_filter(png_ptr, 0, PNG_ALL_FILTERS);
+    //png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
+    
+    png_set_IHDR(png_ptr, info_ptr, wid, hei, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+    
+    png_write_info(png_ptr, info_ptr);
+    png_set_filler(png_ptr, 255, PNG_FILLER_AFTER);
+    
+    vector<png_bytep> dats;
+    for(int i = 0; i < hei; i++)
+      dats.push_back((png_bytep)&data[i * wid]);
+
+    png_write_rows(png_ptr, &dats[0], hei);
+    
+    png_write_end(png_ptr, info_ptr);
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+    
+    fclose(fp);
   }
 };
 
@@ -397,6 +433,7 @@ extern "C" int init(lua_State* L) {
     def("check_semiass_failure", &check_semiass_failure),
     class_<Image>("Image")
       .def(constructor<int, int>())
+      .def("write", &Image::write)
       .def("set", &Image::set),
     class_<ImageTileWriter>("ImageTileWriter")
       .def(constructor<const string &, int, int, int>())
