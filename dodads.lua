@@ -491,6 +491,8 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
                 x, y = convertRawToScreen(v.continent, adjx + v[lidx], adjy + v[lidx + 1], c, z)
                 lx, ly = convertRawToScreen(v.continent, adjx + v[lidx + 2], adjy + v[lidx + 3], c, z)
                 lidx = lidx + 4
+              elseif v[lidx] == "l" then
+                break
               else
                 QuestHelper: Assert(false)
               end
