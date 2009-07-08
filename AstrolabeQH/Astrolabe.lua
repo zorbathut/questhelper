@@ -348,6 +348,10 @@ function Astrolabe:FromAbsoluteContinentPosition(C, xPos, yPos)
   return C, xPos / WorldMapSize[C].width, yPos / WorldMapSize[C].height
 end
 
+function Astrolabe:GetZoneWidth(c, z)
+  return WorldMapSize[c][z].width
+end
+
 --*****************************************************************************
 -- This function will do its utmost to retrieve some sort of valid position 
 -- for the specified unit, including changing the current map zoom (if needed).  

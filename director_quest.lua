@@ -86,6 +86,8 @@ end
 
 
 local function horribledupe(from)
+  if not from then return nil end
+  
   local rv = {}
   for k, v in pairs(from) do
     if k == "__owner" then
@@ -144,7 +146,6 @@ local function GetQuestMetaobjective(questid, lbcount)
           QuestHelper:TextOut(string.format("Wackyquest %d/%d", questid, i))
         end
         
-        print("adding solid", i, "size is", #q.criteria[i].solid)
         ttx.solid = horribledupe(q.criteria[i].solid)
       end
       
@@ -171,7 +172,6 @@ local function GetQuestMetaobjective(questid, lbcount)
       --QuestHelper:TextOut(string.format("finny %d", q.finish.loc and #q.finish.loc or -1))
       if q and q.finish and q.finish.loc then
         ttx.solid = horribledupe(q.finish.solid)
-        print("adding solid", "finish", "size is", #ttx.solid)
         for m, v in ipairs(q.finish.loc) do
           --print(v.rc, v.rz)
           --print(QuestHelper_IndexLookup[v.rc])

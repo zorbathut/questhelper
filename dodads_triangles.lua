@@ -1,6 +1,8 @@
 QuestHelper_File["dodads_triangles.lua"] = "Development Version"
 QuestHelper_Loadtime["dodads_triangles.lua"] = GetTime()
 
+-- I'm really curious what people might make out of this file. I'm not actually open-sourcing it, but let's say that if you *were* to come up with a neat idea, and wanted to use this code, I would almost certainly be willing to let you use it. Contact me as ZorbaTHut on EFNet/Freenode/Synirc, or zorba-qh-triangles@pavlovian.net email, or ZorbaTHut on AIM.
+
 local function print()
 end
 
@@ -103,6 +105,9 @@ local function MakeTriangle(frame)
     local heiextra = (hei - (ey - sy)) / 2
     
     local base = matrix_create()
+    
+    matrix_mult(base, 1, 0, -1 / 512, 0, 1, -1 / 512)
+    matrix_rescale(base, 512 / 510, 512 / 510)
     
     local lenab = dist(ax, ay, bx, by)
     local lenbc = dist(bx, by, cx, cy)

@@ -332,13 +332,13 @@ function QuestHelper:AppendObjectiveToTooltip(o)
   end
   
   if o.map_desc_chain then
-    self:AppendObjectiveToTooltip(o.map_desc_chain)
+    --self:AppendObjectiveToTooltip(o.map_desc_chain)
   else
-    self:AppendObjectiveProgressToTooltip(o, self.tooltip, QuestHelper.font.sans)
+    --[[self:AppendObjectiveProgressToTooltip(o, self.tooltip, QuestHelper.font.sans)
     
     self.tooltip:AddDoubleLine(QHText("TRAVEL_ESTIMATE"), QHFormat("TRAVEL_ESTIMATE_VALUE", o.distance or 0), unpack(theme.tooltip))
     self.tooltip:GetPrevLines():SetFont(self.font.sans, 11)
-    select(2, self.tooltip:GetPrevLines()):SetFont(self.font.sans, 11)
+    select(2, self.tooltip:GetPrevLines()):SetFont(self.font.sans, 11)]]
   end
 end
 
@@ -388,7 +388,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
         QuestHelper.tooltip:GetPrevLines():SetFont(QuestHelper.font.sans, 8)
       end
       
-      QuestHelper:AppendObjectiveToTooltip(o)
+      --QuestHelper:AppendObjectiveToTooltip(o)
     end
     
     QuestHelper.tooltip:Show()
@@ -440,48 +440,80 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
   function icon:SetGlow(list)
     local w, h = QuestHelper.map_overlay:GetWidth(), QuestHelper.map_overlay:GetHeight()
     local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+    local zw = QuestHelper.Astrolabe:GetZoneWidth(c, z)
     
     local solids = {}
     
-    print("sglow")
+    local gid = 1
     for _, v in ipairs(list) do 
-      print(v.cluster, v.cluster and v.cluster.solid)
+      --print(v.cluster, v.cluster and v.cluster.solid)
       if v.cluster and v.cluster.solid then
-        print("solidified", #v.cluster.solid)
+        --print("solidified", #v.cluster.solid)
         solids[v.cluster.solid] = true
+      else
+        local x, y = convertLocationToScreen(v.loc, c, z)
+        if not self.glow_list then
+          self.glow_list = QuestHelper:CreateTable()
+        end
+        local glo = self.glow_list[gid]
+        if not glo then
+          glo = QuestHelper:CreateGlowTexture(self)
+          self.glow_list[gid] = glo
+        end
+        gid = gid + 1
+        
+        glo:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", x*w, -y*h)
+        glo:SetVertexColor(triangle_r, triangle_g, triangle_b, 1)
+        glo:SetWidth(200 / zw * w)
+        glo:SetHeight(200 / zw * w)
+        glo:Show()
       end
     end
     
     local tid = 1
     for obj, _ in pairs(solids) do
-      for k, v in pairs(obj) do
-        print("  ", k, v)
-      end
-      print("objcounty", obj, #obj)
+      --for k, v in pairs(obj) do
+        --print("  ", k, v)
+      --end
+      --print("objcounty", obj, #obj)
       for _, v in ipairs(obj) do
-        local x, y = convertRawToScreen(v.continent, v[1][1], v[1][2], c, z)
-        print("matchup", c, v.continent, x, y)
+        local adjx, adjy = v[1], v[2]
+        local x, y = convertRawToScreen(v.continent, v[1], v[2], c, z)
+        --print("matchup", c, v.continent, x, y)
         if x and y then
-          local lx, ly = convertRawToScreen(v.continent, v[2][1], v[2][2], c, z)
+          local lx, ly = convertRawToScreen(v.continent, adjx + v[3], adjy + v[4], c, z)
           
-          for i = 3, #v do
-            local tx, ty = convertRawToScreen(v.continent, v[i][1], v[i][2], c, z)
-            
-            if not self.triangle_list then
-              self.triangle_list = QuestHelper:CreateTable()
+          local lidx = 5
+          while lidx <= #v do
+            if type(v[lidx]) == "string" then
+              if v[lidx] == "d" then
+                lidx = lidx + 1
+                x, y = convertRawToScreen(v.continent, adjx + v[lidx], adjy + v[lidx + 1], c, z)
+                lx, ly = convertRawToScreen(v.continent, adjx + v[lidx + 2], adjy + v[lidx + 3], c, z)
+                lidx = lidx + 4
+              else
+                QuestHelper: Assert(false)
+              end
+            else
+              local tx, ty = convertRawToScreen(v.continent, adjx + v[lidx], adjy + v[lidx + 1], c, z)
+              
+              if not self.triangle_list then
+                self.triangle_list = QuestHelper:CreateTable()
+              end
+              local tri = self.triangle_list[tid]
+              if not tri then
+                tri = CreateTriangle(QuestHelper.map_overlay)
+                table.insert(self.triangle_list, tri)
+              end
+              tid = tid + 1
+              
+              tri:SetTriangle(x, y, lx, ly, tx, ty)
+              tri:SetVertexColor(0, 0, 0, 0)
+              tri:Show()
+              
+              lx, ly = tx, ty
+              lidx = lidx + 2
             end
-            local tri = self.triangle_list[tid]
-            if not tri then
-              tri = CreateTriangle(QuestHelper.map_overlay)
-              table.insert(self.triangle_list, tri)
-            end
-            tid = tid + 1
-            
-            tri:SetTriangle(x, y, lx, ly, tx, ty)
-            tri:SetVertexColor(0, 0, 0, 0)
-            tri:Show()
-            
-            lx, ly = tx, ty
           end
         end
       end
@@ -495,6 +527,17 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
       if #self.triangle_list == 0 then
         QuestHelper:ReleaseTable(self.triangle_list)
         self.triangle_list = nil
+      end
+    end
+    
+    if self.glow_list then
+      while #self.glow_list >= gid do
+        QuestHelper:ReleaseTexture(table.remove(self.glow_list))
+      end
+      
+      if #self.glow_list == 0 then
+        QuestHelper:ReleaseTable(self.glow_list)
+        self.glow_list = nil
       end
     end
   end
@@ -523,12 +566,20 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
       self.glow_pct = math.max(0, self.glow_pct-elapsed*0.5)
       
       if self.glow_pct == 0 then
-        if self.glow_list then
-          while #self.glow_list > 0 do
+        if self.triangle_list then
+          while #self.triangle_list > 0 do
             ReleaseTriangle(table.remove(self.triangle_list))
           end
           QuestHelper:ReleaseTable(self.triangle_list)
           self.triangle_list = nil
+        end
+        
+        if self.glow_list then
+          while #self.glow_list > 0 do
+            QuestHelper:ReleaseTexture(table.remove(self.glow_list))
+          end
+          QuestHelper:ReleaseTable(self.glow_list)
+          self.glow_list = nil
         end
         
         QH_Hook(self, "OnUpdate", nil)
@@ -538,6 +589,11 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
     
     if self.triangle_list then
       for _, tri in ipairs(self.triangle_list) do
+        tri:SetVertexColor(triangle_r, triangle_g, triangle_b, self.glow_pct*triangle_opacity)
+      end
+    end
+    if self.glow_list then
+      for _, tri in ipairs(self.glow_list) do
         tri:SetVertexColor(triangle_r, triangle_g, triangle_b, self.glow_pct*triangle_opacity)
       end
     end
@@ -797,7 +853,7 @@ function QuestHelper:CreateMipmapDodad()
         QuestHelper.tooltip:GetPrevLines():SetFont(QuestHelper.font.serif, 14)
       end]]
       
-      QuestHelper:AppendObjectiveToTooltip(self.obj)
+      --QuestHelper:AppendObjectiveToTooltip(self.obj)
       QuestHelper.tooltip:Show()
     end
   end
