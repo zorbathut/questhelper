@@ -1518,6 +1518,8 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
       local returno = {}
       local omx = {}
       omx.processed = true
+      local tsize = 0
+      
       for k, v in pairs(value) do
         omx[k] = blur(v)
         
@@ -1721,10 +1723,17 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
             return evaluate_quality(i, get_best_spot(i))
           end
           
+          -- first we add up the area, before we muck with it
+          for i = 3, #path do
+            tsize = tsize + triangle_area(path[1], path[i - 1], path[i])
+          end
+          
           local costs = {}
           local bcost = 1000000000
           local bspot = nil
+          --print("orig")
           for i = 1, #path do
+            --print("  ", path[i][1], path[i][2])
             local tcost = evaluate_best(i)
             if bcost > tcost then bcost = tcost bspot = i end
             table.insert(costs, tcost)
@@ -1762,19 +1771,159 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
           
           print("left with", #path, "from", st)
           
+          --[[print("Minima")
+          for i = 1, #path do
+            print("  ", path[i][1], path[i][2])
+          end]]
+          
+          -- format:
+          -- all values are relative to the first pair.
+          -- "e" means the next line (the lines from the previous coords to the next coords) is empty.
+          -- "d" means there is a discontinuity - stop drawing triangles and store the next two coordinates as the first two for a new fan.
+          -- as such, you will never see "de", since the previous and next coords are utterly unrelated anyway.
+          -- {1000, 2000, 4, 6, "e", 7, 5, 2, 3, "d", 2, 3, "e", 6, 5}
+          
+          -- process: start with vertex 1 and 2. see if we can grab 3 - if not, rotate the entire thing and try again. if so, dump vertex 2 and keep grabbing future polys in the same matter (todo: how do we detect missing edges?)
           
           
-          
-          for k, v in pairs(path) do
-            v[1] = v[1] * solid_grid + solid_grid / 2
-            v[2] = v[2] * solid_grid + solid_grid / 2
+          local function line_intersect(a, b, c, d)
+            local Ax, Ay = a[1], a[2]
+            local Bx, By = b[1], b[2]
+            local Cx, Cy = c[1], c[2]
+            local Dx, Dy = d[1], d[2]
+            
+            local d = (Bx-Ax)*(Dy-Cy)-(By-Ay)*(Dx-Cx)
+            
+            if d == 0 then return false end
+            
+            local r = ((Ay-Cy)*(Dx-Cx)-(Ax-Cx)*(Dy-Cy)) / d
+            local s = ((Ay-Cy)*(Bx-Ax)-(Ax-Cx)*(By-Ay)) / d
+            
+            if r < 0 or r > 1 then return false end
+            if s < 0 or s > 1 then return false end
+            return true
           end
-          path.continent = k
-          table.insert(returno, path)
+          local function inside_path(ptx)
+            local acu = 0
+            for i = 1, #path do
+              local alt = i + 1
+              if alt > #path then alt = alt - #path end
+              
+              local a = math.atan2(path[i][1] - ptx[1], path[i][2] - ptx[2])
+              local b = math.atan2(path[alt][1] - ptx[1], path[alt][2] - ptx[2])
+              
+              local df = a - b
+              if df < -3.14159265 then
+                df = df + 3.14159265 * 2
+              end
+              if df > 3.14159265 then
+                df = df - 3.14159265 * 2
+              end
+              
+              acu = acu + df
+            end
+            
+            return math.abs(acu) > 1
+          end
+          local function clean()
+            if not inside_path({(path[1][1] + path[2][1] + path[3][1]) / 3, (path[1][2] + path[2][2] + path[3][2]) / 3}) then return false end
+            if #path > 3 and not inside_path({(path[1][1] + path[3][1]) / 2, (path[1][2] + path[3][2]) / 2}) then return false end
+            
+            for i = 4, #path - 1 do
+              if line_intersect(path[i], path[i + 1], path[1], path[3]) then return false end
+            end
+            
+            return true
+          end
+          local function doop(i)
+            if type(i) ~= "table" then return i end
+            
+            local rv = {}
+            for k, v in pairs(i) do
+              rv[k] = v
+            end
+            return rv
+          end
+          
+          local spinning = 0
+          
+          local output = {}
+          while #path > 2 do
+            if clean(path) then
+              table.insert(output, path[1])
+              table.insert(output, path[2])
+              table.insert(output, path[3])
+              --print("Clean triangle - ", path[1][1], path[1][2], path[2][1], path[2][2], path[3][1], path[3][2])
+              table.remove(path, 2)
+              
+              --[[print("After triangle removal")
+              for i = 1, #path do
+                print("  ", path[i][1], path[i][2])
+              end]]
+              
+              while #path > 2 do
+                if clean(path) then
+                  table.insert(output, path[3])
+                  --print("Iterative triangle - ", path[1][1], path[1][2], path[2][1], path[2][2], path[3][1], path[3][2])
+                  --print("Test", line_intersect(path[#path - 1], path[#path], path[1], path[3], true))
+                  table.remove(path, 2)
+                  
+                  --[[
+                  print("After triangle removal")
+                  for i = 1, #path do
+                    print("  ", path[i][1], path[i][2])
+                  end]]
+                  
+                else
+                  break
+                end
+              end
+              
+              if #path > 2 then
+                table.insert(output, "d")
+              end
+              spinning = 0
+            end
+            
+            spinning = spinning + 1
+            table.insert(path, table.remove(path, 1))
+            if spinning > #path then
+              print("Can't seem to tesselate")
+              for i = 1, #path do
+                print("  ", path[i][1], path[i][2])
+              end
+              assert(false)
+            end
+          end
+          
+          for k, v in ipairs(output) do
+            output[k] = doop(v)
+          end
+          
+          for _, v in ipairs(output) do
+            if v == output[1] then continue end
+            if type(v) ~= "table" then continue end
+            v[1] = v[1] - output[1][1]
+            v[2] = v[2] - output[1][2]
+          end
+          
+          local doneoutput = {}
+          for _, v in ipairs(output) do
+            if type(v) == "table" then
+              table.insert(doneoutput, v[1] * solid_grid + solid_grid / 2)
+              table.insert(doneoutput, v[2] * solid_grid + solid_grid / 2)
+            else
+              table.insert(doneoutput, v)
+            end
+          end
+          doneoutput.continent = k
+          table.insert(returno, doneoutput)
         end
         
         while process_item() do end
       end
+      
+      if tsize < 150 then returno = nil end
       
       Output(tostring(qid), nil, {solid = returno, solid_key = tonumber(crit) or crit}, "solidity_recombine")
     end,

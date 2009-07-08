@@ -50,63 +50,50 @@ persistence =
 		["table"] = function (f, item, level)
 				f:write("{\n");
         
-        -- First we test to see if it's a trivial flat layout
-        local isflat = true
-        do
-          local idx = 1
-          for k, v in ipairs(item) do
-            if k ~= idx then isflat = false break end
-            idx = idx + 1
+        local first = true
+        local hit = {}
+        
+        persistence.writeIndent(f, level+1);
+        
+        for k, v in ipairs(item) do
+          hit[k] = true
+          if not first then
+            f:write(", ")
           end
+          
+          persistence.write(f, v, level+1)
+          first = false
         end
         
         local order = {}
         for k, v in pairs(item) do
-          if type(k) ~= "number" or k < 1 or k > #item then isflat = false end
-          table.insert(order, k)
+          if not hit[k] then table.insert(order, k) end
         end
         
-        if #order ~= #item then isflat = false end
+        table.sort(order, function (a, b)
+          if type(a) == type(b) then return a < b end
+          return type(a) < type(b)
+        end)
         
-        if isflat then
-          -- We're flat! Special case.
-          --f:write("--[[isflat]]")
+        for _, v in pairs(order) do
+          if not first then f:write(",\n") end
+          first = false
           persistence.writeIndent(f, level+1);
           
-          for k, v in ipairs(item) do
-            if k ~= 1 then
-              f:write(", ")
-            end
-            
-            persistence.write(f, v, level+1)
+          if type(v) == "string" and v:match("[a-z]+") then
+            f:write(v)
+          else
+            f:write("[");
+            persistence.write(f, v, level+1);
+            f:write("]");
           end
-        else
-          --f:write(string.format("--[[notflat %d/%d]]", #order, #item))
-          table.sort(order, function (a, b)
-            if type(a) == type(b) then return a < b end
-            return type(a) < type(b)
-          end)
+          f:write(" = ");
           
-          local first = true
-          for _, v in pairs(order) do
-            if not first then f:write(",\n") end
-            first = false
-            persistence.writeIndent(f, level+1);
-            
-            if type(v) == "string" and v:match("[a-z]+") then
-              f:write(v)
-            else
-              f:write("[");
-              persistence.write(f, v, level+1);
-              f:write("]");
-            end
-            f:write(" = ");
-            
-            persistence.write(f, item[v], level+1);
-          end
-          f:write("\n")
-          persistence.writeIndent(f, level);
+          persistence.write(f, item[v], level+1);
         end
+        f:write("\n")
+        persistence.writeIndent(f, level);
+        
 				f:write("}");
 			end;
 		["function"] = function (f, item, level)
