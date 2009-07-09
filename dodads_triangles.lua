@@ -1,7 +1,7 @@
 QuestHelper_File["dodads_triangles.lua"] = "Development Version"
 QuestHelper_Loadtime["dodads_triangles.lua"] = GetTime()
 
--- I'm really curious what people might make out of this file. I'm not actually open-sourcing it, but let's say that if you *were* to come up with a neat idea, and wanted to use this code, I would almost certainly be willing to let you use it. Contact me as ZorbaTHut on EFNet/Freenode/Synirc, or zorba-qh-triangles@pavlovian.net email, or ZorbaTHut on AIM.
+-- I'm really curious what people might make out of this file. I'm not actually open-sourcing it yet, but let's say that if you *were* to come up with a neat idea, and wanted to use this code, I would almost certainly be willing to let you use it. Contact me as ZorbaTHut on EFNet/Freenode/Synirc, or zorba-qh-triangles@pavlovian.net email, or ZorbaTHut on AIM.
 
 local function print()
 end
@@ -223,10 +223,126 @@ function ReleaseTriangle(tri)
   tri:Hide()
 end
 
---[[
+
+
+
+
+local function MakeLine(frame)
+  tex = frame:CreateTexture()
+  tex:SetTexture("Interface\\AddOns\\QuestHelper\\line")
+  
+  tex.parent_frame = frame
+  -- relative to 0,1 coordinates relative to parent
+  tex.SetLine = function(self, ax, ay, bx, by)
+    -- do we need to reverse the triangle? NOTE: a lot of this code is unsurprisingly copied from triangle. were you surprised by this?
+    --[[
+    if ax * by - bx * ay + bx * cy - cx * by + cx * ay - cy * ax < 0 then
+      ax, bx = bx, ax
+      ay, by = by, ay
+    end]]
+    
+    print(ax, ay, bx, by)
+    ax, bx = ax * frame:GetWidth(), bx * frame:GetWidth()
+    ay, by = ay * frame:GetHeight(), by * frame:GetHeight()
+    print(ax, ay, bx, by)
+    self:ClearAllPoints()
+    
+    local sx = math.min(ax, bx)
+    local sy = math.min(ay, by)
+    local ex = math.max(ax, bx)
+    local ey = math.max(ay, by)
+    
+    local disty = math.max(ex - sx, ey - sy) / 2 + 20
+    
+    --print("TOPLEFT", frame, "TOPLEFT", math.min(ax, bx, cx) * frame:GetWidth(), math.min(ax, bx, cx) * frame:GetHeight())
+    --print("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -math.max(ax, bx, cx) * frame:GetWidth(), -math.max(ax, bx, cx) * frame:GetHeight())
+    self:SetPoint("TOPLEFT", frame, "TOPLEFT", (sx + ex) / 2 - disty, -(sy + ey) / 2 + disty)
+    self:SetPoint("BOTTOMRIGHT", frame, "TOPLEFT", (sx + ex) / 2 + disty, -(sy + ey) / 2 - disty)
+    
+    local wid = disty * 2
+    local hei = disty * 2
+    
+    local widextra = (wid - (ex - sx)) / 2
+    local heiextra = (hei - (ey - sy)) / 2
+    
+    local base = matrix_create()
+    
+    matrix_mult(base, 1, 0, -1 / 512, 0, 1, 0)
+    matrix_rescale(base, 512 / 510, 1 / disty)
+    
+    local lenny = dist(ax, ay, bx, by)
+    print("lendist", lenny, disty * 2)
+    matrix_rescale(base, lenny / (disty * 2), 1)
+    
+    
+    local angle = atan2(ax - bx, ay - by)
+    matrix_rotate(base, -angle - 90)
+    
+    
+    print("trans", 1, 0, tigo or ((ax - sx + widextra) / wid), 0, 1, togo or ((ay - sy + heiextra) / hei))
+    matrix_mult(base, 1, 0, tigo or ((ax - sx + widextra) / wid), 0, 1, togo or ((ay - sy + heiextra) / hei))
+    matrix_print(base)
+    
+    local A, B, C, D, E, F = base[1], base[2], base[3], base[4], base[5], base[6]
+    
+    local det = A*E - B*D
+    local ULx, ULy, LLx, LLy, URx, URy, LRx, LRy
+    
+    ULx, ULy = ( B*F - C*E ) / det, ( -(A*F) + C*D ) / det
+    LLx, LLy = ( -B + B*F - C*E ) / det, ( A - A*F + C*D ) / det
+    URx, URy = ( E + B*F - C*E ) / det, ( -D - A*F + C*D ) / det
+    LRx, LRy = ( E - B + B*F - C*E ) / det, ( -D + A -(A*F) + C*D ) / det
+    
+    if testrange(ULx, ULy, LLx, LLy, URx, URy, LRx, LRy) then
+      self:SetTexCoord(3, 3, 4, 4)
+      return
+    end
+    
+    --QuestHelper:TextOut(string.format("%f %f %f %f %f %f %f %f %f", det, ULx, ULy, LLx, LLy, URx, URy, LRx, LRy))
+    --QuestHelper:TextOut(string.format("%f %f %f %f %f %f", A, B, C, D, E, F))
+    self:SetTexCoord(ULx, ULy, LLx, LLy, URx, URy, LRx, LRy); -- the sound you hear is vomiting
+    
+    --[[spots[1]:Moove(ax, ay)
+    spots[2]:Moove(bx, by)
+    spots[3]:Moove(cx, cy)]]
+  end
+  
+  return tex
+end
+
+
+
+-- haha
+-- yeeeeaah, I just overrode a local variable with another near-identical local variable
+-- that's gonna bite me someday
+local alloc = {}
+
+-- guess whether I changed this code after copying it
+-- hint:
+-- I didn't change this code after copying it
+-- are you shocked
+-- man, if you've read this far in the QH sourcecode, you sure as hell better not be shocked
+-- 'cause
+-- yeah
+-- that'd be kind of sad.
+function CreateLine(frame)
+  if alloc[frame] and #alloc[frame] > 0 then
+    return table.remove(alloc[frame])
+  else
+    return MakeLine(frame)
+  end
+end
+
+function ReleaseLine(tri)
+  if not alloc[tri.parent_frame] then alloc[tri.parent_frame] = {} end
+  table.insert(alloc[tri.parent_frame], tri)
+  tri:Hide()
+end
+
+-- note: variable name is "tritest". try to guess why
 function testit()
-  tritest = CreateTriangle(UIParent)
-  tritest:SetTriangle(0.5, 0.6, 0.8, 0.5, 0.7, 0.7)
+  if tritest then tritest:Hide() end
+  tritest = CreateLine(UIParent)
+  tritest:SetLine(0.5, 0.6, 0.8, 0.7)
   tritest:Show()
 end
-]]

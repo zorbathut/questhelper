@@ -332,7 +332,7 @@ function QuestHelper:AppendObjectiveToTooltip(o)
   end
   
   if o.map_desc_chain then
-    --self:AppendObjectiveToTooltip(o.map_desc_chain)
+    self:AppendObjectiveToTooltip(o.map_desc_chain)
   else
     --[[self:AppendObjectiveProgressToTooltip(o, self.tooltip, QuestHelper.font.sans)
     
@@ -388,7 +388,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
         QuestHelper.tooltip:GetPrevLines():SetFont(QuestHelper.font.sans, 8)
       end
       
-      --QuestHelper:AppendObjectiveToTooltip(o)
+      QuestHelper:AppendObjectiveToTooltip(o)
     end
     
     QuestHelper.tooltip:Show()
@@ -464,13 +464,32 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
         
         glo:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", x*w, -y*h)
         glo:SetVertexColor(triangle_r, triangle_g, triangle_b, 1)
-        glo:SetWidth(200 / zw * w)
-        glo:SetHeight(200 / zw * w)
+        glo:SetWidth(h / 20)
+        glo:SetHeight(h / 20)
         glo:Show()
       end
     end
     
     local tid = 1
+    local lid = 1
+    
+    
+    local function makeline(ax, ay, bx, by)
+      if not self.line_list then
+        self.line_list = QuestHelper:CreateTable()
+      end
+      local tri = self.line_list[lid]
+      if not tri then
+        tri = CreateLine(QuestHelper.map_overlay)
+        table.insert(self.line_list, tri)
+      end
+      lid = lid + 1
+      
+      tri:SetLine(ax, ay, bx, by)
+      tri:SetVertexColor(0, 0, 0, 0)
+      tri:Show()
+    end
+    
     for obj, _ in pairs(solids) do
       --for k, v in pairs(obj) do
         --print("  ", k, v)
@@ -482,6 +501,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
         --print("matchup", c, v.continent, x, y)
         if x and y then
           local lx, ly = convertRawToScreen(v.continent, adjx + v[3], adjy + v[4], c, z)
+          local linemode = false
           
           local lidx = 5
           while lidx <= #v do
@@ -492,30 +512,47 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
                 lx, ly = convertRawToScreen(v.continent, adjx + v[lidx + 2], adjy + v[lidx + 3], c, z)
                 lidx = lidx + 4
               elseif v[lidx] == "l" then
-                break
+                linemode = true
+                lidx = lidx + 1
+                x, y = convertRawToScreen(v.continent, adjx + v[lidx], adjy + v[lidx + 1], c, z)
+                lx, ly = x, y
+                lidx = lidx + 2
               else
                 QuestHelper: Assert(false)
               end
             else
-              local tx, ty = convertRawToScreen(v.continent, adjx + v[lidx], adjy + v[lidx + 1], c, z)
-              
-              if not self.triangle_list then
-                self.triangle_list = QuestHelper:CreateTable()
+              if not linemode then
+                local tx, ty = convertRawToScreen(v.continent, adjx + v[lidx], adjy + v[lidx + 1], c, z)
+                
+                if not self.triangle_list then
+                  self.triangle_list = QuestHelper:CreateTable()
+                end
+                local tri = self.triangle_list[tid]
+                if not tri then
+                  tri = CreateTriangle(QuestHelper.map_overlay)
+                  table.insert(self.triangle_list, tri)
+                end
+                tid = tid + 1
+                
+                tri:SetTriangle(x, y, lx, ly, tx, ty)
+                tri:SetVertexColor(0, 0, 0, 0)
+                tri:Show()
+                
+                lx, ly = tx, ty
+                lidx = lidx + 2
+              else
+                local tx, ty = convertRawToScreen(v.continent, adjx + v[lidx], adjy + v[lidx + 1], c, z)
+                
+                makeline(x, y, tx, ty)
+                
+                x, y = tx, ty
+                lidx = lidx + 2
               end
-              local tri = self.triangle_list[tid]
-              if not tri then
-                tri = CreateTriangle(QuestHelper.map_overlay)
-                table.insert(self.triangle_list, tri)
-              end
-              tid = tid + 1
-              
-              tri:SetTriangle(x, y, lx, ly, tx, ty)
-              tri:SetVertexColor(0, 0, 0, 0)
-              tri:Show()
-              
-              lx, ly = tx, ty
-              lidx = lidx + 2
             end
+          end
+          
+          if linemode then
+            makeline(x, y, lx, ly)
           end
         end
       end
@@ -540,6 +577,17 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
       if #self.glow_list == 0 then
         QuestHelper:ReleaseTable(self.glow_list)
         self.glow_list = nil
+      end
+    end
+    
+    if self.line_list then
+      while #self.line_list >= lid do
+        ReleaseLine(table.remove(self.line_list))
+      end
+      
+      if #self.line_list == 0 then
+        QuestHelper:ReleaseTable(self.line_list)
+        self.line_list = nil
       end
     end
   end
@@ -584,6 +632,14 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
           self.glow_list = nil
         end
         
+        if self.line_list then
+          while #self.line_list > 0 do
+            ReleaseLine(table.remove(self.line_list))
+          end
+          QuestHelper:ReleaseTable(self.line_list)
+          self.line_list = nil
+        end
+        
         QH_Hook(self, "OnUpdate", nil)
         return
       end
@@ -591,6 +647,11 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
     
     if self.triangle_list then
       for _, tri in ipairs(self.triangle_list) do
+        tri:SetVertexColor(triangle_r, triangle_g, triangle_b, self.glow_pct*triangle_opacity/2)
+      end
+    end
+    if self.line_list then
+      for _, tri in ipairs(self.line_list) do
         tri:SetVertexColor(triangle_r, triangle_g, triangle_b, self.glow_pct*triangle_opacity)
       end
     end
@@ -855,7 +916,7 @@ function QuestHelper:CreateMipmapDodad()
         QuestHelper.tooltip:GetPrevLines():SetFont(QuestHelper.font.serif, 14)
       end]]
       
-      --QuestHelper:AppendObjectiveToTooltip(self.obj)
+      QuestHelper:AppendObjectiveToTooltip(self.obj)
       QuestHelper.tooltip:Show()
     end
   end

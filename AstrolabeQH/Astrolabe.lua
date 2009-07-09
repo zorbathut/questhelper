@@ -349,7 +349,11 @@ function Astrolabe:FromAbsoluteContinentPosition(C, xPos, yPos)
 end
 
 function Astrolabe:GetZoneWidth(c, z)
-  return WorldMapSize[c][z].width
+  if z ~= 0 then
+    return WorldMapSize[c][z].width
+  else
+    return WorldMapSize[c].width
+  end
 end
 
 --*****************************************************************************
