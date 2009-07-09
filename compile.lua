@@ -14,7 +14,7 @@ local dbg_data = false
 
 --local s = 1048
 --local e = 1048
-local e = 100
+--local e = 100
 
 require("compile_lib")
 
@@ -1285,7 +1285,7 @@ local function do_loc_choice(file, item, toplevel, solidity)
         table.remove(item.loc)
       end
       count = #item.loc
-      solidity = item.loc.solid   -- reset solidity to just the quest objectives
+      --solidity = item.loc.solid   -- reset solidity to just the quest objectives
     elseif toplevel and count > 10 then
       item.loc = {} -- we're doing this just so we can say "hey, we don't want to use the original locations"
       count = 0 -- :(
@@ -1552,7 +1552,7 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
             assert(hard >= 0 and hard <= 255)
             
             local color
-            if hard > 20 then
+            if hard > 10 then
               if not mask[tx] then mask[tx] = {} end
               mask[tx][ty] = true
               hard = hard + 127
@@ -1571,6 +1571,7 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
         -- alright, we process the mask here
         local function process_item()
           local x = next(mask)
+          if not x then return false end
           local y = next(mask[x])
           
           local mnx = 1000000
@@ -1771,6 +1772,21 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
           
           print("left with", #path, "from", st)
           
+          local function doop(i)
+            if type(i) ~= "table" then return i end
+            
+            local rv = {}
+            for k, v in pairs(i) do
+              rv[k] = v
+            end
+            return rv
+          end
+          
+          local perimeter = {}
+          for _, v in ipairs(path) do
+            table.insert(perimeter, doop(v))
+          end
+          
           --[[print("Minima")
           for i = 1, #path do
             print("  ", path[i][1], path[i][2])
@@ -1778,10 +1794,10 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
           
           -- format:
           -- all values are relative to the first pair.
-          -- "e" means the next line (the lines from the previous coords to the next coords) is empty.
           -- "d" means there is a discontinuity - stop drawing triangles and store the next two coordinates as the first two for a new fan.
+          -- "l" means each item after that is a line segment, with implicit connection between last and first
           -- as such, you will never see "de", since the previous and next coords are utterly unrelated anyway.
-          -- {1000, 2000, 4, 6, "e", 7, 5, 2, 3, "d", 2, 3, "e", 6, 5}
+          -- {1000, 2000, 4, 6, 7, 5, 2, 3, "d", 2, 3, 6, 5, "l", 4, 6, 7, 5, 2, 3, 6, 5}
           
           -- process: start with vertex 1 and 2. see if we can grab 3 - if not, rotate the entire thing and try again. if so, dump vertex 2 and keep grabbing future polys in the same matter (todo: how do we detect missing edges?)
           
@@ -1835,15 +1851,6 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
             
             return true
           end
-          local function doop(i)
-            if type(i) ~= "table" then return i end
-            
-            local rv = {}
-            for k, v in pairs(i) do
-              rv[k] = v
-            end
-            return rv
-          end
           
           local spinning = 0
           
@@ -1896,6 +1903,11 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
             end
           end
           
+          table.insert(output, "l")
+          for _, v in ipairs(perimeter) do
+            table.insert(output, v)
+          end
+          
           for k, v in ipairs(output) do
             output[k] = doop(v)
           end
@@ -1910,20 +1922,25 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
           local doneoutput = {}
           for _, v in ipairs(output) do
             if type(v) == "table" then
-              table.insert(doneoutput, v[1] * solid_grid + solid_grid / 2)
-              table.insert(doneoutput, v[2] * solid_grid + solid_grid / 2)
+              table.insert(doneoutput, v[1] * solid_grid)
+              table.insert(doneoutput, v[2] * solid_grid)
             else
               table.insert(doneoutput, v)
             end
           end
+          doneoutput[1] = doneoutput[1] + solid_grid / 2
+          doneoutput[2] = doneoutput[2] + solid_grid / 2
           doneoutput.continent = k
           table.insert(returno, doneoutput)
+          
+          return true
         end
         
         while process_item() do end
       end
       
-      if tsize < 150 then returno = nil end
+      print("size:", tsize)
+      if tsize < 180 then returno = nil end
       
       Output(tostring(qid), nil, {solid = returno, solid_key = tonumber(crit) or crit}, "solidity_recombine")
     end,
