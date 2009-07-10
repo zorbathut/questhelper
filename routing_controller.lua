@@ -319,47 +319,68 @@ Route_Core_Init(
     
     local rvv
     
-    if not complete_pass then
-      if not reverse then
-        if not pathcache_active[loc1] then pathcache_active[loc1] = new_pathcache_table() end
-        if not pathcache_inactive[loc1] then pathcache_inactive[loc1] = new_pathcache_table() end
-      else
-        for _, v in ipairs(loctable) do
-          if not pathcache_active[v] then pathcache_active[v] = new_pathcache_table() end
-          if not pathcache_inactive[v] then pathcache_inactive[v] = new_pathcache_table() end
-        end
-      end
-      
-      rvv = QuestHelper:CreateTable("route controller path shunt returnvalue")
-      local rv = QH_Graph_Pathmultifind(loc1.loc, lt, reverse, true)
-      
-      QuestHelper: Assert(#lt == #rv)
-      for k, v in ipairs(lt) do
-        if not rv[k] then
-          QuestHelper:TextOut(QuestHelper:StringizeTable(loc1.loc))
-          QuestHelper:TextOut(QuestHelper:StringizeTable(lt[k]))
-        end
-        QuestHelper: Assert(rv[k], string.format("%d to %d", loc1.loc.p, loctable[k].loc.p))
-        QuestHelper: Assert(rv[k].d)
-        rvv[k] = rv[k].d
-        
-        -- We're only setting the inactive to give the garbage collector potentially a little more to clean up (i.e. the old path.)
-        if not reverse then
-          QuestHelper: Assert(pathcache_active[loc1])
-          QuestHelper: Assert(pathcache_inactive[loc1])
-          pathcache_active[loc1][loctable[k]] = rv[k]
-          pathcache_inactive[loc1][loctable[k]] = rv[k]
-        else
-          pathcache_active[loctable[k]][loc1] = rv[k]
-          pathcache_inactive[loctable[k]][loc1] = rv[k]
-        end
-      end
-      
-      QuestHelper:ReleaseTable(lt)
-      QuestHelper:ReleaseTable(rv)  -- this had better be releasable
+    if not reverse then
+      if not pathcache_active[loc1] then pathcache_active[loc1] = new_pathcache_table() end
+      if not pathcache_inactive[loc1] then pathcache_inactive[loc1] = new_pathcache_table() end
     else
-      rvv = QH_Graph_Pathmultifind(loc1.loc, lt, reverse)
+      for _, v in ipairs(loctable) do
+        if not pathcache_active[v] then pathcache_active[v] = new_pathcache_table() end
+        if not pathcache_inactive[v] then pathcache_inactive[v] = new_pathcache_table() end
+      end
     end
+    
+    rvv = QuestHelper:CreateTable("route controller path shunt returnvalue")
+    local rv = QH_Graph_Pathmultifind(loc1.loc, lt, reverse, true)
+    QuestHelper: Assert(#lt == #rv)
+    
+    -- We want to store the math.max(sqrt(#rv), 10) shortest paths
+    local tostore = complete_pass and math.max(sqrt(#rv), 10) or #rv
+    --print("would store", #rv, "am store", tostore)
+    local linkity = QuestHelper:CreateTable("shortest path summary")
+    for k, v in ipairs(rv) do
+      local tk = QuestHelper:CreateTable("shortest path summary item")
+      tk.k = k
+      tk.v = v
+      table.insert(linkity, tk)
+      
+      rvv[k] = rv[k].d
+    end
+    table.sort(linkity, function(a, b) return a.v.d < b.v.d end)
+    while #linkity > tostore do
+      local rip = table.remove(linkity)
+      QuestHelper:ReleaseTable(rip.v)
+      QuestHelper:ReleaseTable(rip)
+    end
+    
+    for _, it in pairs(linkity) do
+      local k, v = it.k, it.v
+      
+      if not rv[k] then
+        QuestHelper:TextOut(QuestHelper:StringizeTable(loc1.loc))
+        QuestHelper:TextOut(QuestHelper:StringizeTable(lt[k]))
+      end
+      QuestHelper: Assert(rv[k], string.format("%d to %d", loc1.loc.p, loctable[k].loc.p))
+      QuestHelper: Assert(rv[k].d)
+      
+      -- We're only setting the inactive to give the garbage collector potentially a little more to clean up (i.e. the old path.)
+      if not reverse then
+        QuestHelper: Assert(pathcache_active[loc1])
+        QuestHelper: Assert(pathcache_inactive[loc1])
+        pathcache_active[loc1][loctable[k]] = rv[k]
+        pathcache_inactive[loc1][loctable[k]] = rv[k]
+      else
+        pathcache_active[loctable[k]][loc1] = rv[k]
+        pathcache_inactive[loctable[k]][loc1] = rv[k]
+      end
+    end
+    
+    for _, v in ipairs(linkity) do
+      -- we do not release v.v, since that's now stored in our path cache
+      QuestHelper:ReleaseTable(v)
+    end
+    QuestHelper:ReleaseTable(linkity)
+    QuestHelper:ReleaseTable(lt)
+    QuestHelper:ReleaseTable(rv)  -- this had better be releasable
     
     return rvv
   end
