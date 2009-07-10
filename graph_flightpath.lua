@@ -5,6 +5,13 @@ QuestHelper_Loadtime["graph_flightpath.lua"] = GetTime()
 QH_Flight_Distances = {}
 QH_Flight_Destinations = {}
 
+local rlevel = nil
+local cwf = nil
+
+function QH_debug_flightpath()
+  print(rlevel, cwf)
+end
+
 function QH_redo_flightpath()
   QuestHelper: Assert(DB_Ready())
   
@@ -43,6 +50,9 @@ function QH_redo_flightpath()
     if ridingLevel >= 225 and has_cwf then
       QH_Graph_Flyplaneset(4, speed) -- Northrend
     end
+    
+    rlevel = ridingLevel
+    cwf = has_cwf
   end
   
   local flightids = DB_ListItems("flightmasters")
