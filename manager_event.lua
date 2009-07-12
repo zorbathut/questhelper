@@ -107,6 +107,8 @@ local function OnUpdateTrigger(_, ...)
   local tplf = tframe - last_frame
   time_per_frame = math.exp(math.log(time_per_frame) * 0.99 + math.log(tplf + 0.0000000001) * 0.01)
   
+  QuestHelper: Assert(time_per_frame > 0 and time_per_frame < 10000)  -- hmmm
+  
   --[[
   if tls < GetTime() - 1 then
     tls = GetTime()
