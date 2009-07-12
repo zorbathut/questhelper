@@ -854,8 +854,8 @@ function QH_Questcomm_Sync()
     -- we is in a party
     for i = 1, 4 do
       local targ = string.format("party%d", i)
-      local liv = UnitName(targ)
-      if liv and liv ~= UNKNOWNOBJECT and UnitIsConnected(targ) then playerlist[liv] = true end
+      local liv, relm = UnitName(targ)
+      if liv and not relm and liv ~= UNKNOWNOBJECT and UnitIsConnected(targ) then playerlist[liv] = true end
     end
   end
   playerlist[UnitName("player")] = nil
