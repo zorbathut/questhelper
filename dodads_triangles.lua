@@ -36,7 +36,7 @@ end
 
 local function testrange(...)
   for k = 1, select("#", ...) do
-    if select(k, ...) < -60000 or select(k, ...) > 60000 then
+    if not (select(k, ...) > -60000 and select(k, ...) < 60000) then
       return true
     end
   end
@@ -197,6 +197,7 @@ local function MakeTriangle(frame)
     
     --QuestHelper:TextOut(string.format("%f %f %f %f %f %f %f %f %f", det, ULx, ULy, LLx, LLy, URx, URy, LRx, LRy))
     --QuestHelper:TextOut(string.format("%f %f %f %f %f %f", A, B, C, D, E, F))
+    
     self:SetTexCoord(ULx, ULy, LLx, LLy, URx, URy, LRx, LRy); -- the sound you hear is vomiting
     
     --[[spots[1]:Moove(ax, ay)
