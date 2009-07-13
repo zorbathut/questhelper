@@ -23,10 +23,22 @@ local function convertRawToScreen(tc, x, y, c, z)
   return QuestHelper.Astrolabe:TranslateWorldMapPosition(rc, 0, rx, ry, c, z)
 end
 
-QuestHelper.map_overlay = CreateFrame("FRAME", nil, WorldMapButton)
-QuestHelper.map_overlay:SetFrameLevel(WorldMapButton:GetFrameLevel()+1)
+local scrolf = CreateFrame("SCROLLFRAME", nil, WorldMapButton)
+scrolf:SetFrameLevel(WorldMapButton:GetFrameLevel()+1)
+scrolf:SetAllPoints()
+scrolf:SetFrameStrata("FULLSCREEN")
+
+local local_high_parent = CreateFrame("FRAME", nil, scrolf)
+local_high_parent:SetFrameLevel(2)
+local_high_parent:SetAllPoints()
+
+local local_low_parent = CreateFrame("FRAME", nil, scrolf)
+local_low_parent:SetFrameLevel(1)
+local_low_parent:SetAllPoints()
+
+QuestHelper.map_overlay = CreateFrame("FRAME", nil, scrolf)
+scrolf:SetScrollChild(QuestHelper.map_overlay)
 QuestHelper.map_overlay:SetAllPoints()
-QuestHelper.map_overlay:SetFrameStrata("FULLSCREEN")
 
 local function ClampLine(x1, y1, x2, y2)
   if x1 and y1 and x2 and y2 then
@@ -451,13 +463,13 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
   local triangle_r, triangle_g, triangle_b = 1.0, 0.3, 0
   local triangle_opacity = 0.6
   
-  function icon:CreateTriangles(solid, tritarget, tristartat, linetarget, linestartat)
+  function icon:CreateTriangles(solid, tritarget, tristartat, linetarget, linestartat, parent)
     local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
     
     local function makeline(ax, ay, bx, by)
       local tri = linetarget[linestartat]
       if not tri then
-        tri = CreateLine(QuestHelper.map_overlay)
+        tri = CreateLine(parent)
         table.insert(linetarget, tri)
       end
       linestartat = linestartat + 1
@@ -498,7 +510,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
               
               local tri = tritarget[tristartat]
               if not tri then
-                tri = CreateTriangle(QuestHelper.map_overlay)
+                tri = CreateTriangle(parent)
                 table.insert(tritarget, tri)
               end
               tristartat = tristartat + 1
@@ -573,7 +585,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
         self.line_list = QuestHelper:CreateTable()
       end
       
-      tid, lid = self:CreateTriangles(k, self.triangle_list, tid, self.line_list, lid)
+      tid, lid = self:CreateTriangles(k, self.triangle_list, tid, self.line_list, lid, local_low_parent)
     end
     -- call triangle maker here!
     
@@ -628,7 +640,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
         self.local_line_list = QuestHelper:CreateTable()
       end
       
-      tid, lid = self:CreateTriangles(self.objective.cluster.solid, self.local_triangle_list, 1, self.local_line_list, 1)
+      tid, lid = self:CreateTriangles(self.objective.cluster.solid, self.local_triangle_list, 1, self.local_line_list, 1, local_high_parent)
       
       if self.local_triangle_list then
         while #self.local_triangle_list >= tid do
