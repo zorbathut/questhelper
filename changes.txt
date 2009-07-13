@@ -1,4 +1,16 @@
 
+== Version 1.1.0-beta 7/13/2009 ==
+
+* Major new feature: Questhelper will now show graphically on your map where objectives can be accomplished. It displays the next objective in blue, and any objective you mouseover in red.
+
+* Increase the cost of the Dalaran/Violet Stand so it stops recommending it as a precursor to flying (even though it may actually be faster)
+* Add some instrumentation to hopefully help debug Northrend flying mount errors
+* An attempt at a compromise between CPU and memory. Should result in significantly faster routing on startup and not too much more RAM usage
+* Fix issue causing QH to try synchronizing quests with people in battlegrounds
+* Possible detection of whatever is causing people's systems to entirely stop CPU processing
+
+There's a reason this is beta. There's a lot of changes and some of them might be flaky. Please test it and let me know.
+
 == Version 1.0.29 7/3/2009 ==
 
 * Take 2 with the new rare issue bug
