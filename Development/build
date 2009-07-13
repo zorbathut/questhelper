@@ -1,6 +1,6 @@
 #!/usr/bin/env lua
 
-local compile=true
+local compile=false
 local external=true
 local archive_zip=true
 local archive_7z=false
