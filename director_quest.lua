@@ -85,6 +85,22 @@ local function AppendObjlinks(target, source, tooltips, icon, last_name, map_lin
 end
 
 
+local function horribledupe(from)
+  if not from then return nil end
+  
+  local rv = {}
+  for k, v in pairs(from) do
+    if k == "__owner" then
+    elseif type(v) == "table" then
+      rv[k] = horribledupe(v)
+    else
+      rv[k] = v
+    end
+  end
+  return rv
+end
+
+ 
 local quest_list = setmetatable({}, {__mode="k"})
 
 local QuestCriteriaWarningBroadcast
@@ -129,6 +145,8 @@ local function GetQuestMetaobjective(questid, lbcount)
         if debug_output and q.criteria[i].loc and #q.criteria[i] > 0 then
           QuestHelper:TextOut(string.format("Wackyquest %d/%d", questid, i))
         end
+        
+        ttx.solid = horribledupe(q.criteria[i].solid)
       end
       
       if #ttx == 0 then
@@ -152,12 +170,15 @@ local function GetQuestMetaobjective(questid, lbcount)
     do
       local ttx = {type_quest_finish = true}
       --QuestHelper:TextOut(string.format("finny %d", q.finish.loc and #q.finish.loc or -1))
-      if q and q.finish and q.finish.loc then for m, v in ipairs(q.finish.loc) do
-        --print(v.rc, v.rz)
-        --print(QuestHelper_IndexLookup[v.rc])
-        --print(QuestHelper_IndexLookup[v.rc][v.rz])
-        table.insert(ttx, {desc = "Turn in quest", why = ite, loc = {x = v.x, y = v.y, c = QuestHelper_ParentLookup[v.p], p = v.p}, tracker_hidden = true, cluster = ttx, icon_id = 7, type_quest = ite.type_quest})
-      end end
+      if q and q.finish and q.finish.loc then
+        ttx.solid = horribledupe(q.finish.solid)
+        for m, v in ipairs(q.finish.loc) do
+          --print(v.rc, v.rz)
+          --print(QuestHelper_IndexLookup[v.rc])
+          --print(QuestHelper_IndexLookup[v.rc][v.rz])
+          table.insert(ttx, {desc = "Turn in quest", why = ite, loc = {x = v.x, y = v.y, c = QuestHelper_ParentLookup[v.p], p = v.p}, tracker_hidden = true, cluster = ttx, icon_id = 7, type_quest = ite.type_quest})
+        end
+      end
       
       if #ttx == 0 then
         table.insert(ttx, {desc = "Turn in quest", why = ite, loc = {x = 5000, y = 5000, c = 0, p = 2}, tracker_hidden = true, cluster = ttx, icon_id = 7, type_quest = ite.type_quest, type_quest_unknown = true})  -- this is Ashenvale, for no particularly good reason
@@ -833,8 +854,8 @@ function QH_Questcomm_Sync()
     -- we is in a party
     for i = 1, 4 do
       local targ = string.format("party%d", i)
-      local liv = UnitName(targ)
-      if liv and liv ~= UNKNOWNOBJECT and UnitIsConnected(targ) then playerlist[liv] = true end
+      local liv, relm = UnitName(targ)
+      if liv and not relm and liv ~= UNKNOWNOBJECT and UnitIsConnected(targ) then playerlist[liv] = true end
     end
   end
   playerlist[UnitName("player")] = nil

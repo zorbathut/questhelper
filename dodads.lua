@@ -18,14 +18,27 @@ local function convertLocationToScreen(p, c, z)
   return ox, oy
 end
 
-local function convertNodeToScreen(n, c, z)
-  return QuestHelper.Astrolabe:TranslateWorldMapPosition(n.c, 0, n.x/QuestHelper.continent_scales_x[n.c], n.y/QuestHelper.continent_scales_y[n.c], c, z)
+local function convertRawToScreen(tc, x, y, c, z)
+  local rc, rx, ry = QuestHelper.Astrolabe:FromAbsoluteContinentPosition(tc, x, y)
+  return QuestHelper.Astrolabe:TranslateWorldMapPosition(rc, 0, rx, ry, c, z)
 end
 
-QuestHelper.map_overlay = CreateFrame("FRAME", nil, WorldMapButton)
-QuestHelper.map_overlay:SetFrameLevel(WorldMapButton:GetFrameLevel()+1)
+local scrolf = CreateFrame("SCROLLFRAME", nil, WorldMapButton)
+scrolf:SetFrameLevel(WorldMapButton:GetFrameLevel()+1)
+scrolf:SetAllPoints()
+scrolf:SetFrameStrata("FULLSCREEN")
+
+local local_high_parent = CreateFrame("FRAME", nil, scrolf)
+local_high_parent:SetFrameLevel(2)
+local_high_parent:SetAllPoints()
+
+local local_low_parent = CreateFrame("FRAME", nil, scrolf)
+local_low_parent:SetFrameLevel(1)
+local_low_parent:SetAllPoints()
+
+QuestHelper.map_overlay = CreateFrame("FRAME", nil, scrolf)
+scrolf:SetScrollChild(QuestHelper.map_overlay)
 QuestHelper.map_overlay:SetAllPoints()
-QuestHelper.map_overlay:SetFrameStrata("FULLSCREEN")
 
 local function ClampLine(x1, y1, x2, y2)
   if x1 and y1 and x2 and y2 then
@@ -164,6 +177,10 @@ function QuestHelper:CreateWorldMapWalker()
     QuestHelper: Assert(self.frame == QuestHelper, dbgstr)
     QuestHelper: Assert(QuestHelper.Astrolabe, dbgstr)
     
+    if self.next_item then
+      self.next_item:MarkAsNext(false)
+    end
+    
     if self.frame.Astrolabe.WorldMapVisible then
       local points = self.points
       local cur = self.frame.pos
@@ -215,6 +232,10 @@ function QuestHelper:CreateWorldMapWalker()
             self.map_dodads[cur_dodad] = self.frame:CreateWorldMapDodad(self.route[i], i == 2)
           else
             self.map_dodads[cur_dodad]:SetObjective(self.route[i], i == 2)
+          end
+          
+          if cur_dodad == 1 then
+            self.map_dodads[cur_dodad]:MarkAsNext(true)
           end
           cur_dodad = cur_dodad + 1
         end
@@ -333,11 +354,11 @@ function QuestHelper:AppendObjectiveToTooltip(o)
   if o.map_desc_chain then
     self:AppendObjectiveToTooltip(o.map_desc_chain)
   else
-    self:AppendObjectiveProgressToTooltip(o, self.tooltip, QuestHelper.font.sans)
+    --[[self:AppendObjectiveProgressToTooltip(o, self.tooltip, QuestHelper.font.sans)
     
     self.tooltip:AddDoubleLine(QHText("TRAVEL_ESTIMATE"), QHFormat("TRAVEL_ESTIMATE_VALUE", o.distance or 0), unpack(theme.tooltip))
     self.tooltip:GetPrevLines():SetFont(self.font.sans, 11)
-    select(2, self.tooltip:GetPrevLines()):SetFont(self.font.sans, 11)
+    select(2, self.tooltip:GetPrevLines()):SetFont(self.font.sans, 11)]]
   end
 end
 
@@ -393,6 +414,12 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
     QuestHelper.tooltip:Show()
   end
   
+  function icon:MarkAsNext(nxt)
+    self.next = nxt
+    
+    QH_Hook(self, "OnUpdate", self.OnUpdate)
+  end
+  
   function icon:SetObjective(objective, nxt)
     self:SetHeight(20*QuestHelper_Pref.scale)
     self:SetWidth(20*QuestHelper_Pref.scale)
@@ -433,55 +460,165 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
     end
   end
   
-  function icon:SetGlow(list)
-    local w, h = QuestHelper.map_overlay:GetWidth(), QuestHelper.map_overlay:GetHeight()
+  local triangle_r, triangle_g, triangle_b = 1.0, 0.3, 0
+  local triangle_opacity = 0.6
+  
+  function icon:CreateTriangles(solid, tritarget, tristartat, linetarget, linestartat, parent)
     local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
     
-    local nodes = {}
+    local function makeline(ax, ay, bx, by)
+      local tri = linetarget[linestartat]
+      if not tri then
+        tri = CreateLine(parent)
+        table.insert(linetarget, tri)
+      end
+      linestartat = linestartat + 1
+      
+      tri:SetLine(ax, ay, bx, by)
+      tri:SetVertexColor(0, 0, 0, 0)
+      tri:Show()
+    end
     
-    for _, v in ipairs(list) do 
-      if v.cluster then
-        for _, i in ipairs(v.cluster) do
-          nodes[i] = true
+    for _, v in ipairs(solid) do
+      local adjx, adjy = v[1], v[2]
+      local x, y = convertRawToScreen(v.continent, v[1], v[2], c, z)
+      --print("matchup", c, v.continent, x, y)
+      if x and y then
+        local lx, ly = convertRawToScreen(v.continent, adjx + v[3], adjy + v[4], c, z)
+        local linemode = false
+        
+        local lidx = 5
+        while lidx <= #v do
+          if type(v[lidx]) == "string" then
+            if v[lidx] == "d" then
+              lidx = lidx + 1
+              x, y = convertRawToScreen(v.continent, adjx + v[lidx], adjy + v[lidx + 1], c, z)
+              lx, ly = convertRawToScreen(v.continent, adjx + v[lidx + 2], adjy + v[lidx + 3], c, z)
+              lidx = lidx + 4
+            elseif v[lidx] == "l" then
+              linemode = true
+              lidx = lidx + 1
+              x, y = convertRawToScreen(v.continent, adjx + v[lidx], adjy + v[lidx + 1], c, z)
+              lx, ly = x, y
+              lidx = lidx + 2
+            else
+              QuestHelper: Assert(false)
+            end
+          else
+            if not linemode then
+              local tx, ty = convertRawToScreen(v.continent, adjx + v[lidx], adjy + v[lidx + 1], c, z)
+              
+              local tri = tritarget[tristartat]
+              if not tri then
+                tri = CreateTriangle(parent)
+                table.insert(tritarget, tri)
+              end
+              tristartat = tristartat + 1
+              
+              tri:SetTriangle(x, y, lx, ly, tx, ty)
+              tri:SetVertexColor(0, 0, 0, 0)
+              tri:Show()
+              
+              lx, ly = tx, ty
+              lidx = lidx + 2
+            else
+              local tx, ty = convertRawToScreen(v.continent, adjx + v[lidx], adjy + v[lidx + 1], c, z)
+              
+              makeline(x, y, tx, ty)
+              
+              x, y = tx, ty
+              lidx = lidx + 2
+            end
+          end
         end
-      else
-        nodes[v] = true
+        
+        if linemode then
+          makeline(x, y, lx, ly)
+        end
       end
     end
     
+    return tristartat, linestartat
+  end
+  
+  function icon:SetGlow(list)
+    local w, h = QuestHelper.map_overlay:GetWidth(), QuestHelper.map_overlay:GetHeight()
+    local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+    local zw = QuestHelper.Astrolabe:GetZoneWidth(c, z)
     
-    local out = 1
-    for obj, _ in pairs(nodes) do
-      local x, y = convertLocationToScreen(obj.loc, c, z)
-      if x and y and x > 0 and y > 0 and x < 1 and y < 1 then
+    local solids = {}
+    
+    local gid = 1
+    for _, v in ipairs(list) do 
+      --print(v.cluster, v.cluster and v.cluster.solid)
+      if v.cluster and v.cluster.solid then
+        --print("solidified", #v.cluster.solid)
+        solids[v.cluster.solid] = true
+      else
+        local x, y = convertLocationToScreen(v.loc, c, z)
         if not self.glow_list then
           self.glow_list = QuestHelper:CreateTable()
         end
-        
-        tex = self.glow_list[out]
-        if not tex then
-          tex = QuestHelper:CreateGlowTexture(self)
-          table.insert(self.glow_list, tex)
+        local glo = self.glow_list[gid]
+        if not glo then
+          glo = QuestHelper:CreateGlowTexture(self)
+          self.glow_list[gid] = glo
         end
-        out = out + 1
+        gid = gid + 1
         
-        tex:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", x*w, -y*h)
-        tex:SetVertexColor(1,1,1,0)
-        tex:SetWidth(h / 4) -- we want it to be a circle
-        tex:SetHeight(h / 4)
-        tex:Show()
-        tex.max_alpha = 1
+        glo:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", x*w, -y*h)
+        glo:SetVertexColor(triangle_r, triangle_g, triangle_b, 1)
+        glo:SetWidth(h / 20)
+        glo:SetHeight(h / 20)
+        glo:Show()
+      end
+    end
+    
+    local tid = 1
+    local lid = 1
+    
+    for k, _ in pairs(solids) do
+      if not self.triangle_list then
+        self.triangle_list = QuestHelper:CreateTable()
+      end
+      if not self.line_list then
+        self.line_list = QuestHelper:CreateTable()
+      end
+      
+      tid, lid = self:CreateTriangles(k, self.triangle_list, tid, self.line_list, lid, local_low_parent)
+    end
+    -- call triangle maker here!
+    
+    if self.triangle_list then
+      while #self.triangle_list >= tid do
+        ReleaseTriangle(table.remove(self.triangle_list))
+      end
+      
+      if #self.triangle_list == 0 then
+        QuestHelper:ReleaseTable(self.triangle_list)
+        self.triangle_list = nil
       end
     end
     
     if self.glow_list then
-      while #self.glow_list >= out do
+      while #self.glow_list >= gid do
         QuestHelper:ReleaseTexture(table.remove(self.glow_list))
       end
       
       if #self.glow_list == 0 then
         QuestHelper:ReleaseTable(self.glow_list)
         self.glow_list = nil
+      end
+    end
+    
+    if self.line_list then
+      while #self.line_list >= lid do
+        ReleaseLine(table.remove(self.line_list))
+      end
+      
+      if #self.line_list == 0 then
+        QuestHelper:ReleaseTable(self.line_list)
+        self.line_list = nil
       end
     end
   end
@@ -493,6 +630,46 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
   
   function icon:OnUpdate(elapsed)
     self.phase = (self.phase + elapsed)%6.283185307179586476925286766559005768394338798750211641949889185
+    
+    if self.next and self.objective and self.objective.cluster.solid then
+      -- not entirely happy with this being here, but, welp
+      if not self.local_triangle_list then
+        self.local_triangle_list = QuestHelper:CreateTable()
+      end
+      if not self.local_line_list then
+        self.local_line_list = QuestHelper:CreateTable()
+      end
+      
+      tid, lid = self:CreateTriangles(self.objective.cluster.solid, self.local_triangle_list, 1, self.local_line_list, 1, local_high_parent)
+      
+      if self.local_triangle_list then
+        while #self.local_triangle_list >= tid do
+          ReleaseTriangle(table.remove(self.local_triangle_list))
+        end
+      end
+      
+      if self.local_line_list then
+        while #self.local_line_list >= lid do
+          ReleaseLine(table.remove(self.local_line_list))
+        end
+      end
+    else
+      if self.local_triangle_list then
+        while #self.local_triangle_list > 0 do
+          ReleaseTriangle(table.remove(self.local_triangle_list))
+        end
+        QuestHelper:ReleaseTable(self.local_triangle_list)
+        self.local_triangle_list = nil
+      end
+      
+      if self.local_line_list then
+        while #self.local_line_list > 0 do
+          ReleaseLine(table.remove(self.local_line_list))
+        end
+        QuestHelper:ReleaseTable(self.local_line_list)
+        self.local_line_list = nil
+      end
+    end
     
     if self.old_count > 0 then
       local list = QuestHelper:GetOverlapObjectives(self.objective)
@@ -510,6 +687,14 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
       self.glow_pct = math.max(0, self.glow_pct-elapsed*0.5)
       
       if self.glow_pct == 0 then
+        if self.triangle_list then
+          while #self.triangle_list > 0 do
+            ReleaseTriangle(table.remove(self.triangle_list))
+          end
+          QuestHelper:ReleaseTable(self.triangle_list)
+          self.triangle_list = nil
+        end
+        
         if self.glow_list then
           while #self.glow_list > 0 do
             QuestHelper:ReleaseTexture(table.remove(self.glow_list))
@@ -518,37 +703,41 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
           self.glow_list = nil
         end
         
-        QH_Hook(self, "OnUpdate", nil)
-        return
+        if self.line_list then
+          while #self.line_list > 0 do
+            ReleaseLine(table.remove(self.line_list))
+          end
+          QuestHelper:ReleaseTable(self.line_list)
+          self.line_list = nil
+        end
+        
+        if not self.next then QH_Hook(self, "OnUpdate", nil) end
       end
     end
     
+    if self.triangle_list then
+      for _, tri in ipairs(self.triangle_list) do
+        tri:SetVertexColor(triangle_r, triangle_g, triangle_b, self.glow_pct*triangle_opacity/2)
+      end
+    end
+    if self.line_list then
+      for _, tri in ipairs(self.line_list) do
+        tri:SetVertexColor(triangle_r, triangle_g, triangle_b, self.glow_pct*triangle_opacity)
+      end
+    end
     if self.glow_list then
-      -- You know, these numbers are harmonics of pi. Would SETI detected them, or would they just be seen as noise?
-      -- I'd vote for the later.
-      --
-      -- Pi - circumference over diameter - when was the last time you actually cared about diameters in math?
-      -- 
-      -- Pretty much everything in computer geometry depends on the pythagorean theorem, which you can use for
-      -- circles, spheres, and hyper-spheres, if you use radius.
-      -- 
-      -- It's even the basis of special relativity, with time being multiplied by c so that you get a distance
-      -- that you can use with the spatial dimensions. We're all in agreement that space traveling aliens are
-      -- going to know about relativity, right?
-      -- 
-      -- And if you ever do trig, a full circle would be exactly (circumference over radius) radians instead of
-      -- (circumference over diameter)*2 radians.
-      -- 
-      -- Obviously aliens are much more likely to prefer 6.283185307179586... as constant than our pi.
-      --
-      -- Important update: I just noticed that large factorials can be approximated using (2*pi*n)^.5*(n/e)^n
-      -- There's that 2 times pi thing again.
-      local r, g, b = math.sin(self.phase)*0.25+0.75,
-                      math.sin(self.phase+2.094395102393195492308428922186335256131446266250070547316629728)*0.25+0.75,
-                      math.sin(self.phase+4.188790204786390984616857844372670512262892532500141094633259456)*0.25+0.75
-      
-      for i, tex in ipairs(self.glow_list) do
-        tex:SetVertexColor(r, g, b, self.glow_pct*tex.max_alpha)
+      for _, tri in ipairs(self.glow_list) do
+        tri:SetVertexColor(triangle_r, triangle_g, triangle_b, self.glow_pct*triangle_opacity)
+      end
+    end
+    if self.local_triangle_list then
+      for _, tri in ipairs(self.local_triangle_list) do
+        tri:SetVertexColor(triangle_b, triangle_g, triangle_r, triangle_opacity/2)
+      end
+    end
+    if self.local_line_list then
+      for _, tri in ipairs(self.local_line_list) do
+        tri:SetVertexColor(triangle_b, triangle_g, triangle_r, triangle_opacity)
       end
     end
   end

@@ -202,6 +202,7 @@ QH_Event("ADDON_LOADED", function (addonid)
       ["quest.lua"] = true,
       ["utility.lua"] = true,
       ["dodads.lua"] = true,
+      ["dodads_triangles.lua"] = true,
       ["teleport.lua"] = true,
       ["pathfinding.lua"] = true,
       ["routing.lua"] = true,

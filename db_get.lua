@@ -1,6 +1,8 @@
 QuestHelper_File["db_get.lua"] = "Development Version"
 QuestHelper_Loadtime["db_get.lua"] = GetTime()
 
+local dev_mode = (QuestHelper_File["db_get.lua"] == "Development Version")
+
 -- yoink
 --[[
 local QHDB_temp = QHDB
@@ -34,7 +36,7 @@ end
 
 local function mark(tab, tomark)
   for k, v in pairs(tab) do
-    if type(v) == "table" then
+    if k ~= "__owner" and type(v) == "table" then
       mark(v, tomark)
     end
   end
@@ -129,8 +131,6 @@ function DB_GetItem(group, id, silent, register)
       if db[group] then
         if not ite then ite = QuestHelper:CreateTable("db") end
         
-        local srctab
-        
         local dat
         if db[group][id] then
           dat = db[group][id]
@@ -142,6 +142,8 @@ function DB_GetItem(group, id, silent, register)
         end
         
         if dat then
+          local srctab
+          
           if type(dat) == "string" then
             QuestHelper: Assert(db[group].__tokens == nil or type(db[group].__tokens) == "table")
             srctab = loadstring("return {" .. QH_LZW_Decompress_Dicts_Prepared_Arghhacky(dat, db[group].__dictionary, nil, db[group].__tokens) .. "}")()
@@ -161,7 +163,9 @@ function DB_GetItem(group, id, silent, register)
     --print("dbe", ite)
     
     if ite then
+      --print("marking", group, id, silent, register)
       mark(ite, ite)
+      --print("done marking")
       
       DBC_Put(group, id, ite)
       
@@ -182,6 +186,8 @@ function DB_GetItem(group, id, silent, register)
 end
 
 local function incinerate(ite, crunchy)
+  if dev_mode then return end -- wellllp
+  
   if not crunchy[ite] then
     crunchy[ite] = true
     

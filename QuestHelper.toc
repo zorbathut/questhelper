@@ -159,6 +159,9 @@ director_achievement.lua
 # Map and minimap dodads. Old code. Depends on nothing, interfaces with WoW UI.
 dodads.lua
 
+# Wacky arbitrary triangle render code
+dodads_triangles.lua
+
 # New coordinator system. Depends on pretty much everything.
 core.lua
 

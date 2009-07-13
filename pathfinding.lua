@@ -74,8 +74,8 @@ local static_shared_routes =
    
    {{70, 0.235, 0.578}, {68, 0.496, 0.784}, 210}, -- Kamagua <--> Moa'ki
    {{65, 0.789, 0.536}, {68, 0.480, 0.787}, 210}, -- Unu'pe <--> Moa'ki
-   {{67, 0.559, 0.467}, {66, 0.158, 0.428}, 5, true}, -- Dalaran --> Violet Stand
-   {{66, 0.157, 0.425}, {67, 0.559, 0.468}, 5, true}, -- Violent Stand --> Dalaran (slightly different coordinates, may be important once solid walls are in)
+   {{67, 0.559, 0.467}, {66, 0.158, 0.428}, 60, true}, -- Dalaran --> Violet Stand
+   {{66, 0.157, 0.425}, {67, 0.559, 0.468}, 60, true}, -- Violent Stand --> Dalaran (slightly different coordinates, may be important once solid walls are in)
    
    {{34, 0.817, 0.461}, {78, 0.492, 0.312}, 86400}, -- EPL Ebon Hold <--> Scarlet Enclave Ebon Hold. Exists solely to fix some pathing crashes. 24-hour boat ride :D
    
