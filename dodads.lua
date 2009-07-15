@@ -632,27 +632,33 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
     self.phase = (self.phase + elapsed)%6.283185307179586476925286766559005768394338798750211641949889185
     
     if self.next and self.objective and self.objective.cluster.solid then
-      -- not entirely happy with this being here, but, welp
-      if not self.local_triangle_list then
-        self.local_triangle_list = QuestHelper:CreateTable()
-      end
-      if not self.local_line_list then
-        self.local_line_list = QuestHelper:CreateTable()
-      end
       
-      tid, lid = self:CreateTriangles(self.objective.cluster.solid, self.local_triangle_list, 1, self.local_line_list, 1, local_high_parent)
-      
-      if self.local_triangle_list then
-        while #self.local_triangle_list >= tid do
-          ReleaseTriangle(table.remove(self.local_triangle_list))
+      local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+      if self.tri_c ~= c or self.tri_z ~= z then
+        -- not entirely happy with this being here, but, welp
+        if not self.local_triangle_list then
+          self.local_triangle_list = QuestHelper:CreateTable()
+        end
+        if not self.local_line_list then
+          self.local_line_list = QuestHelper:CreateTable()
+        end
+        
+        local tid, lid = self:CreateTriangles(self.objective.cluster.solid, self.local_triangle_list, 1, self.local_line_list, 1, local_high_parent)
+        
+        if self.local_triangle_list then
+          while #self.local_triangle_list >= tid do
+            ReleaseTriangle(table.remove(self.local_triangle_list))
+          end
+        end
+        
+        if self.local_line_list then
+          while #self.local_line_list >= lid do
+            ReleaseLine(table.remove(self.local_line_list))
+          end
         end
       end
       
-      if self.local_line_list then
-        while #self.local_line_list >= lid do
-          ReleaseLine(table.remove(self.local_line_list))
-        end
-      end
+      self.tri_c, self.tri_z = c, z
     else
       if self.local_triangle_list then
         while #self.local_triangle_list > 0 do
@@ -669,6 +675,8 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
         QuestHelper:ReleaseTable(self.local_line_list)
         self.local_line_list = nil
       end
+      
+      self.tri_c, self.tri_z = nil, nil
     end
     
     if self.old_count > 0 then
