@@ -1,4 +1,8 @@
 
+== Version 1.1.1-beta 7/15/2009 ==
+
+* Found and fixed a bug causing excessive RAM and CPU usage after the map was opened. Thanks to all who reported it!
+
 == Version 1.1.0-beta 7/13/2009 ==
 
 * Major new feature: Questhelper will now show graphically on your map where objectives can be accomplished. It displays the next objective in blue, and any objective you mouseover in red.
