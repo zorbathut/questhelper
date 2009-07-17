@@ -3,6 +3,8 @@
 
 * Fixed an conflict causing missing QH tooltips with some UI mods installed
 * Crop the new zone data to the edge of the map properly
+* Update database
+* Update translations
 
 == Version 1.1.1-beta 7/15/2009 ==
 
