@@ -28,14 +28,6 @@ scrolf:SetFrameLevel(WorldMapButton:GetFrameLevel()+1)
 scrolf:SetAllPoints()
 scrolf:SetFrameStrata("FULLSCREEN")
 
-local local_high_parent = CreateFrame("FRAME", nil, scrolf)
-local_high_parent:SetFrameLevel(2)
-local_high_parent:SetAllPoints()
-
-local local_low_parent = CreateFrame("FRAME", nil, scrolf)
-local_low_parent:SetFrameLevel(1)
-local_low_parent:SetAllPoints()
-
 QuestHelper.map_overlay = CreateFrame("FRAME", nil, scrolf)
 scrolf:SetScrollChild(QuestHelper.map_overlay)
 QuestHelper.map_overlay:SetAllPoints()
@@ -585,7 +577,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
         self.line_list = QuestHelper:CreateTable()
       end
       
-      tid, lid = self:CreateTriangles(k, self.triangle_list, tid, self.line_list, lid, local_low_parent)
+      tid, lid = self:CreateTriangles(k, self.triangle_list, tid, self.line_list, lid, QuestHelper.map_overlay)
     end
     -- call triangle maker here!
     
@@ -643,7 +635,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
           self.local_line_list = QuestHelper:CreateTable()
         end
         
-        local tid, lid = self:CreateTriangles(self.objective.cluster.solid, self.local_triangle_list, 1, self.local_line_list, 1, local_high_parent)
+        local tid, lid = self:CreateTriangles(self.objective.cluster.solid, self.local_triangle_list, 1, self.local_line_list, 1, QuestHelper.map_overlay)
         
         if self.local_triangle_list then
           while #self.local_triangle_list >= tid do
