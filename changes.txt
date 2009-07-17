@@ -1,4 +1,9 @@
 
+== Version 1.1.2-rc 7/17/2009 ==
+
+* Fixed an conflict causing missing QH tooltips with some UI mods installed
+* Crop the new zone data to the edge of the map properly
+
 == Version 1.1.1-beta 7/15/2009 ==
 
 * Found and fixed a bug causing excessive RAM and CPU usage after the map was opened. Thanks to all who reported it!
