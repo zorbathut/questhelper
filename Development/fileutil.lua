@@ -96,9 +96,8 @@ end
 FileUtil.fileExists = function(filename)
   local stream = io.open(FileUtil.fileName(filename), "r")
   if stream then
-    local exists = stream:read() ~= nil
     io.close(stream)
-    return exists
+    return true
   end
   return false
 end

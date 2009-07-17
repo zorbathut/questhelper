@@ -1,6 +1,6 @@
 #!/usr/bin/env lua
 
-local compile=true
+local compile=false
 local external=true
 local archive_zip=true
 local archive_7z=false
@@ -641,6 +641,8 @@ if archive_zip or archive_7z then
   FileUtil.copyFile("../MinimapArrow.tga", "QuestHelper")
   FileUtil.copyFile("../arrow_image.blp", "QuestHelper")
   FileUtil.copyFile("../arrow_image_down.blp", "QuestHelper")
+  FileUtil.copyFile("../triangle.tga", "QuestHelper")
+  FileUtil.copyFile("../line.tga", "QuestHelper")
   
   if archive_zip then
     local archive = "../QuestHelper-"..version_string..".zip"
