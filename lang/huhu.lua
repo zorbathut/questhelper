@@ -105,10 +105,12 @@ QuestHelper_Translations.huHU =
   DEPENDS_ON_COUNT = "%1 rejtett objektumtól függ.",
   DEPENDS_ON = "Szűrt objektumoktól függ",
   FILTERED_LEVEL = "Rejtve a szintkülönbség miatt.",
+  FILTERED_GROUP = nil,
   FILTERED_ZONE = "Rejtve, mivel másik területen található.",
   FILTERED_COMPLETE = "Rejtve, mivel kész.",
   FILTERED_BLOCKED = "Rejtve befejezetlen elsődleges feladat miatt.",
   FILTERED_UNWATCHED = "Szűrve, mert nincs benne a Quest Log-odban!",
+  FILTERED_WINTERGRASP = nil,
   FILTERED_USER = "Te rejtetted el ezt a feladatot.",
   FILTERED_UNKNOWN = "Nem tudom, hogyan kell megcsinálni.",
   

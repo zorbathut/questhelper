@@ -105,10 +105,12 @@ QuestHelper_Translations.esMX =
   DEPENDS_ON_COUNT = "Depende de los objetivos ocultos %1.",
   DEPENDS_ON = "Depende de %1.",
   FILTERED_LEVEL = "Filtrado por Nivel.",
+  FILTERED_GROUP = nil,
   FILTERED_ZONE = "Filtrado por zona.",
   FILTERED_COMPLETE = "Filtrado debido a completados.",
   FILTERED_BLOCKED = "Filtrado debido al objetivo anterior incompleto.",
   FILTERED_UNWATCHED = "Filtrado debido a que no se está dando seguimiento en el registro de misiones",
+  FILTERED_WINTERGRASP = nil,
   FILTERED_USER = "Pidió que este objetivo se ocultara.",
   FILTERED_UNKNOWN = "No se cómo completarlo.",
   

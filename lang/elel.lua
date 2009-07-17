@@ -15,7 +15,7 @@ QuestHelper_Translations.elEL =
   NOT_UNZIPPED_CORRECTLY = "Ο Βοηθός Αποστολών δεν εγκαταστάθηκε σωστά. Δοκιμάστε πάλι και κάντε σωστή εξαγωγή με το Zip.",
   PLEASE_DONATE = "%h (ο βοηθός αποστολών επιβιώνει μόνο με δωρεές!).Ότι έχετε ευχαρίστηση θα μας βοηθήσει να λειτουργούμε.Πληκτρολογήστε %h(/qh donate) για περισσότερες πληροφορίες.",
   HOW_TO_CONFIGURE = "Ο βοηθός Αποστολών δεν έχει σελίδα με ρυθμίσης, αλλά μπορεί να ρυθμιστή γράφοντας %h(/qh settings). Για βοήθεια γράψε %h(/qh help).",
-  TIME_TO_UPDATE = "Μπορεί να υπάρχει ένα %h(νέα εκδοση). Οι νέες εκδόσεις συχνά σε βοηθούν σε πιο πολλά quest.",
+  TIME_TO_UPDATE = "Μπορεί να υπάρχει μία %h(νέα εκδοση τού QuestHelper). Οι νέες εκδόσεις συχνά σε βοηθούν σε πιο πολλά quest.",
   
   -- Route related text.
   ROUTES_CHANGED = "Οι διαδρομές πτήσεις έχουν αλλάξει για τον χαρακτήρα σας.",
@@ -27,7 +27,7 @@ QuestHelper_Translations.elEL =
   
   -- Special tracker text
   QH_LOADING = "Φόρτωση Quest Helper (%1%%)...",
-  QH_FLIGHTPATH = nil,
+  QH_FLIGHTPATH = "Υπολόγισμα των σημείων πτήσης",
   QUESTS_HIDDEN_1 = "Οι αποστολές μπορεί να είναι κρυμμένες",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" για να δεις τις κρυφές)",
   
@@ -48,15 +48,15 @@ QuestHelper_Translations.elEL =
   OBJECTIVE_SLAY = "Σκότωσε %h1.",
   OBJECTIVE_LOOT = "Λάφυρα %h1.",
   
-  OBJECTIVE_MONSTER_UNKNOWN = nil,
-  OBJECTIVE_ITEM_UNKNOWN = nil,
+  OBJECTIVE_MONSTER_UNKNOWN = "Άγνωστο τέρας",
+  OBJECTIVE_ITEM_UNKNOWN = "Άγνωστο αντικείμενο",
   
   ZONE_BORDER = "%1/%2 όρια ζώνης",
   
   -- Stuff used in objective menus.
   PRIORITY = "Προτεραιότητα",
   PRIORITY1 = "Υψηλότερη",
-  PRIORITY2 = "Υψυλή",
+  PRIORITY2 = "Υψηλή",
   PRIORITY3 = "Κανονική",
   PRIORITY4 = "Χαμηλή",
   PRIORITY5 = "Χαμηλότερη",
@@ -64,7 +64,7 @@ QuestHelper_Translations.elEL =
   SHARING_ENABLE = "Διαμοίρασε",
   SHARING_DISABLE = "Μην Διανέμεις",
   IGNORE = "Αγνοήστε",
-  IGNORE_LOCATION = nil,
+  IGNORE_LOCATION = "Αγνόησε αυτήν την τοποθεσία",
   
   IGNORED_PRIORITY_TITLE = "Η επιλεγμένη προτεραιότητα θα αγνοηθεί.",
   IGNORED_PRIORITY_FIX = "Εφαρμόστε ίδια προτεραιότητα στους κρυφούς στόχους.",
@@ -102,25 +102,27 @@ QuestHelper_Translations.elEL =
   HIDDEN_TITLE = "Κρυφός Στόχος",
   HIDDEN_NONE = "Δεν υπάρχουν στόχοι που να είναι κρυφοί.",
   DEPENDS_ON_SINGLE = "Εξαρτώμενο από '%1'",
-  DEPENDS_ON_COUNT = "Εξαρτώμενο απο %1 κρυφούς στόχους",
-  DEPENDS_ON = nil,
+  DEPENDS_ON_COUNT = "Εξαρτώμενο απο %1 κρυφούς στόχους.",
+  DEPENDS_ON = "Εξαρτώμενο απο φιλτραρισμένους στόχους.",
   FILTERED_LEVEL = "Φιλτραρίστηκε λόγω επιπέδου.",
+  FILTERED_GROUP = "Φιλτραρισμένο λόγω μεγέθους της ομάδας",
   FILTERED_ZONE = "Φιλτραρίστηκε λόγω ζώνης.",
   FILTERED_COMPLETE = "Φιλτραρίστηκε διότι ολοκληρώθηκε.",
   FILTERED_BLOCKED = "Φιλτραρίστηκε διότι ο πρωτεύων στόχος δεν έχει ολοκληρωθεί",
   FILTERED_UNWATCHED = "Φιλτραρίστηκε διότι δεν ακολουθείται απο το Αρχείο Αποστολών",
+  FILTERED_WINTERGRASP = "Φιλτραρισμένο επειδή είναι PvP αποστολή της Wintergrasp",
   FILTERED_USER = "Ζητήσατε αυτός ο στόχος να είναι κρυφός.",
   FILTERED_UNKNOWN = "Δεν γνωρίζουμε πως να ολοκληρωθεί.",
   
-  HIDDEN_SHOW = "Εμφανησε.",
-  HIDDEN_SHOW_NO = nil,
-  HIDDEN_EXCEPTION = nil,
+  HIDDEN_SHOW = "Εμφανισε.",
+  HIDDEN_SHOW_NO = "Δεν μπορεί να εμφανιστεί.",
+  HIDDEN_EXCEPTION = "Προσθήκη εξαίρεσης",
   DISABLE_FILTER = "Απενεργοποίηση φίλτρου: %1",
   FILTER_DONE = "Ολοκληρώθηκε",
   FILTER_ZONE = "Ζώνη",
   FILTER_LEVEL = "Επίπεδο",
   FILTER_BLOCKED = "Μπλοκαρισμένο",
-  FILTER_WATCHED = nil,
+  FILTER_WATCHED = "Παρακολουθούμενα",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Έχετε %h(νέες πληροφορίες) στο %h1, και %h(ενημερωμένες πληροφορίες) στο %h2.",
@@ -157,7 +159,7 @@ QuestHelper_Translations.elEL =
   TRAVEL_ESTIMATE = "Εκτιμώμενος χρόνος ταξιδίου:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Επισκευθείτε %h1 στην διαδρομή προς:",
-  FLIGHT_POINT = nil,
+  FLIGHT_POINT = "%1 σημείο πτήσης",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "Βοηθός Αποστολών",
@@ -202,33 +204,33 @@ QuestHelper_Translations.elEL =
   
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
   -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
-  TOOLTIP_WATCHED = "Παρακολουθείτε από τον Βοηθό Αποστολής",
+  TOOLTIP_WATCHED = "Παρακολουθείται από τον Βοηθό Αποστολής",
   TOOLTIP_QUEST = "Για την Αποστολή %h1.",
   TOOLTIP_PURCHASE = "Αγόρασε %h1.",
   TOOLTIP_SLAY = "Σκότωσε για το %h1.",
   TOOLTIP_LOOT = "Λάφυρα για τον %h1.",
   
   -- Settings
-  SETTINGS_ARROWLINK_ON = nil,
-  SETTINGS_ARROWLINK_OFF = nil,
-  SETTINGS_ARROWLINK_ARROW = nil,
+  SETTINGS_ARROWLINK_ON = "Θα χρησιμοποιήσουμε %h1 για να δείξουμε τους στόχους.",
+  SETTINGS_ARROWLINK_OFF = "Δεν θα χρησιμοποιήσουμε %h1 για να δείξουμε τους στόχους.",
+  SETTINGS_ARROWLINK_ARROW = "Βέλος του QuestHelper",
   SETTINGS_ARROWLINK_CART = nil,
-  SETTINGS_ARROWLINK_TOMTOM = nil,
+  SETTINGS_ARROWLINK_TOMTOM = "TomTom",
   SETTINGS_PRECACHE_ON = nil,
   SETTINGS_PRECACHE_OFF = nil,
   
-  SETTINGS_MENU_ENABLE = nil,
-  SETTINGS_MENU_DISABLE = nil,
-  SETTINGS_MENU_CARTWP = nil,
-  SETTINGS_MENU_TOMTOM = nil,
+  SETTINGS_MENU_ENABLE = "Ενεργοποίηση",
+  SETTINGS_MENU_DISABLE = "Απενεργοποίηση",
+  SETTINGS_MENU_CARTWP = "%1 Βέλος του Cartographer",
+  SETTINGS_MENU_TOMTOM = "%1 Βέλος του TomTom",
   
-  SETTINGS_MENU_ARROW_LOCK = nil,
-  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
-  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
-  SETTINGS_MENU_ARROW_RESET = nil,
+  SETTINGS_MENU_ARROW_LOCK = "Κλείδωμα",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Μέγεθος Βέλους",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Μέγεθος κειμένου",
+  SETTINGS_MENU_ARROW_RESET = "Επαναφορά",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE_YARDS = nil,
-  DISTANCE_METRES = nil
+  DISTANCE_YARDS = "%h1 γιάρδες",
+  DISTANCE_METRES = "%h1 μέτρα"
  }
 

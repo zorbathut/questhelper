@@ -105,10 +105,12 @@ QuestHelper_Translations.daDK =
   DEPENDS_ON_COUNT = "Afhænger af %1 skjulte mål.",
   DEPENDS_ON = "Afhænger af filtrerede opgaver",
   FILTERED_LEVEL = "Filtreret på grund af level.",
+  FILTERED_GROUP = nil,
   FILTERED_ZONE = "Filtreret på grund af område.",
   FILTERED_COMPLETE = "Filtreret da det er afsluttet.",
   FILTERED_BLOCKED = "Filtreret på grund af forudgående mål der ikke er afsluttet",
   FILTERED_UNWATCHED = "Filtreret da det ikke bliver sporet i quest loggen",
+  FILTERED_WINTERGRASP = nil,
   FILTERED_USER = "Du har anmodet om, at dette mål bliver skjult.",
   FILTERED_UNKNOWN = "Ved ikke hvordan det afsluttes.",
   
@@ -218,7 +220,7 @@ QuestHelper_Translations.daDK =
   SETTINGS_PRECACHE_OFF = "Precache er slået %h.",
   
   SETTINGS_MENU_ENABLE = "Sæt til",
-  SETTINGS_MENU_DISABLE = "Sæt fra",
+  SETTINGS_MENU_DISABLE = "Slå fra",
   SETTINGS_MENU_CARTWP = "%1 Cartographer pil",
   SETTINGS_MENU_TOMTOM = "%1 TomTom pil",
   

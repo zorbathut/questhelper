@@ -105,10 +105,12 @@ QuestHelper_Translations.ruRU =
   DEPENDS_ON_COUNT = "Зависит от %1 скрытых целей.",
   DEPENDS_ON = "Зависит от отфильтрованных целей.",
   FILTERED_LEVEL = "Скрыто в соответствии с фильтром уровня.",
+  FILTERED_GROUP = "Скрыто по причине размера группы.",
   FILTERED_ZONE = "Скрыто в соответствии с фильтром зоны.",
   FILTERED_COMPLETE = "Скрыто по причине завершенности задания.",
   FILTERED_BLOCKED = "Скрыто из-за незавершенной предыдущей цели задания.",
   FILTERED_UNWATCHED = "Скрыто, так как не отслеживается в журнале заданий.",
+  FILTERED_WINTERGRASP = nil,
   FILTERED_USER = "Вы запросили скрыть эту цель.",
   FILTERED_UNKNOWN = "Неизвестно как завершить задание.",
   

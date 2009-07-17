@@ -105,10 +105,12 @@ QuestHelper_Translations.koKR =
   DEPENDS_ON_COUNT = "%1은 감춘 목적에 의존함.",
   DEPENDS_ON = "분류된 목적에 의존함.",
   FILTERED_LEVEL = "레벨에 따라 분류됨.",
+  FILTERED_GROUP = "그룹 크기에 따라 분류됨.",
   FILTERED_ZONE = "지역에 따라 분류됨.",
   FILTERED_COMPLETE = "완성도에 따라 분류됨.",
   FILTERED_BLOCKED = "이전 퀘스트를 달성하지 못해 분류됨.",
   FILTERED_UNWATCHED = "퀘스트 목록에 추적되지 않아 분류됨.",
+  FILTERED_WINTERGRASP = "겨울손아귀 PvP 퀘스트에 의해 분류됨.",
   FILTERED_USER = "당신의 요청에 의해 이 퀘스트는 감춰짐.",
   FILTERED_UNKNOWN = "완료 방법을 알 수 없음.",
   

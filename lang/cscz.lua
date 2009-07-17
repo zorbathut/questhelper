@@ -105,10 +105,12 @@ QuestHelper_Translations.csCZ =
   DEPENDS_ON_COUNT = "Zavisí na %1 skrytých úkolech",
   DEPENDS_ON = "Závisí na filtrovaných úkolech",
   FILTERED_LEVEL = "Filtrováno kvůli levelu",
+  FILTERED_GROUP = "Filtrováno kvůli velikosti party",
   FILTERED_ZONE = "Filtrováno kvůli zóně",
   FILTERED_COMPLETE = "Filtrováno kvůli úplnosti",
   FILTERED_BLOCKED = "Filtrováno kvůli nekompletnímu předešlému úkolu",
   FILTERED_UNWATCHED = "Filtrováno protože není sledováno v Quest Logu",
+  FILTERED_WINTERGRASP = "Filtrováno kvůli PvP Wintergrasp questu",
   FILTERED_USER = "Úkol skryt protože to chcete",
   FILTERED_UNKNOWN = "Nevím co je potřeba k dokončení.",
   
