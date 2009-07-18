@@ -324,24 +324,25 @@ end
 local day = 24 * 60 * 60
 
 function QHNagInit()
-  if not QuestHelper_Pref.nag_next_time then
-    QuestHelper_Pref.nag_next_time = time() + 7 * day + 14 * day * math.random()  -- at least a week, at most 3 weeks
-    QuestHelper_Pref.nag_type = "OFF"
+  if not QuestHelper_Pref.submit_nag_next_time then
+    QuestHelper_Pref.submit_nag_next_time = time() + 7 * day + 7 * day * math.random()  -- at least a week, at most 2 weeks
+    QuestHelper_Pref.submit_nag_type = "OFF"
   end
   
-  if QuestHelper_Pref.nag_next_time < time() then
-    if QuestHelper_Pref.nag_type == "OFF" then
+  if QuestHelper_Pref.submit_nag_next_time < time() then
+    if QuestHelper_Pref.submit_nag_type == "OFF" then
       -- we now begin nagging for 48 hours
-      QuestHelper_Pref.nag_next_time = time() + 2 * day
-      QuestHelper_Pref.nag_type = "ON"
+      QuestHelper_Pref.submit_nag_next_time = time() + 2 * day
+      QuestHelper_Pref.submit_nag_type = "ON"
     else
       -- we now stop nagging for 2-3 weeks
-      QuestHelper_Pref.nag_next_time = time() + 14 * day + 7 * day * math.random()
-      QuestHelper_Pref.nag_type = "OFF"
+      QuestHelper_Pref.submit_nag_next_time = time() + 14 * day + 7 * day * math.random()
+      QuestHelper_Pref.submit_nag_type = "OFF"
     end
   end
   
-  return QuestHelper_Pref.nag_type == "ON"
+  if time() > 1248462000 and time() < 1248685200 then return true end -- 7/24/2009 11am PST to 7/27/2009 1am PST
+  return QuestHelper_Pref.submit_nag_type == "ON"
 end
 
 

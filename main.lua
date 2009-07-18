@@ -173,6 +173,11 @@ end
 local interruptcount = 0   -- counts how many "played gained control" messages we recieve, used for flight paths
 local init_cartographer_later = false
 
+
+local startup_time
+local please_submit_enabled = true
+local please_submit_initted = false
+
 QH_Event("ADDON_LOADED", function (addonid)
   if addonid ~= "QuestHelper" then return end
   local self = QuestHelper -- whee hack hack hack
@@ -619,12 +624,17 @@ QH_Event("ADDON_LOADED", function (addonid)
   QH_Event({"ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "ZONE_CHANGED_NEW_AREA"}, function()
     QH_Route_Filter_Rescan()
   end)
-
+  
+  QH_Event("CHAT_MSG_CHANNEL_NOTICE", function()
+    if please_submit_enabled and not please_submit_initted then
+      please_submit_enabled = QHNagInit()
+      startup_time = GetTime()
+      please_submit_initted = true
+    end
+  end)
+  
 end)
 
-local startup_time
-local please_donate_enabled = false
-local please_donate_initted = false
 
 --[==[
 function QuestHelper:OnEvent(event)
@@ -869,13 +879,7 @@ function QuestHelper:OnEvent(event)
     end
   end]]
   
-  if event == "CHAT_MSG_CHANNEL_NOTICE" and please_donate_enabled and not please_donate_initted then
-    please_donate_enabled = QHNagInit()
-    startup_time = GetTime()
-    please_donate_initted = true
-    
-    QHUpdateNagInit()
-  end
+
   
   if event == "ZONE_CHANGED" or event == "ZONE_CHANGED_INDOORS" or event == "ZONE_CHANGED_NEW_AREA" then
     QH_Route_Filter_Rescan()
@@ -914,11 +918,11 @@ If you encounter any issue besides the ones listed here, please please please re
 Thanks for testing!]], "QuestHelper " .. version_string, 500, 20, 10)
   end
   
-  if frams == 250 then please_donate_enabled = false end -- TOOK TOO LONG >:(
-  if please_donate_enabled and startup_time and startup_time + 1 < GetTime() then
-    QuestHelper:TextOut(QHText("PLEASE_DONATE"))
+  --if frams == 5000 then please_submit_enabled = false end -- TOOK TOO LONG >:(
+  if please_submit_enabled and startup_time and startup_time + 10 < GetTime() then
+    QuestHelper:TextOut(QHText("PLEASE_SUBMIT"))
     startup_time = nil
-    please_donate_enabled = false
+    please_submit_enabled = false
   end
   QHUpdateNagTick() -- These probably shouldn't be in OnUpdate. Eventually I'll move them somewhere cleaner.
   
