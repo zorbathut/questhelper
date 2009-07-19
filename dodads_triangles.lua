@@ -27,7 +27,7 @@ function matrix_print(matrix)
   print(string.format("\n%f %f %f\n%f %f %f\n%f %f %f", unpack(matrix)))
 end
 
-function dist(sx, sy, ex, ey)
+local function dist(sx, sy, ex, ey)
   local dx = sx - ex
   local dy = sy - ey
   dx, dy = dx * dx, dy * dy
