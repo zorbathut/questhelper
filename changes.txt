@@ -1,4 +1,10 @@
 
+== Version 1.1.4 7/20/2009 ==
+
+* Hopefully fix an issue with high-FPS systems not providing QH with enough CPU
+* Hopefully fix an issue where the blue zone may persist even after its objective is complete
+* I sound very confident in this patch don't I
+
 == Version 1.1.3 7/19/2009 ==
 
 * Add a new reminder to submit data

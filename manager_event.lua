@@ -105,15 +105,14 @@ local function OnUpdateTrigger(_, ...)
   
   local tframe = GetTime()
   local tplf = tframe - last_frame
-  time_per_frame = math.exp(math.log(time_per_frame) * 0.99 + math.log(tplf + 0.0000000001) * 0.01)
+  time_per_frame = (time_per_frame * (1 / (tplf + 0.0005)) + tplf) / (1 + 1 / (tplf + 0.0005))
   
   QuestHelper: Assert(time_per_frame > 0 and time_per_frame < 10000)  -- hmmm
   
-  --[[
-  if tls < GetTime() - 1 then
+  if qh_hackery_event_timing and tls < GetTime() - 1 then
     tls = GetTime()
-    print(string.format("Avg TPF %f, current TPLF %f, time_used %f, this adjustment %f", time_per_frame, tplf, time_used, time_used - (time_per_frame - tplf)))
-  end]]
+    print(string.format("Avg TPF %f, current TPLF %f, time_used %f, this adjustment %f", time_per_frame, tplf, time_used, time_per_frame - tplf - time_used))
+  end
   if not qh_hackery_no_work then
     QH_Timeslice_Work(time_used, time_per_frame, math.min(math.min(time_per_frame - tplf, (time_per_frame - tplf) * 0.8), 0.05))
   end
