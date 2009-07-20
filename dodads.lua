@@ -173,6 +173,7 @@ function QuestHelper:CreateWorldMapWalker()
     
     if self.next_item then
       self.next_item:MarkAsNext(false)
+      self.next_item = nil
     end
     
     if self.frame.Astrolabe.WorldMapVisible then
@@ -230,6 +231,7 @@ function QuestHelper:CreateWorldMapWalker()
           
           if cur_dodad == 1 then
             self.map_dodads[cur_dodad]:MarkAsNext(true)
+            self.next_item = self.map_dodads[cur_dodad]
           end
           cur_dodad = cur_dodad + 1
         end
@@ -456,6 +458,8 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
     else
       self.objective = nil
       self:Hide()
+      self.next = false
+      self:OnUpdate(0)
     end
   end
   
@@ -718,7 +722,9 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
           self.line_list = nil
         end
         
-        if not self.next then QH_Hook(self, "OnUpdate", nil) end
+        if not self.next then
+          QH_Hook(self, "OnUpdate", nil)
+        end
       end
     end
     
@@ -989,7 +995,7 @@ function QuestHelper:CreateMipmapDodad()
         self.dot:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -2, 2)
       end
       
-      self:OnUpdate()
+      self:OnUpdate(0)
     end
   end
   
