@@ -623,7 +623,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
   function icon:OnUpdate(elapsed)
     self.phase = (self.phase + elapsed)%6.283185307179586476925286766559005768394338798750211641949889185
     
-    if self.next and self.objective and self.objective.cluster.solid then
+    if self.next and self.objective and self.objective.cluster.solid and QuestHelper_Pref.zones == "next" then
       
       local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
       if self.tri_c ~= c or self.tri_z ~= z then

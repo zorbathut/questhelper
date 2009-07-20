@@ -264,6 +264,16 @@ function QuestHelper:ToggleAnts()
   end
 end
 
+function QuestHelper:SetZones()
+  if QuestHelper_Pref.zones == "next" then
+    QuestHelper_Pref.zones = "none"
+    self:TextOut("Next zone display has been |cffff0000disabled|r.")
+  else
+    QuestHelper_Pref.zones = "next"
+    self:TextOut("Next zone display has been |cff00ff00enabled|r.")
+  end
+end
+
 function QuestHelper:LevelOffset(offset)
   local level = tonumber(offset)
   if level then
@@ -794,6 +804,10 @@ commands =
     {"ANTS",
      "Toggles the display of trails on the world map on and off.",
       {}, QuestHelper.ToggleAnts, QuestHelper},
+      
+    {"ZONES",
+      "Changes the display of the quest objective zones on the main map.",
+      {}, QuestHelper.SetZones, QuestHelper},
     
     {"LOCALE",
      "Select the locale to use for displayed messages.",

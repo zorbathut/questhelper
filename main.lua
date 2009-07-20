@@ -25,6 +25,7 @@ QuestHelper_DefaultPref =
   filter_group=true,
   filter_group_param=2,
   filter_wintergrasp=true,
+  zones="next",
   track=true,
   track_minimized=false,
   track_scale=1,
