@@ -93,7 +93,7 @@ if changes_lua then
                  :gsub("^%s*==%s*(.-)%s*==%s*$", "|cffffff00       %1|r\n")
                  :gsub("^%*%*%s", "    • ")
                  :gsub("^%*%s", "• ")
-                 :gsub("<a href=\"http://www.mandible.net\">, "")
+                 :gsub("<a href=\"http://www.mandible.net\">", "")
                  :gsub("</a>", "").."\n"
     end
     
