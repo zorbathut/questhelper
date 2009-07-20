@@ -133,6 +133,15 @@ function QuestHelper:ToggleFlightTimes()
   end
 end
 
+function QuestHelper:ToggleTravelTimes()
+  QuestHelper_Pref.travel_time = not QuestHelper_Pref.travel_time
+  if QuestHelper_Pref.travel_time then
+    self:TextOut("The travel timer has been |cff00ff00enabled|r.")
+  else
+    self:TextOut("The travel timer has been |cffff0000disabled|r.")
+  end
+end
+
 function QuestHelper:ToggleTrack()
   QuestHelper_Pref.track = not QuestHelper_Pref.track
   if QuestHelper_Pref.track then
@@ -800,6 +809,9 @@ commands =
       
     {"FTIME",
      "Toggles display of flight time estimates.", {}, QuestHelper.ToggleFlightTimes, QuestHelper},
+    
+    {"TRAVELTIME",
+     "Toggles display of travel time estimates.", {}, QuestHelper.ToggleTravelTimes, QuestHelper},
     
     {"ANTS",
      "Toggles the display of trails on the world map on and off.",

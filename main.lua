@@ -53,6 +53,7 @@ QuestHelper_DefaultPref =
   perf_scale_2 = 1,       -- How much background processing can the current machine handle?  Higher means more load, lower means better performance.
   perfload_scale = 1,    -- Performance scale to use on startup
   map_button = true,
+  travel_time = false,
  }
 
 -- We do it here also in case things decide they care about preferences before the init function is called. Shouldn't happen, but maybe does.
