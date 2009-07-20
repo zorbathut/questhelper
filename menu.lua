@@ -125,7 +125,7 @@ local function Menu_ShowAtCursor(self, auto_release)
   -- Set up the menu position, parentage, etc
   local x, y = GetCursorPosition()
   
-  local parent = not UIParent:IsVisible() and QuestHelper.map_overlay or UIParent
+  local parent = not UIParent:IsVisible() and QuestHelper.map_overlay_uncropped or UIParent
   self:SetParent(parent)
   self.level = (parent or UIParent):GetFrameLevel()+10
   self:ClearAllPoints()

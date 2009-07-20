@@ -32,6 +32,8 @@ QuestHelper.map_overlay = CreateFrame("FRAME", nil, scrolf)
 scrolf:SetScrollChild(QuestHelper.map_overlay)
 QuestHelper.map_overlay:SetAllPoints()
 
+QuestHelper.map_overlay_uncropped = scrolf
+
 local function ClampLine(x1, y1, x2, y2)
   if x1 and y1 and x2 and y2 then
     local x_div, y_div = (x2-x1), (y2-y1)
