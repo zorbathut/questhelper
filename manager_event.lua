@@ -105,6 +105,7 @@ local function OnUpdateTrigger(_, ...)
   
   local tframe = GetTime()
   local tplf = tframe - last_frame
+  tplf = math.min(time_per_frame + 0.1, tplf)
   time_per_frame = (time_per_frame * (1 / (tplf + 0.0005)) + tplf) / (1 + 1 / (tplf + 0.0005))
   
   QuestHelper: Assert(time_per_frame > 0 and time_per_frame < 10000)  -- hmmm
