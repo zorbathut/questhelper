@@ -105,10 +105,12 @@ QuestHelper_Translations.fiFI =
   DEPENDS_ON_COUNT = nil,
   DEPENDS_ON = nil,
   FILTERED_LEVEL = nil,
+  FILTERED_GROUP = nil,
   FILTERED_ZONE = nil,
   FILTERED_COMPLETE = nil,
   FILTERED_BLOCKED = nil,
   FILTERED_UNWATCHED = nil,
+  FILTERED_WINTERGRASP = nil,
   FILTERED_USER = nil,
   FILTERED_UNKNOWN = nil,
   

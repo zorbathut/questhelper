@@ -105,10 +105,12 @@ QuestHelper_Translations.svSE =
   DEPENDS_ON_COUNT = "Beroende av %1 gömda uppdrag.",
   DEPENDS_ON = "Beror på filtrerade objekt",
   FILTERED_LEVEL = "Filtrerad på grund av nivå.",
+  FILTERED_GROUP = nil,
   FILTERED_ZONE = "Filtrerad på grund av zon.",
   FILTERED_COMPLETE = "Filtrerad på grund av fullgjort",
   FILTERED_BLOCKED = "Filtrerad på grund av att föregående uppdrag inte är klart.",
   FILTERED_UNWATCHED = "Filtreras på grund av att den inte följs i uppdrags-loggen",
+  FILTERED_WINTERGRASP = nil,
   FILTERED_USER = "Du har begärt att detta uppdrag ska vara gömt",
   FILTERED_UNKNOWN = "Vet inte hur man klarar av.",
   

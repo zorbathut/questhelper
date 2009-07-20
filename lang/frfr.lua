@@ -105,10 +105,12 @@ QuestHelper_Translations.frFR =
   DEPENDS_ON_COUNT = "Dépend de %1 objectifs cachés",
   DEPENDS_ON = "Dépend des objectifs filtrés",
   FILTERED_LEVEL = "Filtré à cause du niveau",
+  FILTERED_GROUP = "Filtré à cause de la taille du groupe",
   FILTERED_ZONE = "Filtré à cause de la zone",
   FILTERED_COMPLETE = "Filtré car terminé",
   FILTERED_BLOCKED = "Filtré car dépend d'un objectif qui n'a pas été réalisé",
   FILTERED_UNWATCHED = "Filtré car l'objectif n'est pas suivi dans le journal de quêtes",
+  FILTERED_WINTERGRASP = "Filtré car vous êtes dans une quête PvP du Wintergrasp",
   FILTERED_USER = "Vous avez demandé à cacher cet objectif",
   FILTERED_UNKNOWN = "Ne sait pas comment le terminer",
   

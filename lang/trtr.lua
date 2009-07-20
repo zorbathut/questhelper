@@ -105,10 +105,12 @@ QuestHelper_Translations.trTR =
   DEPENDS_ON_COUNT = "%1 gizli görevlerin durumuna bagli.",
   DEPENDS_ON = nil,
   FILTERED_LEVEL = "Seviyeniz nedeniyle filtrelendi.",
+  FILTERED_GROUP = nil,
   FILTERED_ZONE = "Bölge nedeniyle filtrelendi.",
   FILTERED_COMPLETE = "Tamamlandigi için filtrelendi.",
   FILTERED_BLOCKED = "Bitirilmemiş bir görev yüzünden filtrelendi.",
   FILTERED_UNWATCHED = nil,
+  FILTERED_WINTERGRASP = nil,
   FILTERED_USER = "Bu görevin gizlenmesini istediniz.",
   FILTERED_UNKNOWN = "Nasil bitirilecegi bilinmiyor.",
   

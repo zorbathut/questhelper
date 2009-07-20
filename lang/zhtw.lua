@@ -105,10 +105,12 @@ QuestHelper_Translations.zhTW =
   DEPENDS_ON_COUNT = "根據 %1 隱藏目標",
   DEPENDS_ON = "依據已過濾的目標",
   FILTERED_LEVEL = "由等級過濾",
+  FILTERED_GROUP = nil,
   FILTERED_ZONE = "由區域過濾",
   FILTERED_COMPLETE = "由完成度過濾",
   FILTERED_BLOCKED = "以先前未完成的目標過濾",
   FILTERED_UNWATCHED = "隱藏未設定任務追蹤的任務",
+  FILTERED_WINTERGRASP = nil,
   FILTERED_USER = "您已設定此物件為隱藏",
   FILTERED_UNKNOWN = "不知道如何完成任務",
   
@@ -183,7 +185,7 @@ QuestHelper_Translations.zhTW =
   MENU_WAYPOINT_ARROW = "%1 路徑指南針",
   MENU_MAP_BUTTON = "%1 地圖按鈕",
   MENU_ZONE_FILTER = "%1 任務區域過濾",
-  MENU_DONE_FILTER = "%1 任務區域過濾",
+  MENU_DONE_FILTER = "%1 任務完成過濾",
   MENU_BLOCKED_FILTER = "%1 封鎖過濾",
   MENU_WATCHED_FILTER = "過濾中",
   MENU_LEVEL_FILTER = "%1 任務等級的過濾",
@@ -229,6 +231,6 @@ QuestHelper_Translations.zhTW =
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 碼距離",
-  DISTANCE_METRES = nil
+  DISTANCE_METRES = "%h1 公尺"
  }
 

@@ -105,10 +105,12 @@ QuestHelper_Translations.ptBR =
   DEPENDS_ON_COUNT = "Depende de %1 objetivos ocultos.",
   DEPENDS_ON = "Depende de objetos filtrados",
   FILTERED_LEVEL = "Filtrado por causa do nível.",
+  FILTERED_GROUP = nil,
   FILTERED_ZONE = "Filtrado por causa da zona.",
   FILTERED_COMPLETE = "Filtrado porque está completo.",
   FILTERED_BLOCKED = "Filtrado por causa de um objetivo anterior incompleto",
   FILTERED_UNWATCHED = "Filtrado por não ter sido Roteado no Quest Log ",
+  FILTERED_WINTERGRASP = nil,
   FILTERED_USER = "Você requisitou que esse objetivo fosse escondido.",
   FILTERED_UNKNOWN = "Não sei como completar.",
   

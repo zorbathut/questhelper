@@ -105,10 +105,12 @@ QuestHelper_Translations.noNO =
   DEPENDS_ON_COUNT = "Kommer an på %1 skjulte oppdrag.",
   DEPENDS_ON = "Avhænger av filtrert mål",
   FILTERED_LEVEL = "Filtrért grunnet nivå.",
+  FILTERED_GROUP = nil,
   FILTERED_ZONE = "Filtrért grunnet Sone.",
   FILTERED_COMPLETE = "Filtrért grunnet utført quest.",
   FILTERED_BLOCKED = "Filtrért grunnet tidligere uferdige objektiver",
   FILTERED_UNWATCHED = "Filtrért grunnet quest ikke blir fulgt i Oppdragslogg",
+  FILTERED_WINTERGRASP = nil,
   FILTERED_USER = "Du ba om å gjemme dette objektivet.",
   FILTERED_UNKNOWN = "Vet ikke hvordan det utføres.",
   

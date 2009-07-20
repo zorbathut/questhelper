@@ -105,10 +105,12 @@ QuestHelper_Translations.zhCN =
   DEPENDS_ON_COUNT = "根据 %1 隐藏目标",
   DEPENDS_ON = "依赖已经过滤掉的目标任务",
   FILTERED_LEVEL = "由登记过滤",
+  FILTERED_GROUP = nil,
   FILTERED_ZONE = "有区域过滤",
   FILTERED_COMPLETE = "由完成度过滤",
   FILTERED_BLOCKED = "由先前未完成的目标过滤",
   FILTERED_UNWATCHED = "隐藏未设定任务追踪的任务",
+  FILTERED_WINTERGRASP = nil,
   FILTERED_USER = "您已设定此物件为隐藏",
   FILTERED_UNKNOWN = "不知道如何完成任务",
   

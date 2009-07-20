@@ -105,10 +105,12 @@ QuestHelper_Translations.roRO =
   DEPENDS_ON_COUNT = "Depinde de %1 obiective ascunse.",
   DEPENDS_ON = nil,
   FILTERED_LEVEL = nil,
+  FILTERED_GROUP = nil,
   FILTERED_ZONE = nil,
   FILTERED_COMPLETE = nil,
   FILTERED_BLOCKED = nil,
   FILTERED_UNWATCHED = nil,
+  FILTERED_WINTERGRASP = nil,
   FILTERED_USER = "Ai cerut ca acest obiectiv sa fie ascuns.",
   FILTERED_UNKNOWN = "Nu stiu cum sa termin.",
   

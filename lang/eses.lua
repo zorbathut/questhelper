@@ -105,10 +105,12 @@ QuestHelper_Translations.esES =
   DEPENDS_ON_COUNT = "Depende de los objetivos ocultos %1.",
   DEPENDS_ON = "Depende de los objetivos filtrados",
   FILTERED_LEVEL = "Filtrado debido al nivel.",
+  FILTERED_GROUP = "Filtrada debido a el tamaño del grupo.",
   FILTERED_ZONE = "Filtrado debido a la zona.",
   FILTERED_COMPLETE = "Filtrado debido a completados.",
   FILTERED_BLOCKED = "Filtrado debido al objetivo anterior incompleto",
   FILTERED_UNWATCHED = "filtrado, debido a que no está traqueado en el log de quests",
+  FILTERED_WINTERGRASP = "Filtrada por ser un PVP Wintergrasp búsqueda.",
   FILTERED_USER = "Pidió que este objetivo se ocultara.",
   FILTERED_UNKNOWN = "Desconozco cómo llevarlo a cabo.",
   
