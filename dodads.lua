@@ -350,11 +350,7 @@ function QuestHelper:AppendObjectiveToTooltip(o)
   if o.map_desc_chain then
     self:AppendObjectiveToTooltip(o.map_desc_chain)
   else
-    --[[self:AppendObjectiveProgressToTooltip(o, self.tooltip, QuestHelper.font.sans)
-    
-    self.tooltip:AddDoubleLine(QHText("TRAVEL_ESTIMATE"), QHFormat("TRAVEL_ESTIMATE_VALUE", o.distance or 0), unpack(theme.tooltip))
-    self.tooltip:GetPrevLines():SetFont(self.font.sans, 11)
-    select(2, self.tooltip:GetPrevLines()):SetFont(self.font.sans, 11)]]
+    self:AppendObjectiveProgressToTooltip(o, self.tooltip, QuestHelper.font.sans)
     
     if QuestHelper_Pref.travel_time then
       self.tooltip:AddDoubleLine(QHText("TRAVEL_ESTIMATE"), QHFormat("TRAVEL_ESTIMATE_VALUE", o.distance or 0), unpack(theme.tooltip))
