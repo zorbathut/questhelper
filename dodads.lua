@@ -120,7 +120,7 @@ function QuestHelper:CreateWorldMapWalker()
       
       local w, h = QuestHelper.map_overlay:GetWidth(), -QuestHelper.map_overlay:GetHeight()
       
-      local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+      local c, z = QuestHelper.Astrolabe:GetCurrentVirtualMapCZ()
       
       local last_x, last_y = self.frame.Astrolabe:TranslateWorldMapPosition(self.frame.c, self.frame.z, self.frame.x, self.frame.y, c, z)
       local remainder = self.phase
@@ -182,7 +182,7 @@ function QuestHelper:CreateWorldMapWalker()
       
       while #points > 0 do self.frame:ReleaseTable(table.remove(points)) end
       
-      local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+      local c, z = QuestHelper.Astrolabe:GetCurrentVirtualMapCZ()
       
       -- I'm not quite sure what the point of this is.
       --[[
@@ -254,7 +254,7 @@ end
 
 function QuestHelper:GetOverlapObjectives(obj)
   local w, h = self.map_overlay:GetWidth(), self.map_overlay:GetHeight()
-  local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+  local c, z = QuestHelper.Astrolabe:GetCurrentVirtualMapCZ()
   
   local list = self.overlap_list
   
@@ -463,7 +463,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
   local triangle_opacity = 0.6
   
   function icon:CreateTriangles(solid, tritarget, tristartat, linetarget, linestartat, parent)
-    local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+    local c, z = QuestHelper.Astrolabe:GetCurrentVirtualMapCZ()
     
     local function makeline(ax, ay, bx, by)
       local tri = linetarget[linestartat]
@@ -542,7 +542,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
   
   function icon:SetGlow(list)
     local w, h = QuestHelper.map_overlay:GetWidth(), QuestHelper.map_overlay:GetHeight()
-    local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+    local c, z = QuestHelper.Astrolabe:GetCurrentVirtualMapCZ()
     local zw = QuestHelper.Astrolabe:GetZoneWidth(c, z)
     
     local solids = {}
@@ -634,7 +634,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
     
     if self.next and self.objective and self.objective.cluster.solid and QuestHelper_Pref.zones == "next" then
       
-      local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+      local c, z = QuestHelper.Astrolabe:GetCurrentVirtualMapCZ()
       if self.tri_c ~= c or self.tri_z ~= z then
         -- not entirely happy with this being here, but, welp
         if not self.local_triangle_list then
