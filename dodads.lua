@@ -555,21 +555,23 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
         solids[v.cluster.solid] = true
       else
         local x, y = convertLocationToScreen(v.loc, c, z)
-        if not self.glow_list then
-          self.glow_list = QuestHelper:CreateTable()
+        if x and y then
+          if not self.glow_list then
+            self.glow_list = QuestHelper:CreateTable()
+          end
+          local glo = self.glow_list[gid]
+          if not glo then
+            glo = QuestHelper:CreateGlowTexture(self)
+            self.glow_list[gid] = glo
+          end
+          gid = gid + 1
+          
+          glo:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", x*w, -y*h)
+          glo:SetVertexColor(triangle_r, triangle_g, triangle_b, 1)
+          glo:SetWidth(h / 20)
+          glo:SetHeight(h / 20)
+          glo:Show()
         end
-        local glo = self.glow_list[gid]
-        if not glo then
-          glo = QuestHelper:CreateGlowTexture(self)
-          self.glow_list[gid] = glo
-        end
-        gid = gid + 1
-        
-        glo:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", x*w, -y*h)
-        glo:SetVertexColor(triangle_r, triangle_g, triangle_b, 1)
-        glo:SetWidth(h / 20)
-        glo:SetHeight(h / 20)
-        glo:Show()
       end
     end
     
