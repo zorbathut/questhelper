@@ -556,8 +556,9 @@ end
 local loading_vquest = {tracker_desc = QHFormat("QH_LOADING", "0")}
 local flightpath_vquest = {tracker_desc = QHFormat("QH_FLIGHTPATH", "0")}
 
---local hidden_vquest1 = { cat = "quest", obj = "7778/" .. QHText("QUESTS_HIDDEN_1"), after = {}, watched = true }
---local hidden_vquest2 = { cat = "quest", obj = "7778/    " .. QHText("QUESTS_HIDDEN_2"), after = {}, watched = true }
+
+local hidden_vquest1 = { tracker_desc = QHText("QUESTS_HIDDEN_1"), tracker_clicked = QH_Hidden_Menu }
+local hidden_vquest2 = { tracker_desc = "    " .. QHText("QUESTS_HIDDEN_2"), tracker_clicked = QH_Hidden_Menu }
 
 local route = {}
 local pinned = {}
@@ -656,6 +657,36 @@ function QH_Tracker_Rescan()
     end
   end
   
+  -- now we check to see if we need a hidden display
+  if (debug_output or depth < QuestHelper_Pref.track_size) and not QuestHelper.loading_main and not QuestHelper_Pref.filter_done and not QuestHelper_Pref.filter_zone and not QuestHelper_Pref.filter_watched then
+    local show = false
+    
+    QH_Route_TraverseClusters(
+      function (clust)
+        if not show then
+          QH_Route_IgnoredReasons_Cluster(clust, function (reason)
+            show = true
+          end)
+          
+          for _, v in ipairs(clust) do
+            QH_Route_IgnoredReasons_Node(v, function (reason)
+              show = true
+            end)
+          end
+        end
+      end
+    )
+    
+    if show then
+      y = y + 10
+      _, y = addItem(hidden_vquest1, y)
+      _, y = addItem(hidden_vquest2, y)
+    end
+  end
+  
+  
+  -- any manipulations of the tracker should be done by now, everything after this is bookkeeping
+
   for k, v in pairs(used_items) do
     if not used_count[k] or used_count[k] < #v then
       local ttp = QuestHelper:CreateTable("used_items ttp")
@@ -696,6 +727,11 @@ function QH_Tracker_Rescan()
     tracker.sw = tracker.dw
     resizing = true
   end
+  
+  
+  
+    
+  
   
   --[[
   if x ~= tracker.dw or y ~= tracker.dy then
