@@ -88,8 +88,7 @@ if changes_lua then
     end
     
     local function totext(text)
-      return text:gsub("<a href=\"http://www.mandible.net\">", "")
-                 :gsub("</a>", "")
+      return text:gsub("%[%[http://www.mandible.net|(.*)%]%]", "%1")
                  :gsub("%[%s*([^%s%]]+)(.-)%]", linkparse)
                  :gsub("<code>(.-)</code>", "|cff40bbff%1|r")
                  :gsub("^%s*==%s*(.-)%s*==%s*$", "|cffffff00       %1|r\n")
