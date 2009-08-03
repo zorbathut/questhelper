@@ -1,4 +1,12 @@
 
+== Version 1.1.5 7/28/2009 ==
+
+* Re-introduce the per-player objective progress on the map
+* Fix Acherus (again)
+* Re-introduce the "quests are hidden" message, since it seems like it's needed
+* Small bugfixes
+* DB update
+
 == Version 1.1.4 7/20/2009 ==
 
 * Hopefully fix an issue with high-FPS systems not providing QH with enough CPU

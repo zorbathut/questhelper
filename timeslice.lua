@@ -110,7 +110,7 @@ local lacu = 0
   lacu = 0
 end]]
 
-function QH_Timeslice_Work(time_used, time_this_frame, bonus_time)
+function QH_Timeslice_Work(time_used, time_this_frame, bonus_time, verbose)
   -- There's probably a better way to do this, but. Eh. Lua.
   coro = nil
   key = nil
@@ -149,7 +149,10 @@ function QH_Timeslice_Work(time_used, time_this_frame, bonus_time)
       lacu = totalacu
       print(string.format("%f realtime, %f runtime, %f%%", start - startacu, totalacu, (totalacu / (start - startacu)) * 100))
     end]]
-    --print(string.format("ttutf %f, tu %f, bt %f, wut %f lolwut %f", time_to_use, time_used, bonus_time, QuestHelper_Pref.perf_scale_2, slicefactor))
+    
+    if verbose then
+      print(string.format("ttutf %f, tu %f, bt %f, tottime %f", time_to_use, time_used, bonus_time, coroutine_stop_time - start))
+    end
     
     if start < coroutine_stop_time then -- We don't want to just return on failure because we want to credit the exceeded time properly.
       coroutine_running = true
