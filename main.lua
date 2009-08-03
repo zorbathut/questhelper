@@ -33,6 +33,7 @@ QuestHelper_DefaultPref =
   track_qcolour=true,
   track_ocolour=true,
   track_size=10,
+  blizzmap = false,
   tooltip=true,
   share = true,
   scale = 1,
