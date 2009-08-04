@@ -1,4 +1,10 @@
 
+== Version 1.1.7 8/4/2009 ==
+
+* Bump TOC so it works on 3.2 without tweaking
+* Can't currently test it for obvious reasons, so, crossing fingers, praying, etc
+* TWO JORMUNGARS
+
 == Version 1.1.6 8/3/2009 ==
 
 * Improve the CPU usage system. Should no longer hugely drop framerate for about a minute after login.
