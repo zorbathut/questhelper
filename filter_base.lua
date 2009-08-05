@@ -102,7 +102,7 @@ local filter_quest_group = QH_MakeFilter("filter_quest_group", function(obj)
     else
       expected_players = 5
     end
-  elseif obj.type_quest.variety == LFG_TYPE_DUNGEON or obj.type_quest.variety == DUNGEON_DIFFICULTY2 then
+  elseif obj.type_quest.variety == LFG_TYPE_DUNGEON or obj.type_quest.variety == ITEM_HEROIC then
     expected_players = 5
   elseif obj.type_quest.variety == LFG_TYPE_RAID then
     expected_players = 10
