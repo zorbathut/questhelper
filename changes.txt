@@ -1,4 +1,9 @@
 
+== Version 1.1.8 8/4/2009 ==
+
+* Fix error in error handling causing non-serious errors to incorrectly be handled as serious errors, thus causing a serious error to occur, which, itself, was handled incorrectly.
+* Yep.
+
 == Version 1.1.7 8/4/2009 ==
 
 * Bump TOC so it works on 3.2 without tweaking
