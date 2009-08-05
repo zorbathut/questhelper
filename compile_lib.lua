@@ -282,18 +282,18 @@ end
 function loc_version(ver)
   local major = ver:match("([0-9])%..*")
   if major == "0" then
-    return sortversion("0.96", ver) and 0 or 1
+    return sortversion("0.77", ver) and 0 or sortversion("0.96", ver) and 1 or 2
   elseif major == "1" then
-    return sortversion("1.0.2", ver) and 0 or 1
+    return sortversion("1.0.2", ver) and 1 or 2
   else
     assert()
   end
 end
 
-function convert_loc(loc, locale)
+function convert_loc(loc, locale, lv)
   if not loc then return end
   assert(locale)
-  if locale ~= "enUS" then return end -- arrrgh, to be fixed eventually
+  if locale ~= "enUS" then return end -- arrrgh, to be fixed eventually. the problem is that .rc and .rz change based on the locale, so I need to snapshot conversions for all locales :(
   
   local lr = loc.relative
   if loc.relative then
@@ -310,15 +310,17 @@ function convert_loc(loc, locale)
   loc.p = QuestHelper_IndexLookup[loc.rc][loc.rz]
   loc.rc, loc.rz = nil, nil
   
+  if lv == 0 and loc.p == 71 then return end -- Icecrown, which I had offsync for a while
+  
   return loc
 end
 
-function convert_multiple_loc(locs, locale)
+function convert_multiple_loc(locs, locale, lv)
   if not locs then return end
   
   for _, v in ipairs(locs) do
     if v.loc then
-      convert_loc(v.loc, locale)
+      convert_loc(v.loc, locale, lv)
     end
   end
 end
@@ -600,7 +602,7 @@ function standard_pos_accum(accum, value, lv, locale, fluff)
   
   for _, v in ipairs(value) do
     for off = 1, #v, 11 + fluff do
-      local tite = convert_loc(slice_loc(v:sub(off, off + 10), lv), locale)
+      local tite = convert_loc(slice_loc(v:sub(off, off + 10), lv), locale, lv)
       if tite then position_accumulate(accum.loc, tite) end
     end
   end

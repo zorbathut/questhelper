@@ -79,7 +79,7 @@ struct Loc {
 };
 
 Loc getLoc(const char *pt, int loc_v) {
-  if(loc_v == 0) {
+  if(loc_v == 0 || loc_v == 1) {
     signed char c = pt[0];
     signed int x = *(int*)&(pt[1]);  // go go gadget alignment error
     signed int y = *(int*)&(pt[5]);
@@ -96,7 +96,7 @@ Loc getLoc(const char *pt, int loc_v) {
     if(rz != -128) rv.rz = rz;
     
     return rv;
-  } else if(loc_v == 1) {
+  } else if(loc_v == 2) {
     signed char delay = pt[0];
     signed char rc = pt[1];
     signed char rz = pt[2];

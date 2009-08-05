@@ -16,7 +16,8 @@ local dbg_data = false
 --local e = 1048
 --local e = 100
 
-require("compile_lib")
+require "compile_lib"
+require "overrides"
 
 --[[
 *****************************************************************
@@ -67,6 +68,7 @@ local chainhead = ChainBlock_Create("parse", nil,
         if do_compile and do_questtables and v.quest then for qid, qdat in pairs(v.quest) do
           qdat.fileid = value.fileid
           qdat.locale = locale
+          qdat.wowv = wowv
           Output(string.format("%d", qid), qhv, qdat, "quest")
         end end
         
@@ -113,7 +115,7 @@ local chainhead = ChainBlock_Create("parse", nil,
               
               assert(math.mod(#chunk, 11) == 0, tostring(#chunk))
               for point = 1, #chunk, 11 do
-                local pos = convert_loc(slice_loc(string.sub(chunk, point, point + 10), lv), locale)
+                local pos = convert_loc(slice_loc(string.sub(chunk, point, point + 10), lv), locale, lv)
                 if pos then
                   if not zonecolors[zname] then
                     local r, g, b = math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255)), math.ceil(math.random(32, 255))
@@ -673,6 +675,8 @@ if do_compile and do_questtables then
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
+        if overrides.quest[tonumber(key)] and sortversion(overrides.quest[tonumber(key)], value.wowv) then print("Threw out", key, value.wowv, overrides.quest[tonumber(key)]) return end
+
         local lv = loc_version(subkey)
         
         -- Split apart the start/end info. This includes locations and possibly the monster that was targeted.
@@ -695,7 +699,7 @@ if do_compile and do_questtables then
             
             if token == "satisfied" then
               value[k] = split_quest_satisfied(value[k], lv)
-              convert_multiple_loc(value[k], value.locale)
+              convert_multiple_loc(value[k], value.locale, lv)
             end
             
             if not value.criteria[tonumber(item)] then value.criteria[tonumber(item)] = {} end
@@ -744,6 +748,8 @@ if do_compile and do_questtables then
       end,]]
       
       Finish = function(self, Output)
+        if not self.accum.appearances then print("Know the existence of, but have no data for quest", key) return end
+        
         self.accum.name = name_resolve(self.accum.name)
         self.accum.level = list_most_common(self.accum.level)
         
@@ -1770,7 +1776,7 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
             end
           end
           
-          print("left with", #path, "from", st)
+          --print("left with", #path, "from", st)
           
           local function doop(i)
             if type(i) ~= "table" then return i end
@@ -1939,7 +1945,7 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
         while process_item() do end
       end
       
-      print("size:", tsize)
+      --print("size:", tsize)
       if tsize < 180 then returno = nil end
       
       Output(tostring(qid), nil, {solid = returno, solid_key = tonumber(crit) or crit}, "solidity_recombine")
