@@ -124,6 +124,16 @@ function QuestHelper_ErrorPackage(depth)
   }
 end
 
+StaticPopupDialogs["QH_EXPLODEY"] = {
+	text = "QuestHelper has broken. You may have to restart WoW. Type \"/qh error\" for a detailed error message.",
+	button1 = OKAY,
+	OnAccept = function(self)
+	end,
+	timeout = 0,
+	whileDead = 1,
+	hideOnEscape = 1
+};
+
 function QuestHelper_ErrorCatcher_ExplicitError(loud, o_msg, o_frame, o_stack, ...)
   local msg = o_msg or ""  
 
@@ -137,14 +147,15 @@ function QuestHelper_ErrorCatcher_ExplicitError(loud, o_msg, o_frame, o_stack, .
   
   QuestHelper_ErrorCatcher_RegisterError("crash", terror)
   
-  if first_error and first_error.silent and not first_error.next_loud then first_error.next_loud = terror first_error.addons = "" end
+  if first_error and first_error.silent and not first_error.next_loud and not terror.silent then first_error.next_loud = terror first_error.addons = "" end
   if not first_error or first_error.generated then first_error = terror end
   
   QuestHelper_ErrorCatcher.CondenseErrors()
 
-  if debug_output or loud and not yelled_at_user then
+  if (--[[debug_output or]] loud) and not yelled_at_user then
     --print("qhbroken")
-    message("QuestHelper has broken. You may have to restart WoW. Type \"/qh error\" for a detailed error message.")
+    if ScriptErrors == nil then ScriptErrors = true end
+    StaticPopup_Show("QH_EXPLODEY")
     yelled_at_user = true
   end
 end
