@@ -8,7 +8,7 @@ local dev_mode = (QuestHelper_File["db_get.lua"] == "Development Version")
 local QHDB_temp = QHDB
 QHDB = nil
 local QHDB = QHDB_temp]]
-QuestHelper: Assert(#QHDB == 4)
+QuestHelper: Assert(dev_mode or #QHDB == 4)
 
 local weak_v = { __mode = 'v' }
 local weak_k = { __mode = 'k' }
@@ -154,7 +154,7 @@ function DB_GetItem(group, id, silent, register)
           end
           
           for k, v in pairs(srctab) do
-            QuestHelper: Assert(not ite[k])
+            QuestHelper: Assert(not ite[k] or k == "used")
             ite[k] = v
           end
         end

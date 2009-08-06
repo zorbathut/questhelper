@@ -348,10 +348,11 @@ local function addItem(objective, y, meta)
     item.specitem:SetParent(item)
     item.specitem:SetPoint("TOPRIGHT", item, "TOPLEFT", 0, 0)
     
-    local _, tex = GetQuestLogSpecialItemInfo(objective.type_quest.index)
+    local _, tex, charges = GetQuestLogSpecialItemInfo(objective.type_quest.index)
     item.specitem:SetID(objective.type_quest.index)
     SetItemButtonTexture(item.specitem, tex)
     item.specitem.rangeTimer = -1 -- This makes the little dot go away. Why does it do that?
+    item.specitem.charges = charges
     
     item.specitem:Show()
     
