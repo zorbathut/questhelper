@@ -151,6 +151,7 @@ local function GetQuestMetaobjective(questid, lbcount)
       
       if #ttx == 0 then
         table.insert(ttx, {loc = {x = 5000, y = 5000, c = 0, p = 2}, icon_id = 7, type_quest_unknown = true, map_desc = {"Unknown"}})  -- this is Ashenvale, for no particularly good reason
+        ttx.type_quest_unknown = true
       end
       
       for idx, v in ipairs(ttx) do
@@ -182,6 +183,7 @@ local function GetQuestMetaobjective(questid, lbcount)
       
       if #ttx == 0 then
         table.insert(ttx, {desc = "Turn in quest", why = ite, loc = {x = 5000, y = 5000, c = 0, p = 2}, tracker_hidden = true, cluster = ttx, icon_id = 7, type_quest = ite.type_quest, type_quest_unknown = true})  -- this is Ashenvale, for no particularly good reason
+        ttx.type_quest_unknown = true
       end
       
       ite.finish = ttx
