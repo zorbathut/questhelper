@@ -153,6 +153,30 @@ function QuestHelper:ToggleTrack()
   end
 end
 
+function QuestHelper:ToggleBlizzMap()
+  QuestHelper_Pref.blizzmap = not QuestHelper_Pref.blizzmap
+  if QuestHelper_Pref.blizzmap then
+    self:TextOut("The Blizzard quest points have been |cff00ff00enabled|r.")
+  else
+    self:TextOut("The Blizzard quest points have been |cffff0000disabled|r.")
+  end
+  
+  if UpdateQuestMapPOI then UpdateQuestMapPOI() end
+end
+
+if UpdateQuestMapPOI then
+  local uqmp_def = UpdateQuestMapPOI
+  function UpdateQuestMapPOI(...)
+    if QuestHelper_Pref.blizzmap then
+      return uqmp_def(...)
+    else
+      for i = 1, #QUEST_MAP_POI do
+        QUEST_MAP_POI[i]:Hide()
+      end
+    end
+  end
+end
+
 function QuestHelper:ToggleTrackLevel()
   QuestHelper_Pref.track_level = not QuestHelper_Pref.track_level
   if QuestHelper_Pref.track_level then
@@ -778,6 +802,10 @@ commands =
   }},
   
   { "Interface", {
+    --[[{"BLIZZMAP",
+     "Toggles the visibility of Blizzard's built-in map points.",
+     {}, QuestHelper.ToggleBlizzMap, QuestHelper},]]
+    
     {"TRACK",
      "Toggles the visibility of the QuestHelper's replacement quest tracker.",
       {}, QuestHelper.ToggleTrack, QuestHelper},

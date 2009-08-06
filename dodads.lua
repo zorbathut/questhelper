@@ -120,7 +120,7 @@ function QuestHelper:CreateWorldMapWalker()
       
       local w, h = QuestHelper.map_overlay:GetWidth(), -QuestHelper.map_overlay:GetHeight()
       
-      local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+      local c, z = QuestHelper.Astrolabe:GetCurrentVirtualMapCZ()
       
       local last_x, last_y = self.frame.Astrolabe:TranslateWorldMapPosition(self.frame.c, self.frame.z, self.frame.x, self.frame.y, c, z)
       local remainder = self.phase
@@ -173,6 +173,7 @@ function QuestHelper:CreateWorldMapWalker()
     
     if self.next_item then
       self.next_item:MarkAsNext(false)
+      self.next_item = nil
     end
     
     if self.frame.Astrolabe.WorldMapVisible then
@@ -181,7 +182,7 @@ function QuestHelper:CreateWorldMapWalker()
       
       while #points > 0 do self.frame:ReleaseTable(table.remove(points)) end
       
-      local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+      local c, z = QuestHelper.Astrolabe:GetCurrentVirtualMapCZ()
       
       -- I'm not quite sure what the point of this is.
       --[[
@@ -230,6 +231,7 @@ function QuestHelper:CreateWorldMapWalker()
           
           if cur_dodad == 1 then
             self.map_dodads[cur_dodad]:MarkAsNext(true)
+            self.next_item = self.map_dodads[cur_dodad]
           end
           cur_dodad = cur_dodad + 1
         end
@@ -252,7 +254,7 @@ end
 
 function QuestHelper:GetOverlapObjectives(obj)
   local w, h = self.map_overlay:GetWidth(), self.map_overlay:GetHeight()
-  local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+  local c, z = QuestHelper.Astrolabe:GetCurrentVirtualMapCZ()
   
   local list = self.overlap_list
   
@@ -348,11 +350,7 @@ function QuestHelper:AppendObjectiveToTooltip(o)
   if o.map_desc_chain then
     self:AppendObjectiveToTooltip(o.map_desc_chain)
   else
-    --[[self:AppendObjectiveProgressToTooltip(o, self.tooltip, QuestHelper.font.sans)
-    
-    self.tooltip:AddDoubleLine(QHText("TRAVEL_ESTIMATE"), QHFormat("TRAVEL_ESTIMATE_VALUE", o.distance or 0), unpack(theme.tooltip))
-    self.tooltip:GetPrevLines():SetFont(self.font.sans, 11)
-    select(2, self.tooltip:GetPrevLines()):SetFont(self.font.sans, 11)]]
+    self:AppendObjectiveProgressToTooltip(o, self.tooltip, QuestHelper.font.sans)
     
     if QuestHelper_Pref.travel_time then
       self.tooltip:AddDoubleLine(QHText("TRAVEL_ESTIMATE"), QHFormat("TRAVEL_ESTIMATE_VALUE", o.distance or 0), unpack(theme.tooltip))
@@ -456,6 +454,8 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
     else
       self.objective = nil
       self:Hide()
+      self.next = false
+      self:OnUpdate(0)
     end
   end
   
@@ -463,7 +463,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
   local triangle_opacity = 0.6
   
   function icon:CreateTriangles(solid, tritarget, tristartat, linetarget, linestartat, parent)
-    local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+    local c, z = QuestHelper.Astrolabe:GetCurrentVirtualMapCZ()
     
     local function makeline(ax, ay, bx, by)
       local tri = linetarget[linestartat]
@@ -542,7 +542,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
   
   function icon:SetGlow(list)
     local w, h = QuestHelper.map_overlay:GetWidth(), QuestHelper.map_overlay:GetHeight()
-    local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+    local c, z = QuestHelper.Astrolabe:GetCurrentVirtualMapCZ()
     local zw = QuestHelper.Astrolabe:GetZoneWidth(c, z)
     
     local solids = {}
@@ -555,21 +555,23 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
         solids[v.cluster.solid] = true
       else
         local x, y = convertLocationToScreen(v.loc, c, z)
-        if not self.glow_list then
-          self.glow_list = QuestHelper:CreateTable()
+        if x and y then
+          if not self.glow_list then
+            self.glow_list = QuestHelper:CreateTable()
+          end
+          local glo = self.glow_list[gid]
+          if not glo then
+            glo = QuestHelper:CreateGlowTexture(self)
+            self.glow_list[gid] = glo
+          end
+          gid = gid + 1
+          
+          glo:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", x*w, -y*h)
+          glo:SetVertexColor(triangle_r, triangle_g, triangle_b, 1)
+          glo:SetWidth(h / 20)
+          glo:SetHeight(h / 20)
+          glo:Show()
         end
-        local glo = self.glow_list[gid]
-        if not glo then
-          glo = QuestHelper:CreateGlowTexture(self)
-          self.glow_list[gid] = glo
-        end
-        gid = gid + 1
-        
-        glo:SetPoint("CENTER", QuestHelper.map_overlay, "TOPLEFT", x*w, -y*h)
-        glo:SetVertexColor(triangle_r, triangle_g, triangle_b, 1)
-        glo:SetWidth(h / 20)
-        glo:SetHeight(h / 20)
-        glo:Show()
       end
     end
     
@@ -632,7 +634,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
     
     if self.next and self.objective and self.objective.cluster.solid and QuestHelper_Pref.zones == "next" then
       
-      local c, z = GetCurrentMapContinent(), GetCurrentMapZone()
+      local c, z = QuestHelper.Astrolabe:GetCurrentVirtualMapCZ()
       if self.tri_c ~= c or self.tri_z ~= z then
         -- not entirely happy with this being here, but, welp
         if not self.local_triangle_list then
@@ -718,7 +720,9 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
           self.line_list = nil
         end
         
-        if not self.next then QH_Hook(self, "OnUpdate", nil) end
+        if not self.next then
+          QH_Hook(self, "OnUpdate", nil)
+        end
       end
     end
     
@@ -989,7 +993,7 @@ function QuestHelper:CreateMipmapDodad()
         self.dot:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -2, 2)
       end
       
-      self:OnUpdate()
+      self:OnUpdate(0)
     end
   end
   

@@ -166,58 +166,61 @@ local function StripBlizzQHTooltipClone(ttp)
   --do return end
   if not UnitExists("mouseover") then return end
   
-  local line = 2
-  local wpos = line
   
   local changed = false
   local removed = 0
   
-  if qh_tooltip_print_a_lot then print(line, _G["GameTooltipTextLeft" .. line], _G["GameTooltipTextLeft" .. line]:IsShown()) end
-  
   local qobj = nil
   local qobj_name = nil
   
-  while _G["GameTooltipTextLeft" .. line] and _G["GameTooltipTextLeft" .. line]:IsShown() do
+  local linemax
+  do
+    local line = 2
+    while _G["GameTooltipTextLeft" .. line] and _G["GameTooltipTextLeft" .. line]:IsShown() do
+      linemax = line
+      line = line + 1
+    end
+  end
+  
+  for line = 2, linemax do
     local r, g, b, a = _G["GameTooltipTextLeft" .. line]:GetTextColor()
     r, g, b, a = math.floor(r * 255 + 0.5), math.floor(g * 255 + 0.5), math.floor(b * 255 + 0.5), math.floor(a * 255 + 0.5)
     
-    if qh_tooltip_print_a_lot then print(r, g, b, a) end
+    if qh_tooltip_print_a_lot then print(thistext, r, g, b, a, qobj) end
     
-    if r == 255 and g == 210 and b == 0 and a == 255 and not qh_tooltip_do_not_hide_things then
-      if qh_tooltip_print_a_lot then print("hiding") end
+    local thistext = _G["GameTooltipTextLeft" .. line]:GetText()
+    local hideme
+    local thistextm = thistext:match(" %- (.*)")
+    
+    --print(thistext, thistextm)
+    
+    if r == 255 and g == 210 and b == 0 and a == 255 and deferences[thistext] then
+      qobj = deferences[thistext]
+      qobj_name = thistext
+      hideme = true
+    elseif r == 255 and g == 255 and b == 255 and a == 255 and qobj and thistextm and qobj[thistextm] then
+      local ite = qobj[thistextm][1]
+      QuestHelper: Assert(ite)
       
-      local thistext = _G["GameTooltipTextLeft" .. line]:GetText()
-      
-      if deferences[thistext] then
-        qobj = deferences[thistext]
-        qobj_name = thistext
-      elseif qobj then
-        --print(qobj, thistext, qobj[thistext], qobj[deference_default])
-        if qobj[thistext] then
-          local ite = qobj[thistext][1]
-          QuestHelper: Assert(ite)
-          
-          local ttsplat = thistext:match("(.*): ([0-9]+)/([0-9]+)")
-          if ttsplat == ttp:GetUnit() then
-            ttsplat = nil
-          end
-          DoTooltip(ttp, ite[2], ite[1], ttsplat and QHFormat("TOOLTIP_SLAY", ttsplat))
-        elseif qobj[deference_default] and not thistext:find(":") then  -- Blizzard cleverly does not suppress tooltips when the user has finished getting certain items, so we do instead
-          DoTooltipDefault(ttp, qobj_name, thistext)
-        end
+      local ttsplat = thistextm:match("(.*): ([0-9]+)/([0-9]+)")
+      if ttsplat == ttp:GetUnit() then
+        ttsplat = nil
       end
-      
-      if not qh_hackery_nosuppress then
-        _G["GameTooltipTextLeft" .. line]:SetText(nil)
-        _G["GameTooltipTextLeft" .. line]:SetHeight(0)
-        _G["GameTooltipTextLeft" .. line]:ClearAllPoints()
-        _G["GameTooltipTextLeft" .. line]:SetPoint("TOPLEFT", _G["GameTooltipTextLeft" .. (line - 1)], "BOTTOMLEFT", 0, 1)
-        changed = true
-        removed = removed + 1
-      end
+      DoTooltip(ttp, ite[2], ite[1], ttsplat and QHFormat("TOOLTIP_SLAY", ttsplat))
+      hideme = true
+    elseif r == 255 and g == 255 and b == 255 and a == 255 and qobj and thistextm and thistext:find(":") then  -- Blizzard cleverly does not suppress tooltips when the user has finished getting certain items, so we do instead
+      DoTooltipDefault(ttp, qobj_name, thistextm)
+      hideme = true
     end
-    
-    line = line + 1
+  
+    if hideme and not qh_hackery_nosuppress then
+      _G["GameTooltipTextLeft" .. line]:SetText(nil)
+      _G["GameTooltipTextLeft" .. line]:SetHeight(0)
+      _G["GameTooltipTextLeft" .. line]:ClearAllPoints()
+      _G["GameTooltipTextLeft" .. line]:SetPoint("TOPLEFT", _G["GameTooltipTextLeft" .. (line - 1)], "BOTTOMLEFT", 0, 1)
+      changed = true
+      removed = removed + 1
+    end
   end
     
   if changed then
