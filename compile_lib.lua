@@ -1,4 +1,11 @@
 
+local ass = assert
+assert = function(parm, ...)
+  if not parm then
+    ass(parm, cur_file_id(), ...) -- ASS
+  end
+end
+
 -- I don't know why print is giving me so much trouble, but it is, sooooo
 print = function (...)
   local pad = ""
@@ -33,7 +40,7 @@ do
   world.QuestHelper_File = {}
   world.QuestHelper_Loadtime = {}
   world.GetTime = function() return 0 end
-  world.QuestHelper = { Assert = function (self, ...) assert(...) end, CreateTable = function() return {} end, ReleaseTable = function() end, IsWrath32 = function () return false end }
+  world.QuestHelper = { Assert = function (self, ...) assert(...) end, CreateTable = function() return {} end, ReleaseTable = function() end, IsWrath32 = function () return true end }
   world.string = string
   world.table = table
   world.assert = assert
@@ -59,8 +66,46 @@ do
 end
 
 
+local QH_IL = {}
+local QH_ZL = {}
+local QH_AL = {}
 
-do
+local lookups = {
+  {
+    realnames = {
+      {"Ashenvale", "Azshara", "Azuremyst Isle", "Bloodmyst Isle", "Darkshore", "Darnassus", "Desolace", "Durotar", "Dustwallow Marsh", "Felwood", "Feralas", "Moonglade", "Mulgore", "Orgrimmar", "Silithus", "Stonetalon Mountains", "Tanaris", "Teldrassil", "The Barrens", "The Exodar", "Thousand Needles", "Thunder Bluff", "Un'Goro Crater", "Winterspring"},
+      {"Alterac Mountains", "Arathi Highlands", "Badlands", "Blasted Lands", "Burning Steppes", "Deadwind Pass", "Dun Morogh", "Duskwood", "Eastern Plaguelands", "Elwynn Forest", "Eversong Woods", "Ghostlands", "Hillsbrad Foothills", "Ironforge", "Isle of Quel'Danas", "Loch Modan", "Redridge Mountains", "Searing Gorge", "Silvermoon City", "Silverpine Forest", "Stormwind City", "Stranglethorn Vale", "Swamp of Sorrows", "The Hinterlands", "Tirisfal Glades", "Undercity", "Western Plaguelands", "Westfall", "Wetlands"},
+      {"Blade's Edge Mountains", "Hellfire Peninsula", "Nagrand", "Netherstorm", "Shadowmoon Valley", "Shattrath City", "Terokkar Forest", "Zangarmarsh"},
+      {"Borean Tundra", "Crystalsong Forest", "Dalaran", "Dragonblight", "Grizzly Hills", "Howling Fjord", "Hrothgar's Landing", "Icecrown", "Sholazar Basin", "The Storm Peaks", "Wintergrasp", "Zul'Drak"},
+    },
+    mapnames = {
+      {"Ashenvale", "Aszhara", "AzuremystIsle", "BloodmystIsle", "Darkshore", "Darnassis", "Desolace", "Durotar", "Dustwallow", "Felwood", "Feralas", "Moonglade", "Mulgore", "Ogrimmar", "Silithus", "StonetalonMountains", "Tanaris", "Teldrassil", "Barrens", "TheExodar", "ThousandNeedles", "ThunderBluff", "UngoroCrater", "Winterspring", [0] = "Kalimdor"},
+      {"Alterac", "Arathi", "Badlands", "BlastedLands", "BurningSteppes", "DeadwindPass", "DunMorogh", "Duskwood", "EasternPlaguelands", "Elwynn", "EversongWoods", "Ghostlands", "Hilsbrad", "Ironforge", "Sunwell", "LochModan", "Redridge", "SearingGorge", "SilvermoonCity", "Silverpine", "Stormwind", "Stranglethorn", "SwampOfSorrows", "Hinterlands", "Tirisfal", "Undercity", "WesternPlaguelands", "Westfall", "Wetlands", [0] = "Azeroth"},
+      {"BladesEdgeMountains", "Hellfire", "Nagrand", "Netherstorm", "ShadowmoonValley", "ShattrathCity", "TerokkarForest", "Zangarmarsh", [0] = "Expansion01"},
+      {"BoreanTundra", "CrystalsongForest", "Dalaran", "Dragonblight", "GrizzlyHills", "HowlingFjord", "HrothgarsLanding", "IcecrownGlacier", "SholazarBasin", "TheStormPeaks", "LakeWintergrasp", "ZulDrak", [0] = "Northrend"},
+    },
+    iswrath32 = true,
+    output_id = "3.2",
+  },
+  {
+    realnames = {
+      {"Ashenvale", "Azshara", "Azuremyst Isle", "Bloodmyst Isle", "Darkshore", "Darnassus", "Desolace", "Durotar", "Dustwallow Marsh", "Felwood", "Feralas", "Moonglade", "Mulgore", "Orgrimmar", "Silithus", "Stonetalon Mountains", "Tanaris", "Teldrassil", "The Barrens", "The Exodar", "Thousand Needles", "Thunder Bluff", "Un'Goro Crater", "Winterspring"},
+      {"Alterac Mountains", "Arathi Highlands", "Badlands", "Blasted Lands", "Burning Steppes", "Deadwind Pass", "Dun Morogh", "Duskwood", "Eastern Plaguelands", "Elwynn Forest", "Eversong Woods", "Ghostlands", "Hillsbrad Foothills", "Ironforge", "Isle of Quel'Danas", "Loch Modan", "Redridge Mountains", "Searing Gorge", "Silvermoon City", "Silverpine Forest", "Stormwind City", "Stranglethorn Vale", "Swamp of Sorrows", "The Hinterlands", "Tirisfal Glades", "Undercity", "Western Plaguelands", "Westfall", "Wetlands"},
+      {"Blade's Edge Mountains", "Hellfire Peninsula", "Nagrand", "Netherstorm", "Shadowmoon Valley", "Shattrath City", "Terokkar Forest", "Zangarmarsh"},
+      {"Borean Tundra", "Crystalsong Forest", "Dalaran", "Dragonblight", "Grizzly Hills", "Howling Fjord", "Icecrown", "Sholazar Basin", "The Storm Peaks", "Wintergrasp", "Zul'Drak"},
+    },
+    mapnames = {
+      {"Ashenvale", "Aszhara", "AzuremystIsle", "BloodmystIsle", "Darkshore", "Darnassis", "Desolace", "Durotar", "Dustwallow", "Felwood", "Feralas", "Moonglade", "Mulgore", "Ogrimmar", "Silithus", "StonetalonMountains", "Tanaris", "Teldrassil", "Barrens", "TheExodar", "ThousandNeedles", "ThunderBluff", "UngoroCrater", "Winterspring", [0] = "Kalimdor"},
+      {"Alterac", "Arathi", "Badlands", "BlastedLands", "BurningSteppes", "DeadwindPass", "DunMorogh", "Duskwood", "EasternPlaguelands", "Elwynn", "EversongWoods", "Ghostlands", "Hilsbrad", "Ironforge", "Sunwell", "LochModan", "Redridge", "SearingGorge", "SilvermoonCity", "Silverpine", "Stormwind", "Stranglethorn", "SwampOfSorrows", "Hinterlands", "Tirisfal", "Undercity", "WesternPlaguelands", "Westfall", "Wetlands", [0] = "Azeroth"},
+      {"BladesEdgeMountains", "Hellfire", "Nagrand", "Netherstorm", "ShadowmoonValley", "ShattrathCity", "TerokkarForest", "Zangarmarsh", [0] = "Expansion01"},
+      {"BoreanTundra", "CrystalsongForest", "Dalaran", "Dragonblight", "GrizzlyHills", "HowlingFjord", "IcecrownGlacier", "SholazarBasin", "TheStormPeaks", "LakeWintergrasp", "ZulDrak", [0] = "Northrend"},
+    },
+    iswrath32 = false,
+    output_id = "3.1",
+  },
+}
+
+for _, lkup in ipairs(lookups) do
   local world = {}
   local cropy = {
     "string",
@@ -89,33 +134,21 @@ do
   world.CreateFrame = function () return {Hide = function () end, SetParent = function () end, UnregisterAllEvents = function () end, RegisterEvent = function () end, SetScript = function () end} end
   world.GetMapContinents = function () return "Kalimdor", "Eastern Kingdoms", "Outland", "Northrend" end
   world.GetMapZones = function (z)
-    local db = {
-      {"Ashenvale", "Azshara", "Azuremyst Isle", "Bloodmyst Isle", "Darkshore", "Darnassus", "Desolace", "Durotar", "Dustwallow Marsh", "Felwood", "Feralas", "Moonglade", "Mulgore", "Orgrimmar", "Silithus", "Stonetalon Mountains", "Tanaris", "Teldrassil", "The Barrens", "The Exodar", "Thousand Needles", "Thunder Bluff", "Un'Goro Crater", "Winterspring"},
-      {"Alterac Mountains", "Arathi Highlands", "Badlands", "Blasted Lands", "Burning Steppes", "Deadwind Pass", "Dun Morogh", "Duskwood", "Eastern Plaguelands", "Elwynn Forest", "Eversong Woods", "Ghostlands", "Hillsbrad Foothills", "Ironforge", "Isle of Quel'Danas", "Loch Modan", "Redridge Mountains", "Searing Gorge", "Silvermoon City", "Silverpine Forest", "Stormwind City", "Stranglethorn Vale", "Swamp of Sorrows", "The Hinterlands", "Tirisfal Glades", "Undercity", "Western Plaguelands", "Westfall", "Wetlands"},
-      {"Blade's Edge Mountains", "Hellfire Peninsula", "Nagrand", "Netherstorm", "Shadowmoon Valley", "Shattrath City", "Terokkar Forest", "Zangarmarsh"},
-      {"Borean Tundra", "Crystalsong Forest", "Dalaran", "Dragonblight", "Grizzly Hills", "Howling Fjord", "Icecrown", "Sholazar Basin", "The Storm Peaks", "Wintergrasp", "Zul'Drak"},
-    }
+    local db = lkup.realnames
     return unpack(db[z])
   end
   
   local tc, tz
   world.SetMapZoom = function (c, z) tc, tz = c, z end
   world.GetMapInfo = function ()
-    local db = {
-      {"Ashenvale", "Aszhara", "AzuremystIsle", "BloodmystIsle", "Darkshore", "Darnassis", "Desolace", "Durotar", "Dustwallow", "Felwood", "Feralas", "Moonglade", "Mulgore", "Ogrimmar", "Silithus", "StonetalonMountains", "Tanaris", "Teldrassil", "Barrens", "TheExodar", "ThousandNeedles", "ThunderBluff", "UngoroCrater", "Winterspring", [0] = "Kalimdor"},
-      {"Alterac", "Arathi", "Badlands", "BlastedLands", "BurningSteppes", "DeadwindPass", "DunMorogh", "Duskwood", "EasternPlaguelands", "Elwynn", "EversongWoods", "Ghostlands", "Hilsbrad", "Ironforge", "Sunwell", "LochModan", "Redridge", "SearingGorge", "SilvermoonCity", "Silverpine", "Stormwind", "Stranglethorn", "SwampOfSorrows", "Hinterlands", "Tirisfal", "Undercity", "WesternPlaguelands", "Westfall", "Wetlands", [0] = "Azeroth"},
-      {"BladesEdgeMountains", "Hellfire", "Nagrand", "Netherstorm", "ShadowmoonValley", "ShattrathCity", "TerokkarForest", "Zangarmarsh", [0] = "Expansion01"},
-      {"BoreanTundra", "CrystalsongForest", "Dalaran", "Dragonblight", "GrizzlyHills", "HowlingFjord", "IcecrownGlacier", "SholazarBasin", "TheStormPeaks", "LakeWintergrasp", "ZulDrak", [0] = "Northrend"},
-    }
-    
-    return db[tc][tz]
+    return lkup.mapnames[tc][tz]
   end
   world.IsLoggedIn = function () end
   
   world.QuestHelper_File = {}
   world.QuestHelper_Loadtime = {}
   world.GetTime = function() return 0 end
-  world.QuestHelper = { Assert = function (self, ...) assert(...) end, CreateTable = function() return {} end, ReleaseTable = function() end, TextOut = function(qh, ...) print(...) end, IsWrath32 = function () return false end }
+  world.QuestHelper = { Assert = function (self, ...) assert(...) end, CreateTable = function() return {} end, ReleaseTable = function() end, TextOut = function(qh, ...) print(...) end, IsWrath32 = function () return lkup.iswrath32 end }
   
   setfenv(loadfile("../questhelper/AstrolabeQH/DongleStub.lua"), world)()
   setfenv(loadfile("../questhelper/AstrolabeQH/AstrolabeMapMonitor.lua"), world)()
@@ -123,13 +156,35 @@ do
   setfenv(loadfile("../questhelper/upgrade.lua"), world)()
   
   world.QuestHelper.Astrolabe = world.DongleStub("Astrolabe-0.4-QuestHelper")
-  Astrolabe = world.QuestHelper.Astrolabe
-  assert(Astrolabe)
+  QH_AL[lkup.output_id] = world.QuestHelper.Astrolabe
+  assert(QH_AL[lkup.output_id])
   
   world.QuestHelper_BuildZoneLookup()
   
-  QuestHelper_IndexLookup = world.QuestHelper_IndexLookup
-  QuestHelper_ZoneLookup = world.QuestHelper_ZoneLookup
+  QH_IL[lkup.output_id] = world.QuestHelper_IndexLookup
+  QH_ZL[lkup.output_id] = world.QuestHelper_ZoneLookup
+end
+
+
+local function get_index(v)
+  assert(v)
+  if v == "0.1.0" then return "3.1" end
+  if v == "0.2.0" then return "3.2" end
+  if version_lessthan(v, "3.0.0") then print("Unknown version - ", v) assert(false) end
+  if version_lessthan(v, "3.2.0") then return "3.1" end
+  if v == "3.2.0" then return "3.2" end
+  print("invalid version", v)
+  assert(false, v)
+end
+
+function QuestHelper_IndexLookup(v)
+  return QH_IL[get_index(v)]
+end
+function QuestHelper_ZoneLookup(v)
+  return QH_ZL[get_index(v)]
+end
+function Astrolabe(v)
+  return QH_AL[get_index(v)]
 end
 
 -- LuaSrcDiet embedding
@@ -258,6 +313,7 @@ function version_parse(x)
   return rv
 end
 
+-- sortversion(a,b) is equivalent to a>b
 function sortversion(a, b)
   local ap, bp = version_parse(a), version_parse(b)
   if not ap and not bp then return false end
@@ -269,6 +325,9 @@ function sortversion(a, b)
     end
   end
   return false
+end
+function version_lessthan(a, b) -- sigh
+  return sortversion(b, a)
 end
 
 function tablesize(tab)
@@ -290,24 +349,24 @@ function loc_version(ver)
   end
 end
 
-function convert_loc(loc, locale, lv)
+function convert_loc(loc, locale, lv, wowv)
   if not loc then return end
   assert(locale)
   if locale ~= "enUS" then return end -- arrrgh, to be fixed eventually. the problem is that .rc and .rz change based on the locale, so I need to snapshot conversions for all locales :(
   
   local lr = loc.relative
   if loc.relative then
-    loc.c, loc.x, loc.y = Astrolabe:GetAbsoluteContinentPosition(loc.rc, loc.rz, loc.x, loc.y)
+    loc.c, loc.x, loc.y = Astrolabe(wowv):GetAbsoluteContinentPosition(loc.rc, loc.rz, loc.x, loc.y)
     loc.relative = false
   end
   
-  if not loc.c or not QuestHelper_IndexLookup[loc.rc] then return end
+  if not loc.c or not QuestHelper_IndexLookup(wowv)[loc.rc] then return end
   
-  if not QuestHelper_IndexLookup[loc.rc] or not QuestHelper_IndexLookup[loc.rc][loc.rz] then
-    print(loc.c, loc.rc, loc.rz, QuestHelper_IndexLookup, QuestHelper_IndexLookup[loc.rc])
-    print(loc.c, loc.rc, loc.rz, QuestHelper_IndexLookup, QuestHelper_IndexLookup[loc.rc], QuestHelper_IndexLookup[loc.rc][loc.rz])
+  if not QuestHelper_IndexLookup(wowv)[loc.rc] or not QuestHelper_IndexLookup(wowv)[loc.rc][loc.rz] then
+    print(loc.c, loc.rc, loc.rz, QuestHelper_IndexLookup(wowv), QuestHelper_IndexLookup(wowv)[loc.rc])
+    print(loc.c, loc.rc, loc.rz, QuestHelper_IndexLookup(wowv), QuestHelper_IndexLookup(wowv)[loc.rc], QuestHelper_IndexLookup(wowv)[loc.rc][loc.rz])
   end
-  loc.p = QuestHelper_IndexLookup[loc.rc][loc.rz]
+  loc.p = QuestHelper_IndexLookup(wowv)[loc.rc][loc.rz]
   loc.rc, loc.rz = nil, nil
   
   if lv == 0 and loc.p == 71 then return end -- Icecrown, which I had offsync for a while
@@ -315,12 +374,12 @@ function convert_loc(loc, locale, lv)
   return loc
 end
 
-function convert_multiple_loc(locs, locale, lv)
+function convert_multiple_loc(locs, locale, lv, wowv)
   if not locs then return end
   
   for _, v in ipairs(locs) do
     if v.loc then
-      convert_loc(v.loc, locale, lv)
+      convert_loc(v.loc, locale, lv, wowv)
     end
   end
 end
@@ -436,15 +495,15 @@ function distance(a, b)
   return math.sqrt(x*x+y*y)
 end
 
-function valid_pos(ite)
+function valid_pos(ite, wowv)
   if not ite then return end
   if not ite.p or not ite.x or not ite.y then return end
-  if QuestHelper_ZoneLookup[ite.p][2] == 0 then return end -- this should get rid of locations showing up in "northrend" or whatever
+  if QuestHelper_ZoneLookup(wowv)[ite.p][2] == 0 then return end -- this should get rid of locations showing up in "northrend" or whatever
   return true
 end
 
-function position_accumulate(accu, tpos)
-  if not valid_pos(tpos) then return end
+function position_accumulate(accu, tpos, wowv)
+  if not valid_pos(tpos, wowv) then return end
   
   assert(tpos.priority)
   
@@ -454,6 +513,8 @@ function position_accumulate(accu, tpos)
   if not accu[tpos.p] then
     accu[tpos.p] = {}
   end
+  
+  accu["wowv_" .. wowv] = (accu["wowv_" .. wowv] or 0) + 1
   
   local conti = accu[tpos.p]
   local closest = nil
@@ -516,6 +577,13 @@ function position_finalize(sacu, mostest)
   
   local rv = weighted_concept_finalize(pozes, 0.8, 10)
   rv.solid = accu.solid
+  if dbg_data then
+    for k, v in pairs(accu) do
+      if type(k) == "string" then
+        rv[k] = v
+      end
+    end
+  end
   return rv
 end
 
@@ -592,7 +660,7 @@ end
 Standard data accumulation functions
 ]]
 
-function standard_pos_accum(accum, value, lv, locale, fluff)
+function standard_pos_accum(accum, value, lv, locale, fluff, wowv)
   if not fluff then fluff = 0 end
   for _, v in ipairs(value) do
     if math.mod(#v, 11 + fluff) ~= 0 then
@@ -602,8 +670,8 @@ function standard_pos_accum(accum, value, lv, locale, fluff)
   
   for _, v in ipairs(value) do
     for off = 1, #v, 11 + fluff do
-      local tite = convert_loc(slice_loc(v:sub(off, off + 10), lv), locale, lv)
-      if tite then position_accumulate(accum.loc, tite) end
+      local tite = convert_loc(slice_loc(v:sub(off, off + 10), lv), locale, lv, wowv)
+      if tite then position_accumulate(accum.loc, tite, wowv) end
     end
   end
 end

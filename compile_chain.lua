@@ -58,6 +58,20 @@ require("pluto")
 require("gzio")
 require("bit")
 
+local function safety(func, ...)
+  local dt = {...}
+  local it = select('#', ...)
+  
+  local rv, err = xpcall(function () return func(unpack(dt, 1, it)) end, function (ter) return ter .. "\n\n" .. debug.traceback() end)
+  if err then
+    print("safetyout")
+    print("RV, ERR", rv, err)
+    assert(false)
+  else
+    return rv
+  end
+end
+
 if not push_file_id then push_file_id = function () end end
 if not pop_file_id then pop_file_id = function () end end
 
@@ -221,7 +235,7 @@ function ChainBlock_Work()
       local fil = gzio.open(prefix .. "/" .. line, "r")
       local str, err = fil:read("*a")
       
-      assert(str, err, prefix .. "/" .. line)
+      --assert(str, err, prefix .. "/" .. line)
 
       fil:close()
 
@@ -320,7 +334,7 @@ function ChainBlock:Insert(key, subkey, value, identifier)
   else
     if not subkey then
       if type(value) == "table" and value.fileid then push_file_id(value.fileid) else push_file_id(-1) end
-      self:GetItem(key):Data(key, subkey, value, self.process)
+      safety(self:GetItem(key).Data, self:GetItem(key), key, subkey, value, self.process)
       pop_file_id()
     else
       table.insert(self:GetData(key), {subkey = subkey, value = value})
@@ -419,7 +433,7 @@ function ChainBlock:Finish()
         ProgressMessage(string.format("Sorting %s, %d/%d + %d/%d", self.id, sdcc, sdc, ict, #v))
         ict = ict + 1
         if d.value.fileid then push_file_id(d.value.fileid) else push_file_id(-1) end
-        item:Data(k, d.subkey, d.value, self.process, self.broadcast)
+        safety(item.Data, item, k, d.subkey, d.value, self.process, self.broadcast)
         pop_file_id()
       end
       
@@ -430,7 +444,7 @@ function ChainBlock:Finish()
     
     self.data = {}
     for k, v in pairs(self.items) do
-      if v.Finish then v:Finish(self.process, self.broadcast) end
+      if v.Finish then safety(v.Finish, v, self.process, self.broadcast) end
       self.items[k] = 0
     end
     self.items = {}

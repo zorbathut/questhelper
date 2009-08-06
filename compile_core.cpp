@@ -427,6 +427,7 @@ extern "C" int init(lua_State* L) {
   [
     def("push_file_id", &push_file_id),
     def("pop_file_id", &pop_file_id),
+    def("cur_file_id", &cur_file_id),
     def("slice_loc", &slice_loc, raw(_1)),
     def("split_quest_startend", &split_quest_startend, raw(_1)),
     def("split_quest_satisfied", &split_quest_satisfied, raw(_1)),

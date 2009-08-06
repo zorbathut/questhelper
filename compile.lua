@@ -7,14 +7,14 @@ local do_compile = true
 local do_questtables = true
 local do_flight = true
 
-local do_compress = false
+local do_compress = true
 local do_serialize = true
 
-local dbg_data = false
+dbg_data = false
 
---local s = 1048
---local e = 1048
---local e = 100
+--local s = 13580
+--local e = 13610
+--local e = 10000
 
 require "compile_lib"
 require "overrides"
@@ -37,6 +37,7 @@ local chainhead = ChainBlock_Create("parse", nil,
       
       if do_errors and dat.errors then
         for k, v in pairs(dat.errors) do
+          --do continue end -- ARGH
           if k ~= "version" then
             for _, d in pairs(v) do
               d.key = k
@@ -64,8 +65,11 @@ local chainhead = ChainBlock_Create("parse", nil,
         end]]
         assert(not v.compressed)
         
+        QuestHelper_IndexLookup(wowv) -- make sure we've got the version available
+        
         -- quests!
         if do_compile and do_questtables and v.quest then for qid, qdat in pairs(v.quest) do
+          --if qid ~= 14107 then continue end -- ARGH
           qdat.fileid = value.fileid
           qdat.locale = locale
           qdat.wowv = wowv
@@ -74,15 +78,19 @@ local chainhead = ChainBlock_Create("parse", nil,
         
         -- items!
         if do_compile and do_questtables and v.item then for iid, idat in pairs(v.item) do
+          --do continue end -- ARGH
           idat.fileid = value.fileid
           idat.locale = locale
+          idat.wowv = wowv
           Output(tostring(iid), qhv, idat, "item")
         end end
         
         -- monsters!
         if do_compile and do_questtables and v.monster then for mid, mdat in pairs(v.monster) do
+          --do continue end -- ARGH
           mdat.fileid = value.fileid
           mdat.locale = locale
+          mdat.wowv = wowv
           Output(tostring(mid), qhv, mdat, "monster")
         end end
         
@@ -94,12 +102,14 @@ local chainhead = ChainBlock_Create("parse", nil,
         
         -- flight masters!
         if do_compile and do_flight and v.flight_master then for fmname, fmdat in pairs(v.flight_master) do
+          --do continue end -- ARGH
           if type(fmdat.master) == "string" then continue end  -- I don't even know how this is possible
           Output(string.format("%s@@%s@@%s", faction, fmname, locale), qhv, {dat = fmdat, wowv = wowv}, "flight_master")
         end end
         
         -- flight times!
         if do_compile and do_flight and v.flight_times then for ftname, ftdat in pairs(v.flight_times) do
+          --do continue end -- ARGH
           Output(string.format("%s@@%s@@%s", ftname, faction, locale), qhv, ftdat, "flight_times")
         end end
         
@@ -128,7 +138,7 @@ local chainhead = ChainBlock_Create("parse", nil,
                       break
                     end
                     
-                    pos.c = QuestHelper_ZoneLookup[ite.p][1]
+                    pos.c = QuestHelper_ZoneLookup(wowv)[ite.p][1]
                     table.insert(items, pos)
                   end
                 end
@@ -167,7 +177,7 @@ if false and do_compile then
       Data = function(self, key, subkey, value, Output)
         local name, locale = key:match("(.*)@@(.*)")
         
-        if standard_pos_accum(self.accum, value, loc_version(subkey), locale) then return end
+        if standard_pos_accum(self.accum, value, loc_version(subkey), locale, nil, value.wowv) then return end
         
         while #value > 0 do table.remove(value) end
         
@@ -457,7 +467,7 @@ if do_compile and do_questtables then
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
-        if standard_pos_accum(self.accum, value, loc_version(subkey), value.locale, 2) then return end
+        if standard_pos_accum(self.accum, value, loc_version(subkey), value.locale, 2, value.wowv) then return end
         if standard_name_accum(self.accum.name, value) then return end
         
         loot_accumulate(value, {type = "monster", id = tonumber(key)}, Output)
@@ -672,21 +682,30 @@ if do_compile and do_questtables then
   quest_slurp = ChainBlock_Create("quest_slurp", {chainhead --[[, item_name_package]]},
     function (key) return {
       accum = {name = {}, criteria = {}, level = {}, start = {}, finish = {}},
+      tof = {},
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
-        if overrides.quest[tonumber(key)] and sortversion(overrides.quest[tonumber(key)], value.wowv) then print("Threw out", key, value.wowv, overrides.quest[tonumber(key)]) return end
+        assert(value.wowv)
+        if overrides.quest[tonumber(key)] and sortversion(overrides.quest[tonumber(key)], value.wowv) then
+          if not self.tof[value.wowv] then
+            print("Threw out", key, value.wowv, overrides.quest[tonumber(key)])
+            self.tof[value.wowv] = true
+          end
+          return
+        end
 
         local lv = loc_version(subkey)
         
         -- Split apart the start/end info. This includes locations and possibly the monster that was targeted.
         if value.start then
           value.start = split_quest_startend(value.start, lv)
-          convert_multiple_loc(value.start, value.locale)
+          assert(value.wowv)
+          convert_multiple_loc(value.start, value.locale, lv, value.wowv)
         end
         if value["end"] then   --sigh
           value.finish = split_quest_startend(value["end"], lv)
-          convert_multiple_loc(value.finish, value.locale)
+          convert_multiple_loc(value.finish, value.locale, lv, value.wowv)
           value["end"] = nil
         end
         
@@ -699,7 +718,7 @@ if do_compile and do_questtables then
             
             if token == "satisfied" then
               value[k] = split_quest_satisfied(value[k], lv)
-              convert_multiple_loc(value[k], value.locale, lv)
+              convert_multiple_loc(value[k], value.locale, lv, value.wowv)
             end
             
             if not value.criteria[tonumber(item)] then value.criteria[tonumber(item)] = {} end
@@ -709,8 +728,8 @@ if do_compile and do_questtables then
         end
         
         -- Accumulate the old criteria strings into our new data
-        if value.start then for k, v in pairs(value.start) do position_accumulate(self.accum.start, v.loc) end end
-        if value.finish then for k, v in pairs(value.finish) do position_accumulate(self.accum.finish, v.loc) end end
+        if value.start then for k, v in pairs(value.start) do position_accumulate(self.accum.start, v.loc, value.wowv) end end
+        if value.finish then for k, v in pairs(value.finish) do position_accumulate(self.accum.finish, v.loc, value.wowv) end end
         
         self.accum.appearances = (self.accum.appearances or 0) + 1
         for id, dat in pairs(value.criteria) do
@@ -719,7 +738,7 @@ if do_compile and do_questtables then
           
           if dat.satisfied then
             for k, v in pairs(dat.satisfied) do
-              position_accumulate(cid.loc, v.loc)
+              position_accumulate(cid.loc, v.loc, value.wowv)
               cid.count = cid.count + (v.c or 1)
               list_accumulate(cid, "monster", v.monster)
               list_accumulate(cid, "item", v.item)
@@ -1388,7 +1407,7 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
       end end
       table.sort(qct, function(a, b) return a.ct < b.ct end)
       for _, v in ipairs(qct) do
-        print("qct", v.ct, v.id, v.reason)
+        --print("qct", v.ct, v.id, v.reason)
       end
       
       -- Then we mark used/unused items
@@ -1901,11 +1920,11 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
             spinning = spinning + 1
             table.insert(path, table.remove(path, 1))
             if spinning > #path then
-              print("Can't seem to tesselate")
+              print("Can't seem to tesselate", spinning, #path)
               for i = 1, #path do
                 print("  ", path[i][1], path[i][2])
               end
-              assert(false)
+              break
             end
           end
           
@@ -2458,9 +2477,8 @@ local function readdir()
   pip:close()
   local filz = {}
   for f in string.gmatch(flist, "[^\n]+") do
-    if not s or count >= s then table.insert(filz, {fname = f, id = count}) end
+    table.insert(filz, {fname = f, id = count})
     count = count + 1
-    if e and count > e then break end
   end
   return filz
 end
@@ -2468,7 +2486,7 @@ end
 local filout = readdir("data/08")
 
 for k, v in pairs(filout) do
-  --print(string.format("%d/%d: %s", k, #filz, v.fname))
+  --print(string.format("%d/%d: %s", k, #filout, v.fname))
   chainhead:Insert(v.fname, nil, {fileid = v.id})
 end
 
