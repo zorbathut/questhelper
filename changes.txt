@@ -1,4 +1,15 @@
 
+== Version 1.1.9 8/6/2009 ==
+
+* Fix mouseover tooltip for monsters
+* Fix group filter to filter out heroics
+* Remove the option to disable Blizzard map icons, as Blizzard got there before I did and made it mandatory
+(seriously blizzard, what happened? this is not that hard to get right)
+* Deal with unknown quest objectives properly, where properly is defined as "not by putting them north of Azuremyst in the ocean"
+* Fix some issues with 3.2 building causing Icecrown quests to end up in Sholazar
+
+Known bug: if you're Alliance, doing the Taking Battle To The Enemy quest, it will show your quest monsters in the wrong place. I made a typo and it's a 2-hour rebuild to fix, so I'm pushing now - just live with it until either next week or until I run into another build that requires a thursday or friday push. (I know about this bug because I have the very same quest, so I feel your pain.)
+
 == Version 1.1.8 8/4/2009 ==
 
 * Fix error in error handling causing non-serious errors to incorrectly be handled as serious errors, thus causing a serious error to occur, which, itself, was handled incorrectly.
