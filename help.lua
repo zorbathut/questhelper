@@ -156,10 +156,8 @@ end
 function QuestHelper:ToggleBlizzMap()
   QuestHelper_Pref.blizzmap = not QuestHelper_Pref.blizzmap
   if QuestHelper_Pref.blizzmap then
-    self:ShowTracker()
     self:TextOut("The Blizzard quest points have been |cff00ff00enabled|r.")
   else
-    self:HideTracker()
     self:TextOut("The Blizzard quest points have been |cffff0000disabled|r.")
   end
   
@@ -804,9 +802,9 @@ commands =
   }},
   
   { "Interface", {
-    {"BLIZZMAP",
+    --[[{"BLIZZMAP",
      "Toggles the visibility of Blizzard's built-in map points.",
-     {}, QuestHelper.ToggleBlizzMap, QuestHelper},
+     {}, QuestHelper.ToggleBlizzMap, QuestHelper},]]
     
     {"TRACK",
      "Toggles the visibility of the QuestHelper's replacement quest tracker.",
