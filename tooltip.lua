@@ -208,7 +208,7 @@ local function StripBlizzQHTooltipClone(ttp)
       end
       DoTooltip(ttp, ite[2], ite[1], ttsplat and QHFormat("TOOLTIP_SLAY", ttsplat))
       hideme = true
-    elseif r == 255 and g == 255 and b == 255 and a == 255 and qobj and thistextm and thistext:find(":") then  -- Blizzard cleverly does not suppress tooltips when the user has finished getting certain items, so we do instead
+    elseif r == 255 and g == 255 and b == 255 and a == 255 and qobj and thistextm and not thistextm:find(":") then  -- Blizzard cleverly does not suppress tooltips when the user has finished getting certain items, so we do instead
       DoTooltipDefault(ttp, qobj_name, thistextm)
       hideme = true
     end
@@ -239,6 +239,7 @@ function CreateTooltip(self)
     local un, ulink = self:GetUnit()
     if ulink then ulink = UnitGUID(ulink) end
     
+    --[[
     if ilink then
       local ite = tostring(GetItemType(ilink))
       
@@ -247,7 +248,7 @@ function CreateTooltip(self)
       end
       
       self:Show()
-    end
+    end]]
     
     if qh_tooltip_print_a_lot then print("wut", ulink, IsMonsterGUID(ulink)) print(ulink) print(IsMonsterGUID(ulink)) end
     if ulink and IsMonsterGUID(ulink) then
