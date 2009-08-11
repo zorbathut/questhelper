@@ -6,7 +6,6 @@ local version_string = QuestHelper_File["main.lua"] -- we pretty much save this 
 -- Just to make sure it's always 'seen' (there's nothing that can be seen, but still...), and therefore always updating.
 QuestHelper:SetFrameStrata("TOOLTIP")
 
-QuestHelper_SaveVersion = 10
 QuestHelper_CharVersion = 1
 QuestHelper_Locale = GetLocale() -- This variable is used only for the collected data, and has nothing to do with displayed text.
 QuestHelper_Quests = {}
@@ -346,31 +345,21 @@ QH_Event("ADDON_LOADED", function (addonid)
   end
 
   if file_problem then
-    StaticPopupDialogs["QH_FILEPROB"] = {
-      text = QHText("PLEASE_RESTART"),
-      button1 = OKAY,
-      OnAccept = function(self)
-      end,
-      timeout = 0,
-      whileDead = 1,
-      hideOnEscape = 1
-    }
-    
-    StaticPopup_Show("QH_FILEPROB")
+    QH_fixedmessage(QHText("PLEASE_RESTART"))
     QuestHelper_ErrorCatcher_ExplicitError(true, "not-installed-properly" .. "\n" .. uninstallederr)
     QuestHelper = nil     -- Just in case anybody else is checking for us, we're not home
     return
   end
   
   if not GetCategoryList or not GetQuestLogSpecialItemInfo or not WatchFrame_RemoveObjectiveHandler then
-    message(QHText("PRIVATE_SERVER"))
+    QH_fixedmessage(QHText("PRIVATE_SERVER"))
     QuestHelper_ErrorCatcher_ExplicitError(true, "error id cakbep ten T")
     QuestHelper = nil
     return
   end
   
   if not DongleStub then
-    message(QHText("NOT_UNZIPPED_CORRECTLY"))
+    QH_fixedmessage(QHText("NOT_UNZIPPED_CORRECTLY"))
     QuestHelper_ErrorCatcher_ExplicitError(true, "not-unzipped-properly")
     QuestHelper = nil     -- Just in case anybody else is checking for us, we're not home
     return
@@ -400,19 +389,15 @@ QH_Event("ADDON_LOADED", function (addonid)
     return
   end
 
-  if not self:ZoneSanity() then
-    self:TextOut(QHText("ZONE_LAYOUT_ERROR"))
-    message("QuestHelper: "..QHText("ZONE_LAYOUT_ERROR"))
+  if true or not self:ZoneSanity() then
+    self:TextOut(QHFormat("ZONE_LAYOUT_ERROR", expected_version))
+    QH_fixedmessage(QHFormat("ZONE_LAYOUT_ERROR", expected_version))
+    QuestHelper = nil
     return
   end
 
   QuestHelper_UpgradeDatabase(_G)
   QuestHelper_UpgradeComplete()
-  
-  if QuestHelper_SaveVersion ~= 10 then
-    self:TextOut(QHText("DOWNGRADE_ERROR"))
-    return
-  end
   
   if QuestHelper_IsPolluted(_G) then
     self:TextOut(QHFormat("NAG_POLLUTED"))

@@ -23,7 +23,7 @@ function QH_Hook_NotMyFault(func, ...)
 end
 
 local function wraptime(ident, func, ...)
-  QuestHelper: Assert(ident)
+  if QuestHelper then QuestHelper: Assert(ident) end
   local st, qhh_nmf
   local qhh_adj = 0
   if qh_loud_and_annoying then
@@ -97,6 +97,8 @@ local time_per_frame = 0.01 -- Assume 100fps so we don't fuck with people's fram
 local OnUpdate = {}
 local OnUpdateHigh = {}
 local function OnUpdateTrigger(_, ...)
+  if not QuestHelper then return end
+  
   if not next_started then next_started, time_used = true, 0 end
   
   do
