@@ -154,7 +154,16 @@ function QuestHelper_ErrorCatcher_ExplicitError(loud, o_msg, o_frame, o_stack, .
 
   if (--[[debug_output or]] loud) and not yelled_at_user then
     --print("qhbroken")
-    if ScriptErrors == nil then ScriptErrors = true end
+    StaticPopupDialogs["QH_EXPLODEY"] = {
+      text = "QuestHelper has broken. You may have to restart WoW. Type \"/qh error\" for a detailed error message.",
+      button1 = OKAY,
+      OnAccept = function(self)
+      end,
+      timeout = 0,
+      whileDead = 1,
+      hideOnEscape = 1
+    }
+    
     StaticPopup_Show("QH_EXPLODEY")
     yelled_at_user = true
   end
