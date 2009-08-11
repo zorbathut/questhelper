@@ -1,4 +1,14 @@
 
+== Version 1.1.10 8/10/2009 ==
+
+* Fix issue causing error messages to not be displayed properly
+* Redisplay tooltip entries that are not actual objectives
+* Disable some ancient old code that probably wasn't working but definitely was crashing
+* Maybe fix the new batch of fascinating performance issues (or maybe not! Who can say? It is a mystery!)
+* Update database, dealing properly with another pile of quests that were changed in 3.2 (let me know if you find more)
+* Why can't I catch this last stupid terrorfish
+* Oh there it is
+
 == Version 1.1.9 8/6/2009 ==
 
 * Fix mouseover tooltip for monsters

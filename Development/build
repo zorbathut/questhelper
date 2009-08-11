@@ -64,6 +64,7 @@ QuestHelper_Loadtime = {}
 
 loadfile("dump.lua")()
 loadfile("fileutil.lua")()
+QuestHelper = {IsWrath32 = function () return true end}
 loadfile("../upgrade.lua")()
 loadfile("compiler.lua")()
 loadfile("pepperfish.lua")()
