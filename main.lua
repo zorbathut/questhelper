@@ -346,7 +346,17 @@ QH_Event("ADDON_LOADED", function (addonid)
   end
 
   if file_problem then
-    message(QHText("PLEASE_RESTART"))
+    StaticPopupDialogs["QH_FILEPROB"] = {
+      text = QHText("PLEASE_RESTART"),
+      button1 = OKAY,
+      OnAccept = function(self)
+      end,
+      timeout = 0,
+      whileDead = 1,
+      hideOnEscape = 1
+    }
+    
+    StaticPopup_Show("QH_FILEPROB")
     QuestHelper_ErrorCatcher_ExplicitError(true, "not-installed-properly" .. "\n" .. uninstallederr)
     QuestHelper = nil     -- Just in case anybody else is checking for us, we're not home
     return
