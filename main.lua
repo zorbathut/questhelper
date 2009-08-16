@@ -189,7 +189,8 @@ QH_Event("ADDON_LOADED", function (addonid)
   -- Use DefaultPref as fallback for unset preference keys.
   setmetatable(QuestHelper_Pref, {__index=QuestHelper_DefaultPref})
   
-  local file_problem = false
+  local file_problem_version = false
+  
   local expected_version = GetAddOnMetadata("QuestHelper", "Version")
 
   local expected_files =
@@ -302,6 +303,9 @@ QH_Event("ADDON_LOADED", function (addonid)
       
       ["graph_core.lua"] = true,
       ["graph_flightpath.lua"] = true,
+      
+      ["AstrolabeQH/Astrolabe.lua"] = true,
+      ["AstrolabeQH/AstrolabeMapMonitor.lua"] = true,
     }
     
   local uninstallederr = ""
@@ -311,14 +315,14 @@ QH_Event("ADDON_LOADED", function (addonid)
       local errmsg = "Unexpected QuestHelper file: "..file
       DEFAULT_CHAT_FRAME:AddMessage(errmsg)
       uninstallederr = uninstallederr .. "    " .. errmsg .. "\n"
-      file_problem = true
+      file_problem_version = true
     elseif version ~= expected_version then
       local errmsg = "Wrong version of QuestHelper file: "..file.." (found '"..version.."', should be '"..expected_version.."')"
       DEFAULT_CHAT_FRAME:AddMessage(errmsg)
       uninstallederr = uninstallederr .. "    " .. errmsg .. "\n"
       if version ~= "Development Version" and expected_version ~= "Development Version" then
         -- Developers are allowed to mix dev versions with release versions
-        file_problem = true
+        file_problem_version = true
       end
     end
   end
@@ -328,7 +332,7 @@ QH_Event("ADDON_LOADED", function (addonid)
       local errmsg = "Missing QuestHelper file: "..file
       DEFAULT_CHAT_FRAME:AddMessage(errmsg)
       uninstallederr = uninstallederr .. "    " .. errmsg .. "\n"
-      if not (expected_version == "Development Version" and file:match("static.*")) then file_problem = true end
+      if not (expected_version == "Development Version" and file:match("static.*")) then file_problem_version = true end
     end
   end
 
@@ -339,28 +343,27 @@ QH_Event("ADDON_LOADED", function (addonid)
     local errmsg = "Static data does not seem to exist"
     DEFAULT_CHAT_FRAME:AddMessage(errmsg)
     
-    -- TODO: Are you sure this should be an error? Shouldn't we let people we don't have data for collect their own?
     uninstallederr = uninstallederr .. "    " .. errmsg .. "\n"
-    file_problem = true
+    file_problem_version = true
   end
 
-  if file_problem then
+  if file_problem_version then
     QH_fixedmessage(QHText("PLEASE_RESTART"))
-    QuestHelper_ErrorCatcher_ExplicitError(true, "not-installed-properly" .. "\n" .. uninstallederr)
+    QuestHelper_ErrorCatcher_ExplicitError(false, "not-installed-properly" .. "\n" .. uninstallederr)
     QuestHelper = nil     -- Just in case anybody else is checking for us, we're not home
     return
   end
   
   if not GetCategoryList or not GetQuestLogSpecialItemInfo or not WatchFrame_RemoveObjectiveHandler then
     QH_fixedmessage(QHText("PRIVATE_SERVER"))
-    QuestHelper_ErrorCatcher_ExplicitError(true, "error id cakbep ten T")
+    QuestHelper_ErrorCatcher_ExplicitError(false, "error id cakbep ten T")
     QuestHelper = nil
     return
   end
   
-  if not DongleStub then
+  if not DongleStub or not QH_Astrolabe_Ready then
     QH_fixedmessage(QHText("NOT_UNZIPPED_CORRECTLY"))
-    QuestHelper_ErrorCatcher_ExplicitError(true, "not-unzipped-properly")
+    QuestHelper_ErrorCatcher_ExplicitError(false, "not-unzipped-properly")
     QuestHelper = nil     -- Just in case anybody else is checking for us, we're not home
     return
   end
@@ -389,7 +392,7 @@ QH_Event("ADDON_LOADED", function (addonid)
     return
   end
 
-  if true or not self:ZoneSanity() then
+  if not self:ZoneSanity() then
     self:TextOut(QHFormat("ZONE_LAYOUT_ERROR", expected_version))
     QH_fixedmessage(QHFormat("ZONE_LAYOUT_ERROR", expected_version))
     QuestHelper = nil

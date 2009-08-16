@@ -40,6 +40,9 @@ Note:
 	http://www.fsf.org/licensing/licenses/gpl-faq.html#InterpreterIncompat
 ]]
 
+QuestHelper_File["AstrolabeQH/Astrolabe.lua"] = "Development Version"
+QuestHelper_Loadtime["AstrolabeQH/Astrolabe.lua"] = GetTime()
+
 -- WARNING!!!
 -- DO NOT MAKE CHANGES TO THIS LIBRARY WITHOUT FIRST CHANGING THE LIBRARY_VERSION_MAJOR
 -- STRING (to something unique) OR ELSE YOU MAY BREAK OTHER ADDONS THAT USE THIS LIBRARY!!!
@@ -1869,3 +1872,6 @@ end
 -- register this library with AstrolabeMapMonitor, this will cause a full update if PLAYER_LOGIN has already fired
 local AstrolabeMapMonitor = DongleStub("AstrolabeMapMonitor");
 AstrolabeMapMonitor:RegisterAstrolabeLibrary(Astrolabe, LIBRARY_VERSION_MAJOR);
+
+
+QH_Astrolabe_Ready = true
