@@ -33,6 +33,9 @@ Later, we'll provide something similar on items (or just dump items entirely? it
 ]]
 
 local QH_Timeslice_Yield = QH_Timeslice_Yield -- performance hack :(
+local mpow = math.pow
+local pairs, ipairs = pairs, ipairs
+local random = math.random
 
 local OptimizationHackery = false
 
@@ -408,7 +411,7 @@ local function GetWeight(x, y)
     QuestHelper: Assert(y <= CurrentNodes)
     QuestHelper: Assert(false)
   end
-  local weight = math.pow(Weight[x][y], WeightFactor) * math.pow(Distance[x][y] + DistanceDeweight, DistanceFactor)
+  local weight = mpow(Weight[x][y], WeightFactor) * mpow(Distance[x][y] + DistanceDeweight, DistanceFactor)
   --print(Weight[idx], Weight[revidx], bonus, WeightFactor, Distance[idx], DistanceFactor)
   --ValidateNumber(weight)
   return weight
@@ -587,7 +590,7 @@ local function RunAnt()
       end
     
       tweight = accumulated_weight
-      accumulated_weight = accumulated_weight * math.random()
+      accumulated_weight = accumulated_weight * random()
       
       QH_Timeslice_Yield()
       
