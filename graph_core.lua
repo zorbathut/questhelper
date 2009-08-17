@@ -14,7 +14,10 @@ QuestHelper_Loadtime["graph_core.lua"] = GetTime()
 
 -- Make a map from "phase" to "flyphase". Store all the links we're being told to make. When placing links, if the flyphase is flyable, we use the flyphase instead of the phase for placing. We don't place if it's an internal boundary (there's a few ways we can detect this, but let's just use the hacky one where we just look at the ID.) From there it's all pretty standard.
 
-local QH_Timeslice_Yield = QH_Timeslice_Yield -- performance hack :(
+-- performance hack :(
+local QH_Timeslice_Yield = QH_Timeslice_Yield
+local tinsert = table.insert
+local pairs, ipairs = pairs, ipairs
 
 local function heap_left(x) return (2*x) end
 local function heap_right(x) return (2*x + 1) end
@@ -40,7 +43,7 @@ end
 
 local function heap_insert(heap, item)
   assert(item)
-  table.insert(heap, item)
+  tinsert(heap, item)
   local pt = #heap
   while pt > 1 do
     local ptd2 = math.floor(pt / 2)
@@ -140,7 +143,7 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
       local dest = QuestHelper:CreateTable("graphcore destination")
       dest.x, dest.y, dest.p, dest.goal = v.x, v.y, cpvp, k
       link[k] = dest
-      table.insert(plane[cpvp], link[k])
+      tinsert(plane[cpvp], link[k])
       undone[k] = true
       remaining = remaining + 1
       --stats.dests_complex = --stats.dests_complex + 1
@@ -166,7 +169,7 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   do
     stnode.x, stnode.y, stnode.p, stnode.c, stnode.scan_id, stnode.scan_cost = st.x, st.y, canoplane(st.p), st.c, grid, 0
     QuestHelper: Assert(plane[canoplane(st.p)])
-    table.insert(plane[stnode.p], stnode)
+    tinsert(plane[stnode.p], stnode)
     
     local hep = QuestHelper:CreateTable("graphcore heap")
     hep.c, hep.n = 0, stnode  -- more than the subtraction, less than the minimum
@@ -284,10 +287,10 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
           QuestHelper: Assert(cpx)
           
           if cpx.scan_outnode then
-            table.insert(tpath, cpx.scan_outnode)
+            tinsert(tpath, cpx.scan_outnode)
           end
           if cpx.scan_outnode_from then
-            table.insert(tpath, cpx.scan_outnode_from)
+            tinsert(tpath, cpx.scan_outnode_from)
           end
           
           cpx = cpx.scan_from
@@ -296,7 +299,7 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
         
         if not reverse then
           for i = #tpath, 1, -1 do
-            table.insert(rp, tpath[i])
+            tinsert(rp, tpath[i])
           end
           
           QuestHelper: Assert(tpath ~= rp)
@@ -353,7 +356,7 @@ local function findnode(coord)
   end
   
   local nd = {x = coord.x, y = coord.y, p = p, name = coord.name}
-  table.insert(plane[p], nd)
+  tinsert(plane[p], nd)
   return nd
 end
 
@@ -389,15 +392,15 @@ local function QH_Graph_Plane_ReallyMakeLink(item)
   if not node1.links then node1.links = {} end
   if not node2.rlinks then node2.rlinks = {} end
   
-  table.insert(node1.links, {cost = cost, link = node2, outnode_to = n2d, outnode_from = n1d})
-  table.insert(node2.rlinks, {cost = cost, link = node1, outnode_to = n1d, outnode_from = n2d})
+  tinsert(node1.links, {cost = cost, link = node2, outnode_to = n2d, outnode_from = n1d})
+  tinsert(node2.rlinks, {cost = cost, link = node1, outnode_to = n1d, outnode_from = n2d})
   
   if cost_reverse then
     if not node1.rlinks then node1.rlinks = {} end
     if not node2.links then node2.links = {} end
     
-    table.insert(node1.rlinks, {cost = cost_reverse, link = node2, outnode_to = n2d, outnode_from = n1d})
-    table.insert(node2.links, {cost = cost_reverse, link = node1, outnode_to = n1d, outnode_from = n2d})
+    tinsert(node1.rlinks, {cost = cost_reverse, link = node2, outnode_to = n2d, outnode_from = n1d})
+    tinsert(node2.links, {cost = cost_reverse, link = node1, outnode_to = n1d, outnode_from = n2d})
   end
 end
 
@@ -418,7 +421,7 @@ function QH_Graph_Plane_Makelink(name, coord1, coord2, cost, cost_reverse)
   
   local tlink = {name, coord1, coord2, cost, cost_reverse}
   if not linkages[name] then linkages[name] = {} end
-  table.insert(linkages[name], tlink)
+  tinsert(linkages[name], tlink)
   
   QH_Graph_Plane_ReallyMakeLink(tlink)
 end
@@ -430,7 +433,7 @@ local function QH_Graph_Plane_Destroylinkslocal(name)
     local repl = {}
     for tk, tv in ipairs(v) do
       if tv.name ~= name then
-        table.insert(repl, tv)
+        tinsert(repl, tv)
       end
     end
     plane[k] = repl
