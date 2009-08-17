@@ -208,6 +208,8 @@ local function StripBlizzQHTooltipClone(ttp)
       end
       DoTooltip(ttp, ite[2], ite[1], ttsplat and QHFormat("TOOLTIP_SLAY", ttsplat))
       hideme = true
+    elseif r == 255 and g == 255 and b == 255 and a == 255 and qobj and thistextm and not qobj[thistextm] and thistextm:find(":") then
+      hideme = true -- it parses as an objective, but we don't know about it, so it's probably a completed objective. todo: actually store completed objectives.
     elseif r == 255 and g == 255 and b == 255 and a == 255 and qobj and thistextm and not thistextm:find(":") then  -- Blizzard cleverly does not suppress tooltips when the user has finished getting certain items, so we do instead
       DoTooltipDefault(ttp, qobj_name, thistextm)
       hideme = true
