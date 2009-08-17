@@ -4,6 +4,7 @@
 * Try to handle installation errors better, part 1/2. Stopping here so I can make sure the current code works - if it does, I'll be doing some more work in the next version.
 * Minor performance boost
 * Update database, all new quests should be working just fine now
+* [[http://www.mandible.net|Made another game. You should play it.]]
 
 == Version 1.1.10 8/10/2009 ==
 
