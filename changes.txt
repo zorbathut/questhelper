@@ -1,4 +1,10 @@
 
+== Version 1.1.11 8/17/2009 ==
+
+* Try to handle installation errors better, part 1/2. Stopping here so I can make sure the current code works - if it does, I'll be doing some more work in the next version.
+* Minor performance boost
+* Update database, all new quests should be working just fine now
+
 == Version 1.1.10 8/10/2009 ==
 
 * Fix issue causing error messages to not be displayed properly
