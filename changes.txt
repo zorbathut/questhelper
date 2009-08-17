@@ -5,6 +5,7 @@
 * Minor performance boost
 * Tweak to the tooltip to avoid showing unnecessary clutter
 * Update database, all new quests should be working just fine now
+* [[http://www.mandible.net|Made another game. You should play it.]]
 
 == Version 1.1.10 8/10/2009 ==
 
