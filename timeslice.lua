@@ -110,6 +110,9 @@ local lacu = 0
   lacu = 0
 end]]
 
+local thrown_away_excess = 0
+local total_used = 0
+
 function QH_Timeslice_Work(time_used, time_this_frame, bonus_time, verbose)
   -- There's probably a better way to do this, but. Eh. Lua.
   coro = nil
@@ -129,19 +132,25 @@ function QH_Timeslice_Work(time_used, time_this_frame, bonus_time, verbose)
     
     if coroutine.status(coro.coro) == "dead" then   -- Someone was claiming to get an infinite loop with this. I don't see how it's possible, but this should at least fix the infinite loop.
       coroutine_list[key] = nil
-      QuestHelper: Assert(coroutine.status(coro.coro) ~= "dead")
     end
+      QuestHelper: Assert(coroutine.status(coro.coro) ~= "dead")
     
     local slicefactor = (QuestHelper_Pref.hide and 0.01 or (QuestHelper_Pref.perf_scale_2 * math.min(coroutine_route_pass, 5)))
     if not started then slicefactor = 5 * QuestHelper_Pref.perfload_scale * math.min(coroutine_route_pass, 5) end  -- the init process gets much higher priority so we get done with it faster
     local time_to_use = slicefactor * time_this_frame * 0.075 -- We want to use 7.5% of the system CPU
     if InCombatLockdown() then time_to_use = time_to_use / 5 end
-    local coroutine_intended_stop_time = GetTime() + time_to_use
+    local coroutine_intended_stop_time = time_to_use
     coroutine_stop_time = coroutine_intended_stop_time - coroutine_time_exceeded - time_used + bonus_time
     coroutine_route_pass = coroutine_route_pass - 5
     if coroutine_route_pass <= 0 then coroutine_route_pass = 1 end
     
+    if verbose then
+      print(string.format("time_to_use %f, time_already_used %f, bonus_time %f, coroutine_time_exceeded %f, total_time_to_use %f", time_to_use, time_used, bonus_time, coroutine_time_exceeded, coroutine_stop_time))
+      print(string.format("thrown_away_excess %f, used %f, maxi %f", thrown_away_excess, total_used, slicefactor * 0.075 * 5))
+    end
+    
     local start = GetTime()
+    coroutine_stop_time, coroutine_intended_stop_time = coroutine_stop_time + start, coroutine_intended_stop_time + start
     local state, err = true, nil -- default values for "we're fine"
     
     totalacu = totalacu + math.max(0, coroutine_stop_time - start)
@@ -150,19 +159,20 @@ function QH_Timeslice_Work(time_used, time_this_frame, bonus_time, verbose)
       print(string.format("%f realtime, %f runtime, %f%%", start - startacu, totalacu, (totalacu / (start - startacu)) * 100))
     end]]
     
-    if verbose then
-      print(string.format("ttutf %f, tu %f, bt %f, tottime %f", time_to_use, time_used, bonus_time, coroutine_stop_time - start))
-    end
-    
     if start < coroutine_stop_time then -- We don't want to just return on failure because we want to credit the exceeded time properly.
       coroutine_running = true
       state, err = coroutine.resume(coro.coro)
       coroutine_running = false
     end
-    local total = GetTime() - start
+    local stop = GetTime()
     
-    local coroutine_this_cycle_exceeded = GetTime() - coroutine_intended_stop_time -- may be either positive or negative
-    coroutine_time_exceeded = min(coroutine_time_exceeded + coroutine_this_cycle_exceeded, slicefactor * 2e-3 * 5)  -- honestly, waiting for more than five frames to recover from a stutter is just dumb
+    local total = stop - start
+    local coroutine_this_cycle_exceeded = stop - coroutine_intended_stop_time -- may be either positive or negative
+    
+    local origcte = coroutine_time_exceeded + coroutine_this_cycle_exceeded
+    coroutine_time_exceeded = min(origcte, slicefactor * 0.075 * 5)  -- honestly, waiting for more than five seconds to recover from a stutter is just dumb
+    thrown_away_excess = thrown_away_excess + (origcte - coroutine_time_exceeded)
+    total_used = total_used + total
     
     coroutine_time_used[coro.name] = (coroutine_time_used[coro.name] or 0) + total
     

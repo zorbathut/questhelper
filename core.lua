@@ -2,8 +2,7 @@ QuestHelper_File["core.lua"] = "Development Version"
 QuestHelper_Loadtime["core.lua"] = GetTime()
 
 
-QuestHelper.Astrolabe = DongleStub("Astrolabe-0.4-QuestHelper")
-QuestHelper: Assert(QuestHelper.Astrolabe)
+QuestHelper.Astrolabe = QH_Astrolabe_Ready and DongleStub("Astrolabe-0.4-QuestHelper")
 local walker = QuestHelper:CreateWorldMapWalker()
 QuestHelper.minimap_marker = QuestHelper:CreateMipmapDodad()
 

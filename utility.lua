@@ -421,3 +421,19 @@ function QuestHelper.CreateLoadingCounter()
     end
   }
 end
+
+local msgid = 0
+function QH_fixedmessage(text)
+  local msgtext = "QH_MSG_" .. msgid
+  StaticPopupDialogs[msgtext] = {
+    text = text,
+    button1 = OKAY,
+    OnAccept = function(self)
+    end,
+    timeout = 0,
+    whileDead = 1,
+    hideOnEscape = 1
+  }
+  
+  StaticPopup_Show(msgtext)
+end

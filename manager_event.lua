@@ -23,7 +23,7 @@ function QH_Hook_NotMyFault(func, ...)
 end
 
 local function wraptime(ident, func, ...)
-  QuestHelper: Assert(ident)
+  if QuestHelper then QuestHelper: Assert(ident) end
   local st, qhh_nmf
   local qhh_adj = 0
   if qh_loud_and_annoying then
@@ -52,7 +52,7 @@ end
 local function OnEvent(_, event, ...)
   if not next_started then next_started, time_used = true, 0 end
   
-  if EventRegistrar[event] then 
+  if not qh_hackery_eventless and EventRegistrar[event] then 
     local tstart = GetTime()
     for _, v in pairs(EventRegistrar[event]) do
       wraptime(v.id, v.func, ...)
@@ -83,12 +83,22 @@ end
 
 local tls = GetTime()
 
+-- I'm just putting this here so I can stop rewriting it
+
+--[[
+Try "/script qh_hackery_no_work = true". See if that fixes things.
+
+Whether it does or not, log out, log back in, then do "/qh hackery_event_timing = true". Wait a few seconds, then take a screenshot. Post that here.
+]]
+
 local last_frame = GetTime()
 local time_per_frame = 0.01 -- Assume 100fps so we don't fuck with people's framerate
 
 local OnUpdate = {}
 local OnUpdateHigh = {}
 local function OnUpdateTrigger(_, ...)
+  if not QuestHelper then return end
+  
   if not next_started then next_started, time_used = true, 0 end
   
   do
@@ -114,11 +124,11 @@ local function OnUpdateTrigger(_, ...)
   local verbose = false
   if qh_hackery_event_timing and tls < GetTime() - 1 then
     tls = GetTime()
-    print(string.format("Avg TPF %f, current TPLF %f, time_used %f, this adjustment %f, bonus time %f", time_per_frame, tplf, time_used, time_per_frame - tplf - time_used, math.min(math.min(time_per_frame - tplf, (time_per_frame - tplf) * 0.8), 0.05)))
+    print(string.format("Avg TPF %f, current TPLF %f, time_used %f, this adjustment %f, bonus time %f", time_per_frame, tplf, time_used, time_per_frame - tplf - time_used, math.min(time_per_frame - tplf, (time_per_frame - tplf) * 0.8, 0.05)))
     verbose = true
   end
   if not qh_hackery_no_work then
-    QH_Timeslice_Work(time_used, time_per_frame, math.min(math.min(time_per_frame - tplf, (time_per_frame - tplf) * 0.8), 0.05), verbose)
+    QH_Timeslice_Work(time_used, time_per_frame, math.min(time_per_frame - tplf, (time_per_frame - tplf) * 0.8, 0.05), verbose)
   end
   last_frame = GetTime()
   

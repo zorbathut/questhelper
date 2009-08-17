@@ -91,6 +91,10 @@ end
 local walker_loc
 
 function QuestHelper:CreateWorldMapWalker()
+  if not self.Astrolabe or not QuestHelper then return end
+  QuestHelper: Assert(self == QuestHelper)
+  QuestHelper: Assert(self.Astrolabe)
+  
   local walker = CreateFrame("Button", nil, QuestHelper.map_overlay)
   walker_loc = walker
   walker:SetWidth(0)
@@ -105,9 +109,6 @@ function QuestHelper:CreateWorldMapWalker()
   walker.frame = self
   walker.map_dodads = {}
   walker.used_map_dodads = 0
-  
-  QuestHelper: Assert(self == QuestHelper)
-  QuestHelper: Assert(self.Astrolabe)
   
   function walker:OnUpdate(elapsed)
     local out = 0
@@ -490,6 +491,7 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
         while lidx <= #v do
           if type(v[lidx]) == "string" then
             if v[lidx] == "d" then
+              QuestHelper: Assert(type(lidx) == "number") -- what
               lidx = lidx + 1
               x, y = convertRawToScreen(v.continent, adjx + v[lidx], adjy + v[lidx + 1], c, z)
               lx, ly = convertRawToScreen(v.continent, adjx + v[lidx + 2], adjy + v[lidx + 3], c, z)

@@ -68,13 +68,10 @@ QuestHelper_Translations.enUS =
   
   -- Messages used when starting.
   LOCALE_ERROR = "The locale of your saved data doesn't match the locale of your WoW client. To use QuestHelper you'll need to either change the locale back, or delete the data by typing %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "I'm refusing to run, out of fear of corrupting your saved data. "..
-                      "Please wait for a patch that will be able to handle the new zone layout.",
-  DOWNGRADE_ERROR = "Your saved data isn't compatible with this version of QuestHelper. "..
-                    "Use a new version, or delete your saved variables.",
+  ZONE_LAYOUT_ERROR = "Your version of QuestHelper is out of date, and you'll have to update at http://www.quest-helper.com for it to continue working. You're currently using version %1.",
   HOME_NOT_KNOWN = "Your home isn't known. When you get a chance, please talk to your innkeeper and reset it.",
   PRIVATE_SERVER = "QuestHelper does not support private servers.",
-  PLEASE_RESTART = "There was an error starting QuestHelper. Please exit World of Warcraft entirely and try again.",
+  PLEASE_RESTART = "There was an error starting QuestHelper. Please exit World of Warcraft entirely and try again. If this problem continues, you may need to reinstall QuestHelper.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper was installed incorrectly. We recommend using either the Curse Client or 7zip to install. Make sure subdirectories are extracted.",
   PLEASE_SUBMIT = "%h(QuestHelper needs your help!) If you have a few minutes, please head to the QuestHelper homepage at %h(http://www.quest-helper.com) and follow the instructions to submit your collected data. Your data keeps QuestHelper correct and up-to-date. Thanks!",
   HOW_TO_CONFIGURE = "QuestHelper does not yet have a working settings page, but can be configured by typing %h(/qh settings). Help is available with %h(/qh help).",
