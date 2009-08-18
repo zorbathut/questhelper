@@ -1,4 +1,9 @@
 
+== Version 1.1.12 8/18/2009 ==
+
+* Fix bug causing a little debug spam on startup, and possibly some other startup issues
+* [[http://www.mandible.net|You should still play the new game.]]
+
 == Version 1.1.11 8/17/2009 ==
 
 * Try to handle installation errors better, part 1/2. Stopping here so I can make sure the current code works - if it does, I'll be doing some more work in the next version.
