@@ -363,6 +363,13 @@ end
 globx = 0.5
 globy = 0.5
 
+function QH_Append_NextObjective(menu)
+  local obj = QuestHelper.minimap_marker.obj
+  if not obj then return end
+  
+  QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
+end
+
 local function rightclick_menu(obj)
   if obj then
     local menu = QuestHelper:CreateMenu()
