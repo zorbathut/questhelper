@@ -641,6 +641,10 @@ if archive_zip or archive_7z then
     FileUtil.copyDirectoryRecursively("../"..dir, "QuestHelper/"..dir)
   end
   
+  FileUtil.copyFile("../AstrolabeQH/Astrolabe.lua", "QuestHelper/AstrolabeQH", "(QuestHelper_File%[[^%]]*%]%s*=%s*)\"[^\"]+\"", file_version_pattern)
+  FileUtil.copyFile("../AstrolabeQH/AstrolabeMapMonitor.lua", "QuestHelper/AstrolabeQH", "(QuestHelper_File%[[^%]]*%]%s*=%s*)\"[^\"]+\"", file_version_pattern)
+  FileUtil.copyFile("../AstrolabeQH/DongleStub.lua", "QuestHelper/AstrolabeQH", "(QuestHelper_File%[[^%]]*%]%s*=%s*)\"[^\"]+\"", file_version_pattern)
+  
   FileUtil.copyFile("../MinimapArrow.tga", "QuestHelper")
   FileUtil.copyFile("../arrow_image.blp", "QuestHelper")
   FileUtil.copyFile("../arrow_image_down.blp", "QuestHelper")
