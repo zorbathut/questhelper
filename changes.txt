@@ -1,4 +1,12 @@
 
+== Version 1.1.13 8/xx/2009 ==
+
+* Add new portals to Blasted Lands from each faction city
+* Fix right-click on arrow, add objective submenu to arrow
+* Fix crash with the new zone system
+* Update a few quests and monsters that changed in 3.2
+* Add new option for minimap icon transparency, "/qh miniopacity". My lord do I need to set up a better settings dialog at some point
+
 == Version 1.1.12 8/18/2009 ==
 
 * Fix bug causing a little debug spam on startup, and possibly some other startup issues

@@ -54,6 +54,7 @@ QuestHelper_DefaultPref =
   perfload_scale = 1,    -- Performance scale to use on startup
   map_button = true,
   travel_time = false,
+  mini_opacity = 1,
  }
 
 -- We do it here also in case things decide they care about preferences before the init function is called. Shouldn't happen, but maybe does.

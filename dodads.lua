@@ -956,6 +956,9 @@ function QuestHelper:CreateMipmapDodad()
           self.arrow:Hide()
           self.dot:Show()
           self.bg:Show()
+          
+          self.dot:SetAlpha(QuestHelper_Pref.mini_opacity)
+          self.bg:SetAlpha(QuestHelper_Pref.mini_opacity)
         end
         
         if edge then

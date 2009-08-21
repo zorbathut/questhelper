@@ -849,6 +849,10 @@ commands =
       "Changes the display of the quest objective zones on the main map.",
       {}, QuestHelper.SetZones, QuestHelper},
     
+    {"MINIOPACITY",
+     "Set the opacity of icons on the minimap.",
+      {}, QuestHelper.genericSetScale, QuestHelper, "mini_opacity", "minimap icon opacity", .1, 1.0},
+    
     {"LOCALE",
      "Select the locale to use for displayed messages.",
       {}, QuestHelper.SetLocale, QuestHelper},
