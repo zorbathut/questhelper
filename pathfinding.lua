@@ -15,6 +15,8 @@ local UNDERCITY_PORTAL = {45,0.846,0.163, "Undercity portal site"}
 local ORGRIMMAR_PORTAL = {1,0.386,0.859, "Orgrimmar portal site"}
 local THUNDER_BLUFF_PORTAL = {23,0.222,0.168, "Thunder Bluff portal site"}
 
+local BLASTED_LANDS_PORTAL = {33,0.575,0.511, "Blasted Lands portal site"}
+
 local static_horde_routes = 
   {
    {{7, 0.505, 0.124}, {38, 0.313, 0.303}, 210}, -- Durotar <--> Grom'gol Base Camp
@@ -35,6 +37,11 @@ local static_horde_routes =
    {{67, 0.553, 0.255}, ORGRIMMAR_PORTAL, 60, true, nil, "ORGRIMMAR_PORTAL"}, -- Dalaran --> Orgrimmar
    {{67, 0.556, 0.238}, UNDERCITY_PORTAL, 60, true, nil, "UNDERCITY_PORTAL"}, -- Dalaran --> Undercity
    {{67, 0.563, 0.226}, SHATTRATH_CITY_PORTAL, 60, true, nil, "SHATTRATH_CITY_PORTAL"}, -- Dalaran --> Shatt
+   
+   {{1,0.381,0.857}, BLASTED_LANDS_PORTAL, 60, true},  -- Orgrimmar --> Blasted Lands
+   {{23,0.231,0.135}, BLASTED_LANDS_PORTAL, 60, true},  -- Thunder Bluff --> Blasted Lands
+   {{45,0.852,0.170}, BLASTED_LANDS_PORTAL, 60, true},  -- Undercity --> Blasted Lands
+   {{52,0.584,0.210}, BLASTED_LANDS_PORTAL, 60, true},  -- Silvermoon --> Blasted Lands
   }
 
   
@@ -57,6 +64,11 @@ local static_alliance_routes =
    {{67, 0.389, 0.651}, DARNASSUS_PORTAL, 60, true, nil, "DARNASSUS_PORTAL"}, -- Dalaran --> Darnassus
    {{67, 0.382, 0.664}, EXODAR_PORTAL, 60, true, nil, "EXODAR_PORTAL"}, -- Dalaran --> Exodar
    {{67, 0.371, 0.667}, SHATTRATH_CITY_PORTAL, 60, true, nil, "SHATTRATH_CITY_PORTAL"}, -- Dalaran --> Shatt
+   
+   {{21,0.405,0.817}, BLASTED_LANDS_PORTAL, 60, true},  -- Darnassus --> Blasted Lands
+   {{12,0.462,0.609}, BLASTED_LANDS_PORTAL, 60, true},  -- Exodar --> Blasted Lands
+   {{25,0.273,0.071}, BLASTED_LANDS_PORTAL, 60, true},  -- Ironforge --> Blasted Lands
+   {{36,0.490,0.874}, BLASTED_LANDS_PORTAL, 60, true},  -- Stormwind --> Blasted Lands
   }
 
 local static_shared_routes = 
