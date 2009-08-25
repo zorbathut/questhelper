@@ -7,6 +7,7 @@
 * Update a few quests and monsters that changed in 3.2
 * Add new option for minimap icon transparency, "/qh miniopacity". My lord do I need to set up a better settings dialog at some point
 * Make the error reporting system a little more durable in case of wacky versions
+* Fix glitch on login where the blocked filter might miss items
 
 == Version 1.1.12 8/18/2009 ==
 
