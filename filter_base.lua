@@ -177,7 +177,7 @@ QH_Route_RegisterFilter(filter_blocked, "filter_blocked")
 
 
 
-function QH_WACKYLAND_ENABLE()
+function qh_hackery_wackyland_enable()
   QH_WACKYLAND = true
   local filter_wackyland = QH_MakeFilter("filter_wackyland", function(obj)
     return math.random() < 0.5

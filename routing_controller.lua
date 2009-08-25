@@ -245,6 +245,7 @@ function QH_Route_ClusterAdd(clust)
     QuestHelper: Assert(v.cluster == clust)
   end
   table.insert(pending, function () Route_Core_ClusterAdd(clust) ScanCluster(clust) end)
+  table.insert(pending, QH_Route_Filter_Rescan)
 end
 
 function QH_Route_ClusterRemove(clust)
