@@ -37,18 +37,21 @@ function QH_redo_flightpath()
     local has_cwf = not not GetSpellInfo(GetSpellInfo(54197))
     
     local speed
+    local cull
     if ridingLevel == 225 then
-      speed = 11
+      speed = 17.5
+      cull = false
     elseif ridingLevel == 300 then
       speed = 27
+      cull = false
     end
     
     if ridingLevel >= 225 then
-      QH_Graph_Flyplaneset(3, speed) -- Outland
+      QH_Graph_Flyplaneset(3, speed, cull) -- Outland
     end
     
     if ridingLevel >= 225 and has_cwf then
-      QH_Graph_Flyplaneset(4, speed) -- Northrend
+      QH_Graph_Flyplaneset(4, speed, cull) -- Northrend
     end
     
     rlevel = ridingLevel

@@ -91,6 +91,7 @@ local plane_to_flyplane = {}
 local continent_to_flyplane = {}
 local flyplanes_enabled = {}
 local plane_multiplier = {}
+local plane_cull = {}
 
 -- canonical plane :D
 local function canoplane(plane)
@@ -374,10 +375,11 @@ local function QH_Graph_Plane_ReallyMakeLink(item)
   local n1p = canoplane(coord1.p)
   local n2p = canoplane(coord2.p)
   
-  if canoplane(coord1.p) == canoplane(coord2.p) then
+  if n1p == n2p then
     if name == "static_transition" then return end -- ha ha, yep, that's how we find out, tooootally reliable
     
-    local xyd = xydist_raw(canoplane(coord1.p), coord1.x, coord1.y, coord2.x, coord2.y)
+    local xyd = xydist_raw(n1p, coord1.x, coord1.y, coord2.x, coord2.y)
+    if plane_cull[n1p] then return end  -- DENIED
     if cost >= xyd and (not cost_reverse or cost_reverse >= xyd) then
       return  -- DENIED
     end
@@ -448,11 +450,16 @@ function QH_Graph_Plane_Destroylinks(name)
   QH_Graph_Plane_Destroylinkslocal(name)
 end
 
-function QH_Graph_Flyplaneset(fpset, speed)
+function QH_Graph_Flyplaneset(fpset, speed, cull)
   QuestHelper: Assert(not active)
   
-  if not flyplanes_enabled[QuestHelper_IndexLookup[fpset][0]] then
-    flyplanes_enabled[QuestHelper_IndexLookup[fpset][0]] = true
+  local index = QuestHelper_IndexLookup[fpset][0]
+  if not flyplanes_enabled[index] or plane_multiplier[index] ~= speed or plane_cull[index] ~= cull then
+  
+    flyplanes_enabled[index] = true
+    plane_multiplier[index] = speed
+    plane_cull[index] = cull
+    
     for k, v in pairs(linkages) do
       QH_Graph_Plane_Destroylinkslocal(k)
       
@@ -460,7 +467,5 @@ function QH_Graph_Flyplaneset(fpset, speed)
         QH_Graph_Plane_ReallyMakeLink(ite)
       end
     end
-    
-    plane_multiplier[QuestHelper_IndexLookup[fpset][0]] = speed
   end
 end
