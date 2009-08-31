@@ -38,10 +38,10 @@ local static_horde_routes =
    {{67, 0.556, 0.238}, UNDERCITY_PORTAL, 60, true, nil, "UNDERCITY_PORTAL"}, -- Dalaran --> Undercity
    {{67, 0.563, 0.226}, SHATTRATH_CITY_PORTAL, 60, true, nil, "SHATTRATH_CITY_PORTAL"}, -- Dalaran --> Shatt
    
-   {{1,0.381,0.857}, BLASTED_LANDS_PORTAL, 60, true},  -- Orgrimmar --> Blasted Lands
-   {{23,0.231,0.135}, BLASTED_LANDS_PORTAL, 60, true},  -- Thunder Bluff --> Blasted Lands
-   {{45,0.852,0.170}, BLASTED_LANDS_PORTAL, 60, true},  -- Undercity --> Blasted Lands
-   {{52,0.584,0.210}, BLASTED_LANDS_PORTAL, 60, true},  -- Silvermoon --> Blasted Lands
+   {{1,0.381,0.857}, BLASTED_LANDS_PORTAL, 60, true, level_limit = 58},  -- Orgrimmar --> Blasted Lands
+   {{23,0.231,0.135}, BLASTED_LANDS_PORTAL, 60, true, level_limit = 58},  -- Thunder Bluff --> Blasted Lands
+   {{45,0.852,0.170}, BLASTED_LANDS_PORTAL, 60, true, level_limit = 58},  -- Undercity --> Blasted Lands
+   {{52,0.584,0.210}, BLASTED_LANDS_PORTAL, 60, true, level_limit = 58},  -- Silvermoon --> Blasted Lands
   }
 
   
@@ -65,10 +65,10 @@ local static_alliance_routes =
    {{67, 0.382, 0.664}, EXODAR_PORTAL, 60, true, nil, "EXODAR_PORTAL"}, -- Dalaran --> Exodar
    {{67, 0.371, 0.667}, SHATTRATH_CITY_PORTAL, 60, true, nil, "SHATTRATH_CITY_PORTAL"}, -- Dalaran --> Shatt
    
-   {{21,0.405,0.817}, BLASTED_LANDS_PORTAL, 60, true},  -- Darnassus --> Blasted Lands
-   {{12,0.462,0.609}, BLASTED_LANDS_PORTAL, 60, true},  -- Exodar --> Blasted Lands
-   {{25,0.273,0.071}, BLASTED_LANDS_PORTAL, 60, true},  -- Ironforge --> Blasted Lands
-   {{36,0.490,0.874}, BLASTED_LANDS_PORTAL, 60, true},  -- Stormwind --> Blasted Lands
+   {{21,0.405,0.817}, BLASTED_LANDS_PORTAL, 60, true, level_limit = 58},  -- Darnassus --> Blasted Lands
+   {{12,0.462,0.609}, BLASTED_LANDS_PORTAL, 60, true, level_limit = 58},  -- Exodar --> Blasted Lands
+   {{25,0.273,0.071}, BLASTED_LANDS_PORTAL, 60, true, level_limit = 58},  -- Ironforge --> Blasted Lands
+   {{36,0.490,0.874}, BLASTED_LANDS_PORTAL, 60, true, level_limit = 58},  -- Stormwind --> Blasted Lands
   }
 
 local static_shared_routes = 
@@ -273,15 +273,17 @@ function load_graph_links()
 
   local function do_routes(routes)
     for _, v in ipairs(routes) do
-      local src = convert_coordinate(v[1])
-      local dst = convert_coordinate(v[2])
-      QuestHelper: Assert(src.x and dst.x)
-      src.map_desc = {QHFormat("WAYPOINT_REASON", QuestHelper_NameLookup[v[2][1]])}
-      dst.map_desc = {QHFormat("WAYPOINT_REASON", QuestHelper_NameLookup[v[1][1]])}
-      
-      local rev_cost = v[3]
-      if v[4] then rev_cost = nil end
-      QH_Graph_Plane_Makelink("static_route", src, dst, v[3], rev_cost) -- this couldn't possibly fail
+      if not v.level_limit or v.level_limit <= UnitLevel("player") then
+        local src = convert_coordinate(v[1])
+        local dst = convert_coordinate(v[2])
+        QuestHelper: Assert(src.x and dst.x)
+        src.map_desc = {QHFormat("WAYPOINT_REASON", QuestHelper_NameLookup[v[2][1]])}
+        dst.map_desc = {QHFormat("WAYPOINT_REASON", QuestHelper_NameLookup[v[1][1]])}
+        
+        local rev_cost = v[3]
+        if v[4] then rev_cost = nil end
+        QH_Graph_Plane_Makelink("static_route", src, dst, v[3], rev_cost) -- this couldn't possibly fail
+      end
     end
   end
   
