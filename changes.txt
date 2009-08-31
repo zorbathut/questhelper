@@ -1,5 +1,13 @@
 
-== Version 1.1.13 8/xx/2009 ==
+== Version 1.1.14 8/31/2009 ==
+
+* Increase the standard-flying-mount internal speed to 150%
+* Add a special case to not take flight paths, ever, if you have an epic flying mount
+* Restrict the Dark Portal warps to only exist at level 58. Unfortunately this means that if you hit 58 during a play session, they won't show up until you reload your UI. I'll fix this later, I don't have full access to my dev environment right now.
+
+* Why not? Because I'm at the Penny Arcade Expo this weekend! If you are also, come say hi! I'll be in Tabletop for most of the event. That is all the hinting I will give you to find me.
+
+== Version 1.1.13 8/24/2009 ==
 
 * Add new portals to Blasted Lands from each faction city
 * Fix right-click on arrow, add objective submenu to arrow
