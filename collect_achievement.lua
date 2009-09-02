@@ -1,7 +1,12 @@
 QuestHelper_File["collect_achievement.lua"] = "Development Version"
 QuestHelper_Loadtime["collect_achievement.lua"] = GetTime()
 
-local Collect_Achievement = {}
+local QHCA
+
+local GetLoc
+local Merger
+
+local AchievementDB
 
 --X 0 is a monster kill, asset is the monster ID
 --X 1 is winning PvP objectives in a thorough manner (holding all bases, controlling all flags)
@@ -44,7 +49,7 @@ local Collect_Achievement = {}
 --X 112 is learning cooking recipes
 --X 113 is honorable kills
 local achievement_type_blacklist = {}
-for _, v in pairs({0, 1, 7, 8, 9, 10, 11, 14, 27, 28, 29, 30, 31, 32, 34, 35, 36, 37, 41, 42, 43, 45, 46, 47, 49, 52, 53, 56, 62, 67, 73, 75, 112, 113}) do
+for _, v in pairs({0, 1, 7, 8, 9, 10, 11, 14, 27, 28, 29, 30, 31, 32, 34, 35, 36, 37, 41, 42, 46, 47, 49, 52, 53, 56, 62, 67, 73, 75, 112, 113}) do
   achievement_type_blacklist[v] = true
 end
 
@@ -52,6 +57,20 @@ local achievement_list = {}
 
 --local crittypes = {}
 --QuestHelper_ZorbaForgotToRemoveThis = {}
+
+local qhdinfo = false
+local qhdinfodump = {}
+local function qhadumpy()
+  for k, v in pairs(qhdinfodump) do
+    local ct = 0
+    local some
+    for tk, tv in pairs(v) do
+      ct = ct + 1
+      some = tk
+    end
+    QuestHelper:TextOut(string.format("%d: %d, %s", k, ct, some))
+  end
+end
 
 local function registerAchievement(id)
   --if db.achievements[id] then return end
@@ -81,8 +100,10 @@ local function registerAchievement(id)
   for i = 1, critcount do
     local crit_name, crit_type, crit_complete, crit_quantity, crit_reqquantity, _, _, crit_asset, _, crit_id = GetAchievementCriteriaInfo(id, i)
     
-    --if not QuestHelper_ZorbaForgotToRemoveThis[string.format("%d", crit_type)] then QuestHelper_ZorbaForgotToRemoveThis[string.format("%d", crit_type)] = {} end
-    --QuestHelper_ZorbaForgotToRemoveThis[string.format("%d", crit_type)][title .. " --- " .. mega[1]] = crit_asset
+    if qhdinfo and not achievement_type_blacklist[crit_type] then
+      if not qhdinfodump[crit_type] then qhdinfodump[crit_type] = {} end
+      qhdinfodump[crit_type][title .. " --- " .. crit_name] = true
+    end
     
     --[[
     table.insert(dbi.criterialist, crit_id)
@@ -115,6 +136,10 @@ end
 
 local achievement_stop_time = 0
 
+local GetAchievementInfo = GetAchievementInfo
+local GetAchievementNumCriteria = GetAchievementNumCriteria
+local GetAchievementCriteriaInfo = GetAchievementCriteriaInfo
+
 local function retrieveAchievement(id, db)
   QH_Timeslice_Yield()
 
@@ -130,11 +155,13 @@ local function retrieveAchievement(id, db)
   
   --QuestHelper:TextOut(string.format("%d criteria", crit))
   for i = 1, critcount do
+    QuestHelper: Assert(not db.criteria[crit_id])
     local _, _, crit_complete, crit_quantity, crit_reqquantity, _, _, _, _, crit_id = GetAchievementCriteriaInfo(id, i)
 
     db.criteria[crit_id] = QuestHelper:CreateTable("collect_achievement criteria")
     db.criteria[crit_id].complete = crit_complete
     db.criteria[crit_id].progress = crit_quantity
+    db.criteria[crit_id].parent = id
   end
 end
 
@@ -143,9 +170,12 @@ local function getAchievementDB()
   db.achievements = {}
   db.criteria = {}
   
+  local ct = 0
   for k in pairs(achievement_list) do
     retrieveAchievement(k, db)
+    ct = ct + 1
   end
+  --QuestHelper: TextOut(tostring(ct))
   
   return db
 end
@@ -153,48 +183,65 @@ end
 local updating = false
 
 local function ScanAchievements()
+  local cloc = GetLoc() -- yoink
+  
+  --QuestHelper:TextOut("Scanning")
   local newADB = getAchievementDB()
-  local oldADB = Collect_Achievement.AchievementDB
+  --QuestHelper:TextOut("GADB done")
+  local oldADB = AchievementDB
   
   for k, v in pairs(newADB.achievements) do
     if v.complete ~= oldADB.achievements[k].complete then
-      assert(v.complete and not oldADB.achievements[k].complete)
+      QuestHelper: Assert(v.complete and not oldADB.achievements[k].complete)
+      if not QHCA[k] then QHCA[k] = {} end
+      QHCA[k].achieved = (QHCA[k].achieved or "") .. cloc
+      
       --QuestHelper:TextOut(string.format("Achievement complete, %s", select(2, GetAchievementInfo(k))))
     end
   end
   
   for k, v in pairs(newADB.criteria) do
     if v.complete ~= oldADB.criteria[k].complete then
-      assert(v.complete and not oldADB.criteria[k].complete)
+      QuestHelper: Assert(v.complete and not oldADB.criteria[k].complete)
       --QuestHelper:TextOut(string.format("Criteria complete, %d", k))
       --QuestHelper:TextOut(string.format("Criteria complete, %s", select(1, GetAchievementCriteriaInfo(k))))
+      if not QHCA[v.parent] then QHCA[v.parent] = {} end
+      QHCA[v.parent][k] = (QHCA[v.parent][k] or "") .. cloc
     elseif v.progress > oldADB.criteria[k].progress then
       --QuestHelper:TextOut(string.format("Criteria progress, %d", k))
       --QuestHelper:TextOut(string.format("Criteria progress, %s", select(1, GetAchievementCriteriaInfo(k))))
     end
   end
   
-  Collect_Achievement.AchievementDB = newADB
+  AchievementDB = newADB
   
   for k, v in pairs(oldADB.achievements) do QuestHelper:ReleaseTable(v) end
   for k, v in pairs(oldADB.criteria) do QuestHelper:ReleaseTable(v) end
   
   updating = false -- This prevents error spam.
+  --QuestHelper:TextOut("Done scan")
 end
 
 local function OnEvent()
-  if not updating and Collect_Achievement.AchievementDB then
+  if not updating and AchievementDB then
     QH_Timeslice_Add(ScanAchievements, "criteria")
     updating = true
   end
 end
+--qhaach = OnEvent
 
-function QH_Collect_Achievement_Init(_, API)
-  -- We're actually going to turn this off for now, it's no longer achieving anything useful (i.e. testing)
-  if true then return end
+function QH_Collect_Achievement_Init(QHCData, API)
+  if not QHCData.achievement then QHCData.achievement = {} end
+  QHCA = QHCData.achievement
   
   createAchievementList()
-  Collect_Achievement.AchievementDB = getAchievementDB() -- 'coz we're lazy
+  AchievementDB = getAchievementDB() -- 'coz we're lazy
+  
+  GetLoc = API.Callback_LocationBolusCurrent
+  QuestHelper: Assert(GetLoc)
+  
+  Merger = API.Utility_Merger
+  QuestHelper: Assert(Merger)
   
   QH_Event("CRITERIA_UPDATE", OnEvent)
   QH_Event("ACHIEVEMENT_EARNED", OnEvent)

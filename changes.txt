@@ -1,4 +1,9 @@
 
+== Version 1.1.15 9/xx/2009 ==
+
+* Added the error catching system to /qh purge, which honestly should have been in there for quite some time
+* Turn some data gathering off, turn some on
+
 == Version 1.1.14 8/31/2009 ==
 
 * Increase the standard-flying-mount internal speed to 150%
