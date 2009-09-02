@@ -243,6 +243,8 @@ function QuestHelper:Purge(code, force, noreload)
     QuestHelper_Collector = nil
     QuestHelper_Collector_Version = nil
     
+    QuestHelper_Errors = nil -- sigh
+    
     if not noreload then ReloadUI() end
   else
     if not self.purge_code then self.purge_code = self:CreateUID(8) end
