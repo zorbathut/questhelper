@@ -31,6 +31,7 @@ end
 
 local last_stack = nil
 local yield_ct = 0
+local GetTime = GetTime
 function QH_Timeslice_Yield()
   if coroutine_running then
     -- Check if we've run our alotted time
