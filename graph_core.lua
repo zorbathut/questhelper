@@ -16,8 +16,10 @@ QuestHelper_Loadtime["graph_core.lua"] = GetTime()
 
 -- performance hack :(
 local QH_Timeslice_Yield = QH_Timeslice_Yield
-local tinsert = table.insert
+local tinsert, tremove = table.insert, table.remove
 local pairs, ipairs = pairs, ipairs
+local sqrt = math.sqrt
+local GetTime = GetTime
 
 local function heap_left(x) return (2*x) end
 local function heap_right(x) return (2*x + 1) end
@@ -60,13 +62,15 @@ end
 
 local function heap_extract(heap)
   local rv = heap[1]
-  if #heap == 1 then table.remove(heap) return rv end
-  heap[1] = table.remove(heap)
+  if #heap == 1 then tremove(heap) return rv end
+  heap[1] = tremove(heap)
   local idx = 1
   while idx < #heap do
     local minix = idx
-    if heap[heap_left(idx)] and heap[heap_left(idx)].c < heap[minix].c then minix = heap_left(idx) end
-    if heap[heap_right(idx)] and heap[heap_right(idx)].c < heap[minix].c then minix = heap_right(idx) end
+    --local hl, hr = heap_left(idx), heap_right(idx)
+    local hl, hr = 2*idx, 2*idx+1 -- these had better be equivalent to the line above one
+    if heap[hl] and heap[hl].c < heap[minix].c then minix = hl end
+    if heap[hr] and heap[hr].c < heap[minix].c then minix = hr end
     if minix ~= idx then
       local tx = heap[minix]
       heap[minix] = heap[idx]
@@ -100,12 +104,12 @@ end
 
 local function xydist_raw(plane, stx, sty, ndx, ndy)
   local dx, dy = stx - ndx, sty - ndy
-  return math.sqrt(dx * dx + dy * dy) / (plane_multiplier[plane] or 7)
+  return sqrt(dx * dx + dy * dy) / (plane_multiplier[plane] or 7)
 end
 local function xydist(st, nd)
-  QuestHelper: Assert(canoplane(st.p) == canoplane(nd.p))
+  --QuestHelper: Assert(canoplane(st.p) == canoplane(nd.p))
   local dx, dy = st.x - nd.x, st.y - nd.y
-  return math.sqrt(dx * dx + dy * dy) / (plane_multiplier[canoplane(nd.p)] or 7) -- we're getting a result in seconds, not in yards
+  return sqrt(dx * dx + dy * dy) / (plane_multiplier[canoplane(nd.p)] or 7) -- we're getting a result in seconds, not in yards
 end
 
 
@@ -118,8 +122,15 @@ end
 
 local active = false
 
+  
+  local extrctime = 0
+  local wextrctime = 0
+  local actualtime = 0
+  local planetime = 0
+  local linktime = 0
+  
 function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
-  --QuestHelper:TextOut("Starting PMF")
+  QuestHelper:TextOut("Starting PMF")
   QuestHelper: Assert(not active)
   active = true -- The fun thing about coroutines is that this is actually safe.
   local out = QuestHelper:CreateTable("graphcore output")  -- THIS HAD BETTER BE RELEASABLE OR IT WILL BE BAD
@@ -179,29 +190,47 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   
   --stats.heap_max = #dijheap
   
-  --QuestHelper:TextOut("Starting routing")
+  QuestHelper:TextOut("Starting routing")
+  
+  local extrc = 0
+  local actual = 0
+  local planescan = 0
+  local linkscan = 0
+  
+  local planeyes = 0
+  local planeno = 0
+  
+  local linkyes = 0
+  local linkno = 0
   
   while remaining > 0 and #dijheap > 0 do
     QH_Timeslice_Yield()
+    local ett = GetTime()
+    extrc = extrc + 1
     --stats.heap_max = math.max(--stats.heap_max, #dijheap)
     local cdj = heap_extract(dijheap)
     
     local snode = cdj.n
     --print(string.format("Extracted cost %f/%s pointing at %d/%f/%f", cdj.c, tostring(cdj.n.scan_cost), cdj.n.p, cdj.n.x, cdj.n.y))
     if snode.scan_cost == cdj.c then  -- if we've modified it since then, don't bother
+      local actt = GetTime()
+      actual = actual + 1
       -- Are we at an end node?
       if snode.goal then
         -- we wouldn't be here if we hadn't found a better solution
-        QuestHelper: Assert(undone[snode.goal])
+        --QuestHelper: Assert(undone[snode.goal])
         out[snode.goal] = cdj.c
         undone[snode.goal] = nil
         remaining = remaining - 1
       end
       
       -- Link to everything else on the plane
-      if not snode.pi then  -- Did we come from this plane? If so, there's no reason to scan it again  (flag means "plane internal")
+      if not cdj.pi then  -- Did we come from this plane? If so, there's no reason to scan it again  (flag means "plane internal")
+        local planet = GetTime()
+        planescan = planescan + 1
         for _, v in ipairs(plane[snode.p]) do
           if v.scan_id ~= grid or v.scan_cost > snode.scan_cost then
+            planeyes = planeyes + 1
             local dst = xydist(snode, v)
             local modcost = snode.scan_cost + dst
             --print(string.format("Doing %d/%f vs %s/%s at %d/%f/%f", grid, modcost, tostring(v.scan_id), tostring(v.scan_cost), v.p, v.x, v.y))
@@ -214,22 +243,28 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
               v.scan_outnode_from = nil
               
               do
-                local snude = QuestHelper:CreateTable("graphcore heap")
-                snude.c, snude.n, snude.pi = modcost, v, true
-                heap_insert(dijheap, snude)
+                local ncdj = QuestHelper:CreateTable("graphcore heap")
+                ncdj.c, ncdj.n, ncdj.pi = modcost, v, true
+                heap_insert(dijheap, ncdj)
                 --print(string.format("Inserting %f at %d/%f/%f, plane", snude.c, v.p, v.x, v.y))
               end
             end
+          else
+            planeno = planeno + 1
           end
         end
+        planetime = planetime + GetTime() - planet
       end
       
       -- Link to everything we link to
       if snode[link_id] then
+        local linkt = GetTime()
+        linkscan = linkscan + 1
         for _, lnk in pairs(snode[link_id]) do
           local mc2 = snode.scan_cost + lnk.cost
           local linkto = lnk.link
           if linkto.scan_id ~= grid or linkto.scan_cost > mc2 then
+            linkyes = linkyes + 1
             linkto.scan_id = grid
             linkto.scan_cost = mc2
             linkto.scan_from = snode
@@ -240,14 +275,22 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
             hep.c, hep.n = mc2, linkto
             heap_insert(dijheap, hep)
             --print(string.format("Inserting %f at %d/%f/%f, link", hep.c, linkto.p, linkto.x, linkto.y))
+          else
+            linkno = linkno + 1
           end
         end
+        linktime = linktime + GetTime() - linkt
       end
+      actualtime = actualtime + GetTime() - actt
+      extrctime = extrctime + GetTime() - ett
+    else
+      wextrctime = wextrctime + GetTime() - ett
     end
     QuestHelper:ReleaseTable(cdj)
   end
   
-  --QuestHelper:TextOut("Starting pathing")
+  QuestHelper:TextOut(string.format("%d extracted, %d processed, %d planescan, %d linkscan, %d/%d plane, %d/%d link", extrc, actual, planescan, linkscan, planeyes, planeno, linkyes, linkno))
+  QuestHelper:TextOut(string.format("times: %f/%f extracted, %f processed, %f planescan, %f linkscan", extrctime, wextrctime, actualtime, planetime, linktime))
   
   for _, v in ipairs(dijheap) do
     QuestHelper:ReleaseTable(v)
@@ -320,7 +363,7 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   QuestHelper:ReleaseTable(link)
   QuestHelper:ReleaseTable(undone)
   
-  --QuestHelper:TextOut("Finishing")
+  QuestHelper:TextOut("Finishing")
   
   --for k, v in pairs(stats) do
     --print(k, v)
