@@ -306,6 +306,8 @@ Route_Core_Init(
     ReplotPath()
   end,
   function(loc1, loctable, reverse, complete_pass)
+    if #loctable == 0 then return QuestHelper:CreateTable("null response") end
+    
     QH_Timeslice_Yield()
     
     QuestHelper: Assert(loc1)

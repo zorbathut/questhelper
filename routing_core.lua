@@ -714,11 +714,11 @@ end
 local QH_Route_Core_DistanceClear_Local -- sigh
 -- Core process function
 function QH_Route_Core_Process()
-  QuestHelper:TextOut("Startprocess")
+  --QuestHelper:TextOut("Startprocess")
   
   Storage_Loop()
   
-  QuestHelper:TextOut("Pathing")
+  --QuestHelper:TextOut("Pathing")
   
   -- First we check to see if we need to add more distances, and if so, we do so
   do
@@ -758,7 +758,7 @@ function QH_Route_Core_Process()
     end
   end
   
-  QuestHelper:TextOut("Inserting/removing")
+  --QuestHelper:TextOut("Inserting/removing")
   
   -- Next we see if last_best needs tweaking
   if last_best then
@@ -787,7 +787,7 @@ function QH_Route_Core_Process()
     QuestHelper:ReleaseTable(touched_clusts)
   end
   
-  QuestHelper:TextOut("Posting")
+  --QuestHelper:TextOut("Posting")
   
   if last_best_tweaked and last_best then
     --QuestHelper:TextOut("Pushing tweaked")
@@ -799,7 +799,7 @@ function QH_Route_Core_Process()
   
   local best_is_local = false
   
-  QuestHelper:TextOut("Anting")
+  --QuestHelper:TextOut("Anting")
   
   local trouts = QuestHelper:CreateTable("routing_core_trouts")
   for x = 1, AntCount do
@@ -818,7 +818,7 @@ function QH_Route_Core_Process()
     QH_Timeslice_Yield()
   end
   
-  QuestHelper:TextOut("Cleanup")
+  --QuestHelper:TextOut("Cleanup")
   
   local scale
   if worst == last_best.distance then
@@ -875,7 +875,7 @@ function QH_Route_Core_Process()
   
   QH_Timeslice_Yield()  -- "heh"
   
-  QuestHelper:TextOut("Done")
+  --QuestHelper:TextOut("Done")
 end
 -- End core loop
 

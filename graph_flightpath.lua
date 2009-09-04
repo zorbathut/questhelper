@@ -264,4 +264,6 @@ function QH_redo_flightpath()
   if not QuestHelper.loading_flightpath then
     QuestHelper.flightpathing = nil
   end
+  
+  QH_Graph_Plane_Refresh()
 end
