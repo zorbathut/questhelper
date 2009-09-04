@@ -513,6 +513,8 @@ function QH_Graph_Plane_Refresh()
     local infinity = 1e10
     
     for _, connect in ipairs(titx) do
+      QH_Timeslice_Yield()
+      
       QuestHelper: Assert(nodedone[connect.n1] == nodedone[connect.n2])
       
       if not nodedone[connect.n1] then
@@ -527,7 +529,7 @@ function QH_Graph_Plane_Refresh()
           lookupindex = lookupindex + 1
         end
         
-        QuestHelper:TextOut(string.format("Processing cluster of %d", lookupindex))
+        --QuestHelper:TextOut(string.format("Processing cluster of %d", lookupindex))
         
         local tab = QuestHelper:CreateTable("graph plane floyd core")
         for r = 1, lookupindex do
