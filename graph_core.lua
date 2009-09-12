@@ -425,6 +425,7 @@ function QH_Graph_Plane_Makelink(name, coord1, coord2, cost, cost_reverse)
   local tlink = {name, coord1, coord2, cost, cost_reverse}
   if not linkages[name] then linkages[name] = {} end
   tinsert(linkages[name], tlink)
+  print(name, coord1.map_desc[1], coord2.map_desc[1], coord)
 end
 
 function QH_Graph_Plane_Destroylinks(name)
@@ -437,6 +438,7 @@ function QH_Graph_Plane_Destroylinks(name)
 end
 
 function QH_Graph_Flyplaneset(fpset, speed, cull)
+  QuestHelper:TextOut("fps")
   QuestHelper: Assert(not active)
   prepared = false
   
@@ -461,13 +463,14 @@ function QH_Graph_Plane_Refresh()
   -- jam
   
   for name, v in pairs(linkages) do
+    --print("Starting linkage", name)
     local titx = {}
     local nodeitems = {}
     local nodedests = {}
     
     local function makenodedest(outnode, package)
       if not nodedests[outnode] then
-        nodedests[outnode] = {x = package.x, y = package.y, p = package.p, c = package.c, map_desc = package.map_desc, condense_class = package.condense_class}
+        nodedests[outnode] = {x = package.x, y = package.y, p = package.p, c = package.c, map_desc = package.map_desc, condense_class = package.condense_class} -- note: this is where the actual node objects that eventually get passed into the routing controller's path replot engine come from. So if you intend for anything to exist in that module, it's gotta be inserted here.
       end
     end
   
@@ -591,6 +594,7 @@ function QH_Graph_Plane_Refresh()
               if not n1.links then n1.links = {} end
               if not n2.rlinks then n2.rlinks = {} end
               
+              --if name == "flightpath" then print("linking from", nodedests[n1].map_desc[1], "to", nodedests[n2].map_desc[1]) end
               tinsert(n1.links, {cost = c, link = n2, outnode_to = nodedests[n2], outnode_from = nodedests[n1]})
               tinsert(n2.rlinks, {cost = c, link = n1, outnode_to = nodedests[n1], outnode_from = nodedests[n2]})
             end
@@ -614,7 +618,7 @@ end
 
 
 
-
+--[[
 local function QH_Graph_Plane_ReallyMakeLink(item)
   local name, coord1, coord2, cost, cost_reverse = unpack(item)
   
@@ -659,3 +663,4 @@ local function QH_Graph_Plane_ReallyMakeLink(item)
     tinsert(node2.links, {cost = cost_reverse, link = node1, outnode_to = n1d, outnode_from = n2d})
   end
 end
+]]

@@ -122,7 +122,7 @@ local function ReplotPath()
   local distance = 0
   for k, v in ipairs(last_path) do
     QH_Timeslice_Yield()
-    QuestHelper: Assert(not v.condense_type) -- no
+    --QuestHelper: Assert(not v.condense_type) -- no
     v.distance = distance -- I'm not a huge fan of mutating things like this, but it is safe, and these nodes are technically designed to be modified during runtime anyway
     table.insert(real_path, v)
     if last_path[k + 1] then
@@ -132,21 +132,24 @@ local function ReplotPath()
       
       -- The "condense" is kind of weird - we're actually condensing descriptions, but we condense to the *last* item. Urgh.
       local condense_start = nil
-      local condense_type = nil
+      local condense_class = nil
       local condense_to = nil
       
       -- ugh this is just easier
       local function condense_doit()
+        --print("start condense doit, was", real_path[condense_start].map_desc[1])
         for i = condense_start, #real_path do
           real_path[i].map_desc = condense_to
         end
-        condense_start, condense_type, condense_to = nil, nil, nil
+        --print("end condense doit, now", real_path[condense_start].map_desc[1])
+        condense_start, condense_class, condense_to = nil, nil, nil
       end
       
       if #nrt > 0 then for _, wp in ipairs(nrt) do
         QuestHelper: Assert(wp.c)
         
-        if condense_type and condense_type ~= wp.condense_type then condense_doit() end
+        --print(wp.condense_class)
+        if condense_class and condense_class ~= wp.condense_class then condense_doit() end
         
         local pathnode = QuestHelper:CreateTable("pathnode")
         pathnode.loc = QuestHelper:CreateTable("pathnode.loc")
@@ -160,12 +163,15 @@ local function ReplotPath()
         pathnode.cluster = last_path[k + 1].cluster
         table.insert(real_path, pathnode) -- Technically, we'll end up with the distance to the next objective. I'm okay with this.
         
-        if not condense_type and wp.condense_type then
-          condense_start, condense_type, condense_to = #real_path, wp.condense_type, wp.map_desc
+        if not condense_class and wp.condense_class then
+          condense_start, condense_class = #real_path, wp.condense_class
+        end
+        if condense_class then
+          condense_to = wp.map_desc
         end
       end end
       
-      if condense_type then condense_doit() end -- in case we have stuff left over
+      if condense_class then condense_doit() end -- in case we have stuff left over
     end
   end
   
