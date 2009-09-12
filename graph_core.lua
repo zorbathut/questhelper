@@ -578,14 +578,11 @@ function QH_Graph_Plane_Refresh()
                 if name == "static_transition" then doit = false end -- ha ha, yep, that's how we find out, tooootally reliable
                 if plane_cull[n1p] then doit = false end  -- DENIED
                 
-                --[[
                 if doit then
-                  local xyd = xydist_raw(n1p, coord1.x, coord1.y, coord2.x, coord2.y)
+                  local xyd = xydist_raw(n1p, nodedests[n1].x, nodedests[n1].y, nodedests[n2].x, nodedests[n2].y)
                   
-                  if cost >= xyd and (not cost_reverse or cost_reverse >= xyd) then
-                    return  -- DENIED
-                  end
-                end]]
+                  if c >= xyd then doit = false end -- it's faster to just fly directly. this won't fuck with the total-connectedness at all, because if it is faster to just fly directly from cluster A to cluster B, we'll just pick up cluster B when we get there
+                end
               end
             end
             
