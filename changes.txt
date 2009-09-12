@@ -1,8 +1,12 @@
 
-== Version 1.1.15 9/xx/2009 ==
+== Version 1.1.15 9/07/2009 ==
 
 * Added the error catching system to /qh purge, which honestly should have been in there for quite some time
 * Turn some data gathering off, turn some on
+* Further speed improvements. Something like a 50% improvement (or more) to picking up new quests and new objectives. This is a good thing.
+* Disable some old 3.1 compatibility code which may be incorrectly triggering in some situations
+
+* PAX was awesome. You were there, right?
 
 == Version 1.1.14 8/31/2009 ==
 
