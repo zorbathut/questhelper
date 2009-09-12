@@ -425,7 +425,7 @@ function QH_Graph_Plane_Makelink(name, coord1, coord2, cost, cost_reverse)
   local tlink = {name, coord1, coord2, cost, cost_reverse}
   if not linkages[name] then linkages[name] = {} end
   tinsert(linkages[name], tlink)
-  print(name, coord1.map_desc[1], coord2.map_desc[1], coord)
+  --print(name, coord1.map_desc[1], coord2.map_desc[1], coord)
 end
 
 function QH_Graph_Plane_Destroylinks(name)

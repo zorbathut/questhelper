@@ -277,8 +277,8 @@ function load_graph_links()
         local src = convert_coordinate(v[1])
         local dst = convert_coordinate(v[2])
         QuestHelper: Assert(src.x and dst.x)
-        src.map_desc = {QHFormat("WAYPOINT_REASON", QuestHelper_NameLookup[v[1][1]])}
-        dst.map_desc = {QHFormat("WAYPOINT_REASON", QuestHelper_NameLookup[v[2][1]])}
+        src.map_desc = {QHFormat("WAYPOINT_REASON", QuestHelper_NameLookup[v[2][1]])}
+        dst.map_desc = {QHFormat("WAYPOINT_REASON", QuestHelper_NameLookup[v[1][1]])}
         
         local rev_cost = v[3]
         if v[4] then rev_cost = nil end
@@ -301,16 +301,16 @@ function load_graph_links()
     local src = convert_coordinate({v[1], v[3], v[4]})
     local dst = convert_coordinate({v[1], v[3], v[4]})
     dst.p = v[2]
-    src.map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("ZONE_BORDER", QuestHelper_NameLookup[v[2]], QuestHelper_NameLookup[v[1]]))}
-    dst.map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("ZONE_BORDER", QuestHelper_NameLookup[v[1]], QuestHelper_NameLookup[v[2]]))}
+    src.map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("ZONE_BORDER_SIMPLE", QuestHelper_NameLookup[v[2]]))}
+    dst.map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("ZONE_BORDER_SIMPLE", QuestHelper_NameLookup[v[1]]))}
     QH_Graph_Plane_Makelink("static_transition", src, dst, 0, 0)
   end
   
   do
     local src = convert_coordinate(dark_portal_route[1])
     local dst = convert_coordinate(dark_portal_route[2])
-    src.map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("ZONE_BORDER", QuestHelper_NameLookup[dark_portal_route[2]], QuestHelper_NameLookup[dark_portal_route[1]]))}
-    dst.map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("ZONE_BORDER", QuestHelper_NameLookup[dark_portal_route[1]], QuestHelper_NameLookup[dark_portal_route[2]]))}
+    src.map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("ZONE_BORDER_SIMPLE", QuestHelper_NameLookup[dark_portal_route[2]]))}
+    dst.map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("ZONE_BORDER_SIMPLE", QuestHelper_NameLookup[dark_portal_route[1]]))}
     QH_Graph_Plane_Makelink("dark_portal", src, dst, 15, 15)
   end
 end

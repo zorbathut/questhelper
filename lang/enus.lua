@@ -111,7 +111,7 @@ QuestHelper_Translations.enUS =
   OBJECTIVE_MONSTER_UNKNOWN = "unknown monster",
   OBJECTIVE_ITEM_UNKNOWN = "unknown item",
   
-  ZONE_BORDER = "%1/%2 border",
+  ZONE_BORDER_SIMPLE = "%1 border",
   
   -- Stuff used in objective menus.
   PRIORITY = "Priority",
