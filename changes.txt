@@ -1,4 +1,11 @@
 
+== Version 1.1.16 9/13/2009 ==
+
+* Fix bug with misnamed flightpath links
+* Simplify the description of interzone links
+* Add more debug output for a new bug that seems to be related to leaving battlegrounds (please report any "/qh error" crash you encounter when doing so)
+* Improve speed of adding new quests and objectives yet further
+
 == Version 1.1.15 9/07/2009 ==
 
 * Added the error catching system to /qh purge, which honestly should have been in there for quite some time
