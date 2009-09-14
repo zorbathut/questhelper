@@ -14,7 +14,7 @@ QuestHelper_Objectives = {}
 QuestHelper_Pref =
  {}
 
-QuestHelper_DefaultPref =
+local QuestHelper_DefaultPref =
  {
   filter_level=true,
   filter_zone=false,
