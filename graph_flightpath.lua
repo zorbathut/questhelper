@@ -46,8 +46,6 @@ function QH_redo_flightpath()
       cull = true
     end
     
-    QuestHelper:TextOut("lolwut")
-    
     if ridingLevel >= 225 then
       QH_Graph_Flyplaneset(3, speed, cull) -- Outland
     end

@@ -438,7 +438,6 @@ function QH_Graph_Plane_Destroylinks(name)
 end
 
 function QH_Graph_Flyplaneset(fpset, speed, cull)
-  QuestHelper:TextOut("fps")
   QuestHelper: Assert(not active)
   prepared = false
   
