@@ -838,6 +838,13 @@ QH_AddNotifier(GetTime() + 5, function ()
   end
 end)
 
+-- We seem to end up out of sync sometimes. Why? I'm not sure. Maybe my current events aren't reliable. So let's just scan every five seconds and see what happens, scanning is fast and efficient anyway.
+local function autonotify()
+  QH_UpdateQuests(true)
+  QH_AddNotifier(GetTime() + 5, autonotify)
+end
+QH_AddNotifier(GetTime() + 30, autonotify)
+
 local old_playerlist = {}
 
 function QH_Questcomm_Sync()
