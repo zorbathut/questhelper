@@ -8,12 +8,11 @@ QuestHelper_Translations.csCZ =
   -- Messages used when starting.
   LOCALE_ERROR = "Lokalizace vašich uložených dat neodpovídá lokalizaci vašeho WoW klienta. Pro použití QuestHelpera budete potřebovat změnit lokalizaci zpět, nebo smazat data pomocí %h(/qh purge).",
   ZONE_LAYOUT_ERROR = "Odmítl jsem spustit, ze strachu z poškození vašich uložených dat. Prosím počkejte na patch, který bude schopen zvládnout nové rozložení zón.",
-  DOWNGRADE_ERROR = "Vaše uložená data nejsou kompatibilní s aktualní verzí QuestHelperu. Použijte novou verzi nebo smažte vaše uložená data.",
   HOME_NOT_KNOWN = "Váš domov není znám. Jakmile to bude možné, prosím promluvte se svým innkeeperem a nastavte si ho.",
   PRIVATE_SERVER = "QuestHelper nepodporuje soukromé servery.",
   PLEASE_RESTART = "Došlo k chybě při startu QuestHelperu. Prosím ukončete World of Warcraft a zkuste to znovu.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper nebyl správně nainstalován. Doporučujeme použít buď Curse Clienta nebo 7zip k instalaci. Ujistěte se, že podadresáře jsou rozbaleny.",
-  PLEASE_DONATE = "%h(QuestHelper momentálně přežívá díky vaším darům!) Cokoliv můžete přispět oceňuji a i jen pár dolarů měsíčně zajišťuje, že ho budu aktualizovat a zlepšovat. Zadejte %h(/qh donate) pro více informací.",
+  PLEASE_SUBMIT = "%h(QuestHelper potřebuje vaši pomoc!) Pokud máte pár minut, prosíme jděte na QuestHelper domovskou stránku %h(http://www.quest-helper.com) kde postupujte dle instrukcí pro potvrzení vašich nasbíraných dat. Vaše data udržují QuestHelper v aktualizované podobě. Děkujeme!",
   HOW_TO_CONFIGURE = "QuestHelper dosud nemá fungující nastavení, ale může být nastaveno pomocí %h(/qh settings). Nápověda je dostupná pomocí %h(/qh help).",
   TIME_TO_UPDATE = "Může být dostupná %h(nová verze QuestHelperu). Nové verze obvykle obsahují nové funkce, nové questy v databázi a opravy bugů. Prosím aktualizujte!",
   
@@ -51,7 +50,7 @@ QuestHelper_Translations.csCZ =
   OBJECTIVE_MONSTER_UNKNOWN = "neznámé monstrum",
   OBJECTIVE_ITEM_UNKNOWN = "neznámý předmět",
   
-  ZONE_BORDER = "hranici mezi %1 a %2",
+  ZONE_BORDER_SIMPLE = nil,
   
   -- Stuff used in objective menus.
   PRIORITY = "Priorita",

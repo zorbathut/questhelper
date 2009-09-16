@@ -8,12 +8,11 @@ QuestHelper_Translations.koKR =
   -- Messages used when starting.
   LOCALE_ERROR = "저장된 데이터의 지역화 언어가 WoW 클라이언트의 지역과 맞지 않습니다. QuestHelper를 사용하려면 지역화 언어를 되돌리거나 %h(/qh purge)를 입력하여 데이터를 지울 필요가 있습니다.",
   ZONE_LAYOUT_ERROR = "저장된 데이터와 충돌의 위험이 있기 때문에 애드온을 실행하지 않습니다. 새로운 지역을 처리할 수 있는 패치가 나올 때까지 기다려 주세요.",
-  DOWNGRADE_ERROR = "당신의 저장된 데이터가 이번 QuestHelper 버전과 호환되지 않습니다. 새로운 버전을 사용하거나, 저장된 데이터를 삭제하세요.",
   HOME_NOT_KNOWN = "귀환 장소를 알 수 없습니다. 기회가 될 때, 여관주인에게 말을 걸어 재설정하세요.",
   PRIVATE_SERVER = "QuestHelper는 해적서버를 지원하지 않습니다.",
   PLEASE_RESTART = "QuestHelper를 시작하지 못했습니다. 월드 오브 워크래프트를 완전히 종료하고 다시 시도하세요.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper가 제대로 설치되지 않았습니다. Curse 클라이언트나 7zip을 이용한 설치를 권장합니다. 하위 폴더가 설치되었는지 확인하세요.",
-  PLEASE_DONATE = "%h(QuestHelper는 여러분의 기부에 의해 운영되고 있습니다!) 한달에 몇 달러만 기부해 주시면 저는 업데이트를 계속하겠습니다. 더 많은 정보를 원하시면 %h(/qh donate)를 입력하세요.",
+  PLEASE_SUBMIT = nil,
   HOW_TO_CONFIGURE = "QuestHelper는 아직 설정 페이지가 없지만, %h(/qh settings)를 입력창에 입력하여 설정할 수 있습니다. 도움말은 %h(/qh help)를 입력하세요.",
   TIME_TO_UPDATE = "새로운 %h 버전이 업데이트 되었습니다. 새 버전에서는 보통 새로운 모습, 추가된 퀘스트 그리고 버그가 수정됩니다. 업데이트 하세요!",
   
@@ -27,9 +26,9 @@ QuestHelper_Translations.koKR =
   
   -- Special tracker text
   QH_LOADING = "QuestHelper를 불러오는 중 (%1%%)...",
-  QH_FLIGHTPATH = "비행경로를 재설정합니다. (%1%)",
+  QH_FLIGHTPATH = "비행 경로 재계산중 (%1%)...",
   QUESTS_HIDDEN_1 = "감춰둔 퀘스트가 있을 지 모름",
-  QUESTS_HIDDEN_2 = "(목록은 \\\"/qh hidden\\\")",
+  QUESTS_HIDDEN_2 = "(목록은 \"/qh hidden\")",
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "사용 가능한 지역화 언어:",
@@ -51,7 +50,7 @@ QuestHelper_Translations.koKR =
   OBJECTIVE_MONSTER_UNKNOWN = "알 수 없는 몬스터",
   OBJECTIVE_ITEM_UNKNOWN = "알 수 없는 아이템",
   
-  ZONE_BORDER = "%1/%2 지역",
+  ZONE_BORDER_SIMPLE = nil,
   
   -- Stuff used in objective menus.
   PRIORITY = "중요도",
@@ -219,8 +218,8 @@ QuestHelper_Translations.koKR =
   SETTINGS_PRECACHE_ON = "%h(사용함)으로 임시 저장되었습니다.",
   SETTINGS_PRECACHE_OFF = "%h(사용 안함)으로 임시 저장되었습니다.",
   
-  SETTINGS_MENU_ENABLE = "사용 안함",
-  SETTINGS_MENU_DISABLE = "사용함",
+  SETTINGS_MENU_ENABLE = "사용함",
+  SETTINGS_MENU_DISABLE = "사용 안함",
   SETTINGS_MENU_CARTWP = "Cartographer 화살표 %1",
   SETTINGS_MENU_TOMTOM = "TomTom 화살표 %1",
   

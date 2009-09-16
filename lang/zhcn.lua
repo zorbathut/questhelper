@@ -8,12 +8,11 @@ QuestHelper_Translations.zhCN =
   -- Messages used when starting.
   LOCALE_ERROR = "您存储的语言设定与本机的魔兽世界的区域语言设定不相符。如果要继续使用QuestHelper，请您将语言设定回原来的设定值，或是输入%h(/qh purge)来删除",
   ZONE_LAYOUT_ERROR = "本插件拒绝继续执行以免破坏您的存储资料。请等候下一个此新区域可用的版本再使用最新版本的插件",
-  DOWNGRADE_ERROR = "您的存储资料与此版本的QuestHelper不兼容。请使用新版本的QuestHelper，或是删除WTF目录下QuestHelper记录文件。",
   HOME_NOT_KNOWN = "目前无法得知您炉石设定的城镇。您可以与旅店老板交谈获取炉石并设定位置。",
   PRIVATE_SERVER = "QuestHelper 不支持私服。",
   PLEASE_RESTART = "QuestHelper 启动失败无法载入，请完全退出魔兽世界再试试。",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper没有被正确安装，我们建议使用Curse客户端或者7zip解压安装，请确定子目录都解压安装了。",
-  PLEASE_DONATE = "有关捐助QuestHelper作者以持续更新的方式请输入 /qh donate 查看。",
+  PLEASE_SUBMIT = nil,
   HOW_TO_CONFIGURE = "输入 /qh settings 可进入QuestHelper GUI设置界面，或输入/qh help 查看指令。",
   TIME_TO_UPDATE = "可能有%h（新版本QuestHelper）可供使用，新的版本通常包含新的功能，新的任务资料库和BUG修正。请您及时更新版本！",
   
@@ -51,7 +50,7 @@ QuestHelper_Translations.zhCN =
   OBJECTIVE_MONSTER_UNKNOWN = "未知的怪物",
   OBJECTIVE_ITEM_UNKNOWN = "未知的物品",
   
-  ZONE_BORDER = "%1/%2 区域边界",
+  ZONE_BORDER_SIMPLE = nil,
   
   -- Stuff used in objective menus.
   PRIORITY = "优先度",

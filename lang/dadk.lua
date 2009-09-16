@@ -8,12 +8,11 @@ QuestHelper_Translations.daDK =
   -- Messages used when starting.
   LOCALE_ERROR = "Sproget i dine gemte data stemmer ikke med sproget til WoW klienten. For at bruge QuestHelper skal du enten ændre sproget tilbage, eller slette dataerne ved at skrive %h(/qh purge).",
   ZONE_LAYOUT_ERROR = "Nægter at starte, af frygt for at ødelægge dine gemte data. Vent venligst på en ny patch, der vil være i stand til at håndtere det nye områdelayout.",
-  DOWNGRADE_ERROR = "Dine gemte data er ikke kompatible med denne version af QuestHelper. Brug en nyere version eller slet din savedvariables fil",
   HOME_NOT_KNOWN = "Dit hjem er ukendt. Tal venligst med din innkeeper ved førstkommende lejlighed og nulstil det.",
   PRIVATE_SERVER = "QuestHelper understøtter ikke private servere.",
   PLEASE_RESTART = "Der opstod en fejl ved start af QuestHelper. Afslutte World of Warcraft helt og prøv igen.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper er blevet installeret forkert. Vi anbefaler enten at bruge Curse Client eller 7zip til installering. Vær sikker på at undermapper bliver udpakket.",
-  PLEASE_DONATE = "%h(QuestHelper er afhængig af dine bidrag!) Ethvert bidrag modtages med tak. Blot et par dollars om måneden, sikrer at jeg holder det opdateret og kørende. Skriv %h(\"/qh donate\") for at se hvordan.",
+  PLEASE_SUBMIT = "Brug et par minutter på at besøge hjemmesiden for QuestHelper (http://www.quest-helper.com), og følg instruktionerne til hvordan du kan indsende dine indsamlede data. Dine data hjælper med at holde QuestHelper opdateret. På forhånd tak!",
   HOW_TO_CONFIGURE = "QuestHelper har endnu ikke en egentlig indstillingsside, men kan konfigureres ved at skrive %h(/qh settings). Få hjælp ved at skrive %h(/qh help).",
   TIME_TO_UPDATE = "Der er evt. en %h(ny QuestHelper version) klar. Nye versioner kan indeholde nye funktioner, nye quest databaser, og fejlrettelser. Opdater venligst!",
   
@@ -51,7 +50,7 @@ QuestHelper_Translations.daDK =
   OBJECTIVE_MONSTER_UNKNOWN = "Ukendt monster",
   OBJECTIVE_ITEM_UNKNOWN = "Ukendt genstand",
   
-  ZONE_BORDER = "Grænse mellem %1/%2",
+  ZONE_BORDER_SIMPLE = nil,
   
   -- Stuff used in objective menus.
   PRIORITY = "Prioritet",
@@ -105,12 +104,12 @@ QuestHelper_Translations.daDK =
   DEPENDS_ON_COUNT = "Afhænger af %1 skjulte mål.",
   DEPENDS_ON = "Afhænger af filtrerede opgaver",
   FILTERED_LEVEL = "Filtreret på grund af level.",
-  FILTERED_GROUP = nil,
+  FILTERED_GROUP = "Filteret på grund af gruppestørrelse.",
   FILTERED_ZONE = "Filtreret på grund af område.",
   FILTERED_COMPLETE = "Filtreret da det er afsluttet.",
   FILTERED_BLOCKED = "Filtreret på grund af forudgående mål der ikke er afsluttet",
   FILTERED_UNWATCHED = "Filtreret da det ikke bliver sporet i quest loggen",
-  FILTERED_WINTERGRASP = nil,
+  FILTERED_WINTERGRASP = "Filteret da det er en Wintergrasp PvP quest.",
   FILTERED_USER = "Du har anmodet om, at dette mål bliver skjult.",
   FILTERED_UNKNOWN = "Ved ikke hvordan det afsluttes.",
   
