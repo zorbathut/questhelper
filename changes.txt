@@ -1,5 +1,11 @@
 
-== Version 1.1.16 9/13/2009 ==
+== Version 1.1.17 9/14/2009 ==
+
+* Remove some debug output
+* Fix a small potential glitch allowing people to accidentally break QH
+* This might be my fastest version update ever
+
+== Version 1.1.16 9/14/2009 ==
 
 * Fix bug with misnamed flightpath links
 * Simplify the description of interzone links
