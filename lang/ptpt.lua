@@ -8,12 +8,11 @@ QuestHelper_Translations.ptPT =
   -- Messages used when starting.
   LOCALE_ERROR = "A localização dos teus dados (língua), não coincide com a localização desta instalação do WoW. Para usar o QuestHelper precisas de reverter para a localização original, ou apagar os dados escrevendo %h(/qh purge).",
   ZONE_LAYOUT_ERROR = "Recuso-me a trabalhar, com medo de corromper os teus dados guardados. Por favor aguarda por uma actualização que seja capaz de lidar com a nova estrutura da zona.",
-  DOWNGRADE_ERROR = "Os dados guardados não são compatíveis com esta versão do QuestHelper. Usa uma nova versão, ou apaga os dados da pasta 'SavedVariables'.",
   HOME_NOT_KNOWN = "O teu alojamento não é conhecido. Quando puderes, fala com um hospedeiro de uma estalagem e reactiva-o.",
   PRIVATE_SERVER = "O QuestHelper não suporta servidores privados.",
-  PLEASE_RESTART = "Ouve um erro ao iniciar o QuestHelper. Por favor saia totalmente do World of Warcraft e volte a tentar.",
+  PLEASE_RESTART = "Houve um erro ao iniciar o QuestHelper. Por favor saia totalmente do World of Warcraft e tente novamente.",
   NOT_UNZIPPED_CORRECTLY = "O QuestHelper foi instalado incorrectamente. Nós recomendamos o uso do Curse Client ou do 7zip para instalar. Reveja se as sub-directórias foram extraídas.",
-  PLEASE_DONATE = "%h(O QuestHelper sobrevive das tuas doações!) Qualquer contributo é apreciado, e apenas alguns euros por mês garantem que eu o mantenha actualizado e a trabalhar. Escreva %h(/qh donate) para mais informação.",
+  PLEASE_SUBMIT = "%h (QuestHelper precisa da sua ajuda!) Se você tiver alguns minutos, por favor vá até a Homepage do QuestHelper em %h (http://www.quest-helper.com) e siga as instruções para apresentar os dados colhidos. Seus dados mantém o Quest Helper certo e atualizado. Obrigado!",
   HOW_TO_CONFIGURE = "O QuestHelper ainda não tem uma pagina de configuração funcional, mas pode ser configurado escrevendo %h(/qh settings). Ajuda está disponivel com %h(/qh help).",
   TIME_TO_UPDATE = "Poderá haver uma %h(nova versão do QuestHelper) disponivel. Novas versões normalmente incluem novas funcionalidades, nova base de dados para as quests, correcção de erros. Por Favor Actualize!",
   
@@ -51,7 +50,7 @@ QuestHelper_Translations.ptPT =
   OBJECTIVE_MONSTER_UNKNOWN = "monstro desconhecido",
   OBJECTIVE_ITEM_UNKNOWN = "Iten desconhecido",
   
-  ZONE_BORDER = "%1/%2 fronteira",
+  ZONE_BORDER_SIMPLE = nil,
   
   -- Stuff used in objective menus.
   PRIORITY = "Prioridade",
@@ -219,18 +218,18 @@ QuestHelper_Translations.ptPT =
   SETTINGS_PRECACHE_ON = "Precache foi %h (activado)",
   SETTINGS_PRECACHE_OFF = "Precache foi %h (desactivado)",
   
-  SETTINGS_MENU_ENABLE = nil,
-  SETTINGS_MENU_DISABLE = nil,
-  SETTINGS_MENU_CARTWP = nil,
-  SETTINGS_MENU_TOMTOM = nil,
+  SETTINGS_MENU_ENABLE = "Abilitado",
+  SETTINGS_MENU_DISABLE = "Desabilidado",
+  SETTINGS_MENU_CARTWP = "%1 Seta Cartographer",
+  SETTINGS_MENU_TOMTOM = "%1 Seta TomTom",
   
-  SETTINGS_MENU_ARROW_LOCK = nil,
-  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
-  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
-  SETTINGS_MENU_ARROW_RESET = nil,
+  SETTINGS_MENU_ARROW_LOCK = "Travar",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Tamanho da Seta",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Tamanho do Texto",
+  SETTINGS_MENU_ARROW_RESET = "Ressetar",
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 yards de distância",
-  DISTANCE_METRES = nil
+  DISTANCE_METRES = "%h1 metros"
  }
 

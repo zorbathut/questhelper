@@ -8,12 +8,11 @@ QuestHelper_Translations.plPL =
   -- Messages used when starting.
   LOCALE_ERROR = "Lokalizacja zapisanych danych nie pasuje do lokalizacji Twojego klienta WoW. Aby korzystać z QuestHelper'a musisz albo przywrócić lokalizację, albo usunąć dane, wpisując %h (/qh purge).",
   ZONE_LAYOUT_ERROR = "Odmawiam uruchomienia, gdyż boje się uszkodzenia zapisanych danych. Proszę, poczekaj na aktualizację, która będzie w stanie obsłużyć nowy wygląd strefy.",
-  DOWNGRADE_ERROR = "Twoje zapisane dane nie są zgodne z tą wersją QuestHelper'a. Użyj nowszej wersji albo usuń stare zmienne.",
   HOME_NOT_KNOWN = "Twoje miejsce zamieszkania nie jest znane. Kiedy będziesz mógł, porozmawiaj z karczmarzem (Innkeeper) i ustaw miejsce zamieszkania.",
   PRIVATE_SERVER = "QuestHelper nie obsługuje prywatnych serwerów.",
   PLEASE_RESTART = "Podczas uruchamiania QuestHelper'a wystąpił błąd. Proszę całkowicie wyjść z World of Warcraft i spróbować uruchomić go ponownie.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper został nieprawidłowo zainstalowany. Do instalacji zalecamy stosowanie klienta Curse lub 7zip. Upewnij się, że podkatalogi są wyodrębnione.",
-  PLEASE_DONATE = "%h(QuestHelper przetrwa tylko dzieki twoim dotacjom!) Każdy twój wkład jest doceniany, a zaledwie kilka dolarów miesięcznie zapewni, że będę na bieżąco aktualizował i pracował nad dodatkiem. Wpisz %h(/qh donate), aby uzyskać więcej informacji.",
+  PLEASE_SUBMIT = "%h(Quest Helper potrzebuje twojej pomocy!) Jezeli masz kilka minut,udaj sie na strone Quest Helpera %h(http://www.quest-helper.com)i zastosoj sie do instrokcji w celu podzielenia sie swoimi danymi.Twoje dane aktualizuja Quest Helpera i poprawiaja bledy. Dziekuje!",
   HOW_TO_CONFIGURE = "QuestHelper nie ma jeszcze gotowej strony ustawień, ale może być skonfigurowany poprzez komendę %h(/qh settings). Pomoc jest udzielana poprzez %h(/qh help).",
   TIME_TO_UPDATE = "Mogła wyjść nowa wersja QuestHelper'a. Nowa wersja zazwyczaj zawiera nowe opcje, nową bazę zadań, oraz naprawione błędy. Proszę, zaktualizuj!",
   
@@ -51,7 +50,7 @@ QuestHelper_Translations.plPL =
   OBJECTIVE_MONSTER_UNKNOWN = "nieznany potwór",
   OBJECTIVE_ITEM_UNKNOWN = "nieznany przedmiot",
   
-  ZONE_BORDER = "Granica %1/%2",
+  ZONE_BORDER_SIMPLE = nil,
   
   -- Stuff used in objective menus.
   PRIORITY = "Priorytet",

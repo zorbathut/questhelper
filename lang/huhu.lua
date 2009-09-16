@@ -8,19 +8,18 @@ QuestHelper_Translations.huHU =
   -- Messages used when starting.
   LOCALE_ERROR = "A mentett adatok nyelve nem egyezik meg a WoW-kliensed nyelvével. Ahhoz, hogy használd a QuestHelpert vagy vissza kell állítsd a kliensed nyelvét, vagy törölnöd kell a mentett adatokat azzal, hogy beírod: %h(/qh purge).",
   ZONE_LAYOUT_ERROR = "Működés megtagadva az eddig felhalmozott adatok védelmében. Kérlek várj, míg kijön egy frissítés, ami képes lesz kezelni az új területi kialakítást.",
-  DOWNGRADE_ERROR = "A rögzített adatok nem kompatibilisek a QuestHelper ezen verziójával. Tölts le egy újabb verziót, vagy töröld a mentett adatokat a 'Saved Variables' mappában.",
   HOME_NOT_KNOWN = "Nem tudom hol van az otthonod. Amint lehetőséged adódik, beszélj egy kocsmárossal és állítsd be újra.",
   PRIVATE_SERVER = "A QuestHelper nem támogatja a privát szervereket.",
   PLEASE_RESTART = "Hiba történt a QuestHelper indításakor. Kérlek zárd be teljesen a WoW-ot, és lépj be újra!",
   NOT_UNZIPPED_CORRECTLY = "A QuestHelper hibásan lett telepítve! Ajánlott vagy a Curse-kliens vagy a 7zip használata. Győjőzdj meg róla, hogy az alkönyvtárak is ki lettek tömörítve.",
-  PLEASE_DONATE = "%h( A QuestHelper-t jelenleg a Ti Adományaitok tartják életben!) Bármennyit, amit tudtok nélkülözni, szívesen fogadunk, és pár száz forint havonta is segít, hogy működésben, és frissítve tartsam az AddOnt. Több információért írd be: %h(/qh donate)",
+  PLEASE_SUBMIT = "%h(A QuestHelpernek a segítségedre van szüksége!) Ha van szabad egy-két perced, kérlek látogasd meg a honlapunkat a %h(http://www.quest-helper.com) címen, és kövesd az ott látható utasításokat, hogy elküldd nekünk az adatbázisod. Az így elküldött adatok segítségével maradhat a QuestHelper pontos és naprakész. Köszi!",
   HOW_TO_CONFIGURE = "Még nincs működő Beállítások része ezen QuestHelpernek, de konfigurálhatod, ha beírod: %h(/qh settings). Segítség a %h(/qh help) beírásával érhatő el.",
   TIME_TO_UPDATE = "Valószinűleg létezik egy újabb QuestHelper verzió ( %h )! Újabb verziók újabb funkciókat, quest-adatbázisokat és hibajavításokat tartalmaznak. Kérlek, frissíts!",
   
   -- Route related text.
   ROUTES_CHANGED = "A karaktered repülési útvonalai megváltoztak.",
   HOME_CHANGED = "Az otthonond megváltozott.",
-  TALK_TO_FLIGHT_MASTER = "Kérlek beszélj a helyi Griffessel.",
+  TALK_TO_FLIGHT_MASTER = "Kérlek beszélj a helyi repülőmesterrel.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Köszönöm.",
   WILL_RESET_PATH = "Útvonalterv újraszerkesztése folyamatban...",
   UPDATING_ROUTE = "Útvonalterv frissítése.",
@@ -51,7 +50,7 @@ QuestHelper_Translations.huHU =
   OBJECTIVE_MONSTER_UNKNOWN = "Ismeretlen szörny",
   OBJECTIVE_ITEM_UNKNOWN = "Ismeretlen tárgy",
   
-  ZONE_BORDER = "%1 és %2 határa",
+  ZONE_BORDER_SIMPLE = nil,
   
   -- Stuff used in objective menus.
   PRIORITY = "Elsőbbség",
@@ -102,15 +101,15 @@ QuestHelper_Translations.huHU =
   HIDDEN_TITLE = "Rejtett feladatok",
   HIDDEN_NONE = "Nincsenek rejtett feladatok",
   DEPENDS_ON_SINGLE = "Ettől függ: '%1'.",
-  DEPENDS_ON_COUNT = "%1 rejtett objektumtól függ.",
-  DEPENDS_ON = "Szűrt objektumoktól függ",
+  DEPENDS_ON_COUNT = "%1 elrejtett feladattól függ.",
+  DEPENDS_ON = "Szűrt feladatoktól függ",
   FILTERED_LEVEL = "Rejtve a szintkülönbség miatt.",
-  FILTERED_GROUP = nil,
+  FILTERED_GROUP = "Rejtve a megfelelő csapat hiánya miatt",
   FILTERED_ZONE = "Rejtve, mivel másik területen található.",
   FILTERED_COMPLETE = "Rejtve, mivel kész.",
   FILTERED_BLOCKED = "Rejtve befejezetlen elsődleges feladat miatt.",
   FILTERED_UNWATCHED = "Szűrve, mert nincs benne a Quest Log-odban!",
-  FILTERED_WINTERGRASP = nil,
+  FILTERED_WINTERGRASP = "Rejtve, mivel ez egy Wintergrasp-ba szóló PvP quest",
   FILTERED_USER = "Te rejtetted el ezt a feladatot.",
   FILTERED_UNKNOWN = "Nem tudom, hogyan kell megcsinálni.",
   
@@ -206,28 +205,28 @@ QuestHelper_Translations.huHU =
   -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
   TOOLTIP_WATCHED = "QuestHelper által figyelt",
   TOOLTIP_QUEST = "A(z) %h1 questhez.",
-  TOOLTIP_PURCHASE = "Végy %h1-t.",
+  TOOLTIP_PURCHASE = "Vegyél %h1-t.",
   TOOLTIP_SLAY = "Ölj ehhez: %h1.",
   TOOLTIP_LOOT = "Lootolj %h1-t.",
   
   -- Settings
-  SETTINGS_ARROWLINK_ON = nil,
-  SETTINGS_ARROWLINK_OFF = nil,
+  SETTINGS_ARROWLINK_ON = "A %h1 használata bekapcsolva a feladatok mutatásához.",
+  SETTINGS_ARROWLINK_OFF = "A %h1 használata kikapcsolva a feladatok mutatásához.",
   SETTINGS_ARROWLINK_ARROW = "QuestHelper Nyíl",
-  SETTINGS_ARROWLINK_CART = nil,
-  SETTINGS_ARROWLINK_TOMTOM = nil,
-  SETTINGS_PRECACHE_ON = nil,
-  SETTINGS_PRECACHE_OFF = nil,
+  SETTINGS_ARROWLINK_CART = "Cartographer útjelzés",
+  SETTINGS_ARROWLINK_TOMTOM = "TomTom útjelzés",
+  SETTINGS_PRECACHE_ON = "Előre cache-elés %h(bekapcsolva).",
+  SETTINGS_PRECACHE_OFF = "Előre cache-elés %h(kikapcsolva).",
   
   SETTINGS_MENU_ENABLE = "Bekapcsolás",
   SETTINGS_MENU_DISABLE = "Kikapcsolás",
-  SETTINGS_MENU_CARTWP = nil,
+  SETTINGS_MENU_CARTWP = "%1 Cartographer nyíl",
   SETTINGS_MENU_TOMTOM = "%1 TomTom nyíl",
   
-  SETTINGS_MENU_ARROW_LOCK = nil,
-  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
-  SETTINGS_MENU_ARROW_TEXTSCALE = nil,
-  SETTINGS_MENU_ARROW_RESET = nil,
+  SETTINGS_MENU_ARROW_LOCK = "Befagyasztás",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Nyíl mérete",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Szöveg mérete",
+  SETTINGS_MENU_ARROW_RESET = "Alapbeállítás",
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 yard",

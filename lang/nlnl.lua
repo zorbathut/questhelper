@@ -8,14 +8,13 @@ QuestHelper_Translations.nlNL =
   -- Messages used when starting.
   LOCALE_ERROR = "Sorry, de vertaling van je opgeslagen data komt niet overeen met de taal van je WoW client. Om QuestHelper te gebruiken herstel je de vertaling of verwijder je de data door het volgende te typen: %h(/qh purge).",
   ZONE_LAYOUT_ERROR = "Ik kan niet opstarten, omdat ik bang ben anders je opgeslagen data kapot te maken. Wacht alsjeblieft op een patch die wel deze zone layout aankan.",
-  DOWNGRADE_ERROR = "Je opgeslagen data is niet bruikbaar met deze versie van QuestHelper. Gebruik een nieuwere versie of verwijder je 'saved variables' data.",
   HOME_NOT_KNOWN = "Je thuis locatie is niet bekend. Praat met een innkeeper om deze in te stellen.",
   PRIVATE_SERVER = "Private servers worden niet door QuestHelper ondersteund.",
-  PLEASE_RESTART = "Er is een error gevonden tijdens het opstarten van World of Warcraft, exit dit programma helemaal en probeer het opnieuw.",
-  NOT_UNZIPPED_CORRECTLY = "QuestHelper is niet goed geinstalleerd. we raden aan om de curse cleint of 7zip te installeren. Controleer of de sub-mappen uit zijn gepakt.",
-  PLEASE_DONATE = "%h(QuestHelper overleefd op jullie donaties!) Alles wat je kunt missen is welkom, en een paar euro per maand zorgen ervoor dat ik het kan updaten en werkend kan houden. Type %h(/qh donate) voor meer informatie.",
+  PLEASE_RESTART = "QuestHelper is niet goed opgestart. Start World of Warcraft helemaal opnieuw op aub.",
+  NOT_UNZIPPED_CORRECTLY = "QuestHelper is niet goed geinstalleerd. we raden aan om de Curse Client of 7zip te installeren. Controleer of de sub-mappen uit zijn gepakt.",
+  PLEASE_SUBMIT = "%h(QuestHelper heeft jouw hulp nodig!) Als je even tijd hebt, ga dan naar de QuestHelper homepage %h(http://www.quest-helper.com) en volg de instrcuties om je verzamelde data te uploaden. Jouw data helpt om QuestHelper werkend en up-to-date te houden! Alvast bedankt.",
   HOW_TO_CONFIGURE = "QuestHelper heeft nog geen werkende instellings pagina, maar dit kan geconfigureerd worden door %h(/qh settings) te typen. Hulp is beschikbaar met %h(/qh help).",
-  TIME_TO_UPDATE = "Er kan een %h(nieuwe QuestHelper versie) beschikbaar zijn. Nieuwere versies hebben meestal nieuwe toevoegingen, nieuwe Questdatabases en bugfixes. Update aub!",
+  TIME_TO_UPDATE = "Er kan een %h(nieuwe QuestHelper versie) beschikbaar zijn. Nieuwere versies hebben meestal nieuwe toevoegingen, nieuwe questdatabases en bugfixes. Update aub!",
   
   -- Route related text.
   ROUTES_CHANGED = "De vliegroutes voor je karakter zijn veranderd.",
@@ -28,8 +27,8 @@ QuestHelper_Translations.nlNL =
   -- Special tracker text
   QH_LOADING = "QuestHelper is aan het laden (%1%%)...",
   QH_FLIGHTPATH = "Vliegpad herberekenen",
-  QUESTS_HIDDEN_1 = "Questen kunnen verborgen zijn",
-  QUESTS_HIDDEN_2 = "(\"/qh hidden\" om verborgen Questen te zien)",
+  QUESTS_HIDDEN_1 = "Quests kunnen verborgen zijn",
+  QUESTS_HIDDEN_2 = "(\"/qh hidden\" om verborgen Quests te zien)",
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Beschikbare Vertalingen:",
@@ -51,7 +50,7 @@ QuestHelper_Translations.nlNL =
   OBJECTIVE_MONSTER_UNKNOWN = "onbekend monster",
   OBJECTIVE_ITEM_UNKNOWN = "Onbekend voorwerp",
   
-  ZONE_BORDER = "%1/%2 border",
+  ZONE_BORDER_SIMPLE = nil,
   
   -- Stuff used in objective menus.
   PRIORITY = "Prioriteit",
@@ -100,24 +99,24 @@ QuestHelper_Translations.nlNL =
   
   -- Hidden objectives.
   HIDDEN_TITLE = "Verborgen Doelen",
-  HIDDEN_NONE = "Er zijn geen doelen verborgen voor je.",
-  DEPENDS_ON_SINGLE = "Hangt van '%1' af.",
-  DEPENDS_ON_COUNT = "Hangt van %1 verborgen doelen af.",
+  HIDDEN_NONE = "Er zijn geen doelen verborgen voor je",
+  DEPENDS_ON_SINGLE = "Hangt van '%1' af",
+  DEPENDS_ON_COUNT = "Hangt van %1 verborgen doelen af",
   DEPENDS_ON = "Hangt van gefilterde doelen af",
-  FILTERED_LEVEL = "Gefilterd als gevolg van je level.",
+  FILTERED_LEVEL = "Gefilterd als gevolg van je level",
   FILTERED_GROUP = "Gefilterd door grootte van groep",
-  FILTERED_ZONE = "Gefilterd voor je zone.",
-  FILTERED_COMPLETE = "Gefilterd omdat je het al voltooid heb.",
-  FILTERED_BLOCKED = "Gefilterd door een eerder incompleet doel.",
-  FILTERED_UNWATCHED = "Uitgefilterd omdat het niet gevolgd wordt in het Quest logboek",
+  FILTERED_ZONE = "Gefilterd voor je zone",
+  FILTERED_COMPLETE = "Gefilterd omdat je het al voltooid heb",
+  FILTERED_BLOCKED = "Gefilterd door een eerder incompleet doel",
+  FILTERED_UNWATCHED = "Gefilterd omdat het niet gevolgd wordt in het Quest logboek",
   FILTERED_WINTERGRASP = "Gefilterd omdat het een PvP Wintergrasp quest is",
-  FILTERED_USER = "Je hebt dit doel verborgen.",
-  FILTERED_UNKNOWN = "Geen idee hoe dit te voltooien.",
+  FILTERED_USER = "Je hebt dit doel verborgen",
+  FILTERED_UNKNOWN = "Geen idee hoe dit te voltooien",
   
-  HIDDEN_SHOW = "Toon.",
+  HIDDEN_SHOW = "Toon",
   HIDDEN_SHOW_NO = "Niet toonbaar",
   HIDDEN_EXCEPTION = "Voeg fout toe",
-  DISABLE_FILTER = "Zet filter: %1 uit.",
+  DISABLE_FILTER = "Zet filter: %1 uit",
   FILTER_DONE = "klaar",
   FILTER_ZONE = "zone",
   FILTER_LEVEL = "level",
@@ -134,7 +133,7 @@ QuestHelper_Translations.nlNL =
   NAG_NEW = "Deel je informatie, zodat anderen er ook van kunnen profiteren.",
   NAG_INSTRUCTIONS = "Type %h(/qh submit) om instructies te krijgen voor het insturen van data.",
   
-  NAG_SINGLE_FP = "een Flightmaster",
+  NAG_SINGLE_FP = "een flightmaster",
   NAG_SINGLE_QUEST = "een quest",
   NAG_SINGLE_ROUTE = "een vliegroute",
   NAG_SINGLE_ITEM_OBJ = "een item doel",
@@ -144,7 +143,7 @@ QuestHelper_Translations.nlNL =
   NAG_SINGLE_REPUTATION_OBJ = "een reputatie doel",
   NAG_SINGLE_PLAYER_OBJ = "een speler doel",
   
-  NAG_MULTIPLE_FP = "%1 Flightmasters",
+  NAG_MULTIPLE_FP = "%1 flightmasters",
   NAG_MULTIPLE_QUEST = "%1 quests",
   NAG_MULTIPLE_ROUTE = "%1 vlieg routes",
   NAG_MULTIPLE_ITEM_OBJ = "%1 item doelen",
@@ -158,8 +157,8 @@ QuestHelper_Translations.nlNL =
   PEER_PROGRESS = "%1's voortgang:",
   TRAVEL_ESTIMATE = "Geschatte reistijd:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
-  WAYPOINT_REASON = "Bezoek %h1 en route naar:",
-  FLIGHT_POINT = "%1 VLieg punt",
+  WAYPOINT_REASON = "Bezoek %h1 onderweg naar:",
+  FLIGHT_POINT = "%1 flightpoint",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -211,8 +210,8 @@ QuestHelper_Translations.nlNL =
   TOOLTIP_LOOT = "Loot voor %h1.",
   
   -- Settings
-  SETTINGS_ARROWLINK_ON = "%h1 zal gebruikt worden om doelen aan te geven",
-  SETTINGS_ARROWLINK_OFF = "%h1 zal niet gebruikt worden om doelen aan te geven",
+  SETTINGS_ARROWLINK_ON = "%h1 zal gebruikt worden om doelen aan te geven.",
+  SETTINGS_ARROWLINK_OFF = "%h1 zal niet gebruikt worden om doelen aan te geven.",
   SETTINGS_ARROWLINK_ARROW = "QuestHelper Pijl",
   SETTINGS_ARROWLINK_CART = "Cartographer Waypoints",
   SETTINGS_ARROWLINK_TOMTOM = "TomTom",
@@ -225,8 +224,8 @@ QuestHelper_Translations.nlNL =
   SETTINGS_MENU_TOMTOM = "%1 TomTom pijl",
   
   SETTINGS_MENU_ARROW_LOCK = "Slot",
-  SETTINGS_MENU_ARROW_ARROWSCALE = "Pijl schaal",
-  SETTINGS_MENU_ARROW_TEXTSCALE = "Tekst schaal",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Pijl grootte",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Tekst grootte",
   SETTINGS_MENU_ARROW_RESET = "Herstel",
   
   -- I'm just tossing miscellaneous stuff down here

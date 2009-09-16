@@ -8,12 +8,11 @@ QuestHelper_Translations.roRO =
   -- Messages used when starting.
   LOCALE_ERROR = nil,
   ZONE_LAYOUT_ERROR = nil,
-  DOWNGRADE_ERROR = "Salvarea ta nu este compatibila cu aceasta versiune de QuestHelper. Foloseste o versiune mai recenta a QuestHelper.",
   HOME_NOT_KNOWN = nil,
   PRIVATE_SERVER = nil,
   PLEASE_RESTART = nil,
   NOT_UNZIPPED_CORRECTLY = nil,
-  PLEASE_DONATE = nil,
+  PLEASE_SUBMIT = nil,
   HOW_TO_CONFIGURE = nil,
   TIME_TO_UPDATE = nil,
   
@@ -51,7 +50,7 @@ QuestHelper_Translations.roRO =
   OBJECTIVE_MONSTER_UNKNOWN = nil,
   OBJECTIVE_ITEM_UNKNOWN = nil,
   
-  ZONE_BORDER = nil,
+  ZONE_BORDER_SIMPLE = nil,
   
   -- Stuff used in objective menus.
   PRIORITY = nil,

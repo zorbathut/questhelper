@@ -8,12 +8,11 @@ QuestHelper_Translations.svSE =
   -- Messages used when starting.
   LOCALE_ERROR = "Språket för dina sparade data matchar inte språket för din WoW klient. För att använda QuestHelper, måste du antingen ändra tillbaka språket, eller radera datan genom att skriva %h(/qh purge).",
   ZONE_LAYOUT_ERROR = "Jag vägrar starta, på grund av rädsla för att förstöra din sparade information. Vänligen vänta på en patch som är kapabel att hantera den nya zon-utformningen.",
-  DOWNGRADE_ERROR = "Din sparade data är inte kompatibel med denna version av Questhelper. Använd en ny version, eller radera dina sparade variabler.",
   HOME_NOT_KNOWN = "Ditt hem är okänt. När du får chansen, prata med din innkeeper för att nollställa det.",
   PRIVATE_SERVER = "QuestHelper stödjer inte privata servrar.",
   PLEASE_RESTART = "Det uppstod ett fel vid start av QuestHelper. Vänligen avsluta World of Warcraft helt och försök igen.",
-  NOT_UNZIPPED_CORRECTLY = "QuestHelper blev felaktigt installerad. Vi rekomenderar avv du antingen använder Curse Client eller 7zip för att installera. Säkerställ att underkataloger blir extraherade.",
-  PLEASE_DONATE = "%h(QuestHelper lever just nu på dina donationer!) Allt du kan bidra med uppskattas, och endast några dollar i månaden försäkrar att jag kommer fortsätta uppdatera och hålla det fungerande. Skriv %h(/qh donate) för mer information.",
+  NOT_UNZIPPED_CORRECTLY = "QuestHelper blev felaktigt installerad. Vi rekomenderar att du antingen använder Curse Client eller 7zip för att installera. Säkerställ att underkataloger blir extraherade.",
+  PLEASE_SUBMIT = "%h (QuestHelper behöver din hjälp!) Om du har ett par minuter, besök gärna QuestHelper's hemsida på %h(http://www.quest-helper.com) och följ instruktionerna för att lämna in din insamlade data. Din insamlade data håller QuestHelper uppdaterad. Tack!",
   HOW_TO_CONFIGURE = "QuestHelper har ingen fungerande inställningssida, men kan konfigureras genom att skriva %h(/qh settings). Hjälp är tillgänglig med %h(/qh help).",
   TIME_TO_UPDATE = "Det finns en nyare version utav %h(new QuestHelper version). Uppdatera!",
   
@@ -51,7 +50,7 @@ QuestHelper_Translations.svSE =
   OBJECTIVE_MONSTER_UNKNOWN = "Okänt monster",
   OBJECTIVE_ITEM_UNKNOWN = "Okänt objekt",
   
-  ZONE_BORDER = "gränsen %1/%2",
+  ZONE_BORDER_SIMPLE = nil,
   
   -- Stuff used in objective menus.
   PRIORITY = "Prioritet",
@@ -105,12 +104,12 @@ QuestHelper_Translations.svSE =
   DEPENDS_ON_COUNT = "Beroende av %1 gömda uppdrag.",
   DEPENDS_ON = "Beror på filtrerade objekt",
   FILTERED_LEVEL = "Filtrerad på grund av nivå.",
-  FILTERED_GROUP = nil,
+  FILTERED_GROUP = "Filtrerad på grund av grupp storlek",
   FILTERED_ZONE = "Filtrerad på grund av zon.",
   FILTERED_COMPLETE = "Filtrerad på grund av fullgjort",
   FILTERED_BLOCKED = "Filtrerad på grund av att föregående uppdrag inte är klart.",
   FILTERED_UNWATCHED = "Filtreras på grund av att den inte följs i uppdrags-loggen",
-  FILTERED_WINTERGRASP = nil,
+  FILTERED_WINTERGRASP = "Filtrerad på grund av att det är ett PvP Wintergrasp uppdrag",
   FILTERED_USER = "Du har begärt att detta uppdrag ska vara gömt",
   FILTERED_UNKNOWN = "Vet inte hur man klarar av.",
   
@@ -230,7 +229,7 @@ QuestHelper_Translations.svSE =
   SETTINGS_MENU_ARROW_RESET = "Återställ",
   
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE_YARDS = nil,
-  DISTANCE_METRES = "%h1 meter"
+  DISTANCE_YARDS = "%h1 avstånd Yards  0,91 meter/yard",
+  DISTANCE_METRES = "%h1 avstånd meter"
  }
 

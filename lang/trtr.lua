@@ -8,12 +8,11 @@ QuestHelper_Translations.trTR =
   -- Messages used when starting.
   LOCALE_ERROR = "Kayitli verilerinizin dili WoW dilinizle ayni degil.",
   ZONE_LAYOUT_ERROR = "Kaydedilmis verilerinize hasar vermekten korkmaksizin çalismayi reddediyorum. Lütfen yeni bölgeyi kontrol edebilecek bir güncelleme çikana kadar bekleyin.",
-  DOWNGRADE_ERROR = "Kayitli verileriniz QuestHelper'in bu versiyonuyla uyumlu degil Yeni bir versiyon indirin veya kayitli verilerinizi silin.",
   HOME_NOT_KNOWN = "Belirli bir konaklama yeriniz yok, firsat buldugunuzda barmen ile konusarak bir yer belirleyin.",
   PRIVATE_SERVER = "QuestHelper özel sunucuları desteklemiyor.",
   PLEASE_RESTART = "QuestHelper başlatılırken hata oluştu. Lütfen World Of Warcraft'tan tamamen çıkın ve yeniden deneyin.",
   NOT_UNZIPPED_CORRECTLY = nil,
-  PLEASE_DONATE = nil,
+  PLEASE_SUBMIT = nil,
   HOW_TO_CONFIGURE = "QuestHelper şimdilik bir özelleştirme sayfasına sahip değil, ama özelleştirmek için %h(/qh settings) yazın. %h(/qh help) yardım alabilirsiniz.",
   TIME_TO_UPDATE = "%h(yeni sürüm QuestHelper) kullanılabilir. Yeni sürüm yeni özellikler içerir, yeni veritabanı, ve iyileştirmeler. Lütfen güncelleyin!",
   
@@ -51,7 +50,7 @@ QuestHelper_Translations.trTR =
   OBJECTIVE_MONSTER_UNKNOWN = nil,
   OBJECTIVE_ITEM_UNKNOWN = nil,
   
-  ZONE_BORDER = "%1/%2 siniri",
+  ZONE_BORDER_SIMPLE = nil,
   
   -- Stuff used in objective menus.
   PRIORITY = "Öncelik",
