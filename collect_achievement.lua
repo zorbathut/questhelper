@@ -201,8 +201,7 @@ local function ScanAchievements()
   end
   
   for k, v in pairs(newADB.criteria) do
-    if v.complete ~= oldADB.criteria[k].complete then
-      QuestHelper: Assert(v.complete and not oldADB.criteria[k].complete, string.format("%s %s %s", tostring(k), tostring(v.complete), tostring(oldADB.criteria[k].complete)))
+    if v.complete and not oldADB.criteria[k].complete then  -- Note that it's possible for objectives to be "uncompleted" when it's things like "do a bunch of shit in one run of this battleground" (see: isle of conquest)
       --QuestHelper:TextOut(string.format("Criteria complete, %d", k))
       --QuestHelper:TextOut(string.format("Criteria complete, %s", select(1, GetAchievementCriteriaInfo(k))))
       if not QHCA[v.parent] then QHCA[v.parent] = {} end
