@@ -1,4 +1,9 @@
 
+== Version 1.1.18 9/15/2009 ==
+
+* Fix the crash when exiting Isle of Conquest
+* Update translations
+
 == Version 1.1.17 9/14/2009 ==
 
 * Remove some debug output
