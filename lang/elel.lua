@@ -12,7 +12,7 @@ QuestHelper_Translations.elEL =
   PRIVATE_SERVER = "Ο βοηθός Αποστολών δεν υποστηρίζει ιδιωτικούς κόσμους.",
   PLEASE_RESTART = "Ένα λάθος συναίβει στην έναρξη του βοηθού αποστολών.Επανεκκινήστe το παιχνίδι ή γράψτε /console reloadui .",
   NOT_UNZIPPED_CORRECTLY = "Ο Βοηθός Αποστολών δεν εγκαταστάθηκε σωστά. Δοκιμάστε πάλι και κάντε σωστή εξαγωγή με το Zip.",
-  PLEASE_SUBMIT = nil,
+  PLEASE_SUBMIT = "%h(Το QuestHelper χρειαζετε την βοηθεια σας!) Εαν διαθετετε μερικα λεπτα, παρακαλω μπειτε στην κεντρικη σελιδα του QuestHelper στο %h(http://www.quest-helper.com) και ακολουθηστε τις οδηγιες για να προσφερετε τα μαζεμενα δεδομενα σας. Τα δεδομενα σας βοηθανε το QuestHelper να παραμενει σωστο και ενημερωμενο. Σας ευχαριστω.",
   HOW_TO_CONFIGURE = "Ο βοηθός Αποστολών δεν έχει σελίδα με ρυθμίσης, αλλά μπορεί να ρυθμιστή γράφοντας %h(/qh settings). Για βοήθεια γράψε %h(/qh help).",
   TIME_TO_UPDATE = "Μπορεί να υπάρχει μία %h(νέα εκδοση τού QuestHelper). Οι νέες εκδόσεις συχνά σε βοηθούν σε πιο πολλά quest.",
   
@@ -50,7 +50,7 @@ QuestHelper_Translations.elEL =
   OBJECTIVE_MONSTER_UNKNOWN = "Άγνωστο τέρας",
   OBJECTIVE_ITEM_UNKNOWN = "Άγνωστο αντικείμενο",
   
-  ZONE_BORDER_SIMPLE = nil,
+  ZONE_BORDER_SIMPLE = "%1 οριο",
   
   -- Stuff used in objective menus.
   PRIORITY = "Προτεραιότητα",
@@ -213,10 +213,10 @@ QuestHelper_Translations.elEL =
   SETTINGS_ARROWLINK_ON = "Θα χρησιμοποιήσουμε %h1 για να δείξουμε τους στόχους.",
   SETTINGS_ARROWLINK_OFF = "Δεν θα χρησιμοποιήσουμε %h1 για να δείξουμε τους στόχους.",
   SETTINGS_ARROWLINK_ARROW = "Βέλος του QuestHelper",
-  SETTINGS_ARROWLINK_CART = nil,
+  SETTINGS_ARROWLINK_CART = "Δρομολογια του Cartographer.",
   SETTINGS_ARROWLINK_TOMTOM = "TomTom",
-  SETTINGS_PRECACHE_ON = nil,
-  SETTINGS_PRECACHE_OFF = nil,
+  SETTINGS_PRECACHE_ON = "Το Precache εχει ενεργοποιηθει.",
+  SETTINGS_PRECACHE_OFF = "Το Precache εχει απενεργοποιηθει.",
   
   SETTINGS_MENU_ENABLE = "Ενεργοποίηση",
   SETTINGS_MENU_DISABLE = "Απενεργοποίηση",

@@ -50,7 +50,7 @@ QuestHelper_Translations.frFR =
   OBJECTIVE_MONSTER_UNKNOWN = "monstre inconnu",
   OBJECTIVE_ITEM_UNKNOWN = "item inconnu",
   
-  ZONE_BORDER_SIMPLE = nil,
+  ZONE_BORDER_SIMPLE = "%1 bordure",
   
   -- Stuff used in objective menus.
   PRIORITY = "Priorité",

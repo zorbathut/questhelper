@@ -50,7 +50,7 @@ QuestHelper_Translations.csCZ =
   OBJECTIVE_MONSTER_UNKNOWN = "neznámé monstrum",
   OBJECTIVE_ITEM_UNKNOWN = "neznámý předmět",
   
-  ZONE_BORDER_SIMPLE = nil,
+  ZONE_BORDER_SIMPLE = "%1 okraj",
   
   -- Stuff used in objective menus.
   PRIORITY = "Priorita",

@@ -7,7 +7,7 @@ QuestHelper_Translations.itIT =
   
   -- Messages used when starting.
   LOCALE_ERROR = "La lingua dei tuoi dati salvati non corrisponde alla lingua del tuo client WoW. Per usare QuestHelper dovrai cambiare nuovamente la lingua, o cancellare i dati col comando %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Mi rifiuto di funzionare, c'è il rischio di corrompere i dati salvati. Per favore, aspetta una patch che potrà occuparsi del nuovo layout della zona.",
+  ZONE_LAYOUT_ERROR = "La tua versione di QuestHelper è vecchia, dovrai fare l'update in http://www.quest-helper.com per fare che il programma continui a funzionare. Attualmente stai usando la versione %1",
   HOME_NOT_KNOWN = "La tua località base è sconosciuta. Appena puoi, parla con un locandiere per reimpostarla.",
   PRIVATE_SERVER = "QuestHelper non sopporta i server privati.",
   PLEASE_RESTART = "C'è stato un errore con l'avvio di QuestHelper. E' consigliabile chiudere World of Warcraft e riprovare.",
@@ -50,7 +50,7 @@ QuestHelper_Translations.itIT =
   OBJECTIVE_MONSTER_UNKNOWN = "Mostro sconosciuto",
   OBJECTIVE_ITEM_UNKNOWN = "Item sconosciuto",
   
-  ZONE_BORDER_SIMPLE = nil,
+  ZONE_BORDER_SIMPLE = "%1 frontiera",
   
   -- Stuff used in objective menus.
   PRIORITY = "Priorità",

@@ -12,7 +12,7 @@ QuestHelper_Translations.plPL =
   PRIVATE_SERVER = "QuestHelper nie obsługuje prywatnych serwerów.",
   PLEASE_RESTART = "Podczas uruchamiania QuestHelper'a wystąpił błąd. Proszę całkowicie wyjść z World of Warcraft i spróbować uruchomić go ponownie.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper został nieprawidłowo zainstalowany. Do instalacji zalecamy stosowanie klienta Curse lub 7zip. Upewnij się, że podkatalogi są wyodrębnione.",
-  PLEASE_SUBMIT = "%h(Quest Helper potrzebuje twojej pomocy!) Jezeli masz kilka minut,udaj sie na strone Quest Helpera %h(http://www.quest-helper.com)i zastosoj sie do instrokcji w celu podzielenia sie swoimi danymi.Twoje dane aktualizuja Quest Helpera i poprawiaja bledy. Dziekuje!",
+  PLEASE_SUBMIT = "%h(Quest Helper potrzebuje twojej pomocy!) Jezeli masz kilka minut,udaj sie na strone Quest Helpera %h(http://www.quest-helper.com)i zastosuj sie do instrukcji w celu podzielenia sie swoimi danymi.Twoje dane aktualizuja Quest Helpera i poprawiaja bledy. Dziekuje!",
   HOW_TO_CONFIGURE = "QuestHelper nie ma jeszcze gotowej strony ustawień, ale może być skonfigurowany poprzez komendę %h(/qh settings). Pomoc jest udzielana poprzez %h(/qh help).",
   TIME_TO_UPDATE = "Mogła wyjść nowa wersja QuestHelper'a. Nowa wersja zazwyczaj zawiera nowe opcje, nową bazę zadań, oraz naprawione błędy. Proszę, zaktualizuj!",
   

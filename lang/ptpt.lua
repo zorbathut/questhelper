@@ -26,7 +26,7 @@ QuestHelper_Translations.ptPT =
   
   -- Special tracker text
   QH_LOADING = "QuestHelper está carregando (%1%%)...",
-  QH_FLIGHTPATH = nil,
+  QH_FLIGHTPATH = "Recalculando caminhos aéreos (%1%)...",
   QUESTS_HIDDEN_1 = "Quests podem estar escondida.",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" para listar(escondidas)",
   
@@ -50,7 +50,7 @@ QuestHelper_Translations.ptPT =
   OBJECTIVE_MONSTER_UNKNOWN = "monstro desconhecido",
   OBJECTIVE_ITEM_UNKNOWN = "Iten desconhecido",
   
-  ZONE_BORDER_SIMPLE = nil,
+  ZONE_BORDER_SIMPLE = "%1 borda",
   
   -- Stuff used in objective menus.
   PRIORITY = "Prioridade",
@@ -104,12 +104,12 @@ QuestHelper_Translations.ptPT =
   DEPENDS_ON_COUNT = "Depende de %1 objectivos ocultos.",
   DEPENDS_ON = "Depende de objectivos filtrados",
   FILTERED_LEVEL = "Filtrado devido ao nível.",
-  FILTERED_GROUP = nil,
+  FILTERED_GROUP = "Filtrado por causa do tamanho de grupo",
   FILTERED_ZONE = "Filtrado devido à zona.",
   FILTERED_COMPLETE = "Filtrado pois está completado.",
   FILTERED_BLOCKED = "Filtrado devido a um objectivo anterior incompleto.",
   FILTERED_UNWATCHED = "Filtrado por não estar a ser Monitorizado pelo Quest Log",
-  FILTERED_WINTERGRASP = nil,
+  FILTERED_WINTERGRASP = "Filtrado por ser uma Quest PvP Wintergrasp",
   FILTERED_USER = "Pediste para esconder este objectivo.",
   FILTERED_UNKNOWN = "Não sei como se completa.",
   
