@@ -1,4 +1,10 @@
 
+== Version 1.1.19 9/22/2009 ==
+
+* Database update, hopefully including Brewfest quests
+* Translation update
+* yeah alright this is a pretty crummy version, sorry, life's been busy
+
 == Version 1.1.18 9/15/2009 ==
 
 * Fix the crash when exiting Isle of Conquest
