@@ -7,7 +7,7 @@ QuestHelper_Translations.daDK =
   
   -- Messages used when starting.
   LOCALE_ERROR = "Sproget i dine gemte data stemmer ikke med sproget til WoW klienten. For at bruge QuestHelper skal du enten ændre sproget tilbage, eller slette dataerne ved at skrive %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Nægter at starte, af frygt for at ødelægge dine gemte data. Vent venligst på en ny patch, der vil være i stand til at håndtere det nye områdelayout.",
+  ZONE_LAYOUT_ERROR = "Din udgave af QuestHelper er ikke den nyeste og du bliver nød til at opdatere på http://www.quest-helper.com for at den fortsat skal fungere. Du bruger i øjeblikket version %1.",
   HOME_NOT_KNOWN = "Dit hjem er ukendt. Tal venligst med din innkeeper ved førstkommende lejlighed og nulstil det.",
   PRIVATE_SERVER = "QuestHelper understøtter ikke private servere.",
   PLEASE_RESTART = "Der opstod en fejl ved start af QuestHelper. Afslutte World of Warcraft helt og prøv igen.",
@@ -26,7 +26,7 @@ QuestHelper_Translations.daDK =
   
   -- Special tracker text
   QH_LOADING = "QuestHelper indlæser (%1%%)...",
-  QH_FLIGHTPATH = "Omrukere flightpaths",
+  QH_FLIGHTPATH = "Genberegner flyveruter (%1%)...",
   QUESTS_HIDDEN_1 = "Der er evt. skjulte quests",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" for liste)",
   
@@ -50,7 +50,7 @@ QuestHelper_Translations.daDK =
   OBJECTIVE_MONSTER_UNKNOWN = "Ukendt monster",
   OBJECTIVE_ITEM_UNKNOWN = "Ukendt genstand",
   
-  ZONE_BORDER_SIMPLE = nil,
+  ZONE_BORDER_SIMPLE = "%1 grænse",
   
   -- Stuff used in objective menus.
   PRIORITY = "Prioritet",
@@ -95,7 +95,7 @@ QuestHelper_Translations.daDK =
   PEER_NEWER = "%h1 bruger en nyere protokolversion. Måske det er på tide at opgradere.",
   PEER_OLDER = "%h1 bruger en ældre protokolversion.",
   
-  UNKNOWN_MESSAGE = "Ukendt beskedstype '%1' fra '%2'.",
+  UNKNOWN_MESSAGE = "Ukendt beskedtype '%1' fra '%2'.",
   
   -- Hidden objectives.
   HIDDEN_TITLE = "Skjulte Mål",
@@ -115,7 +115,7 @@ QuestHelper_Translations.daDK =
   
   HIDDEN_SHOW = "Vis.",
   HIDDEN_SHOW_NO = "Kan ikke vises",
-  HIDDEN_EXCEPTION = "Tilføj uldtagelse",
+  HIDDEN_EXCEPTION = "Tilføj undtagelse",
   DISABLE_FILTER = "Slå filter fra: %1",
   FILTER_DONE = "færdig",
   FILTER_ZONE = "område",

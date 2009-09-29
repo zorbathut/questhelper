@@ -7,22 +7,22 @@ QuestHelper_Translations.frFR =
   
   -- Messages used when starting.
   LOCALE_ERROR = "La langue de vos données sauvegardées ne correspond pas à la langue de votre client WoW. Pour utiliser QuestHelper, vous devez soit remettre la langue que vous aviez avant, soit supprimer les données en tapant %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Je refuse de fonctionner par crainte de corrompre vos données sauvegardées. Veuillez attendre la sortie d'une mise à jour capable de prendre en charge la nouvelle zone.",
+  ZONE_LAYOUT_ERROR = "Votre version de QuestHelper n'est plus à jour, vous êtes prié de vous connectez-vous sur http://www.quest-helper.com pour poursuivre son utilisation. Votre version actuelle est %1.",
   HOME_NOT_KNOWN = "Vous n'avez pas de foyer défini. Lorsque cela sera possible, veuillez parler à votre aubergiste et réinitialisez-le.",
   PRIVATE_SERVER = "QuestHelper ne supporte pas les serveurs privés.",
-  PLEASE_RESTART = "Une erreur est survenue au lancement de QuestHelper. Veuillez quitter World of Warcraft et essayer de nouveau.",
+  PLEASE_RESTART = "Une erreur est survenue au lancement de QuestHelper. Veuillez quitter World of Warcraft et essayer à nouveau.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper n'a pas été installé correctement. Nous vous recommandons d'utiliser soit le client Curse soit 7zip pour l'installation. Assurez-vous que les sous-dossiers soient extraits.",
-  PLEASE_SUBMIT = "%h(QuestHelper a besoin de votre aide!) Si vous avez quelques minutes, s'il vous plaît allez sur la page d'acceuil de QuestHelper à %h(http://www.quest-helper.com) et suivez les instructions pour soumettre vos données collectées. Vos données garde QuestHelper correcte et à jour. Merci!",
+  PLEASE_SUBMIT = "%h(QuestHelper a besoin de votre aide !) Si vous avez quelques minutes, s'il vous plaît, allez sur la page d'accueil de QuestHelper à %h(http://www.quest-helper.com) et suivez les instructions pour soumettre vos données collectées. Vos informations maintiennent à jour l'exactitude de QuestHelper. Merci !",
   HOW_TO_CONFIGURE = "QuestHelper n'a pas encore une page de configuration fonctionnelle, mais peut être configuré en tapant %h(/qh settings). L'aide est disponible en utilisant %h(/qh help).",
-  TIME_TO_UPDATE = "Il semble qu'une %h(nouvelle version de QuestHelper) soit disponible. Les nouvelles versions incluent généralement de nouvelles fonctionalités, de nouvelles bases de données de quêtes, et des corrections de bogues. Merci de mettre à jour !",
+  TIME_TO_UPDATE = "Il semble qu'une %h(nouvelle version de QuestHelper) soit disponible. Les nouvelles versions incluent généralement de nouvelles fonctionalités, de nouvelles bases de données de quêtes et des corrections de bogues. Merci de mettre à jour !",
   
   -- Route related text.
   ROUTES_CHANGED = "Les itinéraires de vol de votre personnage ont été modifiés.",
   HOME_CHANGED = "Votre foyer a été changé.",
-  TALK_TO_FLIGHT_MASTER = "Parler au maître de vol local.",
+  TALK_TO_FLIGHT_MASTER = "Parler au maître d'envol local.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Merci.",
   WILL_RESET_PATH = "Réinitialisation des informations de route.",
-  UPDATING_ROUTE = "Route actualisée.",
+  UPDATING_ROUTE = "Trajet actualisée.",
   
   -- Special tracker text
   QH_LOADING = "Chargement de QuestHelper (%1%)...",
@@ -31,7 +31,7 @@ QuestHelper_Translations.frFR =
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" pour lister)",
   
   -- Locale switcher.
-  LOCALE_LIST_BEGIN = "Langues disponibles:",
+  LOCALE_LIST_BEGIN = "Langues disponibles :",
   LOCALE_CHANGED = "Langue changée en: %h1",
   LOCALE_UNKNOWN = "La langue %h1 est inconnue.",
   
@@ -48,7 +48,7 @@ QuestHelper_Translations.frFR =
   OBJECTIVE_LOOT = "Ramasser en butin sur %h1.",
   
   OBJECTIVE_MONSTER_UNKNOWN = "monstre inconnu",
-  OBJECTIVE_ITEM_UNKNOWN = "item inconnu",
+  OBJECTIVE_ITEM_UNKNOWN = "objet inconnu",
   
   ZONE_BORDER_SIMPLE = "%1 bordure",
   
@@ -71,20 +71,20 @@ QuestHelper_Translations.frFR =
   
   -- Custom objectives.
   RESULTS_TITLE = "Résultats de la recherche",
-  NO_RESULTS = "Il n'y en a aucun!",
-  CREATED_OBJ = "Créé: %1",
-  REMOVED_OBJ = "Supprimé: %1",
-  USER_OBJ = "Objectif utilisateur: %h1",
+  NO_RESULTS = "Il n'y en a aucun !",
+  CREATED_OBJ = "Créé : %1",
+  REMOVED_OBJ = "Supprimé : %1",
+  USER_OBJ = "Objectif utilisateur : %h1",
   UNKNOWN_OBJ = "Destination inconnue pour cet objectif.",
   INACCESSIBLE_OBJ = "QuestHelper n'a pas été capable de trouver une destination utile pour %h1. Nous avons ajoutés une destination impossible à rejoindre dans la liste des objectifs. Si vous trouvez une version utile de cet objet, merci de soumettre vos données ! (%h(/qh submit))",
   
-  SEARCHING_STATE = "Recherche: %1",
+  SEARCHING_STATE = "Recherche : %1",
   SEARCHING_LOCAL = "Local %1",
   SEARCHING_STATIC = "Statique %1",
   SEARCHING_ITEMS = "Objets",
   SEARCHING_NPCS = "NPCs",
   SEARCHING_ZONES = "Zones",
-  SEARCHING_DONE = "Terminé!",
+  SEARCHING_DONE = "Terminé !",
   
   -- Shared objectives.
   PEER_TURNIN = "Attendre %h1 pour valider %h2.",
@@ -116,7 +116,7 @@ QuestHelper_Translations.frFR =
   HIDDEN_SHOW = "Montrer",
   HIDDEN_SHOW_NO = "Non visible",
   HIDDEN_EXCEPTION = "Ajout d'exception",
-  DISABLE_FILTER = "Désactiver le filtre: %1",
+  DISABLE_FILTER = "Désactiver le filtre : %1",
   FILTER_DONE = "terminé",
   FILTER_ZONE = "zone",
   FILTER_LEVEL = "niveau",
@@ -124,16 +124,16 @@ QuestHelper_Translations.frFR =
   FILTER_WATCHED = "regardé",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
-  NAG_MULTIPLE_NEW = "Vous avez %h(des nouvelles informations) pour %h1, et %h(des mises à jour) pour %h2.",
+  NAG_MULTIPLE_NEW = "Vous avez %h(des nouvelles informations) pour %h1 et %h(des mises à jour) pour %h2.",
   NAG_SINGLE_NEW = "Vous avez %h(une nouvelle information) sur %h1.",
   NAG_ADDITIONAL = "Vous avez %h(des informations complémentaires) pour %h1.",
-  NAG_POLLUTED = "La base de donnée a été infectée par des données provenant d'un serveur privé ou de test, et sera remis à zéro lors du redémarrage.",
+  NAG_POLLUTED = "La base de données a été infectée par des données provenant d'un serveur privé ou de test, et sera remis à zéro lors du redémarrage.",
   
   NAG_NOT_NEW = "Vous n'avez aucune information qui n'est pas déjà dans la base de données statique.",
   NAG_NEW = "Vous devriez penser à partager vos données pour le bénéfice des autres joueurs.",
   NAG_INSTRUCTIONS = "Tapez %h(/qh submit) pour savoir comment soumettre des informations.",
   
-  NAG_SINGLE_FP = "un maitre de vol",
+  NAG_SINGLE_FP = "un maître d'envol",
   NAG_SINGLE_QUEST = "une quête",
   NAG_SINGLE_ROUTE = "un chemin de vol",
   NAG_SINGLE_ITEM_OBJ = "un objectif d'article",
@@ -143,7 +143,7 @@ QuestHelper_Translations.frFR =
   NAG_SINGLE_REPUTATION_OBJ = "un objectif de réputation",
   NAG_SINGLE_PLAYER_OBJ = "un objectif de joueur",
   
-  NAG_MULTIPLE_FP = "%1 maîtres de vol",
+  NAG_MULTIPLE_FP = "%1 maîtres d'envol",
   NAG_MULTIPLE_QUEST = "%1 quêtes",
   NAG_MULTIPLE_ROUTE = "%1 chemins de vol",
   NAG_MULTIPLE_ITEM_OBJ = "%1 objectifs d'objet",
@@ -154,23 +154,23 @@ QuestHelper_Translations.frFR =
   NAG_MULTIPLE_PLAYER_OBJ = "%1 objectifs de joueur",
   
   -- Stuff used by dodads.
-  PEER_PROGRESS = "Progression pour %1:",
-  TRAVEL_ESTIMATE = "Temps de voyage estimé:",
+  PEER_PROGRESS = "Progression pour %1 :",
+  TRAVEL_ESTIMATE = "Temps de voyage estimé :",
   TRAVEL_ESTIMATE_VALUE = "%t1",
-  WAYPOINT_REASON = "Visiter %h1 sur la route de:",
-  FLIGHT_POINT = "%1 point de vol",
+  WAYPOINT_REASON = "Aller à %h1 pour :",
+  FLIGHT_POINT = "le point d'envol à %1",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
-  QH_BUTTON_TOOLTIP1 = "Clic-Gauche: %1 information de route.",
-  QH_BUTTON_TOOLTIP2 = "Clic-Droit: afficher le menu des options.",
+  QH_BUTTON_TOOLTIP1 = "Clic-Gauche : %1 information de route.",
+  QH_BUTTON_TOOLTIP2 = "Clic-Droit : afficher le menu des options.",
   QH_BUTTON_SHOW = "Afficher",
   QH_BUTTON_HIDE = "Cacher",
 
   MENU_CLOSE = "Fermer le menu",
   MENU_SETTINGS = "Options",
-  MENU_ENABLE = "Activer",
-  MENU_DISABLE = "Désactiver",
+  MENU_ENABLE = "Activé",
+  MENU_DISABLE = "Désactivé",
   MENU_OBJECTIVE_TIPS = "%1 les bulles d'aide pour les objectifs",
   MENU_TRACKER_OPTIONS = "Liste de quêtes",
   MENU_QUEST_TRACKER = "%1 la liste de quêtes",
@@ -215,18 +215,18 @@ QuestHelper_Translations.frFR =
   SETTINGS_ARROWLINK_ARROW = "Indicateur QuestHelper",
   SETTINGS_ARROWLINK_CART = "Etapes Cartographer",
   SETTINGS_ARROWLINK_TOMTOM = "TomTom",
-  SETTINGS_PRECACHE_ON = "La Préchache a été %h(activé).",
-  SETTINGS_PRECACHE_OFF = "La Précache a été %h(désactivé).",
+  SETTINGS_PRECACHE_ON = "Le pré-chache a été %h(activé).",
+  SETTINGS_PRECACHE_OFF = "Le pré-cache a été %h(désactivé).",
   
-  SETTINGS_MENU_ENABLE = "Activer",
-  SETTINGS_MENU_DISABLE = "Désactiver",
-  SETTINGS_MENU_CARTWP = "%1 Flèche de Cartographer",
-  SETTINGS_MENU_TOMTOM = "%1 Flèche TomTom",
+  SETTINGS_MENU_ENABLE = "Activé",
+  SETTINGS_MENU_DISABLE = "Désactivé",
+  SETTINGS_MENU_CARTWP = "%1 flèche de Cartographer",
+  SETTINGS_MENU_TOMTOM = "%1 flèche TomTom",
   
   SETTINGS_MENU_ARROW_LOCK = "Barrer",
-  SETTINGS_MENU_ARROW_ARROWSCALE = "Grosseur de la Flèche",
-  SETTINGS_MENU_ARROW_TEXTSCALE = "Grosseur du Texte",
-  SETTINGS_MENU_ARROW_RESET = "Remise à Zéro",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Taille de la Flèche",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Taille du texte",
+  SETTINGS_MENU_ARROW_RESET = "Remise à zéro",
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 yards",

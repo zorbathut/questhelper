@@ -13,12 +13,12 @@ QuestHelper_Translations.deDE =
   PLEASE_RESTART = "Beim Starten von QuestHelper ist ein Fehler aufgetreten. Beende World of Warcraft vollständig und versuche es erneut.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper wurde nicht ordnungsgemäß installiert. Wir empfehlen den Curse-Client oder 7zip für die Installation. Achte darauf, dass Unterverzeichnisse entpackt werden.",
   PLEASE_SUBMIT = "%h (QuestHelper braucht deine Unterstützung!) Wenn du ein paar Minuten Zeit hast, geh' bitte auf die QuestHelper-Homepage %h(http://www.quest-helper.com) und führe die Anweisungen aus, um deine gesammelten Daten zu übermitteln. Deine Daten halten QuestHelper auf dem aktuellen Stand. Vielen Dank!",
-  HOW_TO_CONFIGURE = "QuestHelper hat noch keine funktionierende Einstellungsseite. Du kannst es konfigurieren, indem du %h(/qh settings) eingibst. Mit %h(/qh help) rufst du die Hilfe auf.",
+  HOW_TO_CONFIGURE = "QuestHelper hat noch keine funktionierende Einstellungsseite. Du kannst dies konfigurieren, indem du %h(/qh settings) eingibst. Mit %h(/qh help) rufst du die Hilfe auf.",
   TIME_TO_UPDATE = "Möglicherweise ist eine %h(neue QuestHelper-Version) verfügbar. Neue Versionen umfassen gewöhnlich neue Funktionen, neue Questdatenbanken und Bugfixes. Du solltest ein Update durchführen!",
   
   -- Route related text.
   ROUTES_CHANGED = "Die Flugstrecken für deinen Charakter wurden verändert.",
-  HOME_CHANGED = "Dein Zuhause wurde geändert.",
+  HOME_CHANGED = "Dein Heimatort wurde geändert.",
   TALK_TO_FLIGHT_MASTER = "Sprich mit dem örtlichen Flugmeister.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Danke.",
   WILL_RESET_PATH = "Informationen zur Wegfindung werden zurückgesetzt.",
@@ -143,15 +143,15 @@ QuestHelper_Translations.deDE =
   NAG_SINGLE_REPUTATION_OBJ = "einem Rufziel",
   NAG_SINGLE_PLAYER_OBJ = "einem Spielerziel",
   
-  NAG_MULTIPLE_FP = "%1 Flugmeistern",
-  NAG_MULTIPLE_QUEST = "%1 Quests",
+  NAG_MULTIPLE_FP = "%1 Flugmeister",
+  NAG_MULTIPLE_QUEST = "%1 Queste",
   NAG_MULTIPLE_ROUTE = "%1 Flugstrecken",
   NAG_MULTIPLE_ITEM_OBJ = "%1 Gegenstandszielen",
-  NAG_MULTIPLE_OBJECT_OBJ = "%1 Objektzielen",
-  NAG_MULTIPLE_MONSTER_OBJ = "%1 Monsterzielen",
+  NAG_MULTIPLE_OBJECT_OBJ = "%1 Objektziele",
+  NAG_MULTIPLE_MONSTER_OBJ = "%1 Monsterziele",
   NAG_MULTIPLE_EVENT_OBJ = "%1 Ereigniszielen",
-  NAG_MULTIPLE_REPUTATION_OBJ = "%1 Rufzielen",
-  NAG_MULTIPLE_PLAYER_OBJ = "%1 Spielerzielen",
+  NAG_MULTIPLE_REPUTATION_OBJ = "%1 Rufziele",
+  NAG_MULTIPLE_PLAYER_OBJ = "%1 Spielerziele",
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1's Fortschritte:",
