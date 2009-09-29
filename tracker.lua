@@ -43,7 +43,6 @@ local minbutton = CreateFrame("Button", "QuestHelperQuestWatchFrameMinimizeButto
 QuestHelper.tracker = tracker
 
 local resizing = false
-tracker:Hide()
 tracker:SetWidth(200)
 tracker:SetHeight(100)
 tracker.dw, tracker.dh = 200, 100
@@ -1062,17 +1061,18 @@ function tracker:ShowDefaultTracker()
   end
 end
 
-function QuestHelper:ShowTracker()
+function QuestHelper:ShowTracker(nominimize)
   tracker:HideDefaultTracker()
   minbutton:Show()
   
-  if QuestHelper_Pref.track_minimized then
+  if QuestHelper_Pref.track_minimized and not nominimize then
     minbutton:SetAlpha(.3)
   else
     minbutton:SetAlpha(0)
     tracker:Show()
   end
 end
+QuestHelper:ShowTracker(true)
 
 function QuestHelper:HideTracker()
   tracker:ShowDefaultTracker()

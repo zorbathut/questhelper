@@ -181,14 +181,18 @@ local startup_time
 local please_submit_enabled = true
 local please_submit_initted = false
 
+local spawned = false
 QH_Event("ADDON_LOADED", function (addonid)
   if addonid ~= "QuestHelper" then return end
-  local self = QuestHelper -- whee hack hack hack
   
-  QuestHelper_Loadtime["init_start"] = GetTime()
+  -- ONLY FAST STUFF ALLOWED IN HERE
   
   -- Use DefaultPref as fallback for unset preference keys.
   setmetatable(QuestHelper_Pref, {__index=QuestHelper_DefaultPref})
+  
+  local self = QuestHelper -- whee hack hack hack
+  
+  QuestHelper_Loadtime["init2_start"] = GetTime()
   
   local file_problem_version = false
   
@@ -384,257 +388,267 @@ QH_Event("ADDON_LOADED", function (addonid)
   end
   QuestHelper_SaveDate = time()
   
-  QuestHelper_BuildZoneLookup()
-  QH_Graph_Init()
-  load_graph_links()
-
-  if QuestHelper_Locale ~= GetLocale() then
-    self:TextOut(QHText("LOCALE_ERROR"))
-    return
-  end
-
-  if not self:ZoneSanity() then
-    self:TextOut(QHFormat("ZONE_LAYOUT_ERROR", expected_version))
-    QH_fixedmessage(QHFormat("ZONE_LAYOUT_ERROR", expected_version))
-    QuestHelper = nil
-    return
-  end
-
-  QuestHelper_UpgradeDatabase(_G)
-  QuestHelper_UpgradeComplete()
   
-  if QuestHelper_IsPolluted(_G) then
-    self:TextOut(QHFormat("NAG_POLLUTED"))
-    self:Purge(nil, true, true)
-  end
-  
-  local signature = expected_version .. " on " .. GetBuildInfo()
-  QuestHelper_Quests[signature] = QuestHelper_Quests[signature] or {}
-  QuestHelper_Objectives[signature] = QuestHelper_Objectives[signature] or {}
-  QuestHelper_FlightInstructors[signature] = QuestHelper_FlightInstructors[signature] or {}
-  QuestHelper_FlightRoutes[signature] = QuestHelper_FlightRoutes[signature] or {}
-  
-  QuestHelper_Quests_Local = QuestHelper_Quests[signature]
-  QuestHelper_Objectives_Local = QuestHelper_Objectives[signature]
-  QuestHelper_FlightInstructors_Local = QuestHelper_FlightInstructors[signature]
-  QuestHelper_FlightRoutes_Local = QuestHelper_FlightRoutes[signature]
-  
-  QuestHelper_SeenRealms[GetRealmName()] = true -- some attempt at tracking private servers
-  
-  QH_Collector_Init()
-  DB_Init()
-  
-  self.player_level = UnitLevel("player")
-
-  self:SetLocaleFonts()
-
-  if QuestHelper_Pref.share and not QuestHelper_Pref.solo then
-    self:EnableSharing()
-  end
-
-  if QuestHelper_Pref.hide then
-    self.map_overlay:Hide()
-  end
-
-  self:HandlePartyChange()
-
-  self:Nag("all")
-
-  for locale in pairs(QuestHelper_StaticData) do
-    if locale ~= self.locale then
-      -- Will delete references to locales you don't use.
-      QuestHelper_StaticData[locale] = nil
-      _G["QuestHelper_StaticData_" .. locale] = nil
-    end
-  end
-
-  local static = QuestHelper_StaticData[self.locale]
-
-  if static then
-    if static.flight_instructors then for faction in pairs(static.flight_instructors) do
-      if faction ~= self.faction then
-        -- Will delete references to flight instructors that don't belong to your faction.
-        static.flight_instructors[faction] = nil
-      end
-    end end
-
-    if static.quest then for faction in pairs(static.quest) do
-      if faction ~= self.faction then
-        -- Will delete references to quests that don't belong to your faction.
-        static.quest[faction] = nil
-      end
-    end end
-  end
-  
-  -- Adding QuestHelper_CharVersion, so I know if I've already converted this characters saved data.
-  if not QuestHelper_CharVersion then
-    -- Changing per-character flight routes, now only storing the flight points they have,
-    -- will attempt to guess the routes from this.
-    local routes = {}
-
-    for i, l in pairs(QuestHelper_KnownFlightRoutes) do
-      for key in pairs(l) do
-        routes[key] = true
-      end
-    end
-
-    QuestHelper_KnownFlightRoutes = routes
-
-    -- Deleting the player's home again.
-    -- But using the new CharVersion variable I'm adding is cleaner that what I was doing, so I'll go with it.
-    QuestHelper_Home = nil
-    QuestHelper_CharVersion = 1
-  end
-
-  if not QuestHelper_Home then
-    -- Not going to bother complaining about the player's home not being set, uncomment this when the home is used in routing.
-    -- self:TextOut(QHText("HOME_NOT_KNOWN"))
-  end
-
-  if QuestHelper_Pref.map_button then
-      QuestHelper:InitMapButton()
-  end
-  
-  if QuestHelper_Pref.cart_wp_new then
-    init_cartographer_later = true
-  end
-
-  if QuestHelper_Pref.tomtom_wp_new then
-    self:EnableTomTom()
-  end
-
-  self.tracker:SetScale(QuestHelper_Pref.track_scale)
-
-  if QuestHelper_Pref.track and not QuestHelper_Pref.hide then
-    self:ShowTracker()
-  end
-
-  local version = GetAddOnMetadata("QuestHelper", "Version") or "Unknown"
-
-  local major, minor = (version_string or ""):match("^(%d+)%.(%d+)")
-  major, minor = tonumber(major), tonumber(minor)
-
-  -- For versions before 0.82, we're changing the default level offset to 3.
-  if major == 0 and minor and minor < 82 and QuestHelper_Pref.level == 2 then
-    QuestHelper_Pref.level = nil
-  end
-  
-  -- For versions before 0.84...
-  if major == 0 and minor and minor < 84 then
-    -- remove all keys that match their default setting.
-    for key, val in pairs(QuestHelper_DefaultPref) do
-      if QuestHelper_Pref[key] == val then
-        QuestHelper_Pref[key] = nil
-      end
-    end
-  end
-
-  QH_Hook(self, "OnUpdate", self.OnUpdate)
-
-  -- Seems to do its own garbage collection pass before fully loading, so I'll just rely on that
-  --collectgarbage("collect") -- Free everything we aren't using.
-
-  --[[
-  if self.debug_objectives then
-    for name, data in pairs(self.debug_objectives) do
-      self:LoadDebugObjective(name, data)
-    end
-  end]]
-  
-  -- wellllp
-  QH_Arrow_SetScale()
-  QH_Arrow_SetTextScale()
-  
-  --[[
   QH_Timeslice_Add(function ()
-    self:ResetPathing()
-    self.Routing:Initialize()       -- Set up the routing task
-  end, "init")]] -- FUCK YOU BOXBOT
-  
-  --[[ -- This is just an example of how the WoW profiler biases its profiles heavily.  
-  function C()
-  end
-  
-  function A()
-    q = 0
-    for x = 0, 130000000, 1 do
-    end
-  end
+    QuestHelper_Loadtime["init3_start"] = GetTime()
+    
+    QuestHelper.loading_main = QuestHelper.CreateLoadingCounter()
+    
+    QuestHelper.loading_init3 = QuestHelper.loading_main:MakeSubcategory(0.3)
+    QuestHelper.loading_flightpath = QuestHelper.loading_main:MakeSubcategory(1)
+    QuestHelper.loading_preroll = QuestHelper.loading_main:MakeSubcategory(1)
+    
+    -- This is where the slow stuff goes
+    QuestHelper_BuildZoneLookup()
+    QuestHelper.loading_init3:SetPercentage(0.3)
+    QH_Graph_Init()
+    QuestHelper.loading_init3:SetPercentage(0.6)
+    load_graph_links()
+    QuestHelper.loading_init3:SetPercentage(0.9)
 
-  function B()
-    q = 0
-    for x = 0, 12000000, 1 do
-      C()
+    if QuestHelper_Locale ~= GetLocale() then
+      self:TextOut(QHText("LOCALE_ERROR"))
+      return
     end
-  end
 
-  function B2()
-    q = 0
-    for x = 0, 1200000, 1 do
-      --q = q + x
-      C()
+    if not self:ZoneSanity() then
+      self:TextOut(QHFormat("ZONE_LAYOUT_ERROR", expected_version))
+      QH_fixedmessage(QHFormat("ZONE_LAYOUT_ERROR", expected_version))
+      QuestHelper = nil
+      return
     end
-  end
-  
-  debugprofilestart()
-  
-  local ta = debugprofilestop()
-  A()
-  local tb = debugprofilestop()
-  B()
-  local tc = debugprofilestop()
-  
-  QuestHelper:TextOut(string.format("%d %d %d", ta, tb - ta, tc - tb))
-  QuestHelper:TextOut(string.format("%d %d", GetFunctionCPUUsage(A), GetFunctionCPUUsage(B)))
-  
-  --/script SetCVar("scriptProfile", value)]]
-  
-  LibStub("LibAboutPanelQH").new(nil, "QuestHelper")
-  
-  QuestHelper_Loadtime["init_end"] = GetTime()
-  
-  QuestHelper.loading_main = QuestHelper.CreateLoadingCounter()
-  
-  QuestHelper.loading_flightpath = QuestHelper.loading_main:MakeSubcategory(1)
-  QuestHelper.loading_preroll = QuestHelper.loading_main:MakeSubcategory(1)
-  
-  QH_Event("CHAT_MSG_ADDON", function (...)
-    if arg1 == "QHpr" and arg4 ~= UnitName("player") then
-      QH_Questcomm_Msg(arg2, arg4)
-    end
-  end)
 
-  QH_Event({"PARTY_MEMBERS_CHANGED", "UNIT_LEVEL", "RAID_ROSTER_UPDATE"}, function ()
-    QH_Filter_Group_Sync()
-    QH_Route_Filter_Rescan("filter_quest_level")
-    QH_Route_Filter_Rescan("filter_quest_group")
-  end)
-  
-  QH_Event({"PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE"}, function ()
-    QH_Questcomm_Sync()
-  end)
-  
-  QH_Event("PLAYER_LEVEL_UP", function ()
-    self.player_level = arg1
-    QH_Route_Filter_Rescan("filter_quest_level")
-  end)
-  
-  QH_Event("TAXIMAP_OPENED", function ()
-    self:taxiMapOpened()
-  end)
-  
-  QH_Event({"ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "ZONE_CHANGED_NEW_AREA"}, function()
-    QH_Route_Filter_Rescan()
-  end)
-  
-  QH_Event("CHAT_MSG_CHANNEL_NOTICE", function()
-    if please_submit_enabled and not please_submit_initted then
-      please_submit_enabled = QHNagInit()
-      startup_time = GetTime()
-      please_submit_initted = true
+    QuestHelper_UpgradeDatabase(_G)
+    QuestHelper_UpgradeComplete()
+    
+    if QuestHelper_IsPolluted(_G) then
+      self:TextOut(QHFormat("NAG_POLLUTED"))
+      self:Purge(nil, true, true)
     end
-  end)
+    
+    local signature = expected_version .. " on " .. GetBuildInfo()
+    QuestHelper_Quests[signature] = QuestHelper_Quests[signature] or {}
+    QuestHelper_Objectives[signature] = QuestHelper_Objectives[signature] or {}
+    QuestHelper_FlightInstructors[signature] = QuestHelper_FlightInstructors[signature] or {}
+    QuestHelper_FlightRoutes[signature] = QuestHelper_FlightRoutes[signature] or {}
+    
+    QuestHelper_Quests_Local = QuestHelper_Quests[signature]
+    QuestHelper_Objectives_Local = QuestHelper_Objectives[signature]
+    QuestHelper_FlightInstructors_Local = QuestHelper_FlightInstructors[signature]
+    QuestHelper_FlightRoutes_Local = QuestHelper_FlightRoutes[signature]
+    
+    QuestHelper_SeenRealms[GetRealmName()] = true -- some attempt at tracking private servers
+    
+    QH_Collector_Init()
+    DB_Init()
+    
+    self.player_level = UnitLevel("player")
+
+    self:SetLocaleFonts()
+
+    if QuestHelper_Pref.share and not QuestHelper_Pref.solo then
+      self:EnableSharing()
+    end
+
+    if QuestHelper_Pref.hide then
+      self.map_overlay:Hide()
+    end
+
+    self:HandlePartyChange()
+
+    self:Nag("all")
+
+    for locale in pairs(QuestHelper_StaticData) do
+      if locale ~= self.locale then
+        -- Will delete references to locales you don't use.
+        QuestHelper_StaticData[locale] = nil
+        _G["QuestHelper_StaticData_" .. locale] = nil
+      end
+    end
+
+    local static = QuestHelper_StaticData[self.locale]
+
+    if static then
+      if static.flight_instructors then for faction in pairs(static.flight_instructors) do
+        if faction ~= self.faction then
+          -- Will delete references to flight instructors that don't belong to your faction.
+          static.flight_instructors[faction] = nil
+        end
+      end end
+
+      if static.quest then for faction in pairs(static.quest) do
+        if faction ~= self.faction then
+          -- Will delete references to quests that don't belong to your faction.
+          static.quest[faction] = nil
+        end
+      end end
+    end
+    
+    -- Adding QuestHelper_CharVersion, so I know if I've already converted this characters saved data.
+    if not QuestHelper_CharVersion then
+      -- Changing per-character flight routes, now only storing the flight points they have,
+      -- will attempt to guess the routes from this.
+      local routes = {}
+
+      for i, l in pairs(QuestHelper_KnownFlightRoutes) do
+        for key in pairs(l) do
+          routes[key] = true
+        end
+      end
+
+      QuestHelper_KnownFlightRoutes = routes
+
+      -- Deleting the player's home again.
+      -- But using the new CharVersion variable I'm adding is cleaner that what I was doing, so I'll go with it.
+      QuestHelper_Home = nil
+      QuestHelper_CharVersion = 1
+    end
+
+    if not QuestHelper_Home then
+      -- Not going to bother complaining about the player's home not being set, uncomment this when the home is used in routing.
+      -- self:TextOut(QHText("HOME_NOT_KNOWN"))
+    end
+
+    if QuestHelper_Pref.map_button then
+        QuestHelper:InitMapButton()
+    end
+    
+    if QuestHelper_Pref.cart_wp_new then
+      init_cartographer_later = true
+    end
+
+    if QuestHelper_Pref.tomtom_wp_new then
+      self:EnableTomTom()
+    end
+
+    self.tracker:SetScale(QuestHelper_Pref.track_scale)
+
+    local version = GetAddOnMetadata("QuestHelper", "Version") or "Unknown"
+
+    local major, minor = (version_string or ""):match("^(%d+)%.(%d+)")
+    major, minor = tonumber(major), tonumber(minor)
+
+    -- For versions before 0.82, we're changing the default level offset to 3.
+    if major == 0 and minor and minor < 82 and QuestHelper_Pref.level == 2 then
+      QuestHelper_Pref.level = nil
+    end
+    
+    -- For versions before 0.84...
+    if major == 0 and minor and minor < 84 then
+      -- remove all keys that match their default setting.
+      for key, val in pairs(QuestHelper_DefaultPref) do
+        if QuestHelper_Pref[key] == val then
+          QuestHelper_Pref[key] = nil
+        end
+      end
+    end
+
+    QH_Hook(self, "OnUpdate", self.OnUpdate)
+
+    -- Seems to do its own garbage collection pass before fully loading, so I'll just rely on that
+    --collectgarbage("collect") -- Free everything we aren't using.
+
+    --[[
+    if self.debug_objectives then
+      for name, data in pairs(self.debug_objectives) do
+        self:LoadDebugObjective(name, data)
+      end
+    end]]
+    
+    -- wellllp
+    QH_Arrow_SetScale()
+    QH_Arrow_SetTextScale()
+    
+    --[[
+    QH_Timeslice_Add(function ()
+      self:ResetPathing()
+      self.Routing:Initialize()       -- Set up the routing task
+    end, "init")]] -- FUCK YOU BOXBOT
+    
+    --[[ -- This is just an example of how the WoW profiler biases its profiles heavily.  
+    function C()
+    end
+    
+    function A()
+      q = 0
+      for x = 0, 130000000, 1 do
+      end
+    end
+
+    function B()
+      q = 0
+      for x = 0, 12000000, 1 do
+        C()
+      end
+    end
+
+    function B2()
+      q = 0
+      for x = 0, 1200000, 1 do
+        --q = q + x
+        C()
+      end
+    end
+    
+    debugprofilestart()
+    
+    local ta = debugprofilestop()
+    A()
+    local tb = debugprofilestop()
+    B()
+    local tc = debugprofilestop()
+    
+    QuestHelper:TextOut(string.format("%d %d %d", ta, tb - ta, tc - tb))
+    QuestHelper:TextOut(string.format("%d %d", GetFunctionCPUUsage(A), GetFunctionCPUUsage(B)))
+    
+    --/script SetCVar("scriptProfile", value)]]
+    
+    LibStub("LibAboutPanelQH").new(nil, "QuestHelper")
+    
+    
+    QH_Event("CHAT_MSG_ADDON", function (...)
+      if arg1 == "QHpr" and arg4 ~= UnitName("player") then
+        QH_Questcomm_Msg(arg2, arg4)
+      end
+    end)
+
+    QH_Event({"PARTY_MEMBERS_CHANGED", "UNIT_LEVEL", "RAID_ROSTER_UPDATE"}, function ()
+      QH_Filter_Group_Sync()
+      QH_Route_Filter_Rescan("filter_quest_level")
+      QH_Route_Filter_Rescan("filter_quest_group")
+    end)
+    
+    QH_Event({"PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE"}, function ()
+      QH_Questcomm_Sync()
+    end)
+    
+    QH_Event("PLAYER_LEVEL_UP", function ()
+      self.player_level = arg1
+      QH_Route_Filter_Rescan("filter_quest_level")
+    end)
+    
+    QH_Event("TAXIMAP_OPENED", function ()
+      self:taxiMapOpened()
+    end)
+    
+    QH_Event({"ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "ZONE_CHANGED_NEW_AREA"}, function()
+      QH_Route_Filter_Rescan()
+    end)
+    
+    QH_Event("CHAT_MSG_CHANNEL_NOTICE", function()
+      if please_submit_enabled and not please_submit_initted then
+        please_submit_enabled = QHNagInit()
+        startup_time = GetTime()
+        please_submit_initted = true
+      end
+    end)
+    
+    QuestHelper.loading_init3:SetPercentage(1.0)  -- victory
+    
+    QuestHelper_Loadtime["init3_end"] = GetTime()
+  end, "preinit")
   
+  QuestHelper_Loadtime["init2_end"] = GetTime()
 end)
 
 
@@ -997,7 +1011,7 @@ Thanks for testing!]], "QuestHelper " .. version_string, 500, 20, 10)
       end
     end
 
-    if nc and nz > 0 then
+    if nc and nz > 0 and QuestHelper_IndexLookup[nc] then -- QuestHelper_IndexLookup is only initialized after we've finished the preinit step
       self.c, self.z, self.x, self.y = nc, nz, nx, ny
       local upd_zone = false
       if self.i ~= QuestHelper_IndexLookup[nc][nz] then upd_zone = true end
