@@ -4,7 +4,7 @@ QuestHelper_Loadtime["collect.lua"] = GetTime()
 local debug_output = false
 if QuestHelper_File["collect.lua"] == "Development Version" then debug_output = true end
 
-local QuestHelper_Collector_Version_Current = 7
+local QuestHelper_Collector_Version_Current = 8
 
 QuestHelper_Collector = {}
 QuestHelper_Collector_Version = QuestHelper_Collector_Version_Current

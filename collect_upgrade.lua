@@ -76,6 +76,13 @@ function QH_Collector_Upgrade(chunk)
     
     chunk.version = 7
   end
+  
+  if chunk.version == 7 then
+    -- botched the achievement code, fixed the achievement code (maybe?)
+    chunk.achievement = nil
+    
+    chunk.version = 8
+  end
 end
 
 function QH_Collector_UpgradeAll(Collector)
