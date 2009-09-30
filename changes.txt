@@ -1,4 +1,16 @@
 
+== Version 1.1.20 9/29/2009 ==
+
+* Fix some glitches in the database build code that may have produced Unexpected Output in 1.1.19
+* Found and fixed a mistake in data gathering that was causing excessive data to be recorded
+* Implemented a quick cleanup to go obliterate everything that was mistakenly recorded (okay most things not everything)
+* Moved some initialization from the loading screen to post-load. WoW should start a little faster, though QH will take a little longer overall to be "ready". There may be some obscure bugs if you use /qh commands early in the load sequence, please report these if you run into them.
+* Possibly fix a minor compatibility glitch with ClearFont4
+* Database update again, this time without problems, fingers crossed
+* Translation update
+
+* Hey guess what I did! [[http://www.mandible.net|I made another game.]] Come give it a try and let me know what you think.
+
 == Version 1.1.19 9/22/2009 ==
 
 * Database update, hopefully including Brewfest quests
