@@ -12,9 +12,9 @@ local do_serialize = true
 
 dbg_data = false
 
---local s = 13580
---local e = 13610
---local e = 10000
+--local s = 47411
+--local e = 47411
+local e = 1000
 
 require "compile_lib"
 require "overrides"
@@ -464,9 +464,19 @@ if do_compile and do_questtables then
   monster_slurp = ChainBlock_Create("monster_slurp", {chainhead},
     function (key) return {
       accum = {name = {}, loc = {}},
+      tof = {},
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
+        assert(value.wowv)
+        if overrides.quest[tonumber(key)] and sortversion(overrides.quest[tonumber(key)], value.wowv) then
+          if not self.tof[value.wowv] then
+            print("Threw out", key, value.wowv, overrides.quest[tonumber(key)])
+            self.tof[value.wowv] = true
+          end
+          return
+        end
+        
         if standard_pos_accum(self.accum, value, loc_version(subkey), value.locale, 2, value.wowv) then return end
         if standard_name_accum(self.accum.name, value) then return end
         
@@ -1138,7 +1148,7 @@ if do_compile and do_flight then
                 end
               end
               
-              if not closest then print("Can't find nearby flightpath") return end
+              if not closest then --[[print("Can't find nearby flightpath")]] return end
               assert(closest)
               table.insert(path, closest)
             end
@@ -1924,13 +1934,21 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
               for i = 1, #path do
                 print("  ", path[i][1], path[i][2])
               end
+              
+              -- reverse a little
+              if type(output[#output]) == "string" then
+                output[#output] = nil
+              end
+              
               break
             end
           end
           
-          table.insert(output, "l")
-          for _, v in ipairs(perimeter) do
-            table.insert(output, v)
+          if #perimeter > 0 then
+            table.insert(output, "l")
+            for _, v in ipairs(perimeter) do
+              table.insert(output, v)
+            end
           end
           
           for k, v in ipairs(output) do
@@ -1956,6 +1974,14 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
           doneoutput[1] = doneoutput[1] + solid_grid / 2
           doneoutput[2] = doneoutput[2] + solid_grid / 2
           doneoutput.continent = k
+          
+          for k, v in ipairs(doneoutput) do
+            if type(v) == "string" then
+              assert(type(doneoutput[k + 1]) == "number")
+              assert(type(doneoutput[k + 2]) == "number")
+            end
+          end
+          
           table.insert(returno, doneoutput)
           
           return true

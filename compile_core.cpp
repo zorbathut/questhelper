@@ -8,6 +8,9 @@
 #include <boost/noncopyable.hpp>
 #include <boost/optional.hpp>
 
+#include <sys/types.h>
+#include <sys/wait.h>
+
 #include <png.h>
 
 using namespace std;
@@ -133,7 +136,12 @@ void parsechunks(const char **st, map<char, vector<int> > *out) {
     (*st)++;
     const char *stm = *st;
     while(true) {
-      CHECK(**st == tolower(cite) || isdigit(**st));
+      if(!(**st == tolower(cite) || isdigit(**st))) {
+        // used to be a crash, now we just explode
+        printf("C abort in parsechunks\n");
+        out->clear();
+        return;
+      }
       if(**st == tolower(cite)) break;
       (*st)++;
     }
@@ -165,6 +173,11 @@ void split_quest_startend(lua_State *L, const std::string &dat, int loc_v) {
     vector<int> &monsty = matrix['M'];
     
     parsechunks(&st, &matrix);
+    if(!matrix.size()) {
+      printf("C abort in SQSE\n");
+      lua_pop(L, 2);
+      return;
+    }
     
     const char *stl = st;
     st += 11;
@@ -204,9 +217,20 @@ void split_quest_satisfied(lua_State *L, const std::string &dat, int loc_v) {
     const vector<int> &count = matrix['C'];
     
     parsechunks(&st, &matrix);
+    if(!matrix.size()) {
+      printf("C abort in SQSAT\n");
+      lua_pop(L, 2);
+      return;
+    }
+    
     CHECK(count.size() <= 1);
     
-    CHECK(*st == 'L');
+    if(*st != 'L') {
+      // this used to be a crash, now we just abort our faces off
+      printf("C abort in SQSAT2\n");
+      lua_pop(L, 2);
+      return;
+    }
     st++;
     
     const char *stl = st;
@@ -418,6 +442,54 @@ void check_semiass_failure() {
   CHECK(ids.empty());
 };
 
+
+// yeah, uh, yeah, uh, yeah.
+
+
+deque<string> runs;
+void multirun_clear() {
+  runs.clear();
+}
+void multirun_add(const string &str) {
+  runs.push_back(str);
+}
+void multirun_spawn() {
+  if(!fork()) {
+    //CHECK(!execlp("bash", "-c", "echo", runs[0].c_str(), NULL)); // if it returns, something went wrong, but it always returns -1, so
+    CHECK(!system(runs[0].c_str())); // if it returns, something went wrong, but it always returns -1, so
+    exit(0);
+  } else {
+    runs.pop_front();
+  }
+}
+void multirun_wait() {
+  int stat;
+  waitpid(-1, &stat, 0);
+  
+  CHECK(WIFEXITED(stat) && WEXITSTATUS(stat) == 0);
+}
+void multirun_complete(const string &phase, int simul) {
+  int totnum = runs.size();
+  
+  while(waitpid(-1, NULL, WNOHANG) > 0) printf("wtt\n");
+
+  for(int i = 0; i < simul; i++)
+    multirun_spawn();
+  
+  while(runs.size()) {
+    printf("Master %s     %d/%d/%d waiting/running/finished\n", phase.c_str(), runs.size(), simul, totnum - runs.size() - simul);
+    multirun_wait();
+    multirun_spawn();
+  }
+  
+  for(int i = 0; i < simul; i++) {
+    printf("Master %s     %d/%d/%d waiting/running/finished\n", phase.c_str(), 0, simul - i, totnum - runs.size() - simul + i);
+    multirun_wait();
+  }
+}
+
+
+
 extern "C" int init(lua_State* L) {
   using namespace luabind;
 
@@ -432,6 +504,9 @@ extern "C" int init(lua_State* L) {
     def("split_quest_startend", &split_quest_startend, raw(_1)),
     def("split_quest_satisfied", &split_quest_satisfied, raw(_1)),
     def("check_semiass_failure", &check_semiass_failure),
+    def("multirun_clear", &multirun_clear),
+    def("multirun_add", &multirun_add),
+    def("multirun_complete", &multirun_complete),
     class_<Image>("Image")
       .def(constructor<int, int>())
       .def("write", &Image::write)

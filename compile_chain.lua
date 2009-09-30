@@ -154,7 +154,7 @@ function ChainBlock_Init(path_f, fname_f, init_f)
     
     shard = 0
     
-    for k = 2, #arg do
+    for k = 3, #arg do
       local ip, ct = arg[k]:match("(.+)x([0-9]+)")
       assert(ip)
       assert(ct)
@@ -162,7 +162,8 @@ function ChainBlock_Init(path_f, fname_f, init_f)
         table.insert(shard_ips, ip)
       end
     end
-    shard_count = #shard_ips
+    
+    shard_count = tonumber(arg[2])
     
     local print_bk = print
     print = function(...) print_bk("Master", ...) end
@@ -192,7 +193,7 @@ end
 function ChainBlock_Work()
   if mode == MODE_SLAVE then
     local prefix = string.format("temp/%s/%d", slaveblock, shard)
-    local hnd = io.popen(string.format("ls %s", prefix))
+    local hnd = io.popen(string.format("ls %s 2> /dev/null", prefix))
     
     local tblock = block_lookup[slaveblock]
     assert(tblock)
@@ -374,13 +375,11 @@ function ChainBlock:Finish()
     
     local start = os.time()
     
-    local pypes = {}
+    multirun_clear()
     for k = 1, shard_count do
-      table.insert(pypes, io.popen(string.format("ssh %s \"cd %s && nice luajit -O2 %s slave %s %d %d\"", shard_ips[k], path, fname, self.id, k, shard_count), "w"))
+      multirun_add(string.format("ssh %s \"cd %s && nice luajit -O2 %s slave %s %d %d\"", shard_ips[1], path, fname, self.id, k, shard_count))  -- so, right now this works because we only have one computer, but if we ever have more than one IP we'll have to put part of this into multirun_complete
     end
-    for k, v in pairs(pypes) do
-      v:close()
-    end
+    multirun_complete(self.id, #shard_ips)
     
     table.insert(timing, {id = self.id, dur = os.time() - start})
     

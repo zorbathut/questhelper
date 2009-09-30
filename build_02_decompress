@@ -86,6 +86,7 @@ failures = [
   
   # Virus!
   "Microsoft ASF",
+  "MPEG ADTS",
   
   # At some point maybe this could be handled also
   "Zip archive data, at least v2.0 to extract",
