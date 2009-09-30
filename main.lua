@@ -398,14 +398,13 @@ QH_Event("ADDON_LOADED", function (addonid)
     QuestHelper.loading_flightpath = QuestHelper.loading_main:MakeSubcategory(1)
     QuestHelper.loading_preroll = QuestHelper.loading_main:MakeSubcategory(1)
     
+    local stt = 0
+    
     -- This is where the slow stuff goes
     QuestHelper_BuildZoneLookup()
-    QuestHelper.loading_init3:SetPercentage(0.3)
     QH_Graph_Init()
-    QuestHelper.loading_init3:SetPercentage(0.6)
     load_graph_links()
-    QuestHelper.loading_init3:SetPercentage(0.9)
-
+    
     if QuestHelper_Locale ~= GetLocale() then
       self:TextOut(QHText("LOCALE_ERROR"))
       return
@@ -417,7 +416,7 @@ QH_Event("ADDON_LOADED", function (addonid)
       QuestHelper = nil
       return
     end
-
+    
     QuestHelper_UpgradeDatabase(_G)
     QuestHelper_UpgradeComplete()
     
@@ -425,7 +424,7 @@ QH_Event("ADDON_LOADED", function (addonid)
       self:TextOut(QHFormat("NAG_POLLUTED"))
       self:Purge(nil, true, true)
     end
-    
+
     local signature = expected_version .. " on " .. GetBuildInfo()
     QuestHelper_Quests[signature] = QuestHelper_Quests[signature] or {}
     QuestHelper_Objectives[signature] = QuestHelper_Objectives[signature] or {}
@@ -439,8 +438,11 @@ QH_Event("ADDON_LOADED", function (addonid)
     
     QuestHelper_SeenRealms[GetRealmName()] = true -- some attempt at tracking private servers
     
+    QuestHelper.loading_init3:SetPercentage(0.1)
     QH_Collector_Init()
+    QuestHelper.loading_init3:SetPercentage(0.5)
     DB_Init()
+    QuestHelper.loading_init3:SetPercentage(0.9)
     
     self.player_level = UnitLevel("player")
 
@@ -449,11 +451,11 @@ QH_Event("ADDON_LOADED", function (addonid)
     if QuestHelper_Pref.share and not QuestHelper_Pref.solo then
       self:EnableSharing()
     end
-
+  
     if QuestHelper_Pref.hide then
       self.map_overlay:Hide()
     end
-
+  
     self:HandlePartyChange()
 
     self:Nag("all")
@@ -467,7 +469,7 @@ QH_Event("ADDON_LOADED", function (addonid)
     end
 
     local static = QuestHelper_StaticData[self.locale]
-
+  
     if static then
       if static.flight_instructors then for faction in pairs(static.flight_instructors) do
         if faction ~= self.faction then
