@@ -63,7 +63,7 @@ local function MouseoverUnit()
       if not QHCM[cid] then QHCM[cid] = {} end
       local critter = QHCM[cid]
       
-      AccumulateFrequency(critter, "name", UnitName("mouseover"))
+      if cid < 30621 or cid > 30625 then AccumulateFrequency(critter, "name", UnitName("mouseover")) end -- The exceptions are for Herald Volasj's minions, which are named after your partymembers.
       AccumulateFrequency(critter, "reaction", UnitReaction("mouseover", "player"))
       if not drunk_logon and not drunk_message then
         AccumulateFrequency(critter, "level", UnitLevel("mouseover"))
