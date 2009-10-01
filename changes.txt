@@ -1,10 +1,10 @@
 
 == Version 1.1.20 9/29/2009 ==
 
-* Fix some glitches in the database build code that may have produced Unexpected Output in 1.1.19
+* Fix some glitches in the database build code that may have produced Unexpected Output in 1.1.19, probably including flighpath errors and possibly including dang near any wacky behavior imaginable
 * Found and fixed a mistake in data gathering that was causing excessive data to be recorded
 * Implemented a quick cleanup to go obliterate everything that was mistakenly recorded (okay most things not everything)
-* Moved some initialization from the loading screen to post-load. WoW should start a little faster, though QH will take a little longer overall to be "ready". There may be some obscure bugs if you use /qh commands early in the load sequence, please report these if you run into them.
+* Moved some initialization from the loading screen to post-load. WoW should start a little faster, though QH will take a little longer overall to be "ready". There may be some obscure bugs if you use /qh commands early in the load sequence, please report these if you run into them. There also may be some little framerate hitches during the early load sequence, I'll deal with those later.
 * Possibly fix a minor compatibility glitch with ClearFont4
 * Database update again, this time without problems, fingers crossed
 * Translation update
