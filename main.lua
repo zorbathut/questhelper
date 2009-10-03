@@ -191,6 +191,12 @@ QH_Event("ADDON_LOADED", function (addonid)
   setmetatable(QuestHelper_Pref, {__index=QuestHelper_DefaultPref})
   QuestHelper: Assert(QuestHelper_Pref.perfload_scale) -- if this fails, something is very botched
   
+  if not QuestHelper_Pref.track or QuestHelper_Pref.hide then
+    QuestHelper:HideTracker()
+  else
+    QuestHelper:ShowTracker()  -- to respect the minimized setting
+  end
+  
   local self = QuestHelper -- whee hack hack hack
   
   QuestHelper_Loadtime["init2_start"] = GetTime()

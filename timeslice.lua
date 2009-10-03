@@ -95,12 +95,6 @@ function QH_Timeslice_Doneinit()
     QuestHelper.loading_main = nil
     QuestHelper.loading_flightpath = nil
     QuestHelper.loading_preroll = nil
-    
-    if not QuestHelper_Pref.track or QuestHelper_Pref.hide then
-      QuestHelper:HideTracker()
-    else
-      QuestHelper:ShowTracker()  -- to respect the minimized setting
-    end
   
     collectgarbage("collect") -- fuuuuuck youuuuuuuu
   end

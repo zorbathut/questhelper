@@ -1061,22 +1061,20 @@ function tracker:ShowDefaultTracker()
   end
 end
 
-function QuestHelper:ShowTracker(nominimize)
+function QuestHelper:ShowTracker()
   tracker:HideDefaultTracker()
   minbutton:Show()
   
-  if QuestHelper_Pref.track_minimized and not nominimize then
+  if QuestHelper_Pref.track_minimized then
     minbutton:SetAlpha(.3)
   else
     minbutton:SetAlpha(0)
     tracker:Show()
   end
 end
-QuestHelper:ShowTracker(true)
 
 function QuestHelper:HideTracker()
   tracker:ShowDefaultTracker()
   tracker:Hide()
   minbutton:Hide()
 end
-
