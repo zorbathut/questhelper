@@ -8,7 +8,7 @@
 ## Notes-esMX: Calcula la mejor ruta a seguir para usted.
 ## Notes-koKR: 노선에 대한 계산을 수행합니다.
 ## Version: Development Version
-## OptionalDeps: Cartographer_Waypoints, TomTom, Cartographer_InstanceMaps, !Swatter, tekticles, UnicodeFont, ClearFont2
+## OptionalDeps: Cartographer_Waypoints, TomTom, Cartographer_InstanceMaps, !Swatter, tekticles, UnicodeFont, ClearFont2, Chatter
 ## SavedVariables: QuestHelper_Pref QuestHelper_UID QuestHelper_SaveDate QuestHelper_Errors QuestHelper_Collector QuestHelper_Collector_Version
 ## SavedVariablesPerCharacter: QuestHelper_KnownFlightRoutes QuestHelper_Home QuestHelper_CharVersion QuestHelper_Flight_Updates
 ## X-Website: http://www.quest-helper.com/
@@ -21,6 +21,7 @@
 # Tekticles is around because, if QH loads before it does, then QH doesn't use its custom fonts, and I think its custom fonts are pretty. There's probably a better solution to this, but it turns out I'm incredibly lazy, so, meh.
 # UnicodeFont: see Tekticles
 # ClearFont2: see Tekticles
+# Chatter: see argh I need to fix this in a better way
 
 
 # That is a pile of saved variables. Let me try to explain them better.
