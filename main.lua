@@ -189,6 +189,7 @@ QH_Event("ADDON_LOADED", function (addonid)
   
   -- Use DefaultPref as fallback for unset preference keys.
   setmetatable(QuestHelper_Pref, {__index=QuestHelper_DefaultPref})
+  QuestHelper: Assert(QuestHelper_Pref.perfload_scale) -- if this fails, something is very botched
   
   local self = QuestHelper -- whee hack hack hack
   
