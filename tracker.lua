@@ -900,25 +900,31 @@ function QH_Tracker_UpdateRoute(new_route)
   QH_Tracker_Rescan()
 end
 
-function QH_Tracker_Pin(metaobjective)
+function QH_Tracker_Pin(metaobjective, suppress)
   if not pinned[metaobjective] then
     pinned[metaobjective] = true
-    QH_Tracker_Rescan()
+    
+    if not suppress then
+      QH_Tracker_Rescan()
+    end
   end
 end
 
-function QH_Tracker_Unpin(metaobjective)
+function QH_Tracker_Unpin(metaobjective, suppress)
   if pinned[metaobjective] then
     pinned[metaobjective] = nil -- nil, not false, so it'll be garbage-collected appropriately
-    QH_Tracker_Rescan()
+    
+    if not suppress then
+      QH_Tracker_Rescan()
+    end
   end
 end
 
-function QH_Tracker_SetPin(metaobjective, flag)
+function QH_Tracker_SetPin(metaobjective, flag, suppress)
   if flag then
-    QH_Tracker_Pin(metaobjective)
+    QH_Tracker_Pin(metaobjective, suppress)
   else
-    QH_Tracker_Unpin(metaobjective)
+    QH_Tracker_Unpin(metaobjective, suppress)
   end
 end
 

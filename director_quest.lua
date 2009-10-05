@@ -480,13 +480,15 @@ local function EndInsertionPass(id)
       break
     end
     if not has then
-      QH_Tracker_Unpin(k[1])
+      QH_Tracker_Unpin(k[1], true)
       QH_Route_ClusterRemove(k)
       rem[k] = true
       
       SetTooltip(k, nil)
     end
   end
+  
+  QH_Tracker_Rescan()
   
   for k, _ in pairs(rem) do
     InsertedItems[k] = nil
@@ -533,7 +535,7 @@ function QuestProcessor(user_id, db, title, level, group, variety, groupsize, wa
         v.map_desc = {QHFormat("OBJECTIVE_REASON_TURNIN", title)}
       end
     end
-    if watched ~= "(ignore)" then QH_Tracker_SetPin(db.finish[1], watched) end
+    if watched ~= "(ignore)" then QH_Tracker_SetPin(db.finish[1], watched, true) end
   end
   
   -- These are the individual criteria of the quest. Remember that each criteria can be represented by multiple routing objectives.
@@ -583,7 +585,7 @@ function QuestProcessor(user_id, db, title, level, group, variety, groupsize, wa
         if RefreshItem(user_id, db[i]) then
           if turnin then QH_Route_ClusterRequires(turnin, db[i]) end
         end
-        if watched ~= "(ignore)" then QH_Tracker_SetPin(db[i][1], watched) end
+        if watched ~= "(ignore)" then QH_Tracker_SetPin(db[i][1], watched, true) end
       end
       
       db[i].temp_desc, db[i].temp_typ, db[i].temp_done = nil, nil, nil
@@ -840,11 +842,11 @@ QH_AddNotifier(GetTime() + 5, function ()
 end)
 
 -- We seem to end up out of sync sometimes. Why? I'm not sure. Maybe my current events aren't reliable. So let's just scan every five seconds and see what happens, scanning is fast and efficient anyway.
-local function autonotify()
+--[[local function autonotify()
   QH_UpdateQuests(true)
   QH_AddNotifier(GetTime() + 5, autonotify)
 end
-QH_AddNotifier(GetTime() + 30, autonotify)
+QH_AddNotifier(GetTime() + 30, autonotify)]]
 
 local old_playerlist = {}
 
