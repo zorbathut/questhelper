@@ -429,7 +429,7 @@ function QuestHelper_BuildZoneLookup()
     end
   end
   
-  if not Cartographer_Notes.fixed_that_bug_that_causes_POI_to_crash_when_you_change_to_hrothgars_landing then
+  if Cartographer_Notes and not Cartographer_Notes.fixed_that_bug_that_causes_POI_to_crash_when_you_change_to_hrothgars_landing then
     Cartographer_Notes.SetNote = cartugh
   end
 end
