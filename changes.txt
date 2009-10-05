@@ -1,4 +1,15 @@
 
+== Version 1.1.21 10/5/2009 ==
+
+* Make Cartographer stop breaking Questhelper. At least, breaking it as much.
+* Add support for quest items contained inside containers (alright this mostly exists because I got tired of the Bloated Monsterbelly daily directing me to Dalaran)
+* Make Questhelper stop resetting the chat font on startup. Why did it used to? I do not know. There are nooks of this code that I still do not fully comprehend. If this causes your computer to melt into a small puddle of radioactive slag**, please let me know.
+* Fix an issue causing the load progress indicator to be displayed despite the user indicating a clear preference that it should not be
+* Initial quest-update will again be reliably included in the progress indicator
+* Stop an annoying flicker when tracking/untracking quests
+
+** Questhelper is not responsible for your computer melting into a small puddle of radioactive slag, nor responsible for proper disposal of the aforementioned slag.
+
 == Version 1.1.20 9/29/2009 ==
 
 * Fix some glitches in the database build code that may have produced Unexpected Output in 1.1.19, probably including flighpath errors and possibly including dang near any wacky behavior imaginable
