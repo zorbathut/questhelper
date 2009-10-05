@@ -139,6 +139,7 @@ end
 local function getContPosition( zoneData, z, x, y )
 	if ( z ~= 0 ) then
 		zoneData = zoneData[z];
+    if not zoneData then return end
 		x = x * zoneData.width + zoneData.xOffset;
 		y = y * zoneData.height + zoneData.yOffset;
 	else
@@ -309,6 +310,7 @@ function Astrolabe:TranslateWorldMapPosition( C, Z, xPos, yPos, nC, nZ )
 		zoneData = WorldMapSize[C];
 		local parentContinent = zoneData.parentContinent;
 		xPos, yPos = getContPosition(zoneData, Z, xPos, yPos);
+    if not xPos or not yPos then return end -- there is no such zone. why are you asking me such silly things? you are a terrible person. leave me in my despair.
 		if ( C ~= parentContinent ) then
 			-- translate up to world map if we aren't there already
 			xPos = xPos + zoneData.xOffset;
