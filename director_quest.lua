@@ -821,6 +821,7 @@ local function QH_DumpCommUser(user)
   RefreshUserComms(user)
 end
 
+QH_Event("PLAYER_ENTERING_WORLD", UpdateTrigger)
 QH_Event("UNIT_QUEST_LOG_CHANGED", UpdateTrigger)
 QH_Event("QUEST_LOG_UPDATE", QH_UpdateQuests)
 

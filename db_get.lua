@@ -109,6 +109,7 @@ function DB_Init()
     end
   end
   initted = true
+  QH_UpdateQuests() -- just in case it's been waiting on us (it has almost certainly been waiting on us)
 end
 
 function DB_Ready()
