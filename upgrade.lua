@@ -335,6 +335,12 @@ function QuestHelper_BuildZoneLookup()
   if built then return end
   built = true
   
+  local cartugh
+  if Cartographer_Notes and not Cartographer_Notes.fixed_that_bug_that_causes_POI_to_crash_when_you_change_to_hrothgars_landing then
+    cartugh = Cartographer_Notes.SetNote
+    Cartographer_Notes.SetNote = function () end -- cartographer why are you terrible
+  end
+  
   if GetMapContinents and GetMapZones then
     -- Called from inside the WoW client.
     
@@ -421,6 +427,10 @@ function QuestHelper_BuildZoneLookup()
       QuestHelper_ZoneLookup[name] = pair
       QuestHelper_ZoneLookup[index] = pair
     end
+  end
+  
+  if not Cartographer_Notes.fixed_that_bug_that_causes_POI_to_crash_when_you_change_to_hrothgars_landing then
+    Cartographer_Notes.SetNote = cartugh
   end
 end
 
