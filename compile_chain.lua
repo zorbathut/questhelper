@@ -133,6 +133,7 @@ local slaveblock
 
 local shard
 local shard_count
+local internal_split = 16
 
 local shard_ips = {}
 
@@ -233,16 +234,25 @@ function ChainBlock_Work()
         end
       end
       
-      local fil = gzio.open(prefix .. "/" .. line, "r")
-      local str, err = fil:read("*a")
+      local str
+      while true do
+        local fil = gzio.open(prefix .. "/" .. line, "r")
+        local err
+        
+        str, err = fil:read("*a")
+
+        fil:close()
+        
+        if str then break end
+        
+        print(string.format("Missing data? %s/%s %s", prefix, line, err))
+        os.sleep(1)
+      end
       
-      --assert(str, err, prefix .. "/" .. line)
-
-      fil:close()
-
-      os.execute(string.format("rm %s/%s", prefix, line))
+      assert(str)
       
       local strs = {}
+      os.execute(string.format("rm %s/%s", prefix, line))
       persist_split(str, strs)
       
       local up = {}
@@ -263,6 +273,18 @@ function ChainBlock_Work()
 end
 
 
+local function md5_value(dat)
+  if tonumber(dat) then return dat end
+  
+  local binny = md5.sum(dat)
+  local v = 0
+  for k = 1, 4 do
+    v = v * 256
+    v = v + string.byte(binny, k)
+  end
+  return v
+end
+--[[
 local function md5_clean(dat)
   local binny = md5.sum(dat)
   local rv = ""
@@ -283,7 +305,7 @@ local function shardy(dat, shards)
     v = v + string.byte(binny, k)
   end
   return math.mod(v, shards) + 1
-end
+end]]
 
 
 local ChainBlock = {}
@@ -330,7 +352,12 @@ function ChainBlock:Insert(key, subkey, value, identifier)
   if self.filter and self.filter ~= identifier then return end
   
   if mode ~= MODE_SOLO and slaveblock ~= self.id then
-    local f = get_file(string.format("temp/%s/%d/%s_%s_%s", self.id, shardy(key, shard_count), md5_clean(key):sub(1,1), (mode == MODE_MASTER and "master" or slaveblock), shard))
+    local ki = md5_value(key)
+    local shard_dest_1 = math.mod(ki, shard_count) + 1
+    ki = math.floor(ki / shard_count)
+    local shard_dest_2 = math.mod(ki, internal_split) + 1
+    
+    local f = get_file(string.format("temp/%s/%d/%s_%s_%s", self.id, shard_dest_1, shard_dest_2, (mode == MODE_MASTER and "master" or slaveblock), shard))
     f:write(persist_dump(pluto.persist({}, {key = key, subkey = subkey, value = value})))
   else
     if not subkey then
@@ -431,7 +458,7 @@ function ChainBlock:Finish()
       for _, d in pairs(v) do
         ProgressMessage(string.format("Sorting %s, %d/%d + %d/%d", self.id, sdcc, sdc, ict, #v))
         ict = ict + 1
-        if d.value.fileid then push_file_id(d.value.fileid) else push_file_id(-1) end
+        if type(d.value) == "table" and d.value.fileid then push_file_id(d.value.fileid) else push_file_id(-1) end
         safety(item.Data, item, k, d.subkey, d.value, self.process, self.broadcast)
         pop_file_id()
       end

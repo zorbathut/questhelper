@@ -93,6 +93,7 @@ failures = [
   
   # what the flying fuck
   "Bio-Rad .PIC Image File",
+  "Standard MIDI data",
 ]
 
 texttypes = [

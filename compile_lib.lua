@@ -439,7 +439,12 @@ function list_accumulate(item, id, inp)
   if not inp then return end
   
   if not item[id] then item[id] = {} end
-  local t = item[id]
+  
+  list_accumulate_item(item[id], inp)
+end
+
+function list_accumulate_item(item, inp)
+  local t = item
   
   if type(inp) == "table" then
     for k, v in pairs(inp) do
@@ -451,6 +456,8 @@ function list_accumulate(item, id, inp)
 end
 
 function list_most_common(tbl, mv)
+  if not tbl then return nil end
+  
   local mcv = nil
   local mcvw = mv
   for k, v in pairs(tbl) do
@@ -641,11 +648,13 @@ function loot_accumulate(source, sourcetok, Output)
     end
     
     -- We don't actually care about frequency at the moment, just where people tend to get it from. This works in most cases.
-    if source[typ .. "_loot"] then for k, c in pairs(source[typ .. "_loot"]) do
-      if k ~= "gold" then
-        Output(tostring(k), nil, {source = sourcetok, count = c, type = specs.become or typ}, "loot")
+    if source[typ .. "_loot"] then
+      for k, c in pairs(source[typ .. "_loot"]) do
+        if k ~= "gold" then
+          Output(tostring(k), nil, {source = sourcetok, count = c, type = specs.become or typ}, "loot")
+        end
       end
-    end end
+    end
   end
   
   for k, _ in pairs(source) do

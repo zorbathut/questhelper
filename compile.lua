@@ -7,10 +7,10 @@ local do_compile = true
 local do_questtables = true
 local do_flight = true
 
-local do_compress = true
+local do_compress = false
 local do_serialize = true
 
-dbg_data = false
+dbg_data = true
 
 --local s = 47411
 --local e = 47411
@@ -94,6 +94,14 @@ local chainhead = ChainBlock_Create("parse", nil,
           Output(tostring(mid), qhv, mdat, "monster")
         end end
         
+        if do_compile and do_questtables and v.fishing then for floc, fdat in pairs(v.fishing) do
+          --do continue end -- ARGH
+          fdat.fileid = value.fileid
+          fdat.locale = locale
+          fdat.wowv = wowv
+          Output(floc, qhv, fdat, "fishing")
+        end end
+        
         -- objects!
         --[[if do_compile and do_questtables and v.object then for oid, odat in pairs(v.object) do
           odat.fileid = value.fileid
@@ -110,6 +118,7 @@ local chainhead = ChainBlock_Create("parse", nil,
         -- flight times!
         if do_compile and do_flight and v.flight_times then for ftname, ftdat in pairs(v.flight_times) do
           --do continue end -- ARGH
+          if type(ftdat) ~= "table" then continue end
           Output(string.format("%s@@%s@@%s", ftname, faction, locale), qhv, ftdat, "flight_times")
         end end
         
@@ -539,6 +548,31 @@ local item_slurp
 local item_parse
 
 if do_compile and do_questtables then
+  fishing = ChainBlock_Create("fishing", {chainhead},
+    function (key) return {
+      Data = function(self, key, subkey, value, Output)
+        if value.fish_loot then for k, v in pairs(value.fish_loot) do
+          Output(tostring(k), nil, {count = v, loc = key, locale = value.locale, wowv = value.wowv, qhv = subkey}, "item_loc")
+        end end
+      end,
+    } end,
+  nil, "fishing")
+  
+  item_loc = ChainBlock_Create("item_loc", {fishing},
+    function (key) return {
+      accum = {loc = {}},
+      Data = function(self, key, subkey, value, Output)
+        local loc = convert_loc(slice_loc(value.loc, loc_version(value.qhv)), value.locale, loc_version(value.qhv), value.wowv)
+        if loc then position_accumulate(self.accum.loc, loc, value.wowv) end
+      end,
+      Finish = function(self, Output)
+        if position_has(self.accum.loc) then
+          Output(key, nil, {type = "loc", data = position_finalize(self.accum.loc)}, "item")
+        end
+      end,
+    } end,
+  nil, "item_loc")
+  
   item_parse = ChainBlock_Create("item_parse", {chainhead},
     function (key) return {
       accum = {name = {}},
@@ -640,7 +674,7 @@ if do_compile and do_questtables then
     nil, "loot"
   )
   
-  item_slurp = ChainBlock_Create("item_slurp", {item_parse, loot_merge},
+  item_slurp = ChainBlock_Create("item_slurp", {item_parse, loot_merge, item_loc},
     function (key) return {
       accum = {},
       
@@ -657,6 +691,8 @@ if do_compile and do_questtables then
         if self.accum.loot then for k, v in pairs(self.accum.loot) do
           qout[k] = v
         end end
+        
+        if self.accum.loc then qout.loc = self.accum.loc end
         
         if key ~= "gold" then -- okay technically the whole thing could have been ignored, but
           assert(tonumber(key))
@@ -1017,33 +1053,29 @@ if do_compile and do_flight then
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
         if self.names[value.locale] then
-          print(key, value.locale, self.names[value.locale], value.name)
+          --print(key, value.locale, self.names[value.locale], value.name)
           
-          print(self.names[value.locale].version, value.version, sortversion(self.names[value.locale].version, value.version), self.names[value.locale].name, value.name)
-          assert(self.names[value.locale].version ~= value.version)
-          print(self.names[value.locale].version, value.version, sortversion(self.names[value.locale].version, value.version))
+          --print(self.names[value.locale].version, value.version, sortversion(self.names[value.locale].version, value.version), self.names[value.locale].name, value.name)
           
-          if not sortversion(self.names[value.locale].version, value.version) then
+          if version_lessthan(value.version, self.names[value.locale].version) then
             self.names[value.locale] = nil  -- we just blow it away and rebuild it later
-          else
-            return
           end
         end
-        assert(not self.names[value.locale])
-        assert(not self.mid or not value.mid or self.mid == value.mid, key)
         
-        self.names[value.locale] = {name = value.name, version = value.version}
-        self.mid = value.mid
+        if not self.names[value.locale] then self.names[value.locale] = {version = value.version} end
+        
+        list_accumulate(self.names[value.locale], "name", value.name)
+        list_accumulate(self, "mid", value.mid)
       end,
       
       Finish = function(self, Output)
         local x, y, faction = key:match("(.*)@@(.*)@@(.*)")
         local namepack = {}
         for k, v in pairs(self.names) do
-          namepack[k] = v.name
+          namepack[k] = list_most_common(v.name)
         end
         
-        Output(tostring(faction), nil, {x = x, y = y, faction = faction, mid = self.mid, names = namepack})
+        Output(tostring(faction), nil, {x = x, y = y, faction = faction, mid = list_most_common(self.mid), names = namepack})
       end,
     } end
   )
@@ -1450,6 +1482,11 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
         end
       end end
       if self.finalfile.monster then for k, v in pairs(self.finalfile.monster) do
+        if v["*/*"] and v["*/*"].loc then
+          v["*/*"].loc.solid = nil
+        end
+      end end
+      if self.finalfile.item then for k, v in pairs(self.finalfile.item) do
         if v["*/*"] and v["*/*"].loc then
           v["*/*"].loc.solid = nil
         end
