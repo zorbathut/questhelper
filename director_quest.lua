@@ -58,12 +58,14 @@ local function AppendObjlinks(target, source, tooltips, icon, last_name, map_lin
     local dbgi = DB_GetItem(v.sourcetype, v.sourceid, nil, true)
     local licon
     
+    --print(v.sourcetype, v.sourceid, v.type)
+    
     if v.sourcetype == "monster" then
       table.insert(map_lines, QHFormat("OBJECTIVE_SLAY", dbgi.name or QHText("OBJECTIVE_UNKNOWN_MONSTER")))
       table.insert(tooltip_lines, 1, QHFormat("TOOLTIP_SLAY", source.name or "nothing"))
       licon = 1
     elseif v.sourcetype == "item" then
-      table.insert(map_lines, QHFormat("OBJECTIVE_ACQUIRE", dbgi.name or QHText("OBJECTIVE_ITEM_UNKNOWN")))
+      table.insert(map_lines, QHFormat("OBJECTIVE_LOOT", dbgi.name or QHText("OBJECTIVE_ITEM_UNKNOWN")))
       table.insert(tooltip_lines, 1, QHFormat("TOOLTIP_LOOT", source.name or "nothing"))
       licon = 2
     else
@@ -140,7 +142,9 @@ local function GetQuestMetaobjective(questid, lbcount)
       ttx.tooltip_canned = {}
       
       if q and q.criteria and q.criteria[i] then
+        --print("Appending criteria", questid, i)
         AppendObjlinks(ttx, q.criteria[i], ttx.tooltip_canned)
+        --print("Done")
         
         if debug_output and q.criteria[i].loc and #q.criteria[i] > 0 then
           QuestHelper:TextOut(string.format("Wackyquest %d/%d", questid, i))
@@ -681,6 +685,8 @@ function QH_UpdateQuests(force)
     
     local next_chunks = {}
     
+    local first = true
+    
     -- This begins the main update loop that loops through all of the quests
     while true do
       local title, level, variety, groupsize, _, _, complete = GetQuestLogTitle(index)
@@ -691,6 +697,7 @@ function QH_UpdateQuests(force)
       local qlink = GetQuestLink(index)
       if qlink then -- If we don't have a quest link, it's not really a quest
         local id = GetQuestType(qlink)
+        --if first then id = 13836 else id = nil end
         if id then -- If we don't have a *valid* quest link, give up
           local lbcount = GetNumQuestLeaderBoards(index)
           local db = GetQuestMetaobjective(id, lbcount) -- This generates the above-mentioned metaobjective, including doing the database lookup.
@@ -737,6 +744,7 @@ function QH_UpdateQuests(force)
           
           QuestProcessor(player, db, title, level, groupsize, variety, groupsize, watched, complete, lbcount, timed)
         end
+        first = false
       end
       index = index + 1
     end
