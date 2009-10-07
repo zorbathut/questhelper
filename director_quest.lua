@@ -673,6 +673,14 @@ end
 -- qid, chunk
 local current_chunks = {}
 
+-- "log" is a synthetic objective that Blizzard tossed in for god only knows what reason, so we just pretend it doesn't exist
+local function GetEffectiveNumQuestLeaderBoards(index)
+  local v = GetNumQuestLeaderBoards(index)
+  if v ~= 1 then return v end
+  if select(2, GetQuestLogLeaderBoard(1, index)) == "log" then return 0 end
+  return 1
+end
+
 -- Here's the core update function
 function QH_UpdateQuests(force)
   if not DB_Ready() then return end
@@ -699,7 +707,7 @@ function QH_UpdateQuests(force)
         local id = GetQuestType(qlink)
         --if first then id = 13836 else id = nil end
         if id then -- If we don't have a *valid* quest link, give up
-          local lbcount = GetNumQuestLeaderBoards(index)
+          local lbcount = GetEffectiveNumQuestLeaderBoards(index)
           local db = GetQuestMetaobjective(id, lbcount) -- This generates the above-mentioned metaobjective, including doing the database lookup.
           
           QuestHelper: Assert(db)
