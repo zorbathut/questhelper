@@ -139,6 +139,20 @@ local filter_quest_watched = QH_MakeFilter("filter_quest_watched", function(obj)
   return not IsQuestWatched(obj.type_quest.index)
 end, {friendly_reason = QHText("FILTERED_UNWATCHED"), friendly_name = "watched"})
 
+local filter_quest_raid_accessible = QH_MakeFilter("filter_quest_raid_accessible", function(obj)
+  if not QuestHelper_Pref.filter_raid_accessible then return end
+  
+  if not obj.type_quest then return end -- yeah it's fine
+  if obj.type_quest.objectives > 0 and obj.cluster.type_quest_finish then return end  -- you can turn in non-raid quests while in a raid
+  
+  if obj.type_quest.variety == LFG_TYPE_RAID then return end  -- these are always okay
+  if obj.type_quest.variety == PVP then return end -- these seem to be okay
+  
+  if not qh_hackery_fakeraid and GetNumRaidMembers() == 0 then return end -- s'all good, we're not in a raid anyway
+  
+  return true -- oh shit we're in a raid
+end, {friendly_reason = QHText("FILTERED_RAID"), friendly_name = "raidaccessible"})
+
 -- Delay because of beql which is a bitch.
 QH_AddNotifier(GetTime() + 5, function ()
   local aqw_orig = AddQuestWatch -- yoink
@@ -171,6 +185,7 @@ QH_Route_RegisterFilter(filter_quest_done, "filter_quest_done")
 QH_Route_RegisterFilter(filter_quest_watched, "filter_quest_watched")
 QH_Route_RegisterFilter(filter_quest_group, "filter_quest_group")
 QH_Route_RegisterFilter(filter_quest_wintergrasp, "filter_quest_wintergrasp")
+QH_Route_RegisterFilter(filter_quest_raid_accessible, "filter_quest_raid_accessible")
 QH_Route_RegisterFilter(filter_zone, "filter_zone")
 QH_Route_RegisterFilter(filter_blocked, "filter_blocked")
 

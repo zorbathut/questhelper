@@ -398,6 +398,10 @@ function QuestHelper:Filter(input)
     QuestHelper_Pref.filter_wintergrasp = not QuestHelper_Pref.filter_wintergrasp
     self:TextOut("Filter "..self:HighlightText("wintergrasp").." set to "..self:HighlightText(QuestHelper_Pref.filter_wintergrasp and "active" or "inactive")..".")
     QH_Route_Filter_Rescan("filter_quest_wintergrasp")
+  elseif input == "RAIDACCESSIBLE" or input == "RA" then
+    QuestHelper_Pref.filter_raid_accessible = not QuestHelper_Pref.filter_raid_accessible
+    self:TextOut("Filter "..self:HighlightText("raidaccessible").." set to "..self:HighlightText(QuestHelper_Pref.filter_raid_accessible and "active" or "inactive")..".")
+    QH_Route_Filter_Rescan("filter_quest_raid_accessible")
   elseif input == "" then
     self:TextOut("Filter "..self:HighlightText("zone")..": "..self:HighlightText(QuestHelper_Pref.filter_zone and "active" or "inactive"))
     self:TextOut("Filter "..self:HighlightText("level")..": "..self:HighlightText(QuestHelper_Pref.filter_level and "active" or "inactive"))
@@ -406,8 +410,9 @@ function QuestHelper:Filter(input)
     self:TextOut("Filter "..self:HighlightText("blocked")..": "..self:HighlightText(QuestHelper_Pref.filter_blocked and "active" or "inactive"))
     self:TextOut("Filter "..self:HighlightText("watched")..": "..self:HighlightText(QuestHelper_Pref.filter_watched and "active" or "inactive"))
     self:TextOut("Filter "..self:HighlightText("wintergrasp")..": "..self:HighlightText(QuestHelper_Pref.filter_wintergrasp and "active" or "inactive"))
+    self:TextOut("Filter "..self:HighlightText("raidaccessible")..": "..self:HighlightText(QuestHelper_Pref.filter_raid_accessible and "active" or "inactive"))
   else
-    self:TextOut("Don't know what you want filtered, expect "..self:HighlightText("zone")..", "..self:HighlightText("done")..", "..self:HighlightText("level")..", "..self:HighlightText("group")..", "..self:HighlightText("blocked")..", "..self:HighlightText("watched")..", or "..self:HighlightText("wintergrasp")..".")
+    self:TextOut("Don't know what you want filtered, expect "..self:HighlightText("zone")..", "..self:HighlightText("done")..", "..self:HighlightText("level")..", "..self:HighlightText("group")..", "..self:HighlightText("blocked")..", "..self:HighlightText("watched")..", "..self:HighlightText("wintergrasp")..", or "..self:HighlightText("raidaccessible")..".")
   end
 end
 
@@ -772,6 +777,7 @@ commands =
       {"/qh filter watched", "Toggle limiting to objectives watched in the Quest Log"},
       
       {"/qh filter wintergrasp", "Toggle ignoring of PvP Wintergrasp quest objectives while not in Wintergrasp"},
+      {"/qh filter raidaccessible", "Toggle ignoring non-raid quests when in a raid"},
       }, QuestHelper.Filter, QuestHelper},
     
     {"LEVEL",

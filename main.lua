@@ -24,6 +24,7 @@ local QuestHelper_DefaultPref =
   filter_group=true,
   filter_group_param=2,
   filter_wintergrasp=true,
+  filter_raid_accessible=true,
   zones="next",
   track=true,
   track_minimized=false,
@@ -625,7 +626,8 @@ QH_Event("ADDON_LOADED", function (addonid)
     QH_Event({"PARTY_MEMBERS_CHANGED", "UNIT_LEVEL", "RAID_ROSTER_UPDATE"}, function ()
       QH_Filter_Group_Sync()
       QH_Route_Filter_Rescan("filter_quest_level")
-      QH_Route_Filter_Rescan("filter_quest_group")
+      --QH_Route_Filter_Rescan("filter_quest_group")
+      --QH_Route_Filter_Rescan("filter_quest_raid_accessible")  -- These should be in right now, but for simplicity's sake we're actually scanning everything when we get a rescan request. So they're unnecessary. PUT THEM BACK should they become necessary.
     end)
     
     QH_Event({"PARTY_MEMBERS_CHANGED", "RAID_ROSTER_UPDATE"}, function ()
