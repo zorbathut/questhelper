@@ -1790,6 +1790,9 @@ if true then
   VContinent(-114, "Ulduar2", 885.6) -- temporary value
   VContinent(-115, "Ulduar3", 100) -- temporary value
   VContinent(-116, "Ulduar4", 100) -- temporary value
+  
+  VContinent(-117, "TheForgeofSouls", 965.4) -- temporary value
+  VContinent(-118, "PitofSaron", 1022.3)
 end
 
 VirtualContinentIndexes = { -- Don't change values here, since programs might want to store them
@@ -1848,6 +1851,9 @@ VirtualContinentIndexes = { -- Don't change values here, since programs might wa
   ["Ulduar2"] = -114,
   ["Ulduar3"] = -115,
   ["Ulduar4"] = -116,
+  
+  ["TheForgeofSouls"] = -117,
+  ["PitofSaron"] = -118,
 }
 
 DongleStub:Register(Astrolabe, activate)

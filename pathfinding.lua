@@ -112,6 +112,8 @@ local static_shared_routes =
    {{140, 0.635, 0.501}, {68, 0.600, 0.566}, 5}, -- Sarth
    {{142, 0.500, 0.500}, {65, 0.275, 0.267}, 5}, -- Malygos, zone-in link is incorrect (not that it matters with malygos)
    {{144, 0.500, 0.500}, {73, 0.416, 0.179}, 5}, -- Ulduar, zone-in link is incorrect
+   {{155, 0.426, 0.203}, {71, 0.548, 0.899}, 5}, -- Forge of Souls
+   {{157, 0.410, 0.801}, {71, 0.547, 0.916}, 5}, -- Pit of Saron
    
    -- Wrath in-zone links, all currently incorrect
     -- UK
