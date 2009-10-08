@@ -1,0 +1,1 @@
+g++ bars.cpp `Magick++-config --cppflags --cxxflags --ldflags --libs` && ./a.outg++ bars.cpp `Magick++-config --cppflags --cxxflags --ldflags --libs` && ./a.out

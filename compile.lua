@@ -7,14 +7,14 @@ local do_compile = true
 local do_questtables = true
 local do_flight = true
 
-local do_compress = false
+local do_compress = true
 local do_serialize = true
 
-dbg_data = true
+dbg_data = false
 
 --local s = 47411
 --local e = 47411
-local e = 1000
+--local e = 1000
 
 require "compile_lib"
 require "overrides"
@@ -562,6 +562,8 @@ if do_compile and do_questtables then
     function (key) return {
       accum = {loc = {}},
       Data = function(self, key, subkey, value, Output)
+        if #value.loc ~= 11 then print("Unknown size", #value.loc, value.loc) return end  -- what
+        
         local loc = convert_loc(slice_loc(value.loc, loc_version(value.qhv)), value.locale, loc_version(value.qhv), value.wowv)
         if loc then position_accumulate(self.accum.loc, loc, value.wowv) end
       end,
@@ -1310,7 +1312,13 @@ if flight_data_output then table.insert(sources, flight_data_output) end
 if flight_table_output then table.insert(sources, flight_table_output) end
 if flight_master_name_output then table.insert(sources, flight_master_name_output) end
 
+local touched = {}
+
 local function do_loc_choice(file, item, toplevel, solidity)
+  if touched[item] then print("Recursed in file_cull somehow") return end
+  
+  touched[item] = true
+  
   local has_linkloc = false
   local count = 0
   
@@ -1386,6 +1394,8 @@ local function do_loc_choice(file, item, toplevel, solidity)
   else
     assert(count == 0)
   end]]
+  
+  touched[item] = nil
   return valid, count, reason, solidity
 end
 
