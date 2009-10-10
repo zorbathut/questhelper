@@ -8,7 +8,7 @@ using namespace Magick;
 using namespace std;
 
 void drawCapsule(const string &text, float sx, float sy, float ex, float ey, float fill, int screenwidth, int screenheight, string outname) {
-  Image img(Geometry(screenwidth, screenheight), Color(247, 247, 247));
+  Image img(Geometry(screenwidth, screenheight), Color(247 * 256, 247 * 256, 247 * 256));
   
   float height = ey - sy;
   float width = ex - sx;
