@@ -32,7 +32,12 @@ end
 local last_stack = nil
 local yield_ct = 0
 local GetTime = GetTime
+local yieldable = true
+function QH_Timeslice_Yieldable(is)
+  yieldable = is
+end
 function QH_Timeslice_Yield()
+  if not yieldable then return end
   if coroutine_running then
     -- Check if we've run our alotted time
     yield_ct = yield_ct + 1

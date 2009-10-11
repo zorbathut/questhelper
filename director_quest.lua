@@ -426,6 +426,7 @@ end
 local function StartInsertionPass(id)
   QuestHelper: Assert(not in_pass)
   in_pass = id
+  QH_Timeslice_Yieldable(false)
   for k, v in pairs(InsertedItems) do
     v[id] = nil
     
@@ -504,6 +505,7 @@ local function EndInsertionPass(id)
   end
   while table.remove(Unknowning) do end
   
+  QH_Timeslice_Yieldable(true)
   in_pass = nil
   
   --QH_Tooltip_Defer_Dump()
