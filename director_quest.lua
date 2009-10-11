@@ -426,7 +426,7 @@ end
 local function StartInsertionPass(id)
   QuestHelper: Assert(not in_pass)
   in_pass = id
-  QH_Timeslice_Yieldable(false)
+  QH_Timeslice_PushUnyieldable()
   for k, v in pairs(InsertedItems) do
     v[id] = nil
     
@@ -505,7 +505,7 @@ local function EndInsertionPass(id)
   end
   while table.remove(Unknowning) do end
   
-  QH_Timeslice_Yieldable(true)
+  QH_Timeslice_PopUnyieldable()
   in_pass = nil
   
   --QH_Tooltip_Defer_Dump()
@@ -686,6 +686,7 @@ end
 -- Here's the core update function
 function QH_UpdateQuests(force)
   if not DB_Ready() then return end
+  QH_Timeslice_PushUnyieldable()
 
   if update or force then  -- Sometimes (usually) we don't actually update
     local index = 1
@@ -779,6 +780,8 @@ function QH_UpdateQuests(force)
     
     current_chunks = next_chunks
   end
+  
+  QH_Timeslice_PopUnyieldable()
 end
 
 -- comm_packets[user][qid] = data
