@@ -173,6 +173,8 @@ local function StripBlizzQHTooltipClone(ttp)
   local qobj = nil
   local qobj_name = nil
   
+  local done = QuestHelper:CreateTable("tooltip")
+  
   local linemax
   do
     local line = 2
@@ -199,15 +201,18 @@ local function StripBlizzQHTooltipClone(ttp)
       qobj_name = thistext
       hideme = true
     elseif r == 255 and g == 255 and b == 255 and a == 255 and qobj and thistextm and qobj[thistextm] then
-      local ite = qobj[thistextm][1]
-      QuestHelper: Assert(ite)
-      
-      local ttsplat = thistextm:match("(.*): ([0-9]+)/([0-9]+)")
-      if ttsplat == ttp:GetUnit() then
-        ttsplat = nil
+      if not done[qobj[thistextm]] then
+        done[qobj[thistextm]] = true -- Blizzard, why do you show duplicates of your *own quest objectives*?
+        local ite = qobj[thistextm][1]
+        QuestHelper: Assert(ite)
+        
+        local ttsplat = thistextm:match("(.*): ([0-9]+)/([0-9]+)")
+        if ttsplat == ttp:GetUnit() then
+          ttsplat = nil
+        end
+        DoTooltip(ttp, ite[2], ite[1], ttsplat and QHFormat("TOOLTIP_SLAY", ttsplat))
+        hideme = true
       end
-      DoTooltip(ttp, ite[2], ite[1], ttsplat and QHFormat("TOOLTIP_SLAY", ttsplat))
-      hideme = true
     elseif r == 255 and g == 255 and b == 255 and a == 255 and qobj and thistextm and not qobj[thistextm] and thistextm:find(":") then
       hideme = true -- it parses as an objective, but we don't know about it, so it's probably a completed objective. todo: actually store completed objectives.
     elseif r == 255 and g == 255 and b == 255 and a == 255 and qobj and thistextm and not thistextm:find(":") then  -- Blizzard cleverly does not suppress tooltips when the user has finished getting certain items, so we do instead
@@ -228,6 +233,8 @@ local function StripBlizzQHTooltipClone(ttp)
   if changed then
     ttp:Show()
   end
+  
+  QuestHelper:ReleaseTable(done)
   
   return removed
 end
