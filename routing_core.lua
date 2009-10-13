@@ -1373,7 +1373,7 @@ function QH_Route_Core_SetClusterPriority(clust, new_pri)
   QuestHelper: Assert(clust)
   local clustid = ClusterTableLookup[clust]
   
-  QH_Route_Core_SetClusterPriority_Internal(clustid, new_pri)
+  if clustid then QH_Route_Core_SetClusterPriority_Internal(clustid, new_pri) end
 end
 
 -- Wipe and re-cache all distances.
