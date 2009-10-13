@@ -131,7 +131,7 @@ function QH_redo_flightpath()
     table.insert(imp_flat, k)
     if flightdb[k].mid then
       local fmx = DB_GetItem("monster", flightdb[k].mid, true, true)
-      if fmx.loc then
+      if fmx and fmx.loc then
         flightmasters[k] = QuestHelper:CreateTable("flightmaster cachey")
         for tk, v in pairs(fmx.loc[1]) do
           if not tk:match("__.*") then
@@ -143,7 +143,7 @@ function QH_redo_flightpath()
       else
         --QuestHelper:TextOut(string.format("Missing flightmaster location for node %d/%s", k, tostring(flightdb[k].name)))
       end
-      DB_ReleaseItem(fmx)
+      if fmx then DB_ReleaseItem(fmx) end
     else
       --QuestHelper:TextOut(string.format("Missing flightmaster for node %d/%s", k, tostring(flightdb[k].name)))
     end
