@@ -947,6 +947,12 @@ commands =
     {"BONFIRES",
      "Adds waypoints for the Midsummer Bonfires.",
      {}, QH_AddFires},
+    {"BUCKETS",
+     "Adds waypoints for the Hallow's End Candy Buckets. (Northrend buckets currently not supported)",
+     {{"/qh buckets kalimdor", "Add waypoints for Kalimdor only"},
+     {"/qh buckets ek", "Add waypoints for Eastern Kingdoms only"},
+     {"/qh buckets outland", "Add waypoints for Outland only"},
+     }, QH_AddBuckets},
   }},
 }
 

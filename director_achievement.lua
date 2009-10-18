@@ -114,3 +114,173 @@ function QH_AddFires()
     QH_Route_ClusterAdd(cluster)
   end
 end
+
+
+
+local blarg
+
+local added = {}
+local function QH_AddChunk(targs)
+  
+  if added[targs] then QuestHelper:TextOut("Objectives are already added! If they haven't shown up yet, just be patient, it may take some time. If they have, and you've ignored some, you'll have to logout and logon to reset them. Sorry! It's kind of a work in progress.") return end
+  added[targs] = true
+  
+  if not blarg then QuestHelper:TextOut("Adding bucket objectives! This may take several minutes - please be patient. Bucket objectives will not go away automatically when you finish the quest, you'll have to ignore them manually, and it has no idea which bonfires you've already done. It also may take some time for it to generate a good path, or to respond to ignore requests. This is a very early beta feature and is in no way a finished, polished product :) Enjoy Hallow's End!") blarg = true end
+  
+  local msfires = {desc = targs.name, tracker_desc = targs.name, tracker_split = true}
+  
+  for _, v in ipairs(targs) do
+    local cont, zone = v[4]:match("(.*), (.*)")
+    
+    if not QuestHelper_IndexLookup[cont] then
+      --print("nindex", cont)
+      if not v[1] then fail = true v[1] = 42 end
+    else
+      v[1] = QuestHelper_IndexLookup[cont]
+    end
+    
+    local ec, ez = unpack(QuestHelper_ZoneLookup[v[1]])
+    local c, x, y = QuestHelper.Astrolabe:GetAbsoluteContinentPosition(ec, ez, v[2] / 100, v[3] / 100)
+    local node = {loc = {x = x, y = y, p = v[1], c = QuestHelper_ParentLookup[v[1]]}, why = msfires, map_desc = {v[4]}, tracker_desc = v[4]}
+    local cluster = {node}
+    node.cluster = cluster
+    
+    QH_Route_ClusterAdd(cluster)
+  end
+  
+  assert(not fail)
+end
+
+local fb
+
+if QuestHelper:PlayerFaction() == 1 then 
+  fb = {
+    kalimdor = {
+      {nil, 67, 16, "Darnassus, Craftsmen’s Terrace"},
+      {nil, 56, 60, "Teldrassil, Dolanaar"},
+      {nil, 56, 60, "Bloodmyst Isle, Blood Watch"},
+      {12, 60, 19, "Exodar, Seat of the Naaru"},
+      {nil, 48, 49, "Azuremyst Isle, Azure Watch"},
+      {nil, 37, 44, "Darkshore, Auberdine"},
+      {nil, 61, 39, "Winterspring, Everlook"},
+      {nil, 37, 49, "Ashenvale, Astranaar"},
+      {nil, 35, 7, "Stonetalon Mountains, Stonetalon Peak"},
+      {nil, 66, 7, "Desolace, Nijel's Point"},
+      {11, 62, 39, "Barrens, Ratchet"},
+      {nil, 67, 45, "Dustwallow Marsh, Theramore Isle"},
+      {nil, 42, 74, "Dustwallow Marsh, Mudsprocket"},
+      {nil, 52, 28, "Tanaris, Gadgetzan"},
+      {nil, 52, 39, "Silithus, Cenarion Hold"},
+      {nil, 31, 43, "Feralas, Feathermoon Stronghold"},
+      name = "Kalimdor candy buckets",
+    },
+    ek = {
+      {nil, 75.9, 52.3, "Eastern Plaguelands, Light's Hope"},
+      {42, 14.1, 41.6, "Hinterlands, Aerie Peak"},
+      {nil, 51.1, 58.9, "Hillsbrad Foothills, Southshore"},
+      {nil, 10.8, 60.9, "Wetlands, Menethil Harbor"},
+      {nil, 18.7, 51.5, "Ironforge, The Commons"},
+      {nil, 47.4, 52.4, "Dun Morogh, Kharanos"},
+      {nil, 35.5, 48.5, "Loch Modan, Thelsamar"},
+      {36, 60.5, 75.2, "Stormwind, Trade District"},
+      {nil, 43.7, 66, "Elwynn Forest, Goldshire"},
+      {nil, 27, 45, "Redridge Mountains, Lakeshire"},
+      {nil, 73.9, 44.5, "Duskwood, Darkshire"},
+      {nil, 52.9, 53.6, "Westfall, Sentinel Hill"},
+      {38, 27.1, 77.3, "Stranglethorn, Booty Bay"},
+      name = "Eastern Kingdoms candy buckets",
+    },
+    outland = {
+      {nil, 43.4, 36.1, "Netherstorm, The Stormspire"},
+      {nil, 32.1, 64.5, "Netherstorm, Area 52"},
+      {nil, 62.9, 38.3, "Blade's Edge Mountains, Evergrove"},
+      {nil, 61, 68.1, "Blade's Edge Mountains, Toshley's Station"},
+      {nil, 38.5, 63.8, "Blade's Edge Mountains, Sylvanaar"},
+      {nil, 41.9, 26.2, "Zangarmarsh, Orebor Harborage"},
+      {nil, 67.2, 49, "Zangarmarsh, Telredor"},
+      {nil, 78.5, 62.9, "Zangarmarsh, Cenarion Refuge"},
+      {nil, 23.4, 36.5, "Hellfire Peninsula, Temple of Telhamat"},
+      {nil, 54.3, 63.6, "Hellfire Peninsula, Honor Hold"},
+      {53, 61, 28.2, "(Aldor only) Shadowmoon Valley, Altar of Sha'tar"},
+      {53, 56.3, 59.8, "(Scryers only) Shadowmoon Valley, Sanctum of the Stars"},
+      {nil, 37.1, 58.2, "Shadowmoon Valley, Wildhammer Stronghold"},
+      {nil, 56.6, 53.2, "Terokkar Forest, Allerian Stronghold"},
+      {60, 56.2, 81.8, "(Scryers only) Shattrath City, Scryers Tier"},
+      {60, 28.1, 49, "(Aldor only) Shattrath City, Aldor Rise"},
+      {nil, 54.2, 75.8, "Nagrand, Telaar"},
+      name = "Outland candy buckets",
+    }
+  }
+else
+  fb = {
+    kalimdor = {
+      {nil, 61, 39, "Winterspring, Everlook"},
+      {nil, 74, 60, "Ashenvale, Splintertree Post"},
+      {nil, 54, 69, "Orgrimmar, Valley of Strength"},
+      {nil, 51, 41, "Durotar, Razor Hill"},
+      {nil, 62, 39, "The Barrens, Ratchet"},
+      {nil, 52, 30, "The Barrens, The Crosswoods"},
+      {nil, 47, 62, "Stonetalon Mountains, Sun Rock Retreat"},
+      {nil, 24, 68, "Desolace, Shadowprey Village"},
+      {nil, 45, 64, "Thunder Bluff, Lower Rise"},
+      {nil, 47, 61, "Mulgore, Bloodhoof Village"},
+      {nil, 74, 61, "The Barrens, Camp Taurajo"},
+      {nil, 36, 32, "Dustwallow Marsh, Brackenwall Village"},
+      {nil, 75, 45, "Feralas, Camp Mojache"},
+      {nil, 41, 74, "Dustwallow Marsh, Mudsprocket"},
+      {nil, 46, 51, "Thousand Needles, Freewind Post"},
+      {nil, 52, 28, "Tanaris, Gadgetzan"},
+      {nil, 51, 39, "Silithus, Cenarion Hold"},
+      name = "Kalimdor candy buckets",
+    },
+    ek = {
+      {nil, 48.1, 47.8, "Eversong Woods, Falconwing Square"},
+      {nil, 79.6, 57.8, "Silvermoon City, Royal Exchange"},
+      {nil, 67.7, 73.2, "Silvermoon City, The Bazaar"},
+      {nil, 43.7, 71.1, "Eversong Woods, Fairbreeze Village"},
+      {nil, 48.6, 32, "Ghostlands, Tranquillien"},
+      {34, 75.9, 52.3, "East Plaguelands, Light's Hope"},
+      {nil, 61.8, 52.2, "Tirisfal Glades, Brill"},
+      {nil, 68, 37.3, "Undercity, Trade Quarter"},
+      {nil, 43.2, 41.4, "Silverpine Forest, Sepulcher"},
+      {nil, 62.8, 19, "Hillsbrad Foothills, Tarren Mill"},
+      {24, 78.2, 81.5, "Hinterlands, Revantusk Village"},
+      {nil, 73.9, 32.6, "Arathi Highlands, Hammerfall"},
+      {nil, 2.9, 36, "Badlands, Kargath"},
+      {nil, 45.1, 56.5, "Swamp of Sorrows, Stonard"},
+      {38, 35.1, 29.7, "Stranglethorn, Grom'gol"},
+      {38, 27.1, 77.3, "Stranglethorn, Booty Bay"},
+      name = "Eastern Kingdoms candy buckets",
+    },
+    outland = {
+      {nil, 43.4, 36.1, "Netherstorm, The Stormspire"},
+      {nil, 32.1, 64.5, "Netherstorm, Area 52"},
+      {nil, 76.2, 60.4, "Blade's Edge Mountains, Mok'Nathal Village"},
+      {nil, 62.9, 38.3, "Blade's Edge Mountains, Evergrove"},
+      {nil, 53.4, 55.5, "Blade's Edge Mountains, Thunderlord Stronghold"},
+      {nil, 30.7, 50.9, "Zangarmarsh, Zabra'jin"},
+      {nil, 56.7, 34.6, "Nagrand, Garadar"},
+      {nil, 78.5, 62.9, "Zangarmarsh, Cenarion Refuge"},
+      {nil, 56.8, 37.5, "Hellfire Peninsula, Thrallmar"},
+      {nil, 26.9, 59.6, "Hellfire Peninsula, Falcon Watch"},
+      {60, 28.1, 49, "(Aldor only) Shattrath City, Aldor Rise"},
+      {60, 56.2, 81.8, "(Scryer only) Shattrath City, Scryers Tier"},
+      {nil, 48.8, 45.2, "Terokkar Forest, Stonebreaker Hold"},
+      {nil, 30.3, 27.8, "Shadowmoon Valley, Shadowmoon Village"},
+      {53, 61, 28.2, "(Aldor only) Shadowmoon Valley, Altar of Sha'tar"},
+      {53, 56.3, 59.8, "(Scryer only) Shadowmoon Valley, Sanctum of the Stars"},
+      name = "Outland candy buckets",
+    }
+  }
+end
+  
+function QH_AddBuckets(typ)
+  blarg = false
+  if typ and fb[typ] then
+    QH_AddChunk(fb[typ])
+  else
+    QH_AddChunk(fb.kalimdor)
+    QH_AddChunk(fb.ek)
+    QH_AddChunk(fb.outland)
+  end
+end
