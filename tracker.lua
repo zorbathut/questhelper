@@ -54,11 +54,19 @@ minbutton:Hide()
 minbutton:SetPoint("TOPRIGHT", WatchFrame) -- We default to a different location to make it more likely to display the right item.
 minbutton:SetMovable(true)
 minbutton:SetUserPlaced(true)
-minbutton:SetWidth(10)
-minbutton:SetHeight(5)
+minbutton:SetWidth(32 / 1.6)
+minbutton:SetHeight(32)
 local minbutton_tex = minbutton:CreateTexture()
 minbutton_tex:SetAllPoints()
-minbutton_tex:SetTexture(.8, .8, .8)
+minbutton_tex:SetTexture(.6, .6, .6)
+
+local sigil = minbutton:CreateTexture("BACKGROUND", minbutton_tex)
+sigil:SetHeight(32)
+sigil:SetWidth(32)
+--sigil:SetPoint("CENTER", 0, 0)
+sigil:SetTexture("Interface\\AddOns\\QuestHelper\\sigil")
+sigil:SetPoint("CENTER", minbutton, "CENTER")
+
 
 tracker:SetPoint("CENTER", minbutton)
 
@@ -974,7 +982,7 @@ function tracker:update(delta)
   if inside ~= was_inside then
     was_inside = inside
     if inside then
-      minbutton:SetAlpha(.7)
+      minbutton:SetAlpha(.5)
     elseif not QuestHelper_Pref.track_minimized then
       minbutton:SetAlpha(0)
     end
