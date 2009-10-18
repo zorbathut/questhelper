@@ -1,4 +1,16 @@
 
+== Version 1.1.23 10/18/2009 ==
+
+* Remember how the last version was supposed to have 3.3 compatibility? Yeah well uh
+* 3.3 compatibilty for real this time
+* (crosses fingers)
+* Fix minor display irritation in tooltips
+
+* QuestHelper now has a logo. You'll notice it in tooltips and in the quest tracker. I've done my best to make it noticable but unobtrusive - I've noticed that a lot of people seem to have a hard time distinguishing the line that separates Questhelper and World of Warcraft, and I'm trying to make this line a little more obvious (both for my sake, and for Blizzard's.) Let me know if you've got suggestions for improving either the logo or its placement, or if you //really really really hate it//.
+* Also let me know if you want it on a T-shirt :D
+
+* Support for Hallow's End candy buckets! "/qh buckets". It behaves just like the old Midsummer Fire Festival bonfires did, since it's based on the same code. Performance may suffer while this option is on, as it's nowhere near optimized, it's just a dirty hack. I don't yet have support for Northrend buckets. (Just like Blizzard! ha ha, burrrrrn)
+
 == Version 1.1.22 10/11/2009 ==
 
 * 3.3 compatibility
