@@ -1,14 +1,22 @@
 
+== Version 1.1.22 10/11/2009 ==
+
+* 3.3 compatibility
+* Add a new filter "/qh filter raidaccessible". If the filter is on, and you're in a raid, it will filter out quests that you would be unable to make progress in.
+* By now you should realize that a significant number of QH features exist because I keep screwing things up, so you can probably guess why that feature exists
+* Fix the director_quest.lua crash (I hope)
+* Add debug instrumentation for a few more bugs
+
 == Version 1.1.21 10/5/2009 ==
 
 * Make Cartographer stop breaking Questhelper. At least, breaking it as much.
 * Add support for quest items contained inside containers (alright this mostly exists because I got tired of the Bloated Monsterbelly daily directing me to Dalaran)
-* Make Questhelper stop resetting the chat font on startup. Why did it used to? I do not know. There are nooks of this code that I still do not fully comprehend. If this causes your computer to melt into a small puddle of radioactive slag**, please let me know.
+* Make Questhelper stop resetting the chat font on startup. Why did it used to? I do not know. There are nooks of this code that I still do not fully comprehend. If this causes your computer to melt into a small puddle of radioactive slag{{{**}}}, please let me know.
 * Fix an issue causing the load progress indicator to be displayed despite the user indicating a clear preference that it should not be
 * Initial quest-update will again be reliably included in the progress indicator
 * Stop an annoying flicker when tracking/untracking quests
 
-** Questhelper is not responsible for your computer melting into a small puddle of radioactive slag, nor responsible for proper disposal of the aforementioned slag.
+{{{**}}} Questhelper is not responsible for your computer melting into a small puddle of radioactive slag, nor responsible for proper disposal of the aforementioned slag.
 
 == Version 1.1.20 9/29/2009 ==
 
