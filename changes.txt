@@ -2,7 +2,7 @@
 == Version 1.1.22 10/11/2009 ==
 
 * 3.3 compatibility
-* Add a new filter "/qh raidaccessible". If the filter is on, and you're in a raid, it will filter out quests that you would be unable to make progress in.
+* Add a new filter "/qh filter raidaccessible". If the filter is on, and you're in a raid, it will filter out quests that you would be unable to make progress in.
 * By now you should realize that a significant number of QH features exist because I keep screwing things up, so you can probably guess why that feature exists
 * Fix the director_quest.lua crash (I hope)
 * Add debug instrumentation for a few more bugs
