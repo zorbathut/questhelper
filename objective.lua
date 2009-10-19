@@ -1326,7 +1326,7 @@ function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
   --self:CreateMenuItem(menu, "(No options available)")
   
   if obj.cluster then
-    self:CreateMenuItem(menu, QHText("IGNORE")):SetFunction(function () for _, v in ipairs(obj.cluster) do QH_Route_IgnoreNode(v, UserIgnored) end end)
+    self:CreateMenuItem(menu, QHText("IGNORE")):SetFunction(function () if obj.cluster then for _, v in ipairs(obj.cluster) do QH_Route_IgnoreNode(v, UserIgnored) end end end) -- There is probably a nasty race condition here. I'm not entirely happy about it.
   end
   
   self:CreateMenuItem(menu, QHText("IGNORE_LOCATION")):SetFunction(QH_Route_IgnoreNode, obj, UserIgnored)
