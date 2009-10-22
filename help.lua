@@ -243,6 +243,8 @@ function QuestHelper:Purge(code, force, noreload)
     QuestHelper_Collector = nil
     QuestHelper_Collector_Version = nil
     
+    QuestHelper_Errors = nil -- sigh
+    
     if not noreload then ReloadUI() end
   else
     if not self.purge_code then self.purge_code = self:CreateUID(8) end
@@ -396,6 +398,10 @@ function QuestHelper:Filter(input)
     QuestHelper_Pref.filter_wintergrasp = not QuestHelper_Pref.filter_wintergrasp
     self:TextOut("Filter "..self:HighlightText("wintergrasp").." set to "..self:HighlightText(QuestHelper_Pref.filter_wintergrasp and "active" or "inactive")..".")
     QH_Route_Filter_Rescan("filter_quest_wintergrasp")
+  elseif input == "RAIDACCESSIBLE" or input == "RA" then
+    QuestHelper_Pref.filter_raid_accessible = not QuestHelper_Pref.filter_raid_accessible
+    self:TextOut("Filter "..self:HighlightText("raidaccessible").." set to "..self:HighlightText(QuestHelper_Pref.filter_raid_accessible and "active" or "inactive")..".")
+    QH_Route_Filter_Rescan("filter_quest_raid_accessible")
   elseif input == "" then
     self:TextOut("Filter "..self:HighlightText("zone")..": "..self:HighlightText(QuestHelper_Pref.filter_zone and "active" or "inactive"))
     self:TextOut("Filter "..self:HighlightText("level")..": "..self:HighlightText(QuestHelper_Pref.filter_level and "active" or "inactive"))
@@ -404,8 +410,9 @@ function QuestHelper:Filter(input)
     self:TextOut("Filter "..self:HighlightText("blocked")..": "..self:HighlightText(QuestHelper_Pref.filter_blocked and "active" or "inactive"))
     self:TextOut("Filter "..self:HighlightText("watched")..": "..self:HighlightText(QuestHelper_Pref.filter_watched and "active" or "inactive"))
     self:TextOut("Filter "..self:HighlightText("wintergrasp")..": "..self:HighlightText(QuestHelper_Pref.filter_wintergrasp and "active" or "inactive"))
+    self:TextOut("Filter "..self:HighlightText("raidaccessible")..": "..self:HighlightText(QuestHelper_Pref.filter_raid_accessible and "active" or "inactive"))
   else
-    self:TextOut("Don't know what you want filtered, expect "..self:HighlightText("zone")..", "..self:HighlightText("done")..", "..self:HighlightText("level")..", "..self:HighlightText("group")..", "..self:HighlightText("blocked")..", "..self:HighlightText("watched")..", or "..self:HighlightText("wintergrasp")..".")
+    self:TextOut("Don't know what you want filtered, expect "..self:HighlightText("zone")..", "..self:HighlightText("done")..", "..self:HighlightText("level")..", "..self:HighlightText("group")..", "..self:HighlightText("blocked")..", "..self:HighlightText("watched")..", "..self:HighlightText("wintergrasp")..", or "..self:HighlightText("raidaccessible")..".")
   end
 end
 
@@ -770,6 +777,7 @@ commands =
       {"/qh filter watched", "Toggle limiting to objectives watched in the Quest Log"},
       
       {"/qh filter wintergrasp", "Toggle ignoring of PvP Wintergrasp quest objectives while not in Wintergrasp"},
+      {"/qh filter raidaccessible", "Toggle ignoring non-raid quests when in a raid"},
       }, QuestHelper.Filter, QuestHelper},
     
     {"LEVEL",
@@ -848,6 +856,10 @@ commands =
     {"ZONES",
       "Changes the display of the quest objective zones on the main map.",
       {}, QuestHelper.SetZones, QuestHelper},
+    
+    {"MINIOPACITY",
+     "Set the opacity of icons on the minimap.",
+      {}, QuestHelper.genericSetScale, QuestHelper, "mini_opacity", "minimap icon opacity", .1, 1.0},
     
     {"LOCALE",
      "Select the locale to use for displayed messages.",
@@ -935,6 +947,12 @@ commands =
     {"BONFIRES",
      "Adds waypoints for the Midsummer Bonfires.",
      {}, QH_AddFires},
+    {"BUCKETS",
+     "Adds waypoints for the Hallow's End Candy Buckets. (Northrend buckets currently not supported)",
+     {{"/qh buckets kalimdor", "Add waypoints for Kalimdor only"},
+     {"/qh buckets ek", "Add waypoints for Eastern Kingdoms only"},
+     {"/qh buckets outland", "Add waypoints for Outland only"},
+     }, QH_AddBuckets},
   }},
 }
 

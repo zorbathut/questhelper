@@ -8,12 +8,11 @@ QuestHelper_Translations.noNO =
   -- Messages used when starting.
   LOCALE_ERROR = "Språket i dine lagrede data passer ikke til språket på din WoW klient. For å bruke QuestHelper må du enten skifte språk, eller slette alle data ved å skrive %h(/qh purge)",
   ZONE_LAYOUT_ERROR = "QuestHelper nekter å starte, i frykt for å ødelegge lagret data. Vennligst vent på en oppdatering som støtter den nye sone layouten.",
-  DOWNGRADE_ERROR = "Dine lagrede data er ikke kompatible med denne versjonen av QuestHelper. Oppdatér til en nyere versjon, eller slett dine lagrede variabler.",
   HOME_NOT_KNOWN = "Ditt hjem er ikke kjent. Når du har mulighet, prat med en innkeeper og tilbakestill det.",
   PRIVATE_SERVER = "QuestHelper støtter ikke private servere.",
   PLEASE_RESTART = "QuestHelper feilet ved oppstart. Vennligst lukk World of Warcraft helt og prøv igjen.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper ble installert feil. Vi anbefaler enten Curse Client eller 7zip for installasjon. Sjekk at undermapper er pakket ut.",
-  PLEASE_DONATE = "%h (Questhelper overlever på dine donasjoner!) Alt du kan bidra med blir satt stor pris på, og bare ett par dollar i måneden vil være med og sikre att jeg forsetter og jobbe med oppdateringer. Skriv %h (/qh donate) for mer informasjon.",
+  PLEASE_SUBMIT = nil,
   HOW_TO_CONFIGURE = "QuestHelper har ikke noen fungerende innstillinger, men kan konfigureres ved å skrive %h(/qh settings). Hjelp er tilgjengelig med %h(/qh help).",
   TIME_TO_UPDATE = "Det kan være en %h(ny QuestHelper versjon) tilgjengelig. Nye versjoner inkludere som regel nye tillegg, nye quest databaser, og feilrettinger. Vennligst oppdater!",
   
@@ -51,7 +50,7 @@ QuestHelper_Translations.noNO =
   OBJECTIVE_MONSTER_UNKNOWN = "ukjent monster",
   OBJECTIVE_ITEM_UNKNOWN = "ukjent gjennstand",
   
-  ZONE_BORDER = "%1/%2 grense",
+  ZONE_BORDER_SIMPLE = nil,
   
   -- Stuff used in objective menus.
   PRIORITY = "Prioritet",
@@ -105,12 +104,12 @@ QuestHelper_Translations.noNO =
   DEPENDS_ON_COUNT = "Kommer an på %1 skjulte oppdrag.",
   DEPENDS_ON = "Avhænger av filtrert mål",
   FILTERED_LEVEL = "Filtrért grunnet nivå.",
-  FILTERED_GROUP = nil,
+  FILTERED_GROUP = "Filtrért grunnet gruppe størrelse.",
   FILTERED_ZONE = "Filtrért grunnet Sone.",
   FILTERED_COMPLETE = "Filtrért grunnet utført quest.",
   FILTERED_BLOCKED = "Filtrért grunnet tidligere uferdige objektiver",
   FILTERED_UNWATCHED = "Filtrért grunnet quest ikke blir fulgt i Oppdragslogg",
-  FILTERED_WINTERGRASP = nil,
+  FILTERED_WINTERGRASP = "Filtrért da det er ett PVP Wintergrasp oppdrag.",
   FILTERED_USER = "Du ba om å gjemme dette objektivet.",
   FILTERED_UNKNOWN = "Vet ikke hvordan det utføres.",
   

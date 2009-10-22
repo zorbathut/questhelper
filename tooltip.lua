@@ -5,8 +5,10 @@ if QuestHelper_File["tooltip.lua"] == "Development Version" then
   qh_hackery_nosuppress = true
 end
 
+
+
 local function DoTooltip(self, data, lines, prefix)
-  local indent = 1
+  local indent = 2
   
   if prefix then
     self:AddLine(("  "):rep(indent) .. prefix, 1, 1, 1)
@@ -24,8 +26,8 @@ local function DoTooltip(self, data, lines, prefix)
 end
 
 local function DoTooltipDefault(self, qname, text)
-  self:AddLine("  " .. QHFormat("TOOLTIP_SLAY", text), 1, 1, 1)
-  self:AddLine("    " .. QHFormat("TOOLTIP_QUEST", qname), 1, 1, 1)
+  self:AddLine("    " .. QHFormat("TOOLTIP_SLAY", text), 1, 1, 1)
+  self:AddLine("      " .. QHFormat("TOOLTIP_QUEST", qname), 1, 1, 1)
 end
 
 local ctts = {}
@@ -142,7 +144,11 @@ local function GetMonsterType(guid)
   QuestHelper: Assert(#guid == 18, "guid len " .. guid) -- 64 bits, plus the 0x prefix
   QuestHelper: Assert(guid:sub(1, 2) == "0x", "guid 0x-prefix " .. guid)
   QuestHelper: Assert(guid:sub(5, 5) == "3" or guid:sub(5, 5) == "5", "guid 3-prefix " .. guid)  -- It *shouldn't* be a player or a pet by the time we've gotten here. If so, something's gone wrong.
-  return tonumber(guid:sub(9, 12), 16)  -- here's our actual identifier
+  if GetBuildInfo():sub(1, 3) == "3.2" then
+    return tonumber(guid:sub(9, 12), 16)  -- here's our actual identifier
+  else
+    return tonumber(guid:sub(7, 10), 16)  -- 3.3 and in the future, including 0.3.0
+  end
 end
 
 local function GetItemType(link, vague)
@@ -162,6 +168,15 @@ local function CopyOver(to, from)
   to:Show()
 end
 
+local sigil = GameTooltip:CreateTexture("BACKGROUND")
+sigil:SetHeight(32)
+sigil:SetWidth(32)
+--sigil:SetPoint("CENTER", 0, 0)
+sigil:SetTexture("Interface\\AddOns\\QuestHelper\\sigil")
+sigil:Hide()
+local sigil_text
+local sigil_item
+
 local function StripBlizzQHTooltipClone(ttp)
   --do return end
   if not UnitExists("mouseover") then return end
@@ -172,6 +187,8 @@ local function StripBlizzQHTooltipClone(ttp)
   
   local qobj = nil
   local qobj_name = nil
+  
+  local done = QuestHelper:CreateTable("tooltip")
   
   local linemax
   do
@@ -199,15 +216,20 @@ local function StripBlizzQHTooltipClone(ttp)
       qobj_name = thistext
       hideme = true
     elseif r == 255 and g == 255 and b == 255 and a == 255 and qobj and thistextm and qobj[thistextm] then
-      local ite = qobj[thistextm][1]
-      QuestHelper: Assert(ite)
-      
-      local ttsplat = thistextm:match("(.*): ([0-9]+)/([0-9]+)")
-      if ttsplat == ttp:GetUnit() then
-        ttsplat = nil
+      if not done[qobj[thistextm]] then
+        done[qobj[thistextm]] = true -- Blizzard, why do you show duplicates of your *own quest objectives*?
+        local ite = qobj[thistextm][1]
+        QuestHelper: Assert(ite)
+        
+        local ttsplat = thistextm:match("(.*): ([0-9]+)/([0-9]+)")
+        if ttsplat == ttp:GetUnit() then
+          ttsplat = nil
+        end
+        DoTooltip(ttp, ite[2], ite[1], ttsplat and QHFormat("TOOLTIP_SLAY", ttsplat))
+        hideme = true
       end
-      DoTooltip(ttp, ite[2], ite[1], ttsplat and QHFormat("TOOLTIP_SLAY", ttsplat))
-      hideme = true
+    elseif r == 255 and g == 255 and b == 255 and a == 255 and qobj and thistextm and not qobj[thistextm] and thistextm:find(":") then
+      hideme = true -- it parses as an objective, but we don't know about it, so it's probably a completed objective. todo: actually store completed objectives.
     elseif r == 255 and g == 255 and b == 255 and a == 255 and qobj and thistextm and not thistextm:find(":") then  -- Blizzard cleverly does not suppress tooltips when the user has finished getting certain items, so we do instead
       DoTooltipDefault(ttp, qobj_name, thistextm)
       hideme = true
@@ -222,10 +244,22 @@ local function StripBlizzQHTooltipClone(ttp)
       removed = removed + 1
     end
   end
-    
+  
   if changed then
     ttp:Show()
   end
+  
+  local qhstart = linemax + 1
+  if _G["GameTooltipTextLeft" .. qhstart] and _G["GameTooltipTextLeft" .. qhstart]:IsShown() then
+    sigil_item = _G["GameTooltipTextLeft" .. qhstart]
+    sigil_text = sigil_item:GetText()
+    sigil:SetPoint("TOP", sigil_item, "TOP", 0, 3)
+    sigil:SetPoint("LEFT", GameTooltip, "LEFT")
+    sigil:Show()
+  end
+
+  
+  QuestHelper:ReleaseTable(done)
   
   return removed
 end
@@ -289,7 +323,12 @@ QH_AddNotifier(GetTime() + 5, function ()
 
   local ttsx = GameTooltip:GetScript("OnUpdate")
   QH_Hook(GameTooltip, "OnUpdate", function (self, ...)
-    if ttsx then return QH_Hook_NotMyFault(ttsx, self, ...) end
+    if sigil:IsShown() then
+      if not (sigil_item:IsShown() and sigil_item:GetText() == sigil_text) then
+        sigil:Hide()
+      end
+    end
+    if ttsx then QH_Hook_NotMyFault(ttsx, self, ...) end
     if glob_strip and unit_to_adjust and unit_to_adjust == self:GetUnit() then
       self:SetHeight(self:GetHeight() - glob_strip * 3) -- maaaaaagic
       unit_to_adjust = nil

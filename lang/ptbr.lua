@@ -7,13 +7,12 @@ QuestHelper_Translations.ptBR =
   
   -- Messages used when starting.
   LOCALE_ERROR = "O idioma que você salvou seus dados não são compatíveis com o idioma do seu cliente do WoW. Para usar o QuestHelper você precisará voltar o idioma, ou deletar os dados digitando %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Eu estou me recusando a rodar, com medo de corromper seus dados salvos. Por favor, espere por uma atualizações que será capaz de lidar com o layout da nova zona.",
-  DOWNGRADE_ERROR = "Os seus dados gravados não são compatíveis com está versão do QuestHelper. Use uma nova versão, ou apague as suas variáveis gravadas.",
+  ZONE_LAYOUT_ERROR = "Sua versão do QuestHelper está desatualizada, e você terá que atualizar em http://www.quest-helper.com para que ela continue a funcionar. Você está usando atualmente a versão %1.",
   HOME_NOT_KNOWN = "Sua casa é desconhecida. Quando tiver uma chance, por favor, fale com um dono de taberna e resete-a.",
   PRIVATE_SERVER = "QuestHelper não suporta servidores privados.",
   PLEASE_RESTART = "Ocorreu um erro ao iniciar o QuestHelper. Por favor feche completamente o World of Warcraft e tente de novo.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper foi instalado incorretamente. Recomendamos que use o Curse Cliente ou 7zip para instalar. Verifica se as subpastas foram extraidas.",
-  PLEASE_DONATE = "%h (QuestHelper sobrevive das suas donações!) Qualquer contribuição será apreciada, bastaré alguns dolares por mês para que eu me mantenha a trabalhar. Digite %h(/qh donate) para mais informações.",
+  PLEASE_SUBMIT = "%h(QuestHelper precisa da sua ajuda!) Se você possui alguns minutos, por favor vá a página do QuestHelper em %h(http:http://www.quest-helper.com) e siga as instruções para submeter os dados coletados. Os seus dados mantém o QuestHelper correto e atualizado.",
   HOW_TO_CONFIGURE = "O QuestHelper ainda não tem uma página de configurações funcionando, mas pode ser configurado digitando %h (/qh settings). A ajuda está disponível através de %h(/qh help). ",
   TIME_TO_UPDATE = "Pode haver uma %h disponível. Novas versões normalmente incluem novas características, novo banco de dados de quest, e erros concertados. Por favor, atualize!",
   
@@ -27,7 +26,7 @@ QuestHelper_Translations.ptBR =
   
   -- Special tracker text
   QH_LOADING = "QuestHelper está carregando (%1%%)...",
-  QH_FLIGHTPATH = "Recalculando pontos de vouo",
+  QH_FLIGHTPATH = "Recalculando pontos de vôo",
   QUESTS_HIDDEN_1 = "Quests podem estar escondida.",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" para listar(quests escondidas)",
   
@@ -49,9 +48,9 @@ QuestHelper_Translations.ptBR =
   OBJECTIVE_LOOT = "Loot %1.",
   
   OBJECTIVE_MONSTER_UNKNOWN = "Monstro Desconhecido",
-  OBJECTIVE_ITEM_UNKNOWN = "Item Desconhecido",
+  OBJECTIVE_ITEM_UNKNOWN = "Item desconhecido",
   
-  ZONE_BORDER = "Borda %1/%2",
+  ZONE_BORDER_SIMPLE = "%1 borda",
   
   -- Stuff used in objective menus.
   PRIORITY = "Prioridade",
@@ -105,12 +104,12 @@ QuestHelper_Translations.ptBR =
   DEPENDS_ON_COUNT = "Depende de %1 objetivos ocultos.",
   DEPENDS_ON = "Depende de objetos filtrados",
   FILTERED_LEVEL = "Filtrado por causa do nível.",
-  FILTERED_GROUP = nil,
+  FILTERED_GROUP = "Filtrado graças ao tamanho do grupo.",
   FILTERED_ZONE = "Filtrado por causa da zona.",
   FILTERED_COMPLETE = "Filtrado porque está completo.",
   FILTERED_BLOCKED = "Filtrado por causa de um objetivo anterior incompleto",
   FILTERED_UNWATCHED = "Filtrado por não ter sido Roteado no Quest Log ",
-  FILTERED_WINTERGRASP = nil,
+  FILTERED_WINTERGRASP = "Filtrado por ser uma quest de PvP em Wintergrasp.",
   FILTERED_USER = "Você requisitou que esse objetivo fosse escondido.",
   FILTERED_UNKNOWN = "Não sei como completar.",
   
@@ -159,7 +158,7 @@ QuestHelper_Translations.ptBR =
   TRAVEL_ESTIMATE = "Tempo de vôo estimado:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Visite %h1 para a rota até:",
-  FLIGHT_POINT = "Ponto de vouo",
+  FLIGHT_POINT = "Ponto de vôo",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",

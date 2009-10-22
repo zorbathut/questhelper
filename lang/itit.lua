@@ -7,15 +7,14 @@ QuestHelper_Translations.itIT =
   
   -- Messages used when starting.
   LOCALE_ERROR = "La lingua dei tuoi dati salvati non corrisponde alla lingua del tuo client WoW. Per usare QuestHelper dovrai cambiare nuovamente la lingua, o cancellare i dati col comando %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Mi rifiuto di funzionare, c'è il rischio di corrompere i tuoi dati salvati. Per favore, aspetta una patch che potrà occuparsi del nuovo layout della zona.",
-  DOWNGRADE_ERROR = "I dati salvati non sono compatibili con quest versione di QuestHelper. Usa una versione nuova, o cancella le variabili salvate.",
+  ZONE_LAYOUT_ERROR = "La tua versione di QuestHelper è vecchia, dovrai fare l'update in http://www.quest-helper.com per fare che il programma continui a funzionare. Attualmente stai usando la versione %1",
   HOME_NOT_KNOWN = "La tua località base è sconosciuta. Appena puoi, parla con un locandiere per reimpostarla.",
   PRIVATE_SERVER = "QuestHelper non sopporta i server privati.",
-  PLEASE_RESTART = "C'è stato un errore con la partenza di QuestHelper. Consigliamo di uscire da World of Warcraft totalmente e di riprovare.",
+  PLEASE_RESTART = "C'è stato un errore con l'avvio di QuestHelper. E' consigliabile chiudere World of Warcraft e riprovare.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper non è installato corretamente. Raccomandiamo di usare Curse Client o 7zip per installarlo. Assicurati che le sottodirectory sono esatte.",
-  PLEASE_DONATE = "%(QuestHelper è implementato dalle vostre donazioni!) In qualunque modo voi contribuiate è apprezzato, e poche donazioni al mese rendono possibile aggiornare il nostro lavoro. Scrivete %h (/qh donate) per maggiori informazioni ",
+  PLEASE_SUBMIT = "%h (QuestHelper ha bisogno del tuo aiuto!) Se hai qualche minuti, per favore va sul sito di QuestHelper all'indirizzo %h(http://www.quest-helper.com) e segui le istruzioni per inviare i dati da te raccolti. Questi dati permettono a QuestHelper di mantenere dati aggiornati e corretti sulle quest. Grazie!",
   HOW_TO_CONFIGURE = "QuestHelper non è stato ancora settato,ma puo essere configurato scrivendo %h(/qh settings). L'aiuto è disponibile scrivendo %h(/qh help) ",
-  TIME_TO_UPDATE = "Potrebbe esserci una %h(nuova versione di QuestHelper) disponibile. Le nuove versioni di solito includono nuove funzioni, novi database delle quest, e fix dei bug. Perfavore aggiorna la tua versione!",
+  TIME_TO_UPDATE = "Potrebbe esserci una %h(nuova versione di QuestHelper) disponibile. Le nuove versioni di solito includono nuove funzioni, nuovi database delle quest, e fix dei bug. Per favore aggiorna la versione di QuestHelper in uso!",
   
   -- Route related text.
   ROUTES_CHANGED = "I percorsi di volo del tuo personaggio sono stati modificati.",
@@ -26,8 +25,8 @@ QuestHelper_Translations.itIT =
   UPDATING_ROUTE = "Sto aggiornando il percorso.",
   
   -- Special tracker text
-  QH_LOADING = "QuestHelper si sta caricando (%1%%)...",
-  QH_FLIGHTPATH = nil,
+  QH_LOADING = "QuestHelper si sta avviando (%1%%)...",
+  QH_FLIGHTPATH = "Ricalcolo dei punti di volo (%1%)",
   QUESTS_HIDDEN_1 = "Le Quest potrebbero essere nascoste",
   QUESTS_HIDDEN_2 = "(scrivi \"/qh hidden\" per una lista)",
   
@@ -42,16 +41,16 @@ QuestHelper_Translations.itIT =
   
   OBJECTIVE_REASON = "%1 %h2 per la quest %h3", -- %1 is a verb, %2 is a noun (item or monster)
   OBJECTIVE_REASON_FALLBACK = "%h1 per la quest %h2.",
-  OBJECTIVE_REASON_TURNIN = "Svolta nella quest %h1.",
+  OBJECTIVE_REASON_TURNIN = "Consegna la quest %h1.",
   OBJECTIVE_PURCHASE = "Compra da %h1.",
   OBJECTIVE_TALK = "Parla con %h1.",
   OBJECTIVE_SLAY = "Uccidi %h1.",
-  OBJECTIVE_LOOT = "Saccheggia %h1.",
+  OBJECTIVE_LOOT = "Raccogli %h1.",
   
   OBJECTIVE_MONSTER_UNKNOWN = "Mostro sconosciuto",
   OBJECTIVE_ITEM_UNKNOWN = "Item sconosciuto",
   
-  ZONE_BORDER = "Confine tra %1 e %2",
+  ZONE_BORDER_SIMPLE = "%1 frontiera",
   
   -- Stuff used in objective menus.
   PRIORITY = "Priorità",
@@ -76,7 +75,7 @@ QuestHelper_Translations.itIT =
   CREATED_OBJ = "Creato: %1",
   REMOVED_OBJ = "Rimosso: %1",
   USER_OBJ = "Obiettivo personalizzato: %h1",
-  UNKNOWN_OBJ = "Non so dove dovresti andare per quell'obiettivo.",
+  UNKNOWN_OBJ = "Non so dove dovresti andare per quest'obiettivo.",
   INACCESSIBLE_OBJ = "QuestHelper è inabilitato a trovare una locazione utile per %h1. Abbiamo aggiunto una locazione impossibile da trovare. Se riesci a trovare questo obbiettivo,ti preghiamo di inviarci i tuoi dati! (%h(/qh submit))",
   
   SEARCHING_STATE = "Ricerca: %1",
@@ -88,7 +87,7 @@ QuestHelper_Translations.itIT =
   SEARCHING_DONE = "Fatto!",
   
   -- Shared objectives.
-  PEER_TURNIN = "Aspetta che %h1 continui %h2",
+  PEER_TURNIN = "Attendere %h1 per consegnare %h2.",
   PEER_LOCATION = "Aiuta %h1 a raggiungere un sito in %h2.",
   PEER_ITEM = "Aiuta %h1 a procurarsi %h2.",
   PEER_OTHER = "Aiuta %1 con %h2",
@@ -103,14 +102,14 @@ QuestHelper_Translations.itIT =
   HIDDEN_NONE = "Non ci sono obiettivi nascosti.",
   DEPENDS_ON_SINGLE = "Dipende da '%1'",
   DEPENDS_ON_COUNT = "Dipende da %1 obiettivi nascosti.",
-  DEPENDS_ON = nil,
+  DEPENDS_ON = "Dipende da un obiettivo filtrato",
   FILTERED_LEVEL = "Nascosto per il livello.",
-  FILTERED_GROUP = nil,
-  FILTERED_ZONE = "Filtrato per la zona",
-  FILTERED_COMPLETE = "Nascosto per il completamento",
+  FILTERED_GROUP = "Filtrato a causa della dimensione del gruppo",
+  FILTERED_ZONE = "Nascosto per la zona",
+  FILTERED_COMPLETE = "Nascosto dato che è stato completato",
   FILTERED_BLOCKED = "Nascosto per un obiettivo precedente incompleto",
   FILTERED_UNWATCHED = "Filtrato per non essere Mostrato nel Quest Log",
-  FILTERED_WINTERGRASP = nil,
+  FILTERED_WINTERGRASP = "Nascosto in quanto fare parte di una quest PvP di Wintergrasp",
   FILTERED_USER = "Hai richiesto che questo obiettivo venga nascosto.",
   FILTERED_UNKNOWN = "Non so come completare.",
   
@@ -122,13 +121,13 @@ QuestHelper_Translations.itIT =
   FILTER_ZONE = "zona",
   FILTER_LEVEL = "livello",
   FILTER_BLOCKED = "bloccato",
-  FILTER_WATCHED = nil,
+  FILTER_WATCHED = "seguito",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Hai %h(nuove informazioni) su %h1, e %h(informazioni aggiornate) su %h2.",
   NAG_SINGLE_NEW = "Hai %h(nuove informazioni) su %h1.",
   NAG_ADDITIONAL = "Hai %h(informazioni aggiuntive) su %h1.",
-  NAG_POLLUTED = "Il tuo database è stato \"corrotto\" da informazioni provenienti da un server test o privato,e saranno ripulite al ravvio.",
+  NAG_POLLUTED = "Il tuo database è stato corrotto da informazioni provenienti da un server test o privato e saranno eliminate al prossimo avvio.",
   
   NAG_NOT_NEW = "Non hai nessuna informazione che non sia già nel database statico.",
   NAG_NEW = "Potresti prendere in considerazione la possibilità di condividere i tuoi dati così da permettere agli altri di beneficiarne.",
@@ -158,8 +157,8 @@ QuestHelper_Translations.itIT =
   PEER_PROGRESS = "Progresso di %1:",
   TRAVEL_ESTIMATE = "Tempo di viaggio stimato:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
-  WAYPOINT_REASON = "Visita %h1 sul percorso per:",
-  FLIGHT_POINT = nil,
+  WAYPOINT_REASON = "Visita %h1 nel percorso per:",
+  FLIGHT_POINT = "%1 punto di volo",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -208,7 +207,7 @@ QuestHelper_Translations.itIT =
   TOOLTIP_QUEST = "Per la quest %h1.",
   TOOLTIP_PURCHASE = "Compra %h1.",
   TOOLTIP_SLAY = "Uccidi per %h1",
-  TOOLTIP_LOOT = "Saccheggia in cerc di %h1.",
+  TOOLTIP_LOOT = "Raccogli per %h1.",
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "Sarà utilizzata %h1 per visualizzare gli obiettivi",
@@ -216,21 +215,21 @@ QuestHelper_Translations.itIT =
   SETTINGS_ARROWLINK_ARROW = "Freccia di QuestHelper",
   SETTINGS_ARROWLINK_CART = "Waypoints di Cartographer",
   SETTINGS_ARROWLINK_TOMTOM = "TomTom",
-  SETTINGS_PRECACHE_ON = nil,
-  SETTINGS_PRECACHE_OFF = nil,
+  SETTINGS_PRECACHE_ON = "La Precache è stata %h(enabled).",
+  SETTINGS_PRECACHE_OFF = "La Precache è stata %h(disabled).",
   
   SETTINGS_MENU_ENABLE = "Abilita",
   SETTINGS_MENU_DISABLE = "Disabilita",
-  SETTINGS_MENU_CARTWP = nil,
-  SETTINGS_MENU_TOMTOM = nil,
+  SETTINGS_MENU_CARTWP = "%1 Freccia di Cartographer",
+  SETTINGS_MENU_TOMTOM = "%1 Freccia di TomTom",
   
   SETTINGS_MENU_ARROW_LOCK = "Blocca",
-  SETTINGS_MENU_ARROW_ARROWSCALE = nil,
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Scala della freccia",
   SETTINGS_MENU_ARROW_TEXTSCALE = "Scala testo",
   SETTINGS_MENU_ARROW_RESET = "Resetta",
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 yards",
-  DISTANCE_METRES = nil
+  DISTANCE_METRES = "%h1 metri"
  }
 

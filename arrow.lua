@@ -366,10 +366,16 @@ local function WayFrame_OnClick(self, button)
   
   QH_Arrow_PopulateMenu(menu)
   
+  local submenu = QuestHelper:CreateMenu()
+  item = QuestHelper:CreateMenuItem(menu, "Objective")
+  item:SetSubmenu(submenu)
+  QH_Append_NextObjective(submenu)
+  
   menu:ShowAtCursor()
 end
 
 wayframe:RegisterForClicks("RightButtonUp")
+wayframe:SetScript("OnClick", WayFrame_OnClick)
 
 QH_OnUpdate(OnUpdate)
 

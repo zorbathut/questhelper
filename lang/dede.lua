@@ -7,19 +7,18 @@ QuestHelper_Translations.deDE =
   
   -- Messages used when starting.
   LOCALE_ERROR = "Die Sprache deiner gespeicherten Daten stimmt nicht mit der Sprache deines WoW-Clients überein. Du musst die Sprache umstellen oder die Daten mit %h(/qh purge) löschen, um QuestHelper zu verwenden.",
-  ZONE_LAYOUT_ERROR = "Das Addon wird nicht ausgeführt, um deine gespeicherten Daten nicht zu beschädigen. Warte auf einen Patch, der in der Lage ist, das neue Zonenlayout zu verarbeiten.",
-  DOWNGRADE_ERROR = "Deine gespeicherten Daten sind nicht mit dieser Version von QuestHelper kompatibel. Verwende eine neue Version oder lösche deine gespeicherten Variablen.",
+  ZONE_LAYOUT_ERROR = "Das Addon wird nicht ausgeführt, um deine gespeicherten Daten nicht zu beschädigen. Warte auf einen Patch, der in der Lage ist, das neue Zonenlayout zu verarbeiten!",
   HOME_NOT_KNOWN = "Dein Heimatort ist nicht bekannt. Sprich bei der nächsten Gelegenheit mit einem Gastwirt, um ihn neu zu setzen.",
   PRIVATE_SERVER = "QuestHelper unterstützt keine privaten Server.",
   PLEASE_RESTART = "Beim Starten von QuestHelper ist ein Fehler aufgetreten. Beende World of Warcraft vollständig und versuche es erneut.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper wurde nicht ordnungsgemäß installiert. Wir empfehlen den Curse-Client oder 7zip für die Installation. Achte darauf, dass Unterverzeichnisse entpackt werden.",
-  PLEASE_DONATE = "%h(QuestHelper lebt nur von Spenden!) Jeder Beitrag ist willkommen. Ein paar Dollar im Monat stellen sicher, dass ich am Addon arbeite und es aktualisiere. Gib %h(/qh donate) ein, um weitere Informationen zu erhalten.",
-  HOW_TO_CONFIGURE = "QuestHelper hat noch keine funktionierende Einstellungsseite. Du kannst es konfigurieren, indem du %h(/qh settings) eingibst. Mit %h(/qh help) rufst du die Hilfe auf.",
+  PLEASE_SUBMIT = "%h (QuestHelper braucht deine Unterstützung!) Wenn du ein paar Minuten Zeit hast, geh' bitte auf die QuestHelper-Homepage %h(http://www.quest-helper.com) und führe die Anweisungen aus, um deine gesammelten Daten zu übermitteln. Deine Daten halten QuestHelper auf dem aktuellen Stand. Vielen Dank!",
+  HOW_TO_CONFIGURE = "QuestHelper hat noch keine funktionierende Einstellungsseite. Du kannst dies konfigurieren, indem du %h(/qh settings) eingibst. Mit %h(/qh help) rufst du die Hilfe auf.",
   TIME_TO_UPDATE = "Möglicherweise ist eine %h(neue QuestHelper-Version) verfügbar. Neue Versionen umfassen gewöhnlich neue Funktionen, neue Questdatenbanken und Bugfixes. Du solltest ein Update durchführen!",
   
   -- Route related text.
   ROUTES_CHANGED = "Die Flugstrecken für deinen Charakter wurden verändert.",
-  HOME_CHANGED = "Dein Zuhause wurde geändert.",
+  HOME_CHANGED = "Dein Heimatort wurde geändert.",
   TALK_TO_FLIGHT_MASTER = "Sprich mit dem örtlichen Flugmeister.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Danke.",
   WILL_RESET_PATH = "Informationen zur Wegfindung werden zurückgesetzt.",
@@ -51,7 +50,7 @@ QuestHelper_Translations.deDE =
   OBJECTIVE_MONSTER_UNKNOWN = "unbekanntes Monster",
   OBJECTIVE_ITEM_UNKNOWN = "unbekanntes Objekt",
   
-  ZONE_BORDER = "Grenze %1/%2",
+  ZONE_BORDER_SIMPLE = nil,
   
   -- Stuff used in objective menus.
   PRIORITY = "Priorität",
@@ -60,8 +59,8 @@ QuestHelper_Translations.deDE =
   PRIORITY3 = "Normal",
   PRIORITY4 = "Niedrig",
   PRIORITY5 = "Am niedrigsten",
-  SHARING = "teilen",
-  SHARING_ENABLE = "teilen",
+  SHARING = "Teilen",
+  SHARING_ENABLE = "Teilen",
   SHARING_DISABLE = "Nicht teilen",
   IGNORE = "Ignorieren",
   IGNORE_LOCATION = "Diesen Ort ignorieren",
@@ -109,8 +108,8 @@ QuestHelper_Translations.deDE =
   FILTERED_ZONE = "Wegen des Gebiets gefiltert.",
   FILTERED_COMPLETE = "Gefiltert, weil abgeschlossen.",
   FILTERED_BLOCKED = "Wegen nicht abgeschlossenem vorherigen Ziel gefiltert.",
-  FILTERED_UNWATCHED = "Wird nicht im Quest-Log verfolgt und wurde deshalb gefiltert.",
-  FILTERED_WINTERGRASP = "Gefiltert durch ein PvP Wintergrasp Quest.",
+  FILTERED_UNWATCHED = "Wird nicht im Questprotokoll verfolgt und wurde deshalb gefiltert.",
+  FILTERED_WINTERGRASP = "Gefiltert, weil Tausendwinter-PvP-Quest.",
   FILTERED_USER = "Du hast dieses Ziel ausgeblendet.",
   FILTERED_UNKNOWN = "Der Lösungsweg ist unbekannt.",
   
@@ -144,15 +143,15 @@ QuestHelper_Translations.deDE =
   NAG_SINGLE_REPUTATION_OBJ = "einem Rufziel",
   NAG_SINGLE_PLAYER_OBJ = "einem Spielerziel",
   
-  NAG_MULTIPLE_FP = "%1 Flugmeistern",
-  NAG_MULTIPLE_QUEST = "%1 Quests",
+  NAG_MULTIPLE_FP = "%1 Flugmeister",
+  NAG_MULTIPLE_QUEST = "%1 Queste",
   NAG_MULTIPLE_ROUTE = "%1 Flugstrecken",
   NAG_MULTIPLE_ITEM_OBJ = "%1 Gegenstandszielen",
-  NAG_MULTIPLE_OBJECT_OBJ = "%1 Objektzielen",
-  NAG_MULTIPLE_MONSTER_OBJ = "%1 Monsterzielen",
+  NAG_MULTIPLE_OBJECT_OBJ = "%1 Objektziele",
+  NAG_MULTIPLE_MONSTER_OBJ = "%1 Monsterziele",
   NAG_MULTIPLE_EVENT_OBJ = "%1 Ereigniszielen",
-  NAG_MULTIPLE_REPUTATION_OBJ = "%1 Rufzielen",
-  NAG_MULTIPLE_PLAYER_OBJ = "%1 Spielerzielen",
+  NAG_MULTIPLE_REPUTATION_OBJ = "%1 Rufziele",
+  NAG_MULTIPLE_PLAYER_OBJ = "%1 Spielerziele",
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1's Fortschritte:",

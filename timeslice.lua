@@ -31,7 +31,17 @@ end
 
 local last_stack = nil
 local yield_ct = 0
+local GetTime = GetTime
+local unyieldable = 0
+function QH_Timeslice_PushUnyieldable()
+  unyieldable = unyieldable + 1
+end
+function QH_Timeslice_PopUnyieldable()
+  unyieldable = unyieldable - 1
+  QuestHelper: Assert(unyieldable >= 0)
+end
 function QH_Timeslice_Yield()
+  if unyieldable > 0 then return end
   if coroutine_running then
     -- Check if we've run our alotted time
     yield_ct = yield_ct + 1
@@ -57,6 +67,7 @@ function QH_Timeslice_Bonus(quantity)
 end
 
 local prioritize = {
+  preinit = {101},
   init = {100},
   criteria = {10},
   lzw = {-5},
@@ -115,6 +126,8 @@ local total_used = 0
 
 function QH_Timeslice_Work(time_used, time_this_frame, bonus_time, verbose)
   -- There's probably a better way to do this, but. Eh. Lua.
+  QuestHelper: Assert(unyieldable == 0)
+  
   coro = nil
   key = nil
   for k, v in pairs(coroutine_list) do
@@ -161,7 +174,9 @@ function QH_Timeslice_Work(time_used, time_this_frame, bonus_time, verbose)
     
     if start < coroutine_stop_time then -- We don't want to just return on failure because we want to credit the exceeded time properly.
       coroutine_running = true
+      QuestHelper: Assert(unyieldable == 0)
       state, err = coroutine.resume(coro.coro)
+      QuestHelper: Assert(unyieldable == 0)
       coroutine_running = false
     end
     local stop = GetTime()

@@ -43,7 +43,6 @@ local minbutton = CreateFrame("Button", "QuestHelperQuestWatchFrameMinimizeButto
 QuestHelper.tracker = tracker
 
 local resizing = false
-tracker:Hide()
 tracker:SetWidth(200)
 tracker:SetHeight(100)
 tracker.dw, tracker.dh = 200, 100
@@ -55,11 +54,19 @@ minbutton:Hide()
 minbutton:SetPoint("TOPRIGHT", WatchFrame) -- We default to a different location to make it more likely to display the right item.
 minbutton:SetMovable(true)
 minbutton:SetUserPlaced(true)
-minbutton:SetWidth(10)
-minbutton:SetHeight(5)
+minbutton:SetWidth(32 / 1.6)
+minbutton:SetHeight(32)
 local minbutton_tex = minbutton:CreateTexture()
 minbutton_tex:SetAllPoints()
-minbutton_tex:SetTexture(.8, .8, .8)
+minbutton_tex:SetTexture(.6, .6, .6)
+
+local sigil = minbutton:CreateTexture("BACKGROUND", minbutton_tex)
+sigil:SetHeight(32)
+sigil:SetWidth(32)
+--sigil:SetPoint("CENTER", 0, 0)
+sigil:SetTexture("Interface\\AddOns\\QuestHelper\\sigil")
+sigil:SetPoint("CENTER", minbutton, "CENTER")
+
 
 tracker:SetPoint("CENTER", minbutton)
 
@@ -901,25 +908,31 @@ function QH_Tracker_UpdateRoute(new_route)
   QH_Tracker_Rescan()
 end
 
-function QH_Tracker_Pin(metaobjective)
+function QH_Tracker_Pin(metaobjective, suppress)
   if not pinned[metaobjective] then
     pinned[metaobjective] = true
-    QH_Tracker_Rescan()
+    
+    if not suppress then
+      QH_Tracker_Rescan()
+    end
   end
 end
 
-function QH_Tracker_Unpin(metaobjective)
+function QH_Tracker_Unpin(metaobjective, suppress)
   if pinned[metaobjective] then
     pinned[metaobjective] = nil -- nil, not false, so it'll be garbage-collected appropriately
-    QH_Tracker_Rescan()
+    
+    if not suppress then
+      QH_Tracker_Rescan()
+    end
   end
 end
 
-function QH_Tracker_SetPin(metaobjective, flag)
+function QH_Tracker_SetPin(metaobjective, flag, suppress)
   if flag then
-    QH_Tracker_Pin(metaobjective)
+    QH_Tracker_Pin(metaobjective, suppress)
   else
-    QH_Tracker_Unpin(metaobjective)
+    QH_Tracker_Unpin(metaobjective, suppress)
   end
 end
 
@@ -969,7 +982,7 @@ function tracker:update(delta)
   if inside ~= was_inside then
     was_inside = inside
     if inside then
-      minbutton:SetAlpha(.7)
+      minbutton:SetAlpha(.5)
     elseif not QuestHelper_Pref.track_minimized then
       minbutton:SetAlpha(0)
     end
@@ -1002,10 +1015,6 @@ end]]
 -------------------------------------------------------------------------------------------------
 -- This batch of stuff is to make sure the original tracker (and any modifications) stay hidden
 
-local orig_TrackerOnShow
-if QuestWatchFrame then  -- 3.1 hackery
-  orig_TrackerOnShow = QuestWatchFrame:GetScript("OnShow")
-end
 local orig_TrackerBackdropOnShow   -- bEQL (and perhaps other mods) add a backdrop to the tracker
 local TrackerBackdropFound = false
 
@@ -1056,34 +1065,14 @@ function tracker:HideDefaultTracker()
 end
 
 function tracker:ShowDefaultTracker()
-  if QuestWatchFrame then  -- 3.1 hackery
-    QuestWatchFrame:Show() 
-    -- Make sure the default tracker is up to date on what what's being watched and what isn't.
-    QuestWatch_Update()
-  else
-    -- I like how there's code explicitly to allow us to do this without checking if it's already added
-    WatchFrame_AddObjectiveHandler(WatchFrame_DisplayTrackedQuests)
-    -- Make sure the default tracker is up to date on what what's being watched and what isn't.
-    WatchFrame_Update()
-  end
+  -- I like how there's code explicitly to allow us to do this without checking if it's already added
+  WatchFrame_AddObjectiveHandler(WatchFrame_DisplayTrackedQuests)
+  -- Make sure the default tracker is up to date on what what's being watched and what isn't.
+  WatchFrame_Update()
   
   if TrackerBackdropFound then
     TrackerBackdropFound:Show()
   end
-end
-
-if QuestWatchFrame then   -- 3.1 hackery
-  local function QuestWatchFrameOnShow(self, ...)
-    if QuestHelper_Pref.track and not QuestHelper_Pref.hide then
-      tracker:HideDefaultTracker()
-    end
-
-    if orig_TrackerOnShow then
-      return orig_TrackerOnShow(self, ...)
-    end
-  end
-
-  QH_Hook(QuestWatchFrame, "OnShow", QuestWatchFrameOnShow)
 end
 
 function QuestHelper:ShowTracker()
@@ -1103,4 +1092,3 @@ function QuestHelper:HideTracker()
   tracker:Hide()
   minbutton:Hide()
 end
-

@@ -56,11 +56,22 @@ function QuestHelper_ErrorCatcher.GetAddOns()
 			if (const) then version = const end
 
 			if type(version)=='table' then
-				version = table.concat(version,":")
-			end
+        local allstr = true
+        for k, v in pairs(version) do
+          if type(v) ~= "string" then allstr = false end
+        end
+        
+        if allstr then
+          version = table.concat(version,":")
+        end
+			elseif type(version) == 'function' then
+        local yay, v = pcall(version)
+        
+        if yay then version = v end
+      end
 
 			if (version) then
-				addlist = addlist.."  "..name..", v"..version.."\n"
+				addlist = addlist.."  "..name..", v"..tostring(version).."\n"
 			else
 				addlist = addlist.."  "..name.."\n"
 			end

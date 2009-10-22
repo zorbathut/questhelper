@@ -58,12 +58,14 @@ local function AppendObjlinks(target, source, tooltips, icon, last_name, map_lin
     local dbgi = DB_GetItem(v.sourcetype, v.sourceid, nil, true)
     local licon
     
+    --print(v.sourcetype, v.sourceid, v.type)
+    
     if v.sourcetype == "monster" then
       table.insert(map_lines, QHFormat("OBJECTIVE_SLAY", dbgi.name or QHText("OBJECTIVE_UNKNOWN_MONSTER")))
       table.insert(tooltip_lines, 1, QHFormat("TOOLTIP_SLAY", source.name or "nothing"))
       licon = 1
     elseif v.sourcetype == "item" then
-      table.insert(map_lines, QHFormat("OBJECTIVE_ACQUIRE", dbgi.name or QHText("OBJECTIVE_ITEM_UNKNOWN")))
+      table.insert(map_lines, QHFormat("OBJECTIVE_LOOT", dbgi.name or QHText("OBJECTIVE_ITEM_UNKNOWN")))
       table.insert(tooltip_lines, 1, QHFormat("TOOLTIP_LOOT", source.name or "nothing"))
       licon = 2
     else
@@ -140,7 +142,9 @@ local function GetQuestMetaobjective(questid, lbcount)
       ttx.tooltip_canned = {}
       
       if q and q.criteria and q.criteria[i] then
+        --print("Appending criteria", questid, i)
         AppendObjlinks(ttx, q.criteria[i], ttx.tooltip_canned)
+        --print("Done")
         
         if debug_output and q.criteria[i].loc and #q.criteria[i] > 0 then
           QuestHelper:TextOut(string.format("Wackyquest %d/%d", questid, i))
@@ -422,6 +426,7 @@ end
 local function StartInsertionPass(id)
   QuestHelper: Assert(not in_pass)
   in_pass = id
+  QH_Timeslice_PushUnyieldable()
   for k, v in pairs(InsertedItems) do
     v[id] = nil
     
@@ -480,13 +485,15 @@ local function EndInsertionPass(id)
       break
     end
     if not has then
-      QH_Tracker_Unpin(k[1])
+      QH_Tracker_Unpin(k[1], true)
       QH_Route_ClusterRemove(k)
       rem[k] = true
       
       SetTooltip(k, nil)
     end
   end
+  
+  QH_Tracker_Rescan()
   
   for k, _ in pairs(rem) do
     InsertedItems[k] = nil
@@ -498,6 +505,7 @@ local function EndInsertionPass(id)
   end
   while table.remove(Unknowning) do end
   
+  QH_Timeslice_PopUnyieldable()
   in_pass = nil
   
   --QH_Tooltip_Defer_Dump()
@@ -533,7 +541,7 @@ function QuestProcessor(user_id, db, title, level, group, variety, groupsize, wa
         v.map_desc = {QHFormat("OBJECTIVE_REASON_TURNIN", title)}
       end
     end
-    if watched ~= "(ignore)" then QH_Tracker_SetPin(db.finish[1], watched) end
+    if watched ~= "(ignore)" then QH_Tracker_SetPin(db.finish[1], watched, true) end
   end
   
   -- These are the individual criteria of the quest. Remember that each criteria can be represented by multiple routing objectives.
@@ -583,7 +591,7 @@ function QuestProcessor(user_id, db, title, level, group, variety, groupsize, wa
         if RefreshItem(user_id, db[i]) then
           if turnin then QH_Route_ClusterRequires(turnin, db[i]) end
         end
-        if watched ~= "(ignore)" then QH_Tracker_SetPin(db[i][1], watched) end
+        if watched ~= "(ignore)" then QH_Tracker_SetPin(db[i][1], watched, true) end
       end
       
       db[i].temp_desc, db[i].temp_typ, db[i].temp_done = nil, nil, nil
@@ -667,9 +675,18 @@ end
 -- qid, chunk
 local current_chunks = {}
 
+-- "log" is a synthetic objective that Blizzard tossed in for god only knows what reason, so we just pretend it doesn't exist
+local function GetEffectiveNumQuestLeaderBoards(index)
+  local v = GetNumQuestLeaderBoards(index)
+  if v ~= 1 then return v end
+  if select(2, GetQuestLogLeaderBoard(1, index)) == "log" then return 0 end
+  return 1
+end
+
 -- Here's the core update function
 function QH_UpdateQuests(force)
   if not DB_Ready() then return end
+  QH_Timeslice_PushUnyieldable()
 
   if update or force then  -- Sometimes (usually) we don't actually update
     local index = 1
@@ -678,6 +695,8 @@ function QH_UpdateQuests(force)
     StartInsertionPass(player)
     
     local next_chunks = {}
+    
+    local first = true
     
     -- This begins the main update loop that loops through all of the quests
     while true do
@@ -689,8 +708,9 @@ function QH_UpdateQuests(force)
       local qlink = GetQuestLink(index)
       if qlink then -- If we don't have a quest link, it's not really a quest
         local id = GetQuestType(qlink)
+        --if first then id = 13836 else id = nil end
         if id then -- If we don't have a *valid* quest link, give up
-          local lbcount = GetNumQuestLeaderBoards(index)
+          local lbcount = GetEffectiveNumQuestLeaderBoards(index)
           local db = GetQuestMetaobjective(id, lbcount) -- This generates the above-mentioned metaobjective, including doing the database lookup.
           
           QuestHelper: Assert(db)
@@ -735,6 +755,7 @@ function QH_UpdateQuests(force)
           
           QuestProcessor(player, db, title, level, groupsize, variety, groupsize, watched, complete, lbcount, timed)
         end
+        first = false
       end
       index = index + 1
     end
@@ -759,6 +780,8 @@ function QH_UpdateQuests(force)
     
     current_chunks = next_chunks
   end
+  
+  QH_Timeslice_PopUnyieldable()
 end
 
 -- comm_packets[user][qid] = data
@@ -821,6 +844,7 @@ local function QH_DumpCommUser(user)
   RefreshUserComms(user)
 end
 
+QH_Event("PLAYER_ENTERING_WORLD", UpdateTrigger)
 QH_Event("UNIT_QUEST_LOG_CHANGED", UpdateTrigger)
 QH_Event("QUEST_LOG_UPDATE", QH_UpdateQuests)
 
@@ -837,6 +861,13 @@ QH_AddNotifier(GetTime() + 5, function ()
     QH_UpdateQuests(true)
   end
 end)
+
+-- We seem to end up out of sync sometimes. Why? I'm not sure. Maybe my current events aren't reliable. So let's just scan every five seconds and see what happens, scanning is fast and efficient anyway.
+--[[local function autonotify()
+  QH_UpdateQuests(true)
+  QH_AddNotifier(GetTime() + 5, autonotify)
+end
+QH_AddNotifier(GetTime() + 30, autonotify)]]
 
 local old_playerlist = {}
 

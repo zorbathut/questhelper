@@ -111,7 +111,7 @@ QuestHelper_Translations.enUS =
   OBJECTIVE_MONSTER_UNKNOWN = "unknown monster",
   OBJECTIVE_ITEM_UNKNOWN = "unknown item",
   
-  ZONE_BORDER = "%1/%2 border",
+  ZONE_BORDER_SIMPLE = "%1 border",
   
   -- Stuff used in objective menus.
   PRIORITY = "Priority",
@@ -171,6 +171,7 @@ QuestHelper_Translations.enUS =
   FILTERED_BLOCKED = "Filtered due to incomplete prior objective",
   FILTERED_UNWATCHED = "Filtered due to not being Tracked in the Quest Log",
   FILTERED_WINTERGRASP = "Filtered due to being a PvP Wintergrasp quest",
+  FILTERED_RAID = "Filtered due to not being completable in a raid",
   FILTERED_USER = "You requested this objective be hidden",
   FILTERED_UNKNOWN = "Don't know how to complete",
   

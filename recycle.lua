@@ -98,9 +98,7 @@ function QuestHelper:ReleaseTable(tbl)
   QuestHelper: Assert(type(tbl) == "table")
   QuestHelper: Assert(not self.free_tables[tbl])
   
-  for key in pairs(tbl) do
-    tbl[key] = nil
-  end
+  wipe(tbl)
   
   self.used_tables = self.used_tables - 1
   self.recycle_tabletyping[tbl] = nil

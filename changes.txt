@@ -1,4 +1,121 @@
 
+== Version 1.1.23 10/18/2009 ==
+
+* Remember how the last version was supposed to have 3.3 compatibility? Yeah well uh
+* 3.3 compatibilty for real this time
+* (crosses fingers)
+* Fix minor display irritation in tooltips
+
+* QuestHelper now has a logo. You'll notice it in tooltips and in the quest tracker. I've done my best to make it noticable but unobtrusive - I've noticed that a lot of people seem to have a hard time distinguishing the line that separates Questhelper and World of Warcraft, and I'm trying to make this line a little more obvious (both for my sake, and for Blizzard's.) Let me know if you've got suggestions for improving either the logo or its placement, or if you //really really really hate it//.
+* Also let me know if you want it on a T-shirt :D
+
+* Support for Hallow's End candy buckets! "/qh buckets". It behaves just like the old Midsummer Fire Festival bonfires did, since it's based on the same code. Performance may suffer while this option is on, as it's nowhere near optimized, it's just a dirty hack. I don't yet have support for Northrend buckets. (Just like Blizzard! ha ha, burrrrrn)
+
+== Version 1.1.22 10/11/2009 ==
+
+* 3.3 compatibility
+* Add a new filter "/qh filter raidaccessible". If the filter is on, and you're in a raid, it will filter out quests that you would be unable to make progress in.
+* By now you should realize that a significant number of QH features exist because I keep screwing things up, so you can probably guess why that feature exists
+* Fix the director_quest.lua crash (I hope)
+* Add debug instrumentation for a few more bugs
+
+== Version 1.1.21 10/5/2009 ==
+
+* Make Cartographer stop breaking Questhelper. At least, breaking it as much.
+* Add support for quest items contained inside containers (alright this mostly exists because I got tired of the Bloated Monsterbelly daily directing me to Dalaran)
+* Make Questhelper stop resetting the chat font on startup. Why did it used to? I do not know. There are nooks of this code that I still do not fully comprehend. If this causes your computer to melt into a small puddle of radioactive slag{{{**}}}, please let me know.
+* Fix an issue causing the load progress indicator to be displayed despite the user indicating a clear preference that it should not be
+* Initial quest-update will again be reliably included in the progress indicator
+* Stop an annoying flicker when tracking/untracking quests
+
+{{{**}}} Questhelper is not responsible for your computer melting into a small puddle of radioactive slag, nor responsible for proper disposal of the aforementioned slag.
+
+== Version 1.1.20 9/29/2009 ==
+
+* Fix some glitches in the database build code that may have produced Unexpected Output in 1.1.19, probably including flighpath errors and possibly including dang near any wacky behavior imaginable
+* Found and fixed a mistake in data gathering that was causing excessive data to be recorded
+* Implemented a quick cleanup to go obliterate everything that was mistakenly recorded (okay most things not everything)
+* Moved some initialization from the loading screen to post-load. WoW should start a little faster, though QH will take a little longer overall to be "ready". There may be some obscure bugs if you use /qh commands early in the load sequence, please report these if you run into them. There also may be some little framerate hitches during the early load sequence, I'll deal with those later.
+* Possibly fix a minor compatibility glitch with ClearFont4
+* Database update again, this time without problems, fingers crossed
+* Translation update
+
+* Hey guess what I did! [[http://www.mandible.net|I made another game.]] Come give it a try and let me know what you think.
+
+== Version 1.1.19 9/22/2009 ==
+
+* Database update, hopefully including Brewfest quests
+* Translation update
+* yeah alright this is a pretty crummy version, sorry, life's been busy
+
+== Version 1.1.18 9/15/2009 ==
+
+* Fix the crash when exiting Isle of Conquest
+* Update translations
+
+== Version 1.1.17 9/14/2009 ==
+
+* Remove some debug output
+* Fix a small potential glitch allowing people to accidentally break QH
+* This might be my fastest version update ever
+
+== Version 1.1.16 9/14/2009 ==
+
+* Fix bug with misnamed flightpath links
+* Simplify the description of interzone links
+* Add more debug output for a new bug that seems to be related to leaving battlegrounds (please report any "/qh error" crash you encounter when doing so)
+* Improve speed of adding new quests and objectives yet further
+
+== Version 1.1.15 9/07/2009 ==
+
+* Added the error catching system to /qh purge, which honestly should have been in there for quite some time
+* Turn some data gathering off, turn some on
+* Further speed improvements. Something like a 50% improvement (or more) to picking up new quests and new objectives. This is a good thing.
+* Disable some old 3.1 compatibility code which may be incorrectly triggering in some situations
+
+* PAX was awesome. You were there, right?
+
+== Version 1.1.14 8/31/2009 ==
+
+* Increase the standard-flying-mount internal speed to 150%
+* Add a special case to not take flight paths, ever, if you have an epic flying mount
+* Restrict the Dark Portal warps to only exist at level 58. Unfortunately this means that if you hit 58 during a play session, they won't show up until you reload your UI. I'll fix this later, I don't have full access to my dev environment right now.
+
+* Why not? Because I'm at the Penny Arcade Expo this weekend! If you are also, come say hi! I'll be in Tabletop for most of the event. That is all the hinting I will give you to find me.
+
+== Version 1.1.13 8/24/2009 ==
+
+* Add new portals to Blasted Lands from each faction city
+* Fix right-click on arrow, add objective submenu to arrow
+* Fix crash with the new zone system
+* Update a few quests and monsters that changed in 3.2
+* Add new option for minimap icon transparency, "/qh miniopacity". My lord do I need to set up a better settings dialog at some point
+* Make the error reporting system a little more durable in case of wacky versions
+* Fix glitch on login where the blocked filter might miss items
+
+== Version 1.1.12 8/18/2009 ==
+
+* Fix bug causing a little debug spam on startup, and possibly some other startup issues
+* [[http://www.mandible.net|You should still play the new game.]]
+
+== Version 1.1.11 8/17/2009 ==
+
+* Try to handle installation errors better, part 1/2. Stopping here so I can make sure the current code works - if it does, I'll be doing some more work in the next version.
+* Minor performance boost
+* Tweak to the tooltip to avoid showing unnecessary clutter
+* Update database, all new quests should be working just fine now
+* [[http://www.mandible.net|Made another game. You should play it.]]
+
+== Version 1.1.10 8/10/2009 ==
+
+* Fix issue causing error messages to not be displayed properly
+* Redisplay tooltip entries that are not actual objectives
+* Disable some ancient old code that probably wasn't working but definitely was crashing
+* Maybe fix the new batch of fascinating performance issues (or maybe not! Who can say? It is a mystery!)
+* Update database, dealing properly with another pile of quests that were changed in 3.2 (let me know if you find more)
+* Why can't I catch this last stupid terrorfish
+* Oh there it is
+
 == Version 1.1.9 8/6/2009 ==
 
 * Fix mouseover tooltip for monsters

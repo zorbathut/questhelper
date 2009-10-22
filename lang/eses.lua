@@ -8,14 +8,13 @@ QuestHelper_Translations.esES =
   -- Messages used when starting.
   LOCALE_ERROR = "El idioma de su datos guardados no coincide con el idioma del cliente Wow. Para utilizar QuestHelper tendrá que cambiar la configuración regional de vuelta, o borrar los datos tecleando %h(/qh purge).",
   ZONE_LAYOUT_ERROR = "Me niego a ejecutarme, por temor a dañar sus datos guardados. Por favor, espere a un nuevo parche que será capaz de manejar el nuevo diseño de zona.",
-  DOWNGRADE_ERROR = "Sus datos guardados no son compatibles con esta versión de QuestHelper. Utilice una nueva versión, o borre su variables guardadas.",
   HOME_NOT_KNOWN = "Se desconoce la posición de su hogar. Cuando pueda, por favor, hable con su posadero para restaurarla.",
   PRIVATE_SERVER = "QuestHelper no soporta servidores privados.",
   PLEASE_RESTART = "Se ha producido un error al iniciar QuestHelper. Por favor, sal de completamente de World of Warcraft e inténtalo de nuevo.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper se instaló incorrectamente. Se recomienda usar Curse Client o 7zip para instalar. Aseguresé de que los subdirectorios son descomprimidos.",
-  PLEASE_DONATE = "%h(QuestHelper se financia de donaciones!). Se agradece cualquier contribución, sólo unos pocos dólares al mes asegurarán el mantenimiento de la aplicación y futuras actualizaciones. Escriba %h(/qh donate) para más información.",
+  PLEASE_SUBMIT = "%h (¡QuestHelper necesita su ayuda! Si tiene unos pocos minutos, por favor dirijase a la página web de QuestHelper %h(http://www.quest-helper.com) y siga las instrucciones para enviar sus datos. Sus datos mantienen QestHelper correctamente y actualizado. ¡Gracias!",
   HOW_TO_CONFIGURE = "QuestHelper no tiene aun una pagina de opciones, pero puede ser configurado escribiendo \"/qh settings\". Para más ayuda \"/qh help\"",
-  TIME_TO_UPDATE = "Puede que haya una %h (nueva versión de QuestHelper) disponible . Las nuevas versiones suelen incluir nuevas funcionalidades, bases de datos y arreglan errores. Por favor, actualice!",
+  TIME_TO_UPDATE = "Puede que haya una %h (nueva versión de QuestHelper) disponible . Las nuevas versiones suelen incluir nuevas funcionalidades, bases de datos y arreglan errores. ¡Por favor, actualice!",
   
   -- Route related text.
   ROUTES_CHANGED = "Las rutas de vuelo de su personaje han sido alteradas.",
@@ -51,7 +50,7 @@ QuestHelper_Translations.esES =
   OBJECTIVE_MONSTER_UNKNOWN = "monstruo desconocido",
   OBJECTIVE_ITEM_UNKNOWN = "objeto desconocido",
   
-  ZONE_BORDER = "la frontera %1/%2",
+  ZONE_BORDER_SIMPLE = "% frontera",
   
   -- Stuff used in objective menus.
   PRIORITY = "Prioridad",
@@ -64,7 +63,7 @@ QuestHelper_Translations.esES =
   SHARING_ENABLE = "Compartir",
   SHARING_DISABLE = "No Compartir",
   IGNORE = "Ignorar",
-  IGNORE_LOCATION = "Ignore esta posicion",
+  IGNORE_LOCATION = "Ignore esta posi",
   
   IGNORED_PRIORITY_TITLE = "La prioridad seleccionada podria ser ignorada.",
   IGNORED_PRIORITY_FIX = "Aplique la misma prioridad a los objetivos de bloqueo.",
@@ -110,9 +109,9 @@ QuestHelper_Translations.esES =
   FILTERED_COMPLETE = "Filtrado debido a completados.",
   FILTERED_BLOCKED = "Filtrado debido al objetivo anterior incompleto",
   FILTERED_UNWATCHED = "filtrado, debido a que no está traqueado en el log de quests",
-  FILTERED_WINTERGRASP = "Filtrada por ser un PVP Wintergrasp búsqueda.",
+  FILTERED_WINTERGRASP = "Filtrada por ser una quest PVP de Conquista del Invierno.",
   FILTERED_USER = "Pidió que este objetivo se ocultara.",
-  FILTERED_UNKNOWN = "Desconozco cómo llevarlo a cabo.",
+  FILTERED_UNKNOWN = "Desconozco cómo completarlo.",
   
   HIDDEN_SHOW = "Mostrar.",
   HIDDEN_SHOW_NO = "No mostrable",
@@ -159,7 +158,7 @@ QuestHelper_Translations.esES =
   TRAVEL_ESTIMATE = "Tiempo estimado de viaje:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Visita %h1 de camino a:",
-  FLIGHT_POINT = "%1 punto de vuelo",
+  FLIGHT_POINT = "punto de vuelo %1",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
@@ -219,15 +218,15 @@ QuestHelper_Translations.esES =
   SETTINGS_PRECACHE_ON = "Precarga ha sido %h(activada).",
   SETTINGS_PRECACHE_OFF = "Precarga ha sido %h(desactivada).",
   
-  SETTINGS_MENU_ENABLE = "Permita",
-  SETTINGS_MENU_DISABLE = "Neutralización",
+  SETTINGS_MENU_ENABLE = "Activar",
+  SETTINGS_MENU_DISABLE = "Desactivar",
   SETTINGS_MENU_CARTWP = "Flecha de %1 cartógrafos",
   SETTINGS_MENU_TOMTOM = "Flecha de %1 TomTom",
   
-  SETTINGS_MENU_ARROW_LOCK = "Cerradura",
+  SETTINGS_MENU_ARROW_LOCK = "Bloquear",
   SETTINGS_MENU_ARROW_ARROWSCALE = "Escala de la flecha",
   SETTINGS_MENU_ARROW_TEXTSCALE = "Escala del texto",
-  SETTINGS_MENU_ARROW_RESET = "Reajuste",
+  SETTINGS_MENU_ARROW_RESET = "Resetear",
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 Yardas",

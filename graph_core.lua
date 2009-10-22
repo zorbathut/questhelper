@@ -16,8 +16,10 @@ QuestHelper_Loadtime["graph_core.lua"] = GetTime()
 
 -- performance hack :(
 local QH_Timeslice_Yield = QH_Timeslice_Yield
-local tinsert = table.insert
+local tinsert, tremove = table.insert, table.remove
 local pairs, ipairs = pairs, ipairs
+local sqrt = math.sqrt
+local GetTime = GetTime
 
 local function heap_left(x) return (2*x) end
 local function heap_right(x) return (2*x + 1) end
@@ -60,13 +62,15 @@ end
 
 local function heap_extract(heap)
   local rv = heap[1]
-  if #heap == 1 then table.remove(heap) return rv end
-  heap[1] = table.remove(heap)
+  if #heap == 1 then tremove(heap) return rv end
+  heap[1] = tremove(heap)
   local idx = 1
   while idx < #heap do
     local minix = idx
-    if heap[heap_left(idx)] and heap[heap_left(idx)].c < heap[minix].c then minix = heap_left(idx) end
-    if heap[heap_right(idx)] and heap[heap_right(idx)].c < heap[minix].c then minix = heap_right(idx) end
+    --local hl, hr = heap_left(idx), heap_right(idx)
+    local hl, hr = 2*idx, 2*idx+1 -- these had better be equivalent to the line above one
+    if heap[hl] and heap[hl].c < heap[minix].c then minix = hl end
+    if heap[hr] and heap[hr].c < heap[minix].c then minix = hr end
     if minix ~= idx then
       local tx = heap[minix]
       heap[minix] = heap[idx]
@@ -91,6 +95,7 @@ local plane_to_flyplane = {}
 local continent_to_flyplane = {}
 local flyplanes_enabled = {}
 local plane_multiplier = {}
+local plane_cull = {}
 
 -- canonical plane :D
 local function canoplane(plane)
@@ -99,12 +104,12 @@ end
 
 local function xydist_raw(plane, stx, sty, ndx, ndy)
   local dx, dy = stx - ndx, sty - ndy
-  return math.sqrt(dx * dx + dy * dy) / (plane_multiplier[plane] or 7)
+  return sqrt(dx * dx + dy * dy) / (plane_multiplier[plane] or 7)
 end
 local function xydist(st, nd)
-  QuestHelper: Assert(canoplane(st.p) == canoplane(nd.p))
+  --QuestHelper: Assert(canoplane(st.p) == canoplane(nd.p))
   local dx, dy = st.x - nd.x, st.y - nd.y
-  return math.sqrt(dx * dx + dy * dy) / (plane_multiplier[canoplane(nd.p)] or 7) -- we're getting a result in seconds, not in yards
+  return sqrt(dx * dx + dy * dy) / (plane_multiplier[canoplane(nd.p)] or 7) -- we're getting a result in seconds, not in yards
 end
 
 
@@ -116,10 +121,19 @@ function QH_Graph_Pathfind(st, nd, reverse, make_path)
 end
 
 local active = false
+local prepared = false
 
+  
+  local extrctime = 0
+  local wextrctime = 0
+  local actualtime = 0
+  local planetime = 0
+  local linktime = 0
+  
 function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   --QuestHelper:TextOut("Starting PMF")
   QuestHelper: Assert(not active)
+  QuestHelper: Assert(prepared)
   active = true -- The fun thing about coroutines is that this is actually safe.
   local out = QuestHelper:CreateTable("graphcore output")  -- THIS HAD BETTER BE RELEASABLE OR IT WILL BE BAD
   
@@ -180,27 +194,45 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
   
   --QuestHelper:TextOut("Starting routing")
   
+  local extrc = 0
+  local actual = 0
+  local planescan = 0
+  local linkscan = 0
+  
+  local planeyes = 0
+  local planeno = 0
+  
+  local linkyes = 0
+  local linkno = 0
+  
   while remaining > 0 and #dijheap > 0 do
     QH_Timeslice_Yield()
+    local ett = GetTime()
+    extrc = extrc + 1
     --stats.heap_max = math.max(--stats.heap_max, #dijheap)
     local cdj = heap_extract(dijheap)
     
     local snode = cdj.n
     --print(string.format("Extracted cost %f/%s pointing at %d/%f/%f", cdj.c, tostring(cdj.n.scan_cost), cdj.n.p, cdj.n.x, cdj.n.y))
     if snode.scan_cost == cdj.c then  -- if we've modified it since then, don't bother
+      local actt = GetTime()
+      actual = actual + 1
       -- Are we at an end node?
       if snode.goal then
         -- we wouldn't be here if we hadn't found a better solution
-        QuestHelper: Assert(undone[snode.goal])
+        --QuestHelper: Assert(undone[snode.goal])
         out[snode.goal] = cdj.c
         undone[snode.goal] = nil
         remaining = remaining - 1
       end
       
       -- Link to everything else on the plane
-      if not snode.pi then  -- Did we come from this plane? If so, there's no reason to scan it again  (flag means "plane internal")
+      if not cdj.pi then  -- Did we come from this plane? If so, there's no reason to scan it again  (flag means "plane internal")
+        local planet = GetTime()
+        planescan = planescan + 1
         for _, v in ipairs(plane[snode.p]) do
           if v.scan_id ~= grid or v.scan_cost > snode.scan_cost then
+            planeyes = planeyes + 1
             local dst = xydist(snode, v)
             local modcost = snode.scan_cost + dst
             --print(string.format("Doing %d/%f vs %s/%s at %d/%f/%f", grid, modcost, tostring(v.scan_id), tostring(v.scan_cost), v.p, v.x, v.y))
@@ -213,22 +245,28 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
               v.scan_outnode_from = nil
               
               do
-                local snude = QuestHelper:CreateTable("graphcore heap")
-                snude.c, snude.n, snude.pi = modcost, v, true
-                heap_insert(dijheap, snude)
+                local ncdj = QuestHelper:CreateTable("graphcore heap")
+                ncdj.c, ncdj.n, ncdj.pi = modcost, v, true
+                heap_insert(dijheap, ncdj)
                 --print(string.format("Inserting %f at %d/%f/%f, plane", snude.c, v.p, v.x, v.y))
               end
             end
+          else
+            planeno = planeno + 1
           end
         end
+        planetime = planetime + GetTime() - planet
       end
       
       -- Link to everything we link to
-      if snode[link_id] then
+      if not cdj.li and snode[link_id] then
+        local linkt = GetTime()
+        linkscan = linkscan + 1
         for _, lnk in pairs(snode[link_id]) do
           local mc2 = snode.scan_cost + lnk.cost
           local linkto = lnk.link
           if linkto.scan_id ~= grid or linkto.scan_cost > mc2 then
+            linkyes = linkyes + 1
             linkto.scan_id = grid
             linkto.scan_cost = mc2
             linkto.scan_from = snode
@@ -236,17 +274,25 @@ function QH_Graph_Pathmultifind(st, nda, reverse, make_path)
             linkto.scan_outnode_from = lnk.outnode_from
             
             local hep = QuestHelper:CreateTable("graphcore heap")
-            hep.c, hep.n = mc2, linkto
+            hep.c, hep.n, hep.li = mc2, linkto, true
             heap_insert(dijheap, hep)
             --print(string.format("Inserting %f at %d/%f/%f, link", hep.c, linkto.p, linkto.x, linkto.y))
+          else
+            linkno = linkno + 1
           end
         end
+        linktime = linktime + GetTime() - linkt
       end
+      actualtime = actualtime + GetTime() - actt
+      extrctime = extrctime + GetTime() - ett
+    else
+      wextrctime = wextrctime + GetTime() - ett
     end
     QuestHelper:ReleaseTable(cdj)
   end
   
-  --QuestHelper:TextOut("Starting pathing")
+  --QuestHelper:TextOut(string.format("%d extracted, %d processed, %d planescan, %d linkscan, %d/%d plane, %d/%d link", extrc, actual, planescan, linkscan, planeyes, planeno, linkyes, linkno))
+  --QuestHelper:TextOut(string.format("times: %f/%f extracted, %f processed, %f planescan, %f linkscan", extrctime, wextrctime, actualtime, planetime, linktime))
   
   for _, v in ipairs(dijheap) do
     QuestHelper:ReleaseTable(v)
@@ -360,6 +406,215 @@ local function findnode(coord)
   return nd
 end
 
+function QH_Graph_Plane_Makelink(name, coord1, coord2, cost, cost_reverse)
+  QuestHelper: Assert(not active)
+  prepared = false
+  
+  --QuestHelper: TextOut(string.format("Link '%s' made from %d/%f/%f to %d/%f/%f of cost %f, asymflag %s", name, coord1.p, coord1.x, coord1.y, coord2.p, coord2.x, coord2.y, cost, tostring(not not asymmetrical)))
+  QuestHelper: Assert(name)
+  QuestHelper: Assert(coord1)
+  QuestHelper: Assert(coord2)
+  QuestHelper: Assert(cost)
+  
+  QuestHelper: Assert(cost >= 0)
+  QuestHelper: Assert(not cost_reverse or cost_reverse >= 0)
+  
+  --cost = math.max(cost, 0.01)
+  --if cost_reverse then cost_reverse = math.max(cost_reverse, 0.01) end
+  
+  local tlink = {name, coord1, coord2, cost, cost_reverse}
+  if not linkages[name] then linkages[name] = {} end
+  tinsert(linkages[name], tlink)
+  --print(name, coord1.map_desc[1], coord2.map_desc[1], coord)
+end
+
+function QH_Graph_Plane_Destroylinks(name)
+  QuestHelper: Assert(not active)
+  prepared = false
+  
+  linkages[name] = nil
+  
+  -- we'll actually clean things out once the refresh function is called
+end
+
+function QH_Graph_Flyplaneset(fpset, speed, cull)
+  QuestHelper: Assert(not active)
+  prepared = false
+  
+  local index = QuestHelper_IndexLookup[fpset][0]
+  if not flyplanes_enabled[index] or plane_multiplier[index] ~= speed or plane_cull[index] ~= cull then
+    flyplanes_enabled[index] = true
+    plane_multiplier[index] = speed
+    plane_cull[index] = cull
+  end
+  
+  -- we'll actually clean things out once the refresh function is called
+end
+
+function QH_Graph_Plane_Refresh()
+  --QuestHelper:TextOut("Graph plane refresh now")
+  QuestHelper: Assert(not active)
+  
+  plane = {}  -- reset it all
+  
+  -- we take all our links, process them, and jam them together
+  -- mmmm
+  -- jam
+  
+  for name, v in pairs(linkages) do
+    --print("Starting linkage", name)
+    local titx = {}
+    local nodeitems = {}
+    local nodedests = {}
+    
+    local function makenodedest(outnode, package)
+      if not nodedests[outnode] then
+        nodedests[outnode] = {x = package.x, y = package.y, p = package.p, c = package.c, map_desc = package.map_desc, condense_class = package.condense_class} -- note: this is where the actual node objects that eventually get passed into the routing controller's path replot engine come from. So if you intend for anything to exist in that module, it's gotta be inserted here.
+      end
+    end
+  
+    for _, i in ipairs(v) do
+      local name, coord1, coord2, cost, cost_reverse = unpack(i)
+      
+      QuestHelper: Assert(name)
+      QuestHelper: Assert(coord1)
+      QuestHelper: Assert(coord2)
+      QuestHelper: Assert(cost)
+    
+      i.n1, i.n2 = findnode(coord1), findnode(coord2)
+      
+      table.insert(titx, i)
+      
+      if not nodeitems[i.n1] then nodeitems[i.n1] = QuestHelper:CreateTable("graph plane refresh") end
+      if not nodeitems[i.n2] then nodeitems[i.n2] = QuestHelper:CreateTable("graph plane refresh") end
+      
+      table.insert(nodeitems[i.n1], i)
+      table.insert(nodeitems[i.n2], i)
+      
+      makenodedest(i.n1, coord1)
+      makenodedest(i.n2, coord2)
+    end
+    
+    --QuestHelper:TextOut(string.format("%d titx", #titx))
+    
+    -- all nodes are created, links are posted
+    
+    local nodedone = {}
+    local mark
+    mark = function(tnode, acum)
+      if acum[tnode] then return end
+      acum[tnode] = true
+      nodedone[tnode] = true
+      
+      for _, d in ipairs(nodeitems[tnode]) do
+        mark(d.n1, acum)
+        mark(d.n2, acum)
+      end
+    end
+    
+    local infinity = 1e10
+    
+    for _, connect in ipairs(titx) do
+      QH_Timeslice_Yield()
+      
+      QuestHelper: Assert(nodedone[connect.n1] == nodedone[connect.n2])
+      
+      if not nodedone[connect.n1] then
+        local nods = QuestHelper:CreateTable("graph plane nods")
+        local nods_reverse = QuestHelper:CreateTable("graph plane nods_reverse")
+        mark(connect.n1, nods)
+        
+        local lookupindex = 1
+        for k, v in pairs(nods) do
+          nods[k] = lookupindex
+          nods_reverse[lookupindex] = k
+          lookupindex = lookupindex + 1
+        end
+        
+        --QuestHelper:TextOut(string.format("Processing cluster of %d", lookupindex))
+        
+        local tab = QuestHelper:CreateTable("graph plane floyd core")
+        for r = 1, lookupindex do
+          local inner = QuestHelper:CreateTable("graph plane floyd inner")
+          table.insert(tab, inner)
+          for tr = 1, lookupindex do
+            table.insert(inner, infinity)
+          end
+        end
+        
+        for k, _ in pairs(nods) do
+          for _, titem in pairs(nodeitems[k]) do
+            local a, b = nods[titem.n1], nods[titem.n2]
+            tab[a][b] = math.min(tab[a][b], titem[4])
+            if titem[5] then
+              tab[b][a] = math.min(tab[b][a], titem[5])
+            end
+          end
+        end
+        
+        for pivot in ipairs(tab) do
+          for s in ipairs(tab) do
+            for e in ipairs(tab) do
+              tab[s][e] = math.min(tab[s][e], tab[s][pivot] + tab[pivot][e])
+            end
+          end
+        end
+        
+        -- add node link destinations here (we only need one sample per item)
+        for s, t in ipairs(tab) do
+          local n1 = nods_reverse[s]
+          for e, c in ipairs(t) do
+            local n2 = nods_reverse[e]
+            
+            local doit = true
+            
+            if c == infinity then doit = false end
+            if doit then
+              local n1p = canoplane(nodedests[n1].p)
+              local n2p = canoplane(nodedests[n2].p)
+              
+              if n1p == n2p then
+                if name == "static_transition" then doit = false end -- ha ha, yep, that's how we find out, tooootally reliable
+                if plane_cull[n1p] then doit = false end  -- DENIED
+                
+                if doit then
+                  local xyd = xydist_raw(n1p, nodedests[n1].x, nodedests[n1].y, nodedests[n2].x, nodedests[n2].y)
+                  
+                  if c >= xyd then doit = false end -- it's faster to just fly directly. this won't fuck with the total-connectedness at all, because if it is faster to just fly directly from cluster A to cluster B, we'll just pick up cluster B when we get there
+                end
+              end
+            end
+            
+            
+            if doit then
+              if not n1.links then n1.links = {} end
+              if not n2.rlinks then n2.rlinks = {} end
+              
+              --if name == "flightpath" then print("linking from", nodedests[n1].map_desc[1], "to", nodedests[n2].map_desc[1]) end
+              tinsert(n1.links, {cost = c, link = n2, outnode_to = nodedests[n2], outnode_from = nodedests[n1]})
+              tinsert(n2.rlinks, {cost = c, link = n1, outnode_to = nodedests[n1], outnode_from = nodedests[n2]})
+            end
+          end
+        end
+        
+        QuestHelper:ReleaseTable(nods)
+        QuestHelper:ReleaseTable(nods_reverse)
+        for _, v in ipairs(tab) do QuestHelper:ReleaseTable(v) end
+        QuestHelper:ReleaseTable(tab)
+      end
+    end
+    
+    for _, v in pairs(titx) do v.n1, v.n2 = nil, nil end
+    for _, v in pairs(nodeitems) do QuestHelper:ReleaseTable(v) end
+  end
+  
+  prepared = true
+  --QuestHelper:TextOut("Graph plane refresh done")
+end
+
+
+
+--[[
 local function QH_Graph_Plane_ReallyMakeLink(item)
   local name, coord1, coord2, cost, cost_reverse = unpack(item)
   
@@ -374,10 +629,11 @@ local function QH_Graph_Plane_ReallyMakeLink(item)
   local n1p = canoplane(coord1.p)
   local n2p = canoplane(coord2.p)
   
-  if canoplane(coord1.p) == canoplane(coord2.p) then
+  if n1p == n2p then
     if name == "static_transition" then return end -- ha ha, yep, that's how we find out, tooootally reliable
     
-    local xyd = xydist_raw(canoplane(coord1.p), coord1.x, coord1.y, coord2.x, coord2.y)
+    local xyd = xydist_raw(n1p, coord1.x, coord1.y, coord2.x, coord2.y)
+    if plane_cull[n1p] then return end  -- DENIED
     if cost >= xyd and (not cost_reverse or cost_reverse >= xyd) then
       return  -- DENIED
     end
@@ -403,64 +659,4 @@ local function QH_Graph_Plane_ReallyMakeLink(item)
     tinsert(node2.links, {cost = cost_reverse, link = node1, outnode_to = n1d, outnode_from = n2d})
   end
 end
-
-function QH_Graph_Plane_Makelink(name, coord1, coord2, cost, cost_reverse)
-  QuestHelper: Assert(not active)
-  
-  --QuestHelper: TextOut(string.format("Link '%s' made from %d/%f/%f to %d/%f/%f of cost %f, asymflag %s", name, coord1.p, coord1.x, coord1.y, coord2.p, coord2.x, coord2.y, cost, tostring(not not asymmetrical)))
-  QuestHelper: Assert(name)
-  QuestHelper: Assert(coord1)
-  QuestHelper: Assert(coord2)
-  QuestHelper: Assert(cost)
-  
-  QuestHelper: Assert(cost >= 0)
-  QuestHelper: Assert(not cost_reverse or cost_reverse >= 0)
-  
-  --cost = math.max(cost, 0.01)
-  --if cost_reverse then cost_reverse = math.max(cost_reverse, 0.01) end
-  
-  local tlink = {name, coord1, coord2, cost, cost_reverse}
-  if not linkages[name] then linkages[name] = {} end
-  tinsert(linkages[name], tlink)
-  
-  QH_Graph_Plane_ReallyMakeLink(tlink)
-end
-
-local function QH_Graph_Plane_Destroylinkslocal(name)
-  QuestHelper: Assert(not active)
-  
-  for k, v in pairs(plane) do
-    local repl = {}
-    for tk, tv in ipairs(v) do
-      if tv.name ~= name then
-        tinsert(repl, tv)
-      end
-    end
-    plane[k] = repl
-  end
-end
-
-function QH_Graph_Plane_Destroylinks(name)
-  QuestHelper: Assert(not active)
-  
-  linkages[name] = nil
-  
-  QH_Graph_Plane_Destroylinkslocal(name)
-end
-
-function QH_Graph_Flyplaneset(fpset, speed)
-  QuestHelper: Assert(not active)
-  
-  if not flyplanes_enabled[QuestHelper_IndexLookup[fpset][0]] then
-    flyplanes_enabled[QuestHelper_IndexLookup[fpset][0]] = true
-    for k, v in pairs(linkages) do
-      QH_Graph_Plane_Destroylinkslocal(k)
-      
-      for _, ite in pairs(v) do
-        QH_Graph_Plane_ReallyMakeLink(ite)
-      end
-    end
-    
-    plane_multiplier[QuestHelper_IndexLookup[fpset][0]] = speed
-  end
-end
+]]

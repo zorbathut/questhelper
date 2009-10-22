@@ -64,6 +64,7 @@ QuestHelper_Loadtime = {}
 
 loadfile("dump.lua")()
 loadfile("fileutil.lua")()
+QuestHelper = {IsWrath32 = function () return true end}
 loadfile("../upgrade.lua")()
 loadfile("compiler.lua")()
 loadfile("pepperfish.lua")()
@@ -639,6 +640,10 @@ if archive_zip or archive_7z then
   for i, dir in ipairs({"AstrolabeQH", "ChatThrottleLib", "LibAboutPanel", "lang"}) do
     FileUtil.copyDirectoryRecursively("../"..dir, "QuestHelper/"..dir)
   end
+  
+  FileUtil.copyFile("../AstrolabeQH/Astrolabe.lua", "QuestHelper/AstrolabeQH", "(QuestHelper_File%[[^%]]*%]%s*=%s*)\"[^\"]+\"", file_version_pattern)
+  FileUtil.copyFile("../AstrolabeQH/AstrolabeMapMonitor.lua", "QuestHelper/AstrolabeQH", "(QuestHelper_File%[[^%]]*%]%s*=%s*)\"[^\"]+\"", file_version_pattern)
+  FileUtil.copyFile("../AstrolabeQH/DongleStub.lua", "QuestHelper/AstrolabeQH", "(QuestHelper_File%[[^%]]*%]%s*=%s*)\"[^\"]+\"", file_version_pattern)
   
   FileUtil.copyFile("../MinimapArrow.tga", "QuestHelper")
   FileUtil.copyFile("../arrow_image.blp", "QuestHelper")

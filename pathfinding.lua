@@ -15,6 +15,8 @@ local UNDERCITY_PORTAL = {45,0.846,0.163, "Undercity portal site"}
 local ORGRIMMAR_PORTAL = {1,0.386,0.859, "Orgrimmar portal site"}
 local THUNDER_BLUFF_PORTAL = {23,0.222,0.168, "Thunder Bluff portal site"}
 
+local BLASTED_LANDS_PORTAL = {33,0.575,0.511, "Blasted Lands portal site"}
+
 local static_horde_routes = 
   {
    {{7, 0.505, 0.124}, {38, 0.313, 0.303}, 210}, -- Durotar <--> Grom'gol Base Camp
@@ -35,6 +37,11 @@ local static_horde_routes =
    {{67, 0.553, 0.255}, ORGRIMMAR_PORTAL, 60, true, nil, "ORGRIMMAR_PORTAL"}, -- Dalaran --> Orgrimmar
    {{67, 0.556, 0.238}, UNDERCITY_PORTAL, 60, true, nil, "UNDERCITY_PORTAL"}, -- Dalaran --> Undercity
    {{67, 0.563, 0.226}, SHATTRATH_CITY_PORTAL, 60, true, nil, "SHATTRATH_CITY_PORTAL"}, -- Dalaran --> Shatt
+   
+   {{1,0.381,0.857}, BLASTED_LANDS_PORTAL, 60, true, level_limit = 58},  -- Orgrimmar --> Blasted Lands
+   {{23,0.231,0.135}, BLASTED_LANDS_PORTAL, 60, true, level_limit = 58},  -- Thunder Bluff --> Blasted Lands
+   {{45,0.852,0.170}, BLASTED_LANDS_PORTAL, 60, true, level_limit = 58},  -- Undercity --> Blasted Lands
+   {{52,0.584,0.210}, BLASTED_LANDS_PORTAL, 60, true, level_limit = 58},  -- Silvermoon --> Blasted Lands
   }
 
   
@@ -57,6 +64,11 @@ local static_alliance_routes =
    {{67, 0.389, 0.651}, DARNASSUS_PORTAL, 60, true, nil, "DARNASSUS_PORTAL"}, -- Dalaran --> Darnassus
    {{67, 0.382, 0.664}, EXODAR_PORTAL, 60, true, nil, "EXODAR_PORTAL"}, -- Dalaran --> Exodar
    {{67, 0.371, 0.667}, SHATTRATH_CITY_PORTAL, 60, true, nil, "SHATTRATH_CITY_PORTAL"}, -- Dalaran --> Shatt
+   
+   {{21,0.405,0.817}, BLASTED_LANDS_PORTAL, 60, true, level_limit = 58},  -- Darnassus --> Blasted Lands
+   {{12,0.462,0.609}, BLASTED_LANDS_PORTAL, 60, true, level_limit = 58},  -- Exodar --> Blasted Lands
+   {{25,0.273,0.071}, BLASTED_LANDS_PORTAL, 60, true, level_limit = 58},  -- Ironforge --> Blasted Lands
+   {{36,0.490,0.874}, BLASTED_LANDS_PORTAL, 60, true, level_limit = 58},  -- Stormwind --> Blasted Lands
   }
 
 local static_shared_routes = 
@@ -100,6 +112,8 @@ local static_shared_routes =
    {{140, 0.635, 0.501}, {68, 0.600, 0.566}, 5}, -- Sarth
    {{142, 0.500, 0.500}, {65, 0.275, 0.267}, 5}, -- Malygos, zone-in link is incorrect (not that it matters with malygos)
    {{144, 0.500, 0.500}, {73, 0.416, 0.179}, 5}, -- Ulduar, zone-in link is incorrect
+   {{155, 0.426, 0.203}, {71, 0.548, 0.899}, 5}, -- Forge of Souls
+   {{157, 0.410, 0.801}, {71, 0.547, 0.916}, 5}, -- Pit of Saron
    
    -- Wrath in-zone links, all currently incorrect
     -- UK
@@ -254,6 +268,7 @@ end
 function load_graph_links()
   local function convert_coordinate(coord)
     QuestHelper: Assert(coord[1] and coord[2] and coord[3])
+    QuestHelper: Assert(QuestHelper_ZoneLookup[coord[1]])
     local c, x, y = QuestHelper.Astrolabe:GetAbsoluteContinentPosition(QuestHelper_ZoneLookup[coord[1]][1], QuestHelper_ZoneLookup[coord[1]][2], coord[2], coord[3])
     QuestHelper: Assert(c)
     return {x = x, y = y, p = coord[1], c = c}
@@ -261,15 +276,17 @@ function load_graph_links()
 
   local function do_routes(routes)
     for _, v in ipairs(routes) do
-      local src = convert_coordinate(v[1])
-      local dst = convert_coordinate(v[2])
-      QuestHelper: Assert(src.x and dst.x)
-      src.map_desc = {QHFormat("WAYPOINT_REASON", QuestHelper_NameLookup[v[2][1]])}
-      dst.map_desc = {QHFormat("WAYPOINT_REASON", QuestHelper_NameLookup[v[1][1]])}
-      
-      local rev_cost = v[3]
-      if v[4] then rev_cost = nil end
-      QH_Graph_Plane_Makelink("static_route", src, dst, v[3], rev_cost) -- this couldn't possibly fail
+      if not v.level_limit or v.level_limit <= UnitLevel("player") then
+        local src = convert_coordinate(v[1])
+        local dst = convert_coordinate(v[2])
+        QuestHelper: Assert(src.x and dst.x)
+        src.map_desc = {QHFormat("WAYPOINT_REASON", QuestHelper_NameLookup[v[2][1]])}
+        dst.map_desc = {QHFormat("WAYPOINT_REASON", QuestHelper_NameLookup[v[1][1]])}
+        
+        local rev_cost = v[3]
+        if v[4] then rev_cost = nil end
+        QH_Graph_Plane_Makelink("static_route", src, dst, v[3], rev_cost) -- this couldn't possibly fail
+      end
     end
   end
   
@@ -287,16 +304,16 @@ function load_graph_links()
     local src = convert_coordinate({v[1], v[3], v[4]})
     local dst = convert_coordinate({v[1], v[3], v[4]})
     dst.p = v[2]
-    src.map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("ZONE_BORDER", QuestHelper_NameLookup[v[1]], QuestHelper_NameLookup[v[2]]))}
-    dst.map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("ZONE_BORDER", QuestHelper_NameLookup[v[2]], QuestHelper_NameLookup[v[1]]))}
+    src.map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("ZONE_BORDER_SIMPLE", QuestHelper_NameLookup[v[2]]))}
+    dst.map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("ZONE_BORDER_SIMPLE", QuestHelper_NameLookup[v[1]]))}
     QH_Graph_Plane_Makelink("static_transition", src, dst, 0, 0)
   end
   
   do
     local src = convert_coordinate(dark_portal_route[1])
     local dst = convert_coordinate(dark_portal_route[2])
-    src.map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("ZONE_BORDER", QuestHelper_NameLookup[dark_portal_route[1]], QuestHelper_NameLookup[dark_portal_route[2]]))}
-    dst.map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("ZONE_BORDER", QuestHelper_NameLookup[dark_portal_route[2]], QuestHelper_NameLookup[dark_portal_route[1]]))}
+    src.map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("ZONE_BORDER_SIMPLE", QuestHelper_NameLookup[dark_portal_route[2]]))}
+    dst.map_desc = {QHFormat("WAYPOINT_REASON", QHFormat("ZONE_BORDER_SIMPLE", QuestHelper_NameLookup[dark_portal_route[1]]))}
     QH_Graph_Plane_Makelink("dark_portal", src, dst, 15, 15)
   end
 end

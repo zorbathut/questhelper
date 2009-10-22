@@ -139,6 +139,7 @@ end
 local function getContPosition( zoneData, z, x, y )
 	if ( z ~= 0 ) then
 		zoneData = zoneData[z];
+    if not zoneData then return end
 		x = x * zoneData.width + zoneData.xOffset;
 		y = y * zoneData.height + zoneData.yOffset;
 	else
@@ -309,6 +310,7 @@ function Astrolabe:TranslateWorldMapPosition( C, Z, xPos, yPos, nC, nZ )
 		zoneData = WorldMapSize[C];
 		local parentContinent = zoneData.parentContinent;
 		xPos, yPos = getContPosition(zoneData, Z, xPos, yPos);
+    if not xPos or not yPos then return end -- there is no such zone. why are you asking me such silly things? you are a terrible person. leave me in my despair.
 		if ( C ~= parentContinent ) then
 			-- translate up to world map if we aren't there already
 			xPos = xPos + zoneData.xOffset;
@@ -1788,6 +1790,9 @@ if true then
   VContinent(-114, "Ulduar2", 885.6) -- temporary value
   VContinent(-115, "Ulduar3", 100) -- temporary value
   VContinent(-116, "Ulduar4", 100) -- temporary value
+  
+  VContinent(-117, "TheForgeofSouls", 965.4) -- temporary value
+  VContinent(-118, "PitofSaron", 1022.3)
 end
 
 VirtualContinentIndexes = { -- Don't change values here, since programs might want to store them
@@ -1846,6 +1851,9 @@ VirtualContinentIndexes = { -- Don't change values here, since programs might wa
   ["Ulduar2"] = -114,
   ["Ulduar3"] = -115,
   ["Ulduar4"] = -116,
+  
+  ["TheForgeofSouls"] = -117,
+  ["PitofSaron"] = -118,
 }
 
 DongleStub:Register(Astrolabe, activate)

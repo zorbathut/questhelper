@@ -41,6 +41,8 @@ local function OnUpdate()
 end
 
 function QH_Collect_Zone_Init(QHCData, API)
+  do return end -- we really don't need this anymore
+  
   if not QHCData.zone then QHCData.zone = {} end
   QHCZ = QHCData.zone
   

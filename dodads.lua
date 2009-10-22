@@ -222,7 +222,7 @@ function QuestHelper:CreateWorldMapWalker()
       
       local cur_dodad = 1
       for i = 2, #self.route do -- 2 because we're skipping the player
-        if not self.route[i].ignore then
+        if not self.route[i].ignore or qh_hackery_show_all_map_nodes then
           local dodad = self.map_dodads[cur_dodad]
           if not dodad then
             self.map_dodads[cur_dodad] = self.frame:CreateWorldMapDodad(self.route[i], i == 2)
@@ -278,7 +278,7 @@ function QuestHelper:GetOverlapObjectives(obj)
   for i, o in ipairs(walker_loc.route) do
     --QuestHelper: Assert(o, string.format("nil dodads pos issue, o %s", tostring(o)))
     --QuestHelper: Assert(o.pos, string.format("nil dodads pos issue, pos %s", QuestHelper:StringizeTable(o)))
-    if not o.ignore then
+    if not o.ignore or qh_hackery_show_all_map_nodes then
       if o == obj then
         table.insert(list, o)
       else
@@ -362,6 +362,13 @@ end
 
 globx = 0.5
 globy = 0.5
+
+function QH_Append_NextObjective(menu)
+  local obj = QuestHelper.minimap_marker.obj
+  if not obj then return end
+  
+  QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
+end
 
 local function rightclick_menu(obj)
   if obj then
@@ -949,6 +956,9 @@ function QuestHelper:CreateMipmapDodad()
           self.arrow:Hide()
           self.dot:Show()
           self.bg:Show()
+          
+          self.dot:SetAlpha(QuestHelper_Pref.mini_opacity)
+          self.bg:SetAlpha(QuestHelper_Pref.mini_opacity)
         end
         
         if edge then

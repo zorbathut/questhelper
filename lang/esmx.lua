@@ -8,12 +8,11 @@ QuestHelper_Translations.esMX =
   -- Messages used when starting.
   LOCALE_ERROR = "El idioma de sus datos guardados no coincide con el idioma del cliente Wow. Para utilizar QuestHelper tendrá que cambiar la configuración regional de vuelta, o borre los datos tecleando %h(/qh purge).",
   ZONE_LAYOUT_ERROR = "Me niego a ejecutarme, por temor a dañar sus datos guardados. Por favor, espere a un nuevo parche que será capaz de manejar el nuevo diseño de zona.",
-  DOWNGRADE_ERROR = "Sus datos guardados no son compatibles con esta versión del QuestHelper. Utilice una nueva vesión, o borre sus variables guardadas.",
   HOME_NOT_KNOWN = "Se desconoce la posición de su hogar. Cuando pueda, por favor, hable con su posadero para restaurarla.",
   PRIVATE_SERVER = "QuestHelper no funciona en Servidores Privados",
   PLEASE_RESTART = "Hubo un error iniciando QuestHelper. Por favor salga completamente del World of Warcraft e intente nuevamente.",
   NOT_UNZIPPED_CORRECTLY = "Quest Helper se ha instalado incorrectamente. Recomendamos usar o el Curse Client o Zip.7 para instalarlo.  Asegurese que los subdirectorios son extraidos",
-  PLEASE_DONATE = "%h(¡QuestHelper actualmente sobrevive de sus donaciones!) Cualquier contibución suya es apreciada, y solo unos pocos dólares al mes aseguran que yo lo mantendré actualizado y en funcionamiento. Teclee %h(/qh donate) para mas información.",
+  PLEASE_SUBMIT = "%h (QuestHelper necesita tu ayuda!) Si tienes algunso minutos, por favor dirigete a la página principal de QuestHelper en %h(http://www.quest-helper.com) y sigue las intrucciones para enviar tus datos coleccionados. Tus datos mantienen QuestHelper al día y en funcionamiento.",
   HOW_TO_CONFIGURE = "Como configurar.",
   TIME_TO_UPDATE = "Hay una nueva version Quest Helper %v disponible. Nuevas versiones incluyen normalmente nuevas funciones,nueva base de datos de misiones, y fija errores. Actualicese !!",
   
@@ -51,7 +50,7 @@ QuestHelper_Translations.esMX =
   OBJECTIVE_MONSTER_UNKNOWN = "Monstruo Desconocido.",
   OBJECTIVE_ITEM_UNKNOWN = "Item Desconocido.",
   
-  ZONE_BORDER = "la frontera %1/%2",
+  ZONE_BORDER_SIMPLE = nil,
   
   -- Stuff used in objective menus.
   PRIORITY = "Prioridad",
@@ -105,7 +104,7 @@ QuestHelper_Translations.esMX =
   DEPENDS_ON_COUNT = "Depende de los objetivos ocultos %1.",
   DEPENDS_ON = "Depende de %1.",
   FILTERED_LEVEL = "Filtrado por Nivel.",
-  FILTERED_GROUP = nil,
+  FILTERED_GROUP = "Filtrado por tamaño de grupo",
   FILTERED_ZONE = "Filtrado por zona.",
   FILTERED_COMPLETE = "Filtrado debido a completados.",
   FILTERED_BLOCKED = "Filtrado debido al objetivo anterior incompleto.",
