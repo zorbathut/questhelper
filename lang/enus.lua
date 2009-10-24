@@ -130,7 +130,7 @@ QuestHelper_Translations.enUS =
   IGNORED_PRIORITY_FIX = "Apply same priority to the blocking objectives.",
   IGNORED_PRIORITY_IGNORE = "I'll set the priorities myself.",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "Search Results",
   NO_RESULTS = "There aren't any!",
   CREATED_OBJ = "Created: %1",
@@ -138,14 +138,9 @@ QuestHelper_Translations.enUS =
   USER_OBJ = "User Objective: %h1",
   UNKNOWN_OBJ = "I don't know where you should go for that objective.",
   INACCESSIBLE_OBJ = "QuestHelper has been unable to find a useful location for %h1. We've added a likely-impossible-to-find location to your objectives list. If you find a useful version of this object, please submit your data! (%h(/qh submit))",
-  
-  SEARCHING_STATE = "Searching: %1",
-  SEARCHING_LOCAL = "Local %1",
-  SEARCHING_STATIC = "Static %1",
-  SEARCHING_ITEMS = "Items",
-  SEARCHING_NPCS = "NPCs",
-  SEARCHING_ZONES = "Zones",
-  SEARCHING_DONE = "Done!",
+  FIND_REMOVE = "Cancel objective",
+  FIND_NOT_READY = "QuestHelper hasn't finished loading yet. Please wait a minute and try again.",
+  FIND_CUSTOM_LOCATION = "Custom map location",
   
   -- Shared objectives.
   PEER_TURNIN = "Wait for %h1 to turn in %h2.",

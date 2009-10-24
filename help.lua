@@ -756,7 +756,7 @@ commands =
       {"/qh find loc stormwind 50 60", "Finds the Stormwind auction house."},
       {"/qh find loc 50 50", "Finds the center of the zone you're in."},
       {"/qh find something", "Searches for something in all categories."},
-      {"/qh find", "Lists objectives you manually created so that you can remove them."}}, QuestHelper.PerformSearch, QuestHelper},
+      {"/qh find", "Lists objectives you manually created so that you can remove them."}}, QH_FindName},
     
     {"SOLO",
      "Toggles solo mode. When enabled, assumes your party members don't exist. Objective sharing with party members will also be disabled.",
