@@ -59,7 +59,6 @@ local function generate_objective(dbi)
   for _, v in ipairs(dbi.loc) do
     QuestHelper: Assert(QuestHelper_ParentLookup)
     QuestHelper: Assert(QuestHelper_ParentLookup[v.p], v.p)
-    print(clooster)
     table.insert(clooster, {loc = {x = v.x, y = v.y, c = QuestHelper_ParentLookup[v.p], p = v.p}, cluster = clooster, tracker_hidden = true, why = why, map_desc = {QuestHelper:HighlightText(dbi.name)}, tracker_desc = dbi.name, map_suppress_ignore = true, map_custom_menu = function (menu) QuestHelper:CreateMenuItem(menu, QHText("FIND_REMOVE")):SetFunction(function () QH_Route_ClusterRemove(clooster) end) end})
   end
   
@@ -79,12 +78,10 @@ function QH_FindName(name)
       locx, locy = tonumber(locx), tonumber(locy)
       locz = QuestHelper_NameLookup[QuestHelper_IndexLookup[QuestHelper.routing_c][QuestHelper.routing_z]]
     end
-    print(locx, locy, locz)
     
     if not locx then
       locz, locx, locy = locd:match("^(.+) (%d+) (%d+)$")
       locx, locy = tonumber(locx), tonumber(locy)
-      print(locz, locx, locy)
     end
     
     if locz then
@@ -115,8 +112,6 @@ function QH_FindName(name)
     end
     
     local found = getitall(name)
-    
-    print("done hunting")
     
     local mennix = QuestHelper:CreateMenu()
     QuestHelper:CreateMenuTitle(mennix, QHText("RESULTS_TITLE"))

@@ -12,6 +12,8 @@ I'm not releasing this as a beta version, since everything but "/qh find" is sta
 
 * New database, obviously :D
 
+Oh yeah I went and [[http://www.mandible.net|made another game]]. This one's about numbers! You like numbers, right? Come play with numbers.
+
 == Version 1.1.23 10/18/2009 ==
 
 * Remember how the last version was supposed to have 3.3 compatibility? Yeah well uh
