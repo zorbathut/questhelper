@@ -82,28 +82,31 @@ function QH_FindName(name)
     print(locx, locy, locz)
     
     if not locx then
-      locz, locx, locy = locd:match("^(*+) (%d+) (%d+)$")
+      locz, locx, locy = locd:match("^(.+) (%d+) (%d+)$")
       locx, locy = tonumber(locx), tonumber(locy)
+      print(locz, locx, locy)
     end
     
-    for z, nam in pairs(QuestHelper_NameLookup) do
-      if nam:find(locz) then
-        locz = z
-        break
+    if locz then
+      for z, nam in pairs(QuestHelper_NameLookup) do
+        if nam:lower():find(locz:lower()) then
+          locz = z
+          break
+        end
       end
-    end
-    
-    if type(locz) == "number" then
-      local ec, ez = unpack(QuestHelper_ZoneLookup[locz])
-      local c, x, y = QuestHelper.Astrolabe:GetAbsoluteContinentPosition(ec, ez, locx / 100, locy / 100)
-      local node = {loc = {x = x, y = y, p = locz, c = QuestHelper_ParentLookup[locz]}, why = msfires, map_desc = {QHText("FIND_CUSTOM_LOCATION")}, tracker_desc = QHText("FIND_CUSTOM_LOCATION")}
-      local cluster = {node}
-      node.cluster = cluster
       
-      node.map_suppress_ignore = true
-      node.map_custom_menu = function (menu) QuestHelper:CreateMenuItem(menu, QHText("FIND_REMOVE")):SetFunction(function () QH_Route_ClusterRemove(cluster) end) end
-      
-      QH_Route_ClusterAdd(cluster)
+      if type(locz) == "number" then
+        local ec, ez = unpack(QuestHelper_ZoneLookup[locz])
+        local c, x, y = QuestHelper.Astrolabe:GetAbsoluteContinentPosition(ec, ez, locx / 100, locy / 100)
+        local node = {loc = {x = x, y = y, p = locz, c = QuestHelper_ParentLookup[locz]}, why = msfires, map_desc = {QHText("FIND_CUSTOM_LOCATION")}, tracker_desc = QHText("FIND_CUSTOM_LOCATION"), tracker_hidden = true}
+        local cluster = {node}
+        node.cluster = cluster
+        
+        node.map_suppress_ignore = true
+        node.map_custom_menu = function (menu) QuestHelper:CreateMenuItem(menu, QHText("FIND_REMOVE")):SetFunction(function () QH_Route_ClusterRemove(cluster) end) end
+        
+        QH_Route_ClusterAdd(cluster)
+      end
     end
   else
     if not DB_Ready() then
