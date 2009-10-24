@@ -119,6 +119,8 @@ function QH_FindName(name)
     local made_item = false
     
     local found_db = {}
+    local has_name = {}
+    local needs_postfix = {}
     
     for _, v in ipairs(found) do
       local dbi = DB_GetItem("monster", v)
@@ -126,6 +128,9 @@ function QH_FindName(name)
       
       if dbi.loc then
         table.insert(found_db, dbi)
+        
+        if has_name[dbi.name] then needs_postfix[dbi.name] = true end
+        has_name[dbi.name] = true
       end
     end
     
@@ -134,7 +139,11 @@ function QH_FindName(name)
     for _, v in ipairs(found_db) do
       made_item = true
     
-      local opt = QuestHelper:CreateMenuItem(mennix, v.name)
+      local name = v.name
+      
+      if needs_postfix[name] then name = name .. " (" .. QuestHelper_NameLookup[v.loc[1].p] .. ")" end
+      
+      local opt = QuestHelper:CreateMenuItem(mennix, name)
       opt:SetFunction(generate_objective, v)
     end
     
