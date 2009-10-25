@@ -359,9 +359,7 @@ QH_AddNotifier(GetTime() + 5, function ()
       end
     end
     if ttsx then QH_Hook_NotMyFault(ttsx, self, ...) end
-    print(unit_to_adjust, unit_to_adjust == self:GetUnit())
     if (glob_strip > 0 or bar_boost) and unit_to_adjust and unit_to_adjust == self:GetUnit() then
-      print(self:GetHeight(), bar_split, self:GetHeight() - glob_strip * 3 + bar_split * 2)
       self:SetHeight(self:GetHeight() - glob_strip * 3 + (bar_boost and bar_split or 0)) -- maaaaaagic
       unit_to_adjust = nil
     end
