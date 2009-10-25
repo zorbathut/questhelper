@@ -1,5 +1,61 @@
 QuestHelper_File["custom.lua"] = "Development Version"
 QuestHelper_Loadtime["custom.lua"] = GetTime()
+
+local search_frame = CreateFrame("Button", nil, UIParent)
+search_frame.text = search_frame:CreateFontString()
+search_frame.text:SetFont(QuestHelper.font.sans, 15)
+search_frame.text:SetTextColor(1, 1, 1)
+search_frame.text:SetJustifyH("CENTER")
+search_frame.text:SetJustifyV("MIDDLE")
+search_frame.text:SetDrawLayer("OVERLAY")
+search_frame.text:SetAllPoints()
+search_frame.text:Show()
+search_frame.background = search_frame:CreateTexture()
+search_frame.background:SetTexture(0, 0, 0, 0.5)
+search_frame.background:SetDrawLayer("BACKGROUND")
+search_frame.background:SetAllPoints()
+search_frame.background:Show()
+search_frame:SetPoint("CENTER", UIParent, "CENTER")
+search_frame:Hide()
+
+search_frame.results = {}
+
+function search_frame:SetText(text)
+  self.text:SetText(text)
+  self:SetWidth(self.text:GetWidth()+10)
+  self:SetHeight(self.text:GetHeight()+10)
+end
+
+function search_frame:OnUpdate()
+  if self.routine and coroutine.status(self.routine) ~= "dead" then
+    local no_error, display = coroutine.resume(self.routine, self, self.query)
+    if no_error then
+      self:SetText(display)
+    else
+      QuestHelper:TextOut("Searching co-routine just exploded: "..display)
+    end
+  else
+    self:ShowResults()
+    self.routine = nil
+    QH_Hook(self, "OnUpdate", nil)
+    self:Hide()
+  end
+end
+
+function QuestHelper:PerformCustomSearch(func)
+  if not search_frame:GetScript("OnUpdate") then
+    search_frame:Show()
+    QH_Hook(search_frame, "OnUpdate", func)
+  end
+end
+
+function QuestHelper:StopCustomSearch()
+  if not search_frame.routine then
+    search_frame:Hide()
+    QH_Hook(search_frame, "OnUpdate", nil)
+  end
+end
+
   
 do return end
 
@@ -74,47 +130,6 @@ local function fuzzyCompare(a, b)
   end
   
   return row[n+1]/math.max(n,m)
-end
-
-local search_frame = CreateFrame("Button", nil, UIParent)
-search_frame.text = search_frame:CreateFontString()
-search_frame.text:SetFont(QuestHelper.font.sans, 15)
-search_frame.text:SetTextColor(1, 1, 1)
-search_frame.text:SetJustifyH("CENTER")
-search_frame.text:SetJustifyV("MIDDLE")
-search_frame.text:SetDrawLayer("OVERLAY")
-search_frame.text:SetAllPoints()
-search_frame.text:Show()
-search_frame.background = search_frame:CreateTexture()
-search_frame.background:SetTexture(0, 0, 0, 0.5)
-search_frame.background:SetDrawLayer("BACKGROUND")
-search_frame.background:SetAllPoints()
-search_frame.background:Show()
-search_frame:SetPoint("CENTER", UIParent, "CENTER")
-search_frame:Hide()
-
-search_frame.results = {}
-
-function search_frame:SetText(text)
-  self.text:SetText(text)
-  self:SetWidth(self.text:GetWidth()+10)
-  self:SetHeight(self.text:GetHeight()+10)
-end
-
-function search_frame:OnUpdate()
-  if self.routine and coroutine.status(self.routine) ~= "dead" then
-    local no_error, display = coroutine.resume(self.routine, self, self.query)
-    if no_error then
-      self:SetText(display)
-    else
-      QuestHelper:TextOut("Searching co-routine just exploded: "..display)
-    end
-  else
-    self:ShowResults()
-    self.routine = nil
-    QH_Hook(self, "OnUpdate", nil)
-    self:Hide()
-  end
 end
 
 function QuestHelper:ToggleUserObjective(cat, what)
@@ -335,20 +350,6 @@ end
 
 function QuestHelper:PerformSearch(query)
   search_frame:PerformSearch(query)
-end
-
-function QuestHelper:PerformCustomSearch(func)
-  if not search_frame:GetScript("OnUpdate") then
-    search_frame:Show()
-    QH_Hook(search_frame, "OnUpdate", func)
-  end
-end
-
-function QuestHelper:StopCustomSearch()
-  if not search_frame.routine then
-    search_frame:Hide()
-    QH_Hook(search_frame, "OnUpdate", nil)
-  end
 end
 
 SLASH_QuestHelperFind1 = "/qhfind"
