@@ -15,17 +15,17 @@ local function getitall(name)
   
   local segwork = {}
   for k in pairs(segments) do
-    table.insert(segwork, {k, 1})
+    table.insert(segwork, {k, 1, k[1]})
   end
   
   local found = {}
   
   while true do
-    local lowest = segwork[1][1][segwork[1][2]]
-    local highest = segwork[1][1][segwork[1][2]]
+    local lowest = segwork[1][3]
+    local highest = segwork[1][3]
     local lid = 1
     for i = 2, #segwork do
-      local v = segwork[i][1][segwork[i][2]]
+      local v = segwork[i][3]
       --print("loop", i, lowest, highest, v, segwork[i][2])
       if v < lowest then
         --print("lower")
@@ -40,13 +40,17 @@ local function getitall(name)
     if lowest == highest then
       table.insert(found, lowest)
       segwork[1][2] = segwork[1][2] + 1
+      if not segwork[1][1][segwork[1][2]] then break end
+      segwork[1][3] = segwork[1][3] + segwork[1][1][segwork[1][2]]
     else
-      while segwork[lid][1][segwork[lid][2]] and segwork[lid][1][segwork[lid][2]] < highest do
+      while segwork[lid][3] < highest do
         segwork[lid][2] = segwork[lid][2] + 1
+        if not segwork[lid][1][segwork[lid][2]] then break end
+        segwork[lid][3] = segwork[lid][3] + segwork[lid][1][segwork[lid][2]]
       end
     end
     
-    if not segwork[lid][1][segwork[lid][2]] then break end
+    --if not segwork[lid][1][segwork[lid][2]] then break end
   end
   
   return found
