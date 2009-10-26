@@ -1,4 +1,20 @@
 
+== Version 1.2.0 10/24/2009 ==
+
+where doing it man
+where MAKING THIS HAPEN
+
+Reimplemented "/qh find". For example, "/qh find murloc", "/qh find loc 50 50", "/qh find loc stormwind 20 80". It may be slightly faster than it used to be. It may also have issues. Issues with a capital Issues.
+
+First, I currently don't have support for items, only for monsters and locations. Does anyone care about items? Note that it won't include everything - a full database is huge, and QH currently only includes stuff that's useful for quests. So I can track known quest items. Alternatively, I can include a certain set of things (like reagents) into the database explicitly. Are those useful? I really don't know. You tell me!
+
+I'm not releasing this as a beta version, since everything but "/qh find" is stable. "/qh find" itself should be considered beta. There are probably missing features that I'm not aware of, and there may be bugs. Please report any issues or unfortunate behavior!
+
+* New database, obviously :D
+* Tweaked the rendering order on the tracker handle. May not show up on top of your bags anymore. May still work properly. May not! It is an adventure to all.
+
+Oh yeah I went and [[http://www.mandible.net|made another game]]. This one's about numbers! You like numbers, right? Come play with numbers. //Come play with numbers.//
+
 == Version 1.1.23 10/18/2009 ==
 
 * Remember how the last version was supposed to have 3.3 compatibility? Yeah well uh

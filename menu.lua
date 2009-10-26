@@ -113,7 +113,7 @@ local function Menu_DoHide(self)
 end
 
 local function Menu_ShowAtCursor(self, auto_release)
-  auto_release = auto_release == nil and true or auto_release
+  auto_release = (auto_release == nil) and true or auto_release
   self.auto_release = auto_release
 
   -- Add a 'Close Menu' item to the end of the menu, if it's not there already

@@ -312,6 +312,7 @@ QH_Event("ADDON_LOADED", function (addonid)
       
       ["director_quest.lua"] = true,
       ["director_achievement.lua"] = true,
+      ["director_find.lua"] = true,
       
       ["db_get.lua"] = true,
       

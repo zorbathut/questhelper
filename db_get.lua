@@ -147,7 +147,7 @@ function DB_GetItem(group, id, silent, register)
           
           if type(dat) == "string" then
             QuestHelper: Assert(db[group].__tokens == nil or type(db[group].__tokens) == "table")
-            srctab = loadstring("return {" .. QH_LZW_Decompress_Dicts_Prepared_Arghhacky(dat, db[group].__dictionary, nil, db[group].__tokens) .. "}")()
+            srctab = loadstring("return {" .. (db[group].__prefix or "") .. QH_LZW_Decompress_Dicts_Prepared_Arghhacky(dat, db[group].__dictionary, nil, db[group].__tokens) .. (db[group].__suffix or "") .. "}")()
           elseif type(dat) == "table" then
             srctab = dat
           else

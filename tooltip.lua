@@ -8,7 +8,7 @@ end
 
 
 local function DoTooltip(self, data, lines, prefix)
-  local indent = 2
+  local indent = 1
   
   if prefix then
     self:AddLine(("  "):rep(indent) .. prefix, 1, 1, 1)
@@ -26,8 +26,8 @@ local function DoTooltip(self, data, lines, prefix)
 end
 
 local function DoTooltipDefault(self, qname, text)
-  self:AddLine("    " .. QHFormat("TOOLTIP_SLAY", text), 1, 1, 1)
-  self:AddLine("      " .. QHFormat("TOOLTIP_QUEST", qname), 1, 1, 1)
+  self:AddLine("  " .. QHFormat("TOOLTIP_SLAY", text), 1, 1, 1)
+  self:AddLine("    " .. QHFormat("TOOLTIP_QUEST", qname), 1, 1, 1)
 end
 
 local ctts = {}
@@ -168,14 +168,30 @@ local function CopyOver(to, from)
   to:Show()
 end
 
-local sigil = GameTooltip:CreateTexture("BACKGROUND")
-sigil:SetHeight(32)
-sigil:SetWidth(32)
+local sigil_bar = CreateFrame("Frame", GameTooltip)
+sigil_bar:SetFrameStrata("TOOLTIP")
+sigil_bar:SetPoint("LEFT", GameTooltip, "LEFT", 10, 0)
+sigil_bar:SetPoint("RIGHT", GameTooltip, "RIGHT", -10, 0)
+sigil_bar:SetHeight(0.5)
+sigil_bar:SetFrameLevel(10)
+sigil_bar:Hide()
+
+local sigil_bar_filler = sigil_bar:CreateTexture()
+sigil_bar_filler:SetTexture(1, 1, 1)
+sigil_bar_filler:SetAllPoints()
+
+local sigil = GameTooltip:CreateTexture()
+sigil:SetParent(sigil_bar)
+sigil:SetHeight(16)
+sigil:SetWidth(16)
 --sigil:SetPoint("CENTER", 0, 0)
 sigil:SetTexture("Interface\\AddOns\\QuestHelper\\sigil")
-sigil:Hide()
+sigil:SetPoint("TOPRIGHT", sigil_bar, "BOTTOMRIGHT", 2, -2)
 local sigil_text
 local sigil_item
+
+local bar_split = 10
+local bar_boost
 
 local function StripBlizzQHTooltipClone(ttp)
   --do return end
@@ -253,9 +269,20 @@ local function StripBlizzQHTooltipClone(ttp)
   if _G["GameTooltipTextLeft" .. qhstart] and _G["GameTooltipTextLeft" .. qhstart]:IsShown() then
     sigil_item = _G["GameTooltipTextLeft" .. qhstart]
     sigil_text = sigil_item:GetText()
-    sigil:SetPoint("TOP", sigil_item, "TOP", 0, 3)
-    sigil:SetPoint("LEFT", GameTooltip, "LEFT")
-    sigil:Show()
+    local cbar = _G["GameTooltipTextLeft" .. qhstart]
+    for i = 1, cbar:GetNumPoints() do
+      local point, relative, rlpoint, x, y = cbar:GetPoint(i)
+      if point == "TOPLEFT" and y > -bar_split then
+        y = y - bar_split
+        cbar:SetPoint(point, relative, rlpoint, x, y)
+      end
+    end
+    sigil_bar:SetPoint("TOP", sigil_item, "TOP", 0, bar_split / 2)
+    --sigil_bar:SetParent(sigil_item)
+    --sigil:SetPoint("TOP", sigil_item, "TOP", 0, 3)
+    --sigil:SetPoint("LEFT", GameTooltip, "LEFT")
+    sigil_bar:Show()
+    bar_boost = true
   end
 
   
@@ -267,6 +294,7 @@ end
 local glob_strip = 0
 function CreateTooltip(self)
   glob_strip = 0
+  bar_boost = nil
   
   if QuestHelper_Pref.tooltip then
     local inu, ilink = self:GetItem()
@@ -288,7 +316,7 @@ function CreateTooltip(self)
     if ulink and IsMonsterGUID(ulink) then
       if qh_tooltip_print_a_lot then print("huhwuzat") print(QH_filter_hints) end
       
-      glob_strip = StripBlizzQHTooltipClone(self)
+      glob_strip = StripBlizzQHTooltipClone(self) or 0
       
       local ite = tostring(GetMonsterType(ulink))
       
@@ -311,7 +339,7 @@ QH_AddNotifier(GetTime() + 5, function ()
   QH_Hook(GameTooltip, "OnTooltipSetUnit", function (self, ...)
     if qh_tooltip_print_a_lot then print("lol") end
     CreateTooltip(self)
-    if ottsu then return QH_Hook_NotMyFault(ottsu, self, ...) end
+    if ottsu then QH_Hook_NotMyFault(ottsu, self, ...) end
     unit_to_adjust = self:GetUnit()
   end, "tooltip OnTooltipSetUnit")
 
@@ -323,14 +351,15 @@ QH_AddNotifier(GetTime() + 5, function ()
 
   local ttsx = GameTooltip:GetScript("OnUpdate")
   QH_Hook(GameTooltip, "OnUpdate", function (self, ...)
-    if sigil:IsShown() then
-      if not (sigil_item:IsShown() and sigil_item:GetText() == sigil_text) then
-        sigil:Hide()
+    if sigil_bar:IsShown() then
+      sigil_bar:SetAlpha(GameTooltip:GetAlpha())
+      if not (sigil_bar:IsShown() and sigil_item:GetText() == sigil_text) then
+        sigil_bar:Hide()
       end
     end
     if ttsx then QH_Hook_NotMyFault(ttsx, self, ...) end
-    if glob_strip and unit_to_adjust and unit_to_adjust == self:GetUnit() then
-      self:SetHeight(self:GetHeight() - glob_strip * 3) -- maaaaaagic
+    if (glob_strip > 0 or bar_boost) and unit_to_adjust and unit_to_adjust == self:GetUnit() then
+      self:SetHeight(self:GetHeight() - glob_strip * 3 + (bar_boost and bar_split or 0)) -- maaaaaagic
       unit_to_adjust = nil
     end
   end, "tooltip OnUpdate")

@@ -45,27 +45,34 @@ QuestHelper.tracker = tracker
 local resizing = false
 tracker:SetWidth(200)
 tracker:SetHeight(100)
+tracker:SetFrameStrata("BACKGROUND")
 tracker.dw, tracker.dh = 200, 100
 
 local in_tracker = 0
 
-minbutton:SetFrameStrata("DIALOG")
+minbutton:SetFrameStrata("LOW")
 minbutton:Hide()
 minbutton:SetPoint("TOPRIGHT", WatchFrame) -- We default to a different location to make it more likely to display the right item.
 minbutton:SetMovable(true)
 minbutton:SetUserPlaced(true)
 minbutton:SetWidth(32 / 1.6)
 minbutton:SetHeight(32)
+minbutton:SetFrameLevel(3)
 local minbutton_tex = minbutton:CreateTexture()
 minbutton_tex:SetAllPoints()
 minbutton_tex:SetTexture(.6, .6, .6)
+minbutton_tex:SetParent(minbutton)
 
-local sigil = minbutton:CreateTexture("BACKGROUND", minbutton_tex)
+local sigargh = CreateFrame("Frame", minbutton)
+sigargh:SetFrameStrata("LOW")
+sigargh:SetFrameLevel(4)
+
+local sigil = sigargh:CreateTexture("BACKGROUND")
 sigil:SetHeight(32)
 sigil:SetWidth(32)
 --sigil:SetPoint("CENTER", 0, 0)
 sigil:SetTexture("Interface\\AddOns\\QuestHelper\\sigil")
-sigil:SetPoint("CENTER", minbutton, "CENTER")
+sigil:SetPoint("CENTER", minbutton_tex, "CENTER")
 
 
 tracker:SetPoint("CENTER", minbutton)
@@ -124,10 +131,12 @@ end)
 
 QH_Hook(minbutton, "OnEnter", function (self)
   self:SetAlpha(1)
+  sigargh:SetAlpha(1)
 end)
 
 QH_Hook(minbutton, "OnLeave", function (self)
   self:SetAlpha(QuestHelper_Pref.track_minimized and .3 or .5)
+  sigargh:SetAlpha(QuestHelper_Pref.track_minimized and .3 or .5)
 end)
 
 -- used_items[objective][index]
@@ -983,8 +992,10 @@ function tracker:update(delta)
     was_inside = inside
     if inside then
       minbutton:SetAlpha(.5)
+      sigargh:SetAlpha(.5)
     elseif not QuestHelper_Pref.track_minimized then
       minbutton:SetAlpha(0)
+      sigargh:SetAlpha(0)
     end
   end
   
@@ -1081,8 +1092,10 @@ function QuestHelper:ShowTracker()
   
   if QuestHelper_Pref.track_minimized then
     minbutton:SetAlpha(.3)
+    sigargh:SetAlpha(.3)
   else
     minbutton:SetAlpha(0)
+    sigargh:SetAlpha(0)
     tracker:Show()
   end
 end
