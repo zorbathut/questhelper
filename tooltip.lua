@@ -193,6 +193,19 @@ local sigil_item
 local bar_split = 10
 local bar_boost
 
+local function FixBlizzTooltip()
+  if not sigil_item then return end
+  for i = 1, sigil_item:GetNumPoints() do
+    local point, relative, rlpoint, x, y = sigil_item:GetPoint(i)
+    if point == "TOPLEFT" and y < -bar_split then
+      y = y + bar_split
+      sigil_item:SetPoint(point, relative, rlpoint, x, y)
+    end
+  end
+  
+  sigil_item = nil
+end
+
 local function StripBlizzQHTooltipClone(ttp)
   --do return end
   if not UnitExists("mouseover") then return end
@@ -355,6 +368,7 @@ QH_AddNotifier(GetTime() + 5, function ()
       sigil_bar:SetAlpha(GameTooltip:GetAlpha())
       if not (sigil_bar:IsShown() and sigil_item:GetText() == sigil_text) then
         sigil_bar:Hide()
+        FixBlizzTooltip()
       end
     end
     if ttsx then QH_Hook_NotMyFault(ttsx, self, ...) end
