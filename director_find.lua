@@ -50,7 +50,7 @@ local function getitall(name)
       end
     end
     
-    --if not segwork[lid][1][segwork[lid][2]] then break end
+    if not segwork[lid][1][segwork[lid][2]] then break end
   end
   
   return found
