@@ -283,8 +283,6 @@ local function StripBlizzQHTooltipClone(ttp)
     --sigil:SetPoint("LEFT", GameTooltip, "LEFT")
     sigil_bar:Show()
     bar_boost = true
-  else
-    bar_boost = false
   end
 
   
@@ -296,6 +294,7 @@ end
 local glob_strip = 0
 function CreateTooltip(self)
   glob_strip = 0
+  bar_boost = nil
   
   if QuestHelper_Pref.tooltip then
     local inu, ilink = self:GetItem()
@@ -317,7 +316,7 @@ function CreateTooltip(self)
     if ulink and IsMonsterGUID(ulink) then
       if qh_tooltip_print_a_lot then print("huhwuzat") print(QH_filter_hints) end
       
-      glob_strip = StripBlizzQHTooltipClone(self)
+      glob_strip = StripBlizzQHTooltipClone(self) or 0
       
       local ite = tostring(GetMonsterType(ulink))
       
