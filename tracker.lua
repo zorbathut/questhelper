@@ -129,14 +129,38 @@ QH_Hook(minbutton, "OnDragStop", function(self)
   self:moved()
 end)
 
+local entered_main = false
+local entered_tracker = false
+local function RefreshColor()
+  if entered_main then
+    minbutton:SetAlpha(1)
+    sigargh:SetAlpha(1)
+  elseif entered_tracker then
+    minbutton:SetAlpha(.3)
+    sigargh:SetAlpha(.3)
+  elseif QuestHelper_Pref.track_minimized then
+    minbutton:SetAlpha(.3)
+    sigargh:SetAlpha(.3)
+  else
+    minbutton:SetAlpha(0)
+    sigargh:SetAlpha(0)
+  end
+end
+local function SetEnteredMain(x)
+  entered_main = x
+  RefreshColor()
+end
+local function SetEnteredTracker(x)
+  entered_tracker = x
+  RefreshColor()
+end
+
 QH_Hook(minbutton, "OnEnter", function (self)
-  self:SetAlpha(1)
-  sigargh:SetAlpha(1)
+  SetEnteredMain(true)
 end)
 
 QH_Hook(minbutton, "OnLeave", function (self)
-  self:SetAlpha(QuestHelper_Pref.track_minimized and .3 or .5)
-  sigargh:SetAlpha(QuestHelper_Pref.track_minimized and .3 or .5)
+  SetEnteredMain(false)
 end)
 
 -- used_items[objective][index]
@@ -991,11 +1015,9 @@ function tracker:update(delta)
   if inside ~= was_inside then
     was_inside = inside
     if inside then
-      minbutton:SetAlpha(.5)
-      sigargh:SetAlpha(.5)
-    elseif not QuestHelper_Pref.track_minimized then
-      minbutton:SetAlpha(0)
-      sigargh:SetAlpha(0)
+      SetEnteredTracker(true)
+    else
+      SetEnteredTracker(false)
     end
   end
   
@@ -1090,12 +1112,8 @@ function QuestHelper:ShowTracker()
   tracker:HideDefaultTracker()
   minbutton:Show()
   
-  if QuestHelper_Pref.track_minimized then
-    minbutton:SetAlpha(.3)
-    sigargh:SetAlpha(.3)
-  else
-    minbutton:SetAlpha(0)
-    sigargh:SetAlpha(0)
+  RefreshColor()
+  if not QuestHelper_Pref.track_minimized then
     tracker:Show()
   end
 end
