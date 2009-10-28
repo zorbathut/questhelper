@@ -1,4 +1,12 @@
 
+== Version 1.2.3 10/28/2009 ==
+
+* Well that was a silly bug. I have no idea how that got through my testing. Fixed.
+
+* There is still a [[http://www.mandible.net|new game available to be played]]. It is about numbers and counting - two things which //everyone finds fun//. Correct me if I am wrong! (I am not wrong.)
+
+(I wish I could stop releasing new bugfix versions, I'm going to feel pretty silly spamming this six times in one week)
+
 == Version 1.2.2 10/28/2009 ==
 
 * Fix visual issue with the modified tooltip
