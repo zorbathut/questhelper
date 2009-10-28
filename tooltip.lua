@@ -193,8 +193,12 @@ local sigil_item
 local bar_split = 10
 local bar_boost
 
+local tooltip_tweaked = false
+
 local function FixBlizzTooltip()
-  if not sigil_item then return end
+  if not tooltip_tweaked then return end
+  
+  assert(sigil_item)
   for i = 1, sigil_item:GetNumPoints() do
     local point, relative, rlpoint, x, y = sigil_item:GetPoint(i)
     if point == "TOPLEFT" and y < -bar_split then
@@ -203,7 +207,7 @@ local function FixBlizzTooltip()
     end
   end
   
-  sigil_item = nil
+  tooltip_tweaked = false
 end
 
 local function StripBlizzQHTooltipClone(ttp)
@@ -288,6 +292,7 @@ local function StripBlizzQHTooltipClone(ttp)
       if point == "TOPLEFT" and y > -bar_split then
         y = y - bar_split
         cbar:SetPoint(point, relative, rlpoint, x, y)
+        tooltip_tweaked = true
       end
     end
     sigil_bar:SetPoint("TOP", sigil_item, "TOP", 0, bar_split / 2)
@@ -368,7 +373,7 @@ QH_AddNotifier(GetTime() + 5, function ()
   QH_Hook(GameTooltip, "OnUpdate", function (self, ...)
     if sigil_bar:IsShown() then
       sigil_bar:SetAlpha(GameTooltip:GetAlpha())
-      if not (sigil_bar:IsShown() and sigil_item:GetText() == sigil_text) then
+      if not (sigil_bar:IsShown() and sigil_item and sigil_item:GetText() == sigil_text) then
         sigil_bar:Hide()
         FixBlizzTooltip()
       end
