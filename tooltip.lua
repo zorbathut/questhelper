@@ -306,6 +306,8 @@ end
 
 local glob_strip = 0
 function CreateTooltip(self)
+  FixBlizzTooltip()
+  
   glob_strip = 0
   bar_boost = nil
   
