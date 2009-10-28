@@ -1,4 +1,11 @@
 
+== Version 1.2.2 10/28/2009 ==
+
+* Fix visual issue with the modified tooltip
+* Fix some irritating consistency issues with the tracker button
+
+* There is still a [[http://www.mandible.net|new game available to be played]]. It is about numbers and counting - two things which //everyone finds fun//. Correct me if I am wrong! (I am not wrong.)
+
 == Version 1.2.1 10/26/2009 ==
 
 where doing it man
