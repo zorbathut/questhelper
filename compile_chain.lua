@@ -324,12 +324,22 @@ function ChainBlock_Create(id, linkfrom, factory, sortpred, filter)
   ninst.broadcasted = {}
   ninst.unfinished = 0
   ninst.process = function (key, subkey, value, identifier)
-    assert(key and value and type(key) == "string")
+    if not (key and value and type(key) == "string") then
+      print("Something's wrong with key and value!")
+      print("Key: ", type(key), key)
+      print("Value: ", type(value), value)
+      assert(key and value and type(key) == "string")
+    end
+      
     local touched = false
     for _, v in pairs(ninst.linkto) do
       touched = v:Insert(key, subkey, value, identifier) or touched
     end
-    assert(touched, identifier)
+    
+    if not touched then
+      print("Identifier", identifier, "from block", id, "didn't connect to anything!")
+      assert(touched, identifier)
+    end
   end
   ninst.broadcast = function (id, value) for _, v in pairs(ninst.linkto) do v:Broadcast(id, value) end end
   if linkfrom then

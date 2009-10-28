@@ -6,6 +6,8 @@ local do_errors = true
 local do_compile = true
 local do_questtables = true
 local do_flight = true
+local do_achievements = false
+local do_find = true
 
 local do_compress = true
 local do_serialize = true
@@ -14,7 +16,7 @@ dbg_data = false
 
 --local s = 47411
 --local e = 47411
---local e = 1000
+--local e = 100
 
 require "compile_lib"
 require "overrides"
@@ -23,6 +25,8 @@ require "overrides"
 *****************************************************************
 Chain head
 ]]
+
+local versix = nil
 
 local chainhead = ChainBlock_Create("parse", nil,
   function () return {
@@ -49,10 +53,19 @@ local chainhead = ChainBlock_Create("parse", nil,
       end
       
       local qhv, wowv, locale, faction = string.match(dat.signature, "([0-9.]+) on ([0-9.]+)/([a-zA-Z]+)/([12])")
-      local v = dat.data
       if qhv and wowv and locale and faction
         --and not sortversion("0.80", qhv) -- hacky hacky
       then
+        if wowv == "0.3.0" and version_lessthan(qhv, "1.2.0") then print("Corrupted 0.3.0 data, discarding") return end
+      
+        local v = dat.data
+        assert(v.version)
+        if versix then
+          if versix ~= v.version then print("Version mismatch!", versix, v.version) end
+          assert(versix == v.version)
+        end
+        versix = v.version
+        
         --[[if v.compressed then
           local deco = "return " .. LZW.Decompress(v.compressed, 256, 8)
           print(#v.compressed, #deco)
@@ -120,6 +133,14 @@ local chainhead = ChainBlock_Create("parse", nil,
           --do continue end -- ARGH
           if type(ftdat) ~= "table" then continue end
           Output(string.format("%s@@%s@@%s", ftname, faction, locale), qhv, ftdat, "flight_times")
+        end end
+        
+        -- achievements!
+        if do_compile and do_achievements and v.achievement then for aloc, adat in pairs(v.achievement) do
+          adat.fileid = value.fileid
+          adat.locale = locale
+          adat.wowv = wowv
+          Output(tostring(aloc), qhv, adat, "achievement")
         end end
         
         -- zones!
@@ -562,6 +583,14 @@ if do_compile and do_questtables then
     function (key) return {
       accum = {loc = {}},
       Data = function(self, key, subkey, value, Output)
+        if overrides.item[tonumber(key)] and sortversion(overrides.item[tonumber(key)], value.wowv) then
+          if not self.tof[value.wowv] then
+            print("Threw out", key, value.wowv, overrides.item[tonumber(key)])
+            self.tof[value.wowv] = true
+          end
+          return
+        end
+        
         if #value.loc ~= 11 then print("Unknown size", #value.loc, value.loc) return end  -- what
         
         local loc = convert_loc(slice_loc(value.loc, loc_version(value.qhv)), value.locale, loc_version(value.qhv), value.wowv)
@@ -1299,6 +1328,46 @@ end
 
 --[[
 *****************************************************************
+Achievement collation
+]]
+
+local achievement_slurp
+
+if do_compile and do_achievements then 
+  achievement_slurp = ChainBlock_Create("achievement_slurp", {chainhead},
+    function (key) return {
+      accum = {},
+      
+      -- Here's our actual data
+      Data = function(self, key, subkey, value, Output)
+        for k, v in pairs(value) do
+          if type(k) == "number" or k == "achieved" then
+            if not self.accum[k] then self.accum[k] = {loc = {}} end
+            
+            if standard_pos_accum(self.accum[k], v, loc_version(subkey), value.locale, 0, value.wowv) then return end
+          end
+        end
+      end,
+      
+      Finish = function(self, Output)
+        local oot = {}
+        local gud = false
+        
+        for k, v in pairs(self.accum) do
+          if position_has(v.loc) then oot[k] = {loc = position_finalize(v.loc)} gud = true end
+        end
+        
+        if gud then
+          Output("*/*", nil, {id="achievement", key=tonumber(key), data=oot}, "output")
+        end
+      end
+    } end,
+    sortversion, "achievement"
+  )
+end
+
+--[[
+*****************************************************************
 Final file generation
 ]]
 
@@ -1311,6 +1380,7 @@ if object_slurp then table.insert(sources, object_slurp) end
 if flight_data_output then table.insert(sources, flight_data_output) end
 if flight_table_output then table.insert(sources, flight_table_output) end
 if flight_master_name_output then table.insert(sources, flight_master_name_output) end
+if achievement_slurp then table.insert(sources, achievement_slurp) end
 
 local touched = {}
 
@@ -1371,7 +1441,7 @@ local function do_loc_choice(file, item, toplevel, solidity)
       
       item.loc = nil
     end
-  else
+ else
     assert(count == 0)
     if item.loc then
       count = #item.loc
@@ -1401,7 +1471,7 @@ end
 
 local function mark_chains(file, item)
   for k, v in ipairs(item) do
-    if file[v.sourcetype][v.sourceid] then
+    if file[v.sourcetype] and file[v.sourcetype][v.sourceid] then
       file[v.sourcetype][v.sourceid].used = true
       if file[v.sourcetype][v.sourceid]["*/*"] then mark_chains(file, file[v.sourcetype][v.sourceid]["*/*"]) end
     end
@@ -1434,29 +1504,34 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
     end,
     
     Finish = function(self, Output)
-      -- First we go through and check to see who's got actual locations, and cull either location or linkage
+      -- First we go through and check to see who's got actual locations, and cull either location or linkage. We also dispatch solidity requests as appropriate.
       local qct = {}
-      local solidity = {}
       
       if self.finalfile.quest then for k, v in pairs(self.finalfile.quest) do
-        if not solidity[k] then solidity[k] = {} end
-        
         if v["*/*"] and v["*/*"].criteria then
           for cid, crit in pairs(v["*/*"].criteria) do
             local _, ct, reason, solids = do_loc_choice(self.finalfile, crit, true)
-            assert(not solidity[k][cid])
-            solidity[k][cid] = solids
+            Output(tostring(solids), nil, {data = solids, key = string.format("quest/%d", k), path = {"criteria", cid}}, "solidity")
             crit.solid = nil
             table.insert(qct, {ct = ct, id = string.format("%d/%d", k, cid), reason = reason})
           end
           
           if v["*/*"].finish and v["*/*"].finish.loc and v["*/*"].finish.loc.solid then
-            assert(not solidity[k].finish)
-            solidity[k].finish = v["*/*"].finish.loc.solid
+            Output(tostring(v["*/*"].finish.loc.solid), nil, {data = v["*/*"].finish.loc.solid, key = string.format("quest/%d", k), path = {"finish"}}, "solidity")
             v["*/*"].finish.loc.solid = nil
           end
         end
       end end
+      if self.finalfile.achievement then for k, v in pairs(self.finalfile.achievement) do
+        if v["*/*"] then
+          for cid, crit in pairs(v["*/*"]) do
+            local _, ct, reason, solids = do_loc_choice(self.finalfile, crit, true)
+            Output(tostring(solids), nil, {data = solids, key = string.format("achievement/%d", k), path = {cid}}, "solidity")
+            crit.loc.solid = nil
+          end
+        end
+      end end
+      
       table.sort(qct, function(a, b) return a.ct < b.ct end)
       for _, v in ipairs(qct) do
         --print("qct", v.ct, v.id, v.reason)
@@ -1464,12 +1539,18 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
       
       -- Then we mark used/unused items
       if self.finalfile.quest then for k, v in pairs(self.finalfile.quest) do
-        v.used = true
         if v["*/*"] and v["*/*"].criteria then
           for _, crit in pairs(v["*/*"].criteria) do
             mark_chains(self.finalfile, crit)
           end
         end
+        v.used = true
+      end end
+      if self.finalfile.achievement then for k, v in pairs(self.finalfile.achievement) do
+        if v["*/*"] then
+          mark_chains(self.finalfile, v["*/*"])
+        end
+        v.used = true
       end end
       
       if self.finalfile.flightmasters then for k, v in pairs(self.finalfile.flightmasters) do
@@ -1481,7 +1562,7 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
         v.used = true
       end end
       
-      -- Go through and clear out non-quest solidity
+      -- Go through and clear out non-quest and non-achievement solidity (todo - defer to the actual monster data for achievements?)
       if self.finalfile.quest then for k, v in pairs(self.finalfile.quest) do
         if v["*/*"] and v["*/*"].criteria then
           for cid, crit in pairs(v["*/*"].criteria) do
@@ -1502,38 +1583,54 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
         end
       end end
       
+      
       -- Then we optionally cull and unmark
       for t, d in pairs(self.finalfile) do
+        local ultrafinal = {}
+        
         for k, v in pairs(d) do
           if dbg_data then
-            for _, tv in pairs(v) do
+            for plane, tv in pairs(v) do
               if type(tv) == "table" then tv.used = v.used or false end
             end
+            
+            v.used = true
+          end
+          
+          if v.used then
+            ultrafinal[k] = v
           end
           
           v.used = nil
         end
         
-        if not dbg_data then
-          self.finalfile[t] = d
-        end
-      end
-      
-      for k, v in pairs(solidity) do
-        for sk, tv in pairs(v) do
-          Output(string.format("%d/%s", k, tostring(sk)), nil, tv, "solidity")
-        end
+        self.finalfile[t] = ultrafinal
       end
       
       for t, d in pairs(self.finalfile) do
-        for k, d2 in pairs(d) do
-          for s, d3 in pairs(d2) do
-            assert(d3)
+        for k, v in pairs(d) do
+          for plane, tv in pairs(v) do
+            assert(tv)
             
-            if s == "*/*" and t == "quest" then
-              Output(tostring(k), nil, {core = d3}, "solidity_recombine")
+            if plane == "*/*" and (t == "quest" or t == "achievement") then
+              Output(string.format("%s/%d", t, k), nil, {core = tv}, "solidity_recombine")
             else
-              Output(s, nil, {id = t, key = k, data = d3}, "output_direct")
+              Output(plane, nil, {id = t, key = k, data = tv}, "output_direct")
+            end
+          end
+        end
+      end
+      
+      if do_find then
+        for t, d in pairs(self.finalfile) do
+          if t ~= "monster" then continue end -- stfu
+          for k, d2 in pairs(d) do
+            for s, d3 in pairs(d2) do
+              if d3.name then
+                local lang = s:match("(.*)/[12*]")
+                assert(lang)
+                Output(lang, nil, {cat = t, key = k, name = d3.name}, "find")
+              end
             end
           end
         end
@@ -1542,6 +1639,11 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
   } end
 )
 
+
+--[[
+*****************************************************************
+Create the solid triangle meshes
+]]
 
 local gausswidth = 6
 local gausscompact = 2
@@ -1584,28 +1686,19 @@ local function blur(chunk)
   return doblur(doblur(chunk))
 end
 
---[[
-*****************************************************************
-Create the solid triangle meshes
-]]
-
 local solidity = ChainBlock_Create("solidity", {file_cull},
   function (key) return {
     Data = function(self, key, subkey, value, Output)
-      local qid, crit = key:match("([0-9]+)/(.+)")
-      local fileprefix = key:gsub("/", "_")
-      assert(qid)
-      assert(crit)
-      
+      --local fileprefix = key:gsub("/", "_")
       local returno = {}
       local omx = {}
       omx.processed = true
       local tsize = 0
       
-      for k, v in pairs(value) do
+      for k, v in pairs(value.data) do
         omx[k] = blur(v)
         
-        local mox = omx[k]
+        local mox = blur(v)
         local mnx = 1000000
         local mny = 1000000
         local mxx = -1000000
@@ -1627,7 +1720,7 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
         
         local mask = {}
         
-        local image = Image(wid, hei)
+        --local image = Image(wid, hei)
         for tx, v in pairs(mox) do
           for ty, tv in pairs(v) do
             local hard = math.floor((tv / emphatic) * 128 + 0.5)
@@ -1643,12 +1736,12 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
             color = 0x01010101 * hard
             
             --print(tx - mnx, ty - mny, wid, hei, color)
-            image:set(tx - mnx, ty - mny, color)
+            --image:set(tx - mnx, ty - mny, color)
           end
         end
         
-        image:write(string.format("intermed/%s_%s.png", fileprefix, tostring(k)))
-        image = nil
+        --image:write(string.format("intermed/%s_%s.png", fileprefix, tostring(k)))
+        --image = nil
         
         -- alright, we process the mask here
         local function process_item()
@@ -2040,7 +2133,7 @@ local solidity = ChainBlock_Create("solidity", {file_cull},
       --print("size:", tsize)
       if tsize < 180 then returno = nil end
       
-      Output(tostring(qid), nil, {solid = returno, solid_key = tonumber(crit) or crit}, "solidity_recombine")
+      Output(value.key, nil, {solid = returno, path = value.path}, "solidity_recombine")
     end,
   } end,
   nil, "solidity"
@@ -2055,27 +2148,83 @@ local solidity_recombine = ChainBlock_Create("solidity_recombine", {file_cull, s
         self.core = value.core
       end
       if value.solid then
-        assert(not self.solid[value.solid_key])
-        self.solid[value.solid_key] = value.solid
+        table.insert(self.solid, value)
       end
     end,
     Finish = function(self, Output)
       assert(self.core)
       
-      for k, v in pairs(self.solid) do
-        local mpt = self.core.criteria
-        if k == "finish" then
-          mpt = self.core
+      for _, v in ipairs(self.solid) do
+        local nod = self.core
+        for _, link in ipairs(v.path) do
+          if not nod[link] then nod[link] = {} end
+          assert(type(nod[link] == "table"))
+          nod = nod[link]
         end
-        assert(mpt[k], k, type(k))
-        mpt[k].solid = v
+        assert(nod and type(nod) == "table")
+        nod.solid = v.solid
       end
       
-      Output("*/*", nil, {id = "quest", key = tonumber(key), data = self.core}, "output_direct")
+      local typ, ki = key:match("(.+)/(.+)")
+        
+      Output("*/*", nil, {id = typ, key = tonumber(ki) or ki, data = self.core}, "output_direct")
     end,
   } end,
   nil, "solidity_recombine"
 )
+
+--[[
+*****************************************************************
+"/qh find" db
+]]
+
+local find
+if do_find then
+  local shardlen = 2
+  
+  find = ChainBlock_Create("find", {file_cull},
+    function (key) return {
+      db = {},
+      Data = function(self, key, subkey, value, Output)
+        for i = 1, #value.name - shardlen + 1 do
+          local subs = value.name:sub(i, i + shardlen - 1):lower()
+          if #subs ~= 2 then
+            print(i, #value.name, shardlen, i, i + shardlen - 1)
+            assert(#subs == 2)
+          end
+          if subs:find(" ") then continue end
+          if not self.db[subs] then self.db[subs] = {} end
+          self.db[subs][value.key] = true
+        end
+      end,
+      Finish = function(self, Output)
+        for k, v in pairs(self.db) do
+          local out = {}
+          for id in pairs(v) do
+            table.insert(out, id)
+          end
+          
+          table.sort(out)
+          
+          local outcondense = {}
+          local cd = 0
+          for _, d in ipairs(out) do
+            table.insert(outcondense, d - cd)
+            cd = d
+          end
+          
+          Output(key .. "/*", nil, {id = "find", key = (k:byte(1) * 256 + k:byte(2)), data = outcondense}, "output_direct")
+        end
+      end,
+    } end,
+    nil, "find"
+  )
+end
+
+--[[
+*****************************************************************
+Compress and output all the data
+]]
 
 local output_sources = {}
 for _, v in ipairs(sources) do
@@ -2083,6 +2232,7 @@ for _, v in ipairs(sources) do
 end
 table.insert(output_sources, file_cull)
 table.insert(output_sources, solidity_recombine)
+table.insert(output_sources, find)
 
 local function LZW_precompute_table(inputs, tokens)
   -- shared init code
@@ -2174,8 +2324,7 @@ local compress = ChainBlock_Create("compress", {compress_split},
         local d = self.finalfile
         local k = segment
         
-        local dict = {}
-        
+        -- First we dump all our tables to strings
         for sk, v in pairs(d) do
           assert(type(sk) ~= "string" or not sk:match("__.*"))
           assert(type(v) == "table")
@@ -2183,11 +2332,50 @@ local compress = ChainBlock_Create("compress", {compress_split},
           dist = pdump(v)
           if not dist then continue end
           
-          for i = 1, #dist do
-            dict[dist:byte(i)] = true
-          end
-          
           self.finalfile[sk] = dist
+        end
+        
+        -- Strip out prefix/suffix
+        prefix = d[next(d)]
+        suffix = d[next(d)]
+        local minlen = #d
+        
+        --if #prefix > 0 then self.finalfile.__prefix_init = d[next(d)] end
+        
+        for sk, v in pairs(d) do
+          if type(v) ~= "string" or (type(sk) == "string" and sk:match("__.*")) then continue end
+          
+          if #v < #prefix then prefix = prefix:sub(1, #v) end
+          if #v < #suffix then suffix = suffix:sub(#suffix - #v, #suffix) end
+          
+          while v:sub(1, #prefix) ~= prefix do prefix = prefix:sub(1, #prefix - 1) end
+          while v:sub(#v - (#suffix - 1), #suffix) ~= suffix do suffix = suffix:sub(2, #suffix) end
+          
+          minlen = math.min(minlen, #v)
+        end
+        
+        if minlen < #prefix then
+          if #prefix > 0 then self.finalfile.__prefix = prefix end
+          if #suffix > 0 then self.finalfile.__suffix = suffix end
+          
+          for sk, v in pairs(d) do
+            if type(v) ~= "string" or (type(sk) == "string" and sk:match("__.*")) then continue end
+            assert(v:sub(1, #prefix) == prefix)
+            assert(v:sub(#v - (#suffix - 1), #v) == suffix)
+            d[sk] = d[sk]:sub(#prefix + 1, #v)
+            d[sk] = d[sk]:sub(1, #v - #suffix)
+            assert(prefix .. d[sk] .. suffix == v)
+          end
+        end
+        
+        -- Get working dictionary of items
+        local dict = {}
+        for sk, v in pairs(d) do
+          if type(v) ~= "string" or (type(sk) == "string" and sk:match("__.*")) then continue end
+          
+          for i = 1, #v do
+            dict[v:byte(i)] = true
+          end
         end
         
         local dicto = {}
@@ -2204,9 +2392,11 @@ local compress = ChainBlock_Create("compress", {compress_split},
         -- Now we build the precomputed LZW table
         do
           -- hackery steakery
-          if locale == nil or locale == "enUS" or true then
+          if true then
             local inps = {}
-            for _, v in pairs(d) do
+            for sk, v in pairs(d) do
+              if type(v) ~= "string" or (type(sk) == "string" and sk:match("__.*")) then continue end
+              
               table.insert(inps, v)
             end
             local preco = LZW_precompute_table(inps, dictix)

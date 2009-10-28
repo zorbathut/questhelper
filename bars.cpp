@@ -76,10 +76,15 @@ int main() {
   
   int yofs = 50;
   const int yofline = 250;
-  drawCapsule("Rewrite \"/qh find\" - Find any item or NPC", xstart, yofs, xend, yofs + yofline - 50, 0.0, dimx, dimy, "QHbar_QH_Find.png"); // $3000
-  drawCapsule("Achievements (starting with exploration achievements)", xstart, yofs, xend, yofs + yofline - 50, 0.0, dimx, dimy, "QHbar_Achievements.png"); // $6000
-  drawCapsule("User-friendly configuration page", xstart, yofs, xend, yofs + yofline - 50, 0.0, dimx, dimy, "QHbar_Configuration.png"); // $4000
-  drawCapsule("Customizable quest tracker", xstart, yofs, xend, yofs + yofline - 50, 0.0, dimx, dimy, "QHbar_Tracker.png"); // $2000
+  /*drawCapsule("Rewrite \"/qh find\" - Find any item or NPC", xstart, yofs, xend, yofs + yofline - 50, (42.59 + 370) / 3000, dimx, dimy, "QHbar_QH_Find.png"); // $3000
+  drawCapsule("Achievements (starting with exploration achievements)", xstart, yofs, xend, yofs + yofline - 50, (39.63 + 500) / 5000, dimx, dimy, "QHbar_Achievements.png"); // $6000
+  drawCapsule("User-friendly configuration page", xstart, yofs, xend, yofs + yofline - 50, (4.55 + 30) / 4000, dimx, dimy, "QHbar_Configuration.png"); // $4000
+  drawCapsule("Customizable quest tracker", xstart, yofs, xend, yofs + yofline - 50, (36.53 + 120) / 3000, dimx, dimy, "QHbar_Tracker.png"); // $2000*/
+  
+  drawCapsule("Rewrite \"/qh find\" - Find any item or NPC", xstart, yofs, xend, yofs + yofline - 50, (137.04 + 330) / 3000, dimx, dimy, "QHbar_QH_Find.png"); // $3000
+  drawCapsule("Achievements (starting with exploration achievements)", xstart, yofs, xend, yofs + yofline - 50, (57.73 + 490) / 5000, dimx, dimy, "QHbar_Achievements.png"); // $6000
+  drawCapsule("User-friendly configuration page", xstart, yofs, xend, yofs + yofline - 50, (42.69 + 15) / 4000, dimx, dimy, "QHbar_Configuration.png"); // $4000
+  drawCapsule("Customizable quest tracker", xstart, yofs, xend, yofs + yofline - 50, (38.5 + 119) / 3000, dimx, dimy, "QHbar_Tracker.png"); // $2000
 }
 
 

@@ -1,3 +1,14 @@
+
+local keywords = {
+  'break', 'do', 'end', 'else',
+  'elseif', 'function', 'if', 'local',
+  'nil', 'not', 'or', 'repeat',
+  'return', 'then', 'until', 'while', 'in'
+}
+for _, v in ipairs(keywords) do
+  keywords[v] = true
+end
+
 persistence =
 {
 	store = function (f, item)
@@ -80,7 +91,7 @@ persistence =
           first = false
           persistence.writeIndent(f, level+1);
           
-          if type(v) == "string" and v:match("^[a-zA-Z_][a-zA-Z0-9_]*$") then
+          if type(v) == "string" and v:match("^[a-zA-Z_][a-zA-Z0-9_]*$") and not keywords[v] then
             f:write(v)
           else
             f:write("[");

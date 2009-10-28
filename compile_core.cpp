@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <errno.h>
 #include <stack>
+#include <unistd.h>
 
 #include <luabind/luabind.hpp>
 #include <boost/noncopyable.hpp>
@@ -507,6 +508,7 @@ extern "C" int init(lua_State* L) {
     def("multirun_clear", &multirun_clear),
     def("multirun_add", &multirun_add),
     def("multirun_complete", &multirun_complete),
+    def("sleep", &sleep),
     class_<Image>("Image")
       .def(constructor<int, int>())
       .def("write", &Image::write)

@@ -40,3 +40,8 @@ overrides.monster = {}
 
 -- Frenzied Pterrordax. Did they move?
 overrides.monster[9167] = "3.2.0"
+
+overrides.item = {}
+
+-- Beast Muisek no longer requires going to the Hinterlands
+overrides.item[9594] = "3.2.0"

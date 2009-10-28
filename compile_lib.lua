@@ -1,4 +1,8 @@
 
+ll, err = package.loadlib("/nfs/build/libcompile_core.so", "init")
+if not ll then print(err) return end
+ll()
+
 local ass = assert
 assert = function(parm, ...)
   if not parm then
@@ -28,9 +32,6 @@ require("pluto")
 require("gzio")
   
 
-ll, err = package.loadlib("/nfs/build/libcompile_core.so", "init")
-if not ll then print(err) return end
-ll()
 
 
 -- we pretend to be WoW
@@ -170,9 +171,11 @@ local function get_index(v)
   assert(v)
   if v == "0.1.0" then return "3.1" end
   if v == "0.2.0" then return "3.2" end
+  if v == "0.3.0" then return "3.3" end
   if version_lessthan(v, "3.0.0") then print("Unknown version - ", v) assert(false) end
   if version_lessthan(v, "3.2.0") then return "3.1" end
   if v == "3.2.0" or v == "3.2.2" then return "3.2" end
+  if v == "3.3.0" then return "3.3" end
   print("invalid version", v)
   assert(false, v)
 end
@@ -321,7 +324,7 @@ function sortversion(a, b)
   if not bp then return true end
   for x = 1, #ap do
     if ap[x] ~= bp[x] then
-      return ap[x] > bp[x]
+      return (ap[x] or -1000) > (bp[x] or -1000)
     end
   end
   return false
@@ -340,10 +343,16 @@ end
 
 function loc_version(ver)
   local major = ver:match("([0-9])%..*")
-  if major == "0" then
-    return sortversion("0.77", ver) and 0 or sortversion("0.96", ver) and 1 or 2
-  elseif major == "1" then
-    return sortversion("1.0.2", ver) and 1 or 2
+  if version_lessthan(major, "0.77") then
+    return 0
+  elseif version_lessthan(major, "0.96") then
+    return 1
+  elseif version_lessthan(major, "1.0.0") then
+    return 2
+  elseif version_lessthan(major, "1.0.2") then
+    return 1
+  elseif version_lessthan(major, "2.0.0") then
+    return 2
   else
     assert()
   end
@@ -671,16 +680,26 @@ Standard data accumulation functions
 
 function standard_pos_accum(accum, value, lv, locale, fluff, wowv)
   if not fluff then fluff = 0 end
-  for _, v in ipairs(value) do
-    if math.mod(#v, 11 + fluff) ~= 0 then
-      return true
-    end
-  end
   
-  for _, v in ipairs(value) do
-    for off = 1, #v, 11 + fluff do
-      local tite = convert_loc(slice_loc(v:sub(off, off + 10), lv), locale, lv, wowv)
+  -- bleh
+  if type(value) == "string" then
+    if math.mod(#value, 11 + fluff) ~= 0 then return true end
+    for off = 1, #value, 11 + fluff do
+      local tite = convert_loc(slice_loc(value:sub(off, off + 10), lv), locale, lv, wowv)
       if tite then position_accumulate(accum.loc, tite, wowv) end
+    end
+  else
+    for _, v in ipairs(value) do
+      if math.mod(#v, 11 + fluff) ~= 0 then
+        return true
+      end
+    end
+    
+    for _, v in ipairs(value) do
+      for off = 1, #v, 11 + fluff do
+        local tite = convert_loc(slice_loc(v:sub(off, off + 10), lv), locale, lv, wowv)
+        if tite then position_accumulate(accum.loc, tite, wowv) end
+      end
     end
   end
 end
