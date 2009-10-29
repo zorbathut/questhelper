@@ -3,6 +3,8 @@
 data
 intermed
 final
+optimize
+QHbar_*
 
 *.so
 *.os
