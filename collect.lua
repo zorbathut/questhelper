@@ -49,6 +49,12 @@ QH_Hook(GameTooltip, "OnTooltipSetItem", function (self, ...)
   if ottsi then return QH_Hook_NotMyFault(ottsi, self, ...) end
 end, "collection OnTooltipSetItem")
 
+local ottsh = GameTooltip:GetScript("OnShow")
+QH_Hook(GameTooltip, "OnShow", function (self, ...)
+  CollectTooltippery(self)
+  if ottsh then return QH_Hook_NotMyFault(ottsh, self, ...) end
+end, "collection OnShow")
+
 
 local function TooltipHookRegistrar(func)
   QuestHelper: Assert(func)
