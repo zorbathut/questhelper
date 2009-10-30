@@ -1,8 +1,6 @@
 QuestHelper_File["collect_loot.lua"] = "Development Version"
 QuestHelper_Loadtime["collect_loot.lua"] = GetTime()
 
-if not UNIT_SKINNABLE_BOLTS then return end -- This just drops us out early if the user is using 2.4.3, otherwise we get a weird error message that isn't the one we're intending to get.
-
 local debug_output = false
 if QuestHelper_File["collect_loot.lua"] == "Development Version" then debug_output = true end
 
@@ -314,6 +312,13 @@ gathereffects[GetSpellInfo(31252)] = {token = "prospect", noclog = true, ignore 
 gathereffects[GetSpellInfo(51005)] = {token = "mill", noclog = true, ignore = true}
 
 
+local function normalize_spell(spell)
+  for k in pairs(gathereffects) do
+    if spell:find(k) then return k end
+  end
+  return spell
+end
+
 
 local function last_reset()
   last_timestamp, last_spell, last_rank, last_target, last_target_guid, last_otarget, last_otarget_guid, last_succeed, last_phase = nil, nil, nil, nil, nil, nil, false, LAST_PHASE_IDLE
@@ -323,6 +328,7 @@ last_reset()
 -- This all doesn't work with instant spells. Luckily, I don't care about instant spells (yet).
 local function SpellSent(player, spell, rank, target)
   if player ~= "player" then return end
+  spell = normalize_spell(spell)
   
   last_timestamp, last_spell, last_rank, last_target, last_target_guid, last_otarget, last_otarget_guid, last_succeed, last_phase = GetTime(), spell, rank, target, nil, UnitName("target"), UnitGUID("target"), false, LAST_PHASE_SENT
   
@@ -333,6 +339,7 @@ end
 
 local function SpellStart(player, spell, rank)
   if player ~= "player" then return end
+  spell = normalize_spell(spell)
   
   if spell ~= last_spell or rank ~= last_rank or last_target_guid or last_phase ~= LAST_PHASE_SENT or last_timestamp + 1 < GetTime() then
     last_reset()
@@ -346,6 +353,7 @@ local function SpellCombatLog(_, event, sourceguid, _, _, destguid, _, _, _, spe
   if event ~= "SPELL_CAST_START" then return end
   
   if sourceguid ~= UnitGUID("player") then return end
+  spellname = normalize_spell(spellname)
   
   --QuestHelper:TextOut(string.format("cle_ss enter %s %s %s %s", tostring(spellname ~= last_spell), tostring(not last_target), tostring(not not last_target_guid), tostring(last_timestamp + 1 < GetTime())))
   
@@ -370,6 +378,7 @@ end
 
 local function SpellSucceed(player, spell, rank)
   if player ~= "player" then return end
+  spell = normalize_spell(spell)
   
   if gathereffects[spell] then last_succeed_trade = GetTime() end
   
@@ -461,12 +470,12 @@ local function LootOpened()
     -- If we don't, use last_target, and it's an object
     -- This is probably going to be buggy. Welp.
     if last_otarget_guid then
-      --if debug_output then QuestHelper:TextOut(string.format("%s from monster %s", gathereffects[last_spell].token, beef)) end
+      if debug_output then QuestHelper:TextOut(string.format("%s from monster %s", gathereffects[last_spell].token, beef)) end
       local mid = GetMonsterType(last_otarget_guid)
       if not QHC.monster[mid] then QHC.monster[mid] = {} end
       spot = QHC.monster[mid]
     else
-      --if debug_output then QuestHelper:TextOut(string.format("%s from object %s", gathereffects[last_spell].token, beef)) end
+      if debug_output then QuestHelper:TextOut(string.format("%s from object %s", gathereffects[last_spell].token, beef)) end
       if not QHC.object[last_target] then QHC.object[last_target] = {} end
       spot = QHC.object[last_target]
     end
