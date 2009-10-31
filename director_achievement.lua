@@ -284,3 +284,179 @@ function QH_AddBuckets(typ)
     QH_AddChunk(fb.outland)
   end
 end
+
+local achieveable = {}
+
+local function IsDoable(id)
+  if achieveable[id] == nil then
+    -- First we just see if we have a DB entry for it
+    -- This can be made *much* more efficient.
+    if not DB_Ready() then
+      print("DB not yet ready, please wait")
+      return false
+    end
+    
+    local dbi = DB_GetItem("achievement", id, true, true)
+    if dbi then
+      DB_ReleaseItem(dbi)
+      print(id, "achieveable via db")
+      achieveable[id] = true
+      return true
+    end
+    
+    local crit = GetAchievementNumCriteria(id)
+    
+    -- Whenever I write "crit" as a variable name it always slightly worries me.
+    
+    -- Y'see, several years ago I competed in a programming competition called Topcoder. At the end of a big tournament, if you did well, they flew you to a casino or a hotel and you competed against a bunch of other geeks, with your code posted on monitors. This was uncommonly boring unless you were a geek, but luckily, we were, so it was actually kind of exciting.
+    -- So I'm up there competing, and I need a count, so I make a variable called "cont". "count", y'see, is a function, so I can't use that. But then I need another one. I can't go with "cout" because that's actually a global variable in C++, which is what I'm using. And, well, I want to keep the first and last letters preserved, because that way it reminds me it's a count.
+    
+    -- So I start typing the first thing that comes to mind that fulfills all the requirements.
+    
+    -- Luckily, I stop myself in time, and write "cnt" instead.
+    
+    -- Once or twice in QuestHelper I've needed a few variables about criteria. And there's . . . something . . . which is only one letter off from "crit", and is something I should probably not be typing in publicly accessible sourcecode.
+  
+    -- So now you know. Back to the code.
+    
+    -- (although let's be honest with the amount of profanity scattered throughout this codebase I'm not quite sure why I care buuuuuuuuuut here we are anyway)
+    
+    if crit > 0 then
+      for i = 1, crit do
+        local _, typ, _, _, _, _, _, asset, _, cid = GetAchievementCriteriaInfo(id, i)
+        if typ == 0 then
+          -- Monster kill. We're good! We can do these.
+        elseif typ == 8 then
+          if not IsDoable(asset) then
+            achieveable[id] = false
+            break
+          end
+        else
+          achieveable[id] = false
+          break
+        end
+      end
+      
+      if achieveable[id] == nil then print(id, "achieveable via occlusion") achieveable[id] = true end
+    else
+      print(id, "not achieveable due to wizard casting what the fuck")
+      achieveable[id] = false
+    end
+  end
+  
+  return achieveable[id]
+end
+
+local function GetListOfAchievements(category)
+  local ct = GetCategoryNumAchievements(category)
+  
+  local available_achieves = {}
+  
+  for i = 1, ct do
+    local id, _, _, complete = GetAchievementInfo(category, i)
+    if not complete and IsDoable(id) then
+      table.insert(available_achieves, i)
+    end
+  end
+  
+  return available_achieves
+end
+
+local function FilterFunction(category)
+  local aa = GetListOfAchievements(category)
+  
+  return #aa, 0, 0
+end
+
+local function SetQHVis(button, ach, _, _, complete)
+  print("setqhvis")
+  button.qh_checkbox:Hide()
+  if complete or not IsDoable(ach) then
+    button.qh_checkbox:Hide()
+  else
+    button.qh_checkbox:Show()
+  end
+end
+
+local ABDA_suppress
+local ABDA
+local function ABDA_Replacement(button, category, achievement, selectionID)
+  -- hee hee hee
+  -- i am sneaky like fish
+  -- *sneaky* fish
+  -- ^__^
+  
+  if not ABDA_suppress and ACHIEVEMENTUI_SELECTEDFILTER == FilterFunction then
+    local aa = GetListOfAchievements(category)
+    local ach = aa[achievement]
+    ABDA(button, category, ach, selectionID)
+    SetQHVis(button, GetAchievementInfo(category, ach))
+    print("passthru")
+  else
+    ABDA(button, category, achievement, selectionID)
+    SetQHVis(button, GetAchievementInfo(category, achievement))
+  end
+end
+
+local AFAU
+local function AFAU_Replacement(...)
+  ABDA_permit = true
+  AFAU(...)
+  ABDA_permit = false
+end
+
+local TrackedAchievements = {}
+
+local function check_onclick(self)
+  if self:GetChecked() then
+    TrackedAchievements[self:GetParent().id] = true
+  else
+    TrackedAchievements[self:GetParent().id] = nil
+  end
+end
+local function check_onenter(self)
+  GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+  GameTooltip:SetText(QHText("ACHIEVEMENT_CHECKBOX"))
+end
+local function check_onleave(self)
+  GameTooltip:Hide()
+end
+local function check_onshow(self)
+  self:SetChecked(TrackedAchievements[self:GetParent().id])
+end
+
+
+
+QH_Event("ADDON_LOADED", function (addonid)
+  if addonid == "Blizzard_AchievementUI" then
+    -- yyyyyyoink
+    table.insert(AchievementFrameFilters, {text="QuestHelpable", func=FilterFunction})
+    
+    ABDA = AchievementButton_DisplayAchievement
+    AchievementButton_DisplayAchievement = ABDA_Replacement
+    
+    AFAU = AchievementFrameAchievements_Update
+    AchievementFrameAchievements_Update = AFAU_Replacement
+    
+    for i = 1, 7 do
+      local framix = CreateFrame("CheckButton", "qh_arglbargl_" .. i, AchievementFrameAchievements.buttons[i], "AchievementCheckButtonTemplate")
+      framix:SetPoint("BOTTOMRIGHT", AchievementFrameAchievements.buttons[i], "BOTTOMRIGHT", -22, 7.5)
+      framix:SetScript("OnEnter", check_onenter)
+      framix:SetScript("OnLeave", check_onleave)
+      
+      framix:SetScript("OnShow", check_onshow)
+      framix:SetScript("OnClick", check_onclick)
+      
+      _G["qh_arglbargl_" .. i .. "Text"]:Hide() -- no
+      
+      local sigil = framix:CreateTexture("BACKGROUND")
+      sigil:SetHeight(24)
+      sigil:SetWidth(24)
+      sigil:SetTexture("Interface\\AddOns\\QuestHelper\\sigil")
+      sigil:SetPoint("RIGHT", framix, "LEFT", -1, 0)
+      sigil:SetVertexColor(0.6, 0.6, 0.6)
+      
+      AchievementFrameAchievements.buttons[i].qh_checkbox = framix
+    end
+  end
+end)

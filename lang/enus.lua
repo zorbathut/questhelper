@@ -180,6 +180,10 @@ QuestHelper_Translations.enUS =
   FILTER_BLOCKED = "blocked",
   FILTER_WATCHED = "watched",
   
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = "Check to add this achievement to QuestHelper.",
+  
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "You have %h(new information) on %h1, and %h(updated information) on %h2.",
   NAG_SINGLE_NEW = "You have %h(new information) on %h1.",
