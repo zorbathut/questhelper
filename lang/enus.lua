@@ -88,6 +88,7 @@ QuestHelper_Translations.enUS =
   -- Special tracker text
   QH_LOADING = "QuestHelper is loading (%1%)...",
   QH_FLIGHTPATH = "Recalculating flightpaths (%1%)...",
+  QH_RECALCULATING = "Recalculating route (%1%)...",
   QUESTS_HIDDEN_1 = "Quests may be hidden",
   QUESTS_HIDDEN_2 = "(rightclick to list)",
   
