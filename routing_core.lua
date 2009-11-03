@@ -99,6 +99,8 @@ local DistBatch
   weight_ave = 0.001
 -- End node storage and data structures
 
+local early_exit = false
+
 --[[
 ----------------------------------
 Here's that wacky storage system.
@@ -333,6 +335,9 @@ end
 here ends the butt of the wacky storage system. yeah, that's right. I said butt. Butt. Hee hee. Butt.
 ----------------------------------]]
 
+function QH_Route_Core_EarlyExit()
+  early_exit = true
+end
 
 function QH_Route_Core_NodeCount()
   return #ActiveNodes
@@ -579,6 +584,7 @@ local function RunAnt()
     
     while needed_count > 0 do
       QH_Timeslice_Yield()
+      if early_exit then if debug_output then QuestHelper:TextOut("early exit") end return end
       QuestHelper: Assert(needed_ready_count > 0)
       
       local accumulated_weight = 0
@@ -593,6 +599,7 @@ local function RunAnt()
       accumulated_weight = accumulated_weight * random()
       
       QH_Timeslice_Yield()
+      if early_exit then if debug_output then QuestHelper:TextOut("early exit") end return end
       
       local nod = nil
       for k, _ in pairs(needed) do
@@ -714,6 +721,7 @@ end
 local QH_Route_Core_DistanceClear_Local -- sigh
 -- Core process function
 function QH_Route_Core_Process()
+  early_exit = false
   --QuestHelper:TextOut("Startprocess")
   
   Storage_Loop()
@@ -803,7 +811,10 @@ function QH_Route_Core_Process()
   
   local trouts = QuestHelper:CreateTable("routing_core_trouts")
   for x = 1, AntCount do
-    table.insert(trouts, RunAnt())
+    if early_exit then if debug_output then QuestHelper:TextOut("early exit") end return end -- get money fuck routing
+    local ant = RunAnt()
+    if ant then table.insert(trouts, ant) end
+    if early_exit then if debug_output then QuestHelper:TextOut("early exit") end return end
     --if last_best then RTO(string.format("Path generated: %s vs %s", PathToString(trouts[#trouts]), PathToString(last_best))) end
     if not last_best or last_best.distance > trouts[#trouts].distance then
       if last_best and not best_is_local then QuestHelper:ReleaseTable(last_best) end

@@ -132,7 +132,7 @@ local function GetQuestMetaobjective(questid, lbcount)
       end
     end end
     
-    ite = {type_quest = {__backlink = ite}} -- we don't want to mutate the existing quest data. backlink exists only for nasty GC reasons
+    local ite = {type_quest = {__backlink = ite}} -- we don't want to mutate the existing quest data. backlink exists only for nasty GC reasons
     ite.desc = string.format("Quest %s", q and q.name or "(unknown)")  -- this gets changed later anyway
     
     for i = 1, lbcount do
@@ -378,6 +378,7 @@ local dontknow  = {
 local InsertedItems = {}
 local TooltipType = {}
 local Unknowning = {}
+local Unknowned = {}
 local in_pass = nil
 
 local function SetTooltip(item, typ)
@@ -500,10 +501,24 @@ local function EndInsertionPass(id)
   end
   QuestHelper:ReleaseTable(rem)
   
+  -- this is all so we don't spam the system with multiple ignores, since that currently causes an early routing exit
+  for k in pairs(Unknowned) do
+    Unknowned[k] = false
+  end
   for _, v in ipairs(Unknowning) do
-    QH_Route_IgnoreCluster(v, dontknow)
+    if Unknowned[v] == nil then
+      QH_Route_IgnoreCluster(v, dontknow)
+    end
+    Unknowned[v] = true
   end
   while table.remove(Unknowning) do end
+  local need_rescan = false
+  local new_unknowned = QuestHelper:CreateTable("unk")
+  for k, v in pairs(Unknowned) do
+    if v then new_unknowned[k] = true end
+  end
+  QuestHelper:ReleaseTable(Unknowned)
+  Unknowned = new_unknowned
   
   QH_Timeslice_PopUnyieldable()
   in_pass = nil
@@ -762,7 +777,7 @@ function QH_UpdateQuests(force)
     
     EndInsertionPass(player)
     
-    QH_Route_Filter_Rescan()  -- 'cause filters may also change
+    QH_Route_Filter_Rescan(nil, true)  -- 'cause filters may also change, but let's not bother getting too excited about it
     
     if not QuestHelper_Pref.solo and QuestHelper_Pref.share then
       for k, v in pairs(next_chunks) do
