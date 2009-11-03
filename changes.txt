@@ -1,4 +1,8 @@
 
+== Version 1.2.5 11/2/2009 ==
+
+* Fix an initialization bug that nobody but Zorba would ever notice nor care about
+
 == Version 1.2.4 11/2/2009 ==
 
 * Fix some data collection issues keeping me from adding game object support
