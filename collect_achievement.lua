@@ -9,7 +9,7 @@ local Merger
 local cloc
 
 local function ScanAchievements(oldADB, newADB)
-  QuestHelper:TextOut("scanach")
+  --QuestHelper:TextOut("scanach")
   local changes = 0
   for k, v in pairs(newADB.achievements) do
     if v.complete ~= oldADB.achievements[k].complete then
@@ -51,7 +51,7 @@ local function ScanAchievements(oldADB, newADB)
   for k, v in pairs(oldADB.achievements) do QuestHelper:ReleaseTable(v) end
   for k, v in pairs(oldADB.criteria) do QuestHelper:ReleaseTable(v) end
   
-  QuestHelper:TextOut("Done scan")
+  --QuestHelper:TextOut("Done scan")
 end
 
 function SetCloc()

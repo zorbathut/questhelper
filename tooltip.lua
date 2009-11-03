@@ -191,23 +191,40 @@ local sigil_text
 local sigil_item
 
 local bar_split = 10
-local bar_boost
 
-local tooltip_tweaked = false
+local fixes_src = {}
+local fixes_returnto = {}
+local fixes_from = {}
 
 local function FixBlizzTooltip()
-  if not tooltip_tweaked then return end
-  
-  assert(sigil_item)
-  for i = 1, sigil_item:GetNumPoints() do
-    local point, relative, rlpoint, x, y = sigil_item:GetPoint(i)
-    if point == "TOPLEFT" and y < -bar_split then
-      y = y + bar_split
-      sigil_item:SetPoint(point, relative, rlpoint, x, y)
+  for k = 1, #fixes_src do
+    for i = 1, fixes_src[k]:GetNumPoints() do
+      local point, relative, rlpoint, x, y = fixes_src[k]:GetPoint(i)
+      if point == "TOPLEFT" then
+        --print("recombining", y, fixes_returnto[k], y == fixes_from[k], fixes_from[k])
+        y = fixes_returnto[k]
+        fixes_src[k]:SetPoint(point, relative, rlpoint, x, y)
+      end
     end
   end
   
-  tooltip_tweaked = false
+  wipe(fixes_src)
+  wipe(fixes_returnto)
+  wipe(fixes_from)
+end
+
+local function cachechange(src, targ, dist, absolute)
+  for i = 1, src:GetNumPoints() do
+    local point, relative, rlpoint, x, y = src:GetPoint(i)
+    if point == "TOPLEFT" and relative == targ then
+      table.insert(fixes_src, src)
+      table.insert(fixes_returnto, y)
+      if absolute then y = dist else y = y - dist end
+      table.insert(fixes_from, y)
+      --print("caching", fixes_returnto[#fixes_returnto], y)
+      src:SetPoint(point, relative, rlpoint, x, y)
+    end
+  end
 end
 
 local function StripBlizzQHTooltipClone(ttp)
@@ -271,8 +288,7 @@ local function StripBlizzQHTooltipClone(ttp)
     if hideme and not qh_hackery_nosuppress then
       _G["GameTooltipTextLeft" .. line]:SetText(nil)
       _G["GameTooltipTextLeft" .. line]:SetHeight(0)
-      _G["GameTooltipTextLeft" .. line]:ClearAllPoints()
-      _G["GameTooltipTextLeft" .. line]:SetPoint("TOPLEFT", _G["GameTooltipTextLeft" .. (line - 1)], "BOTTOMLEFT", 0, 1)
+      cachechange(_G["GameTooltipTextLeft" .. line], _G["GameTooltipTextLeft" .. (line - 1)], 1, true)
       changed = true
       removed = removed + 1
     end
@@ -286,15 +302,7 @@ local function StripBlizzQHTooltipClone(ttp)
   if _G["GameTooltipTextLeft" .. qhstart] and _G["GameTooltipTextLeft" .. qhstart]:IsShown() then
     sigil_item = _G["GameTooltipTextLeft" .. qhstart]
     sigil_text = sigil_item:GetText()
-    local cbar = _G["GameTooltipTextLeft" .. qhstart]
-    for i = 1, cbar:GetNumPoints() do
-      local point, relative, rlpoint, x, y = cbar:GetPoint(i)
-      if point == "TOPLEFT" and y > -bar_split then
-        y = y - bar_split
-        cbar:SetPoint(point, relative, rlpoint, x, y)
-        tooltip_tweaked = true
-      end
-    end
+    cachechange(sigil_item, _G["GameTooltipTextLeft" .. (qhstart - 1)], bar_split, false)
     sigil_bar:SetPoint("TOP", sigil_item, "TOP", 0, bar_split / 2)
     --sigil_bar:SetParent(sigil_item)
     --sigil:SetPoint("TOP", sigil_item, "TOP", 0, 3)
