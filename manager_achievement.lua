@@ -23,7 +23,7 @@ local AchievementDB
 --X 37 is winning arenas
 --X 41 is eating or drinking a specific item, asset is item ID
 --X 42 is fishing things up, asset is item ID
---X 43 is exploration, asset is a location ID?
+-- 43 is exploration, asset is a location ID?
 --X 45 is purchasing 7 bank slots
 --X 46 is exalted rep, asset is presumably some kind of faction ID
 --X 47 is 5 reputations to exalted
@@ -265,12 +265,7 @@ if QuestHelper_File["manager_achievement.lua"] == "Development Version" then
     
     for i = 1, critcount do
       local _, crit_type, _, _, _, _, _, crit_asset, _, crit_id = GetAchievementCriteriaInfo(id, i)
-      
-      the_data[id]["crit_" .. crit_type] = (the_data["crit_" .. crit_type] or 0) + 1
-      
-      if crit_type == 0 then
-        the_data[id]["monster_" .. crit_asset] = true
-      end
+      table.insert(the_data[id], {cid = crit_id, type = crit_type, asset = crit_asset})
     end
   end
   
