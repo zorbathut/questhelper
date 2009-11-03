@@ -229,8 +229,59 @@ function QH_AchievementManagerRegister_Poke()
 end
 
 createAchievementList()
-AchievementDB = getAchievementDB() -- 'coz we're lazy
 
-function prod_achievement()
+local function prod_achievement()
   OnEvent()
+end
+function QH_AchievementManager_Init()
+  AchievementDB = getAchievementDB() -- 'coz we're lazy
+end
+
+
+if QuestHelper_File["manager_achievement.lua"] == "Development Version" then
+  -- woop woop woop
+  -- runnin' around like a headless chicken
+  -- collidin' with walls
+  -- fallin' over backwards, waving arms wildly
+  -- little bit of drool
+  -- you know how it goes
+  
+  local the_data
+  
+  local function eatAchievement(id)
+    local _, title, _, complete = GetAchievementInfo(id)
+    --QuestHelper:TextOut(string.format("Registering %d (%s)", id, title))
+    local prev = GetPreviousAchievement(id)
+    local record = false
+    
+    
+    if prev then
+      registerAchievement(prev)
+    end
+      
+    local critcount = GetAchievementNumCriteria(id)
+    
+    the_data[id] = {name = title}
+    
+    for i = 1, critcount do
+      local _, crit_type, _, _, _, _, _, crit_asset, _, crit_id = GetAchievementCriteriaInfo(id, i)
+      
+      the_data[id]["crit_" .. crit_type] = (the_data["crit_" .. crit_type] or 0) + 1
+      
+      if crit_type == 0 then
+        the_data[id]["monster_" .. crit_asset] = true
+      end
+    end
+  end
+  
+  function dump_the_data_zorba_needs()
+    the_data = {}
+    QuestHelper_Errors.achievement_cruft = the_data
+    
+    for _, catid in pairs(GetCategoryList()) do
+      for d = 1, GetCategoryNumAchievements(catid) do
+        eatAchievement(GetAchievementInfo(catid, d))
+      end
+    end
+  end
 end

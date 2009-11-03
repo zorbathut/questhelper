@@ -70,4 +70,6 @@ function QH_Collect_Achievement_Init(QHCData, API)
   
   QH_AchievementManagerRegister(ScanAchievements)
   QH_AchievementManagerRegister_Prescan(SetCloc)
+  
+  QH_AchievementManager_Init()
 end
