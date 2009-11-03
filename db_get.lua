@@ -122,6 +122,7 @@ function DB_GetItem(group, id, silent, register)
   QuestHelper: Assert(group, string.format("%s %s", tostring(group), tostring(id)))
   QuestHelper: Assert(id, string.format("%s %s", tostring(group), tostring(id)))
   local ite = DBC_Get(group, id)
+  
   if not ite then
     if type(id) == "string" then QuestHelper: Assert(not id:match("__.*")) end
     
@@ -130,8 +131,6 @@ function DB_GetItem(group, id, silent, register)
     for _, db in ipairs(QHDB) do
       --print(db, db[group], db[group] and db[group][id], type(group), type(id))
       if db[group] then
-        if not ite then ite = QuestHelper:CreateTable("db") end
-        
         local dat
         if db[group][id] then
           dat = db[group][id]
@@ -143,6 +142,8 @@ function DB_GetItem(group, id, silent, register)
         end
         
         if dat then
+          if not ite then ite = QuestHelper:CreateTable("db") end
+          
           local srctab
           
           if type(dat) == "string" then
@@ -161,7 +162,6 @@ function DB_GetItem(group, id, silent, register)
         end
       end
     end
-    --print("dbe", ite)
     
     if ite then
       --print("marking", group, id, silent, register)

@@ -45,13 +45,6 @@ local function ScanAchievements(oldADB, newADB)
       end
     end
   end
-  
-  AchievementDB = newADB
-  
-  for k, v in pairs(oldADB.achievements) do QuestHelper:ReleaseTable(v) end
-  for k, v in pairs(oldADB.criteria) do QuestHelper:ReleaseTable(v) end
-  
-  --QuestHelper:TextOut("Done scan")
 end
 
 function SetCloc()

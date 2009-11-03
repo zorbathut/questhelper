@@ -89,7 +89,6 @@ local function FilterFunction(category)
 end
 
 local function SetQHVis(button, ach, _, _, complete)
-  print("setqhvis")
   button.qh_checkbox:Hide()
   if complete or not IsDoable(ach) then
     button.qh_checkbox:Hide()
@@ -111,7 +110,6 @@ local function ABDA_Replacement(button, category, achievement, selectionID)
     local ach = aa[achievement]
     ABDA(button, category, ach, selectionID)
     SetQHVis(button, GetAchievementInfo(category, ach))
-    print("passthru")
   else
     ABDA(button, category, achievement, selectionID)
     SetQHVis(button, GetAchievementInfo(category, achievement))
@@ -220,7 +218,6 @@ function GetAchievementMetaObjective(achievement)
   if achievement_list[achievement] then return achievement_list[achievement] end
   
   local db = DB_GetItem("achievement", achievement)
-  assert(db)
   
   local ite = {}
   ite.desc = select(2, GetAchievementInfo(achievement))
@@ -230,24 +227,32 @@ function GetAchievementMetaObjective(achievement)
   for i = 1, crit do
     local ttx = {}
     
-    local _, _, _, _, _, _, _, _, _, cid = GetAchievementCriteriaInfo(achievement, i)
+    local name, typ, _, _, _, _, _, asset, _, cid = GetAchievementCriteriaInfo(achievement, i)
     
-    if db[cid] then
-      ttx.solid = horribledupe(db[cid].solid)
-      if db[cid].loc then for _, v in ipairs(db[cid].loc) do
+    local chunk
+    if typ == 0 then
+      chunk = DB_GetItem("monster", asset)
+    else
+      assert(db)
+      chunk = db[cid]
+    end
+    
+    if chunk then
+      ttx.solid = horribledupe(chunk.solid)
+      if chunk.loc then for _, v in ipairs(chunk.loc) do
         table.insert(ttx, {loc = {x = v.x, y = v.y, c = QuestHelper_ParentLookup[v.p], p = v.p}})
       end end
     end
     
     if #ttx == 0 then
       table.insert(ttx, {loc = {x = 5000, y = 5000, c = 0, p = 2}, icon_id = 7, type_quest_unknown = true})  -- this is Ashenvale, for no particularly good reason
-      ttx.type_quest_unknown = true
+      ttx.type_achievement_unknown = true
     end
     
     for _, v in ipairs(ttx) do
-      v.map_desc = {string.format("m achievement %d criteria %d", achievement, cid)}
-      v.tracker_desc = string.format("t achievement %d criteria %d", achievement, i)
-      v.desc = string.format("d achievement %d criteria %d", achievement, i)
+      v.map_desc = {name}
+      v.tracker_desc = name
+      v.desc = name
       v.cluster = ttx
       v.why = ite
     end
@@ -301,6 +306,8 @@ local db
 function Update_Objectives(_, new)
   if not new then new = db end  -- sometimes we're just told to update thanks to a change in checkmarks, and this is the easiest way to keep a DB around
   db = new
+  print("uobj", new)
+  if not new then QH_AchievementManagerRegister_Poke() return end
   
   AchUpdateStart()
   
