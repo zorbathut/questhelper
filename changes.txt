@@ -1,4 +1,11 @@
 
+== Version 1.2.4 11/2/2009 ==
+
+* Fix some data collection issues keeping me from adding game object support
+* Added a progress indicator for route changes that are taking an uncommonly long time
+* Cleaned up some bad behavior with the tooltip
+* Fixed a bug causing unnecessary info to be built into the compressed datafiles
+
 == Version 1.2.3 10/28/2009 ==
 
 * Well that was a silly bug. I have no idea how that got through my testing. Fixed.
