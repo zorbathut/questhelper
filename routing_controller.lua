@@ -29,6 +29,8 @@ local Route_Core_IgnoredReasons_Cluster = QH_Route_Core_IgnoredReasons_Cluster
 local Route_Core_IgnoredReasons_Node = QH_Route_Core_IgnoredReasons_Node
 local Route_Core_Ignored_Cluster = QH_Route_Core_Ignored_Cluster
 
+local Route_Core_EarlyExit = QH_Route_Core_EarlyExit
+
 QH_Route_Core_Process = nil
 QH_Route_Core_Init = nil
 QH_Route_Core_SetStart = nil
@@ -46,6 +48,7 @@ QH_Route_Core_TraverseClusters = nil
 QH_Route_Core_IgnoredReasons_Cluster = nil
 QH_Route_Core_IgnoredReasons_Node = nil
 QH_Route_Core_Ignored_Cluster = nil
+QH_Route_Core_EarlyExit = nil
 
 local pending = {}
 
@@ -210,6 +213,7 @@ end
 -- this is one reason the API is not considered stable :P
 local function ScanNode(node, ...)
   local stupid_lua = {...}
+  Route_Core_EarlyExit()
   table.insert(pending, function ()
     for k, v in pairs(filters) do
       if v:Process(node, unpack(stupid_lua)) then
@@ -222,6 +226,7 @@ local function ScanNode(node, ...)
 end
 
 local function ScanCluster(clust)
+  Route_Core_EarlyExit()
   table.insert(pending, function ()
     for _, v in ipairs(clust) do
       ScanNode(v)
@@ -229,7 +234,8 @@ local function ScanCluster(clust)
   end)
 end
 
-function QH_Route_Filter_Rescan(name)
+function QH_Route_Filter_Rescan(name, suppress_earlyexit)
+  if not suppress_earlyexit then Route_Core_EarlyExit() --[[print("ee rscn", (debugstack(2, 1, 0):gsub("\n...", "")))]] end
   QuestHelper: Assert(not name or filters[name] or name == "user_manual_ignored")
   table.insert(pending, function ()
     Route_Core_TraverseNodes(function (...)
@@ -239,10 +245,12 @@ function QH_Route_Filter_Rescan(name)
 end
 
 function QH_Route_IgnoreNode(node, reason)
+  Route_Core_EarlyExit() --print("ee in")
   table.insert(pending, function () Route_Core_IgnoreNode(node, reason) end)
 end
 
 function QH_Route_UnignoreNode(node, reason)
+  Route_Core_EarlyExit() --print("ee uin")
   table.insert(pending, function () Route_Core_UnignoreNode(node, reason) end)
 end
 
@@ -250,28 +258,34 @@ function QH_Route_ClusterAdd(clust)
   for _, v in ipairs(clust) do
     QuestHelper: Assert(v.cluster == clust)
   end
+  Route_Core_EarlyExit() --print("ee ca")
   table.insert(pending, function () Route_Core_ClusterAdd(clust) ScanCluster(clust) end)
   table.insert(pending, QH_Route_Filter_Rescan)
 end
 
 function QH_Route_ClusterRemove(clust)
+  Route_Core_EarlyExit() --print("ee cre")
   table.insert(pending, function () Route_Core_ClusterRemove(clust) end)
 end
 
 function QH_Route_ClusterRequires(a, b)
+  Route_Core_EarlyExit() --print("ee cr")
   table.insert(pending, function () Route_Core_ClusterRequires(a, b) end)
 end
 
 function QH_Route_IgnoreCluster(clust, reason)
+  Route_Core_EarlyExit() --print("ee ic")
   table.insert(pending, function () Route_Core_IgnoreCluster(clust, reason) end)
 end
 
 function QH_Route_UnignoreCluster(clust, reason)
+  Route_Core_EarlyExit() --print("ee uic")
   table.insert(pending, function () Route_Core_UnignoreCluster(clust, reason) end)
 end
 
 function QH_Route_SetClusterPriority(clust, pri)
   QuestHelper: Assert(clust)
+  Route_Core_EarlyExit() --print("ee scp")
   table.insert(pending, function () Route_Core_SetClusterPriority(clust, pri) end)
 end
 
@@ -279,6 +293,7 @@ local pending_recalc = false
 function QH_Route_FlightPathRecalc()
   if not pending_recalc then
     pending_recalc = true
+    Route_Core_EarlyExit() --print("ee recalc")
     table.insert(pending, function () pending_recalc = false QH_redo_flightpath() pathcache_active = new_pathcache_table() pathcache_inactive = new_pathcache_table() Route_Core_DistanceClear() ReplotPath() end)
   end
 end

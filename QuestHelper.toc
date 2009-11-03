@@ -133,6 +133,9 @@ db_get.lua
 # Timeslice module. Depends on nothing, calls no external functions besides a few basic system-API things.
 timeslice.lua
 
+# Achievement manager, depends on timeslice
+manager_achievement.lua
+
 # Graph module. Depends on nothing, calls no external functions.
 graph_core.lua
 graph_flightpath.lua

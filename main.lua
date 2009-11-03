@@ -216,6 +216,7 @@ QH_Event("ADDON_LOADED", function (addonid)
       ["bst_libaboutpanel.lua"] = true,
       
       ["manager_event.lua"] = true,
+      ["manager_achievement.lua"] = true,
       
       ["upgrade.lua"] = true,
       ["main.lua"] = true,
@@ -645,7 +646,7 @@ QH_Event("ADDON_LOADED", function (addonid)
     end)
     
     QH_Event({"ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "ZONE_CHANGED_NEW_AREA"}, function()
-      QH_Route_Filter_Rescan()
+      QH_Route_Filter_Rescan(nil, true)
     end)
     
     QH_Event("CHAT_MSG_CHANNEL_NOTICE", function()
