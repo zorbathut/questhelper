@@ -44,9 +44,9 @@ local AchievementDB
 --X 112 is learning cooking recipes
 --X 113 is honorable kills
 local achievement_type_blacklist = {}
---[[for _, v in pairs({1, 7, 8, 9, 10, 11, 14, 27, 28, 29, 30, 31, 32, 34, 35, 36, 37, 41, 42, 46, 47, 49, 52, 53, 56, 62, 67, 73, 75, 112, 113}) do
+for _, v in pairs({0, 1, 7, 8, 9, 10, 11, 14, 27, 28, 29, 30, 31, 32, 34, 35, 36, 37, 41, 42, 46, 47, 49, 52, 53, 56, 62, 67, 73, 75, 112, 113}) do
   achievement_type_blacklist[v] = true
-end]]
+end
 
 local achievement_list = {}
 
