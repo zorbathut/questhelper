@@ -4,287 +4,6 @@ QuestHelper_Loadtime["director_achievement.lua"] = GetTime()
 local debug_output = false
 if QuestHelper_File["director_achievement.lua"] == "Development Version" then debug_output = true end
 
-local added = false
-function QH_AddFires()
-  if added then QuestHelper:TextOut("Objectives are already added! If they haven't shown up yet, just be patient, it may take some time. If they have, and you've ignored some, you'll have to logout and logon to reset them. Sorry! It's kind of a work in progress.") return end
-  added = true
-  
-  QuestHelper:TextOut("Adding bonfire objectives! This may take several minutes - please be patient. Bonfire objectives will not go away automatically when you finish the quest, you'll have to ignore them manually, and it has no idea which bonfires you've already done. It also may take some time for it to generate a good path, or to respond to ignore requests. This is a very early beta feature and is in no way a finished, polished product :) Enjoy the Fire Festival!")
-
-  local fonbires = {
-    {39,74,41,"Horde"},
-    {39,50,44,"Alliance"},
-    {27,4,49,"Horde"},
-    {33,58,17,"Alliance"},
-    {40,62,29,"Horde"},
-    {40,80,62,"Alliance"},
-    {25,64,25,"Alliance"},
-    {28,46,46,"Alliance"},
-    {31,74,51,"Alliance"},
-    {37,43,65,"Alliance"},
-    {36,49,72,"Alliance"},
-    {41,46,50,"Horde"},
-    {52,70,43,"Horde"},
-    {44,46,26,"Horde"},
-    {48,50,46,"Alliance"},
-    {48,58,25,"Horde"},
-    {29,32,40,"Alliance"},
-    {30,24,59,"Alliance"},
-    {35,49,38,"Horde"},
-    {38,33,73,"Alliance"},
-    {38,32,75,"Horde"},
-    {46,47,47,"Horde"},
-    {42,14,50,"Alliance"},
-    {42,76,74,"Horde"},
-    {45,68,9,"Horde"},
-    {43,57,52,"Horde"},
-    {50,43,82,"Alliance"},
-    {49,56,54,"Alliance"},
-    {51,13,47,"Alliance"},
-    {2,38,54,"Alliance"},
-    {2,70,69,"Horde"},
-    {12,41,26,"Alliance"},
-    {3,44,53,"Alliance"},
-    {9,55,69,"Alliance"},
-    {16,37,46,"Alliance"},
-    {4,65,17,"Alliance"},
-    {4,26,76,"Horde"},
-    {1,47,38,"Horde"},
-    {7,52,47,"Horde"},
-    {10,62,40,"Alliance"},
-    {10,33,30,"Horde"},
-    {17,28,44,"Alliance"},
-    {17,72,47,"Horde"},
-    {23,21,26,"Horde"},
-    {22,51,60,"Horde"},
-    {5,57,34,"Alliance"},
-    {5,46,44,"Horde"},
-    {6,50,60,"Horde"},
-    {8,52,29,"Alliance"},
-    {8,49,27,"Horde"},
-    {24,55,91,"Alliance"},
-    {24,55,60,"Alliance"},
-    {11,52,28,"Horde"},
-    {14,41,52,"Horde"},
-    {19,62,35,"Alliance"},
-    {19,59,35,"Horde"},
-    {54,42,66,"Alliance"},
-    {54,50,59,"Horde"},
-    {56,62,58,"Alliance"},
-    {56,55,40,"Horde"},
-    {58,50,70,"Alliance"},
-    {58,51,34,"Horde"},
-    {59,31,63,"Alliance"},
-    {59,32,68,"Horde"},
-    {53,40,55,"Alliance"},
-    {53,33,30,"Horde"},
-    {55,55,55,"Alliance"},
-    {55,52,43,"Horde"},
-    {57,69,52,"Alliance"},
-    {57,36,52,"Horde"},
-    {72,47,66,"Alliance"},
-    {72,47,62,"Horde"},
-    {65,55,20,"Alliance"},
-    {65,51,12,"Horde"},
-    {68,75,44,"Alliance"},
-    {68,39,48,"Horde"},
-    {70,58,16,"Alliance"},
-    {70,48,13,"Horde"},
-    {69,34,61,"Alliance"},
-    {69,19,61,"Horde"},
-    {75,41,61,"Alliance"},
-    {75,43,71,"Horde"},
-    {73,42,87,"Alliance"},
-    {73,40,86,"Horde"},
-    {66,78,75,"Alliance"},
-    {66,80,53,"Horde"},
-  }
-  
-  local msfires = {desc = "Midsummer Fires", tracker_desc = "Midsummer Fires", tracker_split = true}
-  
-  for _, v in ipairs(fonbires) do
-    local ec, ez = unpack(QuestHelper_ZoneLookup[v[1]])
-    local c, x, y = QuestHelper.Astrolabe:GetAbsoluteContinentPosition(ec, ez, v[2] / 100, v[3] / 100)
-    --print(v[1], v[2], v[3], v[4], ec, ez, c, x, y, QuestHelper_ParentLookup[v[1]])
-    local desc = string.format("%s %s bonfire", v[4], QuestHelper_NameLookup[v[1]])
-    local node = {loc = {x = x, y = y, p = v[1], c = QuestHelper_ParentLookup[v[1]]}, why = msfires, map_desc = {desc}, tracker_desc = desc}
-    local cluster = {node}
-    node.cluster = cluster
-    
-    QH_Route_ClusterAdd(cluster)
-  end
-end
-
-
-
-local blarg
-
-local added = {}
-local function QH_AddChunk(targs)
-  
-  if added[targs] then QuestHelper:TextOut("Objectives are already added! If they haven't shown up yet, just be patient, it may take some time. If they have, and you've ignored some, you'll have to logout and logon to reset them. Sorry! It's kind of a work in progress.") return end
-  added[targs] = true
-  
-  if not blarg then QuestHelper:TextOut("Adding bucket objectives! This may take several minutes - please be patient. Bucket objectives will not go away automatically when you finish the quest, you'll have to ignore them manually, and it has no idea which bonfires you've already done. It also may take some time for it to generate a good path, or to respond to ignore requests. This is a very early beta feature and is in no way a finished, polished product :) Enjoy Hallow's End!") blarg = true end
-  
-  local msfires = {desc = targs.name, tracker_desc = targs.name, tracker_split = true}
-  
-  for _, v in ipairs(targs) do
-    local cont, zone = v[4]:match("(.*), (.*)")
-    
-    if not QuestHelper_IndexLookup[cont] then
-      --print("nindex", cont)
-      if not v[1] then fail = true v[1] = 42 end
-    else
-      v[1] = QuestHelper_IndexLookup[cont]
-    end
-    
-    local ec, ez = unpack(QuestHelper_ZoneLookup[v[1]])
-    local c, x, y = QuestHelper.Astrolabe:GetAbsoluteContinentPosition(ec, ez, v[2] / 100, v[3] / 100)
-    local node = {loc = {x = x, y = y, p = v[1], c = QuestHelper_ParentLookup[v[1]]}, why = msfires, map_desc = {v[4]}, tracker_desc = v[4]}
-    local cluster = {node}
-    node.cluster = cluster
-    
-    QH_Route_ClusterAdd(cluster)
-  end
-  
-  assert(not fail)
-end
-
-local fb
-
-if QuestHelper:PlayerFaction() == 1 then 
-  fb = {
-    kalimdor = {
-      {nil, 67, 16, "Darnassus, Craftsmen’s Terrace"},
-      {nil, 56, 60, "Teldrassil, Dolanaar"},
-      {nil, 56, 60, "Bloodmyst Isle, Blood Watch"},
-      {12, 60, 19, "Exodar, Seat of the Naaru"},
-      {nil, 48, 49, "Azuremyst Isle, Azure Watch"},
-      {nil, 37, 44, "Darkshore, Auberdine"},
-      {nil, 61, 39, "Winterspring, Everlook"},
-      {nil, 37, 49, "Ashenvale, Astranaar"},
-      {nil, 35, 7, "Stonetalon Mountains, Stonetalon Peak"},
-      {nil, 66, 7, "Desolace, Nijel's Point"},
-      {11, 62, 39, "Barrens, Ratchet"},
-      {nil, 67, 45, "Dustwallow Marsh, Theramore Isle"},
-      {nil, 42, 74, "Dustwallow Marsh, Mudsprocket"},
-      {nil, 52, 28, "Tanaris, Gadgetzan"},
-      {nil, 52, 39, "Silithus, Cenarion Hold"},
-      {nil, 31, 43, "Feralas, Feathermoon Stronghold"},
-      name = "Kalimdor candy buckets",
-    },
-    ek = {
-      {nil, 75.9, 52.3, "Eastern Plaguelands, Light's Hope"},
-      {42, 14.1, 41.6, "Hinterlands, Aerie Peak"},
-      {nil, 51.1, 58.9, "Hillsbrad Foothills, Southshore"},
-      {nil, 10.8, 60.9, "Wetlands, Menethil Harbor"},
-      {nil, 18.7, 51.5, "Ironforge, The Commons"},
-      {nil, 47.4, 52.4, "Dun Morogh, Kharanos"},
-      {nil, 35.5, 48.5, "Loch Modan, Thelsamar"},
-      {36, 60.5, 75.2, "Stormwind, Trade District"},
-      {nil, 43.7, 66, "Elwynn Forest, Goldshire"},
-      {nil, 27, 45, "Redridge Mountains, Lakeshire"},
-      {nil, 73.9, 44.5, "Duskwood, Darkshire"},
-      {nil, 52.9, 53.6, "Westfall, Sentinel Hill"},
-      {38, 27.1, 77.3, "Stranglethorn, Booty Bay"},
-      name = "Eastern Kingdoms candy buckets",
-    },
-    outland = {
-      {nil, 43.4, 36.1, "Netherstorm, The Stormspire"},
-      {nil, 32.1, 64.5, "Netherstorm, Area 52"},
-      {nil, 62.9, 38.3, "Blade's Edge Mountains, Evergrove"},
-      {nil, 61, 68.1, "Blade's Edge Mountains, Toshley's Station"},
-      {nil, 38.5, 63.8, "Blade's Edge Mountains, Sylvanaar"},
-      {nil, 41.9, 26.2, "Zangarmarsh, Orebor Harborage"},
-      {nil, 67.2, 49, "Zangarmarsh, Telredor"},
-      {nil, 78.5, 62.9, "Zangarmarsh, Cenarion Refuge"},
-      {nil, 23.4, 36.5, "Hellfire Peninsula, Temple of Telhamat"},
-      {nil, 54.3, 63.6, "Hellfire Peninsula, Honor Hold"},
-      {53, 61, 28.2, "(Aldor only) Shadowmoon Valley, Altar of Sha'tar"},
-      {53, 56.3, 59.8, "(Scryers only) Shadowmoon Valley, Sanctum of the Stars"},
-      {nil, 37.1, 58.2, "Shadowmoon Valley, Wildhammer Stronghold"},
-      {nil, 56.6, 53.2, "Terokkar Forest, Allerian Stronghold"},
-      {60, 56.2, 81.8, "(Scryers only) Shattrath City, Scryers Tier"},
-      {60, 28.1, 49, "(Aldor only) Shattrath City, Aldor Rise"},
-      {nil, 54.2, 75.8, "Nagrand, Telaar"},
-      name = "Outland candy buckets",
-    }
-  }
-else
-  fb = {
-    kalimdor = {
-      {nil, 61, 39, "Winterspring, Everlook"},
-      {nil, 74, 60, "Ashenvale, Splintertree Post"},
-      {nil, 54, 69, "Orgrimmar, Valley of Strength"},
-      {nil, 51, 41, "Durotar, Razor Hill"},
-      {nil, 62, 39, "The Barrens, Ratchet"},
-      {nil, 52, 30, "The Barrens, The Crosswoods"},
-      {nil, 47, 62, "Stonetalon Mountains, Sun Rock Retreat"},
-      {nil, 24, 68, "Desolace, Shadowprey Village"},
-      {nil, 45, 64, "Thunder Bluff, Lower Rise"},
-      {nil, 47, 61, "Mulgore, Bloodhoof Village"},
-      {nil, 74, 61, "The Barrens, Camp Taurajo"},
-      {nil, 36, 32, "Dustwallow Marsh, Brackenwall Village"},
-      {nil, 75, 45, "Feralas, Camp Mojache"},
-      {nil, 41, 74, "Dustwallow Marsh, Mudsprocket"},
-      {nil, 46, 51, "Thousand Needles, Freewind Post"},
-      {nil, 52, 28, "Tanaris, Gadgetzan"},
-      {nil, 51, 39, "Silithus, Cenarion Hold"},
-      name = "Kalimdor candy buckets",
-    },
-    ek = {
-      {nil, 48.1, 47.8, "Eversong Woods, Falconwing Square"},
-      {nil, 79.6, 57.8, "Silvermoon City, Royal Exchange"},
-      {nil, 67.7, 73.2, "Silvermoon City, The Bazaar"},
-      {nil, 43.7, 71.1, "Eversong Woods, Fairbreeze Village"},
-      {nil, 48.6, 32, "Ghostlands, Tranquillien"},
-      {34, 75.9, 52.3, "East Plaguelands, Light's Hope"},
-      {nil, 61.8, 52.2, "Tirisfal Glades, Brill"},
-      {nil, 68, 37.3, "Undercity, Trade Quarter"},
-      {nil, 43.2, 41.4, "Silverpine Forest, Sepulcher"},
-      {nil, 62.8, 19, "Hillsbrad Foothills, Tarren Mill"},
-      {24, 78.2, 81.5, "Hinterlands, Revantusk Village"},
-      {nil, 73.9, 32.6, "Arathi Highlands, Hammerfall"},
-      {nil, 2.9, 36, "Badlands, Kargath"},
-      {nil, 45.1, 56.5, "Swamp of Sorrows, Stonard"},
-      {38, 35.1, 29.7, "Stranglethorn, Grom'gol"},
-      {38, 27.1, 77.3, "Stranglethorn, Booty Bay"},
-      name = "Eastern Kingdoms candy buckets",
-    },
-    outland = {
-      {nil, 43.4, 36.1, "Netherstorm, The Stormspire"},
-      {nil, 32.1, 64.5, "Netherstorm, Area 52"},
-      {nil, 76.2, 60.4, "Blade's Edge Mountains, Mok'Nathal Village"},
-      {nil, 62.9, 38.3, "Blade's Edge Mountains, Evergrove"},
-      {nil, 53.4, 55.5, "Blade's Edge Mountains, Thunderlord Stronghold"},
-      {nil, 30.7, 50.9, "Zangarmarsh, Zabra'jin"},
-      {nil, 56.7, 34.6, "Nagrand, Garadar"},
-      {nil, 78.5, 62.9, "Zangarmarsh, Cenarion Refuge"},
-      {nil, 56.8, 37.5, "Hellfire Peninsula, Thrallmar"},
-      {nil, 26.9, 59.6, "Hellfire Peninsula, Falcon Watch"},
-      {60, 28.1, 49, "(Aldor only) Shattrath City, Aldor Rise"},
-      {60, 56.2, 81.8, "(Scryer only) Shattrath City, Scryers Tier"},
-      {nil, 48.8, 45.2, "Terokkar Forest, Stonebreaker Hold"},
-      {nil, 30.3, 27.8, "Shadowmoon Valley, Shadowmoon Village"},
-      {53, 61, 28.2, "(Aldor only) Shadowmoon Valley, Altar of Sha'tar"},
-      {53, 56.3, 59.8, "(Scryer only) Shadowmoon Valley, Sanctum of the Stars"},
-      name = "Outland candy buckets",
-    }
-  }
-end
-  
-function QH_AddBuckets(typ)
-  blarg = false
-  if typ and fb[typ] then
-    QH_AddChunk(fb[typ])
-  else
-    QH_AddChunk(fb.kalimdor)
-    QH_AddChunk(fb.ek)
-    QH_AddChunk(fb.outland)
-  end
-end
-
 local achieveable = {}
 
 local function IsDoable(id)
@@ -327,6 +46,7 @@ local function IsDoable(id)
         if typ == 0 then
           -- Monster kill. We're good! We can do these.
         elseif typ == 8 then
+          -- Achievement chain
           if not IsDoable(asset) then
             achieveable[id] = false
             break
@@ -406,12 +126,32 @@ local function AFAU_Replacement(...)
 end
 
 local TrackedAchievements = {}
+local Update_Objectives
+
+local function MarkAchieveable(id, setto)
+  TrackedAchievements[id] = setto
+  
+  local crit = GetAchievementNumCriteria(id)
+  for i = 1, crit do
+    local _, typ, _, _, _, _, _, asset, _, cid = GetAchievementCriteriaInfo(id, i)
+    if typ == 8 then
+      MarkAchieveable(asset, setto)
+    end
+  end
+end
+
+local check_onshow
 
 local function check_onclick(self)
   if self:GetChecked() then
-    TrackedAchievements[self:GetParent().id] = true
+    MarkAchieveable(self:GetParent().id, true)
   else
-    TrackedAchievements[self:GetParent().id] = nil
+    MarkAchieveable(self:GetParent().id, nil)
+  end
+  Update_Objectives()
+  
+  for i = 1, #AchievementFrameAchievements.buttons do
+    check_onshow(AchievementFrameAchievements.buttons[i].qh_checkbox)
   end
 end
 local function check_onenter(self)
@@ -421,11 +161,9 @@ end
 local function check_onleave(self)
   GameTooltip:Hide()
 end
-local function check_onshow(self)
+function check_onshow(self)
   self:SetChecked(TrackedAchievements[self:GetParent().id])
 end
-
-
 
 QH_Event("ADDON_LOADED", function (addonid)
   if addonid == "Blizzard_AchievementUI" then
@@ -438,7 +176,7 @@ QH_Event("ADDON_LOADED", function (addonid)
     AFAU = AchievementFrameAchievements_Update
     AchievementFrameAchievements_Update = AFAU_Replacement
     
-    for i = 1, 7 do
+    for i = 1, #AchievementFrameAchievements.buttons do
       local framix = CreateFrame("CheckButton", "qh_arglbargl_" .. i, AchievementFrameAchievements.buttons[i], "AchievementCheckButtonTemplate")
       framix:SetPoint("BOTTOMRIGHT", AchievementFrameAchievements.buttons[i], "BOTTOMRIGHT", -22, 7.5)
       framix:SetScript("OnEnter", check_onenter)
@@ -460,3 +198,139 @@ QH_Event("ADDON_LOADED", function (addonid)
     end
   end
 end)
+
+
+local function horribledupe(from)
+  if not from then return nil end
+  
+  local rv = {}
+  for k, v in pairs(from) do
+    if k == "__owner" then
+    elseif type(v) == "table" then
+      rv[k] = horribledupe(v)
+    else
+      rv[k] = v
+    end
+  end
+  return rv
+end
+
+local achievement_list = setmetatable({}, {__mode="k"})
+function GetAchievementMetaObjective(achievement)
+  if achievement_list[achievement] then return achievement_list[achievement] end
+  
+  local db = DB_GetItem("achievement", achievement)
+  assert(db)
+  
+  local ite = {}
+  ite.desc = select(2, GetAchievementInfo(achievement))
+  ite.tracker_desc = ite.desc
+  
+  local crit = GetAchievementNumCriteria(achievement)
+  for i = 1, crit do
+    local ttx = {}
+    
+    local _, _, _, _, _, _, _, _, _, cid = GetAchievementCriteriaInfo(achievement, i)
+    
+    if db[cid] then
+      ttx.solid = horribledupe(db[cid].solid)
+      if db[cid].loc then for _, v in ipairs(db[cid].loc) do
+        table.insert(ttx, {loc = {x = v.x, y = v.y, c = QuestHelper_ParentLookup[v.p], p = v.p}})
+      end end
+    end
+    
+    if #ttx == 0 then
+      table.insert(ttx, {loc = {x = 5000, y = 5000, c = 0, p = 2}, icon_id = 7, type_quest_unknown = true})  -- this is Ashenvale, for no particularly good reason
+      ttx.type_quest_unknown = true
+    end
+    
+    for _, v in ipairs(ttx) do
+      v.map_desc = {string.format("m achievement %d criteria %d", achievement, cid)}
+      v.tracker_desc = string.format("t achievement %d criteria %d", achievement, i)
+      v.desc = string.format("d achievement %d criteria %d", achievement, i)
+      v.cluster = ttx
+      v.why = ite
+    end
+    
+    ite[cid] = ttx
+  end
+  
+  achievement_list[achievement] = ite
+  
+  return achievement_list[achievement]
+end
+
+
+local current_aches = {}
+local next_aches = {}
+
+local function AchUpdateStart()
+  next_aches = {}
+end
+local function AchUpdateAdd(ach, crit)
+  if not next_aches[ach] then next_aches[ach] = {} end
+  next_aches[ach][crit] = true
+end
+local function AchUpdateEnd()
+  for k, v in pairs(current_aches) do
+    for c in pairs(v) do
+      if not next_aches[k] or not next_aches[k][c] then
+        local meta = GetAchievementMetaObjective(k)
+        
+        QH_Route_ClusterRemove(meta[c])
+      end
+    end
+  end
+  
+  for k, v in pairs(next_aches) do
+    for c in pairs(v) do
+      if not current_aches[k] or not current_aches[k][c] then
+        local meta = GetAchievementMetaObjective(k)
+        
+        QH_Route_ClusterAdd(meta[c])
+      end
+    end
+  end
+  
+  current_aches = next_aches  -- yaaaaaaaay
+end
+
+
+
+local db
+function Update_Objectives(_, new)
+  if not new then new = db end  -- sometimes we're just told to update thanks to a change in checkmarks, and this is the easiest way to keep a DB around
+  db = new
+  
+  AchUpdateStart()
+  
+  local oblit = {}
+  for k in pairs(TrackedAchievements) do
+    print("updating achievement", k)
+    
+    local achid = new.achievements[k]
+    assert(achid)
+    
+    if achid.complete then
+      oblit[k] = true
+    end
+    
+    local critcount = GetAchievementNumCriteria(k)
+    for i = 1, critcount do
+      local _, _, _, _, _, _, _, _, _, crit = GetAchievementCriteriaInfo(k, i)
+      
+      if not new.criteria[crit].complete then
+        AchUpdateAdd(k, crit)
+      end
+    end
+  end
+  
+  for k in pairs(oblit) do
+    TrackedAchievements[k] = nil
+  end
+  
+  AchUpdateEnd()
+end
+
+QH_AchievementManagerRegister(Update_Objectives)
+QH_AchievementManagerRegister_Poke()
