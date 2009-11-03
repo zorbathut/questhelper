@@ -1395,6 +1395,7 @@ if do_compile and do_achievements then
       Data = function(self, key, subkey, value, Output)
         require "compile_achievement" -- whoa nelly
         if not achievements.achievements[tonumber(key)] then return end -- bzart
+        assert(key ~= 713)
         
         for k, v in pairs(value) do
           if type(k) == "number" or k == "achieved" then
@@ -1579,6 +1580,7 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
         end
       end end
       if self.finalfile.achievement then for k, v in pairs(self.finalfile.achievement) do
+        assert(k ~= 713)
         if v["*/*"] then
           for cid, crit in pairs(v["*/*"]) do
             local _, ct, reason, solids = do_loc_choice(self.finalfile, crit, true)
@@ -1595,8 +1597,8 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
         
         print("achievement monsting", k)
         
-        if v["*/*"] and v["*/*"].loc and v["*/*"].loc.solids then
-          Output(tostring(v["*/*"].loc.solids), nil, {data = v["*/*"].loc.solids, key = string.format("monster/%d", k), path = {}}, "solidity")
+        if v["*/*"] and v["*/*"].loc then
+          Output(tostring(v["*/*"].loc.solid), nil, {data = v["*/*"].loc.solid, key = string.format("monster/%d", k), path = {}}, "solidity")
         end
         v.used = true
       end end
@@ -1679,7 +1681,7 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
           for plane, tv in pairs(v) do
             assert(tv)
             
-            if plane == "*/*" and (t == "quest" or t == "achievement") then
+            if plane == "*/*" and (t == "quest" or t == "achievement" or t == "monster") then
               Output(string.format("%s/%d", t, k), nil, {core = tv}, "solidity_recombine")
             else
               Output(plane, nil, {id = t, key = k, data = tv}, "output_direct")
@@ -2218,6 +2220,7 @@ local solidity_recombine = ChainBlock_Create("solidity_recombine", {file_cull, s
       end
     end,
     Finish = function(self, Output)
+      if not self.core then print("Missing core:", key) end
       assert(self.core)
       
       for _, v in ipairs(self.solid) do
