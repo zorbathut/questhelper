@@ -679,6 +679,7 @@ Standard data accumulation functions
 ]]
 
 function standard_pos_accum(accum, value, lv, locale, fluff, wowv)
+  assert(locale)
   if not fluff then fluff = 0 end
   
   -- bleh

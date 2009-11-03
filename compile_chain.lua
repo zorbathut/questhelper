@@ -246,7 +246,7 @@ function ChainBlock_Work()
         if str then break end
         
         print(string.format("Missing data? %s/%s %s", prefix, line, err))
-        os.sleep(1)
+        sleep(1)
       end
       
       assert(str)

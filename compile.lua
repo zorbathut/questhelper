@@ -1,22 +1,29 @@
 #!/usr/bin/lua
 
+-- Loot reset starting at 1.2.4?
+
 local do_zone_map = false
 local do_errors = true
 
 local do_compile = true
 local do_questtables = true
 local do_flight = true
-local do_achievements = false
+local do_achievements = true
 local do_find = true
 
-local do_compress = true
+local do_cull = true
+
+local do_compress = false
 local do_serialize = true
 
 dbg_data = false
 
+if dbg_data then do_cull = false do_compress = false end
+
 --local s = 47411
 --local e = 47411
---local e = 100
+--local s = 0
+local e = 200
 
 require "compile_lib"
 require "overrides"
@@ -116,10 +123,12 @@ local chainhead = ChainBlock_Create("parse", nil,
         end end
         
         -- objects!
-        --[[if do_compile and do_questtables and v.object then for oid, odat in pairs(v.object) do
+        if do_compile and do_questtables and v.object then for oid, odat in pairs(v.object) do
           odat.fileid = value.fileid
+          odat.locale = locale
+          odat.wowv = wowv
           Output(string.format("%s@@%s", oid, locale), qhv, odat, "object")
-        end end]]
+        end end
         
         -- flight masters!
         if do_compile and do_flight and v.flight_master then for fmname, fmdat in pairs(v.flight_master) do
@@ -196,7 +205,7 @@ Object collation
 
 local object_slurp
 
-if false and do_compile then 
+if do_compile then 
   local object_locate = ChainBlock_Create("object_locate", {chainhead},
     function (key) return {
       accum = {name = {}, loc = {}},
@@ -207,7 +216,7 @@ if false and do_compile then
       Data = function(self, key, subkey, value, Output)
         local name, locale = key:match("(.*)@@(.*)")
         
-        if standard_pos_accum(self.accum, value, loc_version(subkey), locale, nil, value.wowv) then return end
+        if standard_pos_accum(self.accum, value, loc_version(subkey), locale, 0, value.wowv) then return end
         
         while #value > 0 do table.remove(value) end
         
@@ -221,24 +230,26 @@ if false and do_compile then
           fidc = fidc + 1
         end
         
-        if fidc < 3 then return end -- bzzzzzt
-        
         local name, locale = key:match("(.*)@@(.*)")
+        --if locale ~= "enUS" then print(locale, fidc) end
+        if fidc < 3 then return end -- bzzzzzt
         
         local qout = {}
         
         if position_has(self.accum.loc) then
           qout.loc = position_finalize(self.accum.loc)
         else
+          --if locale ~= "enUS" then print("nopos") end
           return  -- BZZZZZT
         end
         
         if locale == "enUS" then
           Broadcast("object", {name = name, loc = qout.loc})
-          Output("", nil, {type = "data", name = key, data = self.accum}, "reparse")
+          Output("", nil, {enUS = name}, "combine")
+          --Output("", nil, {type = "data", name = key, data = self.accum}, "reparse")
         else
           Output(key, nil, qout.loc, "link")
-          Output("", nil, {type = "data", name = key, data = self.accum}, "reparse")
+          --Output("", nil, {type = "data", name = key, data = self.accum}, "reparse")
         end
       end,
     } end,
@@ -396,28 +407,33 @@ if false and do_compile then
     end
   end]]
   
-  local object_combine = ChainBlock_Create("object_combine", {object_link},
+  local object_combine = ChainBlock_Create("object_combine", {object_link, object_locate},
     function (key) return {
     
       source = {enUS = {}},
       heap = {},
     
       Data = function(self, key, subkey, value, Output)
-        local name, locale = value.key:match("(.*)@@(.*)")  -- boobies regexp
-        -- insert shit into a heap
-        if not self.source[locale] then self.source[locale] = {} end
-        self.source[locale][name] = {}
-        for k, v in pairs(value.data) do
-          self.source.enUS[k] = {linkedto = {}}
-          heap_insert(self.heap, {c = v, dst_locale = locale, dst = name, src = k})
+        if value.key then
+          local name, locale = value.key:match("(.*)@@(.*)")  -- boobies regexp
+          -- insert shit into a heap
+          if not self.source[locale] then self.source[locale] = {} end
+          self.source[locale][name] = {}
+          for k, v in pairs(value.data) do
+            heap_insert(self.heap, {c = v, dst_locale = locale, dst = name, src = k})
+          end
+        else
+          assert(value.enUS)
+          self.source.enUS[value.enUS] = {linkedto = {}}
         end
       end,
       
-      Receive = function() end,
+      Receive = function () end,
       
       Finish = function(self, Output, Broadcast)
         print("heap is", #self.heap)
         
+        -- pull shit out of the heap, link things up
         local llst = 0
         while #self.heap > 0 do
           local ite = heap_extract(self.heap)
@@ -430,35 +446,67 @@ if false and do_compile then
             print(string.format("Linked %s to %s/%s (%f)", ite.src, ite.dst_locale, ite.dst, ite.c))
           end
         end
-        -- pull shit out of the heap, link things up
         
-        -- determine unique IDs for everything we have left
+        -- we're going to assume that if it's not in enUS, it doesn't exist
+        -- determine unique IDs for everything we have
+        local ids = {}
+        local lookup = {enUS = {}}
+        for k, v in pairs(self.source.enUS) do
+          print("enUS:", k)
+          table.insert(ids, k)
+          local id = #ids
+          
+          lookup.enUS[k] = id
+          
+          for nation, str in pairs(v.linkedto) do
+            print(string.format("  %s:", nation), str)
+            if not lookup[nation] then lookup[nation] = {} end
+            lookup[nation][str] = id
+          end
+        end
         
-        -- output stuff for actual parsing and processing of any remaining data
-        -- also, output a chart of what we linked
-        -- remember to output that chart in order-of-linkage
+        Broadcast("lookup", lookup)
       end,
     } end,
     nil, "combine"
   )
   
   
+  local object_redispatch = ChainBlock_Create("object_redispatch", {chainhead, object_combine},
+    function (key) return {
+      Data = function(self, key, subkey, value, Output)
+        local name, locale = key:match("(.*)@@(.*)")  -- boobies regexp
+        if self.lookup[locale] and self.lookup[locale][name] then
+          local mkmore = {}
+          for k, v in pairs(value) do
+            mkmore[k] = v
+          end
+          mkmore.name = name
+          Output(tostring(self.lookup[locale][name]), subkey, mkmore, "object")
+        end
+      end,
+      
+      Receive = function(self, key, data)
+        assert(key == "lookup")
+        assert(not self.lookup)
+        assert(data)
+        self.lookup = data
+      end,
+    } end,
+    nil, "object"
+  )
+  
   -- then, now that we finally have IDs, we do our standard mambo of stuff
-  
-  
-  --[[object_slurp = ChainBlock_Create("object_slurp", {chainhead},
+  object_slurp = ChainBlock_Create("object_slurp", {object_redispatch},
     function (key) return {
       accum = {name = {}, loc = {}},
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
-        if standard_pos_accum(self.accum, value, loc_version(subkey)) then return end
-        name_accumulate(self.accum.name, key, value.locale)
+        if standard_pos_accum(self.accum, value, loc_version(subkey), value.locale, 0, value.wowv) then return end
+        name_accumulate(self.accum.name, value.name, value.locale)
         
-        while #value > 0 do table.remove(value) end
-        value.locale = nil
-        
-        table.insert(accum, value)
+        loot_accumulate(value, {type = "object", id = tonumber(key)}, Output)
       end,
       
       Finish = function(self, Output)
@@ -466,7 +514,7 @@ if false and do_compile then
         
         local qout = {}
         
-        if dbg_data then qout.name = self.accum.name end
+        if dbg_data then qout.dbg_name = self.accum.name.enUS end
         if position_has(self.accum.loc) then qout.loc = position_finalize(self.accum.loc) end
         
         local has_stuff = false
@@ -474,13 +522,17 @@ if false and do_compile then
           has_stuff = true
           break
         end
+        assert(tonumber(key))
         if has_stuff then
-          Output("", nil, {id="object", key=key, data=qout}, "output")
+          Output("*/*", nil, {id="object", key=tonumber(key), data=qout}, "output")
+        end
+        for k, v in pairs(self.accum.name) do
+          Output(("%s/*"):format(k), nil, {id="object", key=tonumber(key), data={name=v}}, "output")
         end
       end,
     } end,
     sortversion, "object"
-  )]]
+  )
 end
 
 --[[
@@ -667,6 +719,7 @@ if do_compile and do_questtables then
   -- Means: "We've seen 104 skinnings of item #999 from monster #12345"
   local lootables = {}
   if monster_slurp then table.insert(lootables, monster_slurp) end
+  if object_slurp then table.insert(lootables, object_slurp) end
   if item_parse then table.insert(lootables, item_parse) end
   
   local loot_merge = ChainBlock_Create("loot_merge", lootables,
@@ -1340,6 +1393,9 @@ if do_compile and do_achievements then
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
+        require "compile_achievement" -- whoa nelly
+        if not achievements.achievements[tonumber(key)] then return end -- bzart
+        
         for k, v in pairs(value) do
           if type(k) == "number" or k == "achieved" then
             if not self.accum[k] then self.accum[k] = {loc = {}} end
@@ -1532,6 +1588,19 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
         end
       end end
       
+      -- grab the monsters that are necessary for achievements
+      require "compile_achievement" -- whoa nelly
+      if self.finalfile.monster then for k, v in pairs(self.finalfile.monster) do
+        if not achievements.monsters[k] then continue end
+        
+        print("achievement monsting", k)
+        
+        if v["*/*"] and v["*/*"].loc and v["*/*"].loc.solids then
+          Output(tostring(v["*/*"].loc.solids), nil, {data = v["*/*"].loc.solids, key = string.format("monster/%d", k), path = {}}, "solidity")
+        end
+        v.used = true
+      end end
+      
       table.sort(qct, function(a, b) return a.ct < b.ct end)
       for _, v in ipairs(qct) do
         --print("qct", v.ct, v.id, v.reason)
@@ -1562,7 +1631,7 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
         v.used = true
       end end
       
-      -- Go through and clear out non-quest and non-achievement solidity (todo - defer to the actual monster data for achievements?)
+      -- Go through and clear out remaining solidity
       if self.finalfile.quest then for k, v in pairs(self.finalfile.quest) do
         if v["*/*"] and v["*/*"].criteria then
           for cid, crit in pairs(v["*/*"].criteria) do
@@ -1593,11 +1662,9 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
             for plane, tv in pairs(v) do
               if type(tv) == "table" then tv.used = v.used or false end
             end
-            
-            v.used = true
           end
           
-          if v.used then
+          if not do_cull or v.used then
             ultrafinal[k] = v
           end
           
@@ -1681,7 +1748,6 @@ local function doblur(chunk)
   end
   return targ
 end
-
 local function blur(chunk)
   return doblur(doblur(chunk))
 end
