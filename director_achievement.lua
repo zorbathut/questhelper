@@ -222,6 +222,7 @@ function GetAchievementMetaObjective(achievement)
   local ite = {}
   ite.desc = select(2, GetAchievementInfo(achievement))
   ite.tracker_desc = ite.desc
+  ite.tracker_split = true
   
   local crit = GetAchievementNumCriteria(achievement)
   for i = 1, crit do

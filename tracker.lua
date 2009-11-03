@@ -684,7 +684,7 @@ function QH_Tracker_Rescan()
     for k, v in ipairs(route) do
       if depth > QuestHelper_Pref.track_size and not debug_output then break end
       if not v.ignore and not v.why.tracker_hidden and not obj_done[v.cluster] then
-        if current_mo and v.why ~= current_mo then
+        if current_mo and v.why ~= current_mo and (v.why.tracker_split or not mo_done[v.why]) then
           y, depth = addMetaObjective(current_mo, current_mo_cluster, y, depth)
           QuestHelper:ReleaseTable(current_mo_cluster)
           current_mo, current_mo_cluster = nil, nil
