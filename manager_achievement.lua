@@ -190,7 +190,6 @@ local updating = false
 local updating_continue = false
 
 local function ScanAchievements()
-  print("saca")
   while updating_continue do
     updating_continue = false
     
@@ -201,9 +200,7 @@ local function ScanAchievements()
     local old = AchievementDB
     local new = getAchievementDB()
     
-    print("doorah")
     for _, v in ipairs(registered) do
-      print("movin'")
       v(old, new)
     end
     
@@ -214,9 +211,9 @@ local function ScanAchievements()
 end
 
 local function OnEvent()
-  print("oe", updating, AchievementDB)
+  --print("oe", updating, AchievementDB)
   if not updating and AchievementDB then
-    print("cutea")
+    --print("cutea")
     QH_Timeslice_Add(ScanAchievements, "criteria")
   end
   updating = true
