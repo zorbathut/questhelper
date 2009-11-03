@@ -51,6 +51,7 @@ QH_Route_Core_Ignored_Cluster = nil
 QH_Route_Core_EarlyExit = nil
 
 local pending = {}
+local rescan_it_all = false
 
 local weak_key = {__mode="k"}
 
@@ -115,7 +116,7 @@ end
 local last_path = nil
 local cleanup_path = nil
 
-local function ReplotPath()
+local function ReplotPath(progress)
   if not last_path then return end  -- siiigh
   
   local real_path = QuestHelper:CreateTable("path")
@@ -176,6 +177,8 @@ local function ReplotPath()
       
       if condense_class then condense_doit() end -- in case we have stuff left over
     end
+    
+    if progress then progress:SetPercentage(k / #last_path) end
   end
   
   for _, v in pairs(notification_funcs) do
@@ -234,24 +237,31 @@ local function ScanCluster(clust)
   end)
 end
 
+local show_debug_commands = false
+
+function QH_Route_Filter_Rescan_Now()
+  Route_Core_TraverseNodes(function (...)
+    ScanNode(...)
+  end)
+end
+
 function QH_Route_Filter_Rescan(name, suppress_earlyexit)
   if not suppress_earlyexit then Route_Core_EarlyExit() --[[print("ee rscn", (debugstack(2, 1, 0):gsub("\n...", "")))]] end
   QuestHelper: Assert(not name or filters[name] or name == "user_manual_ignored")
   table.insert(pending, function ()
-    Route_Core_TraverseNodes(function (...)
-      ScanNode(...)  -- yeah, so we're really rescanning every node, aren't we. laaaazy
-    end)
+    if show_debug_commands then print("delayed qrfr") end
+    QH_Route_Filter_Rescan_Now() -- yeah, so we're really rescanning every node, aren't we. laaaazy
   end)
 end
 
 function QH_Route_IgnoreNode(node, reason)
   Route_Core_EarlyExit() --print("ee in")
-  table.insert(pending, function () Route_Core_IgnoreNode(node, reason) end)
+  table.insert(pending, function () if show_debug_commands then print("delayed qrin") end Route_Core_IgnoreNode(node, reason) end)
 end
 
 function QH_Route_UnignoreNode(node, reason)
   Route_Core_EarlyExit() --print("ee uin")
-  table.insert(pending, function () Route_Core_UnignoreNode(node, reason) end)
+  table.insert(pending, function () if show_debug_commands then print("delayed qrun") end Route_Core_UnignoreNode(node, reason) end)
 end
 
 function QH_Route_ClusterAdd(clust)
@@ -259,34 +269,34 @@ function QH_Route_ClusterAdd(clust)
     QuestHelper: Assert(v.cluster == clust)
   end
   Route_Core_EarlyExit() --print("ee ca")
-  table.insert(pending, function () Route_Core_ClusterAdd(clust) ScanCluster(clust) end)
-  table.insert(pending, QH_Route_Filter_Rescan)
+  table.insert(pending, function () if show_debug_commands then print("delayed qrca1") end Route_Core_ClusterAdd(clust) end)
+  rescan_it_all = true
 end
 
 function QH_Route_ClusterRemove(clust)
   Route_Core_EarlyExit() --print("ee cre")
-  table.insert(pending, function () Route_Core_ClusterRemove(clust) end)
+  table.insert(pending, function () if show_debug_commands then print("delayed qrcrm") end Route_Core_ClusterRemove(clust) end)
 end
 
 function QH_Route_ClusterRequires(a, b)
   Route_Core_EarlyExit() --print("ee cr")
-  table.insert(pending, function () Route_Core_ClusterRequires(a, b) end)
+  table.insert(pending, function () if show_debug_commands then print("delayed qrcrq") end Route_Core_ClusterRequires(a, b) end)
 end
 
 function QH_Route_IgnoreCluster(clust, reason)
   Route_Core_EarlyExit() --print("ee ic")
-  table.insert(pending, function () Route_Core_IgnoreCluster(clust, reason) end)
+  table.insert(pending, function () if show_debug_commands then print("delayed qric") end Route_Core_IgnoreCluster(clust, reason) end)
 end
 
 function QH_Route_UnignoreCluster(clust, reason)
   Route_Core_EarlyExit() --print("ee uic")
-  table.insert(pending, function () Route_Core_UnignoreCluster(clust, reason) end)
+  table.insert(pending, function () if show_debug_commands then print("delayed qruc") end Route_Core_UnignoreCluster(clust, reason) end)
 end
 
 function QH_Route_SetClusterPriority(clust, pri)
   QuestHelper: Assert(clust)
   Route_Core_EarlyExit() --print("ee scp")
-  table.insert(pending, function () Route_Core_SetClusterPriority(clust, pri) end)
+  table.insert(pending, function () if show_debug_commands then print("delayed qrscp") end Route_Core_SetClusterPriority(clust, pri) end)
 end
 
 local pending_recalc = false
@@ -294,7 +304,7 @@ function QH_Route_FlightPathRecalc()
   if not pending_recalc then
     pending_recalc = true
     Route_Core_EarlyExit() --print("ee recalc")
-    table.insert(pending, function () pending_recalc = false QH_redo_flightpath() pathcache_active = new_pathcache_table() pathcache_inactive = new_pathcache_table() Route_Core_DistanceClear() ReplotPath() end)
+    table.insert(pending, function () if show_debug_commands then print("delayed qrfpr") end pending_recalc = false QH_redo_flightpath() pathcache_active = new_pathcache_table() pathcache_inactive = new_pathcache_table() Route_Core_DistanceClear() ReplotPath() end)
   end
 end
 QH_Route_FlightPathRecalc() -- heh heh
@@ -322,9 +332,9 @@ end
 
 
 Route_Core_Init(
-  function(path)
+  function(path, progress)
     last_path = path
-    ReplotPath()
+    ReplotPath(progress)
   end,
   function(loc1, loctable, reverse, complete_pass)
     if #loctable == 0 then return QuestHelper:CreateTable("null response") end
@@ -503,6 +513,12 @@ local function process()
         v()
         QH_Timeslice_Yield()
       end
+    end
+    
+    if rescan_it_all then
+      rescan_it_all = false
+      assert(#pending == 0) -- assert that everything is consistent after the scan
+      QH_Route_Filter_Rescan_Now()
     end
   end
 end

@@ -596,6 +596,9 @@ end
 
 local loading_vquest = {tracker_desc = QHFormat("QH_LOADING", "0")}
 local flightpath_vquest = {tracker_desc = QHFormat("QH_FLIGHTPATH", "0")}
+local recalculating_vquest = {tracker_desc = QHFormat("QH_RECALCULATING", "0")}
+
+local recalculating_start = nil
 
 
 local hidden_vquest1 = { tracker_desc = QHText("QUESTS_HIDDEN_1"), tracker_clicked = QH_Hidden_Menu }
@@ -652,6 +655,19 @@ function QH_Tracker_Rescan()
     flightpath_vquest.tracker_desc = QHFormat("QH_FLIGHTPATH", string.format("%d", QuestHelper.flightpathing:GetPercentage() * 100))
     local x, ty = addItem(flightpath_vquest, y)
     y = ty + 10
+  end
+  if not QuestHelper.loading_main and not QuestHelper.flightpathing and QuestHelper.route_change_progress then
+    if recalculating_start then
+      if recalculating_start + 5 < GetTime() then
+        recalculating_vquest.tracker_desc = QHFormat("QH_RECALCULATING", string.format("%d", QuestHelper.route_change_progress:GetPercentage() * 100))
+        local x, ty = addItem(recalculating_vquest, y)
+        y = ty + 10
+      end
+    else
+      recalculating_start = GetTime()
+    end
+  else
+    recalculating_start = nil
   end
   
   local metalookup = QuestHelper:CreateTable("tracker rescan metalookup")

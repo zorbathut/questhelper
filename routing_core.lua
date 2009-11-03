@@ -729,23 +729,39 @@ function QH_Route_Core_Process()
   --QuestHelper:TextOut("Pathing")
   
   -- First we check to see if we need to add more distances, and if so, we do so
+  
+  local route_tweak_progress
+  local better_route_progress
   do
     local refreshcount = 0
     for k, v in pairs(DistanceWaiting) do
       refreshcount = refreshcount + 1
     end
     
+    assert(not QuestHelper.route_change_progress)
+    
     if refreshcount > 0 then
+      QuestHelper.route_change_progress = QuestHelper.CreateLoadingCounter()
+      
+      route_tweak_progress = QuestHelper.route_change_progress:MakeSubcategory(0.1)
+      better_route_progress = QuestHelper.route_change_progress:MakeSubcategory(0.2)
+      
       if debug_output then QuestHelper:TextOut(string.format("Refreshing %d", refreshcount)) end
       if refreshcount >= #ActiveNodes / 2 then
         -- Refresh everything!
-        QH_Route_Core_DistanceClear_Local()
+        QH_Route_Core_DistanceClear_Local(QuestHelper.route_change_progress:MakeSubcategory(0.7))
       else
+        local resynch_progress = QuestHelper.route_change_progress:MakeSubcategory(0.7)
+        
         local tlnod = QuestHelper:CreateTable("routecore distance tlnod")
         for _, v in ipairs(ActiveNodes) do
           table.insert(tlnod, NodeList[v])
         end
         
+        local ct = 0
+        for idx, _ in pairs(DistanceWaiting) do ct = ct + 1 end
+        
+        local ctd = 0
         for idx, _ in pairs(DistanceWaiting) do
           -- Refresh a subset of things.
           local forward = DistBatch(NodeList[idx], tlnod)
@@ -758,6 +774,9 @@ function QH_Route_Core_Process()
           
           QuestHelper:ReleaseTable(forward)
           QuestHelper:ReleaseTable(backward)
+          
+          ctd = ctd + 1
+          resynch_progress:SetPercentage(ctd / ct)
         end
         QuestHelper:ReleaseTable(tlnod)
       end
@@ -778,6 +797,17 @@ function QH_Route_Core_Process()
       touched_clusts[clust] = true
     end
     
+    if not route_tweak_progress then
+      assert(not QuestHelper.route_change_progress)
+      QuestHelper.route_change_progress = QuestHelper.CreateLoadingCounter()
+      route_tweak_progress = QuestHelper.route_change_progress:MakeSubcategory(0.1)
+      better_route_progress = QuestHelper.route_change_progress:MakeSubcategory(0.9)
+    end
+    
+    local ct = 0
+    for k, _ in pairs(Cluster) do ct = ct + 1 end
+    
+    local ctd = 0
     for k, _ in pairs(Cluster) do
       local exists = touched_clusts[k]
       local ignored = (ClusterIgnoredCount[k] ~= 0)
@@ -791,6 +821,9 @@ function QH_Route_Core_Process()
         end
         last_best_tweaked = true
       end
+      
+      ctd = ctd + 1
+      route_tweak_progress:SetPercentage(ctd / ct)
     end
     QuestHelper:ReleaseTable(touched_clusts)
   end
@@ -799,9 +832,11 @@ function QH_Route_Core_Process()
   
   if last_best_tweaked and last_best then
     --QuestHelper:TextOut("Pushing tweaked")
-    BetterRoute(last_best)
+    BetterRoute(last_best, better_route_progress)
     last_best_tweaked = false
   end
+  
+  QuestHelper.route_change_progress = nil
   
   local worst = 0
   
@@ -1388,7 +1423,7 @@ function QH_Route_Core_SetClusterPriority(clust, new_pri)
 end
 
 -- Wipe and re-cache all distances.
-function QH_Route_Core_DistanceClear()  
+function QH_Route_Core_DistanceClear(progress)  
   local tlnod = {}
   for _, v in ipairs(ActiveNodes) do
     table.insert(tlnod, NodeList[v])
@@ -1402,6 +1437,8 @@ function QH_Route_Core_DistanceClear()
     end
     
     if QuestHelper.loading_preroll and #ActiveNodes > 1 then QuestHelper.loading_preroll:SetPercentage(ani / #ActiveNodes) end
+    
+    if progress then progress:SetPercentage(ani / #ActiveNodes) end
   end
   
   if last_best then
