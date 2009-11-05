@@ -52,7 +52,7 @@ local in_tracker = 0
 
 minbutton:SetFrameStrata("LOW")
 minbutton:Hide()
-minbutton:SetPoint("TOPRIGHT", WatchFrame) -- We default to a different location to make it more likely to display the right item.
+minbutton:SetPoint("TOPRIGHT", nil, WatchFrame) -- We default to a different location to make it more likely to display the right item.
 minbutton:SetMovable(true)
 minbutton:SetUserPlaced(true)
 minbutton:SetWidth(32 / 1.6)
@@ -63,7 +63,7 @@ minbutton_tex:SetAllPoints()
 minbutton_tex:SetTexture(.6, .6, .6)
 minbutton_tex:SetParent(minbutton)
 
-local sigargh = CreateFrame("Frame", minbutton)
+local sigargh = CreateFrame("Frame", nil, minbutton)
 sigargh:SetFrameStrata("LOW")
 sigargh:SetFrameLevel(4)
 
@@ -73,6 +73,7 @@ sigil:SetWidth(32)
 --sigil:SetPoint("CENTER", 0, 0)
 sigil:SetTexture("Interface\\AddOns\\QuestHelper\\sigil")
 sigil:SetPoint("CENTER", minbutton_tex, "CENTER")
+sigil:SetParent(sigargh)
 
 
 tracker:SetPoint("CENTER", minbutton)
@@ -1127,6 +1128,7 @@ end
 function QuestHelper:ShowTracker()
   tracker:HideDefaultTracker()
   minbutton:Show()
+  sigargh:Show()
   
   RefreshColor()
   if not QuestHelper_Pref.track_minimized then
@@ -1138,4 +1140,5 @@ function QuestHelper:HideTracker()
   tracker:ShowDefaultTracker()
   tracker:Hide()
   minbutton:Hide()
+  sigargh:Hide()
 end
