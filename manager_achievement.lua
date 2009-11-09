@@ -284,4 +284,14 @@ if QuestHelper_File["manager_achievement.lua"] == "Development Version" then
       end
     end
   end
+  
+  function dump_crits(id)
+    local critcount = GetAchievementNumCriteria(id)
+    print(string.format("%d criteria (%s)", critcount, tostring(achievement_list[id])))
+  
+    for i = 1, critcount do
+      local _, crit_type = GetAchievementCriteriaInfo(id, i)
+      print(string.format("%d: %d", i, crit_type))
+    end
+  end
 end

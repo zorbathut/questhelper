@@ -97,7 +97,7 @@ local function SetQHVis(button, ach, _, _, complete)
   end
 end
 
-local ABDA_suppress
+local ABDA_permit
 local ABDA
 local function ABDA_Replacement(button, category, achievement, selectionID)
   -- hee hee hee
@@ -105,7 +105,7 @@ local function ABDA_Replacement(button, category, achievement, selectionID)
   -- *sneaky* fish
   -- ^__^
   
-  if not ABDA_suppress and ACHIEVEMENTUI_SELECTEDFILTER == FilterFunction then
+  if ABDA_permit and ACHIEVEMENTUI_SELECTEDFILTER == FilterFunction then
     local aa = GetListOfAchievements(category)
     local ach = aa[achievement]
     ABDA(button, category, ach, selectionID)
@@ -124,6 +124,7 @@ local function AFAU_Replacement(...)
 end
 
 local TrackedAchievements = {}
+local MetaAchievements = {}
 local Update_Objectives
 
 local function MarkAchieveable(id, setto)
@@ -133,6 +134,7 @@ local function MarkAchieveable(id, setto)
   for i = 1, crit do
     local _, typ, _, _, _, _, _, asset, _, cid = GetAchievementCriteriaInfo(id, i)
     if typ == 8 then
+      MetaAchievements[id] = true
       MarkAchieveable(asset, setto)
     end
   end
@@ -173,6 +175,8 @@ QH_Event("ADDON_LOADED", function (addonid)
     
     AFAU = AchievementFrameAchievements_Update
     AchievementFrameAchievements_Update = AFAU_Replacement
+    AchievementFrameAchievementsContainer.update = AFAU_Replacement
+    ACHIEVEMENT_FUNCTIONS.updateFunc = AFAU_Replacement
     
     for i = 1, #AchievementFrameAchievements.buttons do
       local framix = CreateFrame("CheckButton", "qh_arglbargl_" .. i, AchievementFrameAchievements.buttons[i], "AchievementCheckButtonTemplate")
@@ -224,23 +228,35 @@ function GetAchievementMetaObjective(achievement)
   ite.tracker_desc = ite.desc
   ite.tracker_split = true
   
-  local crit = GetAchievementNumCriteria(achievement)
-  for i = 1, crit do
+  local itlist = {}
+  if db and db.achieved then
+    table.insert(itlist, {cid = "achieved", chunk = db.achieved})
+  else
+    local crit = GetAchievementNumCriteria(achievement)
+    
+    for i = 1, crit do
+      local name, typ, _, _, _, _, _, asset, _, cid = GetAchievementCriteriaInfo(achievement, i)
+      
+      assert(cid)
+      
+      local chunk
+      if typ == 0 then
+        chunk = DB_GetItem("monster", asset)
+      else
+        assert(db)
+        chunk = db[cid]
+      end
+      
+      table.insert(itlist, {cid = cid, chunk = chunk, name = name})
+    end
+  end
+  
+  for _, data in pairs(itlist) do
     local ttx = {}
     
-    local name, typ, _, _, _, _, _, asset, _, cid = GetAchievementCriteriaInfo(achievement, i)
-    
-    local chunk
-    if typ == 0 then
-      chunk = DB_GetItem("monster", asset)
-    else
-      assert(db)
-      chunk = db[cid]
-    end
-    
-    if chunk then
-      ttx.solid = horribledupe(chunk.solid)
-      if chunk.loc then for _, v in ipairs(chunk.loc) do
+    if data.chunk then
+      ttx.solid = horribledupe(data.chunk.solid)
+      if data.chunk.loc then for _, v in ipairs(data.chunk.loc) do
         table.insert(ttx, {loc = {x = v.x, y = v.y, c = QuestHelper_ParentLookup[v.p], p = v.p}})
       end end
     end
@@ -251,19 +267,24 @@ function GetAchievementMetaObjective(achievement)
     end
     
     for _, v in ipairs(ttx) do
-      v.map_desc = {name}
-      v.tracker_desc = name
-      v.desc = name
+      v.map_desc = {ite.desc, data.name}
+      v.tracker_desc = data.name or ite.desc
+      v.desc = data.name or ite.desc
+      if not data.name then v.tracker_hidden = true end
       v.cluster = ttx
       v.why = ite
     end
     
-    ite[cid] = ttx
+    ite[data.cid] = ttx
   end
   
   achievement_list[achievement] = ite
   
   return achievement_list[achievement]
+end
+
+local function achievement_is_unified(ach)
+  return GetAchievementMetaObjective(ach).achieved
 end
 
 
@@ -316,19 +337,24 @@ function Update_Objectives(_, new)
   for k in pairs(TrackedAchievements) do
     print("updating achievement", k)
     
-    local achid = new.achievements[k]
-    assert(achid)
-    
-    if achid.complete then
-      oblit[k] = true
-    end
-    
-    local critcount = GetAchievementNumCriteria(k)
-    for i = 1, critcount do
-      local _, _, _, _, _, _, _, _, _, crit = GetAchievementCriteriaInfo(k, i)
+    if not MetaAchievements[k] then
+      local achid = new.achievements[k]
       
-      if not new.criteria[crit].complete then
-        AchUpdateAdd(k, crit)
+      if achid.complete then
+        oblit[k] = true
+      else
+        if achievement_is_unified(k) then
+          AchUpdateAdd(k, "achieved")
+        else
+          local critcount = GetAchievementNumCriteria(k)
+          for i = 1, critcount do
+            local _, _, _, _, _, _, _, _, _, crit = GetAchievementCriteriaInfo(k, i)
+            
+            if not new.criteria[crit].complete then
+              AchUpdateAdd(k, crit)
+            end
+          end
+        end
       end
     end
   end
