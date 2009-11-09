@@ -165,6 +165,15 @@ function check_onshow(self)
   self:SetChecked(TrackedAchievements[self:GetParent().id])
 end
 
+function AAF_onclick(self)
+	if not self.id then return end
+
+	local _, _, _, complete = GetAchievementInfo(self.id);
+	if complete and ACHIEVEMENTUI_SELECTEDFILTER == FilterFunction then -- yipyipyipyipyipyipyip
+		AchievementFrame_SetFilter(ACHIEVEMENT_FILTER_ALL) -- uh-huh, uh-huh
+  end
+end
+
 QH_Event("ADDON_LOADED", function (addonid)
   if addonid == "Blizzard_AchievementUI" then
     -- yyyyyyoink

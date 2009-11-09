@@ -75,6 +75,8 @@ local prioritize = {
   routing = {-10},
 }
 
+local bumped_priority = {}
+
 function QH_Timeslice_Add(workfunc, name)
   QuestHelper: Assert(workfunc)
   QuestHelper: Assert(name)
@@ -111,6 +113,13 @@ function QH_Timeslice_Doneinit()
   started = true
 end
 
+function QH_Timeslice_Bump(type, newpri)
+  bumped_priority[type] = newpri
+end
+function QH_Timeslice_Bump_Reset(type)
+  bumped_priority[type] = nil
+end
+
 local startacu = GetTime()
 local totalacu = 0
 local lacu = 0
@@ -128,14 +137,17 @@ function QH_Timeslice_Work(time_used, time_this_frame, bonus_time, verbose)
   -- There's probably a better way to do this, but. Eh. Lua.
   QuestHelper: Assert(unyieldable == 0)
   
-  coro = nil
-  key = nil
+  local coro = nil
+  local key = nil
+  local cpri = nil
   for k, v in pairs(coroutine_list) do
     if v.active then
       --if v.sharding then QuestHelper:TextOut(string.format("%d mod %d is %d, %s", time(), v.sharding, bit.mod(time(), v.sharding), tostring(bit.mod(time(), v.sharding) == 0))) end
-      if (not v.sharding or bit.mod(time(), v.sharding) == 0) and (not coro or (v.priority > coro.priority)) then
+      local pri = bumped_priority[v.name] or v.priority
+      if (not v.sharding or bit.mod(time(), v.sharding) == 0) and (not coro or (pri > cpri)) then
         coro = v
         key = k
+        cpri = pri
       end
     end
   end

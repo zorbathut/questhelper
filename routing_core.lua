@@ -337,6 +337,7 @@ here ends the butt of the wacky storage system. yeah, that's right. I said butt.
 
 function QH_Route_Core_EarlyExit()
   early_exit = true
+  QH_Timeslice_Bump("routing", 50)
 end
 
 function QH_Route_Core_NodeCount()
@@ -835,6 +836,8 @@ function QH_Route_Core_Process()
     BetterRoute(last_best, better_route_progress)
     last_best_tweaked = false
   end
+  
+  QH_Timeslice_Bump_Reset("routing")
   
   QuestHelper.route_change_progress = nil
   
