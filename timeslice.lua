@@ -72,7 +72,7 @@ local prioritize = {
   criteria = {10},
   lzw = {-5},
   compress = {-8, 5},
-  routing = {-10},
+  new_routing = {-10},
 }
 
 local bumped_priority = {}

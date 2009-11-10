@@ -926,9 +926,13 @@ function QuestHelper:CreateMipmapDodad()
     
       if self.obj.map_desc_chain then
         -- the first line will just be an "enroute" line
-        textdesc = self.obj.map_desc[1] .. "\n" .. self.obj.map_desc_chain.map_desc[1]
+        textdesc = (self.obj.arrow_desc or self.obj.map_desc[1]) .. "\n" .. (self.obj.map_desc_chain.arrow_desc or self.obj.map_desc_chain.map_desc[1])
       else
-        textdesc = self.obj.map_desc[1]
+        textdesc = (self.obj.arrow_desc or self.obj.map_desc[1])
+      end
+      
+      if self.obj.arrow_desc then
+        textdesc = self.obj.arrow_desc
       end
     end
     

@@ -337,7 +337,7 @@ here ends the butt of the wacky storage system. yeah, that's right. I said butt.
 
 function QH_Route_Core_EarlyExit()
   early_exit = true
-  QH_Timeslice_Bump("routing", 50)
+  QH_Timeslice_Bump("new_routing", 50)
 end
 
 function QH_Route_Core_NodeCount()
@@ -837,7 +837,7 @@ function QH_Route_Core_Process()
     last_best_tweaked = false
   end
   
-  QH_Timeslice_Bump_Reset("routing")
+  QH_Timeslice_Bump_Reset("new_routing")
   
   QuestHelper.route_change_progress = nil
   
@@ -1003,9 +1003,13 @@ end
         DespliceCN(nil, nid)
         
         if ClusterLookup[nid] then
-          ClusterIgnoredNodeActive[ClusterLookup[nid]] = ClusterIgnoredNodeActive[ClusterLookup[nid]] - 1
-          if ClusterIgnoredNodeActive[ClusterLookup[nid]] == 0 then
-            Internal_IgnoreCluster(ClusterLookup[nid], "internal_node_ignored")
+          local cloost = ClusterLookup[nid]
+          
+          ClusterIgnoredNodeActive[cloost] = ClusterIgnoredNodeActive[cloost] - 1
+          if ClusterIgnoredNodeActive[cloost] == 0 then
+            Internal_IgnoreCluster(cloost, "internal_node_ignored")
+          else
+            SpliceIn(cloost, {})
           end
         end
       end

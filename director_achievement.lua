@@ -142,6 +142,11 @@ end
 
 local check_onshow
 
+function QH_COC_GIX(id)
+  MarkAchieveable(id, true)
+  Update_Objectives()
+end
+
 local function check_onclick(self)
   if self:GetChecked() then
     MarkAchieveable(self:GetParent().id, true)
@@ -154,6 +159,7 @@ local function check_onclick(self)
     check_onshow(AchievementFrameAchievements.buttons[i].qh_checkbox)
   end
 end
+
 local function check_onenter(self)
   GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
   GameTooltip:SetText(QHText("ACHIEVEMENT_CHECKBOX"))
@@ -278,7 +284,8 @@ function GetAchievementMetaObjective(achievement)
     for _, v in ipairs(ttx) do
       v.map_desc = {ite.desc, data.name}
       v.tracker_desc = data.name or ite.desc
-      v.desc = data.name or ite.desc
+      v.hidden_desc = data.name and string.format("%s: %s", ite.desc, data.name) or ite.desc
+      v.arrow_desc = v.hidden_desc
       if not data.name then v.tracker_hidden = true end
       v.cluster = ttx
       v.why = ite
@@ -300,36 +307,104 @@ end
 local current_aches = {}
 local next_aches = {}
 
+local ach_locational = {}
+
 local function AchUpdateStart()
   next_aches = {}
 end
 local function AchUpdateAdd(ach, crit)
   if not next_aches[ach] then next_aches[ach] = {} end
-  next_aches[ach][crit] = true
+  next_aches[ach][crit] = true  
 end
 local function AchUpdateEnd()
+  print("aue")
   for k, v in pairs(current_aches) do
     for c in pairs(v) do
       if not next_aches[k] or not next_aches[k][c] then
         local meta = GetAchievementMetaObjective(k)
         
         QH_Route_ClusterRemove(meta[c])
+        print("removing", k, c)
+        
+        for _, nod in ipairs(meta[c]) do
+          ach_locational[nod.loc] = nil
+        end
       end
     end
   end
   
   for k, v in pairs(next_aches) do
     for c in pairs(v) do
+      local kacey = nil
       if not current_aches[k] or not current_aches[k][c] then
         local meta = GetAchievementMetaObjective(k)
         
         QH_Route_ClusterAdd(meta[c])
+        
+        for _, nod in ipairs(meta[c]) do
+          if not ach_locational[nod.loc] then
+            if not kacey then
+              kacey = QuestHelper:CreateTable("ach_locational")
+              kacey.k = k
+              kacey.c = c
+            end
+            print(nod.loc.p, nod.loc.x, nod.loc.y)
+            ach_locational[nod.loc] = kacey
+          end
+        end
       end
     end
   end
   
   current_aches = next_aches  -- yaaaaaaaay
 end
+
+function qh_critupd()
+  print("critup")
+  
+  local c, z, x, y = QuestHelper.routing_c, QuestHelper.routing_z, QuestHelper.routing_ax, QuestHelper.routing_ay
+  print(c, z, x, y)
+  if not c or not z or not x or not y then return end
+  
+  local p = QuestHelper_IndexLookup[c][z]
+  print(p)
+  if not p then return end
+  
+  local closest_dist = 1000000000000
+  local closest_item = nil
+  for k, v in pairs(ach_locational) do
+    if k.p == p then
+      local dx, dy = x - k.x, y - k.y
+      dx, dy = dx * dx, dy * dy
+      local dd = dx + dy
+      if dd < closest_dist then
+        closest_dist = dd
+        closest_item = v
+      end
+    end
+  end
+  
+  print(closest_item)
+  if not closest_item then return end -- bort bort bort
+  local k, c = closest_item.k, closest_item.c
+  print(k, c)
+  if not (type(k) == "number" and type(c) == "number") then return end
+  
+  local _, _, crit_complete = GetAchievementCriteriaInfo(c)
+  print(crit_complete)
+  if not crit_complete then return end -- welp
+  
+  print("desplicing", k, c)
+  assert(current_aches[k][c])
+  -- hey we found it gee jay
+  current_aches[k][c] = nil
+  local meta = GetAchievementMetaObjective(k)
+  QH_Route_ClusterRemove(meta[c])
+  for _, nod in ipairs(meta[c]) do
+    ach_locational[nod.loc] = nil
+  end
+end
+QH_Event("CRITERIA_UPDATE", qh_critupd)
 
 
 
@@ -344,7 +419,7 @@ function Update_Objectives(_, new)
   
   local oblit = {}
   for k in pairs(TrackedAchievements) do
-    print("updating achievement", k)
+    --print("updating achievement", k)
     
     if not MetaAchievements[k] then
       local achid = new.achievements[k]

@@ -73,7 +73,7 @@ function QH_PopulateHidden(menu)
   -- we'll sort this eventually
   
   for _, v in ipairs(ignore_sorty) do
-    local ignored = QuestHelper:CreateMenuItem(menu, v.objective.map_desc[1])
+    local ignored = QuestHelper:CreateMenuItem(menu, v.objective.hidden_desc or v.objective.map_desc[1])
     
     local ignored_menu = QuestHelper:CreateMenu()
     ignored:SetSubmenu(ignored_menu)
