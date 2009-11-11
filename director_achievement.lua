@@ -306,6 +306,7 @@ function GetAchievementMetaObjective(achievement)
       if not data.name then v.tracker_hidden = true end
       v.cluster = ttx
       v.why = ite
+      v.icon_id = 17
     end
     
     if not ite[data.cid] then

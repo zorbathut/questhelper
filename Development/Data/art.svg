@@ -780,7 +780,7 @@
        fx="20.338999"
        fy="76.773331"
        r="11.786981"
-       gradientTransform="matrix(1.0847414,-1.947069e-3,1.115503e-2,6.2146771,-2.569872,-400.79026)"
+       gradientTransform="matrix(0.9215665,-1.7273278e-3,9.4770075e-3,5.5133047,-8.969636e-2,-346.58499)"
        gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
@@ -794,8 +794,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="19.9375"
-     inkscape:cx="18.259513"
-     inkscape:cy="185.89532"
+     inkscape:cx="12.432585"
+     inkscape:cy="180.86026"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      width="256px"
@@ -1141,8 +1141,8 @@
          style="fill:url(#linearGradient3379);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
     <path
-       style="fill:url(#radialGradient3357);fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
-       d="M 4.5654864,65.908453 L 4.5654864,84.91832 C 4.5411462,89.363414 11.587789,92.531725 15.843729,93.99766 C 20.950858,92.437149 27.056078,89.45799 27.12197,84.91832 L 27.12197,65.908453 C 23.50585,67.660922 19.899813,69.037505 15.843729,69.17134 C 12.183814,69.107274 8.4667651,67.84727 4.5654864,65.908453 z"
+       style="fill:url(#radialGradient3357);fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 5.9723087,67.443333 L 6.0726222,81.900273 C 6.0519435,85.843706 11.938265,91.061973 15.553995,92.362467 C 19.892872,90.978071 25.0797,86.027922 25.13568,82.000587 L 25.13568,67.443333 C 22.063523,68.998023 18.999933,70.219249 15.553995,70.337979 C 12.444631,70.281144 9.2867284,69.16334 5.9723087,67.443333 z"
        id="path3331"
        sodipodi:nodetypes="ccccccc" />
   </g>
