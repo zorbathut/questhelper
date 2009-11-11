@@ -214,7 +214,7 @@ local function ScanAchievements()
 end
 
 local function OnEvent()
-  print("oe", updating, AchievementDB)
+  --print("oe", updating, AchievementDB)
   if not updating and AchievementDB then
     --print("cutea")
     QH_Timeslice_Add(ScanAchievements, "criteria")

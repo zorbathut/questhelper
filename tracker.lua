@@ -403,10 +403,15 @@ local function addItem(objective, y, meta)
 end
 
 local function addMetaObjective(metaobj, items, y, depth)
+  local seen_texts = QuestHelper:CreateTable("amo_seen_texts")
+  
   local x, spacer
   x, y, spacer = addItem(metaobj, y, true)
   for _, v in ipairs(items) do
-    x, y = addItem(v, y, false)
+    if not v.tracker_hide_dupes or not seen_texts[v.tracker_desc] then
+      x, y = addItem(v, y, false)
+      seen_texts[v.tracker_desc] = true
+    end
   end
   return math.max(y, spacer), depth + #items + 1
 end
