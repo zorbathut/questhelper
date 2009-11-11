@@ -1,4 +1,12 @@
 
+== Version 1.2.6 11/10/2009 ==
+
+* Fix some bugs involving the Tracker button visibility
+* Shrink the Tracker button a bit
+* Calling it now: people are going to complain that the tracker button is too small
+* Lots of work going on behind the scenes! Magic will occur shortly.
+* New database
+
 == Version 1.2.5 11/2/2009 ==
 
 * Fix an initialization bug that nobody but Zorba would ever notice nor care about
