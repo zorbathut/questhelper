@@ -15,9 +15,7 @@ local function IsDoable(id)
       return false
     end
     
-    local dbi = DB_GetItem("achievement", id, true, true)
-    if dbi then
-      DB_ReleaseItem(dbi)
+    if DB_HasItem("achievement", id) then
       print(id, "achieveable via db")
       achieveable[id] = true
       return true

@@ -116,6 +116,24 @@ function DB_Ready()
   return initted
 end
 
+function DB_HasItem(group, id)
+  QuestHelper: Assert(initted)
+  
+  for _, db in ipairs(QHDB) do
+    if db[group] then
+      if db[group][id] then
+        return true
+      end
+      
+      if type(id) == "number" and id > 0 and db[group].__serialize_index and db[group].__serialize_data and search_index(db[group].__serialize_index, db[group].__serialize_data, id) then
+        return true
+      end
+    end
+  end
+  
+  return false
+end
+
 function DB_GetItem(group, id, silent, register)
   QuestHelper: Assert(initted)
 
