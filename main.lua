@@ -217,6 +217,7 @@ QH_Event("ADDON_LOADED", function (addonid)
       
       ["manager_event.lua"] = true,
       ["manager_achievement.lua"] = true,
+      ["manager_completed.lua"] = true,
       
       ["upgrade.lua"] = true,
       ["main.lua"] = true,

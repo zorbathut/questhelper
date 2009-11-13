@@ -454,6 +454,7 @@ end
   
   local function SpliceIn(index, touched)
     QuestHelper: Assert(index)
+    QuestHelper: Assert(last_best)
     if touched[index] then return end
     
     QH_Timeslice_Yield()
@@ -1009,7 +1010,9 @@ end
           if ClusterIgnoredNodeActive[cloost] == 0 then
             Internal_IgnoreCluster(cloost, "internal_node_ignored")
           else
-            SpliceIn(cloost, {})
+            if last_best then -- if not last_best then this is just part of the global update and we basically don't care
+              SpliceIn(cloost, {})
+            end
           end
         end
       end

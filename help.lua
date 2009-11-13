@@ -727,6 +727,19 @@ commands =
     {"HIDDEN",
      "Compiles a list of objectives that QuestHelper is hiding from you. Depending on the reason, you can also unhide the objective.",
      {}, QH_Hidden_Menu},
+     
+    {"INCOMPLETE",
+     "Show start locations of incomplete quests on the main map. Useful for those pursuing the Loremaster achievement.",
+     {}, QH_Incomplete},
+      
+    {"FIND",
+     "Search for an item, location, or npc.",
+     {{"/qh find item rune of teleport", "Finds a reagent vendor."},
+      {"/qh find npc bragok", "Finds the Ratchet flight point."},
+      {"/qh find loc stormwind 50 60", "Finds the Stormwind auction house."},
+      {"/qh find loc 50 50", "Finds the center of the zone you're in."},
+      {"/qh find something", "Searches for something in all categories."},
+      {"/qh find", "Lists objectives you manually created so that you can remove them."}}, QH_FindName},
     
     {"HIDE",
      "Hides QuestHelper's modifications to the minimap and world map, and pauses routing calculations.",
@@ -748,15 +761,6 @@ commands =
     {"TOMTOM",
      "Toggles displaying the current objective using TomTom (must be installed separately).",
       {}, QuestHelper.ToggleTomTomWP, QuestHelper},
-      
-    {"FIND",
-     "Search for an item, location, or npc.",
-     {{"/qh find item rune of teleport", "Finds a reagent vendor."},
-      {"/qh find npc bragok", "Finds the Ratchet flight point."},
-      {"/qh find loc stormwind 50 60", "Finds the Stormwind auction house."},
-      {"/qh find loc 50 50", "Finds the center of the zone you're in."},
-      {"/qh find something", "Searches for something in all categories."},
-      {"/qh find", "Lists objectives you manually created so that you can remove them."}}, QH_FindName},
     
     {"SOLO",
      "Toggles solo mode. When enabled, assumes your party members don't exist. Objective sharing with party members will also be disabled.",

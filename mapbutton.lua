@@ -25,6 +25,8 @@ function QuestHelper:DoSettingsMenu()
     local menu = QuestHelper:CreateMenu()
     self:CreateMenuTitle(menu, QHText("MENU_SETTINGS"))
     
+    self:CreateMenuItem(menu, QHText("SETTINGS_MENU_INCOMPLETE")):SetFunction(QH_Incomplete)
+                    
     arrowmenu = self:CreateMenu()
     QH_Arrow_PopulateMenu(arrowmenu)
     self:CreateMenuItem(menu, QHText("SETTINGS_ARROWLINK_ARROW")):SetSubmenu(arrowmenu)

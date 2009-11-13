@@ -88,6 +88,28 @@ local function ClampLine(x1, y1, x2, y2)
   end
 end
 
+local poi = {}
+local poi_changed = false
+
+local poi_dodads = {}
+
+function QH_POI_Reset()
+  while poi[1] do
+    QuestHelper:ReleaseTable(table.remove(poi))
+  end
+  poi_changed = true
+end
+function QH_POI_Add(p, x, y, d)
+  local tab = QuestHelper:CreateTable("dodads_poi")
+  tab.p = p
+  tab.x = x
+  tab.y = y
+  tab.desc = d
+  table.insert(poi, tab)
+  poi_changed = true
+end
+
+
 local walker_loc
 
 function QuestHelper:CreateWorldMapWalker()
@@ -111,6 +133,8 @@ function QuestHelper:CreateWorldMapWalker()
   walker.used_map_dodads = 0
   
   function walker:OnUpdate(elapsed)
+    if poi_changed then self:RouteChanged() end   -- bzzzzt
+    
     local out = 0
     
     if QuestHelper_Pref.show_ants then
@@ -185,16 +209,6 @@ function QuestHelper:CreateWorldMapWalker()
       
       local c, z = QuestHelper.Astrolabe:GetCurrentVirtualMapCZ()
       
-      -- I'm not quite sure what the point of this is.
-      --[[
-      if self.frame.target then
-        travel_time = math.max(0, self.frame.target_time-time())
-        cur = self.frame.target
-        local t = self.frame:CreateTable()
-        t[1], t[2] = convertLocationToScreen(cur, c, z)
-        table.insert(points, t)
-      end]]
-      
       for i, obj in ipairs(self.route) do
         --QuestHelper:TextOut(string.format("%s", tostring(obj)))
         
@@ -243,6 +257,17 @@ function QuestHelper:CreateWorldMapWalker()
       end end
 
       self.used_map_dodads = cur_dodad - 1
+      
+      while #poi > #poi_dodads do
+        table.insert(poi_dodads, self.frame:CreateWorldMapMinidad())
+      end
+      
+      for i = 1, #poi do
+        poi_dodads[i]:SetPosition(poi[i])
+      end
+      for i = #poi + 1, #poi_dodads do
+        poi_dodads[i]:SetPosition()
+      end
     end
   end
   
@@ -252,6 +277,8 @@ function QuestHelper:CreateWorldMapWalker()
   
   return walker
 end
+
+
 
 function QuestHelper:GetOverlapObjectives(obj)
   local w, h = self.map_overlay:GetWidth(), self.map_overlay:GetHeight()
@@ -803,6 +830,78 @@ function QuestHelper:CreateWorldMapDodad(objective, nxt)
   QH_Event("WORLD_MAP_UPDATE", function () icon:OnEvent() end)
   
   icon:SetObjective(objective, nxt)
+  return icon
+end
+
+
+function QuestHelper:CreateWorldMapMinidad(objective, nxt)
+  local icon = CreateFrame("Button", nil, QuestHelper.map_overlay)
+  icon:SetFrameStrata("FULLSCREEN")
+    
+  function icon:SetPosition(objective)
+    self:SetHeight(16*QuestHelper_Pref.scale)
+    self:SetWidth(16*QuestHelper_Pref.scale)
+    
+    if self.dot then
+      QuestHelper:ReleaseTexture(self.dot)
+      self.dot = nil
+    end
+    
+    if objective then
+      self.objective = objective
+      
+      self.dot = QuestHelper:CreateIconTexture(self, 15)
+      self.dot:SetAllPoints()
+      self.dot:SetDrawLayer("BACKGROUND")
+      
+      local c, x, y = QuestHelper.Astrolabe:FromAbsoluteContinentPosition(QuestHelper_ParentLookup[self.objective.p], self.objective.x, self.objective.y)
+      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, c, 0, x, y)
+    else
+      self.objective = nil
+      self:Hide()
+    end
+  end
+  
+  
+  function icon:OnEnter()
+    local list = QuestHelper:GetOverlapObjectives(self.objective)
+    self.old_count = #list
+    QuestHelper.tooltip:SetOwner(self, "ANCHOR_CURSOR")
+    QuestHelper.tooltip:ClearLines()
+    
+    QuestHelper.tooltip:AddLine(self.objective.desc)
+    
+    QuestHelper.tooltip:Show()
+  end
+  
+  function icon:OnLeave()
+    QuestHelper.tooltip:Hide()
+  end
+  
+  function icon:OnEvent()
+    if self.objective then
+      local c, x, y = QuestHelper.Astrolabe:FromAbsoluteContinentPosition(QuestHelper_ParentLookup[self.objective.p], self.objective.x, self.objective.y)
+      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, c, 0, x, y)
+    else
+      self.objective = nil
+      self:Hide()
+    end
+  end
+  
+  --function icon:OnClick()
+    --rightclick_menu(self.objective)
+  --end
+  
+  --QH_Hook(icon, "OnClick", icon.OnClick)
+  QH_Hook(icon, "OnEnter", icon.OnEnter)
+  QH_Hook(icon, "OnLeave", icon.OnLeave)
+  QH_Hook(icon, "OnEvent", icon.OnEvent)
+  
+  --icon:RegisterForClicks("RightButtonUp")
+  
+  QH_Event("WORLD_MAP_UPDATE", function () icon:OnEvent() end)
+  
+  icon:SetPosition(objective)
   return icon
 end
 

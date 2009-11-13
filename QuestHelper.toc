@@ -136,6 +136,12 @@ timeslice.lua
 # Achievement manager, depends on timeslice
 manager_achievement.lua
 
+# Completed-quests manager, depends on events or something
+# you know I need to come up with a good way to handle dependencies someday
+#
+# someday
+manager_completed.lua
+
 # Graph module. Depends on nothing, calls no external functions.
 graph_core.lua
 graph_flightpath.lua

@@ -290,6 +290,8 @@ QuestHelper_Translations.enUS =
   SETTINGS_MENU_ARROW_TEXTSCALE = "Text Scale",
   SETTINGS_MENU_ARROW_RESET = "Reset",
   
+  SETTINGS_MENU_INCOMPLETE = "Incomplete Quests",
+  
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 yards",
   DISTANCE_METRES = "%h1 metres"

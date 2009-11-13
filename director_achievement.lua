@@ -451,6 +451,7 @@ function Update_Objectives(_, new)
     
     if not MetaAchievements[k] then
       local achid = new.achievements[k]
+      if not achid then print(k) end
       
       if achid.complete then
         oblit[k] = true
