@@ -3,7 +3,7 @@ QuestHelper_Loadtime["manager_achievement.lua"] = GetTime()
 
 local AchievementDB
 
---X 0 is a monster kill, asset is the monster ID
+-- 0 is a monster kill, asset is the monster ID
 --X 1 is winning PvP objectives in a thorough manner (holding all bases, controlling all flags)
 --X 7 is weapon skill, asset is probably a skill ID of some sort
 --X 8 is another achievement, asset is achievement ID
@@ -124,10 +124,17 @@ end
 local function createAchievementList()
   for _, catid in pairs(GetCategoryList()) do
     for d = 1, GetCategoryNumAchievements(catid) do
+      --if GetAchievementInfo(catid, d) == 2557 then print("loading tffs") end
+      --if GetAchievementInfo(catid, d) == 1312 then print("loading otot") end
+      
       registerAchievement(GetAchievementInfo(catid, d), db)
+        --assert(AchievementDB.achievements[2557])
+  --assert(AchievementDB.achievements[1312]) -- what what
     end
   end
 end
+
+qh_cal = createAchievementList
 
 local achievement_stop_time = 0
 
@@ -231,11 +238,13 @@ function QH_AchievementManagerRegister_Poke()
   OnEvent()
 end
 
-createAchievementList()
-
 function QH_AchievementManager_Init()
+  createAchievementList()
+  
   AchievementDB = getAchievementDB() -- 'coz we're lazy
-  assert(AchievementDB.achievements[2556])
+  --assert(AchievementDB.achievements[2556])
+  --assert(AchievementDB.achievements[2557])
+  --assert(AchievementDB.achievements[1312]) -- what what
   
   for _, v in ipairs(registered) do -- basically initting everything linked to this
     v(AchievementDB, AchievementDB)

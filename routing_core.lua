@@ -929,6 +929,16 @@ function QH_Route_Core_Process()
 end
 -- End core loop
 
+function QH_Core_Bump()
+  for _, x in ipairs(ActiveNodes) do
+    local wx = Weight[x]
+    for _, y in ipairs(ActiveNodes) do
+      wx[y] = weight_ave
+    end
+  end
+  QH_Route_Core_EarlyExit()
+end
+
 -- Ignore/unignore
   local function RecursiveIgnoreCount(clustid, accum)
     if accum == 0 then return end

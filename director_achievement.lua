@@ -16,7 +16,7 @@ local function IsDoable(id)
     end
     
     if DB_HasItem("achievement", id) then
-      print(id, "achieveable via db")
+      --print(id, "achieveable via db")
       achieveable[id] = true
       return true
     end
@@ -55,9 +55,12 @@ local function IsDoable(id)
         end
       end
       
-      if achieveable[id] == nil then print(id, "achieveable via occlusion") achieveable[id] = true end
+      if achieveable[id] == nil then
+        --print(id, "achieveable via occlusion")
+        achieveable[id] = true
+      end
     else
-      print(id, "not achieveable due to wizard casting what the fuck")
+      --print(id, "not achieveable due to wizard casting what the fuck")
       achieveable[id] = false
     end
   end
