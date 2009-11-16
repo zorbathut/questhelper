@@ -1,4 +1,23 @@
 
+== Version 1.2.6 11/10/2009 ==
+
+* Fix some bugs involving the Tracker button visibility
+* Shrink the Tracker button a bit
+* Calling it now: people are going to complain that the tracker button is too small
+* Lots of work going on behind the scenes! Magic will occur shortly.
+* New database
+
+== Version 1.2.5 11/2/2009 ==
+
+* Fix an initialization bug that nobody but Zorba would ever notice nor care about
+
+== Version 1.2.4 11/2/2009 ==
+
+* Fix some data collection issues keeping me from adding game object support
+* Added a progress indicator for route changes that are taking an uncommonly long time
+* Cleaned up some bad behavior with the tooltip
+* Fixed a bug causing unnecessary info to be built into the compressed datafiles
+
 == Version 1.2.3 10/28/2009 ==
 
 * Well that was a silly bug. I have no idea how that got through my testing. Fixed.
