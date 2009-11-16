@@ -1,4 +1,28 @@
 
+== Version 1.3.0-beta 11/16/2009 ==
+
+Hey hey time for a major version
+
+Major feature the first: Achievements. QuestHelper will now help you with various achievements directly in the UI, including exploration, monster/critter slaying, and fishing node achievements. Merely go into your existing Achievements pane and look for a little checkbox on the bottom-right of some achievements next to the QuestHelper symbol. Check the box and follow the path!
+
+Want an easier way to find achievements QH can assist you with? Look at the dropdown in the topright of the achievements window, and choose "QuestHelpable". Bizam! Now it only shows QH-compatible achievements.
+
+Caveats:
+
+First, there are some achievements that QH claims it can help with that, in reality, it's pretty much useless for. At the moment this includes just about everything in the PvP category, many things in Raids, and the entire World Events category. Conversely, there are some achievements that QH could help with that it currently doesn't, mostly all the Classic and BC dungeons, but also some of the World Events. (Yes, Bonfires and Candy are . . . uh . . . unsupported, I guess? They should be back before next year, along with Elders.)
+
+Second, if you add a lot of achievements, Questhelper may get somewhat slow and memory-hungry. Adding all the Exploration nodes to a new level 1 character generates approximately 1,400 individual locations to visit, burns around 150 megs of RAM, and takes something like twenty minutes to finish the setup phase. Its path generation may suffer under this kind of load. Luckily, it's reasonably easy to remove and add things, but if you say "I added World Explorer to my level 2 hunter and it got slow, how can I fix this" my answer is going to be "turn off World Explorer".
+
+Third, there's no way QuestHelper can know where rare mobs are at any particular moment, so it just routes you to where they probably are, and if they aren't there, well, ignore the node (right-click the item on your minimap) and come back later. In my testing you've got less than a 2% chance of any particular location containing a spawned rare monster, so, I mean, there's a reason they're called "rare", and it's not because they're so dang easy to find.
+
+There may be bugs. That's why this is a beta. Report away.
+
+Major feature the second: THIS FEATURE WILL ONLY WORK IN WoW 3.3. Seriously. It is not going to work right now. The option will not do anything. However, once 3.3 is released, QuestHelper will now optionally show dots on your map for quests that you haven't done. "/qh incomplete" to activate it, then look at your map.
+
+There may be bugs, including quests shown that shouldn't be shown and quests not-shown that should be shown. It does give the quest name and the quest ID number to help track down info about that quest. Again, go ahead and report bugs, but remember, THIS FEATURE WILL ONLY WORK IN WoW 3.3, if you tell me it doesn't work right now I am just going to laugh at you.
+
+* Various improvements to make it more immediately responsive to new objectives/finished objectives/completed achievements.
+
 == Version 1.2.7 11/16/2009 ==
 
 * Database update
