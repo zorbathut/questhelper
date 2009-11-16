@@ -1,4 +1,9 @@
 
+== Version 1.2.7 11/16/2009 ==
+
+* Database update
+* Hey, why are you reading this, go read the 1.3.0 entry instead
+
 == Version 1.2.6 11/10/2009 ==
 
 * Fix some bugs involving the Tracker button visibility
