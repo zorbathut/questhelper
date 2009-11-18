@@ -88,6 +88,7 @@ end
 function QH_Collector_UpgradeAll(Collector)
 -- So, I screwed up the compression code, and there's no way to know what version was compressed . . . except that we thankfully didn't change the version number on that change. Any untagged compression will therefore be the version number that this was loaded with.
   for _, v in pairs(Collector) do
+    QuestHelper:Assert(type(v) == "table")
     if not v.version then
       QuestHelper: Assert(QuestHelper_Collector_Version)  -- This is going to fail somehow. I just know it. Seriously, this right here will be proof that, today, the gods hate me.
       v.version = QuestHelper_Collector_Version
