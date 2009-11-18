@@ -154,6 +154,7 @@ local function retrieveAchievement(id, db)
   local dbi = db.achievements[id]
   
   local critcount = GetAchievementNumCriteria(id)
+  QuestHelper: Assert(critcount, "critcount nil " .. tostring(id))
   
   --QuestHelper:TextOut(string.format("%d criteria", crit))
   for i = 1, critcount do
