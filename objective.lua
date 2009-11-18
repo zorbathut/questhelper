@@ -1332,7 +1332,7 @@ function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
     obj.map_custom_menu(menu)
   end
   
-  if obj.cluster then
+  if obj.cluster and #obj.cluster > 1 and QH_Route_Ignored_Cluster_Active(obj.cluster) > 1 then
     self:CreateMenuItem(menu, QHText("IGNORE_LOCATION")):SetFunction(QH_Route_IgnoreNode, obj, UserIgnored)
   end
 end

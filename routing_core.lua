@@ -381,6 +381,10 @@ function QH_Route_Core_Ignored_Cluster(clust)
   return ClusterIgnoredCount[ClusterTableLookup[clust]] ~= 0
 end
 
+function QH_Route_Core_Ignored_Cluster_Active(clust)
+  return ClusterIgnoredNodeActive[ClusterTableLookup[clust]]
+end
+
 -- fuck floating-point
 local function almost(a, b)
   if a == b then return true end

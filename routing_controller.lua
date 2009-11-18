@@ -28,6 +28,7 @@ local Route_Core_TraverseClusters = QH_Route_Core_TraverseClusters
 local Route_Core_IgnoredReasons_Cluster = QH_Route_Core_IgnoredReasons_Cluster
 local Route_Core_IgnoredReasons_Node = QH_Route_Core_IgnoredReasons_Node
 local Route_Core_Ignored_Cluster = QH_Route_Core_Ignored_Cluster
+local Route_Core_Ignored_Cluster_Active = QH_Route_Core_Ignored_Cluster_Active
 
 local Route_Core_EarlyExit = QH_Route_Core_EarlyExit
 
@@ -48,6 +49,7 @@ QH_Route_Core_TraverseClusters = nil
 QH_Route_Core_IgnoredReasons_Cluster = nil
 QH_Route_Core_IgnoredReasons_Node = nil
 QH_Route_Core_Ignored_Cluster = nil
+QH_Route_Core_Ignored_Cluster_Active = nil
 QH_Route_Core_EarlyExit = nil
 
 local pending = {}
@@ -324,6 +326,9 @@ function QH_Route_IgnoredReasons_Node(node, func)
 end
 function QH_Route_Ignored_Cluster(clust)
   return Route_Core_Ignored_Cluster(clust)
+end
+function QH_Route_Ignored_Cluster_Active(clust)
+  return Route_Core_Ignored_Cluster_Active(clust)
 end
 function QH_Route_GetClusterPriority(clust)
   return Route_Core_GetClusterPriority(clust)
