@@ -403,6 +403,9 @@ Route_Core_Init(
         pathcache_active[loc1][loctable[k]] = rv[k]
         pathcache_inactive[loc1][loctable[k]] = rv[k]
       else
+        QuestHelper: Assert(loctable[k])
+        QuestHelper: Assert(pathcache_active[loctable[k]])
+        QuestHelper: Assert(pathcache_inactive[loctable[k]])
         pathcache_active[loctable[k]][loc1] = rv[k]
         pathcache_inactive[loctable[k]][loc1] = rv[k]
       end
