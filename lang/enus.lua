@@ -142,6 +142,7 @@ QuestHelper_Translations.enUS =
   FIND_REMOVE = "Cancel objective",
   FIND_NOT_READY = "QuestHelper hasn't finished loading yet. Please wait a minute and try again.",
   FIND_CUSTOM_LOCATION = "Custom map location",
+  FIND_USAGE = "Find doesn't work if you don't tell it what to find. Try %h(/qh help) for instructions.",
   
   -- Shared objectives.
   PEER_TURNIN = "Wait for %h1 to turn in %h2.",

@@ -111,7 +111,12 @@ function QH_FindName(name)
     end
   else
     if not DB_Ready() then
-      print(QHText("FIND_NOT_READY"))
+      QuestHelper:TextOut(QHText("FIND_NOT_READY"))
+      return
+    end
+    
+    if #name < 2 then
+      QuestHelper:TextOut(QHText("FIND_USAGE"))
       return
     end
     
