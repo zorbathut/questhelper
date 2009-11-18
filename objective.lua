@@ -1,6 +1,71 @@
 QuestHelper_File["objective.lua"] = "Development Version"
 QuestHelper_Loadtime["objective.lua"] = GetTime()
 
+
+local UserIgnored = {
+  name = "user_manual_ignored",
+  no_disable = true,
+  friendly_reason = QHText("FILTERED_USER"),
+  AddException = function(self, node)
+    QH_Route_UnignoreNode(node, self) -- there isn't really state with this one
+  end
+}
+
+function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
+  local submenu = self:CreateMenu()
+  
+  local pri = (QH_Route_GetClusterPriority(obj.cluster) or 0) + 3
+  for i = 1, 5 do
+    local name = QHText("PRIORITY"..i)
+    local item = self:CreateMenuItem(submenu, name)
+    local tex
+    
+    if pri == i then
+      tex = self:CreateIconTexture(item, 10)
+    else
+      tex = self:CreateIconTexture(item, 12)
+      tex:SetVertexColor(1, 1, 1, 0)
+    end
+    
+    item:AddTexture(tex, true)
+    item:SetFunction(QH_Route_SetClusterPriority, obj.cluster, i - 3)
+  end
+  
+  self:CreateMenuItem(menu, QHText("PRIORITY")):SetSubmenu(submenu)
+  
+  --[[if self.sharing then
+    submenu = self:CreateMenu()
+    local item = self:CreateMenuItem(submenu, QHText("SHARING_ENABLE"))
+    local tex = self:CreateIconTexture(item, 10)
+    if not obj.want_share then tex:SetVertexColor(1, 1, 1, 0) end
+    item:AddTexture(tex, true)
+    item:SetFunction(obj.Share, obj)
+    
+    local item = self:CreateMenuItem(submenu, QHText("SHARING_DISABLE"))
+    local tex = self:CreateIconTexture(item, 10)
+    if obj.want_share then tex:SetVertexColor(1, 1, 1, 0) end
+    item:AddTexture(tex, true)
+    item:SetFunction(obj.Unshare, obj)
+    
+    self:CreateMenuItem(menu, QHText("SHARING")):SetSubmenu(submenu)
+  end]]
+  
+  --self:CreateMenuItem(menu, "(No options available)")
+  
+  if not obj.map_suppress_ignore then
+    self:CreateMenuItem(menu, QHText("IGNORE")):SetFunction(function () if obj.cluster then for _, v in ipairs(obj.cluster) do QH_Route_IgnoreNode(v, UserIgnored) end end end) -- There is probably a nasty race condition here. I'm not entirely happy about it.
+  end
+  if obj.map_custom_menu then
+    obj.map_custom_menu(menu)
+  end
+  
+  if obj.cluster and #obj.cluster > 1 and QH_Route_Ignored_Cluster_Active(obj.cluster) > 1 then
+    self:CreateMenuItem(menu, QHText("IGNORE_LOCATION")):SetFunction(QH_Route_IgnoreNode, obj, UserIgnored)
+  end
+end
+
+do return end
+
 local function ObjectiveCouldBeFirst(self)
   if (self.user_ignore == nil and self.auto_ignore) or self.user_ignore then
     return false
@@ -1272,68 +1337,6 @@ function QuestHelper:ObjectiveObjectDependsOn(objective, needs)
     
     objective.swap_after[needs] = true
     needs.swap_before[objective] = true
-  end
-end
-
-local UserIgnored = {
-  name = "user_manual_ignored",
-  no_disable = true,
-  friendly_reason = QHText("FILTERED_USER"),
-  AddException = function(self, node)
-    QH_Route_UnignoreNode(node, self) -- there isn't really state with this one
-  end
-}
-
-function QuestHelper:AddObjectiveOptionsToMenu(obj, menu)
-  local submenu = self:CreateMenu()
-  
-  local pri = (QH_Route_GetClusterPriority(obj.cluster) or 0) + 3
-  for i = 1, 5 do
-    local name = QHText("PRIORITY"..i)
-    local item = self:CreateMenuItem(submenu, name)
-    local tex
-    
-    if pri == i then
-      tex = self:CreateIconTexture(item, 10)
-    else
-      tex = self:CreateIconTexture(item, 12)
-      tex:SetVertexColor(1, 1, 1, 0)
-    end
-    
-    item:AddTexture(tex, true)
-    item:SetFunction(QH_Route_SetClusterPriority, obj.cluster, i - 3)
-  end
-  
-  self:CreateMenuItem(menu, QHText("PRIORITY")):SetSubmenu(submenu)
-  
-  --[[if self.sharing then
-    submenu = self:CreateMenu()
-    local item = self:CreateMenuItem(submenu, QHText("SHARING_ENABLE"))
-    local tex = self:CreateIconTexture(item, 10)
-    if not obj.want_share then tex:SetVertexColor(1, 1, 1, 0) end
-    item:AddTexture(tex, true)
-    item:SetFunction(obj.Share, obj)
-    
-    local item = self:CreateMenuItem(submenu, QHText("SHARING_DISABLE"))
-    local tex = self:CreateIconTexture(item, 10)
-    if obj.want_share then tex:SetVertexColor(1, 1, 1, 0) end
-    item:AddTexture(tex, true)
-    item:SetFunction(obj.Unshare, obj)
-    
-    self:CreateMenuItem(menu, QHText("SHARING")):SetSubmenu(submenu)
-  end]]
-  
-  --self:CreateMenuItem(menu, "(No options available)")
-  
-  if not obj.map_suppress_ignore then
-    self:CreateMenuItem(menu, QHText("IGNORE")):SetFunction(function () if obj.cluster then for _, v in ipairs(obj.cluster) do QH_Route_IgnoreNode(v, UserIgnored) end end end) -- There is probably a nasty race condition here. I'm not entirely happy about it.
-  end
-  if obj.map_custom_menu then
-    obj.map_custom_menu(menu)
-  end
-  
-  if obj.cluster and #obj.cluster > 1 and QH_Route_Ignored_Cluster_Active(obj.cluster) > 1 then
-    self:CreateMenuItem(menu, QHText("IGNORE_LOCATION")):SetFunction(QH_Route_IgnoreNode, obj, UserIgnored)
   end
 end
 
