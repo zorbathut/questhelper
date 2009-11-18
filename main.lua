@@ -214,6 +214,7 @@ QH_Event("ADDON_LOADED", function (addonid)
       ["bst_astrolabe.lua"] = true,
       ["bst_ctl.lua"] = true,
       ["bst_libaboutpanel.lua"] = true,
+      ["bst_range.lua"] = true,
       
       ["manager_event.lua"] = true,
       ["manager_achievement.lua"] = true,
@@ -250,6 +251,7 @@ QH_Event("ADDON_LOADED", function (addonid)
       ["core.lua"] = true,
       ["tooltip.lua"] = true,
       ["arrow.lua"] = true,
+      ["radar.lua"] = true,
 
       ["static.lua"] = true,
       ["static_1.lua"] = true,

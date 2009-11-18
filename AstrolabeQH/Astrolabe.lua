@@ -350,7 +350,7 @@ function Astrolabe:GetAbsoluteContinentPosition( C, Z, xPos, yPos )
 end
 
 function Astrolabe:FromAbsoluteContinentPosition(C, xPos, yPos)
-  return C, xPos / WorldMapSize[C].width, yPos / WorldMapSize[C].height
+  return C, 0, xPos / WorldMapSize[C].width, yPos / WorldMapSize[C].height
 end
 
 function Astrolabe:GetZoneWidth(c, z)
@@ -472,6 +472,15 @@ function Astrolabe:GetFacing()
   end
 end
 local minimapRotationOffset = -Astrolabe.GetFacing()
+
+function Astrolabe:GetMapDiameter()
+  local minimapZoom = Minimap:GetZoom()
+  if ( Astrolabe.minimapOutside ) then
+		return MinimapSize.outdoor[minimapZoom];
+	else
+		return MinimapSize.indoor[minimapZoom];
+	end
+end
 
 local function placeIconOnMinimap( minimap, minimapZoom, mapWidth, mapHeight, icon, dist, xDist, yDist )
 	local mapDiameter;
@@ -1037,6 +1046,9 @@ end
 function Astrolabe:SetMinimapObject(minimap)
 	Minimap = minimap
 	self:UpdateMinimapIconPositions()
+end
+function Astrolabe:GetMinimapObject()
+  return Minimap
 end
 
 --------------------------------------------------------------------------------------------------------------

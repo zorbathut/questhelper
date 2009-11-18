@@ -293,6 +293,9 @@ QuestHelper_Translations.enUS =
   
   SETTINGS_MENU_INCOMPLETE = "Incomplete Quests",
   
+  SETTINGS_RADAR_ON = "Minimap radar engaged! (beep, beep, beep)",
+  SETTINGS_RADAR_OFF = "Minimap radar disengaged. (whirrrrr, clunk)",
+  
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 yards",
   DISTANCE_METRES = "%h1 metres"

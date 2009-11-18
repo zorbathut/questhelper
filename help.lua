@@ -428,6 +428,15 @@ function QuestHelper:ToggleArrow(text)
   end
 end
 
+function QuestHelper:ToggleRadar(text)
+  QuestHelper_Pref.radar = not QuestHelper_Pref.radar
+  if QuestHelper_Pref.radar then
+    self:TextOut(QHFormat("SETTINGS_RADAR_ON"))
+  else
+    self:TextOut(QHFormat("SETTINGS_RADAR_OFF"))
+  end
+end
+
 function QuestHelper:ToggleCartWP()
   QuestHelper_Pref.cart_wp_new = not QuestHelper_Pref.cart_wp_new
   if QuestHelper_Pref.cart_wp_new then
@@ -731,6 +740,10 @@ commands =
     {"INCOMPLETE",
      "Show start locations of incomplete quests on the main map. Useful for those pursuing the Loremaster achievement.",
      {}, QH_Incomplete},
+     
+    {"RADAR",
+     "Display a guess of your current target's location on the minimap.",
+     {}, QuestHelper.ToggleRadar, QuestHelper},
       
     {"FIND",
      "Search for an item, location, or npc.",

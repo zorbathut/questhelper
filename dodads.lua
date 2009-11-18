@@ -7,8 +7,7 @@ local Minimap = _G.Minimap
 
 -- These conversions are nasty, and this entire section needs a serious cleanup.
 local function convertLocation(p)
-  local c, x, y = QuestHelper.Astrolabe:FromAbsoluteContinentPosition(p.c, p.x, p.y)
-  return c, 0, x, y
+  return QuestHelper.Astrolabe:FromAbsoluteContinentPosition(p.c, p.x, p.y)
 end
 
 local function convertLocationToScreen(p, c, z)
@@ -19,7 +18,7 @@ local function convertLocationToScreen(p, c, z)
 end
 
 local function convertRawToScreen(tc, x, y, c, z)
-  local rc, rx, ry = QuestHelper.Astrolabe:FromAbsoluteContinentPosition(tc, x, y)
+  local rc, _, rx, ry = QuestHelper.Astrolabe:FromAbsoluteContinentPosition(tc, x, y)
   return QuestHelper.Astrolabe:TranslateWorldMapPosition(rc, 0, rx, ry, c, z)
 end
 
@@ -854,8 +853,7 @@ function QuestHelper:CreateWorldMapMinidad(objective, nxt)
       self.dot:SetAllPoints()
       self.dot:SetDrawLayer("BACKGROUND")
       
-      local c, x, y = QuestHelper.Astrolabe:FromAbsoluteContinentPosition(QuestHelper_ParentLookup[self.objective.p], self.objective.x, self.objective.y)
-      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, c, 0, x, y)
+      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, QuestHelper.Astrolabe:FromAbsoluteContinentPosition(QuestHelper_ParentLookup[self.objective.p], self.objective.x, self.objective.y))
     else
       self.objective = nil
       self:Hide()
@@ -880,8 +878,7 @@ function QuestHelper:CreateWorldMapMinidad(objective, nxt)
   
   function icon:OnEvent()
     if self.objective then
-      local c, x, y = QuestHelper.Astrolabe:FromAbsoluteContinentPosition(QuestHelper_ParentLookup[self.objective.p], self.objective.x, self.objective.y)
-      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, c, 0, x, y)
+      QuestHelper.Astrolabe:PlaceIconOnWorldMap(QuestHelper.map_overlay, self, QuestHelper.Astrolabe:FromAbsoluteContinentPosition(QuestHelper_ParentLookup[self.objective.p], self.objective.x, self.objective.y))
     else
       self.objective = nil
       self:Hide()
