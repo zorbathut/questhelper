@@ -813,7 +813,7 @@ function QH_Route_Core_Process()
     for k, _ in pairs(Cluster) do
       local exists = touched_clusts[k]
       local ignored = (ClusterIgnoredCount[k] ~= 0)
-      QuestHelper: Assert(not (ignored and exists)) -- something went wrong
+      QuestHelper: Assert(not (ignored and exists)) -- something went wrong, item should have been removed
       
       if not ignored and not exists then
         -- here we go
@@ -1019,10 +1019,6 @@ end
           ClusterIgnoredNodeActive[cloost] = ClusterIgnoredNodeActive[cloost] - 1
           if ClusterIgnoredNodeActive[cloost] == 0 then
             Internal_IgnoreCluster(cloost, "internal_node_ignored")
-          else
-            if last_best then -- if not last_best then this is just part of the global update and we basically don't care
-              SpliceIn(cloost, {})
-            end
           end
         end
       end
