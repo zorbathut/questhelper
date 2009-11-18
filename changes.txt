@@ -1,4 +1,14 @@
 
+== Version 1.3.1-beta 11/18/2009 ==
+
+* Many many small fixes and tweaks. If you had an error in 1.3.0-beta, please try to reproduce it and report on success or failure. Every error report I received had been handled one way or another, but some of them may still be live, as I was unable to reproduce some of them. Also, if you can give solid reliable instructions on how to reproduce any error, it's much appreciated!
+* Made the objective menu a little smarter - it will no longer prompt for "ignore this location" if that location is the last one it knows about for that objective
+* Added some better error handling for "/qh find"
+* Commented out a pile of dead code, will remove it in a future version if it proves to actually be dead and not just staggering along in some horrifying abomination of diseased unlife, moaning for cerebral matter and dripping on your carpet
+* I think the carpet is a metaphor for your computer's memory but I sort of lost track somewhere in there
+* I came up with a neat idea and some guys told me it was impossible, so I did it. "/qh range" attempts to triangulate the position of your current target and shows its likely location on your minimap. It may be buggy and/or have performance problems - at the moment it's largely a proof-of-concept, and it's already proven invaluable at helping me track down a few rare monsters. I may improve it in the future.
+* If you want a one-line description of my life, just go up one bullet point from here and read until you hit a period.
+
 == Version 1.3.0-beta 11/16/2009 ==
 
 Hey hey time for a major version
