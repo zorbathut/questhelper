@@ -241,7 +241,7 @@ local achievement_list = setmetatable({}, {__mode="k"})
 function GetAchievementMetaObjective(achievement)
   if achievement_list[achievement] then return achievement_list[achievement] end
   
-  local db = DB_GetItem("achievement", achievement)
+  local db = DB_GetItem("achievement", achievement, true)
   
   local ite = {}
   ite.desc = select(2, GetAchievementInfo(achievement))
