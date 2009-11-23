@@ -50,7 +50,7 @@ QH_OnUpdate(function()
     local minRange, maxRange = rc:GetRange('target')
     
     if minRange then
-      if not maxRange then maxRange = 100 end
+      if not maxRange then maxRange = 120 end
       
       minRange = math.max(0, minRange - 1)
       maxRange = maxRange + 1
