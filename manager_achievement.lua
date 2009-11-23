@@ -69,6 +69,7 @@ end
 
 local function registerAchievement(id)
   --if db.achievements[id] then return end
+  if id < 0 then return end -- stupid underachiever
   
   local _, title, _, complete = GetAchievementInfo(id)
   --QuestHelper:TextOut(string.format("Registering %d (%s)", id, title))
