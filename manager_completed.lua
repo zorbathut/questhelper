@@ -101,7 +101,7 @@ function rescan()
       --print(ql.start)
       --print(ql.start.loc)
       --print(ql.start.loc[1])
-      QH_POI_Add(waypoint_zone, ql.start.loc[1].x, ql.start.loc[1].y, string.format("%s (quest #%d)", ql.name, v))
+      QH_POI_Add(waypoint_zone, ql.start.loc[1].x, ql.start.loc[1].y, string.format("%s (quest #%d)", ql.name or "(unknown quest name)", v))
     end
   end
 end
