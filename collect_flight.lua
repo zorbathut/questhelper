@@ -28,7 +28,7 @@ local function GetRoute(currentname, endnode)
 end
 
 local function GetCurrentname()
-  QuestHelper: Assert(NumTaxiNodes() < 100)
+  QuestHelper: Assert(NumTaxiNodes() < 150, tostring(NumTaxiNodes())) -- hmm what
   for i = 1, NumTaxiNodes() do if TaxiNodeGetType(i) == "CURRENT" then return TaxiNodeName(i) end end
 end
 
