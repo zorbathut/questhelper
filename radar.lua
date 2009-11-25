@@ -35,6 +35,9 @@ QH_OnUpdate(function()
   
   if tick <= GetTime() then
     tick = tick + 1
+    if tick < GetTime() then
+      tick = GetTime()
+    end
     
     local targ = UnitGUID("target")
     if targ ~= anchor then
@@ -129,15 +132,15 @@ QH_OnUpdate(function()
           if ofs >= mnr and ofs <= mxr then
             if not map[px + dx] then map[px + dx] = QuestHelper:CreateTable("radar") end
             if not map[px - dx] then map[px - dx] = QuestHelper:CreateTable("radar") end
-            map[px + dx][py + dy] = (map[px + dx][py + dy] or 0) + 0.01
+            map[px + dx][py + dy] = (map[px + dx][py + dy] or 0) + 0.001
             if dx > 0 then
-              map[px - dx][py + dy] = (map[px - dx][py + dy] or 0) + 0.01
+              map[px - dx][py + dy] = (map[px - dx][py + dy] or 0) + 0.001
               if dy > 0 then
-                map[px - dx][py - dy] = (map[px - dx][py - dy] or 0) + 0.01
+                map[px - dx][py - dy] = (map[px - dx][py - dy] or 0) + 0.001
               end
             end
             if dy > 0 then
-              map[px + dx][py - dy] = (map[px + dx][py - dy] or 0) + 0.01
+              map[px + dx][py - dy] = (map[px + dx][py - dy] or 0) + 0.001
             end
           end
         end
