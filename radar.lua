@@ -40,7 +40,7 @@ QH_OnUpdate(function()
     end
     
     local targ = UnitGUID("target")
-    if targ ~= anchor then
+    if targ ~= anchor or UnitIsDead("target") then
       for _, v in pairs(map) do QuestHelper:ReleaseTable(v) end
       wipe(map)
       for _, v in ipairs(widgets) do
