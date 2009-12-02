@@ -1,4 +1,10 @@
 
+== Version 1.3.3 12/2/1009 ==
+
+* Alright, let's make this official. Achievement support out of beta! There may be bugs, please report. You know the drill by now.
+* Disable radar if target is dead
+* Database update
+
 == Version 1.3.2-beta 11/24/2009 ==
 
 * Sorry for the slow bugfixes, life has been incredibly busy. Another pile of bugfixes in this version - once again, please report anything that's problematical.
