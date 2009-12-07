@@ -12,6 +12,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#include <lzo/lzoconf.h>
+#include <lzo/lzo1c.h>
+#include <lzo/lzo1x.h>
+
 #include <png.h>
 
 using namespace std;
@@ -489,6 +493,47 @@ void multirun_complete(const string &phase, int simul) {
   }
 }
 
+//void syncfile(lua_State *L) {
+//}
+
+unsigned char wrk[LZO1C_MEM_COMPRESS];
+unsigned char dat[1024768 * 16];
+
+string lzo_decompress(const string &str) {
+  //printf("dinput %d\n", str.size());
+  lzo_uint outlen = sizeof(dat);
+  CHECK(lzo1x_decompress_safe((const unsigned char*)str.c_str(), str.size(), dat, &outlen, wrk) == LZO_E_OK);
+  CHECK(outlen >= 0 && outlen < sizeof(dat));
+  //printf("decompressed to %d\n", outlen);
+  //printf("%d, %s, %d\n", (int)outlen, str.c_str(), str.size());
+  return string(dat, dat + outlen);
+}
+string lzo_compress(const string &str) {
+  CHECK(str.size() <= sizeof(dat));
+  lzo_uint outlen = sizeof(dat);
+  //printf("cinput %d\n", str.size());
+  CHECK(lzo1x_1_compress((const unsigned char*)str.c_str(), str.size(), dat, &outlen, wrk) == LZO_E_OK); 
+  CHECK(outlen >= 0 && outlen < sizeof(dat));
+  //printf("compressed to %d\n", outlen);
+  string oot = string(dat, dat + outlen);
+  
+  string retest = lzo_decompress(oot);
+  
+  if(str != retest) {
+    printf("failure %d/%d\n", str.size(), retest.size());
+    if(str.size() == retest.size()) {
+      for(int i = 0; i < str.size(); i++) {
+        if(str[i] != retest[i]) {
+          printf("%d: %d/%d\n", i, (unsigned char)str[i], (unsigned char)retest[i]);
+        }
+      }
+    }
+    CHECK(str == retest);
+  }
+  return oot;
+}
+
+
 
 
 extern "C" int init(lua_State* L) {
@@ -509,6 +554,9 @@ extern "C" int init(lua_State* L) {
     def("multirun_add", &multirun_add),
     def("multirun_complete", &multirun_complete),
     def("sleep", &sleep),
+    def("sync", &sync),
+    def("lzo_compress", &lzo_compress),
+    def("lzo_decompress", &lzo_decompress),
     class_<Image>("Image")
       .def(constructor<int, int>())
       .def("write", &Image::write)
@@ -519,6 +567,8 @@ extern "C" int init(lua_State* L) {
       .def("finish", &ImageTileWriter::finish)
   ];
 
+  lzo_init();
+  
   return 0;
 }
 

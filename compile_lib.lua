@@ -361,7 +361,7 @@ end
 function convert_loc(loc, locale, lv, wowv)
   if not loc then return end
   assert(locale)
-  if locale ~= "enUS" then return end -- arrrgh, to be fixed eventually. the problem is that .rc and .rz change based on the locale, so I need to snapshot conversions for all locales :(
+  if locale ~= "enUS" then --[[print"dropout enUS"]] loc.x = nil loc.y = nil return end -- arrrgh, to be fixed eventually. the problem is that .rc and .rz change based on the locale, so I need to snapshot conversions for all locales :(
   
   local lr = loc.relative
   if loc.relative then
@@ -372,13 +372,17 @@ function convert_loc(loc, locale, lv, wowv)
   if not loc.c or not QuestHelper_IndexLookup(wowv)[loc.rc] then return end
   
   if not QuestHelper_IndexLookup(wowv)[loc.rc] or not QuestHelper_IndexLookup(wowv)[loc.rc][loc.rz] then
-    print(loc.c, loc.rc, loc.rz, QuestHelper_IndexLookup(wowv), QuestHelper_IndexLookup(wowv)[loc.rc])
-    print(loc.c, loc.rc, loc.rz, QuestHelper_IndexLookup(wowv), QuestHelper_IndexLookup(wowv)[loc.rc], QuestHelper_IndexLookup(wowv)[loc.rc][loc.rz])
+    --print(loc.c, loc.rc, loc.rz, QuestHelper_IndexLookup(wowv), QuestHelper_IndexLookup(wowv)[loc.rc])
+    --print(loc.c, loc.rc, loc.rz, QuestHelper_IndexLookup(wowv), QuestHelper_IndexLookup(wowv)[loc.rc], QuestHelper_IndexLookup(wowv)[loc.rc][loc.rz])
   end
   loc.p = QuestHelper_IndexLookup(wowv)[loc.rc][loc.rz]
   loc.rc, loc.rz = nil, nil
   
-  if lv == 0 and loc.p == 71 then return end -- Icecrown, which I had offsync for a while
+  if lv == 0 and loc.p == 71 then --[[print"dropout old icecrown"]] loc.x = nil loc.y = nil return end -- Icecrown, which I had offsync for a while
+  
+  if loc.x < -100000 or loc.x > 100000 or loc.y < -100000 or loc.y > 100000 then --[[print("dropout oob", loc.x, loc.y) ]]return end  -- out-of-bounds, nothing like this actually exists
+  
+  --[[print"accept" ]]
   
   return loc
 end
@@ -386,11 +390,19 @@ end
 function convert_multiple_loc(locs, locale, lv, wowv)
   if not locs then return end
   
+  local locrv = {}
+  
   for _, v in ipairs(locs) do
     if v.loc then
-      convert_loc(v.loc, locale, lv, wowv)
+      local cl = convert_loc(v.loc, locale, lv, wowv)
+      if cl then table.insert(locrv, v) end -- note, we are not inserting cl, we're inserting v - it may contain more info
     end
   end
+  
+  local st = #locs
+  while #locs > 0 do table.remove(locs) end
+  for _, v in ipairs(locrv) do table.insert(locs, v) end
+  --print(st, #locs)
 end
 
 --[[
@@ -685,10 +697,14 @@ function standard_pos_accum(accum, value, lv, locale, fluff, wowv)
   -- bleh
   if type(value) == "string" then
     if math.mod(#value, 11 + fluff) ~= 0 then return true end
+    --print("SPA start")
     for off = 1, #value, 11 + fluff do
       local tite = convert_loc(slice_loc(value:sub(off, off + 10), lv), locale, lv, wowv)
       if tite then position_accumulate(accum.loc, tite, wowv) end
+      
+      --if tite then print("Y") else print(".") end
     end
+    --print("SPA end")
   else
     for _, v in ipairs(value) do
       if math.mod(#v, 11 + fluff) ~= 0 then
@@ -696,12 +712,16 @@ function standard_pos_accum(accum, value, lv, locale, fluff, wowv)
       end
     end
     
+    --print("SPA start")
     for _, v in ipairs(value) do
       for off = 1, #v, 11 + fluff do
         local tite = convert_loc(slice_loc(v:sub(off, off + 10), lv), locale, lv, wowv)
         if tite then position_accumulate(accum.loc, tite, wowv) end
+        
+        --if tite then print("Y") else print(".") end
       end
     end
+    --print("SPA end")
   end
 end
 

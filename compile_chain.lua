@@ -57,6 +57,23 @@ require("md5")
 require("pluto")
 require("gzio")
 require("bit")
+zlib = require("zlib") -- lol what
+
+--local intermediate_start_at = "solidity"
+
+--local compress = zlib.compress
+--local decompress = zlib.decompress
+
+local compress = lzo_compress
+local decompress = lzo_decompress
+
+if false then
+  print("comp loaded")
+  
+  print(compress("hello hello hello"))
+  print(decompress(compress("hello hello hello")))
+  assert(false)
+end
 
 local function safety(func, ...)
   local dt = {...}
@@ -77,6 +94,9 @@ if not pop_file_id then pop_file_id = function () end end
 
 local nextProgressTime = 0
 
+local function Progressable()
+  return os.time() > nextProgressTime
+end
 local function ProgressMessage(msg)
   if os.time() > nextProgressTime then
     nextProgressTime = os.time() + 1
@@ -85,33 +105,195 @@ local function ProgressMessage(msg)
 end
 
 
-local function persist_dump(dat)
-  local len = #dat
-  return string.char(bit.band(#dat, 0xff), bit.band(#dat, 0xff00) / 256, bit.band(#dat, 0xff0000) / 65536, bit.band(#dat, 0xff000000) / 16777216) .. dat
-end
 
-local function persist_split(dat, dest)
-  local cp = 1
-  while cp <= #dat do
-    assert(cp + 4 <= #dat)
-    local a, b, c, d = dat:byte(cp, cp + 3)
-    cp = cp + 4
+function filecontents(filename)
+  local fil = io.open(filename, "rb")
+  if not fil then print("Failed to open filename", filename) end
+  assert(fil)
+  
+  local fcerror = {}
+  
+  local dofunc = function ()
+    local red = fil:read(4)
+    if not red then return fcerror end
+    assert(#red == 4)
+    local a, b, c, d = red:byte(1, 4)
     local len = a + b * 256 + c * 65536 + d * 16777216
-    table.insert(dest, dat:sub(cp, cp + len))
-    cp = cp + len
+    if len == math.pow(2, 32) - 1 then
+      return nil
+    end
+    local junk = fil:read(len)
+    assert(#junk == len)
+    return junk
+  end
+  
+  local first = dofunc()
+  if first == fcerror then
+    fil:close()
+    print("everything is broken", filename)
+    sleep(1)
+    return filecontents(filename)
+  end
+    
+  return function ()
+    if first then
+      local f = first
+      first = nil
+      return f
+    end
+    local rv = dofunc()
+    if rv == fcerror then
+      print("everything is error", filename)
+      assert(rv ~= fcerror)
+    end
+    return rv
+  end
+end
+local function multifile(...)
+  local files = {...}
+  local curf
+  local curfname
+  return function ()
+    if curf then
+      local dat = curf()
+      if dat then return dat end
+      curf = nil
+    end
+    
+    if not curf then
+      local nfil = table.remove(files)
+      if not nfil then return nil end
+      curfname = nfil
+      curf = filecontents(nfil)
+    end
+    
+    local dat, err = curf()
+    if not dat then print(err, curfname) end
+    assert(dat)
+    return dat
   end
 end
 
+local function cheap_left(x) return (2*x) end
+local function cheap_right(x) return (2*x + 1) end
+local function cheap_sane(heap)
+  local dmp = ""
+  local finishbefore = 2
+  for i = 1, #heap do
+    if i == finishbefore then
+      print(dmp)
+      dmp = ""
+      finishbefore = finishbefore * 2
+    end
+    dmp = dmp .. string.format("%f ", heap[i].c)
+  end
+  print(dmp)
+  print("")
+  for i = 1, #heap do
+    assert(not heap[cheap_left(i)] or heap[i].c <= heap[cheap_left(i)].c)
+    assert(not heap[cheap_right(i)] or heap[i].c <= heap[cheap_right(i)].c)
+  end
+end
+local function cheap_insert(heap, item, pred)
+  assert(item)
+  table.insert(heap, item)
+  local pt = #heap
+  while pt > 1 do
+    local ptd2 = math.floor(pt / 2)
+    if not pred(heap[pt], heap[ptd2]) then
+      break
+    end
+    local tmp = heap[pt]
+    heap[pt] = heap[ptd2]
+    heap[ptd2] = tmp
+    pt = ptd2
+  end
+  --cheap_sane(heap)
+end
+local function cheap_extract(heap, pred)
+  local rv = heap[1]
+  if #heap == 1 then table.remove(heap) return rv end
+  heap[1] = table.remove(heap)
+  local idx = 1
+  while idx < #heap do
+    local minix = idx
+    if heap[cheap_left(idx)] and pred(heap[cheap_left(idx)], heap[minix]) then minix = cheap_left(idx) end
+    if heap[cheap_right(idx)] and pred(heap[cheap_right(idx)], heap[minix]) then minix = cheap_right(idx) end
+    if minix ~= idx then
+      local tx = heap[minix]
+      heap[minix] = heap[idx]
+      heap[idx] = tx
+      idx = minix
+    else
+      break
+    end
+  end
+  --cheap_sane(heap)
+  return rv
+end
+
+local function multifilesort(pred, ...)
+  local filenames = {...}
+  
+  local lpred = function (a, b)
+    return pred(a.nxt, b.nxt)
+  end
+  
+  local heep = {}
+  
+  for i = 1, #filenames do
+    local fil = filecontents(filenames[i])
+    local dt = fil()
+    if dt then
+      cheap_insert(heep, {fil = fil, nxt = pluto.unpersist({}, decompress(dt))}, lpred)
+    end
+  end
+  
+  return function ()
+    if #heep == 0 then return nil end
+    
+    local dt = cheap_extract(heep, lpred)
+
+    local nxt = dt.nxt
+    
+    dt.nxt = dt.fil()
+    if dt.nxt then
+      dt.nxt = pluto.unpersist({}, decompress(dt.nxt))
+      cheap_insert(heep, dt, lpred)
+    end
+    
+    return nxt
+  end
+end
+
+local function filewriter(filename)
+  local fil = io.open(filename, "wb")
+  if not fil then
+    assert(os.execute("mkdir -p " .. string.match(filename, "(.*)/.-")) == 0)
+    fil = io.open(filename, "wb")
+  end
+  assert(fil)
+  
+  local wroteshit = false
+  
+  return {
+    close = function ()
+      fil:write(string.char(0xff, 0xff, 0xff, 0xff))
+      fil:close()
+    end,
+    write = function (_, dat)
+      wroteshit = true
+      fil:write(string.char(bit.band(#dat, 0xff), bit.band(#dat, 0xff00) / 256, bit.band(#dat, 0xff0000) / 65536, bit.band(#dat, 0xff000000) / 16777216))
+      fil:write(dat)
+    end
+  }
+end
 
 local file_cache = {}
 
 local function get_file(fname)
   if file_cache[fname] then return file_cache[fname] end
-  file_cache[fname] = gzio.open(fname, "w")
-  if not file_cache[fname] then
-    assert(os.execute("mkdir -p " .. string.match(fname, "(.*)/.-")) == 0)
-    file_cache[fname] = gzio.open(fname, "w")
-  end
+  file_cache[fname] = filewriter(fname)
   return file_cache[fname]
 end
 local function flush_cache()
@@ -123,7 +305,6 @@ end
 
 
 
-local MODE_SOLO = 0
 local MODE_MASTER = 1
 local MODE_SLAVE = 2
 
@@ -149,9 +330,14 @@ function ChainBlock_Init(path_f, fname_f, init_f)
     fname = fname_f
     init_f()
     
-    os.execute("rm -rf temp_removing")
-    os.execute("mv temp temp_removing")
-    io.popen("rm -rf temp_removing", "w")
+    if not intermediate_start_at then
+      print("Removing ancient data . . .")
+      os.execute("rm -rf temp_removing")
+      print("Shifting old data . . .")
+      os.execute("mv temp temp_removing")
+      io.popen("rm -rf temp_removing", "w")
+      print("Beginning . . .")
+    end
     
     shard = 0
     
@@ -179,15 +365,12 @@ function ChainBlock_Init(path_f, fname_f, init_f)
     assert(shard_count)
     
     local print_bk = print
-    local shardid = string.format("Shard %d/%d %s", shard, shard_count, slaveblock)
+    local shardid = string.format("Shard %2d/%2d %s", shard, shard_count, slaveblock)
     print = function(...) print_bk(shardid, ...) io.stdout:flush() end
     
     ProgressMessage("Starting")
   elseif arg[1] then
     assert(false)
-  else
-    mode = MODE_SOLO
-    init_f()
   end
 end
 
@@ -206,66 +389,112 @@ function ChainBlock_Work()
     end
     hnd:close()
     
+    local srcfiles = {}
+    for pos, line in ipairs(lines) do
+      if line:match("data_.*") then
+        table.insert(srcfiles, prefix .. "/" .. line)
+      end
+    end
+    
+    local function megasortpred(a, b)
+      if a.key ~= b.key then return a.key < b.key end
+      return tblock.sortpred and tblock.sortpred(a.subkey, b.subkey)
+    end
+    
+    -- sort step
+    local intermediaries = {}
+    
+    local sortct = 0
+    
+    local datix = {}
+    local ct = 0
+    local function finish_datix()
+      if #datix == 0 then return end  -- bzzzzt
+      
+      local intermedfname = string.format("%s/intermed_%d", prefix, #intermediaries + 1)
+      table.insert(intermediaries, intermedfname)
+      
+      table.sort(datix, function(a, b)
+        return megasortpred(a.deco, b.deco)
+      end)
+      
+      local out = filewriter(intermedfname)
+      if not out then print(intermedfname) end
+      assert(out, intermedfname)
+      for _, v in ipairs(datix) do
+        out:write(v.raw)
+      end
+      out:close()
+      
+      datix = {}
+      
+      collectgarbage("collect")
+    end
+    local gogo = 0
+    for data in multifile(unpack(srcfiles)) do
+      if false then
+        if math.mod(gogo, 100000) == 50 then
+          for i = 1, 5 do
+            local t = os.time()
+            local ct = 0
+            while os.time() == t do
+              ct = ct + 1
+              decompress(data)
+            end
+            print("benchmarking", ct)
+          end
+        end
+        gogo = gogo + 1
+      end
+      local daca = decompress(data)
+      local chunk = pluto.unpersist({}, daca)
+      table.insert(datix, {raw = data, deco = chunk})
+      ct = ct + 1
+      sortct = sortct + 1
+      if ct == 1000 then
+        local garbaj = collectgarbage("count")
+        ct = 0
+        if garbaj > 250000 then
+          ProgressMessage(string.format("Dumping intermediate file %d containing %d", #intermediaries + 1, #datix))
+          finish_datix()
+        end
+      end
+    end
+    finish_datix()
+    
+    local bctcount = 0
     local broadcasts = {}
     for pos, line in ipairs(lines) do
       if line:match("broadcast_.*") then
-        local fil = gzio.open(prefix .. "/" .. line, "r")
-        local dat = fil:read("*a")
-        fil:close()
-        os.execute(string.format("rm %s/%s", prefix, line))
-        
-        persist_split(dat, broadcasts)
+        for k in filecontents(prefix .. "/" .. line) do
+          local tab = pluto.unpersist({}, decompress(k))
+          tblock:Broadcast(tab.id, tab.value)
+          bctcount = bctcount + 1
+        end
       end
     end
     
-    for pos, line in ipairs(lines) do
-      ProgressMessage(string.format("Progress, %d/%d", pos, #lines))
-      
-      if line:match("broadcast_.*") then continue end
-      
-      local tkey = string.match(line, "([a-f0-9]*)_.*")
-      if tkey ~= ckey then
+    print(string.format("Processing %d broadcasts, %d data, %d mem", bctcount, sortct, collectgarbage("count")))
+    
+    -- merge
+    local curkey = nil
+    local curct = 0
+    for tab in multifilesort(megasortpred, unpack(intermediaries)) do
+      if Progressable() then
+        ProgressMessage(string.format("Processing %d/%d, %d mem", curct, sortct, collectgarbage("count")))
+      end
+      curct = curct + 1
+      if tab.key ~= curkey then
+        --print("finishing")
         tblock:Finish()
-        ckey = tkey
-        
-        for k, v in ipairs(broadcasts) do
-          local tab = pluto.unpersist({}, v)
-          tblock:Broadcast(tab.id, tab.value)
-        end
+        curkey = tab.key
       end
       
-      local str
-      while true do
-        local fil = gzio.open(prefix .. "/" .. line, "r")
-        local err
-        
-        str, err = fil:read("*a")
-
-        fil:close()
-        
-        if str then break end
-        
-        print(string.format("Missing data? %s/%s %s", prefix, line, err))
-        sleep(1)
-      end
-      
-      assert(str)
-      
-      local strs = {}
-      os.execute(string.format("rm %s/%s", prefix, line))
-      persist_split(str, strs)
-      
-      local up = {}
-      for _, v in ipairs(strs) do
-        table.insert(up, pluto.unpersist({}, v))
-      end
-      for _, tab in ipairs(up) do
-        tblock:Insert(tab.key, tab.subkey, tab.value, tblock.filter)
-      end
+      --print("tbi")
+      tblock:Insert(tab.key, tab.subkey, tab.value, tblock.filter)
     end
     
     tblock:Finish()
-    
     
     flush_cache()
     return true
@@ -361,22 +590,16 @@ function ChainBlock:Insert(key, subkey, value, identifier)
   assert(type(key) == "string")
   if self.filter and self.filter ~= identifier then return end
   
-  if mode ~= MODE_SOLO and slaveblock ~= self.id then
+  if slaveblock ~= self.id then -- we write
     local ki = md5_value(key)
     local shard_dest_1 = math.mod(ki, shard_count) + 1
-    ki = math.floor(ki / shard_count)
-    local shard_dest_2 = math.mod(ki, internal_split) + 1
-    
-    local f = get_file(string.format("temp/%s/%d/%s_%s_%s", self.id, shard_dest_1, shard_dest_2, (mode == MODE_MASTER and "master" or slaveblock), shard))
-    f:write(persist_dump(pluto.persist({}, {key = key, subkey = subkey, value = value})))
-  else
-    if not subkey then
-      if type(value) == "table" and value.fileid then push_file_id(value.fileid) else push_file_id(-1) end
-      safety(self:GetItem(key).Data, self:GetItem(key), key, subkey, value, self.process)
-      pop_file_id()
-    else
-      table.insert(self:GetData(key), {subkey = subkey, value = value})
-    end
+      
+    local f = get_file(string.format("temp/%s/%d/data_%s_%s", self.id, shard_dest_1, (mode == MODE_MASTER and "master" or slaveblock), shard))
+    f:write(compress(pluto.persist({}, {key = key, subkey = subkey, value = value})))
+  else  -- we put to the system
+    if type(value) == "table" and value.fileid then push_file_id(value.fileid) else push_file_id(-1) end
+    safety(self:GetItem(key).Data, self:GetItem(key), key, subkey, value, self.process)
+    pop_file_id()
   end
   
   return true
@@ -384,12 +607,12 @@ end
 
 
 function ChainBlock:Broadcast(id, value)
-  if mode ~= MODE_SOLO and slaveblock ~= self.id then
+  if slaveblock ~= self.id then -- we write
     for k = 1, shard_count do
       local f = get_file(string.format("temp/%s/%d/broadcast_%s_%s", self.id, k, (mode == MODE_MASTER and "master" or slaveblock), shard))
-      f:write(persist_dump(pluto.persist({}, {id = id, value = value})))
+      f:write(compress(pluto.persist({}, {id = id, value = value})))
     end
-  else
+  else  -- we put to the system
     table.insert(self.broadcasted, {id = id, value = value})
   end
 end
@@ -401,7 +624,6 @@ local timing = {}
 
 function ChainBlock:Finish()
   if mode == MODE_MASTER then
-  
     local frn = finish_root_node
     finish_root_node = false
   
@@ -410,13 +632,18 @@ function ChainBlock:Finish()
     self.unfinished = self.unfinished - 1
     if self.unfinished > 0 then return end -- NOT . . . FINISHED . . . YET
     
+    sync()
+    
     local start = os.time()
     
-    multirun_clear()
-    for k = 1, shard_count do
-      multirun_add(string.format("ssh %s \"cd %s && nice luajit -O2 %s slave %s %d %d\"", shard_ips[1], path, fname, self.id, k, shard_count))  -- so, right now this works because we only have one computer, but if we ever have more than one IP we'll have to put part of this into multirun_complete
+    if not intermediate_start_at or self.id == intermediate_start_at then
+      intermediate_start_at = nil
+      multirun_clear()
+      for k = 1, shard_count do
+        multirun_add(string.format("ssh %s \"cd %s && nice luajit -O2 %s slave %s %d %d\"", shard_ips[1], path, fname, self.id, k, shard_count))  -- so, right now this works because we only have one computer, but if we ever have more than one IP we'll have to put part of this into multirun_complete
+      end
+      multirun_complete(self.id, #shard_ips)
     end
-    multirun_complete(self.id, #shard_ips)
     
     table.insert(timing, {id = self.id, dur = os.time() - start})
     
@@ -432,66 +659,12 @@ function ChainBlock:Finish()
     
   elseif mode == MODE_SLAVE and slaveblock ~= self.id then
     return
-  elseif mode == MODE_SOLO or (mode == MODE_SLAVE and slaveblock == self.id) then
-    self.unfinished = self.unfinished - 1
-    if self.unfinished > 0 and mode == MODE_SOLO then return end -- NOT . . . FINISHED . . . YET
-    
-    if mode == MODE_SOLO then print("Broadcasting " .. self.id) end
-    
-    local sdc = 0
-    for k, v in pairs(self.data) do sdc = sdc + 1 end
-    local sdcc = 0
-    
-    if #self.broadcasted > 0 then
-      for k, v in pairs(self.items) do
-        for _, d in pairs(self.broadcasted) do
-          v:Receive(d.id, d.value)
-        end
-      end
-    end
-    self.broadcasted = {}
-    
-    if mode == MODE_SOLO then print("Sorting " .. self.id) end
-    
-    for k, v in pairs(self.data) do
-      ProgressMessage(string.format("Sorting %s, %d/%d", self.id, sdcc, sdc))
-      sdcc = sdcc + 1
-      
-      if self.sortpred then
-        table.sort(v, function (a, b) return self.sortpred(a.subkey, b.subkey) end)
-      else
-        table.sort(v, function (a, b) return a.subkey < b.subkey end)
-      end
-      local item = self:GetItem(k)
-      
-      local ict = 0
-      for _, d in pairs(v) do
-        ProgressMessage(string.format("Sorting %s, %d/%d + %d/%d", self.id, sdcc, sdc, ict, #v))
-        ict = ict + 1
-        if type(d.value) == "table" and d.value.fileid then push_file_id(d.value.fileid) else push_file_id(-1) end
-        safety(item.Data, item, k, d.subkey, d.value, self.process, self.broadcast)
-        pop_file_id()
-      end
-      
-      self.data[k] = 0 -- This is kind of like setting it to nil, but instead of not working, it does work.
-    end
-    
-    if mode == MODE_SOLO then print("Finishing " .. self.id) end
-    
-    self.data = {}
+  elseif mode == MODE_SLAVE and slaveblock == self.id then
     for k, v in pairs(self.items) do
       if v.Finish then safety(v.Finish, v, self.process, self.broadcast) end
       self.items[k] = 0
     end
     self.items = {}
-    
-    if mode == MODE_SOLO then print("Chaining " .. self.id) end
-    
-    for _, v in pairs(self.linkto) do
-      v:Finish()
-    end
-    
-    if mode == MODE_SOLO then print("Done " .. self.id) end
   end
 end
 
@@ -502,6 +675,10 @@ end
 function ChainBlock:GetItem(key)
   if not self.items[key] then
     self.items[key] = self.factory(key)
+    
+    for _, v in ipairs(self.broadcasted) do
+      safety(self.items[key].Receive, self.items[key], v.id, v.value)
+    end
   end
   return self.items[key]
 end

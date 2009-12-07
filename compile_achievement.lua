@@ -8,6 +8,7 @@ for _, v in ipairs(valid_crits_proto) do
 end
 
 local achievements_out = {achievements = {}, monsters = {}}
+achievements_out.achievements[868] = {unify = true}
 
 for _, v in pairs(achievements) do
   for achid, data in pairs(v) do
@@ -29,8 +30,8 @@ for _, v in pairs(achievements) do
     if denied_crits ~= 0 then continue end
     --print(data.name, allowed_crits, denied_crits)
     
-    if allowed_crits > 0 then
-      achievements_out.achievements[achid] = true
+    if allowed_crits > 0 and not achievements_out.achievements[achid] then
+      achievements_out.achievements[achid] = {}
     end
     
     for _, dat in ipairs(data) do

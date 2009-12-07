@@ -13,7 +13,7 @@ local do_find = true
 
 local do_cull = true
 
-local do_compress = false
+local do_compress = true
 local do_serialize = true
 
 dbg_data = false
@@ -23,7 +23,7 @@ if dbg_data then do_cull = false do_compress = false end
 --local s = 47411
 --local e = 47411
 --local s = 0
-local e = 200
+--local e = 10000
 
 require "compile_lib"
 require "overrides"
@@ -46,7 +46,7 @@ local chainhead = ChainBlock_Create("parse", nil,
       gzd = nil
       assert(dat)
       
-      if do_errors and dat.errors then
+      if do_errors and dat.errors and false then
         for k, v in pairs(dat.errors) do
           --do continue end -- ARGH
           if k ~= "version" then
@@ -93,6 +93,7 @@ local chainhead = ChainBlock_Create("parse", nil,
           qdat.fileid = value.fileid
           qdat.locale = locale
           qdat.wowv = wowv
+          qdat.faction = tonumber(faction)
           Output(string.format("%d", qid), qhv, qdat, "quest")
         end end
         
@@ -476,7 +477,7 @@ if do_compile then
     function (key) return {
       Data = function(self, key, subkey, value, Output)
         local name, locale = key:match("(.*)@@(.*)")  -- boobies regexp
-        if self.lookup[locale] and self.lookup[locale][name] then
+        if self.lookup and self.lookup[locale] and self.lookup[locale][name] then
           local mkmore = {}
           for k, v in pairs(value) do
             mkmore[k] = v
@@ -813,6 +814,7 @@ if do_compile and do_questtables then
     function (key) return {
       accum = {name = {}, criteria = {}, level = {}, start = {}, finish = {}},
       tof = {},
+      faction = {},
       
       -- Here's our actual data
       Data = function(self, key, subkey, value, Output)
@@ -824,6 +826,10 @@ if do_compile and do_questtables then
           end
           return
         end
+        
+        self.exists = true
+        self.faction[value.faction] = (self.faction[value.faction] or 0) + 1
+        --print("faction", value.faction)
 
         local lv = loc_version(subkey)
         
@@ -860,6 +866,13 @@ if do_compile and do_questtables then
         -- Accumulate the old criteria strings into our new data
         if value.start then for k, v in pairs(value.start) do position_accumulate(self.accum.start, v.loc, value.wowv) end end
         if value.finish then for k, v in pairs(value.finish) do position_accumulate(self.accum.finish, v.loc, value.wowv) end end
+        
+        if value.daily == true then
+          self.accum.daily_true = (self.accum.daily_true or 0) + 1
+        end
+        if value.daily == false then
+          self.accum.daily_false = (self.accum.daily_false or 0) + 1
+        end
         
         self.accum.appearances = (self.accum.appearances or 0) + 1
         for id, dat in pairs(value.criteria) do
@@ -898,6 +911,15 @@ if do_compile and do_questtables then
       
       Finish = function(self, Output)
         if not self.accum.appearances then print("Know the existence of, but have no data for quest", key) return end
+        if not self.exists then return end
+        
+        if not self.faction[1] and not self.faction[2] then
+          print("wackyfact start")
+          for k, v in pairs(self.faction) do
+            print("wackyfact:", k)
+          end
+        end
+        assert(self.faction[1] or self.faction[2])
         
         self.accum.name = name_resolve(self.accum.name)
         self.accum.level = list_most_common(self.accum.level)
@@ -961,6 +983,13 @@ if do_compile and do_questtables then
         
         --if position_has(self.accum.start) then qout.start = { loc = position_finalize(self.accum.start) } end  -- we don't actually care about the start position
         if position_has(self.accum.finish) then qout.finish = { loc = position_finalize(self.accum.finish) } end
+        if position_has(self.accum.start) then qout.start = { loc = position_finalize(self.accum.start) } end
+        
+        qout.faction = self.faction
+        
+        if (self.accum.daily_true or 0) > (self.accum.daily_false or 0) then
+          qout.daily = true
+        end
         
         -- we don't actually care about the level, so we don't bother to store it. Really, we only care about the name for debug purposes also, so we should probably get rid of it before release.
         if dbg_data then
@@ -977,9 +1006,10 @@ if do_compile and do_questtables then
         if has_stuff then
           --print("Quest output " .. tostring(key))
           Output("*/*", nil, {id="quest", key=tonumber(key), data=qout}, "output")
-        end
-        for k, v in pairs(self.accum.name) do
-          Output(("%s/*"):format(k), nil, {id="quest", key=tonumber(key), data={name=v}}, "output")
+          
+          for k, v in pairs(self.accum.name) do
+            Output(("%s/*"):format(k), nil, {id="quest", key=tonumber(key), data={name=v}}, "output")
+          end
         end
       end,
     } end,
@@ -1395,7 +1425,6 @@ if do_compile and do_achievements then
       Data = function(self, key, subkey, value, Output)
         require "compile_achievement" -- whoa nelly
         if not achievements.achievements[tonumber(key)] then return end -- bzart
-        assert(key ~= 713)
         
         for k, v in pairs(value) do
           if type(k) == "number" or k == "achieved" then
@@ -1407,10 +1436,23 @@ if do_compile and do_achievements then
       end,
       
       Finish = function(self, Output)
+        if not achievements.achievements[tonumber(key)] then return end
+        
         local oot = {}
         local gud = false
         
-        for k, v in pairs(self.accum) do
+        local rettemp = {}
+        if achievements.achievements[tonumber(key)].unify then
+          rettemp.achieved = self.accum.achieved
+        else
+          for k, v in pairs(self.accum) do
+            if type(k) == "number" then
+              rettemp[k] = v
+            end
+          end
+        end
+        
+        for k, v in pairs(rettemp) do
           if position_has(v.loc) then oot[k] = {loc = position_finalize(v.loc)} gud = true end
         end
         
@@ -1577,6 +1619,31 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
             Output(tostring(v["*/*"].finish.loc.solid), nil, {data = v["*/*"].finish.loc.solid, key = string.format("quest/%d", k), path = {"finish"}}, "solidity")
             v["*/*"].finish.loc.solid = nil
           end
+          
+          if v["*/*"].start and not v["*/*"].daily then
+            while #v["*/*"].start.loc > 1 do
+              table.remove(v["*/*"].start.loc)
+            end
+            assert(#v["*/*"].start.loc == 1)
+            v["*/*"].start.loc.solid = nil
+            
+            local vf = v["*/*"].faction
+            
+            local tot = (vf[1] or 0) + (vf[2] or 0)
+            assert(tot > 0)
+            
+            if (vf[1] or 0) > tot * 0.1 then
+              Output(string.format("1/%d", v["*/*"].start.loc[1].p), nil, {q = k}, "quest_plane")
+            end
+            if (vf[2] or 0) > tot * 0.1 then
+              Output(string.format("2/%d", v["*/*"].start.loc[1].p), nil, {q = k}, "quest_plane")
+            end
+          end
+        end
+        
+        if v["*/*"] then
+          v["*/*"].faction = nil
+          v["*/*"].daily = nil
         end
       end end
       if self.finalfile.achievement then for k, v in pairs(self.finalfile.achievement) do
@@ -1706,6 +1773,32 @@ local file_cull = ChainBlock_Create("file_cull", {file_collater},
       end
     end
   } end
+)
+
+
+--[[
+*****************************************************************
+Create the agglomerated data for quest plane existence
+]]
+
+
+local quest_plane = ChainBlock_Create("quest_plane", {file_cull},
+  function (key) return {
+    acum = {},
+    Data = function(self, key, subkey, value, Output)
+      table.insert(self.acum, value.q)
+    end,
+    Finish = function(self, Output)
+      table.sort(self.acum)
+      
+      local facet, plane = key:match("^(%d+)/(%d+)$")
+      facet, plane = tonumber(facet), tonumber(plane)
+      
+      print(string.format("Outputting %s %d", facet, plane))
+      Output(string.format("*/%d", facet), nil, {id = "questlist", key = plane, data = self.acum}, "output_direct")
+    end
+  } end,
+  nil, "quest_plane"
 )
 
 
@@ -2302,6 +2395,7 @@ end
 table.insert(output_sources, file_cull)
 table.insert(output_sources, solidity_recombine)
 table.insert(output_sources, find)
+table.insert(output_sources, quest_plane)
 
 local function LZW_precompute_table(inputs, tokens)
   -- shared init code
@@ -2815,6 +2909,7 @@ local function readdir()
   return filz
 end
 
+print("Reading files")
 local filout = readdir("data/08")
 
 for k, v in pairs(filout) do
