@@ -68,6 +68,10 @@ local function AppendObjlinks(target, source, tooltips, icon, last_name, map_lin
       table.insert(map_lines, QHFormat("OBJECTIVE_LOOT", dbgi.name or QHText("OBJECTIVE_ITEM_UNKNOWN")))
       table.insert(tooltip_lines, 1, QHFormat("TOOLTIP_LOOT", source.name or "nothing"))
       licon = 2
+    elseif v.sourcetype == "object" then
+      table.insert(map_lines, QHFormat("OBJECTIVE_OPEN", dbgi.name or QHText("OBJECTIVE_ITEM_UNKNOWN")))
+      table.insert(tooltip_lines, 1, QHFormat("TOOLTIP_OPEN", source.name or "nothing"))
+      licon = 2
     else
       table.insert(map_lines, string.format("unknown %s (%s/%s)", tostring(dbgi.name), tostring(v.sourcetype), tostring(v.sourceid)))
       table.insert(tooltip_lines, 1, string.format("unknown %s (%s/%s)", tostring(last_name), tostring(v.sourcetype), tostring(v.sourceid)))

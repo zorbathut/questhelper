@@ -108,6 +108,7 @@ QuestHelper_Translations.enUS =
   OBJECTIVE_TALK = "Talk to %h1.",
   OBJECTIVE_SLAY = "Slay %h1.",
   OBJECTIVE_LOOT = "Loot %h1.",
+  OBJECTIVE_OPEN = "Open %h1.",
   
   OBJECTIVE_MONSTER_UNKNOWN = "unknown monster",
   OBJECTIVE_ITEM_UNKNOWN = "unknown item",
@@ -271,6 +272,7 @@ QuestHelper_Translations.enUS =
   TOOLTIP_PURCHASE = "Purchase %h1.",
   TOOLTIP_SLAY = "Slay for %h1.",
   TOOLTIP_LOOT = "Loot for %h1.",
+  TOOLTIP_OPEN = "Open for %h1.",
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "Will use %h1 to show objectives.",
