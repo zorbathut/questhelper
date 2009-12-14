@@ -18,7 +18,9 @@ local function viewer_mousedown(self, button)
 end
 
 local function viewer_closebutton(self)
-  viewer.text:SetText("")
+  for i = 1, #viewer.text do
+    viewer.text[i]:SetText("")
+  end
   viewer:Hide()
 end
 
@@ -27,6 +29,8 @@ local frammis = {}
 function QuestHelper:ShowText(text, title, width, border, divide)
   local border = border or 8
   local divide = divide or 4
+  
+  if type(text) == "string" then text = {text} end
   
   if not frammis[border] then frammis[border] = {} end
   viewer = frammis[border][divide]
@@ -80,24 +84,49 @@ function QuestHelper:ShowText(text, title, width, border, divide)
     viewer.frame = CreateFrame("Frame", "QuestHelperTextViewer_Frame" .. suffix, viewer.scrollframe)
     viewer.scrollframe:SetScrollChild(viewer.frame)
     
-    viewer.text = viewer.frame:CreateFontString()
-    viewer.text:SetFont(self.font.sans, 12)
-    viewer.text:SetJustifyH("LEFT")
-    viewer.text:SetPoint("TOPLEFT", viewer.frame)
+    viewer.text = {}
+  end
+  
+  local maxw = 0
+  for i = 1, #text do
+    if not viewer.text[i] then
+      viewer.text[i] = viewer.frame:CreateFontString()
+      viewer.text[i]:SetFont(self.font.sans, 12)
+      viewer.text[i]:SetJustifyH("LEFT")
+      if i > 1 then
+        viewer.text[i]:SetPoint("TOPLEFT", viewer.text[i - 1], "BOTTOMLEFT")
+      else
+        viewer.text[i]:SetPoint("TOPLEFT", viewer.frame)
+      end
+    end
+    
+    viewer.text[i]:Show()
+    viewer.text[i]:SetText(text[i] or "No text.")
+    
+    maxw = math.max(maxw, viewer.text[i]:GetStringWidth())
+  end
+  
+  for i = #text + 1, #viewer.text do
+    viewer.text[i]:Hide()
   end
   
   viewer:Show()
   viewer.title:SetText(title or "QuestHelper")
-  viewer.text:SetText(text or "No text.")
   viewer.scrollframe:SetVerticalScroll(0)
   
-  local w = width or math.min(600, math.max(100, viewer.text:GetStringWidth()))
-  viewer.text:SetWidth(w)
+  local w = width or math.min(600, math.max(100, maxw))
+  for i = 1, #viewer.text do
+    viewer.text[i]:SetWidth(w)
+  end
   viewer:SetWidth(w+border * 2)
   viewer.scrollframe:SetWidth(w)
   viewer.frame:SetWidth(w)
   
-  local h = math.max(10, viewer.text:GetHeight())
+  local toth = 0
+  for i = 1, #text do
+    toth = toth + viewer.text[i]:GetHeight()
+  end
+  local h = math.max(10, toth)
   local title_h = viewer.title:GetHeight()
   
   if h > 400 then

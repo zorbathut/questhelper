@@ -660,11 +660,11 @@ end
 local commands
 
 function QuestHelper:Help(argument)
-  local text = ""
+  local textblock = {}
   local argument = argument and argument:upper() or ""
   
   for i1, cat in ipairs(commands) do
-    text = string.format("%s|cffffff00%s|r\n\n", text, cat[1])
+    local text = string.format("|cffffff00%s|r\n\n", cat[1])
     for i, data in ipairs(cat[2]) do
       if data[1]:find(argument, 1, true) then
         text = string.format("%s    |cffff8000%s|r   %s\n", text, data[1], data[2])
@@ -680,9 +680,11 @@ function QuestHelper:Help(argument)
       end
     end
     text = text .. "\n\n"
+    
+    table.insert(textblock, text)
   end
   
-  self:ShowText(text == "" and ("No commands containing '"..argument.."'") or text, "QuestHelper Slash Commands")
+  self:ShowText(textblock, "QuestHelper Slash Commands")
 end
 
 function QuestHelper:Donate(argument)
