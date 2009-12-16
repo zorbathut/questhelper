@@ -1,4 +1,10 @@
 
+== Version 1.3.5 12/15/2009 ==
+
+* Fix "/qh help" to display all the text instead of its previous behavior, namely, not displaying all the text
+* Strip a ton of private server data out - should eliminate some of the crud showing up in "/qh incomplete"
+* Database update
+
 == Version 1.3.4 12/8/2009 ==
 
 * Bump TOC for official 3.3.0 support
