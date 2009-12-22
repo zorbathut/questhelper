@@ -131,6 +131,7 @@ local function ReplotPath(progress)
     --QuestHelper: Assert(not v.condense_type) -- no
     v.distance = distance -- I'm not a huge fan of mutating things like this, but it is safe, and these nodes are technically designed to be modified during runtime anyway
     table.insert(real_path, v)
+    
     if last_path[k + 1] then
       local nrt = GetCachedPath(last_path[k], last_path[k + 1])
       distance = distance + nrt.d
