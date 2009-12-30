@@ -16,9 +16,27 @@ local classlookup = {
   ["WARRIOR"] = "W"
 };
 
+local racelookup = {
+  ["Draenei"] = "R",
+  ["Gnome"] = "G",
+  ["Dwarf"] = "D",
+  ["Human"] = "H",
+  ["NightElf"] = "E",
+  
+  ["Orc"] = "O",
+  ["Troll"] = "T",
+  ["Tauren"] = "N",
+  ["Undead"] = "U",
+  ["BloodElf"] = "B",
+  -- lol i spelled nub
+}
+
 local function GetSpecBolus()
   local _, id = UnitClass("player")
   local level = UnitLevel("player")
+  local _, race = UnitRace("player")
+  
+  assert(racelookup[race])
   
   local bso = Bitstream.Output(8)
   
@@ -31,7 +49,7 @@ local function GetSpecBolus()
   end
   bso:append(7, 3) -- end-of-spec! because of *all of those 4-tree classes*
   
-  return string.format("%s%02d%s", classlookup[id], level, bso:finish())
+  return string.format("2%s%s%02d", classlookup[id], racelookup[race] or "", level) .. bso:finish()
 end
 
 function QH_Collect_Spec_Init(_, API)

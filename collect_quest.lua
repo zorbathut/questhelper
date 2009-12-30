@@ -11,6 +11,7 @@ local GetQuestType
 local GetItemType
 
 local GetLoc
+local GetSpecBolus
 
 local QHCQ
 
@@ -179,6 +180,7 @@ local function StartOrEnd(se, id)
   chunk = chunk .. GetLoc()
   
   AppendMember(QHCQ[id], se, chunk)
+  AppendMember(QHCQ[id], se .. "_spec", GetSpecBolus())
 end
 
 local abandoncomplete = ""
@@ -384,10 +386,12 @@ function QH_Collect_Quest_Init(QHCData, API)
   GetItemType = API.Utility_GetItemType
   IsMonsterGUID = API.Utility_IsMonsterGUID
   GetMonsterType = API.Utility_GetMonsterType
+  GetSpecBolus = API.Utility_GetSpecBolus
   QuestHelper: Assert(GetQuestType)
   QuestHelper: Assert(GetItemType)
   QuestHelper: Assert(IsMonsterGUID)
   QuestHelper: Assert(GetMonsterType)
+  QuestHelper: Assert(GetSpecBolus)
   
   GetLoc = API.Callback_LocationBolusCurrent
   QuestHelper: Assert(GetLoc)
