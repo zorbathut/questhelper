@@ -1,4 +1,13 @@
 
+== Version 1.3.6 12/29/1009 ==
+
+* Well that was a bit longer of a delay than I'd intended
+* Fix a bug involving ignoring quests through the arrow
+* Somewhat improve the smoothness of the loading system
+* Add some instrumentation so I can, in the future, strip out race-specific and class-specific quests from /qh incomplete
+
+Made another monthly game! [[http://www.mandible.net|Andre Copperman Picture Panic!]] is now available for free download. Come give it a shot! //Destroy my webserver with your downloads.//
+
 == Version 1.3.5 12/15/2009 ==
 
 * Fix "/qh help" to display all the text instead of its previous behavior, namely, not displaying all the text
