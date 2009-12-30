@@ -170,7 +170,7 @@ end
 
 local function mdict(inputdict)
   local idc = QuestHelper:CreateTable("lzw mdict")
-  for i = 1, #inputdict do idc[inputdict:sub(i, i)] = strchar(i - 1) end
+  for i = 1, #inputdict do if math.fmod(i, 100) == 0 then QH_Timeslice_Yield() end idc[inputdict:sub(i, i)] = strchar(i - 1) end
   return idc
 end
 
@@ -192,7 +192,10 @@ local function QH_LZW_Prepare(inputdict, inputstatic)
   local idc = mdict(inputdict)
   
   local inpstat = {}
+  local ct = 0
   for _, v in ipairs(inputstatic) do
+    ct = ct + 1
+    if ct == 10 then QH_Timeslice_Yield() ct = 0 end
     table.insert(inpstat, dictize(idc, v))
   end
   
