@@ -259,7 +259,7 @@ local function UpdateQuests()
       diffs = diffs + 1
       
     else
-      QuestHelper: Assert(#deebey[k] == #noobey[k])
+      QuestHelper: Assert(#deebey[k] == #noobey[k], string.format("%d vs %d", #deebey[k], #noobey[k]))
       for i = 1, #deebey[k] do
       
       --[[
