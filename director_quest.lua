@@ -711,6 +711,7 @@ function QH_UpdateQuests(force)
     local index = 1
     
     local player = UnitName("player")
+    if not player then return end -- bzzt, try again later
     StartInsertionPass(player)
     
     local next_chunks = {}
@@ -798,6 +799,7 @@ function QH_UpdateQuests(force)
     end
     
     current_chunks = next_chunks
+    --update = false
   end
   
   QH_Timeslice_PopUnyieldable()

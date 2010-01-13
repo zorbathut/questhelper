@@ -260,6 +260,7 @@ local function StripBlizzQHTooltipClone(ttp)
     local thistextm = thistext:match(" %- (.*)")
     
     --print(thistext, thistextm)
+    if qh_hackery_tooltip_verbosity then print(thistext, r, g, b, a, dereferences[thistext] and true or false, qobj and qobj[thistextm] and true or false, thistextm) end
     
     if r == 255 and g == 210 and b == 0 and a == 255 and deferences[thistext] then
       qobj = deferences[thistext]
