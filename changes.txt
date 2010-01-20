@@ -1,5 +1,16 @@
 
-== Version 1.3.6 12/29/1009 ==
+== Version 1.3.8 1/12/2010 ==
+
+* Fixed a bug caused by slightly odd out-of-order loading
+* Add some debug instrumentation for a consistency failure in data collection
+* Trying to track down the missing-tooltip glitch
+* DB update, I'm just doin' one of these every week now clearly
+
+== Version 1.3.7 1/4/2010 ==
+
+* Just a database update today, but with luck this'll include a good chunk of the 3.3 quests
+
+== Version 1.3.6 12/29/2009 ==
 
 * Well that was a bit longer of a delay than I'd intended
 * Fix a bug involving ignoring quests through the arrow
