@@ -7,7 +7,7 @@ QuestHelper_Translations.ruRU =
   
   -- Messages used when starting.
   LOCALE_ERROR = "Локализация ваших сохраненных данных не соответствует локализации вашего клиента WoW. Чтобы далее использовать QuestHelper, вам необходимо изменить локализацию обратно или удалить данные, набрав %h(/qh purge). ",
-  ZONE_LAYOUT_ERROR = "Боюсь, при загрузке вы потеряете все свои сохраненные данные Пожалуйста, дождитесь выхода патча для обновления информации по новым зонам.",
+  ZONE_LAYOUT_ERROR = "Ваша версия QuestHelper'а устарела и вам нужно обновить ее с сайта http://www.quest-helper.com Сейчас вы используете версию %1",
   HOME_NOT_KNOWN = "Местоположение вашего дома неизвестно. Когда будет возможность, пожалуйста, поговорите с хозяином таверны и обновите информацию о вашем доме.",
   PRIVATE_SERVER = "QuestHelper не поддерживает частные серверы.",
   PLEASE_RESTART = "При запуске QuestHelper'а произошла ошибка. Пожалуйста, выйдите из игры полностью и попробуйте еще раз.",
@@ -27,6 +27,7 @@ QuestHelper_Translations.ruRU =
   -- Special tracker text
   QH_LOADING = "QuestHelper загружается (%1%)...",
   QH_FLIGHTPATH = "Перерасчет путей полета (%1%)...",
+  QH_RECALCULATING = "Перепрокладка маршрута (%1%)...",
   QUESTS_HIDDEN_1 = "Задания могут быть скрыты",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" для просмотра списка)",
   
@@ -46,11 +47,12 @@ QuestHelper_Translations.ruRU =
   OBJECTIVE_TALK = "Поговорите с %h1.",
   OBJECTIVE_SLAY = "Убейте %h1.",
   OBJECTIVE_LOOT = "Соберите %h1.",
+  OBJECTIVE_OPEN = nil,
   
   OBJECTIVE_MONSTER_UNKNOWN = "неизвестный монстр",
   OBJECTIVE_ITEM_UNKNOWN = "неизвестный предмет",
   
-  ZONE_BORDER_SIMPLE = nil,
+  ZONE_BORDER_SIMPLE = "%1 граница",
   
   -- Stuff used in objective menus.
   PRIORITY = "Приоритет",
@@ -69,7 +71,7 @@ QuestHelper_Translations.ruRU =
   IGNORED_PRIORITY_FIX = "Применить такой же приоритет к связанным заданиям.",
   IGNORED_PRIORITY_IGNORE = "Я выставлю приоритеты самостоятельно.",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "Результаты поиска",
   NO_RESULTS = "Ничего нет!",
   CREATED_OBJ = "Создано: %1",
@@ -77,14 +79,10 @@ QuestHelper_Translations.ruRU =
   USER_OBJ = "Цель пользователя: %h1",
   UNKNOWN_OBJ = "Я не знаю, куда вам надо идти для этого задания.",
   INACCESSIBLE_OBJ = "QuestHelper не смог найти подходящей области для %h1. В список заданий добавлено недоступное для указания место. Если вы обнаружите подходящее место для выполнения этого задания, пришлите нам данные об этом! (%h(/qh submit))",
-  
-  SEARCHING_STATE = "Идет поиск: %1",
-  SEARCHING_LOCAL = "локальные %1",
-  SEARCHING_STATIC = "статичные %1",
-  SEARCHING_ITEMS = "предметы",
-  SEARCHING_NPCS = "NPCs",
-  SEARCHING_ZONES = "зоны",
-  SEARCHING_DONE = "Готово!",
+  FIND_REMOVE = "Отменить цель",
+  FIND_NOT_READY = "QuestHelper ещё не загрузился. Подождите минуту и попробуйте снова.",
+  FIND_CUSTOM_LOCATION = "Пользовательское местоположение",
+  FIND_USAGE = nil,
   
   -- Shared objectives.
   PEER_TURNIN = "Подождите пока %h1 завершит %h2.",
@@ -110,6 +108,7 @@ QuestHelper_Translations.ruRU =
   FILTERED_BLOCKED = "Скрыто из-за незавершенной предыдущей цели задания.",
   FILTERED_UNWATCHED = "Скрыто, так как не отслеживается в журнале заданий.",
   FILTERED_WINTERGRASP = "Отфильтрованный вследствие PvP (Filtered due to being a PvP Wintergrasp quest)",
+  FILTERED_RAID = "Скрыто из-за неспособности выполнения задания находясь в рейд группе.",
   FILTERED_USER = "Вы запросили скрыть эту цель.",
   FILTERED_UNKNOWN = "Неизвестно как завершить задание.",
   
@@ -122,6 +121,10 @@ QuestHelper_Translations.ruRU =
   FILTER_LEVEL = "уровень",
   FILTER_BLOCKED = "заблокировано",
   FILTER_WATCHED = "наблюдаемый",
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = "Проверьте, чтобы добавить это достижение в QuestHelper",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "У вас есть %h(новая информация) о %h1 и %h(обновленная информация) о %h2.",
@@ -208,6 +211,7 @@ QuestHelper_Translations.ruRU =
   TOOLTIP_PURCHASE = "Купите %h1.",
   TOOLTIP_SLAY = "Убейте, чтобы получить %h1.",
   TOOLTIP_LOOT = "Соберите добычу, чтобы получить %h1.",
+  TOOLTIP_OPEN = nil,
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "Будет использоваться %h1, чтобы показать цели.",
@@ -227,6 +231,11 @@ QuestHelper_Translations.ruRU =
   SETTINGS_MENU_ARROW_ARROWSCALE = "Размер указателя",
   SETTINGS_MENU_ARROW_TEXTSCALE = "Размер текста",
   SETTINGS_MENU_ARROW_RESET = "Сбросить",
+  
+  SETTINGS_MENU_INCOMPLETE = "Неполные Задания",
+  
+  SETTINGS_RADAR_ON = "Радар миникарты включен",
+  SETTINGS_RADAR_OFF = "Радар миникарты выключен",
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 ярдов",

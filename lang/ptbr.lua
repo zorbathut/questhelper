@@ -8,7 +8,7 @@ QuestHelper_Translations.ptBR =
   -- Messages used when starting.
   LOCALE_ERROR = "O idioma que você salvou seus dados não são compatíveis com o idioma do seu cliente do WoW. Para usar o QuestHelper você precisará voltar o idioma, ou deletar os dados digitando %h(/qh purge).",
   ZONE_LAYOUT_ERROR = "Sua versão do QuestHelper está desatualizada, e você terá que atualizar em http://www.quest-helper.com para que ela continue a funcionar. Você está usando atualmente a versão %1.",
-  HOME_NOT_KNOWN = "Sua casa é desconhecida. Quando tiver uma chance, por favor, fale com um dono de taberna e resete-a.",
+  HOME_NOT_KNOWN = "A sua casa é desconhecida. Quando tiver uma chance, por favor, fale com um dono de taberna e resete-a.",
   PRIVATE_SERVER = "QuestHelper não suporta servidores privados.",
   PLEASE_RESTART = "Ocorreu um erro ao iniciar o QuestHelper. Por favor feche completamente o World of Warcraft e tente de novo.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper foi instalado incorretamente. Recomendamos que use o Curse Cliente ou 7zip para instalar. Verifica se as subpastas foram extraidas.",
@@ -18,7 +18,7 @@ QuestHelper_Translations.ptBR =
   
   -- Route related text.
   ROUTES_CHANGED = "As rotas de vôo para o seu personagem foram alteradas.",
-  HOME_CHANGED = "Sua casa mudou.",
+  HOME_CHANGED = "A sua casa mudou.",
   TALK_TO_FLIGHT_MASTER = "Por favor fale com o mestre de vôo local.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Obrigado.",
   WILL_RESET_PATH = "Irá resetar a informação do caminho.",
@@ -27,6 +27,7 @@ QuestHelper_Translations.ptBR =
   -- Special tracker text
   QH_LOADING = "QuestHelper está carregando (%1%%)...",
   QH_FLIGHTPATH = "Recalculando pontos de vôo",
+  QH_RECALCULATING = nil,
   QUESTS_HIDDEN_1 = "Quests podem estar escondida.",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" para listar(quests escondidas)",
   
@@ -46,6 +47,7 @@ QuestHelper_Translations.ptBR =
   OBJECTIVE_TALK = "Fale com %h1.",
   OBJECTIVE_SLAY = "Mate %h1.",
   OBJECTIVE_LOOT = "Loot %1.",
+  OBJECTIVE_OPEN = nil,
   
   OBJECTIVE_MONSTER_UNKNOWN = "Monstro Desconhecido",
   OBJECTIVE_ITEM_UNKNOWN = "Item desconhecido",
@@ -63,13 +65,13 @@ QuestHelper_Translations.ptBR =
   SHARING_ENABLE = "Compartilhar",
   SHARING_DISABLE = "Não compartilhar",
   IGNORE = "Ignore",
-  IGNORE_LOCATION = "Ignorar está  localização",
+  IGNORE_LOCATION = "Ignorar esta localização",
   
-  IGNORED_PRIORITY_TITLE = "A prioridade selecionada será ignorada.",
-  IGNORED_PRIORITY_FIX = "Aplique a mesma prioridade aos objetivos bloqueados.",
+  IGNORED_PRIORITY_TITLE = "A prioridade seleccionada será ignorada.",
+  IGNORED_PRIORITY_FIX = "Aplique a mesma prioridade aos objectivos bloqueados.",
   IGNORED_PRIORITY_IGNORE = "Eu mesmo irei definir as prioridades.",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "Resultados da busca",
   NO_RESULTS = "Não existe nenhum!",
   CREATED_OBJ = "Criado: %1",
@@ -77,14 +79,10 @@ QuestHelper_Translations.ptBR =
   USER_OBJ = "Objetivo do usuário: %h1",
   UNKNOWN_OBJ = "Eu não sei onde você deve ir para este objetivo.",
   INACCESSIBLE_OBJ = "QuestHelper não conseguiu encontrar a correcta localização para %h1. Foi adicionado uma \"provavelmente-impossível-de-encontrar\" localização á sua lista de objectivos. Se encontrar ",
-  
-  SEARCHING_STATE = "Procurando: %1",
-  SEARCHING_LOCAL = "Local %1",
-  SEARCHING_STATIC = "Estático %1",
-  SEARCHING_ITEMS = "Itens",
-  SEARCHING_NPCS = "NPCs",
-  SEARCHING_ZONES = "Zonas",
-  SEARCHING_DONE = "Feito!",
+  FIND_REMOVE = nil,
+  FIND_NOT_READY = nil,
+  FIND_CUSTOM_LOCATION = nil,
+  FIND_USAGE = nil,
   
   -- Shared objectives.
   PEER_TURNIN = "Espere por %h1 para completar em %h2.",
@@ -98,8 +96,8 @@ QuestHelper_Translations.ptBR =
   UNKNOWN_MESSAGE = "Mensagem desconhecida tipo '%1' de '%2'.",
   
   -- Hidden objectives.
-  HIDDEN_TITLE = "Objetivos Escondidos",
-  HIDDEN_NONE = "Não existem objetivos escondidos.",
+  HIDDEN_TITLE = "Objectivos Escondidos",
+  HIDDEN_NONE = "Não existem objectivos escondidos.",
   DEPENDS_ON_SINGLE = "Depende de '%1'.",
   DEPENDS_ON_COUNT = "Depende de %1 objetivos ocultos.",
   DEPENDS_ON = "Depende de objetos filtrados",
@@ -110,18 +108,23 @@ QuestHelper_Translations.ptBR =
   FILTERED_BLOCKED = "Filtrado por causa de um objetivo anterior incompleto",
   FILTERED_UNWATCHED = "Filtrado por não ter sido Roteado no Quest Log ",
   FILTERED_WINTERGRASP = "Filtrado por ser uma quest de PvP em Wintergrasp.",
-  FILTERED_USER = "Você requisitou que esse objetivo fosse escondido.",
+  FILTERED_RAID = "Filtrado devido a não poder ser completo num raid.",
+  FILTERED_USER = "Você requisitou que este objectivo fosse escondido.",
   FILTERED_UNKNOWN = "Não sei como completar.",
   
   HIDDEN_SHOW = "Exibir.",
   HIDDEN_SHOW_NO = "Não mostravél",
-  HIDDEN_EXCEPTION = "Adicionar exceção",
+  HIDDEN_EXCEPTION = "Adicionar excepção",
   DISABLE_FILTER = "Filtro desactivado: %1",
   FILTER_DONE = "concluído",
   FILTER_ZONE = "zona",
   FILTER_LEVEL = "level",
   FILTER_BLOCKED = "bloqueado",
   FILTER_WATCHED = "vigiado",
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Você tem %h(novas informações) em %h1, e %h(informações atualizadas) em %h2.",
@@ -208,6 +211,7 @@ QuestHelper_Translations.ptBR =
   TOOLTIP_PURCHASE = "Compre %h1.",
   TOOLTIP_SLAY = "Mate para %h1.",
   TOOLTIP_LOOT = "Loot para %h1.",
+  TOOLTIP_OPEN = nil,
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "Usará %h1 para mostrar objetivos.",
@@ -227,6 +231,11 @@ QuestHelper_Translations.ptBR =
   SETTINGS_MENU_ARROW_ARROWSCALE = "Tamanho da Seta",
   SETTINGS_MENU_ARROW_TEXTSCALE = "Tamanho do Texto",
   SETTINGS_MENU_ARROW_RESET = "Ressetar",
+  
+  SETTINGS_MENU_INCOMPLETE = nil,
+  
+  SETTINGS_RADAR_ON = nil,
+  SETTINGS_RADAR_OFF = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 jardas",

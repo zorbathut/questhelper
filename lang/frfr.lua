@@ -7,7 +7,7 @@ QuestHelper_Translations.frFR =
   
   -- Messages used when starting.
   LOCALE_ERROR = "La langue de vos données sauvegardées ne correspond pas à la langue de votre client WoW. Pour utiliser QuestHelper, vous devez soit remettre la langue que vous aviez avant, soit supprimer les données en tapant %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Votre version de QuestHelper n'est plus à jour, vous êtes prié de vous connectez-vous sur http://www.quest-helper.com pour poursuivre son utilisation. Votre version actuelle est %1.",
+  ZONE_LAYOUT_ERROR = "Votre version de QuestHelper n'est plus à jour, vous êtes prié de vous connecter sur http://www.quest-helper.com pour poursuivre son utilisation. Votre version actuelle est %1.",
   HOME_NOT_KNOWN = "Vous n'avez pas de foyer défini. Lorsque cela sera possible, veuillez parler à votre aubergiste et réinitialisez-le.",
   PRIVATE_SERVER = "QuestHelper ne supporte pas les serveurs privés.",
   PLEASE_RESTART = "Une erreur est survenue au lancement de QuestHelper. Veuillez quitter World of Warcraft et essayer à nouveau.",
@@ -27,6 +27,7 @@ QuestHelper_Translations.frFR =
   -- Special tracker text
   QH_LOADING = "Chargement de QuestHelper (%1%)...",
   QH_FLIGHTPATH = "Recalcul des points de vols (%1%)...",
+  QH_RECALCULATING = "Nouveau calcul de l'itinéraire (%1%)...",
   QUESTS_HIDDEN_1 = "Les quêtes peuvent êtres cachées",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" pour lister)",
   
@@ -46,6 +47,7 @@ QuestHelper_Translations.frFR =
   OBJECTIVE_TALK = "Parler à %h1.",
   OBJECTIVE_SLAY = "Tuer %h1.",
   OBJECTIVE_LOOT = "Ramasser en butin sur %h1.",
+  OBJECTIVE_OPEN = "Expose %h1.",
   
   OBJECTIVE_MONSTER_UNKNOWN = "monstre inconnu",
   OBJECTIVE_ITEM_UNKNOWN = "objet inconnu",
@@ -69,22 +71,18 @@ QuestHelper_Translations.frFR =
   IGNORED_PRIORITY_FIX = "Appliquer la même priorité aux objectifs bloquants.",
   IGNORED_PRIORITY_IGNORE = "Je réglerai les priorités moi-même.",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "Résultats de la recherche",
   NO_RESULTS = "Il n'y en a aucun !",
   CREATED_OBJ = "Créé : %1",
   REMOVED_OBJ = "Supprimé : %1",
   USER_OBJ = "Objectif utilisateur : %h1",
   UNKNOWN_OBJ = "Destination inconnue pour cet objectif.",
-  INACCESSIBLE_OBJ = "QuestHelper n'a pas été capable de trouver une destination utile pour %h1. Nous avons ajoutés une destination impossible à rejoindre dans la liste des objectifs. Si vous trouvez une version utile de cet objet, merci de soumettre vos données ! (%h(/qh submit))",
-  
-  SEARCHING_STATE = "Recherche : %1",
-  SEARCHING_LOCAL = "Local %1",
-  SEARCHING_STATIC = "Statique %1",
-  SEARCHING_ITEMS = "Objets",
-  SEARCHING_NPCS = "NPCs",
-  SEARCHING_ZONES = "Zones",
-  SEARCHING_DONE = "Terminé !",
+  INACCESSIBLE_OBJ = "QuestHelper n'a pas été capable de trouver une destination utile pour %h1. Nous avons ajouté une destination impossible à rejoindre dans la liste des objectifs. Si vous trouvez une version utile de cet objet, merci de soumettre vos données ! (%h(/qh submit))",
+  FIND_REMOVE = "Annuler objectif",
+  FIND_NOT_READY = "QuestHelper n'a pas encore terminé de charger. Veuillez patienter avant de réessayer.",
+  FIND_CUSTOM_LOCATION = "Localisation personnalisée",
+  FIND_USAGE = "La recherche ne fonctionne pas si vous ne dites pas quoi chercher. Essayez %h(/qh help) pour les instructions.",
   
   -- Shared objectives.
   PEER_TURNIN = "Attendre %h1 pour valider %h2.",
@@ -110,6 +108,7 @@ QuestHelper_Translations.frFR =
   FILTERED_BLOCKED = "Filtré car dépend d'un objectif qui n'a pas été réalisé",
   FILTERED_UNWATCHED = "Filtré car l'objectif n'est pas suivi dans le journal de quêtes",
   FILTERED_WINTERGRASP = "Filtré car vous êtes dans une quête JcJ du Joug d'Hiver",
+  FILTERED_RAID = "Filtré car impossible en raid",
   FILTERED_USER = "Vous avez demandé à cacher cet objectif",
   FILTERED_UNKNOWN = "Ne sait pas comment le terminer",
   
@@ -122,6 +121,10 @@ QuestHelper_Translations.frFR =
   FILTER_LEVEL = "niveau",
   FILTER_BLOCKED = "bloqué",
   FILTER_WATCHED = "regardé",
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = "Cocher pour ajouter cet exploit à QuestHelper",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Vous avez %h(des nouvelles informations) pour %h1 et %h(des mises à jour) pour %h2.",
@@ -169,8 +172,8 @@ QuestHelper_Translations.frFR =
 
   MENU_CLOSE = "Fermer le menu",
   MENU_SETTINGS = "Options",
-  MENU_ENABLE = "Activé",
-  MENU_DISABLE = "Désactivé",
+  MENU_ENABLE = "Activer",
+  MENU_DISABLE = "Désactiver",
   MENU_OBJECTIVE_TIPS = "%1 les bulles d'aide pour les objectifs",
   MENU_TRACKER_OPTIONS = "Liste de quêtes",
   MENU_QUEST_TRACKER = "%1 la liste de quêtes",
@@ -184,7 +187,7 @@ QuestHelper_Translations.frFR =
   MENU_WAYPOINT_ARROW = "%1 le compas",
   MENU_MAP_BUTTON = "%1 le bouton sur la carte",
   MENU_ZONE_FILTER = "%1 le filtre de zone",
-  MENU_DONE_FILTER = "%1 filtre fait",
+  MENU_DONE_FILTER = "%1 filtré",
   MENU_BLOCKED_FILTER = "%1 filtre bloqué",
   MENU_WATCHED_FILTER = "%1 le filtrage des quêtes suivies",
   MENU_LEVEL_FILTER = "%1 le filtrage par niveau",
@@ -197,7 +200,7 @@ QuestHelper_Translations.frFR =
   MENU_PARTY_SHARE = "%1 le partage d'objectif",
   MENU_PARTY_SOLO = "%1 le prise en compte du groupe",
   MENU_HELP = "Aide",
-  MENU_HELP_SLASH = "Commandes avec barre oblique",
+  MENU_HELP_SLASH = "Commandes /",
   MENU_HELP_CHANGES = "Historique des modifications",
   MENU_HELP_SUBMIT = "Envoi de données",
   
@@ -208,6 +211,7 @@ QuestHelper_Translations.frFR =
   TOOLTIP_PURCHASE = "Acheter %h1.",
   TOOLTIP_SLAY = "À tuer pour %h1.",
   TOOLTIP_LOOT = "Ramasser pour le butin %h1.",
+  TOOLTIP_OPEN = "Expose pour %h1.",
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "Utilisera %h1 pour afficher les objectifs.",
@@ -218,15 +222,20 @@ QuestHelper_Translations.frFR =
   SETTINGS_PRECACHE_ON = "Le pré-chache a été %h(activé).",
   SETTINGS_PRECACHE_OFF = "Le pré-cache a été %h(désactivé).",
   
-  SETTINGS_MENU_ENABLE = "Activé",
-  SETTINGS_MENU_DISABLE = "Désactivé",
+  SETTINGS_MENU_ENABLE = "Activer",
+  SETTINGS_MENU_DISABLE = "Désactiver",
   SETTINGS_MENU_CARTWP = "%1 flèche de Cartographer",
   SETTINGS_MENU_TOMTOM = "%1 flèche TomTom",
   
-  SETTINGS_MENU_ARROW_LOCK = "Barrer",
+  SETTINGS_MENU_ARROW_LOCK = "Verrouiller",
   SETTINGS_MENU_ARROW_ARROWSCALE = "Taille de la Flèche",
   SETTINGS_MENU_ARROW_TEXTSCALE = "Taille du texte",
   SETTINGS_MENU_ARROW_RESET = "Remise à zéro",
+  
+  SETTINGS_MENU_INCOMPLETE = "Quêtes imcompletes",
+  
+  SETTINGS_RADAR_ON = "Radar de Minimap désenclenché! (beep, beep, beep)",
+  SETTINGS_RADAR_OFF = "Radar de Minimap enclenché. (whirrrrr, clunk) ",
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 yards",

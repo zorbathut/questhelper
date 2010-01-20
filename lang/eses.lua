@@ -27,6 +27,7 @@ QuestHelper_Translations.esES =
   -- Special tracker text
   QH_LOADING = "Cargando QuestHelper (%1%%)...",
   QH_FLIGHTPATH = "Recalculando rutas de vuelo (%1%)...",
+  QH_RECALCULATING = "Recalculando ruta(%1%)... ",
   QUESTS_HIDDEN_1 = "Puede haber misiones ocultas",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" para mostrarlas)",
   
@@ -46,11 +47,12 @@ QuestHelper_Translations.esES =
   OBJECTIVE_TALK = "Habla con %h1.",
   OBJECTIVE_SLAY = "Matar %h1.",
   OBJECTIVE_LOOT = "Recoger de %h1.",
+  OBJECTIVE_OPEN = "Abrir %h1.",
   
   OBJECTIVE_MONSTER_UNKNOWN = "monstruo desconocido",
   OBJECTIVE_ITEM_UNKNOWN = "objeto desconocido",
   
-  ZONE_BORDER_SIMPLE = "% frontera",
+  ZONE_BORDER_SIMPLE = "%1 frontera",
   
   -- Stuff used in objective menus.
   PRIORITY = "Prioridad",
@@ -63,13 +65,13 @@ QuestHelper_Translations.esES =
   SHARING_ENABLE = "Compartir",
   SHARING_DISABLE = "No Compartir",
   IGNORE = "Ignorar",
-  IGNORE_LOCATION = "Ignore esta posi",
+  IGNORE_LOCATION = "Ignore esta posicion",
   
   IGNORED_PRIORITY_TITLE = "La prioridad seleccionada podria ser ignorada.",
   IGNORED_PRIORITY_FIX = "Aplique la misma prioridad a los objetivos de bloqueo.",
   IGNORED_PRIORITY_IGNORE = "Voy a fijarme las prioridades a mí mismo.",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "Resultados de la búsqueda",
   NO_RESULTS = "¡No hay ninguno!",
   CREATED_OBJ = "Creado: %1",
@@ -77,14 +79,10 @@ QuestHelper_Translations.esES =
   USER_OBJ = "Objetivo de Usuario: %h1",
   UNKNOWN_OBJ = "No sé dónde hay que ir para ese objetivo.",
   INACCESSIBLE_OBJ = "QuestHelper ha sido incapaz de encontrar la ubicación de %h1. Se ha añadido una ubicacion \"imposible de encontrar\" en tu lista de objetivos. Si encuentras una versión alternativa de este objeto, por favor, remítelo (%h(/qh submit))",
-  
-  SEARCHING_STATE = "Buscando: %1",
-  SEARCHING_LOCAL = "Locales %1",
-  SEARCHING_STATIC = "Estáticas %1",
-  SEARCHING_ITEMS = "Objetos",
-  SEARCHING_NPCS = "NPCs",
-  SEARCHING_ZONES = "Zonas",
-  SEARCHING_DONE = "¡Hecho!",
+  FIND_REMOVE = "Cancelar objetivo",
+  FIND_NOT_READY = "QuestHelper no a cargado todavia. Por favor espera un minuto e intentalo de nuevo",
+  FIND_CUSTOM_LOCATION = "Localizacion personalizada del mapa",
+  FIND_USAGE = "Find no funciona si no le dices que buscar. Prueba %h(/qh help) para instrucciones.",
   
   -- Shared objectives.
   PEER_TURNIN = "Espere a %h1 a que entregue %h2.",
@@ -108,8 +106,9 @@ QuestHelper_Translations.esES =
   FILTERED_ZONE = "Filtrado debido a la zona.",
   FILTERED_COMPLETE = "Filtrado debido a completados.",
   FILTERED_BLOCKED = "Filtrado debido al objetivo anterior incompleto",
-  FILTERED_UNWATCHED = "filtrado, debido a que no está traqueado en el log de quests",
+  FILTERED_UNWATCHED = "Filtrado, debido a que no está traqueado en el log de quests",
   FILTERED_WINTERGRASP = "Filtrada por ser una quest PVP de Conquista del Invierno.",
+  FILTERED_RAID = "Filtrada debido a no ser completada en una raid",
   FILTERED_USER = "Pidió que este objetivo se ocultara.",
   FILTERED_UNKNOWN = "Desconozco cómo completarlo.",
   
@@ -122,6 +121,10 @@ QuestHelper_Translations.esES =
   FILTER_LEVEL = "nivel",
   FILTER_BLOCKED = "bloqueado",
   FILTER_WATCHED = "mostrado",
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = "Marcar para añadir esta tarea a QuestHelper.",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Tiene %h(nueva información) sobre %h1, y %h(información actualizada) sobre %h2.",
@@ -173,7 +176,7 @@ QuestHelper_Translations.esES =
   MENU_DISABLE = "Desactivar",
   MENU_OBJECTIVE_TIPS = "%1 Bocadillos de Misión",
   MENU_TRACKER_OPTIONS = "Rastreader de Misión",
-  MENU_QUEST_TRACKER = "%1 Rastreader de Misión",
+  MENU_QUEST_TRACKER = "%1 Rastreador de Misión",
   MENU_TRACKER_LEVEL = "%1 Niveles de Misión",
   MENU_TRACKER_QCOLOUR = "%1 Colores Dificultad de Misión",
   MENU_TRACKER_OCOLOUR = "%1 Colores Progreso de Objetivo",
@@ -208,6 +211,7 @@ QuestHelper_Translations.esES =
   TOOLTIP_PURCHASE = "Comprar %h1.",
   TOOLTIP_SLAY = "Matar para %h1.",
   TOOLTIP_LOOT = "Botín para %h1.",
+  TOOLTIP_OPEN = "Abrir para %h1",
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "Usara %h1 para mostrar objetivos.",
@@ -227,6 +231,11 @@ QuestHelper_Translations.esES =
   SETTINGS_MENU_ARROW_ARROWSCALE = "Escala de la flecha",
   SETTINGS_MENU_ARROW_TEXTSCALE = "Escala del texto",
   SETTINGS_MENU_ARROW_RESET = "Resetear",
+  
+  SETTINGS_MENU_INCOMPLETE = "Misiones Incompletas",
+  
+  SETTINGS_RADAR_ON = "Minimap radar conectado! (beep, beep, beep)",
+  SETTINGS_RADAR_OFF = "Minimap radar desconectado. (whirrrrr, clunk)",
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 Yardas",

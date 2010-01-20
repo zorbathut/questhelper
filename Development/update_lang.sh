@@ -12,8 +12,9 @@ cd ..
 
 git status &> /dev/null && die "Working directory not clean; script may have crashed last run."
 
-SSH_REMOTE="qhbot@idiotbox-03"
-WEB_REMOTE="http://smariot.hopto.org/translate/"
+SSH_REMOTE="qhbot@luna"
+WEB_REMOTE="http://smariot.no-ip.org/translate/"
+SERVER_PATH="/home/lighttpd/default/cgi/lang"
 
 function filter_names {
   # Keep only the '____.lua' portion of a name.
@@ -22,7 +23,7 @@ function filter_names {
 
 function remote_list {
   # Get list of files on the server.
-  ${GIT_SSH} ${SSH_REMOTE} "ls -1 /server/http/cgi/lang/lang_????.lua" | filter_names
+  ${GIT_SSH} ${SSH_REMOTE} "ls -1 ${SERVER_PATH}/lang_????.lua" | filter_names
 }
 
 function local_list {
@@ -32,7 +33,7 @@ function local_list {
 
 function changed {
   # Check if the file on the server matches the local file.
-  if [ "`${GIT_SSH} ${SSH_REMOTE} \"cat /server/http/cgi/lang/lang_${1} | sha1sum -\"`" == "`cat lang/${1} | sha1sum -`" ] ; then
+  if [ "`${GIT_SSH} ${SSH_REMOTE} \"cat ${SERVER_PATH}/lang_${1} | sha1sum -\"`" == "`cat lang/${1} | sha1sum -`" ] ; then
     echo "same"
   else
     echo "changed"
@@ -43,12 +44,7 @@ function uploadifchanged {
   # Uploads a local file to the server, if it has been changed.
   if [ `changed ${1}` == "changed" ] ; then
     echo "Uploading ${1}..."
-    ${GIT_SSH} ${SSH_REMOTE} "cat > /server/http/cgi/lang/lang_${1}" < lang/${1} || die "Error uploading '${1}'."
-    
-    # Make sure webserver is able to write to this file.
-    # Sorry whoever put all that work into editing csCZ; I'm sure seeing the 'unable to save' message was disheartening,
-    # but fear not, it was emailed to me, and I applied it for you. :)
-    ${GIT_SSH} ${SSH_REMOTE} "chmod g+w /server/http/cgi/lang/lang_${1}" || die "Error making file writable '${1}'."
+    ${GIT_SSH} ${SSH_REMOTE} "cat > ${SERVER_PATH}/lang_${1}" < lang/${1} || die "Error uploading '${1}'."
   fi
 }
 
@@ -115,17 +111,18 @@ git add QuestHelper.toc || die "Error adding 'QuestHelper.toc' to repository."
 
 # Step four, create the commit.
 echo "Creating a new commit."
-git commit -m "Automated update from: http://smariot.hopto.org/translate" &> /dev/null || die "Error creating commit. (Possibly because there was nothing to commit.)"
+git commit -m "Automated update from: http://smariot.no-ip.org/translate" &> /dev/null || die "Error creating commit. (Possibly because there was nothing to commit.)"
 
-# Step five, merge with master.
-git pull . master &> /dev/null || die "Error merging with 'master' into translations."
+# Step five, rebase with master (prettier history than merging).
+git rebase master &> /dev/null || die "Error rebasing with 'master'."
+#git pull . master &> /dev/null || die "Error merging with 'master' into translations."
 
 # Step six, delete any removed translations.
 for FILE in `remote_list` ; do
   if [ ${FILE} != "enus.lua" ] ; then
     if [ ! -e "lang/${FILE}" ] ; then
       echo "Deleting ${FILE} from the server."
-      ${GIT_SSH} ${SSH_REMOTE} "rm /server/http/cgi/lang/lang_${FILE}" || die "Error deleting '${FILE}' from server."
+      ${GIT_SSH} ${SSH_REMOTE} "rm ${SERVER_PATH}/lang_${FILE}" || die "Error deleting '${FILE}' from server."
     fi
   fi
 done
@@ -143,6 +140,7 @@ git pull . translations &> /dev/null || die "Error pulling changes from 'transla
 
 # Step nine, push the changes back to the server.
 echo "Pushing changes..."
-git push qhbot master --tags &> /dev/null || die "Error pushing changes."
+echo "(Not really)"
+#git push qhbot master --tags &> /dev/null || die "Error pushing changes."
 
 echo "All done!"

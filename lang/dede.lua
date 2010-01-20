@@ -12,8 +12,8 @@ QuestHelper_Translations.deDE =
   PRIVATE_SERVER = "QuestHelper unterstützt keine privaten Server.",
   PLEASE_RESTART = "Beim Starten von QuestHelper ist ein Fehler aufgetreten. Beende World of Warcraft vollständig und versuche es erneut.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper wurde nicht ordnungsgemäß installiert. Wir empfehlen den Curse-Client oder 7zip für die Installation. Achte darauf, dass Unterverzeichnisse entpackt werden.",
-  PLEASE_SUBMIT = "%h (QuestHelper braucht deine Unterstützung!) Wenn du ein paar Minuten Zeit hast, geh' bitte auf die QuestHelper-Homepage %h(http://www.quest-helper.com) und führe die Anweisungen aus, um deine gesammelten Daten zu übermitteln. Deine Daten halten QuestHelper auf dem aktuellen Stand. Vielen Dank!",
-  HOW_TO_CONFIGURE = "QuestHelper hat noch keine funktionierende Einstellungsseite. Du kannst dies konfigurieren, indem du %h(/qh settings) eingibst. Mit %h(/qh help) rufst du die Hilfe auf.",
+  PLEASE_SUBMIT = "%h(QuestHelper braucht deine Unterstützung!) Wenn du ein paar Minuten Zeit hast, ruf die QuestHelper-Homepage %h(http://www.quest-helper.com) auf und führe die Anweisungen aus, um deine gesammelten Daten zu übermitteln. Deine Daten halten QuestHelper auf dem aktuellen Stand. Vielen Dank!",
+  HOW_TO_CONFIGURE = "QuestHelper hat noch keine funktionierende Einstellungsseite. Du kannst es konfigurieren, indem du %h(/qh settings) eingibst. Mit %h(/qh help) rufst du die Hilfe auf.",
   TIME_TO_UPDATE = "Möglicherweise ist eine %h(neue QuestHelper-Version) verfügbar. Neue Versionen umfassen gewöhnlich neue Funktionen, neue Questdatenbanken und Bugfixes. Du solltest ein Update durchführen!",
   
   -- Route related text.
@@ -27,8 +27,9 @@ QuestHelper_Translations.deDE =
   -- Special tracker text
   QH_LOADING = "QuestHelper wird geladen... (%1%)",
   QH_FLIGHTPATH = "Flugstrecken werden neu berechnet... (%1%)",
+  QH_RECALCULATING = "Route wird neu berechnet (%1)",
   QUESTS_HIDDEN_1 = "Quests sind vielleicht ausgeblendet.",
-  QUESTS_HIDDEN_2 = "(\"/qh hidden\" zum Auflisten)",
+  QUESTS_HIDDEN_2 = "(Rechtsklick zum Auflisten)",
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Verfügbare Sprachen:",
@@ -46,11 +47,12 @@ QuestHelper_Translations.deDE =
   OBJECTIVE_TALK = "Sprich mit %h1.",
   OBJECTIVE_SLAY = "Töte %h1.",
   OBJECTIVE_LOOT = "Erbeute %h1.",
+  OBJECTIVE_OPEN = "Öffne %h1.",
   
   OBJECTIVE_MONSTER_UNKNOWN = "unbekanntes Monster",
   OBJECTIVE_ITEM_UNKNOWN = "unbekanntes Objekt",
   
-  ZONE_BORDER_SIMPLE = nil,
+  ZONE_BORDER_SIMPLE = "Grenze %1",
   
   -- Stuff used in objective menus.
   PRIORITY = "Priorität",
@@ -69,7 +71,7 @@ QuestHelper_Translations.deDE =
   IGNORED_PRIORITY_FIX = "Den blockierenden Zielen dieselbe Priorität zuweisen.",
   IGNORED_PRIORITY_IGNORE = "Ich werde die Prioritäten selbst festlegen.",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "Suchergebnisse",
   NO_RESULTS = "Es gibt keine!",
   CREATED_OBJ = "Erstellt: %1",
@@ -77,14 +79,10 @@ QuestHelper_Translations.deDE =
   USER_OBJ = "Benutzerziel: %h1",
   UNKNOWN_OBJ = "QuestHelper weiß nicht, wo du für dieses Ziel hingehen solltest.",
   INACCESSIBLE_OBJ = "QuestHelper konnte keinen sinnvollen Ort für %h1 finden. Wir haben deiner Aufgabenliste einen möglicherweise nicht zu findenden Ort hinzugefügt. Wenn du eine nützliche Version dieses Objekts findest, sende deine Daten bitte ein!",
-  
-  SEARCHING_STATE = "Suche: %1",
-  SEARCHING_LOCAL = "Lokale %1",
-  SEARCHING_STATIC = "Statische %1",
-  SEARCHING_ITEMS = "Gegenstände",
-  SEARCHING_NPCS = "NPCs",
-  SEARCHING_ZONES = "Zonen",
-  SEARCHING_DONE = "Fertig!",
+  FIND_REMOVE = "Ziel aufgeben",
+  FIND_NOT_READY = "QuestHelper ist noch nicht vollständig geladen. Bitte eine Minute warten und dann nocheinmal probieren.",
+  FIND_CUSTOM_LOCATION = "Benutzerdefinierte Kartenposition",
+  FIND_USAGE = "Find klappt nicht, wenn du nicht angibst, was gefunden werden soll. Versuche %h(/qh help) für Anweisungen.",
   
   -- Shared objectives.
   PEER_TURNIN = "Warte auf %h1, um %h2 abzugeben.",
@@ -100,8 +98,8 @@ QuestHelper_Translations.deDE =
   -- Hidden objectives.
   HIDDEN_TITLE = "Versteckte Ziele",
   HIDDEN_NONE = "Es sind keine Ziele ausgeblendet.",
-  DEPENDS_ON_SINGLE = "Ist abhängig von '%1'.",
-  DEPENDS_ON_COUNT = "Ist abhängig von %1 versteckten Zielen.",
+  DEPENDS_ON_SINGLE = "Ist abhängig von: '%1'.",
+  DEPENDS_ON_COUNT = "Ist abhängig von %1 versteckten Ziel(en).",
   DEPENDS_ON = "Ist abhängig von gefilterten Zielen.",
   FILTERED_LEVEL = "Wegen der Stufe gefiltert.",
   FILTERED_GROUP = "Wegen der Gruppengröße gefiltert.",
@@ -110,6 +108,7 @@ QuestHelper_Translations.deDE =
   FILTERED_BLOCKED = "Wegen nicht abgeschlossenem vorherigen Ziel gefiltert.",
   FILTERED_UNWATCHED = "Wird nicht im Questprotokoll verfolgt und wurde deshalb gefiltert.",
   FILTERED_WINTERGRASP = "Gefiltert, weil Tausendwinter-PvP-Quest.",
+  FILTERED_RAID = "Gefiltert, weil nicht in einem Schlachtzug machbar.",
   FILTERED_USER = "Du hast dieses Ziel ausgeblendet.",
   FILTERED_UNKNOWN = "Der Lösungsweg ist unbekannt.",
   
@@ -121,7 +120,11 @@ QuestHelper_Translations.deDE =
   FILTER_ZONE = "Gebiet",
   FILTER_LEVEL = "Stufe",
   FILTER_BLOCKED = "blockiert",
-  FILTER_WATCHED = "Beobachtet",
+  FILTER_WATCHED = "beobachtet",
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = "Klicken, um diesen Erfolg zu QuestHelper hinzuzufügen.",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Du hast %h(neue Informationen) zu %h1 und %h(aktualisierte Informationen) zu %h2.",
@@ -144,14 +147,14 @@ QuestHelper_Translations.deDE =
   NAG_SINGLE_PLAYER_OBJ = "einem Spielerziel",
   
   NAG_MULTIPLE_FP = "%1 Flugmeister",
-  NAG_MULTIPLE_QUEST = "%1 Queste",
+  NAG_MULTIPLE_QUEST = "%1 Quests",
   NAG_MULTIPLE_ROUTE = "%1 Flugstrecken",
   NAG_MULTIPLE_ITEM_OBJ = "%1 Gegenstandszielen",
-  NAG_MULTIPLE_OBJECT_OBJ = "%1 Objektziele",
-  NAG_MULTIPLE_MONSTER_OBJ = "%1 Monsterziele",
+  NAG_MULTIPLE_OBJECT_OBJ = "%1 Objektzielen",
+  NAG_MULTIPLE_MONSTER_OBJ = "%1 Monsterzielen",
   NAG_MULTIPLE_EVENT_OBJ = "%1 Ereigniszielen",
-  NAG_MULTIPLE_REPUTATION_OBJ = "%1 Rufziele",
-  NAG_MULTIPLE_PLAYER_OBJ = "%1 Spielerziele",
+  NAG_MULTIPLE_REPUTATION_OBJ = "%1 Rufzielen",
+  NAG_MULTIPLE_PLAYER_OBJ = "%1 Spielerzielen",
   
   -- Stuff used by dodads.
   PEER_PROGRESS = "%1's Fortschritte:",
@@ -203,11 +206,12 @@ QuestHelper_Translations.deDE =
   
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
   -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
-  TOOLTIP_WATCHED = "Von QuestHelper beobachtet.",
+  TOOLTIP_WATCHED = "Von QuestHelper beobachtet",
   TOOLTIP_QUEST = "Für die Quest %h1.",
   TOOLTIP_PURCHASE = "Kaufe %h1.",
   TOOLTIP_SLAY = "Töte für %h1.",
   TOOLTIP_LOOT = "Erbeute für %h1.",
+  TOOLTIP_OPEN = "Öffne für %h1.",
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "%h1 wird zur Zieldarstellung verwendet.",
@@ -215,8 +219,8 @@ QuestHelper_Translations.deDE =
   SETTINGS_ARROWLINK_ARROW = "QuestHelper-Richtungspfeil",
   SETTINGS_ARROWLINK_CART = "Cartographer-Wegpunkte",
   SETTINGS_ARROWLINK_TOMTOM = "TomTom",
-  SETTINGS_PRECACHE_ON = "Precache wurde %h(aktiviert).",
-  SETTINGS_PRECACHE_OFF = "Precache wurde %h(deaktiviert).",
+  SETTINGS_PRECACHE_ON = "Vorabspeichern wurde %h(aktiviert).",
+  SETTINGS_PRECACHE_OFF = "Vorabspeichern wurde %h(deaktiviert).",
   
   SETTINGS_MENU_ENABLE = "aktivieren",
   SETTINGS_MENU_DISABLE = "deaktivieren",
@@ -227,6 +231,11 @@ QuestHelper_Translations.deDE =
   SETTINGS_MENU_ARROW_ARROWSCALE = "Pfeilgröße",
   SETTINGS_MENU_ARROW_TEXTSCALE = "Textgröße",
   SETTINGS_MENU_ARROW_RESET = "Zurücksetzen",
+  
+  SETTINGS_MENU_INCOMPLETE = "Unvollständige Quests",
+  
+  SETTINGS_RADAR_ON = "Minimap-Radar eingeschaltet! (piep, piep, piep)",
+  SETTINGS_RADAR_OFF = "Minimap-Radar ausgeschaltet. (wiiiiie, klick)",
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 Yard",

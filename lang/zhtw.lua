@@ -27,6 +27,7 @@ QuestHelper_Translations.zhTW =
   -- Special tracker text
   QH_LOADING = "QestHelper正在載入（%1%%）...",
   QH_FLIGHTPATH = "重新計算飛行路線中 (%1%)...",
+  QH_RECALCULATING = nil,
   QUESTS_HIDDEN_1 = "任務可能已隱藏",
   QUESTS_HIDDEN_2 = "(“/qh 隱藏“ 於列表中“）",
   
@@ -46,6 +47,7 @@ QuestHelper_Translations.zhTW =
   OBJECTIVE_TALK = "與 %1 交談",
   OBJECTIVE_SLAY = "殺死 %h1",
   OBJECTIVE_LOOT = "拾取 %h1",
+  OBJECTIVE_OPEN = nil,
   
   OBJECTIVE_MONSTER_UNKNOWN = "未知的怪物",
   OBJECTIVE_ITEM_UNKNOWN = "未知的物品",
@@ -69,7 +71,7 @@ QuestHelper_Translations.zhTW =
   IGNORED_PRIORITY_FIX = "將同樣的優先次序設定，套用到被勾選的項目上",
   IGNORED_PRIORITY_IGNORE = "我想要自己設定任務執行的優先次序",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "搜尋結果",
   NO_RESULTS = "抱歉，查無資料",
   CREATED_OBJ = "製造了 %1",
@@ -77,14 +79,10 @@ QuestHelper_Translations.zhTW =
   USER_OBJ = "玩家目的: %h1",
   UNKNOWN_OBJ = "我不知道您應該前往哪個目的.",
   INACCESSIBLE_OBJ = "QuestHelper無法針對 %h1 有用的地點，已經在您的任務目標列表中註明無法找到‧如果您找到相關正確資料請上傳分享! (%h(/qh submit))",
-  
-  SEARCHING_STATE = "搜尋中： %1",
-  SEARCHING_LOCAL = "地區 %1",
-  SEARCHING_STATIC = "狀態 %1",
-  SEARCHING_ITEMS = "物品",
-  SEARCHING_NPCS = "NPCs",
-  SEARCHING_ZONES = "地區",
-  SEARCHING_DONE = "完成！",
+  FIND_REMOVE = nil,
+  FIND_NOT_READY = nil,
+  FIND_CUSTOM_LOCATION = nil,
+  FIND_USAGE = nil,
   
   -- Shared objectives.
   PEER_TURNIN = "等待%h1 接受任務 %h2.",
@@ -110,6 +108,7 @@ QuestHelper_Translations.zhTW =
   FILTERED_BLOCKED = "以先前未完成的目標過濾",
   FILTERED_UNWATCHED = "隱藏未設定任務追蹤的任務",
   FILTERED_WINTERGRASP = nil,
+  FILTERED_RAID = nil,
   FILTERED_USER = "您已設定此物件為隱藏",
   FILTERED_UNKNOWN = "不知道如何完成任務",
   
@@ -122,6 +121,10 @@ QuestHelper_Translations.zhTW =
   FILTER_LEVEL = "等級",
   FILTER_BLOCKED = "封鎖",
   FILTER_WATCHED = "已查閱",
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "您有%h(新的)%h1資料，並且%h(更新了)%h2資料。",
@@ -208,6 +211,7 @@ QuestHelper_Translations.zhTW =
   TOOLTIP_PURCHASE = "購買 %h1.",
   TOOLTIP_SLAY = "殺死為了 %h1.",
   TOOLTIP_LOOT = "收集為了 %h1.",
+  TOOLTIP_OPEN = nil,
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "將使用 %h1 顯示標的.",
@@ -227,6 +231,11 @@ QuestHelper_Translations.zhTW =
   SETTINGS_MENU_ARROW_ARROWSCALE = "箭頭指標大小",
   SETTINGS_MENU_ARROW_TEXTSCALE = "字體大小",
   SETTINGS_MENU_ARROW_RESET = "重置",
+  
+  SETTINGS_MENU_INCOMPLETE = nil,
+  
+  SETTINGS_RADAR_ON = nil,
+  SETTINGS_RADAR_OFF = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 碼距離",

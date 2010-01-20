@@ -27,6 +27,7 @@ QuestHelper_Translations.koKR =
   -- Special tracker text
   QH_LOADING = "QuestHelper를 불러오는 중 (%1%%)...",
   QH_FLIGHTPATH = "비행 경로 재계산중 (%1%)...",
+  QH_RECALCULATING = nil,
   QUESTS_HIDDEN_1 = "감춰둔 퀘스트가 있을 지 모름",
   QUESTS_HIDDEN_2 = "(목록은 \"/qh hidden\")",
   
@@ -46,6 +47,7 @@ QuestHelper_Translations.koKR =
   OBJECTIVE_TALK = "%h1|1과;와; 대화하라.",
   OBJECTIVE_SLAY = "%h1|1을;를; 처치하라.",
   OBJECTIVE_LOOT = "%h1|1을;를; 획득하라.",
+  OBJECTIVE_OPEN = nil,
   
   OBJECTIVE_MONSTER_UNKNOWN = "알 수 없는 몬스터",
   OBJECTIVE_ITEM_UNKNOWN = "알 수 없는 아이템",
@@ -69,7 +71,7 @@ QuestHelper_Translations.koKR =
   IGNORED_PRIORITY_FIX = "차단된 퀘스트에 동일한 중요도를 적용하세요.",
   IGNORED_PRIORITY_IGNORE = "나는 나 스스로 중요도를 설정 할 것입니다.",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "검색 결과",
   NO_RESULTS = "결과를 찾을 수 없습니다!",
   CREATED_OBJ = "생성: %1",
@@ -77,14 +79,10 @@ QuestHelper_Translations.koKR =
   USER_OBJ = "사용자 목적: %h1",
   UNKNOWN_OBJ = "목적 달성을 위해 어디로 가야하는지 알 수 없습니다.",
   INACCESSIBLE_OBJ = "QuestHelper는 %h1의 위치를 찾지 못했습니다. 우리는 가장 가능성 있는 위치를 목표에 추가했습니다. 만약 이 목표에 대해 정확한 정보를 알고 계시다면 당신의 데이터를 보내주세요! %h(/qh submit))",
-  
-  SEARCHING_STATE = "검색중: %1",
-  SEARCHING_LOCAL = "%1 구역",
-  SEARCHING_STATIC = "%1 전역",
-  SEARCHING_ITEMS = "아이템",
-  SEARCHING_NPCS = "NPC",
-  SEARCHING_ZONES = "지역",
-  SEARCHING_DONE = "완료!",
+  FIND_REMOVE = nil,
+  FIND_NOT_READY = nil,
+  FIND_CUSTOM_LOCATION = nil,
+  FIND_USAGE = nil,
   
   -- Shared objectives.
   PEER_TURNIN = "%h2|1을;를; 진행하기 위해 %h1|1을;를; 기다리세요.",
@@ -110,6 +108,7 @@ QuestHelper_Translations.koKR =
   FILTERED_BLOCKED = "이전 퀘스트를 달성하지 못해 분류됨.",
   FILTERED_UNWATCHED = "퀘스트 목록에 추적되지 않아 분류됨.",
   FILTERED_WINTERGRASP = "겨울손아귀 PvP 퀘스트에 의해 분류됨.",
+  FILTERED_RAID = nil,
   FILTERED_USER = "당신의 요청에 의해 이 퀘스트는 감춰짐.",
   FILTERED_UNKNOWN = "완료 방법을 알 수 없음.",
   
@@ -122,6 +121,10 @@ QuestHelper_Translations.koKR =
   FILTER_LEVEL = "레벨",
   FILTER_BLOCKED = "차단됨",
   FILTER_WATCHED = "추적됨",
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "%h1|1과;와; %h2의 정보 그리고, %h(%s3)지역의 정보를 갱신하였습니다.",
@@ -208,6 +211,7 @@ QuestHelper_Translations.koKR =
   TOOLTIP_PURCHASE = "%h1|1을;를; 구입하라.",
   TOOLTIP_SLAY = "%h1|1을;를; 처치하라.",
   TOOLTIP_LOOT = "%h1|1을;를; 획득하라.",
+  TOOLTIP_OPEN = nil,
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "목표 표시를 %h1|1으로;로; 사용합니다.",
@@ -227,6 +231,11 @@ QuestHelper_Translations.koKR =
   SETTINGS_MENU_ARROW_ARROWSCALE = "화살표 크기",
   SETTINGS_MENU_ARROW_TEXTSCALE = "글자 크기",
   SETTINGS_MENU_ARROW_RESET = "초기화",
+  
+  SETTINGS_MENU_INCOMPLETE = nil,
+  
+  SETTINGS_RADAR_ON = nil,
+  SETTINGS_RADAR_OFF = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 미터",
