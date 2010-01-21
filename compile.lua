@@ -3,7 +3,7 @@
 -- Loot reset starting at 1.2.4?
 
 local do_zone_map = false
-local do_errors = true
+local do_errors = false
 
 local do_compile = true
 local do_questtables = true
@@ -20,10 +20,10 @@ dbg_data = false
 
 if dbg_data then do_cull = false do_compress = false end
 
---local s = 47411
---local e = 47411
+--local s = 100653
+--local e = 100655
 --local s = 0
---local e = 10000
+--local e = 100
 
 require "compile_lib"
 require "overrides"
@@ -38,15 +38,18 @@ local versix = nil
 local chainhead = ChainBlock_Create("parse", nil,
   function () return {
     Data = function (self, key, subkey, value, Output)
+      --print("data", key)
       local gzx = gzio.open(key, "r")
+      if not gzx then print("Couldn't open", key) end
       local gzd = gzx:read("*a")
       gzx:close()
       gzx = nil
       local dat = pluto.unpersist({}, gzd)
+      --print("plutid")
       gzd = nil
       assert(dat)
       
-      if do_errors and dat.errors and false then
+      if do_errors and dat.errors then
         for k, v in pairs(dat.errors) do
           --do continue end -- ARGH
           if k ~= "version" then
@@ -58,6 +61,52 @@ local chainhead = ChainBlock_Create("parse", nil,
           end
         end
       end
+      
+      if not dat.data then return end
+      if not dat.data.realms then return end
+      
+      -- now we cull
+      local all_valid_realms = true
+      local has_realms = false
+      for k in pairs(dat.data.realms) do
+        has_realms = true
+        local tinv = false
+        if k:find("%.") then tinv = true end
+        if k:find("%(") then tinv = true end
+        if k:find("%-") then tinv = true end
+        if k:find("%{") then tinv = true end
+        if k:find("%[") then tinv = true end
+        if k:find("%d") then tinv = true end
+        
+        if k:lower():find("wow") then tinv = true end
+        if k:lower():find("wotlk") then tinv = true end
+        if k:lower():find("rate") then tinv = true end
+        if k:lower():find("high") then tinv = true end
+        if k:lower():find("server") then tinv = true end
+        if k:lower():find("realm") then tinv = true end
+        
+        -- exceptions
+        if k == "Area 52" then tinv = false end
+        if k == "Azjol-Nerub" then tinv = false end
+        if k == "Arak-arahm" then tinv = false end  -- french server
+        
+        if tinv then
+          print("Tossing server data " .. k)
+          all_valid_realms = false
+        end
+      end
+      
+      if not has_realms then all_valid_realms = false end
+      
+      if dat.data.realms then for rname, rval in pairs(dat.data.realms) do
+        if all_valid_realms then
+          Output(rname, nil, rval, "realm_collater")
+        else
+          Output("CULLED " .. rname, nil, rval, "realm_collater")
+        end
+      end end
+      
+      if not all_valid_realms then return end
       
       local qhv, wowv, locale, faction = string.match(dat.signature, "([0-9.]+) on ([0-9.]+)/([a-zA-Z]+)/([12])")
       if qhv and wowv and locale and faction
@@ -2806,6 +2855,43 @@ QuestHelper_Loadtime["%s.lua"] = GetTime()
       fil:close()
     end,
   } end
+)
+
+--[[
+*****************************************************************
+Realm collation
+]]
+
+local realm_collater = ChainBlock_Create("realm_collater", {chainhead},
+  function (key) return {
+    v = 0,
+    
+    Data = function (self, key, subkey, value, Output)
+      self.v = self.v + 1
+    end,
+    
+    Finish = function(self, Output)
+      Output("", nil, {realm = key, frequency = self.v}, "realm_output")
+    end
+  } end, nil, "realm_collater"
+)
+
+local realm_output = ChainBlock_Create("realm_output", {realm_collater},
+  function (key) return {
+    dt = {},
+    Data = function (self, key, subkey, value, Output)
+      table.insert(self.dt, value)
+    end,
+    Finish = function(self, Output)
+      table.sort(self.dt, function(a, b) return a.frequency < b.frequency end)
+      
+      local fil = io.open("intermed/realmlist.txt", "wb")
+      for _, v in ipairs(self.dt) do
+        fil:write(string.format("%s: %d\n", v.realm, v.frequency))
+      end
+      fil:close()
+    end,
+  } end, nil, "realm_output"
 )
 
 --[[

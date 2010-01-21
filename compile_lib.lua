@@ -72,6 +72,23 @@ local QH_ZL = {}
 local QH_AL = {}
 
 local lookups = {
+  { -- identical to 3.2
+    realnames = {
+      {"Ashenvale", "Azshara", "Azuremyst Isle", "Bloodmyst Isle", "Darkshore", "Darnassus", "Desolace", "Durotar", "Dustwallow Marsh", "Felwood", "Feralas", "Moonglade", "Mulgore", "Orgrimmar", "Silithus", "Stonetalon Mountains", "Tanaris", "Teldrassil", "The Barrens", "The Exodar", "Thousand Needles", "Thunder Bluff", "Un'Goro Crater", "Winterspring"},
+      {"Alterac Mountains", "Arathi Highlands", "Badlands", "Blasted Lands", "Burning Steppes", "Deadwind Pass", "Dun Morogh", "Duskwood", "Eastern Plaguelands", "Elwynn Forest", "Eversong Woods", "Ghostlands", "Hillsbrad Foothills", "Ironforge", "Isle of Quel'Danas", "Loch Modan", "Redridge Mountains", "Searing Gorge", "Silvermoon City", "Silverpine Forest", "Stormwind City", "Stranglethorn Vale", "Swamp of Sorrows", "The Hinterlands", "Tirisfal Glades", "Undercity", "Western Plaguelands", "Westfall", "Wetlands"},
+      {"Blade's Edge Mountains", "Hellfire Peninsula", "Nagrand", "Netherstorm", "Shadowmoon Valley", "Shattrath City", "Terokkar Forest", "Zangarmarsh"},
+      {"Borean Tundra", "Crystalsong Forest", "Dalaran", "Dragonblight", "Grizzly Hills", "Howling Fjord", "Hrothgar's Landing", "Icecrown", "Sholazar Basin", "The Storm Peaks", "Wintergrasp", "Zul'Drak"},
+    },
+    mapnames = {
+      {"Ashenvale", "Aszhara", "AzuremystIsle", "BloodmystIsle", "Darkshore", "Darnassis", "Desolace", "Durotar", "Dustwallow", "Felwood", "Feralas", "Moonglade", "Mulgore", "Ogrimmar", "Silithus", "StonetalonMountains", "Tanaris", "Teldrassil", "Barrens", "TheExodar", "ThousandNeedles", "ThunderBluff", "UngoroCrater", "Winterspring", [0] = "Kalimdor"},
+      {"Alterac", "Arathi", "Badlands", "BlastedLands", "BurningSteppes", "DeadwindPass", "DunMorogh", "Duskwood", "EasternPlaguelands", "Elwynn", "EversongWoods", "Ghostlands", "Hilsbrad", "Ironforge", "Sunwell", "LochModan", "Redridge", "SearingGorge", "SilvermoonCity", "Silverpine", "Stormwind", "Stranglethorn", "SwampOfSorrows", "Hinterlands", "Tirisfal", "Undercity", "WesternPlaguelands", "Westfall", "Wetlands", [0] = "Azeroth"},
+      {"BladesEdgeMountains", "Hellfire", "Nagrand", "Netherstorm", "ShadowmoonValley", "ShattrathCity", "TerokkarForest", "Zangarmarsh", [0] = "Expansion01"},
+      {"BoreanTundra", "CrystalsongForest", "Dalaran", "Dragonblight", "GrizzlyHills", "HowlingFjord", "HrothgarsLanding", "IcecrownGlacier", "SholazarBasin", "TheStormPeaks", "LakeWintergrasp", "ZulDrak", [0] = "Northrend"},
+    },
+    iswrath32 = true,
+    output_id = "3.3",
+  },
+  
   {
     realnames = {
       {"Ashenvale", "Azshara", "Azuremyst Isle", "Bloodmyst Isle", "Darkshore", "Darnassus", "Desolace", "Durotar", "Dustwallow Marsh", "Felwood", "Feralas", "Moonglade", "Mulgore", "Orgrimmar", "Silithus", "Stonetalon Mountains", "Tanaris", "Teldrassil", "The Barrens", "The Exodar", "Thousand Needles", "Thunder Bluff", "Un'Goro Crater", "Winterspring"},
@@ -88,6 +105,7 @@ local lookups = {
     iswrath32 = true,
     output_id = "3.2",
   },
+  
   {
     realnames = {
       {"Ashenvale", "Azshara", "Azuremyst Isle", "Bloodmyst Isle", "Darkshore", "Darnassus", "Desolace", "Durotar", "Dustwallow Marsh", "Felwood", "Feralas", "Moonglade", "Mulgore", "Orgrimmar", "Silithus", "Stonetalon Mountains", "Tanaris", "Teldrassil", "The Barrens", "The Exodar", "Thousand Needles", "Thunder Bluff", "Un'Goro Crater", "Winterspring"},

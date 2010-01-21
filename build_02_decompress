@@ -79,6 +79,7 @@ failures = [
   
   # DENIED
   "Microsoft Office Document",  # Yeah fuckin' right.
+  "Microsoft Word Document",  # ugh
   "OpenDocument Text",  # Not worth it.
   "HTML document text", # "Please find the file attached." No.
   "Lisp/Scheme program text", # For some reason it's interpreting some chunk of HTML as lisp/scheme. I have no fucking clue why. In any case, HTML isn't likely to be useful either.
