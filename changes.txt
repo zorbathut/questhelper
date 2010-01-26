@@ -1,4 +1,10 @@
 
+== Version 1.3.10 1/26/2010 ==
+
+* More instrumentation, more DB update. I'm hoping to get some of these bugs squashed but I still need more debug reports, so keep 'em coming.
+
+Let's have it for another game! [[http://www.mandible.net/|Mr. McDougal's Marvelous Upside-Down Electrotree]] took far longer than I'd really expected, but //it is here now// and so you should play it.
+
 == Version 1.3.9 1/20/2010 ==
 
 * More instrumentation for a few more weird bugs I'm seeing. Keep reporting 'em, I'm not quite sure what's going on yet
