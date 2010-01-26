@@ -72,8 +72,8 @@ QuestHelper_Translations.enUS =
   HOME_NOT_KNOWN = "Your home isn't known. When you get a chance, please talk to your innkeeper and reset it.",
   PRIVATE_SERVER = "QuestHelper does not support private servers.",
   PLEASE_RESTART = "There was an error starting QuestHelper. Please exit World of Warcraft entirely and try again. If this problem continues, you may need to reinstall QuestHelper.",
-  NOT_UNZIPPED_CORRECTLY = "QuestHelper was installed incorrectly. We recommend using either the Curse Client or 7zip to install. Make sure subdirectories are extracted.",
-  PLEASE_SUBMIT = "%h(QuestHelper needs your help!) If you have a few minutes, please head to the QuestHelper homepage at %h(http://www.questhelp.us) and follow the instructions to submit your collected data. Your data keeps QuestHelper correct and up-to-date. Thanks!",
+  NOT_UNZIPPED_CORRECTLY = "QuestHelper was installed incorrectly. We recommend using the Curse Client to install. Download at %h(http://www.questhelp.us).",
+  PLEASE_SUBMIT = "%h(Submitted your data to QuestHelper lately?) QuestHelper relies on user-submitted data to keep its database accurate. If you have a few minutes, head to the QuestHelper homepage at %h(http://www.questhelp.us) and follow the instructions. Thanks!",
   HOW_TO_CONFIGURE = "QuestHelper does not yet have a working settings page, but can be configured by typing %h(/qh settings). Help is available with %h(/qh help).",
   TIME_TO_UPDATE = "There may be a %h(new QuestHelper version) available. New versions usually include new features, new quest databases, and bugfixes. Please update!",
   
