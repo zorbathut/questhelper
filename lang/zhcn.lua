@@ -27,6 +27,7 @@ QuestHelper_Translations.zhCN =
   -- Special tracker text
   QH_LOADING = "QestHelper正在载入（%1%%）...",
   QH_FLIGHTPATH = "重新计算飞行路线中 (%1%)...",
+  QH_RECALCULATING = nil,
   QUESTS_HIDDEN_1 = "任务可能已隐藏",
   QUESTS_HIDDEN_2 = "(“/qh hidden“ 到列表“）",
   
@@ -46,6 +47,7 @@ QuestHelper_Translations.zhCN =
   OBJECTIVE_TALK = "与 %h1 交谈.",
   OBJECTIVE_SLAY = "击杀 %h1.",
   OBJECTIVE_LOOT = "拾取 %h1.",
+  OBJECTIVE_OPEN = nil,
   
   OBJECTIVE_MONSTER_UNKNOWN = "未知的怪物",
   OBJECTIVE_ITEM_UNKNOWN = "未知的物品",
@@ -69,7 +71,7 @@ QuestHelper_Translations.zhCN =
   IGNORED_PRIORITY_FIX = "将同样的优先次序设定套用到被勾选的项目上",
   IGNORED_PRIORITY_IGNORE = "我想要自己设定任务执行的优先次序",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "搜索结果",
   NO_RESULTS = "抱歉，查无资料！",
   CREATED_OBJ = "制造了 %1",
@@ -77,14 +79,10 @@ QuestHelper_Translations.zhCN =
   USER_OBJ = "玩家目的：%h1",
   UNKNOWN_OBJ = "我不知道您应该前往哪个目的",
   INACCESSIBLE_OBJ = nil,
-  
-  SEARCHING_STATE = "搜索中：%1",
-  SEARCHING_LOCAL = "地区 %1",
-  SEARCHING_STATIC = "状态 %1",
-  SEARCHING_ITEMS = "物品",
-  SEARCHING_NPCS = "NPCs",
-  SEARCHING_ZONES = "地区",
-  SEARCHING_DONE = "完成！",
+  FIND_REMOVE = nil,
+  FIND_NOT_READY = nil,
+  FIND_CUSTOM_LOCATION = nil,
+  FIND_USAGE = nil,
   
   -- Shared objectives.
   PEER_TURNIN = "等待 %h1 接受任务 %h2.",
@@ -110,6 +108,7 @@ QuestHelper_Translations.zhCN =
   FILTERED_BLOCKED = "由先前未完成的目标过滤",
   FILTERED_UNWATCHED = "隐藏未设定任务追踪的任务",
   FILTERED_WINTERGRASP = nil,
+  FILTERED_RAID = nil,
   FILTERED_USER = "您已设定此物件为隐藏",
   FILTERED_UNKNOWN = "不知道如何完成任务",
   
@@ -122,6 +121,10 @@ QuestHelper_Translations.zhCN =
   FILTER_LEVEL = "登记",
   FILTER_BLOCKED = "封锁",
   FILTER_WATCHED = nil,
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "您有%h（新的）%h1资料，并且%h（更新了）%h2资料。",
@@ -208,6 +211,7 @@ QuestHelper_Translations.zhCN =
   TOOLTIP_PURCHASE = "购买 %h1.",
   TOOLTIP_SLAY = "击杀为了 %h1.",
   TOOLTIP_LOOT = "拾取为 %h1.",
+  TOOLTIP_OPEN = nil,
   
   -- Settings
   SETTINGS_ARROWLINK_ON = nil,
@@ -227,6 +231,11 @@ QuestHelper_Translations.zhCN =
   SETTINGS_MENU_ARROW_ARROWSCALE = nil,
   SETTINGS_MENU_ARROW_TEXTSCALE = nil,
   SETTINGS_MENU_ARROW_RESET = nil,
+  
+  SETTINGS_MENU_INCOMPLETE = nil,
+  
+  SETTINGS_RADAR_ON = nil,
+  SETTINGS_RADAR_OFF = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 码距离",

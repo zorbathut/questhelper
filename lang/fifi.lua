@@ -7,7 +7,7 @@ QuestHelper_Translations.fiFI =
   
   -- Messages used when starting.
   LOCALE_ERROR = nil,
-  ZONE_LAYOUT_ERROR = nil,
+  ZONE_LAYOUT_ERROR = "Questhelperisi on vanhentunut, käy päivittämässä se osoitteessa http://www.quest-helper.com, mikäli haluat sen toimivan. Tämän hetkinen versiosi on %1.",
   HOME_NOT_KNOWN = "Kotisi sijainti ei ole tiedossa. Kun mahdollista, puhu majatalon pitäjälle antaaksesi tiedon.",
   PRIVATE_SERVER = "QuestHelper ei tue yksityispalvelimia",
   PLEASE_RESTART = "virhe käynnistettäessä QuestHelperiä. sulje World of Warcraft ja yritä uudelleen.",
@@ -27,6 +27,7 @@ QuestHelper_Translations.fiFI =
   -- Special tracker text
   QH_LOADING = "ladataan QuestHelper (%1%)...",
   QH_FLIGHTPATH = nil,
+  QH_RECALCULATING = nil,
   QUESTS_HIDDEN_1 = "tehtäviä piilotettu",
   QUESTS_HIDDEN_2 = "(kirjoita \"/qh hidden\" nähdäksesi kaikki)",
   
@@ -46,11 +47,12 @@ QuestHelper_Translations.fiFI =
   OBJECTIVE_TALK = "Puhu %h1:lle",
   OBJECTIVE_SLAY = "Tapa %h1.",
   OBJECTIVE_LOOT = "Kerää %h1.",
+  OBJECTIVE_OPEN = nil,
   
   OBJECTIVE_MONSTER_UNKNOWN = "tuntematon vihollinen",
   OBJECTIVE_ITEM_UNKNOWN = "tuntematon esine",
   
-  ZONE_BORDER_SIMPLE = nil,
+  ZONE_BORDER_SIMPLE = "%1 raja",
   
   -- Stuff used in objective menus.
   PRIORITY = "tärkeysaste",
@@ -69,7 +71,7 @@ QuestHelper_Translations.fiFI =
   IGNORED_PRIORITY_FIX = "Käytä samaa prioriteettiä estäviin tehtäviin.",
   IGNORED_PRIORITY_IGNORE = "Määritän tärkeysasteen itse",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "hakutulokset",
   NO_RESULTS = nil,
   CREATED_OBJ = "tee",
@@ -77,14 +79,10 @@ QuestHelper_Translations.fiFI =
   USER_OBJ = "Käyttäjän tehtävä: %h1",
   UNKNOWN_OBJ = "En tiedä mihin sinun tulisi mennä tuota tehtävää varten.",
   INACCESSIBLE_OBJ = "QuestHelper ei ole löytänyt käyttökelpoista sijaintia %h1lle. Olemme lisänneet luultavasti-mahdoton-löytää sijainnin tehtävä listaasi. Jos löydät toimivan version tästä objectista, ole hyvä ja jaa tietosi! (%h(/qh submit))",
-  
-  SEARCHING_STATE = "haetaan: %1",
-  SEARCHING_LOCAL = "Paikallinen %1",
-  SEARCHING_STATIC = nil,
-  SEARCHING_ITEMS = "Esineet",
-  SEARCHING_NPCS = "NPC:itä",
-  SEARCHING_ZONES = "alueet",
-  SEARCHING_DONE = "valmis!",
+  FIND_REMOVE = nil,
+  FIND_NOT_READY = nil,
+  FIND_CUSTOM_LOCATION = nil,
+  FIND_USAGE = nil,
   
   -- Shared objectives.
   PEER_TURNIN = nil,
@@ -110,6 +108,7 @@ QuestHelper_Translations.fiFI =
   FILTERED_BLOCKED = "Suodatettu keskeneräisen aikaisemman tehtävän takia.",
   FILTERED_UNWATCHED = "Suodatettu koska ei ole seurannassa Quest Logissa.",
   FILTERED_WINTERGRASP = "Suodatettu koska tehtävä on Wintergraspin PVP tehtävä.",
+  FILTERED_RAID = nil,
   FILTERED_USER = "Pyysit tämän tehtävän piilottamista.",
   FILTERED_UNKNOWN = "Tuntematon",
   
@@ -122,6 +121,10 @@ QuestHelper_Translations.fiFI =
   FILTER_LEVEL = "lvl",
   FILTER_BLOCKED = "estetty",
   FILTER_WATCHED = "seurattu",
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = nil,
@@ -174,21 +177,21 @@ QuestHelper_Translations.fiFI =
   MENU_OBJECTIVE_TIPS = nil,
   MENU_TRACKER_OPTIONS = "Tehtävän seurain",
   MENU_QUEST_TRACKER = "%1 tehtävän seurain",
-  MENU_TRACKER_LEVEL = nil,
+  MENU_TRACKER_LEVEL = "%1 Tehtävän tasot",
   MENU_TRACKER_QCOLOUR = nil,
-  MENU_TRACKER_OCOLOUR = nil,
+  MENU_TRACKER_OCOLOUR = "%1 Keskenäisen tavoitteen värit",
   MENU_TRACKER_SCALE = nil,
   MENU_TRACKER_RESET = nil,
-  MENU_FLIGHT_TIMER = "%1 Lento aika",
-  MENU_ANT_TRAILS = "%1 Reitti viivat",
+  MENU_FLIGHT_TIMER = "%1 Lentoaika",
+  MENU_ANT_TRAILS = "%1 Reittiviivat",
   MENU_WAYPOINT_ARROW = "%1 välietappi nuoli",
-  MENU_MAP_BUTTON = "%1 Kartta nappi",
+  MENU_MAP_BUTTON = "%1 Karttanappi",
   MENU_ZONE_FILTER = "alue suodin",
   MENU_DONE_FILTER = "%1 valmiit suodin",
   MENU_BLOCKED_FILTER = "1% Estetty suodin",
   MENU_WATCHED_FILTER = "1% 'seuratut' suodin",
   MENU_LEVEL_FILTER = "%1 tason suodatus",
-  MENU_LEVEL_OFFSET = "Taso suotimen poikkeama",
+  MENU_LEVEL_OFFSET = "Tasosuotimen poikkeama",
   MENU_ICON_SCALE = "Ikonien koko",
   MENU_FILTERS = "Suotimet",
   MENU_PERFORMANCE = "Reitin työmäärän koko",
@@ -197,7 +200,7 @@ QuestHelper_Translations.fiFI =
   MENU_PARTY_SHARE = "%1 tehtävien jakaminen",
   MENU_PARTY_SOLO = "%1 ryhmän huomiotta jättäminen",
   MENU_HELP = "Apua",
-  MENU_HELP_SLASH = "Teksti komennot",
+  MENU_HELP_SLASH = "Tekstikomennot",
   MENU_HELP_CHANGES = "Muutosloki",
   MENU_HELP_SUBMIT = "Datan jakaminen",
   
@@ -208,6 +211,7 @@ QuestHelper_Translations.fiFI =
   TOOLTIP_PURCHASE = "Osta %h1",
   TOOLTIP_SLAY = "tapa %h1:lle",
   TOOLTIP_LOOT = "kerää %h1:ltä",
+  TOOLTIP_OPEN = nil,
   
   -- Settings
   SETTINGS_ARROWLINK_ON = nil,
@@ -227,6 +231,11 @@ QuestHelper_Translations.fiFI =
   SETTINGS_MENU_ARROW_ARROWSCALE = "nuolen koko",
   SETTINGS_MENU_ARROW_TEXTSCALE = "Tekstin koko",
   SETTINGS_MENU_ARROW_RESET = "nollaa",
+  
+  SETTINGS_MENU_INCOMPLETE = nil,
+  
+  SETTINGS_RADAR_ON = nil,
+  SETTINGS_RADAR_OFF = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 jaardia",

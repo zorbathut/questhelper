@@ -27,6 +27,7 @@ QuestHelper_Translations.trTR =
   -- Special tracker text
   QH_LOADING = "QuestHelper yükleniyor (%1%%)...",
   QH_FLIGHTPATH = nil,
+  QH_RECALCULATING = nil,
   QUESTS_HIDDEN_1 = nil,
   QUESTS_HIDDEN_2 = nil,
   
@@ -46,6 +47,7 @@ QuestHelper_Translations.trTR =
   OBJECTIVE_TALK = "%h1 ile konus.",
   OBJECTIVE_SLAY = "%h1 öldür.",
   OBJECTIVE_LOOT = "%h1 topla",
+  OBJECTIVE_OPEN = nil,
   
   OBJECTIVE_MONSTER_UNKNOWN = nil,
   OBJECTIVE_ITEM_UNKNOWN = nil,
@@ -69,7 +71,7 @@ QuestHelper_Translations.trTR =
   IGNORED_PRIORITY_FIX = "Engellenen islere ayni önceligi uygula.",
   IGNORED_PRIORITY_IGNORE = "Öncelikleri ben ayarlayacagim",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "Arama sonuçlari",
   NO_RESULTS = "Hiçbir sonuç bulunamadi!",
   CREATED_OBJ = "Olusturulan: %1",
@@ -77,14 +79,10 @@ QuestHelper_Translations.trTR =
   USER_OBJ = "Kullanici görevi: %h1",
   UNKNOWN_OBJ = "Bu görev için nereye gitmen gerektigini bilmiyorum.",
   INACCESSIBLE_OBJ = nil,
-  
-  SEARCHING_STATE = "Araniyor: %1",
-  SEARCHING_LOCAL = "Local %1",
-  SEARCHING_STATIC = "Statique %1",
-  SEARCHING_ITEMS = "Cisimler",
-  SEARCHING_NPCS = "NPCler",
-  SEARCHING_ZONES = "Bölgeler",
-  SEARCHING_DONE = "Tamam!",
+  FIND_REMOVE = nil,
+  FIND_NOT_READY = nil,
+  FIND_CUSTOM_LOCATION = nil,
+  FIND_USAGE = nil,
   
   -- Shared objectives.
   PEER_TURNIN = "%h1 e %h2 görevini tamamlamasini bekle.",
@@ -110,6 +108,7 @@ QuestHelper_Translations.trTR =
   FILTERED_BLOCKED = "Bitirilmemiş bir görev yüzünden filtrelendi.",
   FILTERED_UNWATCHED = nil,
   FILTERED_WINTERGRASP = nil,
+  FILTERED_RAID = nil,
   FILTERED_USER = "Bu görevin gizlenmesini istediniz.",
   FILTERED_UNKNOWN = "Nasil bitirilecegi bilinmiyor.",
   
@@ -122,6 +121,10 @@ QuestHelper_Translations.trTR =
   FILTER_LEVEL = "seviye",
   FILTER_BLOCKED = "Engellendi.",
   FILTER_WATCHED = nil,
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "%h1 yeni bilgileriniz ve %h2 güncellemeleriniz var %h(%s3).",
@@ -208,6 +211,7 @@ QuestHelper_Translations.trTR =
   TOOLTIP_PURCHASE = "%h1 için satın al.",
   TOOLTIP_SLAY = "%h1 için öldür.",
   TOOLTIP_LOOT = "%h1 için yağmala.",
+  TOOLTIP_OPEN = nil,
   
   -- Settings
   SETTINGS_ARROWLINK_ON = nil,
@@ -227,6 +231,11 @@ QuestHelper_Translations.trTR =
   SETTINGS_MENU_ARROW_ARROWSCALE = nil,
   SETTINGS_MENU_ARROW_TEXTSCALE = nil,
   SETTINGS_MENU_ARROW_RESET = nil,
+  
+  SETTINGS_MENU_INCOMPLETE = nil,
+  
+  SETTINGS_RADAR_ON = nil,
+  SETTINGS_RADAR_OFF = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = nil,

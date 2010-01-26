@@ -27,6 +27,7 @@ QuestHelper_Translations.roRO =
   -- Special tracker text
   QH_LOADING = nil,
   QH_FLIGHTPATH = nil,
+  QH_RECALCULATING = nil,
   QUESTS_HIDDEN_1 = nil,
   QUESTS_HIDDEN_2 = nil,
   
@@ -46,6 +47,7 @@ QuestHelper_Translations.roRO =
   OBJECTIVE_TALK = nil,
   OBJECTIVE_SLAY = nil,
   OBJECTIVE_LOOT = nil,
+  OBJECTIVE_OPEN = nil,
   
   OBJECTIVE_MONSTER_UNKNOWN = nil,
   OBJECTIVE_ITEM_UNKNOWN = nil,
@@ -69,7 +71,7 @@ QuestHelper_Translations.roRO =
   IGNORED_PRIORITY_FIX = nil,
   IGNORED_PRIORITY_IGNORE = nil,
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = nil,
   NO_RESULTS = nil,
   CREATED_OBJ = "Creat",
@@ -77,14 +79,10 @@ QuestHelper_Translations.roRO =
   USER_OBJ = nil,
   UNKNOWN_OBJ = nil,
   INACCESSIBLE_OBJ = nil,
-  
-  SEARCHING_STATE = nil,
-  SEARCHING_LOCAL = nil,
-  SEARCHING_STATIC = nil,
-  SEARCHING_ITEMS = nil,
-  SEARCHING_NPCS = nil,
-  SEARCHING_ZONES = nil,
-  SEARCHING_DONE = nil,
+  FIND_REMOVE = nil,
+  FIND_NOT_READY = nil,
+  FIND_CUSTOM_LOCATION = nil,
+  FIND_USAGE = nil,
   
   -- Shared objectives.
   PEER_TURNIN = nil,
@@ -110,6 +108,7 @@ QuestHelper_Translations.roRO =
   FILTERED_BLOCKED = nil,
   FILTERED_UNWATCHED = nil,
   FILTERED_WINTERGRASP = nil,
+  FILTERED_RAID = nil,
   FILTERED_USER = "Ai cerut ca acest obiectiv sa fie ascuns.",
   FILTERED_UNKNOWN = "Nu stiu cum sa termin.",
   
@@ -122,6 +121,10 @@ QuestHelper_Translations.roRO =
   FILTER_LEVEL = "Nivel",
   FILTER_BLOCKED = "Blocat",
   FILTER_WATCHED = nil,
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = nil,
@@ -208,6 +211,7 @@ QuestHelper_Translations.roRO =
   TOOLTIP_PURCHASE = nil,
   TOOLTIP_SLAY = nil,
   TOOLTIP_LOOT = nil,
+  TOOLTIP_OPEN = nil,
   
   -- Settings
   SETTINGS_ARROWLINK_ON = nil,
@@ -227,6 +231,11 @@ QuestHelper_Translations.roRO =
   SETTINGS_MENU_ARROW_ARROWSCALE = nil,
   SETTINGS_MENU_ARROW_TEXTSCALE = nil,
   SETTINGS_MENU_ARROW_RESET = nil,
+  
+  SETTINGS_MENU_INCOMPLETE = nil,
+  
+  SETTINGS_RADAR_ON = nil,
+  SETTINGS_RADAR_OFF = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = nil,

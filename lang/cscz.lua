@@ -27,6 +27,7 @@ QuestHelper_Translations.csCZ =
   -- Special tracker text
   QH_LOADING = "QuestHelper se načítá (%1%)...",
   QH_FLIGHTPATH = "Přapočítávám letové cíle (%1%)...",
+  QH_RECALCULATING = "Přepočítávám trasu (%1%)...",
   QUESTS_HIDDEN_1 = "Questy mohou být skryty",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" pro seznam)",
   
@@ -46,6 +47,7 @@ QuestHelper_Translations.csCZ =
   OBJECTIVE_TALK = "Promluvte s %h1.",
   OBJECTIVE_SLAY = "Zabijte %h1.",
   OBJECTIVE_LOOT = "lootněte %h1.",
+  OBJECTIVE_OPEN = nil,
   
   OBJECTIVE_MONSTER_UNKNOWN = "neznámé monstrum",
   OBJECTIVE_ITEM_UNKNOWN = "neznámý předmět",
@@ -69,7 +71,7 @@ QuestHelper_Translations.csCZ =
   IGNORED_PRIORITY_FIX = "Použít stejnou prioriru na blokované úkoly.",
   IGNORED_PRIORITY_IGNORE = "Nastavím si priority sám.",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "Výsledky hledání",
   NO_RESULTS = "Nejsou žádné!",
   CREATED_OBJ = "Vytvořeno: %1",
@@ -77,14 +79,10 @@ QuestHelper_Translations.csCZ =
   USER_OBJ = "Uživatelské úkoly: %h1",
   UNKNOWN_OBJ = "Nevím kam máte jít pro tento úkol.",
   INACCESSIBLE_OBJ = "QuestHelper nemohl nalézt použitelnou lokalizaci pro %h1. Přidali jsme pravděpodobně nenalezenou lokalizaci do vašeho seznamu úkolů. Pokud naleznete použitelnou verzi této lokalizace, prosím odešlete nám ji! (%h(/qh submit))",
-  
-  SEARCHING_STATE = "Vyhledávání: %1",
-  SEARCHING_LOCAL = "Místní %1",
-  SEARCHING_STATIC = "Statistika %1",
-  SEARCHING_ITEMS = "Předměty",
-  SEARCHING_NPCS = "NPCs",
-  SEARCHING_ZONES = "Zóny",
-  SEARCHING_DONE = "Hotovo!",
+  FIND_REMOVE = "Zrušit úkol",
+  FIND_NOT_READY = "QuestHelper nedokončil načítání. Prosím počkejte chvíli a zkuste to znovu.",
+  FIND_CUSTOM_LOCATION = "Vlastní umístění",
+  FIND_USAGE = nil,
   
   -- Shared objectives.
   PEER_TURNIN = "Pockejte na %h1 pro %h2.",
@@ -110,6 +108,7 @@ QuestHelper_Translations.csCZ =
   FILTERED_BLOCKED = "Filtrováno kvůli nekompletnímu předešlému úkolu",
   FILTERED_UNWATCHED = "Filtrováno protože není sledováno v Quest Logu",
   FILTERED_WINTERGRASP = "Filtrováno kvůli PvP Wintergrasp questu",
+  FILTERED_RAID = "Filtrováno protože nelze dokončit v raidu",
   FILTERED_USER = "Úkol skryt protože to chcete",
   FILTERED_UNKNOWN = "Nevím co je potřeba k dokončení.",
   
@@ -122,6 +121,10 @@ QuestHelper_Translations.csCZ =
   FILTER_LEVEL = "level",
   FILTER_BLOCKED = "blokováno",
   FILTER_WATCHED = "sledovaný",
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Máte %h(nové informace) na %h1, a %h(aktualizované informace) na %h2.",
@@ -208,6 +211,7 @@ QuestHelper_Translations.csCZ =
   TOOLTIP_PURCHASE = "Kupte %h1.",
   TOOLTIP_SLAY = "Zabijte pro %h1.",
   TOOLTIP_LOOT = "Lootněte pro %h1.",
+  TOOLTIP_OPEN = nil,
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "Používat %h1 k zobrazení úkolů.",
@@ -227,6 +231,11 @@ QuestHelper_Translations.csCZ =
   SETTINGS_MENU_ARROW_ARROWSCALE = "Velikost šipky",
   SETTINGS_MENU_ARROW_TEXTSCALE = "Velikost textu",
   SETTINGS_MENU_ARROW_RESET = "Resetovat",
+  
+  SETTINGS_MENU_INCOMPLETE = nil,
+  
+  SETTINGS_RADAR_ON = nil,
+  SETTINGS_RADAR_OFF = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 yardu",

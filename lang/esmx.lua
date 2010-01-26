@@ -27,6 +27,7 @@ QuestHelper_Translations.esMX =
   -- Special tracker text
   QH_LOADING = "Cargando Quest Helper (%1%%)...",
   QH_FLIGHTPATH = "Cargando Rutas de Vuelo (%1%)...",
+  QH_RECALCULATING = nil,
   QUESTS_HIDDEN_1 = " Ques que pueden estar ocultas",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" para listar)",
   
@@ -46,6 +47,7 @@ QuestHelper_Translations.esMX =
   OBJECTIVE_TALK = "Habla con %h1.",
   OBJECTIVE_SLAY = "Matar %h1.",
   OBJECTIVE_LOOT = "Recoger de %h1.",
+  OBJECTIVE_OPEN = nil,
   
   OBJECTIVE_MONSTER_UNKNOWN = "Monstruo Desconocido.",
   OBJECTIVE_ITEM_UNKNOWN = "Item Desconocido.",
@@ -69,7 +71,7 @@ QuestHelper_Translations.esMX =
   IGNORED_PRIORITY_FIX = "Aplique la misma prioridad a los objetivos bloqueados. ",
   IGNORED_PRIORITY_IGNORE = "Voy a fijar las prioridades por mi mismo.",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "Resultados de la búsqueda",
   NO_RESULTS = "¡No hay ninguno!",
   CREATED_OBJ = "Creado: %1",
@@ -77,14 +79,10 @@ QuestHelper_Translations.esMX =
   USER_OBJ = "Objetivo de Usuario: %h1",
   UNKNOWN_OBJ = "No sé dónde hay que ir para ese objetivo.",
   INACCESSIBLE_OBJ = "QuestHelper ha sido incapaz de encontrar una ubicación útil para %h1. Hemos añadido una ubicación probablemente imposible de encontrar a su lista de objetivos. ¡Si usted encuentra una ubicación útil de este objeto, por favor envie sus datos! (%h(/qh submit))",
-  
-  SEARCHING_STATE = "Buscando: %1",
-  SEARCHING_LOCAL = "Locales %1",
-  SEARCHING_STATIC = "Estáticas %1",
-  SEARCHING_ITEMS = "Objetos",
-  SEARCHING_NPCS = "NPCs",
-  SEARCHING_ZONES = "Zonas",
-  SEARCHING_DONE = "¡Hecho!",
+  FIND_REMOVE = nil,
+  FIND_NOT_READY = nil,
+  FIND_CUSTOM_LOCATION = nil,
+  FIND_USAGE = nil,
   
   -- Shared objectives.
   PEER_TURNIN = "Espere a %h1 a que entregue %h2.",
@@ -110,6 +108,7 @@ QuestHelper_Translations.esMX =
   FILTERED_BLOCKED = "Filtrado debido al objetivo anterior incompleto.",
   FILTERED_UNWATCHED = "Filtrado debido a que no se está dando seguimiento en el registro de misiones",
   FILTERED_WINTERGRASP = nil,
+  FILTERED_RAID = nil,
   FILTERED_USER = "Pidió que este objetivo se ocultara.",
   FILTERED_UNKNOWN = "No se cómo completarlo.",
   
@@ -122,6 +121,10 @@ QuestHelper_Translations.esMX =
   FILTER_LEVEL = "Nivel",
   FILTER_BLOCKED = "Bloqueado",
   FILTER_WATCHED = "Observado.",
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Tiene %h(nueva información) sobre %h1, y %h(información actualicada) sobre %h2.",
@@ -208,6 +211,7 @@ QuestHelper_Translations.esMX =
   TOOLTIP_PURCHASE = "Comprar %h1.",
   TOOLTIP_SLAY = "Matar para %h1.",
   TOOLTIP_LOOT = "Botín para %h1.",
+  TOOLTIP_OPEN = nil,
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "Se usará %h1 para mostrar objetivos",
@@ -227,6 +231,11 @@ QuestHelper_Translations.esMX =
   SETTINGS_MENU_ARROW_ARROWSCALE = "Escala de flecha",
   SETTINGS_MENU_ARROW_TEXTSCALE = "Escala de texto",
   SETTINGS_MENU_ARROW_RESET = "Reiniciar",
+  
+  SETTINGS_MENU_INCOMPLETE = nil,
+  
+  SETTINGS_RADAR_ON = nil,
+  SETTINGS_RADAR_OFF = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 yardas",

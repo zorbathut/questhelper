@@ -12,13 +12,13 @@ QuestHelper_Translations.noNO =
   PRIVATE_SERVER = "QuestHelper støtter ikke private servere.",
   PLEASE_RESTART = "QuestHelper feilet ved oppstart. Vennligst lukk World of Warcraft helt og prøv igjen.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper ble installert feil. Vi anbefaler enten Curse Client eller 7zip for installasjon. Sjekk at undermapper er pakket ut.",
-  PLEASE_SUBMIT = nil,
+  PLEASE_SUBMIT = "(QuestHelper trenger din hjelp!) Om du har et par minutter, vær så venlig å besøk QuestHelper's hjemmeside på h%(http://www.quest-helper.com) og følg instruksjonene der om hvordan du deler den informasjonen du har samlet. Din informasjon gjør at QuestHelper forblir korrekt og oppdatert. Takk!",
   HOW_TO_CONFIGURE = "QuestHelper har ikke noen fungerende innstillinger, men kan konfigureres ved å skrive %h(/qh settings). Hjelp er tilgjengelig med %h(/qh help).",
   TIME_TO_UPDATE = "Det kan være en %h(ny QuestHelper versjon) tilgjengelig. Nye versjoner inkludere som regel nye tillegg, nye quest databaser, og feilrettinger. Vennligst oppdater!",
   
   -- Route related text.
   ROUTES_CHANGED = "Flyverutene for din karakter har blitt endret.",
-  HOME_CHANGED = "Ditt hjem har blitt endret.",
+  HOME_CHANGED = "Ditt hjem(hearthstone) har blitt endret.",
   TALK_TO_FLIGHT_MASTER = "Vennligst prat med den lokale flight masteren.",
   TALK_TO_FLIGHT_MASTER_COMPLETE = "Takk.",
   WILL_RESET_PATH = "Vil nullstille ruteinformasjon.",
@@ -27,6 +27,7 @@ QuestHelper_Translations.noNO =
   -- Special tracker text
   QH_LOADING = "QuestHelper starter (%1%%)...",
   QH_FLIGHTPATH = "Gjennberegner flystigene (%1)...",
+  QH_RECALCULATING = "Rekalkulerer rute",
   QUESTS_HIDDEN_1 = "Quester kan være skjult",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" for å liste)",
   
@@ -46,11 +47,12 @@ QuestHelper_Translations.noNO =
   OBJECTIVE_TALK = "Snakk med %h1.",
   OBJECTIVE_SLAY = "Drep %h1",
   OBJECTIVE_LOOT = "Plukk opp %h.",
+  OBJECTIVE_OPEN = nil,
   
   OBJECTIVE_MONSTER_UNKNOWN = "ukjent monster",
   OBJECTIVE_ITEM_UNKNOWN = "ukjent gjennstand",
   
-  ZONE_BORDER_SIMPLE = nil,
+  ZONE_BORDER_SIMPLE = "grense",
   
   -- Stuff used in objective menus.
   PRIORITY = "Prioritet",
@@ -63,13 +65,13 @@ QuestHelper_Translations.noNO =
   SHARING_ENABLE = "Del",
   SHARING_DISABLE = "Ikke Del",
   IGNORE = "Ignorér",
-  IGNORE_LOCATION = "Ignorer denne sted",
+  IGNORE_LOCATION = "Ignorer dette sted",
   
   IGNORED_PRIORITY_TITLE = "Den valgte prioriteten blir ignorert.",
   IGNORED_PRIORITY_FIX = "Angi samme prioritet til blokkerte objektiver.",
   IGNORED_PRIORITY_IGNORE = "jeg setter prioriteringene selv.",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "Søkeresultater",
   NO_RESULTS = "Det er ingen!",
   CREATED_OBJ = "Laget: %1",
@@ -77,14 +79,10 @@ QuestHelper_Translations.noNO =
   USER_OBJ = "Bruker objektiv: %h1",
   UNKNOWN_OBJ = "Jeg vet ikke hvor du skal dra for det objektivet.",
   INACCESSIBLE_OBJ = "QuestHelper er ute av stand til å finne ett område for %h1. Vi har lagt til ett \"nærmest-umulig-å-finne område til objektivlisten. Hvis du finner et brukbart område for dette, vennligst send dine data! (%h(/qh submit)) ",
-  
-  SEARCHING_STATE = "Søker: %1",
-  SEARCHING_LOCAL = "Lokal %1",
-  SEARCHING_STATIC = "Statisk %1",
-  SEARCHING_ITEMS = "Ting",
-  SEARCHING_NPCS = "NPCs",
-  SEARCHING_ZONES = "Soner",
-  SEARCHING_DONE = "Ferdig!",
+  FIND_REMOVE = "Stopp dette objektet",
+  FIND_NOT_READY = "Questhelper har ikke fullført å lade. Venligst vent et par minutter og prøv igjen",
+  FIND_CUSTOM_LOCATION = "Eget kartsted",
+  FIND_USAGE = nil,
   
   -- Shared objectives.
   PEER_TURNIN = "Vent på at %h1 skal levere inn %h2.",
@@ -103,13 +101,14 @@ QuestHelper_Translations.noNO =
   DEPENDS_ON_SINGLE = "Kommer an på '%1'.",
   DEPENDS_ON_COUNT = "Kommer an på %1 skjulte oppdrag.",
   DEPENDS_ON = "Avhænger av filtrert mål",
-  FILTERED_LEVEL = "Filtrért grunnet nivå.",
-  FILTERED_GROUP = "Filtrért grunnet gruppe størrelse.",
+  FILTERED_LEVEL = "Filtrért grunnet level",
+  FILTERED_GROUP = "Filtrért grunnet gruppestørrelse.",
   FILTERED_ZONE = "Filtrért grunnet Sone.",
   FILTERED_COMPLETE = "Filtrért grunnet utført quest.",
   FILTERED_BLOCKED = "Filtrért grunnet tidligere uferdige objektiver",
   FILTERED_UNWATCHED = "Filtrért grunnet quest ikke blir fulgt i Oppdragslogg",
   FILTERED_WINTERGRASP = "Filtrért da det er ett PVP Wintergrasp oppdrag.",
+  FILTERED_RAID = "Filtrért fordi den ikke kan fullføres i et raid.",
   FILTERED_USER = "Du ba om å gjemme dette objektivet.",
   FILTERED_UNKNOWN = "Vet ikke hvordan det utføres.",
   
@@ -122,6 +121,10 @@ QuestHelper_Translations.noNO =
   FILTER_LEVEL = "nivå",
   FILTER_BLOCKED = "blokkert",
   FILTER_WATCHED = "følgt",
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Du har %h(ny informasjon) på %h1, og %h(oppdatert informasjon) på %h2.",
@@ -208,6 +211,7 @@ QuestHelper_Translations.noNO =
   TOOLTIP_PURCHASE = "Kjøp %h1.",
   TOOLTIP_SLAY = "Drep for %h1.",
   TOOLTIP_LOOT = "Bytte for %h1.",
+  TOOLTIP_OPEN = nil,
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "Bruker %h1 for visning av mål.",
@@ -228,8 +232,13 @@ QuestHelper_Translations.noNO =
   SETTINGS_MENU_ARROW_TEXTSCALE = "Tekst størrelse",
   SETTINGS_MENU_ARROW_RESET = "reset",
   
+  SETTINGS_MENU_INCOMPLETE = nil,
+  
+  SETTINGS_RADAR_ON = nil,
+  SETTINGS_RADAR_OFF = nil,
+  
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE_YARDS = nil,
+  DISTANCE_YARDS = "yards",
   DISTANCE_METRES = "%h1 meter"
  }
 

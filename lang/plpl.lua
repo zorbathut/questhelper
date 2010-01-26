@@ -27,6 +27,7 @@ QuestHelper_Translations.plPL =
   -- Special tracker text
   QH_LOADING = "Ładowanie QuestHelper'a (%1%)...",
   QH_FLIGHTPATH = "Obliczanie ścieżek lotów (%1%)...",
+  QH_RECALCULATING = nil,
   QUESTS_HIDDEN_1 = "Zadania mogą być ukryte",
   QUESTS_HIDDEN_2 = "(wpisz \"/qh hidden\", aby zobaczyć listę)",
   
@@ -46,6 +47,7 @@ QuestHelper_Translations.plPL =
   OBJECTIVE_TALK = "Porozmawiaj z %h1.",
   OBJECTIVE_SLAY = "Zabij %h1.",
   OBJECTIVE_LOOT = "Zbierz %h1.",
+  OBJECTIVE_OPEN = nil,
   
   OBJECTIVE_MONSTER_UNKNOWN = "nieznany potwór",
   OBJECTIVE_ITEM_UNKNOWN = "nieznany przedmiot",
@@ -69,7 +71,7 @@ QuestHelper_Translations.plPL =
   IGNORED_PRIORITY_FIX = "Zastosuj ten sam priorytet do blokowanych celów.",
   IGNORED_PRIORITY_IGNORE = "Sam ustwię priorytet.",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "Wyniki wyszukiwania",
   NO_RESULTS = "Nic nie znaleziono!",
   CREATED_OBJ = "Utworzono: %1",
@@ -77,14 +79,10 @@ QuestHelper_Translations.plPL =
   USER_OBJ = "Cel użytkownika: %h1",
   UNKNOWN_OBJ = "Nie wiem gdzie masz się udać, aby osiagnąć swój cel.",
   INACCESSIBLE_OBJ = "QuestHelper nie był w stanie znaleźć lokalizacji %h1. Zostało to dodane do listy lokalizacji niemożliwych do odnalezienia. Jeśli znajdziesz użyteczną wesję tego obiektu, proszę o przesłanie danych. (%h(/qh submit))",
-  
-  SEARCHING_STATE = "Wyszukiwanie: %1",
-  SEARCHING_LOCAL = "Lokalnie %1",
-  SEARCHING_STATIC = "Statyczne %1",
-  SEARCHING_ITEMS = "Przedmioty",
-  SEARCHING_NPCS = "NPC",
-  SEARCHING_ZONES = "Strefy",
-  SEARCHING_DONE = "Gotowe!",
+  FIND_REMOVE = nil,
+  FIND_NOT_READY = nil,
+  FIND_CUSTOM_LOCATION = nil,
+  FIND_USAGE = nil,
   
   -- Shared objectives.
   PEER_TURNIN = "Poczekaj na %h1, aby oddał %h2.",
@@ -110,6 +108,7 @@ QuestHelper_Translations.plPL =
   FILTERED_BLOCKED = "Ukryte przez filtr z powodu niewykonanego ważniejszego zadani",
   FILTERED_UNWATCHED = "Zadanie ukryte, gdyż nie jest śledzone w dzienniku zadań",
   FILTERED_WINTERGRASP = "Filtr ukrył zadanie PvP Wintergrasp",
+  FILTERED_RAID = nil,
   FILTERED_USER = "Ustawiłeś to zadanie jako ukryte",
   FILTERED_UNKNOWN = "Program nie wie, jak ukończyć zadanie",
   
@@ -122,6 +121,10 @@ QuestHelper_Translations.plPL =
   FILTER_LEVEL = "poziom",
   FILTER_BLOCKED = "zablokowane",
   FILTER_WATCHED = "obserwowane",
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Masz %h(nową informację) w %h1, i %h(zaktualizowaną informację) w %h2.",
@@ -208,6 +211,7 @@ QuestHelper_Translations.plPL =
   TOOLTIP_PURCHASE = "Kup %h1.",
   TOOLTIP_SLAY = "Zabij do %h1.",
   TOOLTIP_LOOT = "Zbierz dla %h1.",
+  TOOLTIP_OPEN = nil,
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "Używaj %h1 do pokazywania celów.",
@@ -227,6 +231,11 @@ QuestHelper_Translations.plPL =
   SETTINGS_MENU_ARROW_ARROWSCALE = "Rozmiar strzałki",
   SETTINGS_MENU_ARROW_TEXTSCALE = "Rozmiar tekstu",
   SETTINGS_MENU_ARROW_RESET = "Zresetuj",
+  
+  SETTINGS_MENU_INCOMPLETE = nil,
+  
+  SETTINGS_RADAR_ON = nil,
+  SETTINGS_RADAR_OFF = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 jardów",

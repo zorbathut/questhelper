@@ -9,11 +9,11 @@ QuestHelper_Translations.elEL =
   LOCALE_ERROR = "Η γλώσσα των σωσμένων δεδομένων σας δεν ταιριάζει με αυτήν της eγκατάστασης του WoW.Αλλάξτε την γλώσσα ή σβήστε τα δεδομένα με την εντολή %h(/qh purge). ",
   ZONE_LAYOUT_ERROR = "Αρνούμαστε να εκτελέσουμε την εφαρμογή από φόβο μην αλλοιωθούν τα σωσμένα δεδομένα σας.Παρακαλώ αναμείνατε για μία ανανέωση που θα μπορεί να σας οδηγήσει στην νέα ζώνη. Μπορείτε να γράψεται /console reloadui . Μπορεί αυτό να λύσει το πρόβλημα.",
   HOME_NOT_KNOWN = "Το σπίτι σας δεν είναι γνωστό. Όταν έχετε την ευκαιρία, μιλήστε στον ξενοδόχο για να επιστρέψει στην αρχική ου θέση.",
-  PRIVATE_SERVER = "Ο βοηθός Αποστολών δεν υποστηρίζει ιδιωτικούς κόσμους.",
+  PRIVATE_SERVER = "To QuestHelper δεν υποστηρίζει ιδιωτικούς κόσμους.",
   PLEASE_RESTART = "Ένα λάθος συναίβει στην έναρξη του βοηθού αποστολών.Επανεκκινήστe το παιχνίδι ή γράψτε /console reloadui .",
-  NOT_UNZIPPED_CORRECTLY = "Ο Βοηθός Αποστολών δεν εγκαταστάθηκε σωστά. Δοκιμάστε πάλι και κάντε σωστή εξαγωγή με το Zip.",
+  NOT_UNZIPPED_CORRECTLY = "To QuestHelper δεν εγκαταστάθηκε σωστά. Δοκιμάστε πάλι και κάντε σωστή εξαγωγή με το Zip.",
   PLEASE_SUBMIT = "%h(Το QuestHelper χρειαζετε την βοηθεια σας!) Εαν διαθετετε μερικα λεπτα, παρακαλω μπειτε στην κεντρικη σελιδα του QuestHelper στο %h(http://www.questhelp.us) και ακολουθηστε τις οδηγιες για να προσφερετε τα μαζεμενα δεδομενα σας. Τα δεδομενα σας βοηθανε το QuestHelper να παραμενει σωστο και ενημερωμενο. Σας ευχαριστω.",
-  HOW_TO_CONFIGURE = "Ο βοηθός Αποστολών δεν έχει σελίδα με ρυθμίσης, αλλά μπορεί να ρυθμιστή γράφοντας %h(/qh settings). Για βοήθεια γράψε %h(/qh help).",
+  HOW_TO_CONFIGURE = "To QuestHelper δεν έχει σελίδα με ρυθμίσης, αλλά μπορεί να ρυθμιστή γράφοντας %h(/qh settings). Για βοήθεια γράψε %h(/qh help).",
   TIME_TO_UPDATE = "Μπορεί να υπάρχει μία %h(νέα εκδοση τού QuestHelper). Οι νέες εκδόσεις συχνά σε βοηθούν σε πιο πολλά quest.",
   
   -- Route related text.
@@ -27,6 +27,7 @@ QuestHelper_Translations.elEL =
   -- Special tracker text
   QH_LOADING = "Φόρτωση Quest Helper (%1%%)...",
   QH_FLIGHTPATH = "Υπολόγισμα των σημείων πτήσης",
+  QH_RECALCULATING = nil,
   QUESTS_HIDDEN_1 = "Οι αποστολές μπορεί να είναι κρυμμένες",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" για να δεις τις κρυφές)",
   
@@ -46,6 +47,7 @@ QuestHelper_Translations.elEL =
   OBJECTIVE_TALK = "Μίλα στον %h1.",
   OBJECTIVE_SLAY = "Σκότωσε %h1.",
   OBJECTIVE_LOOT = "Λάφυρα %h1.",
+  OBJECTIVE_OPEN = nil,
   
   OBJECTIVE_MONSTER_UNKNOWN = "Άγνωστο τέρας",
   OBJECTIVE_ITEM_UNKNOWN = "Άγνωστο αντικείμενο",
@@ -69,22 +71,18 @@ QuestHelper_Translations.elEL =
   IGNORED_PRIORITY_FIX = "Εφαρμόστε ίδια προτεραιότητα στους κρυφούς στόχους.",
   IGNORED_PRIORITY_IGNORE = "Θα θέσω τις προτεραιότητες μόνος μου.",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "Αποτελέσματα Αναζήτησης",
   NO_RESULTS = "Δεν υπάρχει κανένα!",
   CREATED_OBJ = "Δημιουργήθηκαν: %1 ",
   REMOVED_OBJ = "Αφαιρέθηκε: %1",
   USER_OBJ = "Στόχοι Χρήστη: %h1",
   UNKNOWN_OBJ = "Δεν γνωρίζουμε που πρέπει να πάτε για αυτό τον στόχο.",
-  INACCESSIBLE_OBJ = "Ο Βοηθός Αποστολών δεν μπόρεσε να βρεί μια χρήσιμη τοποθεσία για %h1. Προσθέσαμε μια απίθανη τοποθεσία στην λίστα στόχων. Έαν βρείτε μια τοποθεσία χρήσιμη για αυτό των στόχο παρακαλούμε δημοσιεύστε αυτήν! (%h(/qh submit)) ",
-  
-  SEARCHING_STATE = "Ψάχνει: %1",
-  SEARCHING_LOCAL = "Τοπικά %1",
-  SEARCHING_STATIC = "Στατική %1",
-  SEARCHING_ITEMS = "Στοιχεία",
-  SEARCHING_NPCS = "Χαρακτήρες Ελεγχόμενοι από τον Υπολογιστή",
-  SEARCHING_ZONES = "Ζώνες",
-  SEARCHING_DONE = "Ολοκληρώθηκε!",
+  INACCESSIBLE_OBJ = "To QuestHelper δεν μπόρεσε να βρεί μια χρήσιμη τοποθεσία για %h1. Προσθέσαμε μια απίθανη τοποθεσία στην λίστα στόχων. Έαν βρείτε μια τοποθεσία χρήσιμη για αυτό των στόχο παρακαλούμε δημοσιεύστε αυτήν! (%h(/qh submit)) ",
+  FIND_REMOVE = nil,
+  FIND_NOT_READY = nil,
+  FIND_CUSTOM_LOCATION = nil,
+  FIND_USAGE = nil,
   
   -- Shared objectives.
   PEER_TURNIN = "Περίμενε τον %h1 να επιστρέψει το %h2.",
@@ -110,6 +108,7 @@ QuestHelper_Translations.elEL =
   FILTERED_BLOCKED = "Φιλτραρίστηκε διότι ο πρωτεύων στόχος δεν έχει ολοκληρωθεί",
   FILTERED_UNWATCHED = "Φιλτραρίστηκε διότι δεν ακολουθείται απο το Αρχείο Αποστολών",
   FILTERED_WINTERGRASP = "Φιλτραρισμένο επειδή είναι PvP αποστολή της Wintergrasp",
+  FILTERED_RAID = nil,
   FILTERED_USER = "Ζητήσατε αυτός ο στόχος να είναι κρυφός.",
   FILTERED_UNKNOWN = "Δεν γνωρίζουμε πως να ολοκληρωθεί.",
   
@@ -122,6 +121,10 @@ QuestHelper_Translations.elEL =
   FILTER_LEVEL = "Επίπεδο",
   FILTER_BLOCKED = "Μπλοκαρισμένο",
   FILTER_WATCHED = "Παρακολουθούμενα",
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Έχετε %h(νέες πληροφορίες) στο %h1, και %h(ενημερωμένες πληροφορίες) στο %h2.",
@@ -161,7 +164,7 @@ QuestHelper_Translations.elEL =
   FLIGHT_POINT = "%1 σημείο πτήσης",
 
   -- QuestHelper Map Button
-  QH_BUTTON_TEXT = "Βοηθός Αποστολών",
+  QH_BUTTON_TEXT = "To QuestHelper",
   QH_BUTTON_TOOLTIP1 = "Αριστερό Κλικ: %1 πληροφορίες διαδρομής.",
   QH_BUTTON_TOOLTIP2 = "Δεξί Κλικ: Δείξε το Μενού Ρυθμίσεων",
   QH_BUTTON_SHOW = "Δείξε",
@@ -203,11 +206,12 @@ QuestHelper_Translations.elEL =
   
   -- Added to tooltips of items/npcs that are watched by QuestHelper but don't have any progress information.
   -- Otherwise, the PEER_PROGRESS text is added to the tooltip instead.
-  TOOLTIP_WATCHED = "Παρακολουθείται από τον Βοηθό Αποστολής",
+  TOOLTIP_WATCHED = "Παρακολουθείται από το QuestHelper.",
   TOOLTIP_QUEST = "Για την Αποστολή %h1.",
   TOOLTIP_PURCHASE = "Αγόρασε %h1.",
   TOOLTIP_SLAY = "Σκότωσε για το %h1.",
   TOOLTIP_LOOT = "Λάφυρα για τον %h1.",
+  TOOLTIP_OPEN = nil,
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "Θα χρησιμοποιήσουμε %h1 για να δείξουμε τους στόχους.",
@@ -227,6 +231,11 @@ QuestHelper_Translations.elEL =
   SETTINGS_MENU_ARROW_ARROWSCALE = "Μέγεθος Βέλους",
   SETTINGS_MENU_ARROW_TEXTSCALE = "Μέγεθος κειμένου",
   SETTINGS_MENU_ARROW_RESET = "Επαναφορά",
+  
+  SETTINGS_MENU_INCOMPLETE = nil,
+  
+  SETTINGS_RADAR_ON = nil,
+  SETTINGS_RADAR_OFF = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 γιάρδες",

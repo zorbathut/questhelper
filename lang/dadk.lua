@@ -27,6 +27,7 @@ QuestHelper_Translations.daDK =
   -- Special tracker text
   QH_LOADING = "QuestHelper indlæser (%1%%)...",
   QH_FLIGHTPATH = "Genberegner flyveruter (%1%)...",
+  QH_RECALCULATING = "Omregner Ruten (%1%)...",
   QUESTS_HIDDEN_1 = "Der er evt. skjulte quests",
   QUESTS_HIDDEN_2 = "(\"/qh hidden\" for liste)",
   
@@ -46,6 +47,7 @@ QuestHelper_Translations.daDK =
   OBJECTIVE_TALK = "Snak med %h1.",
   OBJECTIVE_SLAY = "Dræb %h1.",
   OBJECTIVE_LOOT = "Plyndr %h1.",
+  OBJECTIVE_OPEN = "Åben %h1.",
   
   OBJECTIVE_MONSTER_UNKNOWN = "Ukendt monster",
   OBJECTIVE_ITEM_UNKNOWN = "Ukendt genstand",
@@ -69,7 +71,7 @@ QuestHelper_Translations.daDK =
   IGNORED_PRIORITY_FIX = "Sæt samme prioritet til de(t) blokerende mål.",
   IGNORED_PRIORITY_IGNORE = "Jeg sætter selv prioriterne.",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "Søgeresultat",
   NO_RESULTS = "Der er ingen!",
   CREATED_OBJ = "Oprettet: %1",
@@ -77,14 +79,10 @@ QuestHelper_Translations.daDK =
   USER_OBJ = "Brugermål: %h1",
   UNKNOWN_OBJ = "Jeg ved ikke, hvor du skal gå hen med dette mål.",
   INACCESSIBLE_OBJ = "QuestHelper kan ikke finde en brugbar position til %h1. Der er tilføjet en (formodenligt) utilgengængelig position til din liste. Indsend venligst dine data, hvis du finder en brugbar udgave af målet! (%h(/q submit)) ",
-  
-  SEARCHING_STATE = "Søger: %1",
-  SEARCHING_LOCAL = "Sprog %1",
-  SEARCHING_STATIC = "Statisk %1",
-  SEARCHING_ITEMS = "Genstande",
-  SEARCHING_NPCS = "NPC'er",
-  SEARCHING_ZONES = "Områder",
-  SEARCHING_DONE = "Færdig!",
+  FIND_REMOVE = "Afsluttet Mål",
+  FIND_NOT_READY = "QuestHelper er ikke færdig med at loade endnu. Vent Venligst et par minutter og prøv igen.",
+  FIND_CUSTOM_LOCATION = "Tilpasset kort placering",
+  FIND_USAGE = "Søg virker ikke, hvis du ikke fortæller hvad den skal finde. Prøv %h(/qh help) for vejledning.",
   
   -- Shared objectives.
   PEER_TURNIN = "Vent på at %h1 afleverer %h2.",
@@ -110,6 +108,7 @@ QuestHelper_Translations.daDK =
   FILTERED_BLOCKED = "Filtreret på grund af forudgående mål der ikke er afsluttet",
   FILTERED_UNWATCHED = "Filtreret da det ikke bliver sporet i quest loggen",
   FILTERED_WINTERGRASP = "Filteret da det er en Wintergrasp PvP quest.",
+  FILTERED_RAID = "','kk",
   FILTERED_USER = "Du har anmodet om, at dette mål bliver skjult.",
   FILTERED_UNKNOWN = "Ved ikke hvordan det afsluttes.",
   
@@ -122,6 +121,10 @@ QuestHelper_Translations.daDK =
   FILTER_LEVEL = "level",
   FILTER_BLOCKED = "blokeret",
   FILTER_WATCHED = "Set",
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = "Kontrol at tilføje denne achievement til QuestHelper.",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Du har %h(ny information) til %h1 og %h(opdateret information) til %h2.",
@@ -208,6 +211,7 @@ QuestHelper_Translations.daDK =
   TOOLTIP_PURCHASE = "Køb %h1.",
   TOOLTIP_SLAY = "Dræb for at få %h1.",
   TOOLTIP_LOOT = "Plyndr for at få %h1.",
+  TOOLTIP_OPEN = "Åben fir %h1.",
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "Bruger %h1 til at vise opgaver",
@@ -227,6 +231,11 @@ QuestHelper_Translations.daDK =
   SETTINGS_MENU_ARROW_ARROWSCALE = "Pil størrelse",
   SETTINGS_MENU_ARROW_TEXTSCALE = "Tekst størrelse",
   SETTINGS_MENU_ARROW_RESET = "Reset",
+  
+  SETTINGS_MENU_INCOMPLETE = "Ufuldstændig Quests",
+  
+  SETTINGS_RADAR_ON = "Minimap radar startet! (bip, bip, bip)",
+  SETTINGS_RADAR_OFF = "Minimap radar stoppet.",
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 yards",

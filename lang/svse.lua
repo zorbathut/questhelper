@@ -7,14 +7,14 @@ QuestHelper_Translations.svSE =
   
   -- Messages used when starting.
   LOCALE_ERROR = "Språket för dina sparade data matchar inte språket för din WoW klient. För att använda QuestHelper, måste du antingen ändra tillbaka språket, eller radera datan genom att skriva %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Jag vägrar starta, på grund av rädsla för att förstöra din sparade information. Vänligen vänta på en patch som är kapabel att hantera den nya zon-utformningen.",
+  ZONE_LAYOUT_ERROR = "Din version av QuestHelper är utgången och du behöver uppdatera på http://www.quest-helper.com för att den ska fortsätta fungera. Din nuvarende version är %1.",
   HOME_NOT_KNOWN = "Ditt hem är okänt. När du får chansen, prata med din innkeeper för att nollställa det.",
   PRIVATE_SERVER = "QuestHelper stödjer inte privata servrar.",
   PLEASE_RESTART = "Det uppstod ett fel vid start av QuestHelper. Vänligen avsluta World of Warcraft helt och försök igen.",
-  NOT_UNZIPPED_CORRECTLY = "QuestHelper blev felaktigt installerad. Vi rekomenderar att du antingen använder Curse Client eller 7zip för att installera. Säkerställ att underkataloger blir extraherade.",
-  PLEASE_SUBMIT = "%h (QuestHelper behöver din hjälp!) Om du har ett par minuter, besök gärna QuestHelper's hemsida på %h(http://www.questhelp.us) och följ instruktionerna för att lämna in din insamlade data. Din insamlade data håller QuestHelper uppdaterad. Tack!",
+  NOT_UNZIPPED_CORRECTLY = "QuestHelper blev felaktigt installerat. Vi rekomenderar att du antingen använder Curse Client eller 7zip för att installera. Säkerställ att underkataloger blir extraherade.",
+  PLEASE_SUBMIT = "%h(QuestHelper behöver din hjälp!) Om du har ett par minuter, besök gärna QuestHelper's hemsida på %h(http://www.questhelp.us) och följ instruktionerna för att lämna in din insamlade data. Din insamlade data håller QuestHelper uppdaterad. Tack!",
   HOW_TO_CONFIGURE = "QuestHelper har ingen fungerande inställningssida, men kan konfigureras genom att skriva %h(/qh settings). Hjälp är tillgänglig med %h(/qh help).",
-  TIME_TO_UPDATE = "Det finns en nyare version utav %h(new QuestHelper version). Uppdatera!",
+  TIME_TO_UPDATE = "Det kan finnas en ny version av %h(ny QuestHelper-version). Nya versionen inkluderar oftast nya funktioner, databaser och buggfixar. Uppdatera nu!",
   
   -- Route related text.
   ROUTES_CHANGED = "Flygvägen för din karaktär har ändrats",
@@ -25,10 +25,11 @@ QuestHelper_Translations.svSE =
   UPDATING_ROUTE = "Uppdaterar väg.",
   
   -- Special tracker text
-  QH_LOADING = "QuestHelper laddas (%1%%)...",
+  QH_LOADING = "QuestHelper laddas (%1%)...",
   QH_FLIGHTPATH = "Räknar om flygplatserna",
-  QUESTS_HIDDEN_1 = "Uppdrg är kanske gömda",
-  QUESTS_HIDDEN_2 = "(\"/qh hidden\" för att visa)",
+  QH_RECALCULATING = "Omräknar rutt (%1%) ...",
+  QUESTS_HIDDEN_1 = "Uppdrag är kanske gömda",
+  QUESTS_HIDDEN_2 = "(högerklicka för lista)",
   
   -- Locale switcher.
   LOCALE_LIST_BEGIN = "Tillgängliga språk:",
@@ -46,11 +47,12 @@ QuestHelper_Translations.svSE =
   OBJECTIVE_TALK = "Prata med %h1.",
   OBJECTIVE_SLAY = "Döda %h1.",
   OBJECTIVE_LOOT = "Samla %h1",
+  OBJECTIVE_OPEN = "Öppna",
   
   OBJECTIVE_MONSTER_UNKNOWN = "Okänt monster",
   OBJECTIVE_ITEM_UNKNOWN = "Okänt objekt",
   
-  ZONE_BORDER_SIMPLE = nil,
+  ZONE_BORDER_SIMPLE = "%1 gräns",
   
   -- Stuff used in objective menus.
   PRIORITY = "Prioritet",
@@ -59,7 +61,7 @@ QuestHelper_Translations.svSE =
   PRIORITY3 = "Normal",
   PRIORITY4 = "Låg",
   PRIORITY5 = "Lägsta",
-  SHARING = "Delar",
+  SHARING = "Dela",
   SHARING_ENABLE = "Dela",
   SHARING_DISABLE = "Dela inte",
   IGNORE = "Ignorera",
@@ -69,22 +71,18 @@ QuestHelper_Translations.svSE =
   IGNORED_PRIORITY_FIX = "Godkänn samma prioritet till det blockerade uppdraget.",
   IGNORED_PRIORITY_IGNORE = "Jag sätter prioriteterna själv.",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "Sök resultat",
   NO_RESULTS = "Det finns inga!",
   CREATED_OBJ = "Skapad: %1",
   REMOVED_OBJ = "Borttagen: %1",
   USER_OBJ = "Användar-uppdrag %1",
-  UNKNOWN_OBJ = "Jag vet inte vart jag ska gå för detta uppdrag.",
+  UNKNOWN_OBJ = "Jag vet inte vart jag ska gå för det uppdraget.",
   INACCESSIBLE_OBJ = "QuestHelper har inte lyckats hitta en användbar plats för %h1. Vi har lagt till en troligtvis-omöjlig-att-hitta plats i din uppdrags-lista. Om du hittar en användbar version av detta uppdrag, vänligen dela med dig! (%h(/qh submit))",
-  
-  SEARCHING_STATE = "Söker: %1",
-  SEARCHING_LOCAL = "Lokal %1",
-  SEARCHING_STATIC = "Statisk %1",
-  SEARCHING_ITEMS = "Föremål",
-  SEARCHING_NPCS = "NPC:er",
-  SEARCHING_ZONES = "Zoner",
-  SEARCHING_DONE = "Klar!",
+  FIND_REMOVE = "Avbryt mål",
+  FIND_NOT_READY = "QuestHelper har inte laddat klat än. Var god vänta en minut och försök igen.",
+  FIND_CUSTOM_LOCATION = "Anpassad kartplats",
+  FIND_USAGE = "Hitta fungerar inte om du inte specificerar vad som ska hittas. Tryck %h (/qh help) för instruktioner.",
   
   -- Shared objectives.
   PEER_TURNIN = "Vänta på att %h1 ska lämna in %h2.",
@@ -100,28 +98,33 @@ QuestHelper_Translations.svSE =
   -- Hidden objectives.
   HIDDEN_TITLE = "Gömda Uppdrag",
   HIDDEN_NONE = "Inga uppdrag är gömda för dig",
-  DEPENDS_ON_SINGLE = "Beroende av '%1'.",
-  DEPENDS_ON_COUNT = "Beroende av %1 gömda uppdrag.",
+  DEPENDS_ON_SINGLE = "Beroende av '%1'",
+  DEPENDS_ON_COUNT = "Beroende av %1 gömda uppdrag",
   DEPENDS_ON = "Beror på filtrerade objekt",
   FILTERED_LEVEL = "Filtrerad på grund av nivå.",
   FILTERED_GROUP = "Filtrerad på grund av grupp storlek",
-  FILTERED_ZONE = "Filtrerad på grund av zon.",
+  FILTERED_ZONE = "Filtrerad på grund av zon",
   FILTERED_COMPLETE = "Filtrerad på grund av fullgjort",
-  FILTERED_BLOCKED = "Filtrerad på grund av att föregående uppdrag inte är klart.",
+  FILTERED_BLOCKED = "Filtrerad på grund av att föregående uppdrag inte är klart",
   FILTERED_UNWATCHED = "Filtreras på grund av att den inte följs i uppdrags-loggen",
   FILTERED_WINTERGRASP = "Filtrerad på grund av att det är ett PvP Wintergrasp uppdrag",
+  FILTERED_RAID = "Filtrerad på grund av du inte är kompitabel i raid.",
   FILTERED_USER = "Du har begärt att detta uppdrag ska vara gömt",
-  FILTERED_UNKNOWN = "Vet inte hur man klarar av.",
+  FILTERED_UNKNOWN = "Vet inte hur man klarar av",
   
-  HIDDEN_SHOW = "Visa.",
+  HIDDEN_SHOW = "Visa",
   HIDDEN_SHOW_NO = "Ej visningsbar",
-  HIDDEN_EXCEPTION = "lägg till undantag",
+  HIDDEN_EXCEPTION = "Lägg till undantag",
   DISABLE_FILTER = "Inaktivera filter: %1",
-  FILTER_DONE = "Avklarad",
-  FILTER_ZONE = "Zon",
-  FILTER_LEVEL = "Nivå",
-  FILTER_BLOCKED = "Blockerad",
-  FILTER_WATCHED = "Bevakad",
+  FILTER_DONE = "avklarad",
+  FILTER_ZONE = "zon",
+  FILTER_LEVEL = "nivå",
+  FILTER_BLOCKED = "blockerad",
+  FILTER_WATCHED = "bevakad",
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = "Kryssa i för att lägga till denna milstolpen till QuestHelper",
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "Du har %h(ny information) på %h1, och %h(uppdaterad information) på %h2.",
@@ -158,12 +161,12 @@ QuestHelper_Translations.svSE =
   TRAVEL_ESTIMATE = "Beräknad restid:",
   TRAVEL_ESTIMATE_VALUE = "%t1",
   WAYPOINT_REASON = "Besök %h1 på väg till:",
-  FLIGHT_POINT = "Flyg plats",
+  FLIGHT_POINT = "Flygplats",
 
   -- QuestHelper Map Button
   QH_BUTTON_TEXT = "QuestHelper",
   QH_BUTTON_TOOLTIP1 = "Vänster-klicka: %1 rutt-information",
-  QH_BUTTON_TOOLTIP2 = "Höger klicka: Visa Inställnings meny",
+  QH_BUTTON_TOOLTIP2 = "Höger-klicka: Visa menyn Inställningar.",
   QH_BUTTON_SHOW = "Visa",
   QH_BUTTON_HIDE = "Dölj",
 
@@ -197,7 +200,7 @@ QuestHelper_Translations.svSE =
   MENU_PARTY_SHARE = "Dela Uppdrag",
   MENU_PARTY_SOLO = "%1 Ignorera grupp",
   MENU_HELP = "Hjälp",
-  MENU_HELP_SLASH = "Slash Kommandon",
+  MENU_HELP_SLASH = "Slash-kommandon",
   MENU_HELP_CHANGES = "Ändringslista",
   MENU_HELP_SUBMIT = "Skicka data",
   
@@ -208,28 +211,34 @@ QuestHelper_Translations.svSE =
   TOOLTIP_PURCHASE = "Köp %h1.",
   TOOLTIP_SLAY = "Döda för %h1.",
   TOOLTIP_LOOT = "Plocka för %h1.",
+  TOOLTIP_OPEN = "Öppna för",
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "Kommer använda %h1 för att visa objektiv",
   SETTINGS_ARROWLINK_OFF = "Kommer inte använda %h1 för att visa objektiv",
   SETTINGS_ARROWLINK_ARROW = "QuestHelper Pil",
-  SETTINGS_ARROWLINK_CART = "Cartograhp flyg checkpoint",
+  SETTINGS_ARROWLINK_CART = "Cartographer checkpoint",
   SETTINGS_ARROWLINK_TOMTOM = "TomTom Go",
   SETTINGS_PRECACHE_ON = "Precache minne har blivit %h aktiverad",
   SETTINGS_PRECACHE_OFF = "Precache minne har blivit %h avstängd",
   
-  SETTINGS_MENU_ENABLE = "De aktivera",
-  SETTINGS_MENU_DISABLE = "Aktivera",
+  SETTINGS_MENU_ENABLE = "Aktivera",
+  SETTINGS_MENU_DISABLE = "Avaktivera",
   SETTINGS_MENU_CARTWP = "%1 Cartographer pil",
   SETTINGS_MENU_TOMTOM = "%1 TomTom Arrow",
   
   SETTINGS_MENU_ARROW_LOCK = "Lås",
-  SETTINGS_MENU_ARROW_ARROWSCALE = "Pil storlek",
-  SETTINGS_MENU_ARROW_TEXTSCALE = "Text storlek",
+  SETTINGS_MENU_ARROW_ARROWSCALE = "Storlek på pil",
+  SETTINGS_MENU_ARROW_TEXTSCALE = "Storlek på text",
   SETTINGS_MENU_ARROW_RESET = "Återställ",
   
+  SETTINGS_MENU_INCOMPLETE = "Oklarade Uppdrag",
+  
+  SETTINGS_RADAR_ON = "Minikartans radar bunden! (beep, beep, beep)",
+  SETTINGS_RADAR_OFF = "Minikartans radar obunden. (whirrrrr, clunk)",
+  
   -- I'm just tossing miscellaneous stuff down here
-  DISTANCE_YARDS = "%h1 avstånd Yards  0,91 meter/yard",
-  DISTANCE_METRES = "%h1 avstånd meter"
+  DISTANCE_YARDS = "%h1 yards",
+  DISTANCE_METRES = "%h1 meter"
  }
 

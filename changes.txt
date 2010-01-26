@@ -1,4 +1,10 @@
 
+== Version 1.3.9 1/20/2010 ==
+
+* More instrumentation for a few more weird bugs I'm seeing. Keep reporting 'em, I'm not quite sure what's going on yet
+* Standard DB update
+* Been slacking off waaaay too long on updating translations, so I updated 'em. Sorry 'bout that.
+
 == Version 1.3.8 1/12/2010 ==
 
 * Fixed a bug caused by slightly odd out-of-order loading

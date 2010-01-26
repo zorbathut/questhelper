@@ -27,6 +27,7 @@ QuestHelper_Translations.huHU =
   -- Special tracker text
   QH_LOADING = "QuestHelper betöltése folyamatban... (%1%%)",
   QH_FLIGHTPATH = "Repülési pontok újraszámítása (%1)...",
+  QH_RECALCULATING = nil,
   QUESTS_HIDDEN_1 = "Rejtett Questek lehetnek...",
   QUESTS_HIDDEN_2 = "( Használd a \"/qh hidden\" parancsot a felsoroláshoz)",
   
@@ -46,6 +47,7 @@ QuestHelper_Translations.huHU =
   OBJECTIVE_TALK = "Beszélj vele: %h1.",
   OBJECTIVE_SLAY = "Ölj %h1-t.",
   OBJECTIVE_LOOT = "Gyűjts %h1-t.",
+  OBJECTIVE_OPEN = nil,
   
   OBJECTIVE_MONSTER_UNKNOWN = "Ismeretlen szörny",
   OBJECTIVE_ITEM_UNKNOWN = "Ismeretlen tárgy",
@@ -69,7 +71,7 @@ QuestHelper_Translations.huHU =
   IGNORED_PRIORITY_FIX = "Prioritás megadása az akadályozó feladatoknak.",
   IGNORED_PRIORITY_IGNORE = "Magam állítom be a prioritásokat.",
   
-  -- Custom objectives.
+  -- "/qh find"
   RESULTS_TITLE = "Keresés Eredménye",
   NO_RESULTS = "Nincs ilyen!",
   CREATED_OBJ = "%1 készítette",
@@ -77,14 +79,10 @@ QuestHelper_Translations.huHU =
   USER_OBJ = "Felhasználói Feladat: %h1",
   UNKNOWN_OBJ = "Nemtudom hova kellene menned, hogy teljesítsd ezt a feladatod.",
   INACCESSIBLE_OBJ = "A QuestHelper nem talált használható elhelyezést ennek: %h1. Hozzáadtam egy valószinűleg-lehetetlen-megtalálni pozíciót a feladataidhoz. Ha sikerül megtalálnod az valós helyét, kérlek küld el az adatbázisod: (%h(/qh submit))",
-  
-  SEARCHING_STATE = "Keresés folyamatban a(z) %1 közt...",
-  SEARCHING_LOCAL = "Helyi %1",
-  SEARCHING_STATIC = "Fő Adatbankbeli %1",
-  SEARCHING_ITEMS = "Tárgyak",
-  SEARCHING_NPCS = "NPCk",
-  SEARCHING_ZONES = "Területek",
-  SEARCHING_DONE = "Kész a keresés!",
+  FIND_REMOVE = nil,
+  FIND_NOT_READY = nil,
+  FIND_CUSTOM_LOCATION = nil,
+  FIND_USAGE = nil,
   
   -- Shared objectives.
   PEER_TURNIN = "Várd meg míg %h1 leadja a(z) %h2 questet.",
@@ -110,6 +108,7 @@ QuestHelper_Translations.huHU =
   FILTERED_BLOCKED = "Rejtve befejezetlen elsődleges feladat miatt.",
   FILTERED_UNWATCHED = "Szűrve, mert nincs benne a Quest Log-odban!",
   FILTERED_WINTERGRASP = "Rejtve, mivel ez egy Wintergrasp-ba szóló PvP quest",
+  FILTERED_RAID = nil,
   FILTERED_USER = "Te rejtetted el ezt a feladatot.",
   FILTERED_UNKNOWN = "Nem tudom, hogyan kell megcsinálni.",
   
@@ -122,6 +121,10 @@ QuestHelper_Translations.huHU =
   FILTER_LEVEL = "szint",
   FILTER_BLOCKED = "blokkolt",
   FILTER_WATCHED = "megfigyelt",
+  
+  -- Achievements. Or, as they are known in the biz, "cheeves".
+  -- God I hate the biz.
+  ACHIEVEMENT_CHECKBOX = nil,
   
   -- Nagging. (This is incomplete, only translating strings for the non-verbose version of the nag command that appears at startup.)
   NAG_MULTIPLE_NEW = "%h(Új információd) van %h1, és %h(frissített adatod) %h2.",
@@ -208,6 +211,7 @@ QuestHelper_Translations.huHU =
   TOOLTIP_PURCHASE = "Vegyél %h1-t.",
   TOOLTIP_SLAY = "Ölj ehhez: %h1.",
   TOOLTIP_LOOT = "Lootolj %h1-t.",
+  TOOLTIP_OPEN = nil,
   
   -- Settings
   SETTINGS_ARROWLINK_ON = "A %h1 használata bekapcsolva a feladatok mutatásához.",
@@ -227,6 +231,11 @@ QuestHelper_Translations.huHU =
   SETTINGS_MENU_ARROW_ARROWSCALE = "Nyíl mérete",
   SETTINGS_MENU_ARROW_TEXTSCALE = "Szöveg mérete",
   SETTINGS_MENU_ARROW_RESET = "Alapbeállítás",
+  
+  SETTINGS_MENU_INCOMPLETE = nil,
+  
+  SETTINGS_RADAR_ON = nil,
+  SETTINGS_RADAR_OFF = nil,
   
   -- I'm just tossing miscellaneous stuff down here
   DISTANCE_YARDS = "%h1 yard",
