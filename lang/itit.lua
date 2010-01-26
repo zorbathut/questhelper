@@ -7,12 +7,12 @@ QuestHelper_Translations.itIT =
   
   -- Messages used when starting.
   LOCALE_ERROR = "La lingua dei tuoi dati salvati non corrisponde alla lingua del tuo client WoW. Per usare QuestHelper dovrai cambiare nuovamente la lingua, o cancellare i dati col comando %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "La tua versione di QuestHelper è vecchia, dovrai fare l'update in http://www.quest-helper.com per fare che il programma continui a funzionare. Attualmente stai usando la versione %1",
+  ZONE_LAYOUT_ERROR = "La tua versione di QuestHelper è vecchia, dovrai fare l'update in http://www.questhelp.us per fare che il programma continui a funzionare. Attualmente stai usando la versione %1",
   HOME_NOT_KNOWN = "La tua località base è sconosciuta. Appena puoi, parla con un locandiere per reimpostarla.",
   PRIVATE_SERVER = "QuestHelper non sopporta i server privati.",
   PLEASE_RESTART = "C'è stato un errore con l'avvio di QuestHelper. E' consigliabile chiudere World of Warcraft e riprovare.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper non è installato corretamente. Raccomandiamo di usare Curse Client o 7zip per installarlo. Assicurati che le sottodirectory sono esatte.",
-  PLEASE_SUBMIT = "%h (QuestHelper ha bisogno del tuo aiuto!) Se hai qualche minuti, per favore va sul sito di QuestHelper all'indirizzo %h(http://www.quest-helper.com) e segui le istruzioni per inviare i dati da te raccolti. Questi dati permettono a QuestHelper di mantenere dati aggiornati e corretti sulle quest. Grazie!",
+  PLEASE_SUBMIT = "%h (QuestHelper ha bisogno del tuo aiuto!) Se hai qualche minuti, per favore va sul sito di QuestHelper all'indirizzo %h(http://www.questhelp.us) e segui le istruzioni per inviare i dati da te raccolti. Questi dati permettono a QuestHelper di mantenere dati aggiornati e corretti sulle quest. Grazie!",
   HOW_TO_CONFIGURE = "QuestHelper non è stato ancora settato,ma puo essere configurato scrivendo %h(/qh settings). L'aiuto è disponibile scrivendo %h(/qh help) ",
   TIME_TO_UPDATE = "Potrebbe esserci una %h(nuova versione di QuestHelper) disponibile. Le nuove versioni di solito includono nuove funzioni, nuovi database delle quest, e fix dei bug. Per favore aggiorna la versione di QuestHelper in uso!",
   

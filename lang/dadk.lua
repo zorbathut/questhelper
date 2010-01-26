@@ -7,12 +7,12 @@ QuestHelper_Translations.daDK =
   
   -- Messages used when starting.
   LOCALE_ERROR = "Sproget i dine gemte data stemmer ikke med sproget til WoW klienten. For at bruge QuestHelper skal du enten ændre sproget tilbage, eller slette dataerne ved at skrive %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Din udgave af QuestHelper er ikke den nyeste og du bliver nød til at opdatere på http://www.quest-helper.com for at den fortsat skal fungere. Du bruger i øjeblikket version %1.",
+  ZONE_LAYOUT_ERROR = "Din udgave af QuestHelper er ikke den nyeste og du bliver nød til at opdatere på http://www.questhelp.us for at den fortsat skal fungere. Du bruger i øjeblikket version %1.",
   HOME_NOT_KNOWN = "Dit hjem er ukendt. Tal venligst med din innkeeper ved førstkommende lejlighed og nulstil det.",
   PRIVATE_SERVER = "QuestHelper understøtter ikke private servere.",
   PLEASE_RESTART = "Der opstod en fejl ved start af QuestHelper. Afslutte World of Warcraft helt og prøv igen.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper er blevet installeret forkert. Vi anbefaler enten at bruge Curse Client eller 7zip til installering. Vær sikker på at undermapper bliver udpakket.",
-  PLEASE_SUBMIT = "Brug et par minutter på at besøge hjemmesiden for QuestHelper (http://www.quest-helper.com), og følg instruktionerne til hvordan du kan indsende dine indsamlede data. Dine data hjælper med at holde QuestHelper opdateret. På forhånd tak!",
+  PLEASE_SUBMIT = "Brug et par minutter på at besøge hjemmesiden for QuestHelper (http://www.questhelp.us), og følg instruktionerne til hvordan du kan indsende dine indsamlede data. Dine data hjælper med at holde QuestHelper opdateret. På forhånd tak!",
   HOW_TO_CONFIGURE = "QuestHelper har endnu ikke en egentlig indstillingsside, men kan konfigureres ved at skrive %h(/qh settings). Få hjælp ved at skrive %h(/qh help).",
   TIME_TO_UPDATE = "Der er evt. en %h(ny QuestHelper version) klar. Nye versioner kan indeholde nye funktioner, nye quest databaser, og fejlrettelser. Opdater venligst!",
   

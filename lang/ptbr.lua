@@ -7,12 +7,12 @@ QuestHelper_Translations.ptBR =
   
   -- Messages used when starting.
   LOCALE_ERROR = "O idioma que você salvou seus dados não são compatíveis com o idioma do seu cliente do WoW. Para usar o QuestHelper você precisará voltar o idioma, ou deletar os dados digitando %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Sua versão do QuestHelper está desatualizada, e você terá que atualizar em http://www.quest-helper.com para que ela continue a funcionar. Você está usando atualmente a versão %1.",
+  ZONE_LAYOUT_ERROR = "Sua versão do QuestHelper está desatualizada, e você terá que atualizar em http://www.questhelp.us para que ela continue a funcionar. Você está usando atualmente a versão %1.",
   HOME_NOT_KNOWN = "Sua casa é desconhecida. Quando tiver uma chance, por favor, fale com um dono de taberna e resete-a.",
   PRIVATE_SERVER = "QuestHelper não suporta servidores privados.",
   PLEASE_RESTART = "Ocorreu um erro ao iniciar o QuestHelper. Por favor feche completamente o World of Warcraft e tente de novo.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper foi instalado incorretamente. Recomendamos que use o Curse Cliente ou 7zip para instalar. Verifica se as subpastas foram extraidas.",
-  PLEASE_SUBMIT = "%h(QuestHelper precisa da sua ajuda!) Se você possui alguns minutos, por favor vá a página do QuestHelper em %h(http:http://www.quest-helper.com) e siga as instruções para submeter os dados coletados. Os seus dados mantém o QuestHelper correto e atualizado.",
+  PLEASE_SUBMIT = "%h(QuestHelper precisa da sua ajuda!) Se você possui alguns minutos, por favor vá a página do QuestHelper em %h(http:http://www.questhelp.us) e siga as instruções para submeter os dados coletados. Os seus dados mantém o QuestHelper correto e atualizado.",
   HOW_TO_CONFIGURE = "O QuestHelper ainda não tem uma página de configurações funcionando, mas pode ser configurado digitando %h (/qh settings). A ajuda está disponível através de %h(/qh help). ",
   TIME_TO_UPDATE = "Pode haver uma %h disponível. Novas versões normalmente incluem novas características, novo banco de dados de quest, e erros concertados. Por favor, atualize!",
   

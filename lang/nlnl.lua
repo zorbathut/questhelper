@@ -12,7 +12,7 @@ QuestHelper_Translations.nlNL =
   PRIVATE_SERVER = "Private servers worden niet door QuestHelper ondersteund.",
   PLEASE_RESTART = "QuestHelper is niet goed opgestart. Start World of Warcraft helemaal opnieuw op aub.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper is niet goed geinstalleerd. we raden aan om de Curse Client of 7zip te installeren. Controleer of de sub-mappen uit zijn gepakt.",
-  PLEASE_SUBMIT = "%h(QuestHelper heeft jouw hulp nodig!) Als je even tijd hebt, ga dan naar de QuestHelper homepage %h(http://www.quest-helper.com) en volg de instrcuties om je verzamelde data te uploaden. Jouw data helpt om QuestHelper werkend en up-to-date te houden! Alvast bedankt.",
+  PLEASE_SUBMIT = "%h(QuestHelper heeft jouw hulp nodig!) Als je even tijd hebt, ga dan naar de QuestHelper homepage %h(http://www.questhelp.us) en volg de instrcuties om je verzamelde data te uploaden. Jouw data helpt om QuestHelper werkend en up-to-date te houden! Alvast bedankt.",
   HOW_TO_CONFIGURE = "QuestHelper heeft nog geen werkende instellings pagina, maar dit kan geconfigureerd worden door %h(/qh settings) te typen. Hulp is beschikbaar met %h(/qh help).",
   TIME_TO_UPDATE = "Er kan een %h(nieuwe QuestHelper versie) beschikbaar zijn. Nieuwere versies hebben meestal nieuwe toevoegingen, nieuwe questdatabases en bugfixes. Update aub!",
   

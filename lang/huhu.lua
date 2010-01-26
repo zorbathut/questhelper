@@ -12,7 +12,7 @@ QuestHelper_Translations.huHU =
   PRIVATE_SERVER = "A QuestHelper nem támogatja a privát szervereket.",
   PLEASE_RESTART = "Hiba történt a QuestHelper indításakor. Kérlek zárd be teljesen a WoW-ot, és lépj be újra!",
   NOT_UNZIPPED_CORRECTLY = "A QuestHelper hibásan lett telepítve! Ajánlott vagy a Curse-kliens vagy a 7zip használata. Győjőzdj meg róla, hogy az alkönyvtárak is ki lettek tömörítve.",
-  PLEASE_SUBMIT = "%h(A QuestHelpernek a segítségedre van szüksége!) Ha van szabad egy-két perced, kérlek látogasd meg a honlapunkat a %h(http://www.quest-helper.com) címen, és kövesd az ott látható utasításokat, hogy elküldd nekünk az adatbázisod. Az így elküldött adatok segítségével maradhat a QuestHelper pontos és naprakész. Köszi!",
+  PLEASE_SUBMIT = "%h(A QuestHelpernek a segítségedre van szüksége!) Ha van szabad egy-két perced, kérlek látogasd meg a honlapunkat a %h(http://www.questhelp.us) címen, és kövesd az ott látható utasításokat, hogy elküldd nekünk az adatbázisod. Az így elküldött adatok segítségével maradhat a QuestHelper pontos és naprakész. Köszi!",
   HOW_TO_CONFIGURE = "Még nincs működő Beállítások része ezen QuestHelpernek, de konfigurálhatod, ha beírod: %h(/qh settings). Segítség a %h(/qh help) beírásával érhatő el.",
   TIME_TO_UPDATE = "Valószinűleg létezik egy újabb QuestHelper verzió ( %h )! Újabb verziók újabb funkciókat, quest-adatbázisokat és hibajavításokat tartalmaznak. Kérlek, frissíts!",
   

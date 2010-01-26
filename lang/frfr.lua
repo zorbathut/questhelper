@@ -7,12 +7,12 @@ QuestHelper_Translations.frFR =
   
   -- Messages used when starting.
   LOCALE_ERROR = "La langue de vos données sauvegardées ne correspond pas à la langue de votre client WoW. Pour utiliser QuestHelper, vous devez soit remettre la langue que vous aviez avant, soit supprimer les données en tapant %h(/qh purge).",
-  ZONE_LAYOUT_ERROR = "Votre version de QuestHelper n'est plus à jour, vous êtes prié de vous connectez-vous sur http://www.quest-helper.com pour poursuivre son utilisation. Votre version actuelle est %1.",
+  ZONE_LAYOUT_ERROR = "Votre version de QuestHelper n'est plus à jour, vous êtes prié de vous connectez-vous sur http://www.questhelp.us pour poursuivre son utilisation. Votre version actuelle est %1.",
   HOME_NOT_KNOWN = "Vous n'avez pas de foyer défini. Lorsque cela sera possible, veuillez parler à votre aubergiste et réinitialisez-le.",
   PRIVATE_SERVER = "QuestHelper ne supporte pas les serveurs privés.",
   PLEASE_RESTART = "Une erreur est survenue au lancement de QuestHelper. Veuillez quitter World of Warcraft et essayer à nouveau.",
   NOT_UNZIPPED_CORRECTLY = "QuestHelper n'a pas été installé correctement. Nous vous recommandons d'utiliser soit le client Curse soit 7zip pour l'installation. Assurez-vous que les sous-dossiers soient extraits.",
-  PLEASE_SUBMIT = "%h(QuestHelper a besoin de votre aide !) Si vous avez quelques minutes, s'il vous plaît, allez sur la page d'accueil de QuestHelper à %h(http://www.quest-helper.com) et suivez les instructions pour soumettre vos données collectées. Vos informations maintiennent à jour l'exactitude de QuestHelper. Merci !",
+  PLEASE_SUBMIT = "%h(QuestHelper a besoin de votre aide !) Si vous avez quelques minutes, s'il vous plaît, allez sur la page d'accueil de QuestHelper à %h(http://www.questhelp.us) et suivez les instructions pour soumettre vos données collectées. Vos informations maintiennent à jour l'exactitude de QuestHelper. Merci !",
   HOW_TO_CONFIGURE = "QuestHelper n'a pas encore une page de configuration fonctionnelle, mais peut être configuré en tapant %h(/qh settings). L'aide est disponible en utilisant %h(/qh help).",
   TIME_TO_UPDATE = "Il semble qu'une %h(nouvelle version de QuestHelper) soit disponible. Les nouvelles versions incluent généralement de nouvelles fonctionalités, de nouvelles bases de données de quêtes et des corrections de bogues. Merci de mettre à jour !",
   

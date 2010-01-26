@@ -12,7 +12,7 @@ QuestHelper_Translations.esMX =
   PRIVATE_SERVER = "QuestHelper no funciona en Servidores Privados",
   PLEASE_RESTART = "Hubo un error iniciando QuestHelper. Por favor salga completamente del World of Warcraft e intente nuevamente.",
   NOT_UNZIPPED_CORRECTLY = "Quest Helper se ha instalado incorrectamente. Recomendamos usar o el Curse Client o Zip.7 para instalarlo.  Asegurese que los subdirectorios son extraidos",
-  PLEASE_SUBMIT = "%h (QuestHelper necesita tu ayuda!) Si tienes algunso minutos, por favor dirigete a la página principal de QuestHelper en %h(http://www.quest-helper.com) y sigue las intrucciones para enviar tus datos coleccionados. Tus datos mantienen QuestHelper al día y en funcionamiento.",
+  PLEASE_SUBMIT = "%h (QuestHelper necesita tu ayuda!) Si tienes algunso minutos, por favor dirigete a la página principal de QuestHelper en %h(http://www.questhelp.us) y sigue las intrucciones para enviar tus datos coleccionados. Tus datos mantienen QuestHelper al día y en funcionamiento.",
   HOW_TO_CONFIGURE = "Como configurar.",
   TIME_TO_UPDATE = "Hay una nueva version Quest Helper %v disponible. Nuevas versiones incluyen normalmente nuevas funciones,nueva base de datos de misiones, y fija errores. Actualicese !!",
   
