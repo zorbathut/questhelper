@@ -11,7 +11,7 @@ local AchievementDB
 --X 10 is completing a daily quest every day
 --X 11 is completing quests in specific areas
 --X 14 is completing daily quests
---X 27 is a quest, asset is quest ID
+-- 27 is a quest, asset is quest ID
 --X 28 is getting a spell cast on you, asset is a spell ID
 --X 29 is casting a spell (often crafting), asset is a spell ID
 --X 30 is PvP objectives (flags, assaulting, defending)
@@ -44,7 +44,7 @@ local AchievementDB
 --X 112 is learning cooking recipes
 --X 113 is honorable kills
 local achievement_type_blacklist = {}
-for _, v in pairs({1, 7, 8, 9, 10, 11, 14, 27, 28, 29, 30, 31, 32, 34, 35, 36, 37, 41, 42, 46, 47, 49, 52, 53, 56, 62, 67, 73, 75, 112, 113}) do
+for _, v in pairs({1, 7, 8, 9, 10, 11, 14, 28, 29, 30, 31, 32, 34, 35, 36, 37, 41, 42, 46, 47, 49, 52, 53, 56, 62, 67, 73, 75, 112, 113}) do
   achievement_type_blacklist[v] = true
 end
 
