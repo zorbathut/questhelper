@@ -1,0 +1,44 @@
+#!/usr/local/bin/python3.0
+
+import re
+import os
+import sys
+import hashlib
+
+import utility
+
+if not os.path.exists("data/06"):
+  os.makedirs("data/06")
+
+collatefiles = {}
+for path, dirs, files in os.walk("data/05"):
+  collatefiles.update({file:os.path.join(path, file) for file in files})
+print("Collatefiles isolated: %d" % len(collatefiles))
+
+treg = re.compile("data/06/[0-9a-f]{2,2}/([0-9a-f]{32,32})")
+idfiles = {}
+for path, dirs, files in os.walk("data/06"):
+  match = treg.match(path)
+  if match:
+    idfiles[match.group(1)] = path
+print("Idfiles isolated: %d" % len(idfiles))
+
+touchfiles = sorted(set([tag for tag in collatefiles.keys()]) | set([tag for tag in idfiles.keys()]))
+
+trarg = re.compile("^([^\n]+)\n([^\n]+)$")
+for tag in touchfiles:
+  assert(tag in collatefiles)
+  if not tag in idfiles:
+    print("Identifying %s" % tag)
+    dat = utility.exe("lua ./build_06_identify_core.lua %s" % collatefiles[tag])
+    
+    metch = trarg.match(dat)
+    assert(metch)
+    
+    id, ts = metch.group(1), metch.group(2)
+    
+    if not os.path.exists("data/06/%s/%s" % (tag[0:2], tag)):
+      os.makedirs("data/06/%s/%s" % (tag[0:2], tag))
+    os.link(collatefiles[tag], "data/06/%s/%s/%s_%s" % (tag[0:2], tag, id, ts))
+
+

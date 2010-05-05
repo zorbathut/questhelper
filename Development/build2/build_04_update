@@ -1,0 +1,44 @@
+#!/usr/local/bin/python3.0
+
+import re
+import os
+import sys
+import hashlib
+
+import utility
+
+if not os.path.exists("data/04"):
+  os.makedirs("data/04")
+
+collatefiles = {}
+for path, dirs, files in os.walk("data/03"):
+  collatefiles.update({file:os.path.join(path, file) for file in files})
+print("Collatefiles isolated: %d" % len(collatefiles))
+
+treg = re.compile("data/04/[0-9a-f]{2,2}/([0-9a-f]{32,32})")
+upgradefiles = {}
+for path, dirs, files in os.walk("data/04"):
+  match = treg.match(path)
+  if match:
+    upgradefiles[match.group(1)] = path
+print("Upgradefiles isolated: %d" % len(upgradefiles))
+
+touchfiles = sorted(set([tag for tag in collatefiles.keys()]) | set([tag for tag in upgradefiles.keys()]))
+
+utility.exe_bin("rm -rf upgradetemp")
+
+for tag in touchfiles:
+  assert(tag in collatefiles)
+  if not tag in upgradefiles:
+    print("Upgrading %s" % tag)
+    
+    os.makedirs("upgradetemp")
+    
+    utility.exe_bin("luajit -O2 build_04_update_core.lua %s upgradetemp" % collatefiles[tag])
+    
+    try:
+      os.makedirs("data/04/%s" % (tag[0:2]))
+    except OSError:
+      pass
+    
+    os.rename("upgradetemp", "data/04/%s/%s" % (tag[0:2], tag))

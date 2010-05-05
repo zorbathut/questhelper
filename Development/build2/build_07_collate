@@ -1,0 +1,43 @@
+#!/usr/local/bin/python3.0
+
+import re
+import os
+import sys
+import hashlib
+
+import utility
+
+if not os.path.exists("data/07"):
+  os.makedirs("data/07")
+
+treg = re.compile("^data/06/[0-9a-f]{2,2}/[0-9a-f]{32,32}/([^/]+)$")
+idfiles = {}
+for path, dirs, files in os.walk("data/06"):
+  for file in files:
+    tfile = os.path.join(path, file)
+    match = treg.match(tfile)
+    if match:
+      idfiles[match.group(1)] = tfile
+print("Idfiles isolated: %d" % len(idfiles))
+
+groupfiles = {}
+for path, dirs, files in os.walk("data/07"):
+  groupfiles.update({(path.rsplit('/', 1)[1] + "_" + file):os.path.join(path, file) for file in files})
+print("Groupfiles isolated: %d" % len(groupfiles))
+
+
+touchfiles = sorted(set([tag for tag in idfiles.keys()]) | set([tag for tag in groupfiles.keys()]))
+
+trarg = re.compile("^([^_]+)_([^_]+)$")
+
+for tag in touchfiles:
+  assert(tag in idfiles)
+  if not tag in groupfiles:
+    print("Linking %s" % tag)
+    match = trarg.match(tag)
+    id, ts = match.group(1), match.group(2)
+    if not os.path.exists("data/07/%s/%s" % (id[0:2], id)):
+      os.makedirs("data/07/%s/%s" % (id[0:2], id))
+    os.link(idfiles[tag], "data/07/%s/%s/%s" % (id[0:2], id, ts))
+
+

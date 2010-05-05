@@ -1,5 +1,4 @@
-Astrolabe
-ChatThrottleLib
+
 static.lua
 changes.lua
 *.zip
@@ -7,3 +6,15 @@ changes.lua
 
 *~
 static_*.lua
+
+
+Development/build2/.sconsign.dblite
+Development/build2/*.pyc
+Development/build2/data
+Development/build2/intermed
+Development/build2/final
+Development/build2/optimize
+Development/build2/QHbar_*
+
+Development/build2/*.so
+Development/build2/*.os

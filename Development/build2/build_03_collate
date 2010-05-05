@@ -1,0 +1,41 @@
+#!/usr/local/bin/python3.0
+
+import re
+import os
+import sys
+import hashlib
+
+import utility
+
+if not os.path.exists("data/03"):
+  os.makedirs("data/03")
+
+treg = re.compile("data/02/[0-9a-f]{2,2}/[0-9a-f]{32,32}/([0-9a-f]{32,32})")
+decofiles = {}
+for path, dirs, files in os.walk("data/02"):
+  for file in files:
+    tfile = os.path.join(path, file)
+    match = treg.match(tfile)
+    if match:
+      decofiles[match.group(1)] = tfile
+print("Decofiles isolated: %d" % len(decofiles))
+
+colfiles = {}
+for path, dirs, files in os.walk("data/03"):
+  colfiles.update({file:os.path.join(path, file) for file in files})
+print("Colfiles isolated: %d" % len(colfiles))
+
+
+touchfiles = sorted(set([tag for tag in colfiles.keys()]) | set([tag for tag in decofiles.keys()]))
+
+
+nmatch = re.compile("[^:]+: (.*)")
+for tag in touchfiles:
+  assert(tag in decofiles)
+  if not tag in colfiles:
+    print("Linking %s" % tag)
+    if not os.path.exists("data/03/%s" % (tag[0:2])):
+      os.makedirs("data/03/%s" % (tag[0:2]))
+    os.link(decofiles[tag], "data/03/%s/%s" % (tag[0:2], tag))
+
+

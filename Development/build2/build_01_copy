@@ -1,0 +1,63 @@
+#!/usr/local/bin/python3.0
+
+import re
+import os
+import sys
+import bz2
+import hashlib
+
+import utility
+import S3
+
+if not os.path.exists("data/01"):
+  os.makedirs("data/01")
+
+def getAll(conn, bucket, prefix):
+  reply = conn.list_bucket(bucket, options={"prefix":prefix})
+  rv = reply.entries
+  while reply.is_truncated:
+    marker = rv[-1].key
+    print("Retrieving filelist, %d files . . ." % len(rv))
+    assert(len(marker))
+    assert(len(reply.entries))
+    reply = conn.list_bucket(bucket, options={"prefix":prefix, "marker":marker})
+    assert(len(reply.entries))
+    rv = rv + reply.entries
+  print("Filelist retrieved, %d files" % len(rv))
+  return rv
+
+AWS_ACCESS_KEY_ID="1JC38J0QE1MGRE08TT82"
+AWS_SECRET_ACCESS_KEY="+I7mvTFCcEpI1WZ14lDjVSaeog+BKBCVUudwIWKs"
+
+BUCKET="questhelper_data"
+
+conn = S3.AWSAuthConnection(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+generator = S3.QueryStringAuthGenerator(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+
+print("Starting")
+tregex = re.compile("rawdata_([0-9a-f]{32,32}).*\.bz2")
+serverfiles = {tregex.match(x.key).group(1):x.key for x in getAll(conn, BUCKET, "rawdata_")}
+print("Serverfiles isolated: %d" % len(serverfiles))
+
+currentfiles = {}
+for path, dirs, files in os.walk("data/01"):
+  currentfiles.update({file:os.path.join(path, file) for file in files})
+print("Currentfiles isolated: %d" % len(currentfiles))
+
+touchfiles = sorted(set([tag for tag in currentfiles.keys()]) | set([tag for tag in serverfiles.keys()]))
+
+for tag in touchfiles:
+  assert(tag in serverfiles)
+  if not tag in currentfiles:
+    print("Downloading %s" % tag)
+    dat = conn.get(BUCKET, serverfiles[tag]).object.data
+    #print("Downloaded, %d" % len(dat))
+    dat = bz2.decompress(dat)
+    assert(hashlib.md5(dat).hexdigest() == tag)
+    #print("Decompressed to %d" % len(dat))
+    if not os.path.exists("data/01/%s" % tag[0:2]):
+      os.makedirs("data/01/%s" % tag[0:2])
+    with open("data/01/%s/%s" % (tag[0:2], tag), "wb") as f:
+      f.write(dat)
+    #print("Writed")
+

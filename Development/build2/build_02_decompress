@@ -1,0 +1,161 @@
+#!/usr/local/bin/python3.0
+
+import re
+import os
+import sys
+import hashlib
+
+import utility
+
+if not os.path.exists("data/02"):
+  os.makedirs("data/02")
+
+currentfiles = {}
+for path, dirs, files in os.walk("data/01"):
+  currentfiles.update({file:os.path.join(path, file) for file in files})
+print("Currentfiles isolated: %d" % len(currentfiles))
+
+treg = re.compile("data/02/[0-9a-f]{2,2}/([0-9a-f]{32,32})")
+decofiles = {}
+for path, dirs, files in os.walk("data/02"):
+  match = treg.match(path)
+  if match:
+    decofiles[match.group(1)] = path
+print("Decofiles isolated: %d" % len(decofiles))
+
+touchfiles = sorted(set([tag for tag in currentfiles.keys()]) | set([tag for tag in decofiles.keys()]))
+
+def doDecompress(tag, filename, formatstring):
+  assert(os.system("rm -rf tempdir") == 0)
+  os.mkdir("tempdir")
+  print(formatstring.format(file = filename, destination = "tempdir"))
+  stdout, stderr, rv = utility.exe_rv(formatstring.format(file = filename, destination = "tempdir"))
+  print(stdout)
+  print(stderr)
+  assert(rv == 0 or stderr.find("unsupported compression method 98") != -1 or stderr.find("You need to start extraction from a previous volume") != -1 or stderr.find("Cannot find volume") != -1 or stderr.find("CRC failed") != -1)
+  srcdir = "data/02/%s/%s" % (tag[0:2], tag)
+  try:
+    os.makedirs(srcdir)
+    for path, dirs, files in os.walk("tempdir"):
+      for file in files:
+        with open(os.path.join(path, file), "rb") as f:
+          dat = f.read()
+        
+        cs = hashlib.md5(dat).hexdigest()
+        with open("%s/%s" % (srcdir, cs), "wb") as f:
+          f.write(dat)
+  except:
+    assert(os.system("rm -rf %s" % srcdir) == 0)
+    raise
+  assert(os.system("rm -rf tempdir") == 0)
+
+failures = [
+  # Pictures!
+  "PNG image",
+  "JPEG image data",
+  "GIF image data",
+  "PC bitmap data",
+  "Targa image data", # I think we've got all the major ones now, right?
+  "TIFF image data", # Come on. TIFF? Seriously? TIFF?
+  "PC bitmap",
+  
+  # Totally worthless
+  "vCard visiting card",
+  "vCalendar calendar file",
+  "PGP signature",
+  "PGP public key block",
+  "MS Windows shortcut", # sigh
+  "graphviz graph text",
+  "very short file (no magic)", # There certainly won't be anything useful in here.
+  "empty", # Yeah.
+  
+  # Lazy.
+  "Transport Neutral Encapsulation Format", # Whatever this is, it looks like I could, in theory, extract useful data from it. In reality, I'm lazy. Meh.
+  "RFC 822 mail text", # Ditto.
+  "uuencoded or xxencoded text", # some dude sent a giant UUE data block that doesn't want to UUD properly. I'm lazy, so, here we are.
+  "Rich Text Format data", # some guy sent an RTF Swatter error message? I can't see anything good coming from RTF
+  "news or mail text", # I refuse to attempt to decode a base64 encoded file with email headers attached
+  "PGP message", # meh
+  
+  # DENIED
+  "Microsoft Office Document",  # Yeah fuckin' right.
+  "Microsoft Word Document",  # ugh
+  "Microsoft Office Document Microsoft Word Document", # gaah
+  "OpenDocument Text",  # Not worth it.
+  "HTML document text", # "Please find the file attached." No.
+  "Lisp/Scheme program text", # For some reason it's interpreting some chunk of HTML as lisp/scheme. I have no fucking clue why. In any case, HTML isn't likely to be useful either.
+  "AppleDouble encoded Macintosh file", # what the fuck
+  "MP3", # nope
+  
+  # Virus!
+  "Microsoft ASF",
+  "MPEG ADTS",
+  
+  # At some point maybe this could be handled also
+  "Zip archive data, at least v2.0 to extract",
+  
+  # what the flying fuck
+  "Bio-Rad .PIC Image File",
+  "Standard MIDI data",
+]
+
+texttypes = [
+  "ASCII",
+  "UTF-8 Unicode",
+  "ISO-8859",
+]
+
+nmatch = re.compile("[^:]+: (.*)")
+for tag in touchfiles:
+  assert(tag in currentfiles)
+  if not tag in decofiles:
+    print("Scanning %s" % tag)
+    ftype = nmatch.match(utility.exe("file %s" % currentfiles[tag])).group(1)
+    print(ftype)
+    
+    handled = False
+    
+    if not handled:
+      for item in failures:
+        if ftype.find(item) != -1:
+          os.makedirs("data/02/%s/%s" % (tag[0:2], tag))
+          handled = True # BZZT
+    
+    if not handled:
+      if ftype.find("Zip archive data") != -1:
+        doDecompress(tag, currentfiles[tag], "unzip {file} -d {destination}")
+        handled = True
+    
+    if not handled:
+      if ftype.find("RAR archive data") != -1:
+        doDecompress(tag, currentfiles[tag], "unrar e -o- {file} {destination}")
+        handled = True
+        
+    if not handled:
+      if ftype.find("7-zip archive data") != -1:
+        doDecompress(tag, currentfiles[tag], "7z e -o{destination} {file}")
+        handled = True
+    
+    if not handled:
+      if ftype.find("gzip compressed data") != -1:
+        doDecompress(tag, currentfiles[tag], "BASHHACK gunzip < {file} > {destination}/file")
+        handled = True
+    
+    if not handled:
+      if ftype.find("ACE archive") != -1:
+        doDecompress(tag, currentfiles[tag], "BASHHACK cp {file} acehack.ACE ; cd {destination} ; unace x ../acehack.ACE ; rm ../acehack.ACE")
+        handled = True
+    
+    if not handled:
+      texty = False
+      for item in texttypes:
+          if ftype.find(item) != -1:
+            texty = True
+      if texty and ftype.find("text") != -1 or ftype == "data":
+        os.makedirs("data/02/%s/%s" % (tag[0:2], tag))
+        os.link(currentfiles[tag], "data/02/%s/%s/%s" % (tag[0:2], tag, tag))
+        handled = True
+    
+    assert(handled)
+
+
