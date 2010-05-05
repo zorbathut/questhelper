@@ -1,4 +1,15 @@
 
+== Version 1.4.0 5/5/2010 ==
+
+* Added a configuration system (okay, the excellent configuration from the UI mod QuestHelperConfig)
+* GPL'ed the source
+* Included the build tools in the git repo
+* Updated the DB for old time's sake
+
+* Everything in the bottom page is still accurate
+
+* [[http://www.mandible.net/|Hey, come check out my current projects! They include free video games.]]
+
 == Version 1.3.11 2/26/2010 ==
 
 * Database update
