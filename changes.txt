@@ -6,7 +6,7 @@
 * Included the build tools in the git repo
 * Updated the DB for old time's sake
 
-* Everything in the bottom page is still accurate
+* Everything in the bottom section is still accurate, so go re-read it
 
 * [[http://www.mandible.net/|Hey, come check out my current projects! They include free video games.]]
 
