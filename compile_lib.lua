@@ -193,7 +193,7 @@ local function get_index(v)
   if version_lessthan(v, "3.0.0") then print("Unknown version - ", v) assert(false) end
   if version_lessthan(v, "3.2.0") then return "3.1" end
   if v == "3.2.0" or v == "3.2.2" then return "3.2" end
-  if v == "3.3.0" then return "3.3" end
+  if v == "3.3.0" or v == "3.3.2" or v == "3.3.3" then return "3.3" end
   print("invalid version", v)
   assert(false, v)
 end
