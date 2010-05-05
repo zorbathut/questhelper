@@ -252,6 +252,8 @@ QH_Event("ADDON_LOADED", function (addonid)
       ["tooltip.lua"] = true,
       ["arrow.lua"] = true,
       ["radar.lua"] = true,
+      
+      ["config.lua"] = true,
 
       ["static.lua"] = true,
       ["static_1.lua"] = true,
@@ -618,8 +620,6 @@ QH_Event("ADDON_LOADED", function (addonid)
     QuestHelper:TextOut(string.format("%d %d", GetFunctionCPUUsage(A), GetFunctionCPUUsage(B)))
     
     --/script SetCVar("scriptProfile", value)]]
-    
-    LibStub("LibAboutPanelQH").new(nil, "QuestHelper")
     
     
     QH_Event("CHAT_MSG_ADDON", function (...)

@@ -54,17 +54,21 @@ utility.lua
 manager_event.lua
 
 bst_libaboutpanel.lua
-LibAboutPanel\lib.xml
+libs\LibStub\LibStub.lua
+libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+libs\AceGUI-3.0\AceGUI-3.0.xml
+libs\AceConfig-3.0\AceConfig-3.0.xml
 
 bst_astrolabe.lua
-AstrolabeQH\Load.xml
+libs\AstrolabeQH\Load.xml
 
 bst_ctl.lua
-ChatThrottleLib\ChatThrottleLib.xml
+libs\ChatThrottleLib\ChatThrottleLib.xml
 
 bst_range.lua
-LibRangeCheck-2.0\CallbackHandler-1.0\CallbackHandler-1.0.xml
-LibRangeCheck-2.0\LibRangeCheck-2.0.lua
+libs\LibRangeCheck-2.0\CallbackHandler-1.0\CallbackHandler-1.0.xml
+libs\LibRangeCheck-2.0\LibRangeCheck-2.0.lua
 
 changes.lua
 
@@ -230,5 +234,7 @@ cartographer.lua
 cartographer_is_terrible.lua
 tomtom.lua
 arrow.lua
+
+config.lua
 
 bst_post.lua

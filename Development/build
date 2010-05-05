@@ -134,7 +134,7 @@ if external then
   --print("Updating Astrolabe.")
   --FileUtil.updateSVNRepo("http://svn.esamynn.org/astrolabe/branches/wotlk_data_temp", "../Astrolabe")
   print("Updating ChatThrottleLib.")
-  FileUtil.updateSVNRepo("svn://svn.wowace.com/wow/chatthrottlelib/mainline/trunk", "../ChatThrottleLib")
+  FileUtil.updateSVNRepo("svn://svn.wowace.com/wow/chatthrottlelib/mainline/trunk", "../libs/ChatThrottleLib")
 end
 
 if compile then
@@ -637,13 +637,13 @@ if archive_zip or archive_7z then
     end
   end)
   
-  for i, dir in ipairs({"AstrolabeQH", "ChatThrottleLib", "LibAboutPanel", "lang", "LibRangeCheck-2.0"}) do
+  for i, dir in ipairs({"libs"}) do
     FileUtil.copyDirectoryRecursively("../"..dir, "QuestHelper/"..dir)
   end
   
-  FileUtil.copyFile("../AstrolabeQH/Astrolabe.lua", "QuestHelper/AstrolabeQH", "(QuestHelper_File%[[^%]]*%]%s*=%s*)\"[^\"]+\"", file_version_pattern)
-  FileUtil.copyFile("../AstrolabeQH/AstrolabeMapMonitor.lua", "QuestHelper/AstrolabeQH", "(QuestHelper_File%[[^%]]*%]%s*=%s*)\"[^\"]+\"", file_version_pattern)
-  FileUtil.copyFile("../AstrolabeQH/DongleStub.lua", "QuestHelper/AstrolabeQH", "(QuestHelper_File%[[^%]]*%]%s*=%s*)\"[^\"]+\"", file_version_pattern)
+  FileUtil.copyFile("../libs/AstrolabeQH/Astrolabe.lua", "QuestHelper/libs/AstrolabeQH", "(QuestHelper_File%[[^%]]*%]%s*=%s*)\"[^\"]+\"", file_version_pattern)
+  FileUtil.copyFile("../libs/AstrolabeQH/AstrolabeMapMonitor.lua", "QuestHelper/libs/AstrolabeQH", "(QuestHelper_File%[[^%]]*%]%s*=%s*)\"[^\"]+\"", file_version_pattern)
+  FileUtil.copyFile("../libs/AstrolabeQH/DongleStub.lua", "QuestHelper/libs/AstrolabeQH", "(QuestHelper_File%[[^%]]*%]%s*=%s*)\"[^\"]+\"", file_version_pattern)
   
   FileUtil.copyFile("../MinimapArrow.tga", "QuestHelper")
   FileUtil.copyFile("../arrow_image.blp", "QuestHelper")
