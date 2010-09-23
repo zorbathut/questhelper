@@ -188,7 +188,9 @@ function QH_Timeslice_Work(time_used, time_this_frame, bonus_time, verbose)
       coroutine_running = true
       QuestHelper: Assert(unyieldable == 0)
       state, err = coroutine.resume(coro.coro)
-      QuestHelper: Assert(unyieldable == 0)
+      if state then
+        QuestHelper: Assert(unyieldable == 0)
+      end
       coroutine_running = false
     end
     local stop = GetTime()
