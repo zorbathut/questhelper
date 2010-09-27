@@ -760,6 +760,10 @@ function QH_UpdateQuests(force)
             --[[if not db[i].temp_desc or is_uncached(db[i].temp_typ, db[i].temp_desc, db[i].temp_done) then
               db[i].temp_desc = string.format("(missing description %d)", i)
             end]]
+            if not db[i].temp_desc then
+              db[i].temp_desc = string.format("(missing description %d)", i)
+              db[i].temp_typ = "event"
+            end
             db[i].temp_person = player
             
             db[i].tooltip_defer_questname = title
