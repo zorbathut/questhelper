@@ -156,8 +156,9 @@ local function check_onclick(self)
   end
   Update_Objectives()
   
-  for i = 1, #AchievementFrameAchievements.buttons do
-    check_onshow(AchievementFrameAchievements.buttons[i].qh_checkbox)
+  local frame = select(4, GetBuildInfo()) >= 40000 and AchievementFrameAchievementsContainer or AchievementFrameAchievements
+  for i = 1, #frame.buttons do
+    check_onshow(frame.buttons[i].qh_checkbox)
   end
 end
 
@@ -198,9 +199,10 @@ QH_Event("ADDON_LOADED", function (addonid)
     AchievementFrameAchievementsContainer.update = AFAU_Replacement
     ACHIEVEMENT_FUNCTIONS.updateFunc = AFAU_Replacement
     
-    for i = 1, #AchievementFrameAchievements.buttons do
-      local framix = CreateFrame("CheckButton", "qh_arglbargl_" .. i, AchievementFrameAchievements.buttons[i], "AchievementCheckButtonTemplate")
-      framix:SetPoint("BOTTOMRIGHT", AchievementFrameAchievements.buttons[i], "BOTTOMRIGHT", -22, 7.5)
+    local frame = select(4, GetBuildInfo()) >= 40000 and AchievementFrameAchievementsContainer or AchievementFrameAchievements
+    for i = 1, #frame.buttons do
+      local framix = CreateFrame("CheckButton", "qh_arglbargl_" .. i, frame.buttons[i], "AchievementCheckButtonTemplate")
+      framix:SetPoint("BOTTOMRIGHT", frame.buttons[i], "BOTTOMRIGHT", -22, 7.5)
       framix:SetScript("OnEnter", check_onenter)
       framix:SetScript("OnLeave", check_onleave)
       
@@ -216,7 +218,7 @@ QH_Event("ADDON_LOADED", function (addonid)
       sigil:SetPoint("RIGHT", framix, "LEFT", -1, 0)
       sigil:SetVertexColor(0.6, 0.6, 0.6)
       
-      AchievementFrameAchievements.buttons[i].qh_checkbox = framix
+      frame.buttons[i].qh_checkbox = framix
     end
   end
 end)
