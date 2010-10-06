@@ -1,4 +1,9 @@
 
+== Version 1.4.1 10/6/2010 ==
+
+* Break cleanly on WoW 4.0 instead of messily
+* That's all, folks. Thanks for the memories!
+
 == Version 1.4.0 5/5/2010 ==
 
 * Added a configuration system (okay, the excellent configuration from the UI mod QuestHelperConfig)
@@ -27,7 +32,7 @@ As WoW has changed, so has my situation.
 
 * I don't quest anymore. I always enjoyed dungeons more, and with the 3.3 LFD changes, pretty much all of my playtime is now spent in dungeons. I imagine I'll level up a Worgen through quests once Cataclysm comes out, just to see the new quests, but that's about it.
 
-* On top of that, I don't really play much anymore. I've got other huge projects on my plate (come visit http://www.mandible.net). I originally picked up WoW to play with friends and to learn from Blizzard's design expertise. All the friends I originally joined have quit, I started raiding and then stopped again, and, minus the changes coming up in Cataclysm, I feel like I've learned everything I'm going to from Blizzard, and learned quite a few things that Blizzard could stand to learn.
+* On top of that, I don't really play much anymore. I've got other huge projects on my plate (come visit http://www.mandible.net). I originally picked up WoW to play with friends and to learn from Blizzard's design expertise. All the friends I originally joined with have quit, I started raiding and then stopped again, and, minus the changes coming up in Cataclysm, I feel like I've learned everything I'm going to from Blizzard, and learned quite a few things that Blizzard could stand to learn.
 
 (Hey, Blizzard. Hire me to balance your classes. You want me. Trust me on this. I'll make your game sing.)
 
