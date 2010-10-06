@@ -76,6 +76,7 @@ QuestHelper_Translations.enUS =
   PLEASE_SUBMIT = "%h(Submitted your data to QuestHelper lately?) QuestHelper relies on user-submitted data to keep its database accurate. If you have a few minutes, head to the QuestHelper homepage at %h(http://www.questhelp.us) and follow the instructions. Thanks!",
   HOW_TO_CONFIGURE = "QuestHelper does not yet have a working settings page, but can be configured by typing %h(/qh settings). Help is available with %h(/qh help).",
   TIME_TO_UPDATE = "There may be a %h(new QuestHelper version) available. New versions usually include new features, new quest databases, and bugfixes. Please update!",
+  NO_CATACLYSM = "QuestHelper doesn't support WoW 4.0, either before or after the Cataclysm. Sorry. It's been a good run, but you'll need to find your own way from now on.\n\n(Disable QuestHelper in your addons to make this popup go away.)",
   
   -- Route related text.
   ROUTES_CHANGED = "The flight routes for your character have been altered.",

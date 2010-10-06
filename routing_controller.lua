@@ -532,4 +532,6 @@ local function process()
   end
 end
 
-QH_Timeslice_Add(process, "new_routing")
+if GetBuildInfo():sub(1, 1) ~= "4" then
+  QH_Timeslice_Add(process, "new_routing")
+end

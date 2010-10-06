@@ -328,7 +328,12 @@ QH_Event("ADDON_LOADED", function (addonid)
       ["AstrolabeQH/Astrolabe.lua"] = true,
       ["AstrolabeQH/AstrolabeMapMonitor.lua"] = true,
     }
-    
+  
+  if GetBuildInfo():sub(1, 1) == "4" then
+    QH_fixedmessage(QHText("NO_CATACLYSM"))
+    return
+  end
+  
   local uninstallederr = ""
 
   for file, version in pairs(QuestHelper_File) do
