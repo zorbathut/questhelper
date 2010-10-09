@@ -105,26 +105,28 @@ local function ScanQuests()
       for i = 1, GetNumQuestLeaderBoards(index) do
         local desc, _, done = GetQuestLogLeaderBoard(i, index)
         
-        if not qlookups[title][desc] then qlookups[title][desc] = {} end
-        table.insert(qlookups[title][desc], {qid = id, obj = i})
+        if desc then
+          if not qlookups[title][desc] then qlookups[title][desc] = {} end
+          table.insert(qlookups[title][desc], {qid = id, obj = i})
         
-        -- If we wanted to parse everything here, we'd do something very complicated.
-        -- Fundamentally, we don't. We only care if numeric values change or if something goes from "not done" to "done".
-        -- Luckily, the patterns are identical in all cases for this (I think.)
-        local have, needed = string.match(desc, "^.*: (%d+)/(%d+)$")
-        have = tonumber(have)
-        needed = tonumber(needed)
+          -- If we wanted to parse everything here, we'd do something very complicated.
+          -- Fundamentally, we don't. We only care if numeric values change or if something goes from "not done" to "done".
+          -- Luckily, the patterns are identical in all cases for this (I think.)
+          local have, needed = string.match(desc, "^.*: (%d+)/(%d+)$")
+          have = tonumber(have)
+          needed = tonumber(needed)
         
-        --[[QuestHelper:TextOut(desc)
-        QuestHelper:TextOut("^.*: (%d+)/(%d+)(" .. complete_suffix .. ")?$")
-        QuestHelper:TextOut(string.gsub(desc, complete_suffix, ""))
-        QuestHelper:TextOut(string.format("%s %s", tostring(have), tostring(needed)))]]
-        if not have or not needed then
-          have = done and 1 or 0
-          needed = 1  -- okay so we don't really use this unless we're debugging, shut up >:(
+          --[[QuestHelper:TextOut(desc)
+          QuestHelper:TextOut("^.*: (%d+)/(%d+)(" .. complete_suffix .. ")?$")
+          QuestHelper:TextOut(string.gsub(desc, complete_suffix, ""))
+          QuestHelper:TextOut(string.format("%s %s", tostring(have), tostring(needed)))]]
+          if not have or not needed then
+            have = done and 1 or 0
+            needed = 1  -- okay so we don't really use this unless we're debugging, shut up >:(
+          end
+        
+          dbx[id][i] = have
         end
-        
-        dbx[id][i] = have
       end
     end
     
