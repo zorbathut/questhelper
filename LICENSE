@@ -42,7 +42,7 @@ utility.lua
 lang/*
 Art/*
 
-All other files are (c) Ben Wilhelm, all rights reserved. This includes, but is not limited to:
+All other files are (c) Ben Wilhelm, licensed under the GPL. This includes, but is not limited to:
 
 core.lua
 collect.lua
@@ -55,5 +55,3 @@ db_*.lua
 static_*.lua
 graph_*.lua (not graph.lua itself, however)
 filter_*.lua
-
-All of these files have very restricted interfaces, making them suitable for inclusion in an otherwise LGPL codebase. If you feel that the coupling between the closed-sourced and LGPL sections is too tight, please let me know what I can do to improve things.
